@@ -104,6 +104,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceID:             mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey1.ID,
 			ServiceItemParamKey:   serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
@@ -147,6 +148,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceID:             mtoServiceItem2.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey1.ID,
 			ServiceItemParamKey:   serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 
@@ -294,7 +296,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
+		suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 7")
 		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
 
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {

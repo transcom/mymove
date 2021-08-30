@@ -5,8 +5,16 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/notifications/mocks"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,9 +23,21 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The OfficeUserCreator needs a NotificationSender for sending user activity emails to admins.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := mocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
+}
+
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 	queryBuilder := query.NewQueryBuilder()
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: models.User{
@@ -27,6 +47,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		},
 	})
 
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",
 		FirstName:              "Leo",
@@ -36,7 +57,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		TransportationOffice:   transportationOffice,
 	}
 
-	// Happy path
+	// Happy path - creates a new User as well
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
@@ -58,14 +79,16 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeCreateOne:            queryBuilder.CreateOne,
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewOfficeUserCreator(builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewOfficeUserCreator(builder, mockSender)
+		officeUser, verrs, err := creator.CreateOfficeUser(appCtx, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
 		suite.Equal(officeUser.User.ID, *officeUser.UserID)
 		suite.Equal(userInfo.Email, officeUser.User.LoginGovEmail)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
 	})
 
 	// Reuses existing user if it's already been created for an admin or service member
@@ -97,13 +120,15 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewOfficeUserCreator(builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(suite.TestAppContext(), &existingUserInfo, filter)
+		creator := NewOfficeUserCreator(builder, mockSender)
+		officeUser, verrs, err := creator.CreateOfficeUser(appCtx, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
 		suite.Equal(officeUser.User.ID, *officeUser.UserID)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
 	})
 
 	// Bad transportation office ID
@@ -116,8 +141,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewOfficeUserCreator(builder)
-		_, _, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewOfficeUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateOfficeUser(appCtx, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 
@@ -161,8 +186,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(builder)
-		_, verrs, _ := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewOfficeUserCreator(builder, setUpMockNotificationSender())
+		_, verrs, _ := creator.CreateOfficeUser(appCtx, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
@@ -199,8 +224,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(builder)
-		_, _, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewOfficeUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateOfficeUser(appCtx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

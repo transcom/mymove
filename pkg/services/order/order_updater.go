@@ -2,6 +2,7 @@ package order
 
 import (
 	"io"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -177,7 +178,8 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	}
 
 	if payload.Tac != nil {
-		order.TAC = payload.Tac
+		normalizedTac := strings.ToUpper(*payload.Tac)
+		order.TAC = &normalizedTac
 	}
 
 	if payload.OrdersType != nil {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
+import { generatePath } from 'react-router';
 import { GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -7,9 +8,11 @@ import classnames from 'classnames';
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
+import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
+import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
@@ -18,6 +21,7 @@ import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 const sectionLabels = {
+  'billable-weights': 'Billable weights',
   'payment-requests': 'Payment requests',
 };
 
@@ -27,11 +31,12 @@ const MovePaymentRequests = ({
   setPendingPaymentRequestCount,
 }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
 
-  const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
-    return ['payment-requests'];
+    return ['billable-weights', 'payment-requests'];
   }, []);
 
   useEffect(() => {
@@ -87,6 +92,10 @@ const MovePaymentRequests = ({
     });
   }
 
+  const handleReviewWeightsClick = () => {
+    history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+  };
+
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -102,6 +111,21 @@ const MovePaymentRequests = ({
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
+          <div className={txoStyles.section} id="billable-weights">
+            {/* TODO
+                totalBillableWeights needs to be calculated using serviceObject from MB-9278
+                weightRequested needs to be calculated using the serviceObject from MB-9278
+              */}
+            <BillableWeightCard
+              maxBillableWeight={order?.entitlement?.authorizedWeight}
+              totalBillableWeight={0}
+              weightRequested={0}
+              weightAllowance={order?.entitlement?.totalWeight}
+              onReviewWeights={handleReviewWeightsClick}
+              shipments={mtoShipments}
+            />
+          </div>
+          <h2>Payment requests</h2>
           <div className={txoStyles.section} id="payment-requests">
             {paymentRequests.length ? (
               paymentRequests.map((paymentRequest) => (

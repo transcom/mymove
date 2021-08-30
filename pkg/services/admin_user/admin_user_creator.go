@@ -3,6 +3,8 @@ package adminuser
 import (
 	"strings"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -14,10 +16,15 @@ import (
 
 type adminUserCreator struct {
 	builder adminUserQueryBuilder
+	sender  notifications.NotificationSender
 }
 
 // CreateAdminUser creates admin user
-func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
+func (o *adminUserCreator) CreateAdminUser(
+	appCtx appcontext.AppContext,
+	admin *models.AdminUser,
+	organizationIDFilter []services.QueryFilter,
+) (*models.AdminUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have an organization that matches the provided id
 	var organization models.Organization
 	fetchErr := o.builder.FetchOne(appCtx, &organization, organizationIDFilter)
@@ -40,6 +47,7 @@ func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *
 
 	var verrs *validate.Errors
 	var err error
+	var userActivityEmail notifications.Notification
 	// We don't want to be left with a user record and no admin user so setup a transaction to rollback
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if user.ID == uuid.Nil {
@@ -47,6 +55,13 @@ func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *
 			if verrs != nil || err != nil {
 				return err
 			}
+
+			email, emailErr := notifications.NewUserAccountCreated(
+				appCtx, notifications.GetSysAdminEmail(o.sender), user.ID, user.UpdatedAt)
+			if emailErr != nil {
+				return emailErr
+			}
+			userActivityEmail = notifications.Notification(email)
 		}
 
 		admin.UserID = &user.ID
@@ -64,10 +79,17 @@ func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *
 		return nil, verrs, txErr
 	}
 
+	if userActivityEmail != nil {
+		err = o.sender.SendNotification(userActivityEmail)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	return admin, nil, nil
 }
 
 // NewAdminUserCreator returns a new admin user creator builder
-func NewAdminUserCreator(builder adminUserQueryBuilder) services.AdminUserCreator {
-	return &adminUserCreator{builder}
+func NewAdminUserCreator(builder adminUserQueryBuilder, sender notifications.NotificationSender) services.AdminUserCreator {
+	return &adminUserCreator{builder, sender}
 }

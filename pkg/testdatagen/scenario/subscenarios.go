@@ -216,7 +216,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createTXOServicesUSMCCounselor(appCtx)
 
 		// A move with missing required order fields
-		createMoveWithHHGMissingOrdersInfo(appCtx, moveRouter)
+		createMoveWithHHGMissingOrdersInfo(appCtx, moveRouter, userUploader)
 
 		createHHGMoveWith10ServiceItems(appCtx, userUploader)
 		createHHGMoveWith2PaymentRequests(appCtx, userUploader)

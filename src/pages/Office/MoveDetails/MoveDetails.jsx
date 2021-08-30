@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import handleScroll from 'utils/handleScroll';
-import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
@@ -106,6 +106,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   useEffect(() => {
     let estimatedWeightCalc = null;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
@@ -115,10 +116,12 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
         }, 0);
     }
 
-    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight)) {
+    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
     }
-  }, [mtoShipments, setExcessWeightRiskCount, order]);
+  }, [mtoShipments, setExcessWeightRiskCount, order, move]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

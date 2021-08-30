@@ -417,7 +417,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appcontext.AppContext, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// Pricing/pricer functions will create the params originating from pricers. Nothing to do here.
 	if serviceParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
-		return &models.PaymentServiceItemParam{}, nil
+		return nil, nil
 	}
 
 	// key not found in map
@@ -428,10 +428,10 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appconte
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
 	}
 
-	// Estimated weight is optional for shipment, do not try to save to the database if the
-	// the value is an empty string
-	if value == "" && serviceParam.ServiceItemParamKey.Key == models.ServiceItemParamNameWeightEstimated {
-		return &models.PaymentServiceItemParam{}, nil
+	// Some params are considered optional.  If this is an optional param and the value is an empty string,
+	// do not try to save to the database.
+	if value == "" && serviceParam.IsOptional {
+		return nil, nil
 	}
 
 	paymentServiceItemParam := models.PaymentServiceItemParam{
