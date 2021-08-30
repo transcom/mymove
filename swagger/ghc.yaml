@@ -599,7 +599,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
-    patch:
+   patch:
       summary: updateMTOShipment
       description: |
         Updates a specified MTO shipment.
@@ -610,7 +610,7 @@ paths:
         * No fields required in body
 
         Optional fields include:
-        * New shipment status type
+         * New shipment status type
         * Shipment Type
         * Customer requested pick-up date
         * Pick-up Address
@@ -2907,6 +2907,14 @@ definitions:
         type: string
         example: counselor approved
         x-nullable: true
+      billableWeightJustification:
+        type: string
+        example: service member needed extra weight
+        x-nullable: true
+      billableWeightCap:
+        example: 2000
+        type: integer
+        x-formatting: weight
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
