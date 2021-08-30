@@ -625,7 +625,6 @@ const testParams = {
     PriceRateOrFactor,
     RequestedPickupDate,
     CubicFeetBilled,
-    PriceRateOrFactor,
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,

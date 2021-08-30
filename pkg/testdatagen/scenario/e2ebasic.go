@@ -13,6 +13,7 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -1839,7 +1840,7 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		},
 	})
 
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	paymentRequestHHG := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
 			MoveTaskOrder:   mto,
@@ -1852,7 +1853,7 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 
 	// for soft deleted proof of service docs
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
+		PaymentRequest: paymentRequestHHG,
 	})
 
 	deletedAt := time.Now()
@@ -1884,7 +1885,7 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &msCost,
 		},
-		PaymentRequest: paymentRequest,
+		PaymentRequest: paymentRequestHHG,
 		MTOServiceItem: serviceItemMS,
 	})
 
@@ -1893,7 +1894,7 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 	approvedAtTime := time.Now()
 	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894b"),
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24934894h"),
 			Status:          models.MTOServiceItemStatusApproved,
 			ApprovedAt:      &approvedAtTime,
 			EstimatedWeight: &estimatedWeight,
@@ -1910,12 +1911,11 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &doshutCost,
 		},
-		PaymentRequest: paymentRequest,
+		PaymentRequest: paymentRequestHHG,
 		MTOServiceItem: serviceItemDOSHUT,
 	})
 
 	currentTime := time.Now()
-	const testDateFormat = "060102"
 
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
@@ -1926,22 +1926,32 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(testDateFormat),
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilledActual,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameWeightEstimated,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip5,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "24245",
+			Value:   "1400",
 		},
 	}
 
@@ -1952,7 +1962,104 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		testdatagen.Assertions{
 			Move:           mto,
 			MTOShipment:    mtoShipmentHHG,
-			PaymentRequest: paymentRequest,
+			PaymentRequest: paymentRequestHHG,
+		},
+	)
+
+	// Crating service item
+	dcrtCost := unit.Cents(623)
+	approvedAtTimeCRT := time.Now()
+	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894c"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTimeCRT,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipmentHHG,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Dom Crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequestHHG,
+		MTOServiceItem: serviceItemDCRT,
+	})
+
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		db,
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipmentHHG,
+			PaymentRequest: paymentRequestHHG,
 		},
 	)
 
@@ -1971,7 +2078,7 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &dlhCost,
 		},
-		PaymentRequest: paymentRequest,
+		PaymentRequest: paymentRequestHHG,
 		MTOServiceItem: serviceItemDLH,
 	})
 

@@ -96,12 +96,37 @@ describe('TIO user', () => {
     cy.wait('@patchPaymentServiceItemStatus');
     cy.contains('Next').click();
 
-    // Approve the shuttling/crating service item
+    // Approve the shuttling service item
 
     // Confirm TIO can view the calculations
     cy.contains('Show calculations').click();
     cy.get('[data-testid="ServiceItemCalculations"]').contains('Calculations');
     cy.get('[data-testid="ServiceItemCalculations"]').contains('Total amount requested');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Service schedule: 2');
+
+    // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
+    cy.contains('Hide calculations').click();
+
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Approve the second service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Approve the crating service item
+
+    // Confirm TIO can view the calculations
+    cy.contains('Show calculations').click();
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Calculations');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Total amount requested');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Dimensions: 12x3x10 in');
 
     // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
     cy.contains('Hide calculations').click();
@@ -122,8 +147,8 @@ describe('TIO user', () => {
     // Complete Request
     cy.contains('Complete request');
 
-    cy.get('[data-testid="requested"]').contains('$1,115.10');
-    cy.get('[data-testid="accepted"]').contains('$115.11');
+    cy.get('[data-testid="requested"]').contains('$1,130.21');
+    cy.get('[data-testid="accepted"]').contains('$130.22');
     cy.get('[data-testid="rejected"]').contains('$999.99');
 
     cy.contains('Authorize payment').click();
