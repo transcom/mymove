@@ -110,7 +110,7 @@ describe('makeSwaggerRequest', () => {
 
     const mockClient = await mockGetClient(opMock);
 
-    await makeSwaggerRequest(mockClient, 'shipments.getShipment', { shipmentID: 'abcd-1234' }).catch((error) => {
+    await makeSwaggerRequest(mockClient, 'shipments.getShipment', { shipmentID: 'abcd-1234' }).catch(async (error) => {
       expect(error).toEqual(mockResponse);
     });
   });
