@@ -1941,12 +1941,12 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 			Value:   "004",
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightActual,
+			Key:     models.ServiceItemParamNameWeightOriginal,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "1400",
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
 		},
