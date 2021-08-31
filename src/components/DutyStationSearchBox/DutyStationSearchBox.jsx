@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 import AsyncSelect from 'react-select/async';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import styles from './DutyStationSearchBox.module.scss';
 
 import { SearchDutyStations, ShowAddress } from 'scenes/ServiceMembers/api';
+import { DutyStationShape } from 'types';
 
 const getOptionName = (option) => (option ? option.name : '');
 
@@ -45,8 +46,10 @@ const customStyles = {
 };
 
 export const DutyStationSearchBoxComponent = (props) => {
-  const { searchDutyStations, title, input, name, errorMsg } = props;
-  const { name: inputName } = input;
+  const { searchDutyStations, showAddress, title, input, name, errorMsg, displayAddress } = props;
+  const { value, onChange, name: inputName } = input;
+
+  const [inputValue, setInputValue] = useState('');
 
   const loadOptions = async (query) => {
     if (!query) {
@@ -61,9 +64,29 @@ export const DutyStationSearchBoxComponent = (props) => {
     }
   };
 
+  const selectOption = async (selectedValue) => {
+    if (selectedValue && selectedValue.id) {
+      const newValue = {
+        ...selectedValue,
+        address: await showAddress(selectedValue.address_id),
+      };
+
+      onChange(newValue);
+      return newValue;
+    }
+
+    onChange(null);
+    return null;
+  };
+
+  const changeInputText = (text) => {
+    setInputValue(text);
+  };
+
   const inputId = `${name}-input`;
 
   const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
+  const locationClasses = classNames('location', { 'location-error': errorMsg });
   const labelClasses = classNames(styles.title, {
     [styles.titleWithError]: errorMsg,
   });
@@ -71,6 +94,8 @@ export const DutyStationSearchBoxComponent = (props) => {
     [inputName]: true,
     'duty-input-box-error': errorMsg,
   });
+
+  const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
 
   return (
     <FormGroup>
@@ -86,10 +111,19 @@ export const DutyStationSearchBoxComponent = (props) => {
           getOptionLabel={getOptionName}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
+          onChange={selectOption}
+          onInputChange={changeInputText}
           placeholder="Start typing a duty station..."
           styles={customStyles}
+          value={value}
+          noOptionsMessage={noOptionsMessage}
         />
       </div>
+      {displayAddress && !!value && (
+        <p className={locationClasses}>
+          {value.address.city}, {value.address.state} {value.address.postal_code}
+        </p>
+      )}
       {errorMsg && <span className="usa-error-message">{errorMsg}</span>}
     </FormGroup>
   );
@@ -100,28 +134,32 @@ export const DutyStationSearchBoxContainer = (props) => {
 };
 
 DutyStationSearchBoxContainer.propTypes = {
+  displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
   title: PropTypes.string,
   input: PropTypes.shape({
     name: PropTypes.string,
-    // onChange: PropTypes.func,
+    onChange: PropTypes.func,
+    value: DutyStationShape,
   }),
 };
 
 DutyStationSearchBoxContainer.defaultProps = {
+  displayAddress: true,
   title: 'Name of Duty Station:',
   errorMsg: '',
   input: {
     name: '',
-    // onChange: () => {},
+    onChange: () => {},
+    value: undefined,
   },
 };
 
 DutyStationSearchBoxComponent.propTypes = {
   ...DutyStationSearchBoxContainer.propTypes,
   searchDutyStations: PropTypes.func.isRequired,
-  // showAddress: PropTypes.func.isRequired,
+  showAddress: PropTypes.func.isRequired,
 };
 
 DutyStationSearchBoxComponent.defaultProps = {

@@ -126,61 +126,81 @@ const testStations = [
   },
 ];
 
-const value = {
+const baseValue = {
   ...testStations[2],
   address: { ...testAddress },
 };
 
-const searchDutyStations = async () => {
+const mockSearchDutyStations = async () => {
   return testStations;
 };
 
-const showAddress = async () => {
+const mockShowAddress = async () => {
   return testAddress;
 };
 
 export const standard = () => {
+  let value;
+  const onChange = (newValue) => {
+    value = newValue;
+  };
+
   return (
     <DutyStationSearchBoxComponent
-      input={{ name: 'test_component' }}
+      input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyStations={searchDutyStations}
-      showAddress={showAddress}
+      searchDutyStations={mockSearchDutyStations}
+      showAddress={mockShowAddress}
     />
   );
 };
 
 export const withValue = () => {
+  let value = { ...baseValue };
+  const onChange = (newValue) => {
+    value = newValue;
+  };
+
   return (
     <DutyStationSearchBoxComponent
-      input={{ name: 'test_component', value }}
+      input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       displayAddress={false}
-      searchDutyStations={searchDutyStations}
-      showAddress={showAddress}
+      searchDutyStations={mockSearchDutyStations}
+      showAddress={mockShowAddress}
     />
   );
 };
 
 export const withValueAndAddress = () => {
+  let value = { ...baseValue };
+  const onChange = (newValue) => {
+    value = newValue;
+  };
+
   return (
     <DutyStationSearchBoxComponent
-      input={{ name: 'test_component', value }}
+      input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyStations={searchDutyStations}
-      showAddress={showAddress}
+      searchDutyStations={mockSearchDutyStations}
+      showAddress={mockShowAddress}
     />
   );
 };
 
 export const withErrorMessage = () => {
+  let value;
+  const onChange = (newValue) => {
+    value = newValue;
+  };
+
   return (
     <DutyStationSearchBoxComponent
-      input={{ name: 'test_component' }}
+      input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       errorMsg="Something went wrong"
-      searchDutyStations={searchDutyStations}
-      showAddress={showAddress}
+      searchDutyStations={mockSearchDutyStations}
+      showAddress={mockShowAddress}
     />
   );
 };
@@ -190,11 +210,13 @@ export const referenceStandard = () => {
 };
 
 export const referenceWithValue = () => {
-  return <Reference input={{ name: 'test_component', value }} title="Test Component" displayAddress={false} />;
+  return (
+    <Reference input={{ name: 'test_component', value: baseValue }} title="Test Component" displayAddress={false} />
+  );
 };
 
 export const referenceWithValueAndAddress = () => {
-  return <Reference input={{ name: 'test_component', value }} title="Test Component" />;
+  return <Reference input={{ name: 'test_component', value: baseValue }} title="Test Component" />;
 };
 
 export const referenceWithErrorMessage = () => {
