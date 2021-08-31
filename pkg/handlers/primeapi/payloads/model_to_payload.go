@@ -381,6 +381,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
@@ -416,10 +417,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 
 	if mtoShipment.PrimeActualWeight != nil {
 		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
-	}
-
-	if mtoShipment.Reweigh != nil {
-		payload.Reweigh = Reweigh(mtoShipment.Reweigh)
 	}
 
 	return payload
@@ -552,7 +549,7 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 
 // Reweigh returns the reweigh payload
 func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
-	if reweigh == nil {
+	if reweigh.ID == uuid.Nil {
 		return nil
 	}
 
