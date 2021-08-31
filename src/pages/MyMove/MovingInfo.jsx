@@ -73,14 +73,14 @@ export class MovingInfo extends Component {
                 </p>
               </IconSection>
               <IconSection icon="truck-moving" headline="If you use movers, they will:">
-                <span>
+                <div>
                   <ul>
                     <li>Help estimate how much your belongings weigh</li>
                     <li>Set pack and pickup dates based on your preferred pickup date</li>
                     <li>Contact you after you talk to a move counselor</li>
                     <li>Be your main point of contact during your move</li>
                   </ul>
-                </span>
+                </div>
               </IconSection>
               <IconSection icon="car" headline="It's common to move some things yourself.">
                 <p>
