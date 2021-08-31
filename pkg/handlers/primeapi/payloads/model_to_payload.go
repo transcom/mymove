@@ -552,6 +552,10 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 
 // Reweigh returns the reweigh payload
 func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
+	if reweigh == nil {
+		return nil
+	}
+
 	payload := &primemessages.Reweigh{
 		ID:                     strfmt.UUID(reweigh.ID.String()),
 		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
