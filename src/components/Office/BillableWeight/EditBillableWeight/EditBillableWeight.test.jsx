@@ -10,6 +10,7 @@ describe('EditBillableWeight', () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const defaultProps = {
+      title: 'Max billable weight',
       weightAllowance: 8000,
       estimatedWeight: 13750,
     };
@@ -21,6 +22,7 @@ describe('EditBillableWeight', () => {
 
   it('clicking edit button shows different view', () => {
     const defaultProps = {
+      title: 'Max billable weight',
       weightAllowance: 8000,
       estimatedWeight: 13750,
     };
@@ -31,7 +33,7 @@ describe('EditBillableWeight', () => {
     expect(screen.queryByText('Edit')).toBeNull();
     // weights
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(defaultProps.estimatedWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     // buttons
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
