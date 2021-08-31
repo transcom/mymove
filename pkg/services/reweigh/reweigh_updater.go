@@ -27,8 +27,6 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
-	fmt.Println("🎉🎉🎉🎉🎉🎉")
-	fmt.Println(reweigh.ID)
 	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")

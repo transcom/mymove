@@ -2061,6 +2061,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -2502,6 +2505,7 @@ func init() {
       ]
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2523,9 +2527,6 @@ func init() {
         },
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
         },
         "shipmentID": {
           "type": "string",
@@ -5348,6 +5349,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -5789,6 +5793,7 @@ func init() {
       ]
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -5810,9 +5815,6 @@ func init() {
         },
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
         },
         "shipmentID": {
           "type": "string",

@@ -1795,6 +1795,8 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      reweigh:
+        $ref: '#/definitions/Reweigh'
       mtoServiceItems:
         description: A list of service items connected to this shipment.
         items:
@@ -2124,6 +2126,9 @@ definitions:
       - NSTH
       - NSTUB
   Reweigh:
+    description:
+      A reweigh  is when a shipment is weighed for a second time due
+      to the request of a customer, the contractor, system or TOO.
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -2154,8 +2159,6 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      shipment:
-        $ref: '#/definitions/MTOShipment'
       createdAt:
         format: date-time
         type: string

@@ -418,6 +418,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
 	}
 
+	if mtoShipment.Reweigh != nil {
+		payload.Reweigh = Reweigh(mtoShipment.Reweigh)
+	}
+
 	return payload
 }
 
@@ -559,7 +563,6 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
 		VerificationReason:     handlers.FmtStringPtr(reweigh.VerificationReason),
 		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
-		Shipment:               MTOShipment(&reweigh.Shipment),
 	}
 
 	return payload

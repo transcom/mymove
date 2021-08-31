@@ -1,8 +1,6 @@
 package primeapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -31,10 +29,6 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 
 	// Get the new reweigh model
 	newReweigh := payloads.ReweighModelFromUpdate(payload, params.ReweighID, params.MtoShipmentID)
-	fmt.Println("🍉🍉🍉🍉🍉")
-	fmt.Println(newReweigh.ID)
-	fmt.Println(newReweigh.ShipmentID)
-	fmt.Println(newReweigh.Weight)
 
 	// Call the service object
 	updatedReweigh, err := h.ReweighUpdater.UpdateReweigh(appCtx, newReweigh, eTag)
