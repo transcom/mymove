@@ -617,10 +617,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			Status: models.MTOShipmentStatusApproved,
 		},
 	})
+	rejectionReason := "exotic animals are banned"
 	rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusRejected,
+			Status:          models.MTOShipmentStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted

@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"strings"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -28,7 +30,7 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 	}
 
 	db := h.DB()
-	isValid, err := db.Where("tac = $1", params.Tac).Exists(&models.TransportationAccountingCode{})
+	isValid, err := db.Where("tac = $1", strings.ToUpper(params.Tac)).Exists(&models.TransportationAccountingCode{})
 
 	if err != nil {
 		logger.Error("Error looking for transportation accounting code", zap.Error(err))

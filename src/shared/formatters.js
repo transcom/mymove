@@ -4,8 +4,8 @@ import numeral from 'numeral';
 import path from 'path';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { MOVE_STATUS_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS } from 'constants/queues';
@@ -375,4 +375,9 @@ export const formatDaysInTransit = (days) => {
   } else {
     return '0 days';
   }
+};
+
+export const formatAddressShort = (address) => {
+  const { city, state, postal_code } = address;
+  return `${city}, ${state} ${postal_code}`;
 };

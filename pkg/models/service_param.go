@@ -14,6 +14,7 @@ type ServiceParam struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	ServiceID             uuid.UUID `json:"service_id" db:"service_id"`
 	ServiceItemParamKeyID uuid.UUID `json:"service_item_param_key_id" db:"service_item_param_key_id"`
+	IsOptional            bool      `json:"is_optional" db:"is_optional"`
 	CreatedAt             time.Time `db:"created_at"`
 	UpdatedAt             time.Time `db:"updated_at"`
 

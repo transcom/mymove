@@ -104,7 +104,8 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 // AppContextFromRequest builds an AppContext from the http request
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	// use LoggerFromRequest to get the most specific logger
-	return appcontext.NewAppContext(hctx.db, hctx.LoggerFromRequest(r))
+	return appcontext.WithSession(appcontext.NewAppContext(
+		hctx.db, hctx.LoggerFromRequest(r)), hctx.SessionFromRequest(r))
 }
 
 func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {

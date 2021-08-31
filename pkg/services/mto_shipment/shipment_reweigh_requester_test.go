@@ -38,9 +38,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	})
 
 	suite.T().Run("When the shipment is not in a permitted status, returns a ConflictError", func(t *testing.T) {
+		rejectionReason := "rejection reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
 			},
 		})
 

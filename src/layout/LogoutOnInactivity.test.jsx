@@ -4,12 +4,19 @@ import IdleTimer from 'react-idle-timer';
 
 import { LogoutOnInactivity } from './LogoutOnInactivity';
 
+const history = {
+  goBack: jest.fn(),
+  push: jest.fn(),
+};
+
+const logOut = jest.fn();
+
 function mountIdleTimer() {
-  return mount(<LogoutOnInactivity isLoggedIn />);
+  return mount(<LogoutOnInactivity isLoggedIn history={history} logOut={logOut} />);
 }
 
 function mountIdleTimerWithLoggedOutUser() {
-  return mount(<LogoutOnInactivity />);
+  return mount(<LogoutOnInactivity history={history} logOut={logOut} />);
 }
 
 describe('LogoutOnInactivity', () => {

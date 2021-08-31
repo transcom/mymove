@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
 import { isEmpty, uniq } from 'lodash';
-import { reduxForm, Field } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import 'shared/JsonSchemaForm/index.css';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 

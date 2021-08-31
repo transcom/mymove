@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { deleteMoveDocument, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
