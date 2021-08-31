@@ -165,10 +165,7 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			MTOServiceItem:   mtoServiceItem,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, mtoServiceItem.ReService)
-		if err != nil {
-			return nil, verrs, err
-		}
+		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
@@ -180,20 +177,18 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, verrs, nil
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem, reService models.ReService) (models.PaymentServiceItemParams, error) {
-	/************
-	  ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
-	  there were params sent. If there were params in via the create payment request then we will error out.
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+	var paymentServiceItemParams models.PaymentServiceItemParams
 
-	  Currently not expecting the prime to provide any params. This might change as we continue adding service items
-	  for billing and then we'll have to adjust which service items allow incoming params at that time.
-	***********/
+	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
+		paymentServiceItemParam := models.PaymentServiceItemParam{
+			// ID and PaymentServiceItemID to be filled in when payment request is created
+			IncomingKey: payloadServiceItemParam.Key,
+			Value:       payloadServiceItemParam.Value,
+		}
 
-	if len(payloadMTOServiceItem.Params) > 0 {
-		// if not in this function it can also be done up top
-		return models.PaymentServiceItemParams{}, fmt.Errorf("updating service item params not allowed for service item [%s] with MTO Service UUID: %s", reService.Name, payloadMTOServiceItem.ID)
-
+		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
 	}
 
-	return models.PaymentServiceItemParams{}, nil
+	return paymentServiceItemParams
 }

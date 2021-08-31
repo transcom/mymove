@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
-	suite.Run("fail to create payment request adding service item params passed into payload", func() {
+	suite.Run("successfully create payment request with service item params passed into payload", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 		returnedPaymentRequest := models.PaymentRequest{
 			ID:                   subtestData.paymentRequestID,
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
 	suite.Run("failed create payment request -- nil body", func() {
