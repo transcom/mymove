@@ -138,7 +138,7 @@ export class Home extends Component {
           coordinate any changes to your move.
           <br />
           <br />
-          You don&apos;t need to do anything else in MilMove.
+          <span className={styles.alertSecondMsg}>You don&apos;t need to do anything else in MilMove.</span>
         </Alert>
       );
     }
