@@ -16,7 +16,7 @@ jest.mock('services/internalApi', () => ({
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
+jest.mock('components/DutyStationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([

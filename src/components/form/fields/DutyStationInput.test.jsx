@@ -5,7 +5,7 @@ import AsyncSelect from 'react-select/async';
 
 import { DutyStationInput } from './DutyStationInput';
 
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();
@@ -24,7 +24,7 @@ jest.mock('formik', () => {
   };
 });
 
-jest.mock('scenes/ServiceMembers/api', () => {
+jest.mock('components/DutyStationSearchBox/api', () => {
   return {
     ShowAddress: () => new Promise((resolve) => resolve(43)),
   };

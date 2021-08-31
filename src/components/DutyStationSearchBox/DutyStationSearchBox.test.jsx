@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from './DutyStationSearchBox';
 
 const testAddress = {
   city: 'Glendale Luke AFB',
@@ -121,7 +121,7 @@ const testStations = [
   },
 ];
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
+jest.mock('./api.js', () => ({
   SearchDutyStations: async (search) => {
     if (search === 'empty') {
       return [];
@@ -138,26 +138,29 @@ jest.mock('scenes/ServiceMembers/api.js', () => ({
   },
 }));
 
-describe('scenes/ServiceMembers/DutyStationSearchBox', () => {
+describe('DutyStationSearchBox', () => {
   describe('basic rendering', () => {
     it('renders with minimal props', () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} />);
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} name="test_component" />);
       expect(screen.getByLabelText('Name of Duty Station:')).toBeInTheDocument();
     });
 
     it('renders the title', () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" />);
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} name="test_component" title="Test Component" />);
       expect(screen.getByLabelText('Test Component')).toBeInTheDocument();
     });
 
     it('renders an error message', () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} errorMsg="Test Error Message" />);
+      render(
+        <DutyStationSearchBox input={{ name: 'test_component' }} name="test_component" errorMsg="Test Error Message" />,
+      );
       expect(screen.getByText('Test Error Message')).toBeInTheDocument();
     });
 
     it('renders a value passed in via prop', () => {
       render(
         <DutyStationSearchBox
+          name="test_component"
           input={{
             name: 'test_component',
             value: {
@@ -174,6 +177,7 @@ describe('scenes/ServiceMembers/DutyStationSearchBox', () => {
     it('can render without the address', () => {
       render(
         <DutyStationSearchBox
+          name="test_component"
           displayAddress={false}
           input={{
             name: 'test_component',
@@ -191,46 +195,57 @@ describe('scenes/ServiceMembers/DutyStationSearchBox', () => {
 
   describe('updating options based on text', () => {
     it('searches user input and renders options', async () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test-component" />);
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
-      const option = await screen.findByText('Luke');
+      const option = await screen.findByText('Luke AFB');
       expect(option).toBeInTheDocument();
 
-      const optionsContainer = option.closest('div').parentElement.parentElement;
+      const optionsContainer = option.closest('div').parentElement;
       expect(optionsContainer.children.length).toEqual(7);
     });
 
     it('searches user input and renders a message if empty', async () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" />);
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       userEvent.type(screen.getByLabelText('Test Component'), 'empty');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
-    it('searches user input and renders an alert if server error', async () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" />);
-      userEvent.type(screen.getByLabelText('Test Component'), 'broken');
-
-      expect(await screen.findByText('Server returned an error')).toBeInTheDocument();
-    });
-
     it("doesnt search if user input isn't 2+ characters in length", async () => {
-      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" />);
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       userEvent.type(screen.getByLabelText('Test Component'), '1');
 
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(await screen.findByText('No Options')).toBeInTheDocument();
+    });
+
+    it('handles server errors', async () => {
+      render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      userEvent.type(screen.getByLabelText('Test Component'), 'broken');
+
+      expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
   });
 
   describe('selecting options', () => {
     it('selects an option, calls the onChange callback prop', async () => {
       const onChange = jest.fn();
-      render(<DutyStationSearchBox input={{ name: 'test_component', onChange }} title="Test Component" />);
+      render(
+        <DutyStationSearchBox
+          input={{ name: 'test_component', onChange }}
+          title="Test Component"
+          name="test_component"
+        />,
+      );
       userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
-      userEvent.click(await screen.findByText('Luke'));
+      userEvent.click(await screen.findByText('Luke AFB'));
 
-      await waitFor(() => expect(onChange).toHaveBeenCalledWith(testStations[2]));
+      await waitFor(() =>
+        expect(onChange).toHaveBeenCalledWith({
+          ...testStations[2],
+          address: testAddress,
+        }),
+      );
     });
   });
 });

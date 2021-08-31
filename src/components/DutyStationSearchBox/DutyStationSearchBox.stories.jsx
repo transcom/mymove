@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { DutyStationSearchBoxComponent } from './DutyStationSearchBox';
-
-import { DutyStationSearchBox as Reference } from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 export default {
   title: 'Components/Duty Station Search Box',
@@ -139,10 +137,11 @@ const mockShowAddress = async () => {
   return testAddress;
 };
 
-export const standard = () => {
-  let value;
+export const Standard = () => {
+  const [value, setValue] = useState();
+
   const onChange = (newValue) => {
-    value = newValue;
+    setValue(newValue);
   };
 
   return (
@@ -155,10 +154,11 @@ export const standard = () => {
   );
 };
 
-export const withValue = () => {
-  let value = { ...baseValue };
+export const WithValue = () => {
+  const [value, setValue] = useState(baseValue);
+
   const onChange = (newValue) => {
-    value = newValue;
+    setValue(newValue);
   };
 
   return (
@@ -172,10 +172,11 @@ export const withValue = () => {
   );
 };
 
-export const withValueAndAddress = () => {
-  let value = { ...baseValue };
+export const WithValueAndAddress = () => {
+  const [value, setValue] = useState(baseValue);
+
   const onChange = (newValue) => {
-    value = newValue;
+    setValue(newValue);
   };
 
   return (
@@ -188,10 +189,11 @@ export const withValueAndAddress = () => {
   );
 };
 
-export const withErrorMessage = () => {
-  let value;
+export const WithErrorMessage = () => {
+  const [value, setValue] = useState();
+
   const onChange = (newValue) => {
-    value = newValue;
+    setValue(newValue);
   };
 
   return (
@@ -205,20 +207,23 @@ export const withErrorMessage = () => {
   );
 };
 
-export const referenceStandard = () => {
-  return <Reference input={{ name: 'test_component' }} title="Test Component" />;
-};
+export const WithLocalError = () => {
+  const [value, setValue] = useState();
 
-export const referenceWithValue = () => {
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  const brokenSearchDutyStations = async () => {
+    throw new Error('Artificial error message text');
+  };
+
   return (
-    <Reference input={{ name: 'test_component', value: baseValue }} title="Test Component" displayAddress={false} />
+    <DutyStationSearchBoxComponent
+      input={{ name: 'test_component', onChange, value }}
+      title="Test Component"
+      searchDutyStations={brokenSearchDutyStations}
+      showAddress={mockShowAddress}
+    />
   );
-};
-
-export const referenceWithValueAndAddress = () => {
-  return <Reference input={{ name: 'test_component', value: baseValue }} title="Test Component" />;
-};
-
-export const referenceWithErrorMessage = () => {
-  return <Reference input={{ name: 'test_component' }} title="Test Component" errorMsg="Something went wrong" />;
 };

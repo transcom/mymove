@@ -4,16 +4,20 @@ import PropTypes from 'prop-types';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
+import { debounce } from 'lodash';
 
 import styles from './DutyStationSearchBox.module.scss';
+import { SearchDutyStations, ShowAddress } from './api';
 
-import { SearchDutyStations, ShowAddress } from 'scenes/ServiceMembers/api';
 import { DutyStationShape } from 'types';
 
-const getOptionName = (option) => (option ? option.name : '');
+const getOptionName = (option) => option.name;
 
 const uswdsBlack = '#565c65';
 const uswdsBlue = '#2491ff';
+
+const MIN_SEARCH_LENGTH = 2;
+const DEBOUNCE_TIMER_MS = 200;
 
 const customStyles = {
   control: (provided, state) => ({
@@ -51,32 +55,32 @@ export const DutyStationSearchBoxComponent = (props) => {
 
   const [inputValue, setInputValue] = useState('');
 
-  const loadOptions = async (query) => {
-    if (!query) {
-      return null;
+  const loadOptions = debounce((query, callback) => {
+    if (!query || query.length < MIN_SEARCH_LENGTH) {
+      callback(null);
+      return undefined;
     }
 
-    try {
-      const stations = await searchDutyStations(query);
-      return stations;
-    } catch (e) {
-      return null;
-    }
-  };
+    searchDutyStations(query)
+      .then((stations) => {
+        callback(stations);
+      })
+      .catch(() => {
+        callback(null);
+      });
+
+    return undefined;
+  }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (selectedValue && selectedValue.id) {
-      const newValue = {
-        ...selectedValue,
-        address: await showAddress(selectedValue.address_id),
-      };
+    const address = await showAddress(selectedValue.address_id);
+    const newValue = {
+      ...selectedValue,
+      address,
+    };
 
-      onChange(newValue);
-      return newValue;
-    }
-
-    onChange(null);
-    return null;
+    onChange(newValue);
+    return newValue;
   };
 
   const changeInputText = (text) => {
@@ -114,12 +118,12 @@ export const DutyStationSearchBoxComponent = (props) => {
           onChange={selectOption}
           onInputChange={changeInputText}
           placeholder="Start typing a duty station..."
-          styles={customStyles}
-          value={value}
+          value={value || null}
           noOptionsMessage={noOptionsMessage}
+          styles={customStyles}
         />
       </div>
-      {displayAddress && !!value && (
+      {displayAddress && !!value && !!value.address && (
         <p className={locationClasses}>
           {value.address.city}, {value.address.state} {value.address.postal_code}
         </p>

@@ -7,7 +7,7 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
+jest.mock('components/DutyStationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([

@@ -1,4 +1,4 @@
-import { SearchDutyStations, ShowAddress } from 'scenes/ServiceMembers/api';
+import { SearchDutyStations, ShowAddress } from './api';
 
 jest.mock('shared/Swagger/api.js', () => ({
   ...jest.requireActual('shared/Swagger/api.js'),
