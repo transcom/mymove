@@ -909,6 +909,58 @@ paths:
       description: Requests a shipment reweigh
       operationId: requestShipmentReweigh
       summary: Requests a shipment reweigh
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the SIT extension
+        in: path
+        name: sitExtensionID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveSitExtension'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved a SIT extension
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+        - sitExtension
+      description: Approves a SIT extension
+      operationId: approveSitExtension
+      summary: Approves a SIT extension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -2895,6 +2947,59 @@ definitions:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
         $ref: '#/definitions/MTOServiceItems'
+      sitDaysAllowance:
+        type: integer
+        x-nullable: true
+      sitExtensions:
+        $ref: '#/definitions/SitExtensions'
+      eTag:
+        type: string
+  SitExtensions:
+    items:
+      $ref: '#/definitions/SitExtension'
+    type: array
+  SitExtension:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestReason:
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      contractorRemarks:
+        type: string
+      requestedDays:
+        type: integer
+      status:
+        enum:
+          - PENDING
+          - APPROVED
+          - DENIED
+      approvedDays:
+        type: integer
+      decisionDate:
+        format: date-time
+        type: string
+      officeRemarks:
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       eTag:
         type: string
   UpdateShipment:
@@ -3022,6 +3127,19 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  ApproveSitExtension:
+    properties:
+      approvedDays:
+        description: Number of days approved for SIT extension
+        type: integer
+        example: 21
+      officeRemarks:
+        description: Remarks from TOO about SIT approval
+        type: string
+        example: Approved for three weeks rather than requested 45 days
+        x-nullable: true
+    required:
+      - approvedDays
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
