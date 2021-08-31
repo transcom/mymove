@@ -65,6 +65,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
 		}),
+		ShipmentApproveSitExtensionHandler: shipment.ApproveSitExtensionHandlerFunc(func(params shipment.ApproveSitExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveSitExtension has not yet been implemented")
+		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
 		}),
@@ -215,6 +218,8 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
 	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
 	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
+	// ShipmentApproveSitExtensionHandler sets the operation handler for the approve sit extension operation
+	ShipmentApproveSitExtensionHandler shipment.ApproveSitExtensionHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -372,6 +377,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentApproveShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
+	}
+	if o.ShipmentApproveSitExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveSitExtensionHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -581,6 +589,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve"] = shipment.NewApproveSitExtension(o.context, o.ShipmentApproveSitExtensionHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
