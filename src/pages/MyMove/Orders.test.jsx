@@ -17,7 +17,16 @@ jest.mock('services/internalApi', () => ({
 }));
 
 jest.mock('components/DutyStationSearchBox/api', () => ({
-  ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postal_code: '85309',
+      state: 'AZ',
+      street_address_1: 'n/a',
+    }),
+  ),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
