@@ -22,7 +22,7 @@ type ApproveSitExtension struct {
 	// Number of days approved for SIT extension
 	// Example: 21
 	// Required: true
-	ApprovedDays *float64 `json:"approvedDays"`
+	ApprovedDays *int64 `json:"approvedDays"`
 
 	// Remarks from TOO about SIT approval
 	// Example: Approved for three weeks rather than requested 45 days

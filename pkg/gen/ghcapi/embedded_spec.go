@@ -2652,7 +2652,7 @@ func init() {
       "properties": {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
-          "type": "number",
+          "type": "integer",
           "example": 21
         },
         "officeRemarks": {
@@ -8211,7 +8211,7 @@ func init() {
       "properties": {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
-          "type": "number",
+          "type": "integer",
           "example": 21
         },
         "officeRemarks": {
