@@ -18,7 +18,7 @@ func NewStubNotificationSender(domain string, logger Logger) StubNotificationSen
 }
 
 // SendNotification returns a dummy ID
-func (m StubNotificationSender) SendNotification(notification notification) error {
+func (m StubNotificationSender) SendNotification(notification Notification) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err

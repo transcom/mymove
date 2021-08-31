@@ -3,6 +3,8 @@ package officeuser
 import (
 	"strings"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -14,10 +16,15 @@ import (
 
 type officeUserCreator struct {
 	builder officeUserQueryBuilder
+	sender  notifications.NotificationSender
 }
 
 // CreateOfficeUser creates office users
-func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, officeUser *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserCreator) CreateOfficeUser(
+	appCtx appcontext.AppContext,
+	officeUser *models.OfficeUser,
+	transportationIDFilter []services.QueryFilter,
+) (*models.OfficeUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have a transportation office that matches the provided id
 	var transportationOffice models.TransportationOffice
 	fetchErr := o.builder.FetchOne(appCtx, &transportationOffice, transportationIDFilter)
@@ -40,6 +47,7 @@ func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, offic
 
 	var verrs *validate.Errors
 	var err error
+	var userActivityEmail notifications.Notification
 	// We don't want to be left with a user record and no office user so setup a transaction to rollback
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if user.ID == uuid.Nil {
@@ -47,6 +55,13 @@ func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, offic
 			if verrs != nil || err != nil {
 				return err
 			}
+
+			email, emailErr := notifications.NewUserAccountCreated(
+				appCtx, notifications.GetSysAdminEmail(o.sender), user.ID, user.UpdatedAt)
+			if emailErr != nil {
+				return emailErr
+			}
+			userActivityEmail = notifications.Notification(email)
 		}
 
 		officeUser.UserID = &user.ID
@@ -64,10 +79,17 @@ func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, offic
 		return nil, verrs, txErr
 	}
 
+	if userActivityEmail != nil {
+		err = o.sender.SendNotification(userActivityEmail)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	return officeUser, nil, nil
 }
 
 // NewOfficeUserCreator returns a new office user creator
-func NewOfficeUserCreator(builder officeUserQueryBuilder) services.OfficeUserCreator {
-	return &officeUserCreator{builder}
+func NewOfficeUserCreator(builder officeUserQueryBuilder, sender notifications.NotificationSender) services.OfficeUserCreator {
+	return &officeUserCreator{builder, sender}
 }

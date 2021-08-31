@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, queryByTestId } from '@testing-library/react';
+import { queryByTestId, render, screen } from '@testing-library/react';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
