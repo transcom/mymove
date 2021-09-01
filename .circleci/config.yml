@@ -108,7 +108,7 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEMO_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEMO_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
-    tls_vars_demo:
+  tls_vars_demo:
     steps:
       - run:
           name: 'Setting up TLS environment variables for demo env'
