@@ -1,8 +1,7 @@
 import React from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 
-import styles from './ServicesCounselingMoveDocumentWrapper.module.scss';
-
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
