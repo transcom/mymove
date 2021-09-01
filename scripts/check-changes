@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Check for things that are changed. A file or directory can be checked and a
+# message is printed out for the user to perform an action on.
+
+set -eo pipefail
+
+# If in CI exit immediately as this is only necessary for local development.
+[[ "${CI:-}" == "true" ]] && exit 0
+
+function changed {
+  # The following command is getting the difference between what's currently in
+  # HEAD and compairing it with what's in the immediate prior value of the
+  # HEAD. This is not the same as "the previous commit" but rather "the previous
+  # value" before the `git pull`  It's then using `grep` to determine if the
+  # file is at the beginning of the line that the `--name-only` flag is
+  # outputting.  For more infromation about this revision parameter, see the
+  # `git-rev-parse` documentation here:
+  # https://git-scm.com/docs/git-rev-parse#_specifying_revisions
+  git diff --name-only 'HEAD@{1}' HEAD | grep "^$1" > /dev/null 2>&1
+}
+
+if changed 'migrations/'; then
+  echo
+  echo "🗄  The migrations/ directory has changed. You may want to run \`make db_dev_migrate\`."
+fi
