@@ -108,6 +108,15 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEMO_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEMO_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+    tls_vars_demo:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for demo env'
+          command: |
+            echo "export DEMO_DP3_CERT=$TLS_CERT" >> $BASH_ENV
+            echo "export DEMO_DP3_KEY=$TLS_KEY" >> $BASH_ENV
+            echo "export DEMO_DP3_CA=$TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -117,6 +126,15 @@ commands:
             echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  tls_vars_exp:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for exp env'
+          command: |
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -128,6 +146,15 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_stg:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for stg env'
+          command: |
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_prd:
     steps:
       - run:
@@ -138,15 +165,14 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
-  aws_vars_transcom_com_dev:
+  tls_vars_prd:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for com-dev env'
+          name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -158,6 +184,26 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for gov-dev env'
+          command: |
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
+            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_transcom_com_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for com-dev env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+
   announce_failure:
     parameters:
     steps:
@@ -347,7 +393,7 @@ commands:
       - run:
           name: Compare against deployed commit
           command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -363,14 +409,14 @@ commands:
       - run:
           name: Health Check
           command: |
-            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: TLS Check
           command: |
-            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
   deploy_app_client_tls_niprnet_steps:
     parameters:
@@ -385,7 +431,7 @@ commands:
       - run:
           name: Compare against deployed commit
           command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -401,14 +447,14 @@ commands:
       - run:
           name: Health Check
           command: |
-            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: TLS Check
           command: |
-            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
   deploy_webhook_client_steps:
     parameters:
@@ -1446,6 +1492,7 @@ jobs:
       - APP_ENVIRONMENT: 'demo'
     steps:
       - aws_vars_demo
+      - tls_vars_demo
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want demo to be able to roll back
           health_check_hosts: api.demo.dp3.us
@@ -1500,6 +1547,7 @@ jobs:
       - APP_ENVIRONMENT: 'exp'
     steps:
       - aws_vars_exp
+      - tls_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
@@ -1574,6 +1622,7 @@ jobs:
       - APP_ENVIRONMENT: 'stg'
     steps:
       - aws_vars_stg
+      - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
@@ -1647,6 +1696,7 @@ jobs:
       - APP_ENVIRONMENT: 'prd'
     steps:
       - aws_vars_prd
+      - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,orders.move.mil
@@ -1681,7 +1731,7 @@ workflows:
           # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - integration_tests:
           requires:
@@ -1695,7 +1745,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: MB-9050
 
       - integration_tests_mtls:
           requires:
@@ -1708,7 +1758,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: MB-9050
 
       - client_test:
           requires:
@@ -1716,7 +1766,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: MB-9050
 
       - server_test:
           requires:
@@ -1724,7 +1774,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: MB-9050
 
       - build_app:
           requires:
@@ -1768,28 +1818,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - push_tasks_demo:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - push_webhook_client_demo:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - deploy_demo_migrations:
           requires:
@@ -1804,35 +1854,35 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - deploy_demo_app_client_tls:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: MB-9050
 
       - push_app_exp:
           requires:
