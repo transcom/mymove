@@ -405,7 +405,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
-		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, "", false, nil, "", "")
+		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, false, nil, "", "")
 		if mockGexSender == nil {
 			suite.T().Fatal("Failed to create mockGexSender")
 		}
@@ -519,7 +519,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		gexSender := &mocks.GexSender{}
 		gexSender.
-			On("SendToGex", mock.Anything, mock.Anything).Return(&responseFailure, nil)
+			On("SendToGex", services.GEXChannelInvoice, mock.Anything, mock.Anything).Return(&responseFailure, nil)
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -565,7 +565,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		gexSender := &mocks.GexSender{}
 		gexSender.
-			On("SendToGex", mock.Anything, mock.Anything).Return(&responseSuccess, nil)
+			On("SendToGex", services.GEXChannelInvoice, mock.Anything, mock.Anything).Return(&responseSuccess, nil)
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -622,7 +622,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 		}))
-		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, "", false, nil, "", "")
+		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, false, nil, "", "")
 		if mockGexSender == nil {
 			suite.T().Fatal("Failed to create mockGexSender")
 		}

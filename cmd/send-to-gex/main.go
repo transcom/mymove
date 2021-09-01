@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
@@ -129,12 +130,11 @@ func main() {
 	logger.Println("Sending to GEX ...")
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString("gex-url"),
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString("gex-basic-auth-username"),
 		v.GetString("gex-basic-auth-password"),
-	).SendToGex(ediString, v.GetString("transaction-name"))
+	).SendToGex(services.GEXChannelInvoice, ediString, v.GetString("transaction-name"))
 
 	if err != nil {
 		log.Fatalf("Gex Sender encountered an error: %v", err)
