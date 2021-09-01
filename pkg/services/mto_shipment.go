@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
@@ -17,6 +18,20 @@ type MTOShipmentUpdater interface {
 	UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 	UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 	UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+}
+
+//BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
+type BillableWeightInputs struct {
+	CalculatedBillableWeight *unit.Pound
+	OriginalWeight           *unit.Pound
+	ReweighWeight            *unit.Pound
+	HadManualOverride        *bool
+}
+
+//ShipmentBillableWeightCalculator is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentBillableWeightCalculator --disable-version-string
+type ShipmentBillableWeightCalculator interface {
+	CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipmentID uuid.UUID) (BillableWeightInputs, error)
 }
 
 //ShipmentDeleter is the service object interface for deleting a shipment
