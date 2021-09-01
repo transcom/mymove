@@ -2,13 +2,12 @@ package invoice
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -60,7 +59,7 @@ func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Respo
 		strings.NewReader(edi),
 	)
 	if err != nil {
-		return resp, errors.Wrap(err, "Creating GEX POST request")
+		return resp, fmt.Errorf("Creating GEX POST request: %w", err)
 	}
 
 	q := request.URL.Query()
@@ -77,7 +76,7 @@ func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Respo
 
 	resp, err = client.Do(request)
 	if err != nil {
-		return resp, errors.Wrap(err, "Sending GEX POST request")
+		return resp, fmt.Errorf("Sending GEX POST request: %w", err)
 	}
 
 	return resp, err
