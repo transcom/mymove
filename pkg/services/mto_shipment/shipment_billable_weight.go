@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -44,7 +42,6 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCt
 			} else {
 				calculatedWeight = shipment.Reweigh.Weight
 			}
-			fmt.Printf("shipment reweigh weight: %v", int(*shipment.Reweigh.Weight))
 		}
 	}
 
