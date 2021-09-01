@@ -32,7 +32,7 @@ export default function ReviewBillableWeight() {
         <DocumentViewer files={documentsForViewer} />
       </div>
       <div className={styles.sidebar}>
-        <DocumentViewerSidebar title="Review weights" subtitle="Edit max billableweight" onClose={handleClose}>
+        <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
           <DocumentViewerSidebar.Content>Hello</DocumentViewerSidebar.Content>
           <DocumentViewerSidebar.Footer>
             <Button>Button</Button>
