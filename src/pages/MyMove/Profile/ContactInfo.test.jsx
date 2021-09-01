@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedContactInfo, { ContactInfo } from './ContactInfo';
@@ -22,6 +22,7 @@ describe('ContactInfo page', () => {
     serviceMember: {
       id: 'testServiceMemberId',
     },
+    userEmail: 'sm@example.com',
   };
 
   const testServiceMemberValues = {
@@ -32,31 +33,33 @@ describe('ContactInfo page', () => {
   };
 
   it('renders the ContactInfoForm', async () => {
-    const { queryByRole } = render(<ContactInfo {...testProps} />);
-
-    await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
-    });
+    render(<ContactInfo {...testProps} />);
+    expect(screen.getByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
+    // await waitFor(() => {
+    //   expect(screen.queryByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
+    // });
   });
 
   it('back button goes to the NAME step', async () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const backButton = queryByText('Back');
+    const backButton = screen.queryByText('Back');
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
+    await waitFor(async () => {
+      await expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
+    });
   });
 
   it('next button submits the form and goes to the Name step', async () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = screen.queryByText('Next');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -113,9 +116,14 @@ describe('requireCustomerState ContactInfo', () => {
 
   const props = {
     updateServiceMember: jest.fn(),
+    push: jest.fn(),
+    serviceMember: {
+      id: 'testServiceMemberId',
+    },
+    userEmail: 'sm@example.com',
   };
 
-  it('dispatches a redirect if the current state is earlier than the "NAME COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "NAME COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -136,17 +144,23 @@ describe('requireCustomerState ContactInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
+    const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    // const action = mockDispatch('/service-member/name');
+    // console.log(action);
+    await waitFor(async () => {
+      await expect(mockDispatch).toHaveBeenCalledWith('/service-member/name');
+    });
   });
 
-  it('does not redirect if the current state equals the "NAME COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "NAME COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -169,16 +183,19 @@ describe('requireCustomerState ContactInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
+    const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
+    expect(h1).toBeInTheDocument();
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    await waitFor(async () => {
+      await expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
-  it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -213,14 +230,18 @@ describe('requireCustomerState ContactInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    await waitFor(async () => {
+      await expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
   it('does redirect if the profile is complete', () => {
@@ -263,13 +284,15 @@ describe('requireCustomerState ContactInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
+    expect(h1).toBeInTheDocument();
+
     expect(mockDispatch).toHaveBeenCalledWith(push('/'));
   });
 });
