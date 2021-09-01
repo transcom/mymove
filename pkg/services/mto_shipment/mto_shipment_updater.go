@@ -200,7 +200,6 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
 		"MTOAgents",
-		"Reweigh",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
