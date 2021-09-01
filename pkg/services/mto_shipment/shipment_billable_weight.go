@@ -23,7 +23,6 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipmentID uuid.UUID) (services.BillableWeightInputs, error) {
 	var shipment models.MTOShipment
 	var calculatedWeight *unit.Pound
-	// var reweighWeight *unit.Pound
 
 	err := appCtx.DB().Q().
 		Eager("Reweigh").
