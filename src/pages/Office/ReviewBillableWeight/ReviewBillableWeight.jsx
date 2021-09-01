@@ -3,6 +3,7 @@ import { Button } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 
+import { PaymentRequestReview } from 'pages/Office/PaymentRequestReview/PaymentRequestReview.module.scss';
 import { tioRoutes } from 'constants/routes';
 import styles from 'pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -27,15 +28,15 @@ export default function ReviewBillableWeight() {
   };
 
   return (
-    <div className={styles.DocumentWrapper}>
+    <div className={PaymentRequestReview}>
       <div className={styles.embed}>
         <DocumentViewer files={documentsForViewer} />
       </div>
       <div className={styles.sidebar}>
         <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
-          <DocumentViewerSidebar.Content>Hello</DocumentViewerSidebar.Content>
+          <DocumentViewerSidebar.Content>Review weight content should go in here</DocumentViewerSidebar.Content>
           <DocumentViewerSidebar.Footer>
-            <Button>Button</Button>
+            <Button>Review shipment weights</Button>
           </DocumentViewerSidebar.Footer>
         </DocumentViewerSidebar>
       </div>
