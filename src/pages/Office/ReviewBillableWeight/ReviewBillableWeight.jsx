@@ -3,9 +3,8 @@ import { Button } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 
-import { PaymentRequestReview } from 'pages/Office/PaymentRequestReview/PaymentRequestReview.module.scss';
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
-import styles from 'pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -28,7 +27,7 @@ export default function ReviewBillableWeight() {
   };
 
   return (
-    <div className={PaymentRequestReview}>
+    <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
         <DocumentViewer files={documentsForViewer} />
       </div>
