@@ -292,6 +292,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		CalculatedBillableWeight: handlers.FmtPoundPtr(mtoShipment.CalculatedBillableWeight),
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                mtoShipment.Diversion,

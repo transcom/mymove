@@ -27,6 +27,10 @@ type MTOShipment struct {
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
+	// calculated billable weight
+	// Example: 2000
+	CalculatedBillableWeight *int64 `json:"calculatedBillableWeight,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
