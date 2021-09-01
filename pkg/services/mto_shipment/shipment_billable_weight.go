@@ -52,8 +52,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCt
 		calculatedWeight = shipment.BillableWeightCap
 	}
 
-	// hasOverride := shipment.BillableWeightCap != nil
-	hasOverride := true
+	hasOverride := shipment.BillableWeightCap != nil
 	return services.BillableWeightInputs{
 		CalculatedBillableWeight: calculatedWeight,
 		OriginalWeight:           shipment.PrimeActualWeight,
