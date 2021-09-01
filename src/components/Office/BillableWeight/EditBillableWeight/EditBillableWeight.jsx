@@ -73,6 +73,7 @@ MaxBillableWeightHintText.defaultProps = {
 
 export default function EditBillableWeight({
   billableWeight,
+  billableWeightJustification,
   estimatedWeight,
   maxBillableWeight,
   originalWeight,
@@ -86,42 +87,56 @@ export default function EditBillableWeight({
     setShowEditBtn(!showEditBtn);
   }
 
-  return showEditBtn ? (
-    <Button className={styles.editBtn} onClick={toggleEdit}>
-      Edit
-    </Button>
-  ) : (
-    <div className={styles.container}>
-      <h5>{title}</h5>
-      {billableWeight ? (
-        <BillableWeightHintText
-          billableWeight={billableWeight}
-          estimatedWeight={estimatedWeight}
-          maxBillableWeight={maxBillableWeight}
-          originalWeight={originalWeight}
-          totalBillableWeight={totalBillableWeight}
-        />
+  return (
+    <>
+      <h4 className={styles.header}>{title}</h4>
+      {showEditBtn ? (
+        <>
+          <span>{billableWeight ? formatWeight(billableWeight) : formatWeight(maxBillableWeight)}</span>
+          {billableWeightJustification && (
+            <>
+              <h5 className={styles.remarksHeader}>Remarks</h5>
+              <p className={styles.remarks}>{billableWeightJustification}</p>
+            </>
+          )}
+          <Button className={styles.editBtn} onClick={toggleEdit}>
+            Edit
+          </Button>
+        </>
       ) : (
-        <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
-      )}
+        <div className={styles.container}>
+          {billableWeight ? (
+            <BillableWeightHintText
+              billableWeight={billableWeight}
+              estimatedWeight={estimatedWeight}
+              maxBillableWeight={maxBillableWeight}
+              originalWeight={originalWeight}
+              totalBillableWeight={totalBillableWeight}
+            />
+          ) : (
+            <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
+          )}
 
-      <Fieldset className={styles.fieldset}>
-        <TextInput className={styles.maxBillableWeight} type="number" /> lbs
-        <Label htmlFor="remarks">Remarks</Label>
-        <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
-      </Fieldset>
-      <div className={styles.btnContainer}>
-        <Button onClick={toggleEdit}>Save changes</Button>
-        <Button onClick={toggleEdit} unstyled>
-          Cancel
-        </Button>
-      </div>
-    </div>
+          <Fieldset className={styles.fieldset}>
+            <TextInput className={styles.maxBillableWeight} type="number" /> lbs
+            <Label htmlFor="remarks">Remarks</Label>
+            <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
+          </Fieldset>
+          <div className={styles.btnContainer}>
+            <Button onClick={toggleEdit}>Save changes</Button>
+            <Button onClick={toggleEdit} unstyled>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
 EditBillableWeight.propTypes = {
   billableWeight: number,
+  billableWeightJustification: string,
   estimatedWeight: number,
   maxBillableWeight: number.isRequired,
   originalWeight: number,
@@ -136,4 +151,5 @@ EditBillableWeight.defaultProps = {
   originalWeight: null,
   totalBillableWeight: null,
   weightAllowance: null,
+  billableWeightJustification: '',
 };

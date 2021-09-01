@@ -4,15 +4,27 @@
 
 .editBtn {
   width: fit-content;
+  @include u-margin-top(2);
+}
+
+.header {
+  @include u-margin-bottom(0.5);
+  font-size: 17px;
+  color: $base-darker;
+  font-weight: bold;
+}
+
+.remarksHeader {
+  margin: 0;
+  @include u-margin-top(2);
+}
+
+.remarks {
+  margin: 0;
+  @include u-margin-bottom(3);
 }
 
 .container {
-  h5 {
-    @include u-margin-bottom(0.5);
-    font-size: 13px;
-    color: $base-darker;
-  }
-
   .hintText {
     line-height: 18px;
   }

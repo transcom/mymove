@@ -6,7 +6,7 @@ import EditBillableWeight from './EditBillableWeight';
 import { formatWeight } from 'shared/formatters';
 
 describe('EditBillableWeight', () => {
-  it('renders edit button intially', () => {
+  it('renders weight and edit button intially', () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -17,6 +17,22 @@ describe('EditBillableWeight', () => {
     render(<EditBillableWeight {...defaultProps} />);
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+    expect(screen.queryByText('Remarks')).toBeNull();
+    expect(screen.getByText(formatWeight(defaultProps.maxBillableWeight))).toBeInTheDocument();
+  });
+
+  it('renders billable weight justification', () => {
+    const defaultProps = {
+      title: 'Max billable weight',
+      weightAllowance: 8000,
+      estimatedWeight: 13750,
+      maxBillableWeight: 10000,
+      billableWeightJustification: 'Reduced billable weight to cap at 110% of estimated.',
+    };
+
+    render(<EditBillableWeight {...defaultProps} />);
+    expect(screen.getByText(defaultProps.billableWeightJustification)).toBeInTheDocument();
   });
 
   it('renders max billable weight view', () => {

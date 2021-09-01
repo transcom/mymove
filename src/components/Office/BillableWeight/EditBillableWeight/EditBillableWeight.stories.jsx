@@ -14,26 +14,30 @@ const Container = ({ children }) => <div style={{ width: 336, margin: '0 auto' }
 Container.propTypes = {
   children: node.isRequired,
 };
-
-export const MaxbillableWeight = () => (
+const Template = (args) => (
   <Container>
-    <EditBillableWeight
-      title="Max billable weight"
-      weightAllowance={number('WeightAllowance', 8000)}
-      estimatedWeight={number('EstimatedWeight', 13750)}
-    />
+    <EditBillableWeight {...args} />
   </Container>
 );
 
-export const BillableWeight = () => (
-  <Container>
-    <EditBillableWeight
-      title="Billable weight"
-      originalWeight={number('OriginalWeight', 10000)}
-      estimatedWeight={number('EstimatedWeight', 13000)}
-      maxBillableWeight={number('MaxBillableWeight', 6000)}
-      billableWeight={number('BillableWeight', 7000)}
-      totalBillableWeight={number('TotalBillableWeight', 11000)}
-    />
-  </Container>
-);
+export const MaxBillableWeight = Template.bind({});
+
+MaxBillableWeight.args = {
+  billableWeightJustification: 'Reduced billable weight to cap at 110% of estimated.',
+  estimatedWeight: 13750,
+  maxBillableWeight: 13000,
+  title: 'Max billable weight',
+  weightAllowance: 8000,
+};
+
+export const BillableWeight = Template.bind({});
+
+BillableWeight.args = {
+  billableWeight: 7000,
+  billableWeightJustification: 'Reduced billable weight to cap at 110% of estimated.',
+  estimatedWeight: 13000,
+  maxBillableWeight: 6000,
+  originalWeight: 10000,
+  title: 'Billable weight',
+  totalBillableWeight: 11000,
+};
