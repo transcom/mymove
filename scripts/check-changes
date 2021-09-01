@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Check for things that are changed. A file or directory can be checked and a
+# message is printed out for the user to perform an action on.
+
+set -eo pipefail
+
+# If in CI exit immediately as this is only necessary for local development.
+[[ "${CI:-}" == "true" ]] && exit 0
+
+function changed {
+  git diff --name-only 'HEAD@{1}' HEAD | grep "^$1" > /dev/null 2>&1
+}
+
+if changed 'migrations/'; then
+  echo "🗄  The migrations/ directory has changed. You may want to run \`make db_dev_migrate\`."
+fi
