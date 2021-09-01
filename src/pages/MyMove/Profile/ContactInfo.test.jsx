@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -34,7 +33,7 @@ describe('ContactInfo page', () => {
 
   it('renders the ContactInfoForm', async () => {
     render(<ContactInfo {...testProps} />);
-    expect(screen.getByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
     // await waitFor(() => {
     //   expect(screen.queryByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
     // });
@@ -156,7 +155,7 @@ describe('requireCustomerState ContactInfo', () => {
     // const action = mockDispatch('/service-member/name');
     // console.log(action);
     await waitFor(async () => {
-      await expect(mockDispatch).toHaveBeenCalledWith('/service-member/name');
+      await expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
     });
   });
 
@@ -195,6 +194,7 @@ describe('requireCustomerState ContactInfo', () => {
       await expect(mockDispatch).not.toHaveBeenCalled();
     });
   });
+
   it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
@@ -244,7 +244,7 @@ describe('requireCustomerState ContactInfo', () => {
     });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -293,6 +293,8 @@ describe('requireCustomerState ContactInfo', () => {
     const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
     expect(h1).toBeInTheDocument();
 
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    await waitFor(async () => {
+      await expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });
