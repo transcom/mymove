@@ -36,6 +36,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
@@ -64,6 +65,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 // initServeFlags - Order matters!
@@ -422,10 +424,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	logger.Info("webserver starting up")
 
-	traceShutdownFn := configureTracing(logger, tracingConfig{
-		enabled: true,
-	})
-	defer traceShutdownFn()
+	telemetryConfig := trace.TelemetryConfig{
+		Enabled:  true,
+		Endpoint: "stdout",
+	}
+	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
+	defer telemetryShutdownFn()
+
+	trace.RegisterRuntimeObserver(telemetryConfig)
 
 	err = checkServeConfig(v, logger)
 	if err != nil {
@@ -505,6 +511,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Warn("DB is not ready for connections", zap.Error(errDbConnection))
 		}
 	}
+
+	trace.RegisterDBStatsObserver(dbConnection, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
@@ -674,6 +682,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))
+	if telemetryConfig.Enabled {
+		site.Use(otelmux.Middleware("milmove"))
+	}
 
 	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
