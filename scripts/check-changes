@@ -21,5 +21,6 @@ function changed {
 }
 
 if changed 'migrations/'; then
+  echo
   echo "🗄  The migrations/ directory has changed. You may want to run \`make db_dev_migrate\`."
 fi
