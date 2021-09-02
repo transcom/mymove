@@ -14,28 +14,53 @@ import (
 
 // reweighUpdater handles the db connection
 type reweighUpdater struct {
-	db *pop.Connection
+	db     *pop.Connection
+	checks []reweighValidator
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater(db *pop.Connection) services.ReweighUpdater {
+func NewReweighUpdater(db *pop.Connection, moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
 	return &reweighUpdater{
 		db: db,
+		checks: []reweighValidator{
+			checkShipmentID(),
+			checkReweighID(),
+			checkRequiredFields(),
+			checkPrimeAvailability(moveAvailabilityChecker),
+		},
 	}
 }
 
+// UpdateReweighCheck passes the Prime validator key to CreateReweigh
+func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
+	return f.UpdateReweigh(appCtx, reweigh, eTag, f.checks...)
+}
+
 // UpdateReweigh updates the Reweigh table
-func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
-	oldWeight := models.Reweigh{}
+func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
+	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
-	err := f.db.Find(&oldWeight, reweigh.ID)
+	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
+		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
+	}
+
+	shipment := models.MTOShipment{}
+	// Find the shipment, return error if not found
+	err = appCtx.DB().Find(&shipment, reweigh.ShipmentID)
+	if err != nil {
+		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Shipment")
+	}
+	oldReweigh.Shipment = shipment
+
+	err = validateReweigh(appCtx, *reweigh, &oldReweigh, &oldReweigh.Shipment, checks...)
+	if err != nil {
+		return nil, err
 	}
 
 	// Check the If-Match header against existing eTag before updating
-	encodedUpdatedAt := etag.GenerateEtag(oldWeight.UpdatedAt)
+	encodedUpdatedAt := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	if encodedUpdatedAt != eTag {
 		return nil, services.NewPreconditionFailedError(reweigh.ID, nil)
 	}

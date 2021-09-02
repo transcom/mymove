@@ -31,7 +31,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		// Set up:		Established valid shipment and valid reweigh
 		// Expected:	New reweigh successfully created
 		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweigh(appCtx, newReweigh)
+		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
 
 		suite.Nil(err)
 		suite.NotNil(createdReweigh)
@@ -43,7 +43,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		newReweigh.ShipmentID = notFoundUUID
 		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweigh(appCtx, newReweigh)
+		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
 
 		suite.Nil(createdReweigh)
 		suite.IsType(services.NotFoundError{}, err)
