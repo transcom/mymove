@@ -1,9 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { useOrdersDocumentQueries } from 'hooks/queries';
+
+// Mock the document viewer since we're not really testing that aspect here.
+// Document Viewer tests should be covered in the component itself.
+jest.mock('components/DocumentViewer/DocumentViewer', () => {
+  const MockDocumentViewer = () => <div>Document viewer text</div>;
+  return MockDocumentViewer;
+});
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
@@ -13,7 +21,7 @@ const mockPush = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'testCode' }),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'testMoveCode' }),
   useHistory: () => ({
     push: mockPush,
   }),
@@ -138,8 +146,20 @@ describe('ReviewBillableWeight', () => {
 
     render(<ReviewBillableWeight />);
     expect(screen.getByText('Review weights')).toBeInTheDocument();
+    expect(screen.getByText('Document viewer text')).toBeInTheDocument();
   });
-  /*
 
-  */
+  it('takes the user back to the payment requests page when x is clicked', async () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    const xButton = screen.getByTestId('closeSidebar');
+
+    userEvent.click(xButton);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests');
+    });
+  });
 });
