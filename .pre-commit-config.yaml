@@ -64,7 +64,7 @@ repos:
     rev: v0.28.1
     hooks:
       - id: markdownlint
-        entry: markdownlint --ignore .github/*.md --ignore swagger-def
+        entry: markdownlint --ignore .github/*.md
 
   - repo: git://github.com/detailyang/pre-commit-shell
     rev: 1.0.5

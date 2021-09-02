@@ -18,6 +18,7 @@ Both of these YAML files contain references to the entire API definition.
 The sub-folders in `swagger-def` represent the top-level sections of a Swagger (OpenAPI v2.0) specification. These
 sections are:
 
+<!-- markdownlint-disable MD033 -->
 * [`info`](info/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object) ]</small> -
   Contains metadata about the API. In particular, this is where the top-level descriptions for our APIs will live.
 

@@ -18,7 +18,7 @@ You can adopt any organization you wish.  We have some tips for organizing paths
 
 Use a predefined "path separator" and keep all of your path files in the top level of the `paths` folder.
 
-```
+```sh
 # todo: insert tree view of paths folder
 ```
 
@@ -26,14 +26,14 @@ Redocly recommends using the `@` character for this case.
 
 In addition, Redocly recommends placing path parameters within `{}` curly braces if you adopt this style.
 
-#### Motivations
+### Motivations
 
 * Quickly see a list of all paths.  Many people think in terms of the "number" of "endpoints" (paths), and not the "number" of "operations" (paths * http methods).
 
 * Only the "file-per-path" option is semantically correct with the OpenAPI Specification 3.0.2.  However, Redocly's `openapi-cli` will build valid bundles for any of the other options too.
 
 
-#### Drawbacks
+### Drawbacks
 
 * This may require multiple definitions per http method within a single file.
 * It requires settling on a path separator (that is allowed to be used in filenames) and sticking to that convention.
@@ -59,7 +59,8 @@ You may name your files with some concatenation for the http method. For example
 ### Use sub-folders to mirror API path structure
 
 Example:
-```
+
+```text
 GET /customers
 
 /paths/customers/get.yaml
@@ -68,7 +69,8 @@ GET /customers
 In this case, the path id defined within sub-folders which mirror the API URL structure.
 
 Example with path parameter:
-```
+
+```text
 GET /customers/{id}
 
 /paths/customers/{id}/get.yaml
@@ -94,7 +96,8 @@ paths:
 If you have a lot of nested folders, it may be confusing to reference your schemas.
 
 Example
-```
+
+```text
 file: /paths/customers/{id}/timeline/{messageId}/get.yaml
 
 # excerpt of file
@@ -103,4 +106,5 @@ file: /paths/customers/{id}/timeline/{messageId}/get.yaml
         $ref: ../../../../../components/headers/Rate-Limit-Remaining.yaml
 
 ```
+
 Notice the `../../../../../` in the ref which requires some attention to formulate correctly.  While `openapi-cli` has a linter which suggests possible refs when there is a mistake, this is still a net drawback for APIs with deep paths.
