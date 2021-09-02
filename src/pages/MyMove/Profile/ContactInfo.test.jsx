@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -34,17 +33,14 @@ describe('ContactInfo page', () => {
 
   it('renders the ContactInfoForm', async () => {
     render(<ContactInfo {...testProps} />);
-    expect(screen.getByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
-    // await waitFor(() => {
-    //   expect(screen.queryByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
-    // });
+    expect(await screen.findByRole('heading', { name: 'Your contact info', level: 1 })).toBeInTheDocument();
   });
 
   it('back button goes to the NAME step', async () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const backButton = screen.queryByText('Back');
+    const backButton = screen.getByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
@@ -59,7 +55,7 @@ describe('ContactInfo page', () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = screen.queryByText('Next');
+    const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -86,9 +82,9 @@ describe('ContactInfo page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -96,7 +92,7 @@ describe('ContactInfo page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.queryByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
@@ -153,10 +149,8 @@ describe('requireCustomerState ContactInfo', () => {
     const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
     expect(h1).toBeInTheDocument();
 
-    // const action = mockDispatch('/service-member/name');
-    // console.log(action);
     await waitFor(async () => {
-      await expect(mockDispatch).toHaveBeenCalledWith('/service-member/name');
+      await expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
     });
   });
 
@@ -244,7 +238,7 @@ describe('requireCustomerState ContactInfo', () => {
     });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -293,6 +287,8 @@ describe('requireCustomerState ContactInfo', () => {
     const h1 = screen.getByRole('heading', { name: 'Your contact info', level: 1 });
     expect(h1).toBeInTheDocument();
 
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    await waitFor(async () => {
+      await expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });
