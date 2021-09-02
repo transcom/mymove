@@ -14,6 +14,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 export default function ReviewBillableWeight() {
   const { moveCode } = useParams();
   const history = useHistory();
+  const [sidebarType, setSidebarType] = React.useState('MAX');
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
@@ -32,12 +33,28 @@ export default function ReviewBillableWeight() {
         <DocumentViewer files={documentsForViewer} />
       </div>
       <div className={styles.sidebar}>
-        <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
-          <DocumentViewerSidebar.Content>Review weight content should go in here</DocumentViewerSidebar.Content>
-          <DocumentViewerSidebar.Footer>
-            <Button>Review shipment weights</Button>
-          </DocumentViewerSidebar.Footer>
-        </DocumentViewerSidebar>
+        {sidebarType === 'MAX' ? (
+          <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
+            <DocumentViewerSidebar.Content>
+              Review max billable weight content should go in here
+            </DocumentViewerSidebar.Content>
+            <DocumentViewerSidebar.Footer>
+              <Button
+                onClick={() => {
+                  setSidebarType('SHIPMENT');
+                }}
+              >
+                Review shipment weights
+              </Button>
+            </DocumentViewerSidebar.Footer>
+          </DocumentViewerSidebar>
+        ) : (
+          <DocumentViewerSidebar title="Review weights" subtitle="Shipment weights" onClose={handleClose}>
+            <DocumentViewerSidebar.Content>
+              Review shipment weight content should go in here
+            </DocumentViewerSidebar.Content>
+          </DocumentViewerSidebar>
+        )}
       </div>
     </div>
   );

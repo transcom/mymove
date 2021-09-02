@@ -162,4 +162,19 @@ describe('ReviewBillableWeight', () => {
       expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests');
     });
   });
+
+  it('takes the user to review the shipment weights when the review weights button is clicked', async () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+
+    userEvent.click(reviewShipmentWeights);
+
+    await waitFor(() => {
+      expect(screen.getByText('Review weights')).toBeInTheDocument();
+      expect(screen.getByText('Shipment weights')).toBeInTheDocument();
+    });
+  });
 });
