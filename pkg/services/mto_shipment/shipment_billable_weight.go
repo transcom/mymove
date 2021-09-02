@@ -26,9 +26,11 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCt
 			if int(*shipment.PrimeActualWeight) < int(*reweighWeight) {
 				calculatedWeight = shipment.PrimeActualWeight
 			} else {
-				calculatedWeight = shipment.Reweigh.Weight
+				calculatedWeight = reweighWeight
 			}
 		}
+	} else if shipment.Reweigh == nil && shipment.BillableWeightCap == nil {
+		calculatedWeight = shipment.PrimeActualWeight
 	}
 
 	if shipment.BillableWeightCap != nil {

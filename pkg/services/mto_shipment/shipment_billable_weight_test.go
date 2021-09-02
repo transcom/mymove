@@ -46,6 +46,19 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
+	suite.T().Run("If the shipment has an original weight and no reweigh weight and no set billable weight cap, it should return the original weight", func(t *testing.T) {
+		originalWeight := unit.Pound(900)
+
+		shipment := models.MTOShipment{
+			PrimeActualWeight: &originalWeight,
+		}
+
+		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(suite.TestAppContext(), &shipment)
+
+		suite.NoError(err)
+		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
+	})
+
 	suite.T().Run("If the billable weight cap is set it should be returned", func(t *testing.T) {
 		reweighWeight := unit.Pound(1000)
 		originalWeight := unit.Pound(900)
