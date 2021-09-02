@@ -86,6 +86,7 @@ type Assertions struct {
 	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceParam                             models.ServiceParam
+	SITExtension                             models.SITExtension
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
 	Stub                                     bool

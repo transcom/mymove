@@ -86,7 +86,7 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 			return err
 		}
 
-		if err := f.updateSITExtensionUpdatedAt(txnAppCtx, sitExtension); err != nil {
+		if err := f.updateSITExtensionDecisionDate(txnAppCtx, sitExtension); err != nil {
 			return err
 		}
 
@@ -95,7 +95,6 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 			return err
 		}
 
-		// TODO: does shipment.UpdatedAt need to be updated here? Separately?
 		returnedShipment = *updatedShipment
 
 		return nil
@@ -138,9 +137,9 @@ func (f *sitExtensionApprover) updateSITExtensionStatusToApproved(appCtx appcont
 	return nil
 }
 
-func (f *sitExtensionApprover) updateSITExtensionUpdatedAt(appCtx appcontext.AppContext, sitExtension models.SITExtension) error {
+func (f *sitExtensionApprover) updateSITExtensionDecisionDate(appCtx appcontext.AppContext, sitExtension models.SITExtension) error {
 	now := time.Now()
-	sitExtension.UpdatedAt = now
+	sitExtension.DecisionDate = &now
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitExtension)
 	if e := f.handleError(sitExtension.ID, verrs, err); e != nil {
 		return e
