@@ -278,6 +278,11 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	var sitDaysAllowance *int64
+	if mtoShipment.SITDaysAllowance != nil {
+		sda := int64(*mtoShipment.SITDaysAllowance)
+		sitDaysAllowance = &sda
+	}
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -301,6 +306,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
 		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
+		SitDaysAllowance:         sitDaysAllowance,
+		SitExtensions:            *SITExtensions(&mtoShipment.SITExtensions),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -356,6 +363,34 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	for i, m := range *mtoAgents {
 		copyOfMtoAgent := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = MTOAgent(&copyOfMtoAgent)
+	}
+	return &payload
+}
+
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
+	payload := &ghcmessages.SitExtension{
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		ContractorRemarks: string(*sitExtension.ContractorRemarks),
+		Status:            string(sitExtension.Status),
+		ApprovedDays:      int64(*sitExtension.ApprovedDays),
+		DecisionDate:      strfmt.DateTime(*sitExtension.DecisionDate),
+		OfficeRemarks:     string(*sitExtension.OfficeRemarks),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         (*strfmt.DateTime)(&sitExtension.UpdatedAt),
+	}
+	return payload
+}
+
+// SITExtensions payload
+func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensions {
+	payload := make(ghcmessages.SitExtensions, len(*sitExtensions))
+
+	for i, m := range *sitExtensions {
+		copyOfSitExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = SITExtension(&copyOfSitExtension)
 	}
 	return &payload
 }
