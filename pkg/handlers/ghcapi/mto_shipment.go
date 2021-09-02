@@ -668,7 +668,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID)
+	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID, models.ReweighRequesterTOO)
 
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))

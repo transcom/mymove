@@ -18,6 +18,20 @@ type MoveWeights struct {
 	mock.Mock
 }
 
+// CheckAutoReweigh provides a mock function with given fields: appCtx, moveID, updatedShipment
+func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, moveID, updatedShipment)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, moveID, updatedShipment)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CheckExcessWeight provides a mock function with given fields: appCtx, moveID, updatedShipment
 func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
 	ret := _m.Called(appCtx, moveID, updatedShipment)

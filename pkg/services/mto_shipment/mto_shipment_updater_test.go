@@ -49,7 +49,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 	).Return(500, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
@@ -1011,7 +1011,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
@@ -1051,7 +1051,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	suite.T().Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func(t *testing.T) {

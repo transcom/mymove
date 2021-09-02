@@ -1780,7 +1780,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	suite.Run("Successful PATCH - Integration Test", func() {
 		builder := query.NewQueryBuilder()
