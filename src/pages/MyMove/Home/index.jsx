@@ -137,8 +137,9 @@ export class Home extends Component {
           The transportation office will review your new documents and update your move info. Contact your movers to
           coordinate any changes to your move.
           <br />
-          <br />
-          <span className={styles.alertSecondMsg}>You don&apos;t need to do anything else in MilMove.</span>
+          <span className={`margin-top-1 ${styles.alertSecondMsg}`}>
+            You don&apos;t need to do anything else in MilMove.
+          </span>
         </Alert>
       );
     }
