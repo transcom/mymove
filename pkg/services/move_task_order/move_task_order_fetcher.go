@@ -99,8 +99,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 
 		mto.MTOShipments[i].Reweigh = reweigh
-		fmt.Println("🦠🦠🦠🦠🦠")
-		fmt.Println(shipment.Reweigh)
 	}
 
 	fmt.Println()

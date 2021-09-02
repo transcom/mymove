@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -23,8 +22,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
-	fmt.Println("🍑🍑🍑🍑")
-	fmt.Println(mtoShipments)
 
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
