@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -292,7 +293,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
-		CalculatedBillableWeight: handlers.FmtPoundPtr(mtoShipment.CalculatedBillableWeight),
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                mtoShipment.Diversion,
@@ -319,6 +319,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	if mtoShipment.ScheduledPickupDate != nil {
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
+
+	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
+	calculatedWeights := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+
+	payload.CalculatedBillableWeight = handlers.FmtPoundPtr(calculatedWeights.CalculatedBillableWeight)
 
 	return payload
 }
