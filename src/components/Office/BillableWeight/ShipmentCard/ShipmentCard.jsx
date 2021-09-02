@@ -64,9 +64,12 @@ export default function ShipmentCard({
         </div>
       </div>
       <footer>
-        <h3>Billable weight</h3>
-        <span>{formatWeight(billableWeight)}</span>
-        <EditBillableWeight />
+        <EditBillableWeight
+          title="Billable weight"
+          billableWeight={billableWeight}
+          originalWeight={originalWeight}
+          estimatedWeight={estimatedWeight}
+        />
       </footer>
     </ShipmentContainer>
   );

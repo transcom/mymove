@@ -1,6 +1,5 @@
 import React from 'react';
 import { node } from 'prop-types';
-import { number } from '@storybook/addon-knobs';
 
 import EditBillableWeight from './EditBillableWeight';
 
