@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -17,7 +16,7 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 }
 
 // CalculateShipmentBillableWeight calculates a shipment's billable weight
-func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
+func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
 	if shipment.Reweigh != nil {
@@ -43,5 +42,5 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCt
 		OriginalWeight:           shipment.PrimeActualWeight,
 		ReweighWeight:            reweighWeight,
 		HadManualOverride:        &hasOverride,
-	}, nil
+	}
 }

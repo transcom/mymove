@@ -4,8 +4,6 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appcontext "github.com/transcom/mymove/pkg/appcontext"
-
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -16,23 +14,16 @@ type ShipmentBillableWeightCalculator struct {
 	mock.Mock
 }
 
-// CalculateShipmentBillableWeight provides a mock function with given fields: appCtx, shipment
-func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipment models.MTOShipment) (services.BillableWeightInputs, error) {
-	ret := _m.Called(appCtx, shipment)
+// CalculateShipmentBillableWeight provides a mock function with given fields: shipment
+func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
+	ret := _m.Called(shipment)
 
 	var r0 services.BillableWeightInputs
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) services.BillableWeightInputs); ok {
-		r0 = rf(appCtx, shipment)
+	if rf, ok := ret.Get(0).(func(*models.MTOShipment) services.BillableWeightInputs); ok {
+		r0 = rf(shipment)
 	} else {
 		r0 = ret.Get(0).(services.BillableWeightInputs)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
-		r1 = rf(appCtx, shipment)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }

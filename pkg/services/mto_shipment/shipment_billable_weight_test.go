@@ -21,9 +21,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(suite.TestAppContext(), &shipment)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
-		suite.NoError(err)
 		if shipment.Reweigh != nil {
 			suite.Equal(shipment.Reweigh.Weight, billableWeightCalculations.CalculatedBillableWeight)
 		}
@@ -40,9 +39,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(suite.TestAppContext(), &shipment)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
-		suite.NoError(err)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -53,9 +51,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			PrimeActualWeight: &originalWeight,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(suite.TestAppContext(), &shipment)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
-		suite.NoError(err)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -72,9 +69,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(suite.TestAppContext(), &shipment)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
-		suite.NoError(err)
 		suite.Equal(shipment.BillableWeightCap, billableWeightCalculations.CalculatedBillableWeight)
 	})
 }
