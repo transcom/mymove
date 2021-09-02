@@ -95,7 +95,6 @@ type MTOShipment struct {
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	BillableWeightCap                *unit.Pound       `db:"billable_weight_cap"`
-	CalculatedBillableWeight         *unit.Pound       `db:"-"`
 	BillableWeightJustification      *string           `db:"billable_weight_justification"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
