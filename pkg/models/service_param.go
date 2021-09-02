@@ -18,8 +18,8 @@ type ServiceParam struct {
 	CreatedAt             time.Time `db:"created_at"`
 	UpdatedAt             time.Time `db:"updated_at"`
 
-	//Associations
-	Service             ReServices          `belongs_to:"re_service" fk_id:"service_id"`
+	// Associations
+	Service             ReService           `belongs_to:"re_service" fk_id:"service_id"`
 	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key" fk_id:"service_item_param_key_id"`
 }
 
