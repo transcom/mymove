@@ -2822,6 +2822,7 @@ definitions:
         x-nullable: true
         example: 2000
         type: integer
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string

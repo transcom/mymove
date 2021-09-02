@@ -3400,6 +3400,7 @@ func init() {
         "calculatedBillableWeight": {
           "type": "integer",
           "x-nullable": true,
+          "readOnly": true,
           "example": 2000
         },
         "counselorRemarks": {
@@ -8771,6 +8772,7 @@ func init() {
         "calculatedBillableWeight": {
           "type": "integer",
           "x-nullable": true,
+          "readOnly": true,
           "example": 2000
         },
         "counselorRemarks": {

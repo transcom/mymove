@@ -1,9 +1,6 @@
 package mtoshipment
 
 import (
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -20,23 +17,13 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 }
 
 // CalculateShipmentBillableWeight calculates a shipment's billable weight
-func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipmentID uuid.UUID) (services.BillableWeightInputs, error) {
-	var shipment models.MTOShipment
+func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
 	var calculatedWeight *unit.Pound
-
-	err := appCtx.DB().Q().
-		Eager("Reweigh").
-		Find(&shipment, shipmentID)
-
-	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return services.BillableWeightInputs{}, services.NewNotFoundError(shipmentID, "while looking for shipment")
-	} else if err != nil {
-		return services.BillableWeightInputs{}, err
-	}
-
+	var reweighWeight *unit.Pound
 	if shipment.Reweigh != nil {
 		if shipment.Reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
-			if int(*shipment.PrimeActualWeight) < int(*shipment.Reweigh.Weight) {
+			reweighWeight = shipment.Reweigh.Weight
+			if int(*shipment.PrimeActualWeight) < int(*reweighWeight) {
 				calculatedWeight = shipment.PrimeActualWeight
 			} else {
 				calculatedWeight = shipment.Reweigh.Weight
@@ -52,7 +39,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(appCt
 	return services.BillableWeightInputs{
 		CalculatedBillableWeight: calculatedWeight,
 		OriginalWeight:           shipment.PrimeActualWeight,
-		ReweighWeight:            shipment.Reweigh.Weight,
+		ReweighWeight:            reweighWeight,
 		HadManualOverride:        &hasOverride,
 	}, nil
 }
