@@ -55,6 +55,9 @@ const GhcRejectShipmentEndpointKey = "Ghc.RejectShipment"
 // GhcRequestShipmentCancellationEndpointKey is the key for the requestShipmentCancellation endpoint in ghc
 const GhcRequestShipmentCancellationEndpointKey = "Ghc.RequestShipmentCancellation"
 
+// GhcRequestShipmentReweighEndpointKey is the key for the requestShipmentReweigh endpoint in ghc
+const GhcRequestShipmentReweighEndpointKey = "Ghc.RequestShipmentReweigh"
+
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
 
@@ -99,6 +102,12 @@ const GhcUpdateAllowanceEndpointKey = "Ghc.UpdateAllowance"
 
 // GhcCounselingUpdateAllowanceEndpointKey is the key for the counselingUpdateAllowance endpoint in ghc
 const GhcCounselingUpdateAllowanceEndpointKey = "Ghc.CounselingUpdateAllowance"
+
+// GhcUpdateBillableWeightEndpointKey is the key for the updateBillableWeight endpoint in ghc
+const GhcUpdateBillableWeightEndpointKey = "Ghc.UpdateBillableWeight"
+
+// GhcAcknowledgeExcessWeightRiskEndpointKey is the key for the AcknowledgeExcessWeightRisk endpoint in ghc
+const GhcAcknowledgeExcessWeightRiskEndpointKey = "Ghc.AcknowledgeExcessWeightRisk"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
@@ -166,6 +175,10 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "requestShipmentCancellation",
 	},
+	GhcRequestShipmentReweighEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentReweigh",
+	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "fetchMTOAgentList",
@@ -225,5 +238,13 @@ var ghcEndpoints = EndpointMapType{
 	GhcCounselingUpdateAllowanceEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "counselingUpdateAllowance",
+	},
+	GhcUpdateBillableWeightEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateBillableWeight",
+	},
+	GhcAcknowledgeExcessWeightRiskEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "AcknowledgeExcessWeightRisk",
 	},
 }

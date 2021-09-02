@@ -1,15 +1,14 @@
 package invoice
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 
 	"github.com/benbjohnson/clock"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -25,7 +24,6 @@ import (
 */
 
 type ghcPaymentRequestInvoiceGenerator struct {
-	db           *pop.Connection
 	icnSequencer sequence.Sequencer
 	clock        clock.Clock
 }
@@ -43,20 +41,12 @@ const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
 
-// InitDB stores a database pop connection to the receiver instance
-func (g *ghcPaymentRequestInvoiceGenerator) InitDB(db *pop.Connection) {
-	g.db = db
-}
-
 // Generate method takes a payment request and returns an Invoice858C
-func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	if g.db == nil {
-		return ediinvoice.Invoice858C{}, services.NewQueryError("pop.Connection", errors.New("database not initialized"), "DB pointer is nil, call ghcPaymentRequestInvoiceGenerator.InitDB()")
-	}
+func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
-		err := g.db.Q().
+		err := appCtx.DB().Q().
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
@@ -75,7 +65,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	if moveTaskOrder.Orders.ID == uuid.Nil {
-		err := g.db.
+		err := appCtx.DB().
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
 			if err.Error() == models.RecordNotFoundErrorString {
@@ -87,7 +77,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// check or load service member
 	if moveTaskOrder.Orders.ServiceMember.ID == uuid.Nil {
-		err := g.db.
+		err := appCtx.DB().
 			Load(&moveTaskOrder.Orders, "ServiceMember")
 
 		if err != nil {
@@ -111,7 +101,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		InterchangeControlNumber: int(interchangeControlNumber),
 		EDIType:                  models.EDIType858,
 	}
-	verrs, err := g.db.ValidateAndSave(&pr2icn)
+	verrs, err := appCtx.DB().ValidateAndSave(&pr2icn)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
 	} else if verrs != nil && verrs.HasAny() {
@@ -177,7 +167,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
-	err = g.db.Q().
+	err = appCtx.DB().Q().
 		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
 		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
 		Join("payment_requests pr", "psi.payment_request_id = pr.id").
@@ -203,7 +193,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	var paymentServiceItems models.PaymentServiceItems
-	err = g.db.Q().
+	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		Where("status = ?", models.PaymentServiceItemStatusApproved).
@@ -226,26 +216,26 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
-		err = g.createG62Segments(paymentRequest.ID, &edi858.Header)
+		err = g.createG62Segments(appCtx, paymentRequest.ID, &edi858.Header)
 		if err != nil {
 			return ediinvoice.Invoice858C{}, err
 		}
 	}
 
 	// Add buyer and seller organization names
-	err = g.createBuyerAndSellerOrganizationNamesSegments(paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
+	err = g.createBuyerAndSellerOrganizationNamesSegments(appCtx, paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
 
 	// Add origin and destination details to header
-	err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
+	err = g.createOriginAndDestinationSegments(appCtx, paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
 
 	var l3 edisegment.L3
-	paymentServiceItemSegments, l3, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
+	paymentServiceItemSegments, l3, err := g.generatePaymentServiceItemSegments(appCtx, paymentServiceItems, moveTaskOrder.Orders)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
@@ -316,10 +306,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createC3Segment(header *ediinvoice.In
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, header *ediinvoice.InvoiceHeader) error {
 	// Get all the shipments associated with this payment request's service items, ordered by shipment creation date.
 	var shipments models.MTOShipments
-	err := g.db.Q().
+	err := appCtx.DB().Q().
 		Join("mto_service_items msi", "mto_shipments.id = msi.mto_shipment_id").
 		Join("payment_service_items psi", "msi.id = psi.mto_service_item_id").
 		Where("psi.payment_request_id = ?", paymentRequestID).
@@ -370,13 +360,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 
 	var err error
 	var originDutyStation models.DutyStation
 
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
+		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 		if err != nil {
 			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
@@ -384,7 +374,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
-	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
 	if err != nil {
 		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
 	}
@@ -408,11 +398,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var destinationDutyStation models.DutyStation
 	if orders.NewDutyStationID != uuid.Nil {
-		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
+		destinationDutyStation, err = models.FetchDutyStation(appCtx.DB(), orders.NewDutyStationID)
 		if err != nil {
 			return services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
@@ -420,7 +410,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		return services.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
 	}
 
-	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
+	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), destinationDutyStation.ID)
 	if err != nil {
 		return services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
 	}
@@ -485,7 +475,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	var originDutyStation models.DutyStation
 
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
+		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 		if err != nil {
 			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
@@ -493,7 +483,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
-	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
 	if err != nil {
 		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
@@ -578,10 +568,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 	return fa1, fa2, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
+func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
 
-	err := g.db.Q().
+	err := appCtx.DB().Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
 		Where("sk.key = ?", key).
@@ -604,8 +594,8 @@ func (g ghcPaymentRequestInvoiceGenerator) getPhoneNumberDigitsOnly(phoneString 
 	return digitsOnly, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (int, error) {
-	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(appCtx appcontext.AppContext, serviceItem models.PaymentServiceItem) (int, error) {
+	weight, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return 0, err
 	}
@@ -617,8 +607,8 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.Pa
 	return weightInt, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(serviceItem models.PaymentServiceItem) (float64, float64, error) {
-	cubicFeet, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameCubicFeetBilled)
+func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(appCtx appcontext.AppContext, serviceItem models.PaymentServiceItem) (float64, float64, error) {
+	cubicFeet, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNameCubicFeetBilled)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -628,7 +618,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(ser
 		return 0, 0, fmt.Errorf("Could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
-	rate, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNamePriceRateOrFactor)
+	rate, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNamePriceRateOrFactor)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -640,8 +630,8 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(ser
 	return cubicFeetFloat, rateFloat, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
-	weight, err := g.getWeightParams(serviceItem)
+func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(appCtx appcontext.AppContext, serviceItem models.PaymentServiceItem) (int, float64, error) {
+	weight, err := g.getWeightParams(appCtx, serviceItem)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -658,7 +648,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 		distanceModel = models.ServiceItemParamNameDistanceZip3
 	}
 
-	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
+	distance, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, distanceModel)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -669,7 +659,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	return weight, distanceFloat, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]ediinvoice.ServiceItemSegments, edisegment.L3, error) {
+func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(appCtx appcontext.AppContext, paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]ediinvoice.ServiceItemSegments, edisegment.L3, error) {
 	//Initialize empty collection of segments
 	var segments []ediinvoice.ServiceItemSegments
 	l3 := edisegment.L3{
@@ -723,7 +713,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
 			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
 			var err error
-			weight, err := g.getWeightParams(serviceItem)
+			weight, err := g.getWeightParams(appCtx, serviceItem)
 			if err != nil {
 				return segments, l3, err
 			}
@@ -753,7 +743,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// following service items have service item dimensions and rate but no distance
 		case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 			var err error
-			dimensions, rate, err := g.getServiceItemDimensionRateParams(serviceItem)
+			dimensions, rate, err := g.getServiceItemDimensionRateParams(appCtx, serviceItem)
 			if err != nil {
 				return segments, l3, err
 			}
@@ -782,7 +772,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		default:
 			var err error
-			weight, distanceFloat, err := g.getWeightAndDistanceParams(serviceItem)
+			weight, distanceFloat, err := g.getWeightAndDistanceParams(appCtx, serviceItem)
 			if err != nil {
 				return segments, l3, err
 			}

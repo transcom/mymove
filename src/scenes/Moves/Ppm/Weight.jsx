@@ -19,15 +19,15 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMs, updatePPMEstimate, updatePPM } from 'store/entities/actions';
+import { calculatePPMEstimate, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
-  selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectCurrentPPM,
   selectPPMEstimateRange,
+  selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
@@ -141,9 +141,7 @@ export class PpmWeight extends Component {
     if (currentEstimate >= 500 && currentEstimate < 1500) {
       return <img className="icon" src={trailerGray} alt="trailer-gray" data-testid="vehicleIcon" />;
     }
-    if (currentEstimate >= 1500) {
-      return <img className="icon" src={truckGray} alt="truck-gray" data-testid="vehicleIcon" />;
-    }
+    return <img className="icon" src={truckGray} alt="truck-gray" data-testid="vehicleIcon" />;
   }
 
   chooseEstimateText(currentEstimate) {
@@ -195,14 +193,13 @@ export class PpmWeight extends Component {
         </p>
       );
     }
-    if (currentEstimate >= 7000) {
-      return (
-        <p data-testid="estimateText">
-          A large house or small palace, many heavy or bulky items. Multiple trips using large vehicles, or hire
-          professional movers.
-        </p>
-      );
-    }
+
+    return (
+      <p data-testid="estimateText">
+        A large house or small palace, many heavy or bulky items. Multiple trips using large vehicles, or hire
+        professional movers.
+      </p>
+    );
   }
 
   chooseIncentiveRangeText(hasEstimateError) {
@@ -255,6 +252,9 @@ export class PpmWeight extends Component {
         </Fragment>
       );
     }
+
+    // if there is no error to show
+    return undefined;
   }
 
   render() {

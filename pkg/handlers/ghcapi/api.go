@@ -30,10 +30,9 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
-	queryBuilder := query.NewQueryBuilder(ctx.DB())
-	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := move.NewMoveRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
-		ctx.DB(),
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
@@ -43,7 +42,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerContext: ctx,
-		MoveFetcher:    move.NewMoveFetcher(ctx.DB()),
+		MoveFetcher:    move.NewMoveFetcher(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
@@ -60,18 +59,18 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		ctx,
-		paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		paymentrequest.NewPaymentRequestFetcher(),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestsForMoveHandler = GetPaymentRequestForMoveHandler{
 		HandlerContext:            ctx,
-		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(ctx.DB()),
+		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              ctx,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 	}
 
 	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
@@ -82,39 +81,48 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		ctx,
-		customer.NewCustomerFetcher(ctx.DB()),
+		customer.NewCustomerFetcher(),
 	}
 	ghcAPI.CustomerUpdateCustomerHandler = UpdateCustomerHandler{
 		ctx,
-		customer.NewCustomerUpdater(ctx.DB()),
+		customer.NewCustomerUpdater(),
 	}
 	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
 		ctx,
-		order.NewOrderFetcher(ctx.DB()),
+		order.NewOrderFetcher(),
 	}
 	ghcAPI.OrderCounselingUpdateOrderHandler = CounselingUpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(ctx.DB()),
+		order.NewOrderUpdater(),
 	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(ctx.DB()),
+		order.NewOrderUpdater(),
 		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.OrderUpdateAllowanceHandler = UpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(ctx.DB()),
+		order.NewOrderUpdater(),
 	}
 	ghcAPI.OrderCounselingUpdateAllowanceHandler = CounselingUpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(ctx.DB()),
+		order.NewOrderUpdater(),
+	}
+	ghcAPI.OrderUpdateBillableWeightHandler = UpdateBillableWeightHandler{
+		ctx,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
+
+	ghcAPI.OrderAcknowledgeExcessWeightRiskHandler = AcknowledgeExcessWeightRiskHandler{
+		ctx,
+		order.NewExcessWeightRiskManager(moveRouter),
 	}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
@@ -130,7 +138,6 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
 		mtoshipment.NewMTOShipmentCreator(
-			ctx.DB(),
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),
 			moveRouter,
@@ -145,14 +152,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{
 		ctx,
-		mtoshipment.NewShipmentDeleter(ctx.DB()),
+		mtoshipment.NewShipmentDeleter(),
 	}
 
 	ghcAPI.ShipmentApproveShipmentHandler = ApproveShipmentHandler{
 		ctx,
 		mtoshipment.NewShipmentApprover(
-			ctx.DB(),
-			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 			ctx.Planner(),
 		),
@@ -161,44 +167,45 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
 		ctx,
 		mtoshipment.NewShipmentDiversionRequester(
-			ctx.DB(),
-			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoshipment.NewShipmentRouter(),
 		),
 	}
 
 	ghcAPI.ShipmentApproveShipmentDiversionHandler = ApproveShipmentDiversionHandler{
 		ctx,
 		mtoshipment.NewShipmentDiversionApprover(
-			ctx.DB(),
-			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoshipment.NewShipmentRouter(),
 		),
 	}
 
 	ghcAPI.ShipmentRejectShipmentHandler = RejectShipmentHandler{
 		ctx,
 		mtoshipment.NewShipmentRejecter(
-			ctx.DB(),
-			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoshipment.NewShipmentRouter(),
 		),
 	}
 
 	ghcAPI.ShipmentRequestShipmentCancellationHandler = RequestShipmentCancellationHandler{
 		ctx,
 		mtoshipment.NewShipmentCancellationRequester(
-			ctx.DB(),
-			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoshipment.NewShipmentRouter(),
 		),
+	}
+
+	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
+		ctx,
+		mtoshipment.NewShipmentReweighRequester(),
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		ctx,
 		fetch.NewFetcher(queryBuilder),
 		mtoshipment.NewMTOShipmentUpdater(
-			ctx.DB(),
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),
 			ctx.Planner(),
 			moveRouter,
+			move.NewMoveWeights(),
 		),
 	}
 
@@ -211,17 +218,17 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		ctx,
-		order.NewOrderFetcher(ctx.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
 		ctx,
-		paymentrequest.NewPaymentRequestListFetcher(ctx.DB()),
+		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		ctx,
-		order.NewOrderFetcher(ctx.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{

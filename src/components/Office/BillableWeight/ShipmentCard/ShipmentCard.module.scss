@@ -1,0 +1,79 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.container {
+  @include u-padding-x(0);
+
+  header {
+    @include u-padding-x(2);
+    @include u-padding-bottom(2);
+    @include u-border-bottom('1px');
+    @include u-border-bottom('base-lighter');
+
+    h2 {
+      @include u-margin-bottom(1);
+    }
+  }
+
+  header section {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: $base-darker;
+    line-height: 18px;
+  }
+
+  .weights {
+    @include u-padding-x(2);
+    font-size: 15px;
+
+    .field {
+      display: flex;
+      @include u-border-bottom('1px');
+      @include u-border-bottom('base-lighter');
+
+      > :first-child {
+        color: $base-darker;
+      }
+
+      & > * {
+        @include u-padding-x(1);
+        @include u-padding-y(1.5);
+        width: 50%;
+      }
+    }
+
+    .missing {
+      border-left: 4px solid $mm-gold;
+      @include u-margin-left(-0.5);
+    }
+
+    .remarks {
+      display: flex;
+      flex-direction: column;
+      @include u-border-bottom(0);
+
+      span {
+        width: 100%;
+        @include u-padding-top(0);
+        line-height: 1.53;
+      }
+    }
+  }
+
+  footer {
+    display: flex;
+    flex-direction: column;
+    @include u-padding-left(2);
+
+    h3 {
+      @include u-margin-bottom(1);
+      font-size: 17px;
+    }
+
+    .editBtn {
+      width: fit-content;
+    }
+  }
+}

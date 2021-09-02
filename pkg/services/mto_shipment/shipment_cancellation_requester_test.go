@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
@@ -15,8 +17,8 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
-	router := NewShipmentRouter(suite.DB())
-	requester := NewShipmentCancellationRequester(suite.DB(), router)
+	router := NewShipmentRouter()
+	requester := NewShipmentCancellationRequester(router)
 
 	suite.T().Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func(t *testing.T) {
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -27,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(shipment.ID, shipmentEtag)
+		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, shipmentToBeCanceled.MoveTaskOrderID)
@@ -41,14 +43,16 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	})
 
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+		rejectionReason := "extraneous shipment"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
 			},
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := requester.RequestShipmentCancellation(rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -62,7 +66,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			},
 		})
 
-		_, err := requester.RequestShipmentCancellation(staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -72,7 +76,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentCancellation(badShipmentID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -80,7 +84,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.T().Run("It calls RequestCancellation on the ShipmentRouter", func(t *testing.T) {
 		shipmentRouter := &mocks.ShipmentRouter{}
-		requester := NewShipmentCancellationRequester(suite.DB(), shipmentRouter)
+		requester := NewShipmentCancellationRequester(shipmentRouter)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -92,9 +96,9 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("RequestCancellation", &createdShipment).Return(nil)
+		shipmentRouter.On("RequestCancellation", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentCancellation(shipment.ID, eTag)
+		_, err = requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "RequestCancellation", 1)

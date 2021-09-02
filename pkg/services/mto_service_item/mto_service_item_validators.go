@@ -3,11 +3,10 @@ package mtoserviceitem
 import (
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -25,14 +24,14 @@ var UpdateMTOServiceItemValidators = map[string]updateMTOServiceItemValidator{
 }
 
 type updateMTOServiceItemValidator interface {
-	validate(serviceItemData *updateMTOServiceItemData) error
+	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
 }
 
 // basicUpdateMTOServiceItemValidator is the type for validation that should happen no matter who uses this service object
 type basicUpdateMTOServiceItemValidator struct{}
 
-func (v *basicUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTOServiceItemData) error {
-	err := serviceItemData.checkLinkedIDs()
+func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+	err := serviceItemData.checkLinkedIDs(appCtx)
 	if err != nil {
 		return err
 	}
@@ -48,33 +47,33 @@ func (v *basicUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTO
 // primeUpdateMTOServiceItemValidator is the type for validation that is just for updates from the Prime contractor
 type primeUpdateMTOServiceItemValidator struct{}
 
-func (v *primeUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTOServiceItemData) error {
+func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	// Checks that the MTO ID, Shipment ID, and ReService IDs haven't changed
-	err := serviceItemData.checkLinkedIDs()
+	err := serviceItemData.checkLinkedIDs(appCtx)
 	if err != nil {
 		return err
 	}
 
 	// Checks that the Service Item is indeed available to the Prime
-	err = serviceItemData.checkPrimeAvailability()
+	err = serviceItemData.checkPrimeAvailability(appCtx)
 	if err != nil {
 		return err
 	}
 
 	// Checks that none of the fields that the Prime cannot update have been changed
-	err = serviceItemData.checkNonPrimeFields()
+	err = serviceItemData.checkNonPrimeFields(appCtx)
 	if err != nil {
 		return err
 	}
 
 	// Checks that there aren't any pending payment requests for this service item
-	err = serviceItemData.checkPaymentRequests()
+	err = serviceItemData.checkPaymentRequests(appCtx)
 	if err != nil {
 		return err
 	}
 
 	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
-	err = serviceItemData.checkSITDeparture()
+	err = serviceItemData.checkSITDeparture(appCtx)
 	if err != nil {
 		return err
 	}
@@ -93,12 +92,11 @@ type updateMTOServiceItemData struct {
 	updatedServiceItem  models.MTOServiceItem
 	oldServiceItem      models.MTOServiceItem
 	availabilityChecker services.MoveTaskOrderChecker
-	db                  *pop.Connection
 	verrs               *validate.Errors
 }
 
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
-func (v *updateMTOServiceItemData) checkLinkedIDs() error {
+func (v *updateMTOServiceItemData) checkLinkedIDs(appCtx appcontext.AppContext) error {
 	if v.updatedServiceItem.MoveTaskOrderID != uuid.Nil && v.updatedServiceItem.MoveTaskOrderID != v.oldServiceItem.MoveTaskOrderID {
 		v.verrs.Add("moveTaskOrderID", "cannot be updated")
 	}
@@ -113,8 +111,8 @@ func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 }
 
 // checkPrimeAvailability checks that the service item is connected to a Prime-available move
-func (v *updateMTOServiceItemData) checkPrimeAvailability() error {
-	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.oldServiceItem.MoveTaskOrderID)
+func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppContext) error {
+	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(appCtx, v.oldServiceItem.MoveTaskOrderID)
 
 	if !isAvailable || err != nil {
 		return services.NewNotFoundError(v.oldServiceItem.ID, "while looking for Prime-available MTOServiceItem")
@@ -124,7 +122,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability() error {
 }
 
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
-func (v *updateMTOServiceItemData) checkNonPrimeFields() error {
+func (v *updateMTOServiceItemData) checkNonPrimeFields(appCtx appcontext.AppContext) error {
 	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status {
 		v.verrs.Add("status", "cannot be updated")
 	}
@@ -146,7 +144,7 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields() error {
 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
-func (v *updateMTOServiceItemData) checkSITDeparture() error {
+func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
@@ -161,9 +159,9 @@ func (v *updateMTOServiceItemData) checkSITDeparture() error {
 
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
 // Conflict Error if any are found
-func (v *updateMTOServiceItemData) checkPaymentRequests() error {
+func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext) error {
 	var paymentServiceItem models.PaymentServiceItem
-	err := v.db.Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
+	err := appCtx.DB().Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
 
 	if err == nil && paymentServiceItem.ID != uuid.Nil {
 		return services.NewConflictError(v.updatedServiceItem.ID,

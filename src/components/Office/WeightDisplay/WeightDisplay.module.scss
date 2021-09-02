@@ -6,6 +6,10 @@
   @include u-bg('white');
   @include u-radius(3px);
   border: 1px solid $border-color;
+  @include u-margin-right(3);
+  &:last-child {
+    margin-right: 0px;
+  }
 
   .heading {
     @include u-font-size('base', 2);
@@ -27,7 +31,7 @@
   }
 
   .details span {
-    background-color: $base-lightest;
+    background-color: $info-light;
   }
 
   .details {

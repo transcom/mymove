@@ -152,17 +152,52 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 
 func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string, moveStatus models.MoveStatus) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
+
+	var availableToPrimeAt *time.Time
+	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
+		now := time.Now()
+		availableToPrimeAt = &now
+	}
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:           moveStatus,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &hhgMoveType,
-			Locator:          moveCode,
+			Status:             moveStatus,
+			OrdersID:           orders.ID,
+			Orders:             orders,
+			SelectedMoveType:   &hhgMoveType,
+			Locator:            moveCode,
+			AvailableToPrimeAt: availableToPrimeAt,
 		},
 	})
 
 	return move
+}
+
+func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
+	estimatedWeight := unit.Pound(7200)
+	actualWeight := unit.Pound(7400)
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               shipmentStatus,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	return MTOShipment
 }
 
 func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {

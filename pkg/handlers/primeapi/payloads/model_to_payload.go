@@ -50,17 +50,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	return payload
 }
 
-// MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder {
-	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
-
-	for i, m := range *moveTaskOrders {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MoveTaskOrder(&copyOfM)
-	}
-	return payload
-}
-
 // ListMove payload
 func ListMove(move *models.Move) *primemessages.ListMove {
 	if move == nil {
@@ -482,7 +471,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
 		}
 
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{
@@ -492,14 +481,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(item.ID.String()),
-			Type:   primemessages.DimensionType(item.Type),
 			Height: item.Height.Int32Ptr(),
 			Length: item.Length.Int32Ptr(),
 			Width:  item.Width.Int32Ptr(),
 		}
 		cratingSI.Crate.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(crate.ID.String()),
-			Type:   primemessages.DimensionType(crate.Type),
 			Height: crate.Height.Int32Ptr(),
 			Length: crate.Length.Int32Ptr(),
 			Width:  crate.Width.Int32Ptr(),

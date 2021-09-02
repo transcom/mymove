@@ -2,14 +2,15 @@ package order
 
 import (
 	"io"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -21,17 +22,16 @@ import (
 )
 
 type orderUpdater struct {
-	db *pop.Connection
 }
 
 // NewOrderUpdater creates a new struct with the service dependencies
-func NewOrderUpdater(db *pop.Connection) services.OrderUpdater {
-	return &orderUpdater{db}
+func NewOrderUpdater() services.OrderUpdater {
+	return &orderUpdater{}
 }
 
 // UpdateOrderAsTOO updates an order as permitted by a TOO
-func (f *orderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	order, err := f.findOrder(orderID)
+func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
 	}
@@ -41,14 +41,14 @@ func (f *orderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.U
 		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := orderFromTOOPayload(*order, payload)
+	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
 
-	return f.updateOrder(orderToUpdate, CheckRequiredFields())
+	return f.updateOrder(appCtx, orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
-func (f *orderUpdater) UpdateOrderAsCounselor(orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	order, err := f.findOrder(orderID)
+func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
 	}
@@ -60,12 +60,12 @@ func (f *orderUpdater) UpdateOrderAsCounselor(orderID uuid.UUID, payload ghcmess
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(appCtx, orderToUpdate)
 }
 
 // UpdateAllowanceAsTOO updates an allowance as permitted by a service counselor
-func (f *orderUpdater) UpdateAllowanceAsTOO(orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
-	order, err := f.findOrder(orderID)
+func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
 	}
@@ -77,12 +77,12 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(orderID uuid.UUID, payload ghcmessag
 
 	orderToUpdate := allowanceFromTOOPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(appCtx, orderToUpdate)
 }
 
 // UpdateAllowanceAsCounselor updates an allowance as permitted by a service counselor
-func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
-	order, err := f.findOrder(orderID)
+func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
 	}
@@ -94,17 +94,17 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 
 	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(appCtx, orderToUpdate)
 }
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
-	orderToUpdate, findErr := f.findOrderWithAmendedOrders(orderID)
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(appCtx, orderID)
 	if findErr != nil {
 		return models.Upload{}, "", nil, findErr
 	}
 
-	userUpload, url, verrs, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer)
 	if verrs.HasAny() || err != nil {
 		return models.Upload{}, "", verrs, err
 	}
@@ -112,9 +112,9 @@ func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, use
 	return userUpload.Upload, url, nil, nil
 }
 
-func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
+func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
+	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -124,9 +124,9 @@ func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 	return &order, nil
 }
 
-func (f *orderUpdater) findOrderWithAmendedOrders(orderID uuid.UUID) (*models.Order, error) {
+func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := f.db.Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
+	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -136,7 +136,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(orderID uuid.UUID) (*models.Or
 	return &order, nil
 }
 
-func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
@@ -178,7 +178,8 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	}
 
 	if payload.Tac != nil {
-		order.TAC = payload.Tac
+		normalizedTac := strings.ToUpper(*payload.Tac)
+		order.TAC = &normalizedTac
 	}
 
 	if payload.OrdersType != nil {
@@ -194,7 +195,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
 
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
@@ -203,7 +204,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		amendedOrdersDoc := &models.Document{
 			ServiceMemberID: order.ServiceMemberID,
 		}
-		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(amendedOrdersDoc)
+		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(appCtx, amendedOrdersDoc)
 		if err != nil {
 			return models.UserUpload{}, "", nil, err
 		}
@@ -211,7 +212,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		// save new UploadedAmendedOrdersID (document ID) to orders
 		order.UploadedAmendedOrders = savedAmendedOrdersDoc
 		order.UploadedAmendedOrdersID = &savedAmendedOrdersDoc.ID
-		_, _, err = f.updateOrder(order)
+		_, _, err = f.updateOrder(appCtx, order)
 		if err != nil {
 			return models.UserUpload{}, "", nil, err
 		}
@@ -222,8 +223,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 	var verrs *validate.Errors
 	var url string
 	userUpload, url, verrs, err = uploader.CreateUserUploadForDocumentWrapper(
-		db,
-		logger,
+		appCtx,
 		userID,
 		storer,
 		file,
@@ -352,7 +352,7 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	return order
 }
 
-func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*models.Document, error) {
+func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 
 	var docID uuid.UUID
 	if doc != nil {
@@ -370,10 +370,10 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 		return nil
 	}
 
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var verrs *validate.Errors
 		var err error
-		verrs, err = tx.ValidateAndSave(doc)
+		verrs, err = txnAppCtx.DB().ValidateAndSave(doc)
 		if e := handleError(verrs, err); e != nil {
 			return e
 		}
@@ -388,7 +388,7 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	return doc, nil
 }
 
-func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
 	handleError := func(verrs *validate.Errors, err error) error {
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(order.ID, nil, verrs, "")
@@ -400,7 +400,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 		return nil
 	}
 
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var verrs *validate.Errors
 		var err error
 
@@ -417,7 +417,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 		if order.OriginDutyStationID != nil {
 			// TODO refactor to use service objects to fetch duty station
 			var originDutyStation models.DutyStation
-			originDutyStation, err = models.FetchDutyStation(f.db, *order.OriginDutyStationID)
+			originDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), *order.OriginDutyStationID)
 			if e := handleError(verrs, err); e != nil {
 				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 					return services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
@@ -431,7 +431,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 		}
 
 		if order.Grade != nil || order.OriginDutyStationID != nil {
-			verrs, err = tx.ValidateAndUpdate(&order.ServiceMember)
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order.ServiceMember)
 			if e := handleError(verrs, err); e != nil {
 				return e
 			}
@@ -439,7 +439,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 
 		// update entitlement
 		if order.Entitlement != nil {
-			verrs, err = tx.ValidateAndUpdate(order.Entitlement)
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(order.Entitlement)
 			if e := handleError(verrs, err); e != nil {
 				return e
 			}
@@ -448,7 +448,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 		if order.NewDutyStationID != uuid.Nil {
 			// TODO refactor to use service objects to fetch duty station
 			var newDutyStation models.DutyStation
-			newDutyStation, err = models.FetchDutyStation(f.db, order.NewDutyStationID)
+			newDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), order.NewDutyStationID)
 			if e := handleError(verrs, err); e != nil {
 				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 					return services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
@@ -458,7 +458,7 @@ func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*mo
 			order.NewDutyStation = newDutyStation
 		}
 
-		verrs, err = tx.ValidateAndUpdate(&order)
+		verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order)
 		if e := handleError(verrs, err); e != nil {
 			return e
 		}

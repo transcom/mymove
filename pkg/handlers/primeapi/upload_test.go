@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
-			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
+			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
-			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
+			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
-			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
+			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")

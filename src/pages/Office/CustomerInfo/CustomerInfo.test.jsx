@@ -45,8 +45,6 @@ const mockCustomer = {
   phone: '123-444-3434',
 };
 
-const mockUpdate = jest.fn();
-
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -59,7 +57,13 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
+let mockUpdate;
+
 describe('CustomerInfo', () => {
+  beforeEach(() => {
+    mockUpdate = jest.fn();
+  });
+
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       updateCustomerInfo.mockReturnValue(loadingReturnValue);
@@ -145,7 +149,9 @@ describe('CustomerInfo', () => {
   });
 
   it('calls onUpdate prop with error on unsuccessful form submission', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     updateCustomerInfo.mockImplementation(() => Promise.reject());
+
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
@@ -157,11 +163,12 @@ describe('CustomerInfo', () => {
         />
       </MockProviders>,
     );
+
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveBtn);
 
-    await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith('error');
+    await waitFor(async () => {
+      await expect(mockUpdate).toHaveBeenCalledWith('error');
     });
   });
 });

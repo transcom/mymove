@@ -11,6 +11,11 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 	var errorString string
 	hasError := false
 	for _, serviceParam := range serviceParams {
+		if serviceParam.IsOptional {
+			// Some params are considered optional.  If this is one, then we can skip looking for it.
+			continue
+		}
+
 		found := false
 		for _, paymentServiceItemParam := range paymentServiceItemParams {
 			if serviceParam.ServiceItemParamKey.Key == paymentServiceItemParam.ServiceItemParamKey.Key &&

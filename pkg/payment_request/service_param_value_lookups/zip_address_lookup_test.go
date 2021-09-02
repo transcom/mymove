@@ -20,17 +20,17 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 			},
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	suite.T().Run("zip code for the pickup address is present on MTO Shipment", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(pickupKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), pickupKey)
 		suite.FatalNoError(err)
 		suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, valueStr)
 	})
 
 	suite.T().Run("zip code for the destination address is present on MTO Shipment", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(destKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), destKey)
 		suite.FatalNoError(err)
 		suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, valueStr)
 	})

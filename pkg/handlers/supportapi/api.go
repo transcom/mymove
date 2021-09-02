@@ -25,8 +25,8 @@ import (
 
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
-	queryBuilder := query.NewQueryBuilder(ctx.DB())
-	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := move.NewMoveRouter()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -38,13 +38,12 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
 		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
 		ctx,
 		movetaskorder.NewMoveTaskOrderUpdater(
-			ctx.DB(),
 			queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 			moveRouter,
@@ -58,17 +57,17 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
 		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB())}
+		movetaskorder.NewMoveTaskOrderFetcher()}
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		ctx,
-		internalmovetaskorder.NewInternalMoveTaskOrderCreator(ctx.DB()),
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 	}
 
 	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              ctx,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 	}
 
 	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
@@ -78,7 +77,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
 		ctx,
 		fetch.NewFetcher(queryBuilder),
-		mtoshipment.NewMTOShipmentStatusUpdater(ctx.DB(), queryBuilder,
+		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
 	}
 
@@ -87,15 +86,15 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
 		HandlerContext:                    ctx,
-		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(ctx.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
 		HandlerContext:                ctx,
-		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(),
 		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(ctx.DB()),
+		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(),
 		// Unable to get logger to pass in for the instantiation of
 		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
 		// This limitation has come up a few times

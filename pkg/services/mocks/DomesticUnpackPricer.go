@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -18,20 +20,20 @@ type DomesticUnpackPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, servicesScheduleDest
-func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest
+func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, int) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, int) services.PricingDisplayParams); ok {
-		r1 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -39,8 +41,8 @@ func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate t
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, int) error); ok {
-		r2 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -48,20 +50,20 @@ func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate t
 	return r0, r1, r2
 }
 
-// PriceUsingParams provides a mock function with given fields: params
-func (_m *DomesticUnpackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(params)
+// PriceUsingParams provides a mock function with given fields: appCtx, params
+func (_m *DomesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(models.PaymentServiceItemParams) unit.Cents); ok {
-		r0 = rf(params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
+		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
-		r1 = rf(params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, params)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -69,8 +71,8 @@ func (_m *DomesticUnpackPricer) PriceUsingParams(params models.PaymentServiceIte
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(models.PaymentServiceItemParams) error); ok {
-		r2 = rf(params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
+		r2 = rf(appCtx, params)
 	} else {
 		r2 = ret.Error(2)
 	}

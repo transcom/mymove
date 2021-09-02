@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -36,7 +37,7 @@ type Event struct {
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
 	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          handlers.Logger         // The logger
+	logger          *zap.Logger             // The logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -72,6 +73,9 @@ const ShipmentRejectEventKey KeyType = "Shipment.Reject"
 // ShipmentRequestCancellationEventKey is a key containing Shipment.RequestCancellation
 const ShipmentRequestCancellationEventKey KeyType = "Shipment.RequestCancellation"
 
+// ShipmentRequestReweighEventKey is a key containing Shipment.RequestReweigh
+const ShipmentRequestReweighEventKey KeyType = "Shipment.RequestReweigh"
+
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 
@@ -105,6 +109,7 @@ var eventModels = map[KeyType]eventModel{
 	ShipmentApproveDiversionEventKey:    {ShipmentApproveDiversionEventKey, models.MTOShipment{}},
 	ShipmentRejectEventKey:              {ShipmentRejectEventKey, models.MTOShipment{}},
 	ShipmentRequestCancellationEventKey: {ShipmentRequestCancellationEventKey, models.MTOShipment{}},
+	ShipmentRequestReweighEventKey:      {ShipmentRequestReweighEventKey, models.MTOShipment{}},
 	MTOServiceItemCreateEventKey:        {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
 	MTOServiceItemUpdateEventKey:        {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey:        {PaymentRequestCreateEventKey, models.PaymentRequest{}},

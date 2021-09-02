@@ -18,6 +18,7 @@ jest.mock('hooks/queries', () => ({
 
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
+const setExcessWeightRiskCount = jest.fn();
 
 const requestedMoveDetailsQuery = {
   move: {
@@ -538,6 +539,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -554,6 +556,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -570,6 +573,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -632,6 +636,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -653,6 +658,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -688,6 +694,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -708,6 +715,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );

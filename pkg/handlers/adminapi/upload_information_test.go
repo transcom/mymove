@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 			UploadID:    *handlers.FmtUUID(uploadID),
 		}
 
-		uploadInformationFetcher := upload.NewUploadInformationFetcher(suite.DB())
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		handler := GetUploadHandler{
 			HandlerContext:           handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			UploadInformationFetcher: uploadInformationFetcher,
@@ -101,6 +101,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		}
 		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
 		uploadInformationFetcher.On("FetchUploadInformation",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(uploaded, nil).Once()
 		handler := GetUploadHandler{
@@ -123,6 +124,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		expectedError := models.ErrFetchNotFound
 		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
 		uploadInformationFetcher.On("FetchUploadInformation",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(services.UploadInformation{}, expectedError).Once()
 		handler := GetUploadHandler{

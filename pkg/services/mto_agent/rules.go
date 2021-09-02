@@ -1,19 +1,19 @@
 package mtoagent
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // checkShipmentID checks that the user didn't attempt to change the agent's Shipment ID
 func checkShipmentID() mtoAgentValidator {
-	return mtoAgentValidatorFunc(func(_ context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, _ *models.MTOShipment) error {
+	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if oldAgent == nil {
 			if newAgent.MTOShipmentID == uuid.Nil {
@@ -30,7 +30,7 @@ func checkShipmentID() mtoAgentValidator {
 
 // checkAgentID checks that the new agent's ID matches the old agent's ID (or is nil)
 func checkAgentID() mtoAgentValidator {
-	return mtoAgentValidatorFunc(func(_ context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if oldAgent == nil {
 			if newAgent.ID != uuid.Nil {
@@ -53,7 +53,7 @@ const maxAgents = 2
 // It also checks that we're not adding more than the max number of agents.
 // NOTE: You need to make sure MTOShipment.MTOAgents is populated for the results of this check to be accurate.
 func checkAgentType() mtoAgentValidator {
-	return mtoAgentValidatorFunc(func(_ context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		if shipment == nil {
 			return services.NewImplementationError(
 				fmt.Sprintf("mtoAgent validation needs the shipment data in order to validate the AgentType for newAgent: %s", newAgent.ID),
@@ -90,7 +90,7 @@ func checkAgentType() mtoAgentValidator {
 
 // checkContactInfo checks that the new agent has the minimum required contact info: First Name and one of Email or Phone
 func checkContactInfo() mtoAgentValidator {
-	return mtoAgentValidatorFunc(func(_ context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		var firstName *string
@@ -130,12 +130,12 @@ func checkContactInfo() mtoAgentValidator {
 
 // checkPrimeAvailability returns a type that checks that agent is connected to a Prime-available Shipment
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) mtoAgentValidator {
-	return mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		if shipment == nil {
 			return services.NewNotFoundError(newAgent.ID, "while looking for Prime-available Shipment")
 		}
 
-		isAvailable, err := checker.MTOAvailableToPrime(shipment.MoveTaskOrderID)
+		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
 			return services.NewNotFoundError(
 				newAgent.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))

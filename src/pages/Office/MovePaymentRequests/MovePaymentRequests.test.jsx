@@ -1,16 +1,29 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
+import MOVE_STATUSES from 'constants/moves';
 import { MockProviders } from 'testUtils';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
+  useMoveDetailsQueries: jest.fn(),
+}));
+
+const mockPush = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'testMoveCode' }),
+  useHistory: () => ({
+    push: mockPush,
+  }),
 }));
 
 const testProps = {
@@ -85,6 +98,7 @@ const multiplePaymentRequests = {
   ],
   mtoShipments: [
     {
+      shipmentType: 'HHG',
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -110,6 +124,7 @@ const multiplePaymentRequests = {
       ],
     },
     {
+      shipmentType: 'HHG',
       id: '3',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -135,6 +150,7 @@ const multiplePaymentRequests = {
       ],
     },
     {
+      shipmentType: 'HHG',
       id: '4',
       moveTaskOrderID: '1',
       status: shipmentStatuses.SUBMITTED,
@@ -193,6 +209,7 @@ const singleReviewedPaymentRequest = {
   ],
   mtoShipments: [
     {
+      shipmentType: 'HHG',
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -208,6 +225,50 @@ const singleReviewedPaymentRequest = {
       ],
     },
   ],
+};
+
+const orders = {
+  order: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    has_dependents: false,
+    issue_date: '2020-08-11',
+    grade: 'RANK',
+    moves: ['123'],
+    origin_duty_station: {
+      name: 'Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
+    new_duty_station: {
+      name: 'New Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
+    report_by_date: '2020-08-31',
+    service_member_id: '666',
+    spouse_has_pro_gear: false,
+    status: MOVE_STATUSES.SUBMITTED,
+    uploaded_orders: {
+      uploads: [],
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wOC0yNFQxODoyNDo0MC45NzIzMTha',
+      id: '188842d1-cf88-49ec-bd2f-dfa98da44bb2',
+      nonTemporaryStorage: true,
+      organizationalClothingAndIndividualEquipment: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      requiredMedicalEquipmentWeight: 1000,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+  },
 };
 
 const emptyPaymentRequests = {
@@ -239,6 +300,7 @@ describe('MovePaymentRequests', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -248,6 +310,7 @@ describe('MovePaymentRequests', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
+      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -259,11 +322,12 @@ describe('MovePaymentRequests', () => {
   describe('with multiple payment requests', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('renders without errors', () => {
       renderMovePaymentRequests(testProps);
-      expect(screen.getByText('Payment requests')).toBeInTheDocument();
+      expect(screen.getByTestId('MovePaymentRequests')).toBeInTheDocument();
     });
 
     it('renders multiple payment requests', async () => {
@@ -297,11 +361,28 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('with one reviewed payment request', () => {
+  describe('renders side navigation for each section', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
+      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
+    it.each([
+      ['Payment requests', '#payment-requests'],
+      ['Billable weights', '#billable-weights'],
+    ])('renders the %s side navigation', (name, tag) => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).getByText(name);
+
+      expect(paymentRequstNavLink.href).toContain(tag);
+      expect(paymentRequstNavLink.text).toBe(name);
+    });
+  });
+
+  describe('with one reviewed payment request', () => {
     it('updates the pending payment request count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
@@ -327,6 +408,17 @@ describe('MovePaymentRequests', () => {
   describe('with no payment requests for move', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
+    });
+
+    it('does not render side navigation for payment request section', () => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).queryByText('Payment requests');
+
+      expect(paymentRequstNavLink).toBeNull();
     });
 
     it('renders with empty message when no payment requests exist', async () => {
@@ -354,6 +446,25 @@ describe('MovePaymentRequests', () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);
+      });
+    });
+  });
+
+  describe('a billable weight', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
+    });
+
+    it('navigates the user to the reivew billable weight page', async () => {
+      renderMovePaymentRequests(testProps);
+
+      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+
+      userEvent.click(reviewWeights);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/billable-weight');
       });
     });
   });

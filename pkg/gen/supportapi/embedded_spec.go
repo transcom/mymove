@@ -994,14 +994,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -1393,9 +1385,6 @@ func init() {
           "format": "int32",
           "example": 1000
         },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
-        },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
@@ -1434,7 +1423,6 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
-                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -1443,7 +1431,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -2155,7 +2143,6 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
-        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -3716,14 +3703,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -4115,9 +4094,6 @@ func init() {
           "format": "int32",
           "example": 1000
         },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
-        },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
@@ -4156,7 +4132,6 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
-                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -4165,7 +4140,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -4877,7 +4852,6 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
-        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",

@@ -15,17 +15,17 @@ import (
 func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 	expectedCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
-	customerUpdater := NewCustomerUpdater((suite.DB()))
+	customerUpdater := NewCustomerUpdater()
 
 	suite.T().Run("NewNotFoundError when customer if doesn't exist", func(t *testing.T) {
-		_, err := customerUpdater.UpdateCustomer("", models.ServiceMember{})
+		_, err := customerUpdater.UpdateCustomer(suite.TestAppContext(), "", models.ServiceMember{})
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
 		staleEtag := etag.GenerateEtag(expectedCustomer.UpdatedAt.Add(-1 * time.Minute))
-		_, err := customerUpdater.UpdateCustomer(staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
+		_, err := customerUpdater.UpdateCustomer(suite.TestAppContext(), staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
@@ -55,7 +55,7 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		}
 
 		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
-		actualCustomer, err := customerUpdater.UpdateCustomer(expectedETag, updatedCustomer)
+		actualCustomer, err := customerUpdater.UpdateCustomer(suite.TestAppContext(), expectedETag, updatedCustomer)
 
 		suite.NoError(err)
 		suite.Equal(updatedCustomer.ID, actualCustomer.ID)

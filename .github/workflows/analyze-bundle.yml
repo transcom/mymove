@@ -2,7 +2,8 @@ name: F/E bundle diff
 
 on:
   pull_request_target:
-    branches: [master]
+    branches:
+      - master
 
 jobs:
   changes:
@@ -80,8 +81,9 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
       - name: Diff between base & head
-        uses: chronotruck/webpack-stats-diff-action@1.1.0
+        uses: chronotruck/webpack-stats-diff-action@1.3.0
         with:
           base_stats_path: ./base-stats/bundle-stats.json
           head_stats_path: ./head-stats/bundle-stats.json
           token: ${{ secrets.GITHUB_TOKEN }}
+          announcement_percentage_threshold_increase: 0

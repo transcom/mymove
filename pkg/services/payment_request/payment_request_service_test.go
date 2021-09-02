@@ -9,14 +9,20 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // PaymentRequestServiceSuite is a suite for testing payment requests
 type PaymentRequestServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 	fs     *afero.Afero
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *PaymentRequestServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestPaymentRequestServiceSuite(t *testing.T) {

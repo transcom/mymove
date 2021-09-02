@@ -53,7 +53,7 @@ type MTOServiceItemDomesticCrating struct {
 
 	// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 	// Required: true
-	// Enum: [DCRT DCRTSA DUCRT]
+	// Enum: [DCRT DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
@@ -164,7 +164,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
-		// Enum: [DCRT DCRTSA DUCRT]
+		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
@@ -263,7 +263,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 
 		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
-		// Enum: [DCRT DCRTSA DUCRT]
+		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
@@ -446,7 +446,7 @@ var mTOServiceItemDomesticCratingTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DCRT","DCRTSA","DUCRT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DCRT","DUCRT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

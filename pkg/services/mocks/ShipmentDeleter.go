@@ -4,6 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -13,13 +14,13 @@ type ShipmentDeleter struct {
 	mock.Mock
 }
 
-// DeleteShipment provides a mock function with given fields: shipmentID
-func (_m *ShipmentDeleter) DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, error) {
-	ret := _m.Called(shipmentID)
+// DeleteShipment provides a mock function with given fields: appCtx, shipmentID
+func (_m *ShipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error) {
+	ret := _m.Called(appCtx, shipmentID)
 
 	var r0 uuid.UUID
-	if rf, ok := ret.Get(0).(func(uuid.UUID) uuid.UUID); ok {
-		r0 = rf(shipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) uuid.UUID); ok {
+		r0 = rf(appCtx, shipmentID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(uuid.UUID)
@@ -27,8 +28,8 @@ func (_m *ShipmentDeleter) DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, erro
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(shipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, shipmentID)
 	} else {
 		r1 = ret.Error(1)
 	}

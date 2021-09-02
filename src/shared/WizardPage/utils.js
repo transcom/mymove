@@ -1,3 +1,5 @@
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+
 export function getNextPagePath(pageList, currentPage) {
   const index = pageList.indexOf(currentPage);
   if (index === -1) return undefined;
@@ -26,7 +28,7 @@ export async function beforeTransition(func, shouldHandleSubmit = true) {
   if (this.props.dirty && handleSubmit && shouldHandleSubmit) {
     const awaitSubmit = await handleSubmit(); // may cause pagelist to change
     if (awaitSubmit && awaitSubmit.error) {
-      console.error(awaitSubmit.error);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, awaitSubmit.error);
       gotoNext = false;
     }
   }

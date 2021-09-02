@@ -56,6 +56,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
+		}),
 		ShipmentApproveShipmentHandler: shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
 		}),
@@ -128,11 +131,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
 		}),
+		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
+		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
 		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
+		}),
+		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
 		}),
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
@@ -200,6 +209,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
+	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
 	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
 	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
 	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
@@ -248,10 +259,14 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
+	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
+	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
 	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
+	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
+	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
@@ -349,6 +364,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
+		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
+	}
 	if o.ShipmentApproveShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveShipmentHandler")
 	}
@@ -421,11 +439,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.ShipmentRequestShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
 	}
+	if o.ShipmentRequestShipmentReweighHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
+	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
 	}
 	if o.OrderUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
+	}
+	if o.OrderUpdateBillableWeightHandler == nil {
+		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
@@ -548,6 +572,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/shipments/{shipmentID}/approve"] = shipment.NewApproveShipment(o.context, o.ShipmentApproveShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -641,6 +669,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-diversion"] = shipment.NewRequestShipmentDiversion(o.context, o.ShipmentRequestShipmentDiversionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -649,6 +681,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{orderID}/allowances"] = order.NewUpdateAllowance(o.context, o.OrderUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{orderID}/update-billable-weight"] = order.NewUpdateBillableWeight(o.context, o.OrderUpdateBillableWeightHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

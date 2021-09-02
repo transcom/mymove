@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/edi"
 )
 
 type transactionSetResponseCounter struct {
@@ -36,6 +38,7 @@ func (e *EDI) Parse(ediString string) error {
 	counter := counterData{}
 
 	scanner := bufio.NewScanner(strings.NewReader(ediString))
+	scanner.Split(edi.SplitLines)
 	for scanner.Scan() {
 		record := strings.Split(scanner.Text(), "*")
 

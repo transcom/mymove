@@ -17,6 +17,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -26,13 +27,13 @@ import (
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
 	testingsuite.PopTestSuite
-	logger             Logger
+	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
 		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
 		logger:             logger,
@@ -41,8 +42,13 @@ func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSen
 }
 
 // TestLogger returns the logger to use in the suite
-func (suite *BaseHandlerTestSuite) TestLogger() Logger {
+func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *BaseHandlerTestSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests

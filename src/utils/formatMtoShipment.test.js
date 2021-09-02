@@ -185,7 +185,7 @@ describe('formatMtoShipmentForAPI', () => {
   };
 
   const pickupInfo = {
-    requestedDate: 'Jan 7, 2026',
+    requestedDate: '2026-01-07',
     address: {
       street_address_1: '123 main',
       city: 'legit human city',
@@ -196,12 +196,12 @@ describe('formatMtoShipmentForAPI', () => {
       firstName: 'mockFirstName',
       lastName: 'mockLastName',
       email: 'mockAgentEmail@example.com',
-      phone: '2225551234',
+      phone: '222-555-1234',
     },
   };
 
   const deliveryInfo = {
-    requestedDate: 'Jan 27, 2026',
+    requestedDate: '2026-01-27',
     address: {
       street_address_1: '0011100010110101',
       city: 'R0B0T T0WN',
@@ -212,7 +212,7 @@ describe('formatMtoShipmentForAPI', () => {
       firstName: 'r0b0tBestFr1end',
       lastName: 'r0b0tBestFr1endLastName',
       email: 'r0b0t-fr1end@example.com',
-      phone: '2225550101',
+      phone: '222-555-0101',
     },
   };
 

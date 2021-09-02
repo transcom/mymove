@@ -8,21 +8,21 @@ import { withRouter } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
+  HelperAmendedOrders,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
-  HelperAmendedOrders,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ShipmentList from 'components/ShipmentList';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
-import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';

@@ -32,6 +32,9 @@ export const ShipmentShape = PropTypes.shape({
   counselorRemarks: PropTypes.string,
   customerRemarks: PropTypes.string,
   status: PropTypes.string,
+  reweigh: PropTypes.shape({
+    id: PropTypes.string,
+  }),
 });
 
 export const ShipmentStatusesOneOf = PropTypes.oneOf([

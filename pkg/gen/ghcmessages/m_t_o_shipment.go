@@ -99,6 +99,9 @@ type MTOShipment struct {
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+	// reweigh
+	Reweigh *Reweigh `json:"reweigh,omitempty"`
+
 	// scheduled pickup date
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate,omitempty"`
@@ -170,6 +173,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReweigh(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -359,6 +366,23 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
+	if swag.IsZero(m.Reweigh) { // not required
+		return nil
+	}
+
+	if m.Reweigh != nil {
+		if err := m.Reweigh.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reweigh")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
@@ -452,6 +476,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReweigh(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -514,6 +542,20 @@ func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats 
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Reweigh != nil {
+		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reweigh")
 			}
 			return err
 		}

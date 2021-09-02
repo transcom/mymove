@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -44,7 +43,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 				Value:   currentTime.Format(testDateFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "4242",
 			},
@@ -187,7 +186,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
@@ -197,14 +196,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			generator,
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -231,7 +228,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			},
 		})
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
@@ -241,18 +238,16 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			generator,
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that payment requst was not sent to gex
-		fetcher := NewPaymentRequestFetcher(suite.DB())
-		paymentRequest, err := fetcher.FetchPaymentRequest(rejectedPaymentRequest.ID)
+		fetcher := NewPaymentRequestFetcher()
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), rejectedPaymentRequest.ID)
 		suite.NoError(err)
 		suite.Nil(paymentRequest.SentToGexAt)
 		suite.Equal(rejectedPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected)
@@ -281,7 +276,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			},
 		})
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 
@@ -292,19 +287,17 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			generator,
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at timestamp has been added
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.NotNil(paymentRequest.SentToGexAt)
 			suite.Equal(false, paymentRequest.SentToGexAt.IsZero())
@@ -329,7 +322,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		prs := suite.createPaymentRequest(4)
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
@@ -337,25 +330,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		ediGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		ediGenerator.
-			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
@@ -404,7 +394,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		SFTPSender := services.SyncadaSFTPSender(nil)
 		sendToSyncada := false
 
@@ -422,26 +412,23 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		ediGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		ediGenerator.
-			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			mockGexSender,
 			SFTPSender)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
 			var paymentRequest models.PaymentRequest
-			paymentRequest, err = fetcher.FetchPaymentRequest(pr.ID)
+			paymentRequest, err = fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(err)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
@@ -485,24 +472,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// models.PaymentRequests, error
 		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		reviewedPaymentRequestFetcher.
-			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
+			On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext")).Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
 
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
@@ -526,7 +511,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		pr := suite.createPaymentRequest(1)[0]
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
@@ -538,19 +523,17 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
 			sftpSender)
 
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
-		fetcher := NewPaymentRequestFetcher(suite.DB())
-		paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
+		fetcher := NewPaymentRequestFetcher()
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 		suite.NoError(err)
 		suite.Nil(paymentRequest.SentToGexAt)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
@@ -574,7 +557,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		numPrs := 4
 		prs := suite.createPaymentRequest(numPrs)
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
@@ -586,15 +569,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
 			sftpSender)
 
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -608,9 +589,9 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
 		// Ensure that status is updated to SENT_TO_GEX when PRs are sent successfully
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
+			paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(err)
 			suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 		}
@@ -619,7 +600,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	suite.Run("process reviewed payment request, successfully test init function", func() {
 		// Run init with no issues
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
-		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, icnSequencer, nil)
+		_, err := InitNewPaymentRequestReviewedProcessor(suite.TestAppContext(), false, icnSequencer, nil)
 		suite.NoError(err)
 	})
 }
@@ -633,7 +614,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		numPrs := 2
 		prs := suite.createPaymentRequest(numPrs)
 
-		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sendToSyncada := true // Call GEXSender but using mock here
@@ -650,15 +631,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-			suite.DB(),
-			suite.logger,
 			reviewedPaymentRequestFetcher,
 			ediGenerator,
 			sendToSyncada,
 			mockGexSender,
 			sftpSender)
 
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -669,8 +648,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		suite.NoError(err, "Get count of EDIProcessing")
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
-		fetcher := NewPaymentRequestFetcher(suite.DB())
-		paymentRequest, err := fetcher.FetchPaymentRequest(prs[0].ID)
+		fetcher := NewPaymentRequestFetcher()
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), prs[0].ID)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 	})

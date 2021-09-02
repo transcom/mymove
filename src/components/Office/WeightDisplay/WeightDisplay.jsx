@@ -13,12 +13,14 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
       <div className={styles.heading}>
         <div>{heading}</div>
         {onEdit && (
-          <Button unstyled type="button" className={styles.editButton} onClick={onEdit}>
+          <Button unstyled type="button" className={styles.editButton} onClick={onEdit} data-testid="weightDisplayEdit">
             <FontAwesomeIcon icon="pen" title="edit" alt="" />
           </Button>
         )}
       </div>
-      {Number.isFinite(weightValue) && <div className={styles.value}>{formatWeight(weightValue)}</div>}
+      <div data-testid="weight-display" className={styles.value}>
+        {Number.isFinite(weightValue) ? formatWeight(weightValue) : '—'}
+      </div>
       {children && <div className={styles.details}>{children}</div>}
     </div>
   );

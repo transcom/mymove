@@ -5,18 +5,38 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/notifications/mocks"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The AdminUserCreator needs a NotificationSender for sending user activity emails to system admins.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := mocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
+}
+
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	organization := testdatagen.MakeDefaultOrganization(suite.DB())
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
+	queryBuilder := query.NewQueryBuilder()
+
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: models.User{
@@ -26,6 +46,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		},
 	})
 
+	organization := testdatagen.MakeDefaultOrganization(suite.DB())
 	userInfo := models.AdminUser{
 		LastName:       "Spaceman",
 		FirstName:      "Leo",
@@ -35,9 +56,9 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		Role:           models.SystemAdminRole,
 	}
 
-	// Happy path
+	// Happy path - creates a new User as well
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -53,14 +74,16 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(builder, mockSender)
+		adminUser, verrs, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
 		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
 	})
 
 	// Reuses existing user if it's already been created for an office or service member
@@ -74,7 +97,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			Role:           models.SystemAdminRole,
 		}
 
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -92,18 +115,20 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&existingUserInfo, filter)
+		creator := NewAdminUserCreator(builder, mockSender)
+		adminUser, verrs, err := creator.CreateAdminUser(appCtx, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
 	})
 
 	// Bad organization ID
 	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
@@ -111,15 +136,15 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 	})
 
 	// Transaction rollback on createOne validation failure
 	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -128,7 +153,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
 			// Fail on the OfficeUser call to CreateOne but let User succeed
 			switch model.(type) {
 			case *models.AdminUser:
@@ -150,15 +175,15 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, verrs, _ := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, verrs, _ := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
 
 	// Transaction rollback on createOne error failure
 	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -167,7 +192,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
 			// Fail on the second createOne call with OfficeUser
 			switch model.(type) {
 			case *models.AdminUser:
@@ -184,8 +209,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

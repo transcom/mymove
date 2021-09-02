@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			UserID:      strfmt.UUID(userIDString),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			userservice.NewUserFetcher(queryBuilder),
@@ -95,6 +95,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		}
 		userFetcher := &mocks.UserFetcher{}
 		userFetcher.On("FetchUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(user, nil).Once()
 		handler := GetUserHandler{
@@ -118,6 +119,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		expectedError := models.ErrFetchNotFound
 		userFetcher := &mocks.UserFetcher{}
 		userFetcher.On("FetchUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
@@ -159,7 +161,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
@@ -185,6 +187,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		userListFetcher := &mocks.ListFetcher{}
 		userListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -192,6 +195,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		userListFetcher.On("FetchRecordCount",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
@@ -225,14 +229,14 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	sessionManagers := setupSessionManagers()
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	handler := UpdateUserHandler{
 		handlerContext,
 		userservice.NewUserSessionRevocation(queryBuilder),
-		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
 		newQueryFilter,
 	}
 
@@ -456,6 +460,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		err := validate.NewErrors()
 
 		userRevocation.On("RevokeUserSession",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
 			sessionManagers[0].Store,
@@ -464,7 +469,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
 			newQueryFilter,
 		}
 
@@ -516,6 +521,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		err := validate.NewErrors()
 
 		userUpdater.On("UpdateUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			userID,
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
@@ -579,12 +585,14 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		err := validate.NewErrors()
 
 		userRevocation.On("RevokeUserSession",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
 			sessionManagers[0].Store,
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			userID,
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
@@ -608,5 +616,4 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(officeSessionID, foundUser.CurrentOfficeSessionID)
 		suite.Equal(true, foundUser.Active)
 	})
-
 }

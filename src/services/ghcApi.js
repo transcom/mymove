@@ -126,6 +126,16 @@ export async function counselingUpdateAllowance({ orderID, ifMatchETag, body }) 
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateBillableWeight({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateBillableWeight';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
+  const operationPath = 'order.acknowledgeExcessWeightRisk';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
   const operationPath = 'customer.updateCustomer';
   return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });
@@ -163,6 +173,23 @@ export function updateMTOShipmentStatus({
   normalize = true,
   schemaKey = 'mtoShipment',
 }) {
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      'If-Match': ifMatchETag,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function updateMTOShipmentRequestReweigh({
+  shipmentID,
+  ifMatchETag,
+  normalize = false,
+  schemaKey = 'mtoShipment',
+}) {
+  const operationPath = 'shipment.requestShipmentReweigh';
   return makeGHCRequest(
     operationPath,
     {

@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -80,6 +81,7 @@ var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := generateQueryFilters(logger, params.Filter, officeUserFilterConverters)
 
@@ -87,12 +89,12 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	var officeUsers models.OfficeUsers
-	err := h.ListFetcher.FetchRecordList(&officeUsers, queryFilters, nil, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(&officeUsers, queryFilters)
+	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -118,12 +120,13 @@ type GetOfficeUserHandler struct {
 // Handle retrieves an office user
 func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	officeUserID := params.OfficeUserID
 
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
 
-	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(queryFilters)
+	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -155,6 +158,7 @@ type CreateOfficeUserHandler struct {
 func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
 	if err != nil {
@@ -186,7 +190,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		h.NewQueryFilter("id", "=", transportationOfficeID),
 	}
 
-	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
+	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
 	if verrs != nil {
 		validationError := &adminmessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
@@ -204,7 +208,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
-	_, err = h.UserRoleAssociator.UpdateUserRoles(*createdOfficeUser.UserID, updatedRoles)
+	_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
 	if err != nil {
 		logger.Error("Error updating user roles", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
@@ -231,13 +235,14 @@ type UpdateOfficeUserHandler struct {
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
 	}
 
-	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(officeUserID, payload)
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
 
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
@@ -246,7 +251,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	}
 	if updatedOfficeUser.UserID != nil && payload.Roles != nil {
 		updatedRoles := rolesPayloadToModel(payload.Roles)
-		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
+		_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
 			logger.Error("Error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()

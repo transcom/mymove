@@ -48,11 +48,13 @@ func Move(move *models.Move) *ghcmessages.Move {
 		Orders:                       Order(&move.Orders),
 		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
 		Status:                       ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
 	}
 
 	return payload
@@ -276,8 +278,6 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
-
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -295,6 +295,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                mtoShipment.Diversion,
+		Reweigh:                  Reweigh(mtoShipment.Reweigh),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
@@ -584,6 +585,15 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	}, nil
 }
 
+// In the TOO queue response we only want to count shipments in these statuses (excluding draft and cancelled)
+// For the Services Counseling queue we will find the earliest move date from shipments in these statuses
+func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
+	return status == models.MTOShipmentStatusSubmitted ||
+		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusDiversionRequested ||
+		status == models.MTOShipmentStatusCancellationRequested
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -592,8 +602,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+			if queueIncludeShipmentStatus(shipment.Status) {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
@@ -682,4 +693,23 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	}
 
 	return &queuePaymentRequests
+}
+
+// Reweigh payload
+func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
+		return nil
+	}
+	payload := &ghcmessages.Reweigh{
+		ID:                     strfmt.UUID(reweigh.ID.String()),
+		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),
+		RequestedBy:            ghcmessages.ReweighRequester(reweigh.RequestedBy),
+		VerificationReason:     reweigh.VerificationReason,
+		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
+		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+		Shipment:               MTOShipment(&reweigh.Shipment),
+		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
+	}
+
+	return payload
 }

@@ -2,8 +2,8 @@ package primeapi
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -15,36 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
-type FetchMTOUpdatesHandler struct {
-	handlers.HandlerContext
-	services.MoveTaskOrderFetcher
-}
-
-// Handle fetches all move task orders with the option to filter since a particular date
-func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IsAvailableToPrime: true,
-	}
-	if params.Since != nil {
-		timeSince := time.Unix(*params.Since, 0)
-		searchParams.Since = &timeSince
-	}
-
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
-
-	if err != nil {
-		logger.Error("Unexpected error while fetching records:", zap.Error(err))
-		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-	}
-
-	payload := payloads.MoveTaskOrders(&mtos)
-
-	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
-}
-
 // ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerContext
@@ -54,6 +24,7 @@ type ListMovesHandler struct {
 // Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
 func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	var searchParams services.MoveTaskOrderFetcherParams
 	if params.Since != nil {
@@ -61,7 +32,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 		searchParams.Since = &since
 	}
 
-	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
+	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 	if err != nil {
 		logger.Error("Unexpected error while fetching moves:", zap.Error(err))
@@ -90,6 +61,7 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle fetches an MTO from the database using its UUID or move code
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
 	}
@@ -102,7 +74,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 		searchParams.Locator = params.MoveID
 	}
 
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
@@ -121,11 +93,12 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 // Handle updates to move task order post-counseling
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
-	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(mtoID)
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, mtoID)
 
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
@@ -139,7 +112,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceID()))
 	}
 
-	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
+	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, params.Body, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch e := err.(type) {

@@ -15,8 +15,9 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Success() {
 	}
 
 	suite.MustSave(&accessCode)
-	claimAccessCode := NewAccessCodeClaimer(suite.DB())
-	ac, _, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
+
+	claimAccessCode := NewAccessCodeClaimer()
+	ac, _, err := claimAccessCode.ClaimAccessCode(suite.TestAppContext(), code, serviceMember.ID)
 
 	suite.NoError(err)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
@@ -34,14 +35,14 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Failed() {
 	}
 
 	suite.MustSave(&accessCode)
-	claimAccessCode := NewAccessCodeClaimer(suite.DB())
-	ac1, _, err1 := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
+	claimAccessCode := NewAccessCodeClaimer()
+	ac1, _, err1 := claimAccessCode.ClaimAccessCode(suite.TestAppContext(), code, serviceMember.ID)
 
 	suite.Nil(err1)
 	suite.Equal(ac1.Code, accessCode.Code, "expected CODE2")
 	suite.Equal(ac1.ServiceMemberID, &serviceMember.ID)
 	suite.NotNil(ac1.ClaimedAt)
-	_, _, err2 := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
+	_, _, err2 := claimAccessCode.ClaimAccessCode(suite.TestAppContext(), code, serviceMember.ID)
 
 	suite.Equal(err2.Error(), "Access code already claimed")
 }
@@ -50,8 +51,8 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_InvalidAccessCode() {
 
 	code := "CODE12"
 
-	claimAccessCode := NewAccessCodeClaimer(suite.DB())
-	_, _, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
+	claimAccessCode := NewAccessCodeClaimer()
+	_, _, err := claimAccessCode.ClaimAccessCode(suite.TestAppContext(), code, serviceMember.ID)
 
 	suite.Equal(err.Error(), "Unable to find access code: "+models.RecordNotFoundErrorString)
 }

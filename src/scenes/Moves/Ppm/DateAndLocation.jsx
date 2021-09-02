@@ -13,9 +13,9 @@ import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { getPPMsForMove, createPPMForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMs, updatePPM } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
+import { createPPMForMove, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMs } from 'store/entities/actions';
+import { selectCurrentOrders, selectCurrentPPM, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -65,6 +65,7 @@ const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
   }
+  return undefined;
 };
 
 export class DateAndLocation extends Component {
@@ -121,6 +122,7 @@ export class DateAndLocation extends Component {
           .catch((err) => err);
       }
     }
+    return undefined;
   };
 
   render() {

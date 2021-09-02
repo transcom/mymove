@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,27 +13,27 @@ const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
 const weightBasedDistanceMultiplierLevelThree = "0.000834"
 const weightBasedDistanceMultiplierLevelFour = "0.00139"
 
-// FSCWeightBasedDistanceMultiplierLookup does lookup on fuel surcharge related weight based distance multiplier rate based on billed actual weight
+// FSCWeightBasedDistanceMultiplierLookup does lookup on fuel surcharge related weight based distance multiplier rate based on billed weight
 type FSCWeightBasedDistanceMultiplierLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r FSCWeightBasedDistanceMultiplierLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	weight, err := WeightBilledActualLookup(r).lookup(keyData)
+func (r FSCWeightBasedDistanceMultiplierLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	weight, err := WeightBilledLookup(r).lookup(appCtx, keyData)
 	if err != nil {
 		return "", err
 	}
 
-	weightBilledActual, err := strconv.Atoi(weight)
+	weightBilled, err := strconv.Atoi(weight)
 	if err != nil {
-		return "", fmt.Errorf("could not convert WeightBilledActualLookup [%s] to integer", weight)
+		return "", fmt.Errorf("could not convert WeightBilledLookup [%s] to integer", weight)
 	}
 
-	if weightBilledActual <= 5000 {
+	if weightBilled <= 5000 {
 		return weightBasedDistanceMultiplierLevelOne, nil
-	} else if weightBilledActual <= 10000 {
+	} else if weightBilled <= 10000 {
 		return weightBasedDistanceMultiplierLevelTwo, nil
-	} else if weightBilledActual <= 24000 {
+	} else if weightBilled <= 24000 {
 		return weightBasedDistanceMultiplierLevelThree, nil
 	} else {
 		return weightBasedDistanceMultiplierLevelFour, nil

@@ -1,16 +1,24 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Button, GridContainer, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import returnLowestValue from '../../../utils/returnLowestValue';
 
+import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
+
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
@@ -18,17 +26,25 @@ import { shipmentSectionLabels } from 'content/shipments';
 import LeftNav from 'components/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
-import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
-import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import {
+  acknowledgeExcessWeightRisk,
+  patchMTOServiceItemStatus,
+  updateBillableWeight,
+  updateMTOShipmentRequestReweigh,
+  updateMTOShipmentStatus,
+} from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
+import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -51,17 +67,31 @@ function showShipmentFilter(shipment) {
   );
 }
 
+// only sum estimated/actual/reweigh weights for shipments in these statuses
+function includedStatuses(status) {
+  return (
+    status === shipmentStatuses.APPROVED ||
+    status === shipmentStatuses.DIVERSION_REQUESTED ||
+    status === shipmentStatuses.CANCELLATION_REQUESTED
+  );
+}
+
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
+  const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
+  const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
+  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount, setMessage } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
@@ -111,17 +141,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      // TODO: Handle error some how
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
-      console.log(errorMsg);
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 
@@ -141,11 +161,67 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
+    onSuccess: (data, variables) => {
+      // Update mtoShipments with our updated status and set query data to match
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
+      queryCache.setQueryData([MTO_SHIPMENTS, data.shipment.moveTaskOrderID, false], mtoShipments);
+
+      // InvalidateQuery tells other components using this data that they need to re-fetch
+      // This allows the requestReweigh button to update immediately
+      queryCache.invalidateQueries([MTO_SHIPMENTS, data.shipment.moveTaskOrderID]);
+
+      setIsReweighModalVisible(false);
+      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+      setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateOrders] = useMutation(updateBillableWeight, {
+    onSuccess: (data, variables) => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
+          [`${variables.orderID}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+      setIsWeightModalVisible(false);
+
+      setMessage(
+        `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
+        'success',
+        'The maximum billable weight has been updated.',
+        '',
+        true,
+      );
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
+    onSuccess: () => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
       // TODO: Handle error some how
       // RA Summary: eslint: no-console - System Information Leak: External
       // RA: The linter flags any use of console.
       // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
       // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
       // RA Developer Status: Known Issue
       // RA Validator Status: Known Issue
@@ -154,12 +230,21 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
+
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
       shipmentID: mtoShipmentID,
       operationPath: 'shipment.requestShipmentDiversion',
       ifMatchETag: eTag,
       onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+    });
+  };
+
+  const handleReweighShipment = (mtoShipmentID, eTag) => {
+    mutateMTOShipmentRequestReweigh({
+      shipmentID: mtoShipmentID,
+      ifMatchETag: eTag,
+      onSuccessFlashMsg: `Reweigh successfully requested.`,
     });
   };
 
@@ -182,6 +267,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       rejectionReason,
       ifMatchEtag: mtoServiceItemForRequest.eTag,
     });
+  };
+
+  const handleUpdateBillableWeight = (maxBillableWeight) => {
+    mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+  };
+
+  const handleAcknowledgeExcessWeightRisk = () => {
+    mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
 
   useEffect(() => {
@@ -213,48 +306,65 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    const shipmentSections = [];
-    mtoShipments?.forEach((shipment) => {
-      if (
-        shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-        shipment.status === shipmentStatuses.CANCELED
-      ) {
-        shipmentSections.push({
+    const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
+      if (showShipmentFilter(shipment)) {
+        previous.push({
           id: shipment.id,
           label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
         });
       }
-    });
-    setSections(shipmentSections);
+      return previous;
+    }, []);
+    setSections(shipmentSections || []);
   }, [mtoShipments]);
 
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+    let excessBillableWeightCount = 0;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#shipment-${section.id}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section.id;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatuses(s.status))) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight && includedStatuses(s.status))
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
     }
-  };
+
+    setEstimatedWeightTotal(estimatedWeightCalc);
+
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
+      excessBillableWeightCount = 1;
+      setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
+    }
+
+    const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
+
+    setIsWeightAlertVisible(showWeightAlert);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
+
+  // Edge case of diversion shipments being counted twice
+  const moveWeightTotal = useMemo(() => {
+    return (
+      mtoShipments
+        ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
+        .reduce((prev, current) => {
+          return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
+        }, 0) || null
+    );
+  }, [mtoShipments]);
 
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
@@ -265,6 +375,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const handleShowCancellationModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsCancelModalVisible(true);
+  };
+
+  const handleRequestReweighModal = (mtoShipment) => {
+    setSelectedShipment(mtoShipment);
+    setIsReweighModalVisible(true);
+  };
+
+  const handleShowWeightModal = () => {
+    setIsWeightModalVisible(true);
+  };
+
+  const handleHideWeightAlert = () => {
+    handleAcknowledgeExcessWeightRisk();
+    setIsWeightAlertVisible(false);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -285,6 +409,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     );
   }
 
+  const excessWeightAlertControl = (
+    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+      <FontAwesomeIcon icon="times" />
+    </Button>
+  );
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -292,7 +422,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           {sections.map((s) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
-              <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
+              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
                 {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
                   <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
@@ -302,6 +432,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           })}
         </LeftNav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          {isWeightAlertVisible && (
+            <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
+              <span>
+                This move is at risk for excess weight.{' '}
+                <span className={styles.rightAlignButtonWrapper}>
+                  <Button type="button" onClick={handleShowWeightModal} unstyled>
+                    Review billable weight
+                  </Button>
+                </span>
+              </span>
+            </Alert>
+          )}
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
@@ -316,12 +458,39 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleUpdateMTOShipmentStatus}
             />
           )}
+          {isReweighModalVisible && (
+            <RequestReweighModal
+              shipmentInfo={selectedShipment}
+              onClose={setIsReweighModalVisible}
+              onSubmit={handleReweighShipment}
+            />
+          )}
+          {isWeightModalVisible && (
+            <EditMaxBillableWeightModal
+              defaultWeight={order.entitlement.totalWeight}
+              maxBillableWeight={order.entitlement.authorizedWeight}
+              onSubmit={handleUpdateBillableWeight}
+              onClose={setIsWeightModalVisible}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
+          </div>
+          <div className={moveTaskOrderStyles.weightHeader}>
+            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
+            <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+            </WeightDisplay>
+            <WeightDisplay
+              heading="Max billable weight"
+              weightValue={order.entitlement.authorizedWeight}
+              onEdit={handleShowWeightModal}
+            />
+            <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
           {mtoShipments.map((mtoShipment) => {
             if (
@@ -350,7 +519,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
             return (
               <ShipmentContainer
-                id={`shipment-${mtoShipment.id}`}
+                id={`s-${mtoShipment.id}`}
                 key={mtoShipment.id}
                 shipmentType={mtoShipment.shipmentType}
                 className={styles.shipmentCard}
@@ -371,7 +540,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
-                <ShipmentDetails shipment={mtoShipment} order={order} handleDivertShipment={handleDivertShipment} />
+                <ShipmentDetails
+                  shipment={mtoShipment}
+                  order={order}
+                  handleDivertShipment={handleDivertShipment}
+                  handleRequestReweighModal={handleRequestReweighModal}
+                />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedServiceItems}
@@ -409,6 +583,7 @@ MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
 };
 

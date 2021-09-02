@@ -3,10 +3,10 @@ import * as formatters from './formatters';
 describe('formatters', () => {
   describe('format date for customer app', () => {
     it('should format customer date to DD MMM YYYY', () => {
-      expect(formatters.formatCustomerDate('Sep-27-20')).toBe('27 Sep 2020');
+      expect(formatters.formatCustomerDate('2020-09-27T00:00:00Z')).toBe('27 Sep 2020');
     });
     it('should format signature date to YYYY-MM-DD', () => {
-      expect(formatters.formatSignatureDate('Sep-27-20')).toBe('2020-09-27');
+      expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');
     });
   });
   describe('format order type for customer app', () => {

@@ -92,7 +92,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         url = `${apiUrl}/${resource}?${stringify(query)}`;
         break;
       }
-      case UPDATE:
+      case UPDATE: {
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
         options.headers.set('If-Match', params.data?.eTag); // for optimistic locking / concurrency control
@@ -102,6 +102,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         }
         options.body = JSON.stringify(paramsDiff);
         break;
+      }
       case CREATE:
         url = `${apiUrl}/${resource}`;
         options.method = 'POST';

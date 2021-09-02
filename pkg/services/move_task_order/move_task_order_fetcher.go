@@ -6,24 +6,24 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type moveTaskOrderFetcher struct {
-	db *pop.Connection
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{db}
+func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
+	return &moveTaskOrderFetcher{}
 }
 
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
-	query := f.db.EagerPreload(
+	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -52,10 +52,10 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
-	query := f.db.EagerPreload(
+	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -94,7 +94,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(searchParams *services.MoveTask
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targetting the Prime API.
-func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
 
@@ -114,10 +114,10 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.Mov
 			                            SELECT payment_requests.move_id
 			                            FROM payment_requests
 			                            WHERE payment_requests.updated_at >= $1)));`
-		err = f.db.RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
+		err = appCtx.DB().RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
 	} else {
 		sql = sql + `;`
-		err = f.db.RawQuery(sql).All(&moveTaskOrders)
+		err = appCtx.DB().RawQuery(sql).All(&moveTaskOrders)
 	}
 
 	if err != nil {
