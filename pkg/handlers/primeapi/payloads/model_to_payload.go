@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -22,6 +23,9 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	fmt.Println("🍑🍑🍑🍑")
+	fmt.Println(mtoShipments)
+
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		MoveCode:           moveTaskOrder.Locator,
@@ -549,7 +553,7 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 
 // Reweigh returns the reweigh payload
 func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
-	if reweigh.ID == uuid.Nil {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
 		return nil
 	}
 

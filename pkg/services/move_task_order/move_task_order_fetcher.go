@@ -2,6 +2,7 @@ package movetaskorder
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -90,6 +91,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	for i, shipment := range mto.MTOShipments {
+		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
+
+		if reweighErr != nil {
+			return &models.Move{}, err
+		}
+
+		mto.MTOShipments[i].Reweigh = reweigh
+		fmt.Println("🦠🦠🦠🦠🦠")
+		fmt.Println(shipment.Reweigh)
+	}
+
+	fmt.Println()
+
 	return mto, nil
 }
 
@@ -146,4 +161,23 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 		}
 	}
 	// No return since this function uses pointers to modify the referenced query directly
+}
+
+//fetchReweigh retrieves a reweigh for a given shipment id
+func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	reweigh := &models.Reweigh{}
+	err := appCtx.DB().
+		Where("shipment_id = ?", shipmentID).
+		First(reweigh)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &models.Reweigh{}, nil
+		default:
+			fmt.Println(err)
+			return &models.Reweigh{}, err
+		}
+	}
+	return reweigh, nil
 }
