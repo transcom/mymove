@@ -44,6 +44,7 @@ type listMTOShipmentsSubtestData struct {
 	mtoServiceItem models.MTOServiceItem
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
+	sitExtensions  models.SITExtensions
 }
 
 func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
@@ -67,6 +68,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 			MTOShipmentID: &mtoShipment.ID,
 		},
 	})
+	subtestData.sitExtensions = testdatagen.MakeSITExtensions(suite.DB(), testdatagen.Assertions{})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -89,6 +91,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		shipments := subtestData.shipments
 		mtoAgent := subtestData.mtoAgent
 		mtoServiceItem := subtestData.mtoServiceItem
+		sitExtensions := subtestData.sitExtensions
 
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
@@ -108,6 +111,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
+		suite.Equal(sitExtensions[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
