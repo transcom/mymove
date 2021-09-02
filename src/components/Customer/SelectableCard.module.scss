@@ -3,11 +3,11 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/_variables';
 
-p + .cardContainer {
+p+.cardContainer {
   margin-top: 0px;
 }
 
-.cardContainer + .cardContainer {
+.cardContainer+.cardContainer {
   @include u-margin-top('105');
 }
 
@@ -80,6 +80,10 @@ p + .cardContainer {
     background-color: $info-light;
     border: 2px solid $base-lighter;
     @include u-padding-bottom('205');
+
+    & :global(.usa-checkbox__label-description) {
+      color: $base-dark;
+    }
   }
 
   :global(.usa-radio__input--tile + .usa-radio__label) {
