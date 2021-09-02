@@ -19,7 +19,6 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-/*
 const mockOriginDutyStation = {
   address: {
     city: 'Des Moines',
@@ -53,7 +52,6 @@ const mockDestinationDutyStation = {
   id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
   name: 'Fort Gordon',
 };
-
 
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
@@ -92,8 +90,15 @@ const useOrdersDocumentQueriesReturnValue = {
       sac: 'E2P3',
     },
   },
+  upload: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
 };
-*/
 
 const loadingReturnValue = {
   isLoading: true,
@@ -127,10 +132,14 @@ describe('ReviewBillableWeight', () => {
       expect(errorMessage).toBeInTheDocument();
     });
   });
-  /*
+
   it('renders the component', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
     render(<ReviewBillableWeight />);
     expect(screen.getByText('Review weights')).toBeInTheDocument();
   });
+  /*
+
   */
 });
