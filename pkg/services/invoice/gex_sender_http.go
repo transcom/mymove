@@ -35,12 +35,12 @@ type gexSenderHTTP struct {
 	gexBasicAuthPassword string
 }
 
-// SendToGex sends an edi file string as a POST to the gex api
+// SendToGex sends a body string as a POST to the gex api
 // To set local dev to send a real GEX request, replace your env.local:
 // export GEX_URL=""  with "export GEX_URL=https://gexweba.daas.dla.mil/msg_data/submit/"
-func (s *gexSenderHTTP) SendToGex(channel services.GEXChannel, edi string, filename string) (resp *http.Response, err error) {
+func (s *gexSenderHTTP) SendToGex(channel services.GEXChannel, body string, filename string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
-	edi = strings.TrimSpace(edi) + "\n"
+	body = strings.TrimSpace(body) + "\n"
 	URL := s.url
 	parsedURL, err := url.Parse(URL)
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *gexSenderHTTP) SendToGex(channel services.GEXChannel, edi string, filen
 	request, err := http.NewRequest(
 		"POST",
 		URL,
-		strings.NewReader(edi),
+		strings.NewReader(body),
 	)
 	if err != nil {
 		return resp, fmt.Errorf("Creating GEX POST request: %w", err)

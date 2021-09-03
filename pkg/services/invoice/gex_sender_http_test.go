@@ -29,12 +29,12 @@ func TestGexSuite(t *testing.T) {
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_Call() {
-	ediString := ""
+	bodyString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
-		SendToGex(services.GEXChannelInvoice, ediString, "test_transaction")
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -45,7 +45,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	resp, err = NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
-		SendToGex(services.GEXChannelInvoice, ediString, "test_transaction")
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -55,12 +55,12 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
-	ediString := ""
+	bodyString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
-		SendToGex(services.GEXChannelInvoice, ediString, "test_filename")
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_filename")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -73,13 +73,13 @@ func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_InvalidChannel() {
-	ediString := ""
+	bodyString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	var invalidChannel services.GEXChannel = "INVALID-CHANNEL"
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
-		SendToGex(invalidChannel, ediString, "test_filename")
+		SendToGex(invalidChannel, bodyString, "test_filename")
 	suite.Nil(resp)
 	suite.NotNil(err)
 	suite.Equal("Invalid channel type, expected [\"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM\" \"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM\"]", err.Error())
