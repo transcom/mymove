@@ -437,29 +437,25 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor.AssertNotCalled(suite.T(), "RequestShipmentReweigh")
 	})
 
-	/*
-		suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
-			approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-			approvedMove.Orders.Grade = nil
+	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove.Orders.Grade = nil
 
-			err := suite.DB().Save(&approvedMove.Orders)
-			suite.NoError(err)
+		err := suite.DB().Save(&approvedMove.Orders)
+		suite.NoError(err)
 
-			_, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, models.MTOShipment{})
-			suite.Nil(verrs)
-			suite.EqualError(err, "could not determine excess weight entitlement without grade")
-		})
+		err = moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &models.MTOShipment{})
+		suite.EqualError(err, "could not determine excess weight entitlement without grade")
+	})
 
-		suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
-			approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-			approvedMove.Orders.Entitlement.DependentsAuthorized = nil
+	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
 
-			err := suite.DB().Save(approvedMove.Orders.Entitlement)
-			suite.NoError(err)
+		err := suite.DB().Save(approvedMove.Orders.Entitlement)
+		suite.NoError(err)
 
-			_, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, models.MTOShipment{})
-			suite.Nil(verrs)
-			suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
-		})
-	*/
+		err = moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &models.MTOShipment{})
+		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
+	})
 }
