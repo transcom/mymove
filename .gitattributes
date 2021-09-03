@@ -1,0 +1,7 @@
+# README: https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes
+
+# Generated Golang files by `make server_generate`
+pkg/gen/**/* binary
+
+# Generated Swagger files by `yarn build-redoc`
+swagger/*.yaml binary
