@@ -51,17 +51,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	return payload
 }
 
-// MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder {
-	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
-
-	for i, m := range *moveTaskOrders {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MoveTaskOrder(&copyOfM)
-	}
-	return payload
-}
-
 // ListMove payload
 func ListMove(move *models.Move) *primemessages.ListMove {
 	if move == nil {

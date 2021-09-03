@@ -40,27 +40,20 @@ const TXOTabNav = ({
               exact
               activeClassName="usa-current"
               to={`/moves/${moveCode}/details`}
-              role="tab"
               data-testid="MoveDetails-Tab"
             >
               <span className="tab-title">Move details</span>
               {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
             </NavLink>,
-            <NavLink
-              data-testid="MoveTaskOrder-Tab"
-              exact
-              activeClassName="usa-current"
-              to={`/moves/${moveCode}/mto`}
-              role="tab"
-            >
+            <NavLink data-testid="MoveTaskOrder-Tab" exact activeClassName="usa-current" to={`/moves/${moveCode}/mto`}>
               <span className="tab-title">Move task order</span>
               {moveTaskOrderTagCount > 0 && <Tag>{moveTaskOrderTagCount}</Tag>}
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`} role="tab">
+            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`}>
               <span className="tab-title">Payment requests</span>
               {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`} role="tab">
+            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`}>
               <span className="tab-title">History</span>
             </NavLink>,
           ]}

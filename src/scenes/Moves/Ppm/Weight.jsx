@@ -19,15 +19,15 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMs, updatePPMEstimate, updatePPM } from 'store/entities/actions';
+import { calculatePPMEstimate, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
-  selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectCurrentPPM,
   selectPPMEstimateRange,
+  selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');

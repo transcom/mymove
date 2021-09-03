@@ -43,3 +43,7 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
 };
+
+export const tioRoutes = {
+  BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
+};

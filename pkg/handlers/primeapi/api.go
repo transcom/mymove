@@ -39,11 +39,6 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.ServeError = handlers.ServeCustomError
 
-	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
-		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(),
-	}
-
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, includes, find, mapValues, capitalize } from 'lodash';
+import { capitalize, find, get, includes, mapValues } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { formatDateForSwagger } from './dates';

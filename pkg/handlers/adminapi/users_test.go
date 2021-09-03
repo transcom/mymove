@@ -236,7 +236,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	handler := UpdateUserHandler{
 		handlerContext,
 		userservice.NewUserSessionRevocation(queryBuilder),
-		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
 		newQueryFilter,
 	}
 
@@ -469,7 +469,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
 			newQueryFilter,
 		}
 
@@ -616,5 +616,4 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(officeSessionID, foundUser.CurrentOfficeSessionID)
 		suite.Equal(true, foundUser.Active)
 	})
-
 }

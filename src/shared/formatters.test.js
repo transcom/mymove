@@ -64,7 +64,8 @@ describe('formatters', () => {
     });
 
     it('should default to DD-MMM-YY ouptut format', () => {
-      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+      const inputFormat = 'MMM-DD-YY';
+      expect(formatters.formatDate('Nov-11-99', inputFormat)).toBe('11-Nov-99');
     });
   });
 

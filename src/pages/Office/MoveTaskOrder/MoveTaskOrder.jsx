@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer, Tag, Button, Alert } from '@trussworks/react-uswds';
+import { Alert, Button, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
