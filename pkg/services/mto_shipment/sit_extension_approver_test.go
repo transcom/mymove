@@ -20,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), nonexistentUUID, nonexistentUUID, &approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), nonexistentUUID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -34,7 +34,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, nonexistentUUID, &approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -50,11 +50,28 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, &approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), mtoShipment.ID.String())
+	})
+
+	suite.T().Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func(t *testing.T) {
+		sitExtensionApprover := NewSITExtensionApprover()
+		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		otherMtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		approvedDays := int(20)
+		officeRemarks := "office remarks"
+		eTag := ""
+
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), otherMtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "SITExtension's shipment ID does not match shipment ID provided")
 	})
 
 	suite.T().Run("Updates the shipment's SIT days allowance and the SIT extension's status and approved days if all fields are valid", func(t *testing.T) {
@@ -73,7 +90,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, &approvedDays, &officeRemarks, eTag)
+		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -85,9 +102,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(newSITDaysAllowance, *updatedShipment.SITDaysAllowance)
-		// TODO: these tests fail - is it my setup, or is the sit extension actually not being updated?
-		// suite.Equal(approvedDays, *sitExtensionInDB.ApprovedDays)
-		// suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
-		// suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
+		suite.Equal(approvedDays, *sitExtensionInDB.ApprovedDays)
+		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
+		suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
 	})
 }

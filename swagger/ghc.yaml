@@ -3133,6 +3133,7 @@ definitions:
         description: Number of days approved for SIT extension
         type: integer
         example: 21
+        minimum: 1
       officeRemarks:
         description: Remarks from TOO about SIT approval
         type: string

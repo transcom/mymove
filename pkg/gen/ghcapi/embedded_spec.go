@@ -2653,6 +2653,7 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
           "type": "integer",
+          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
@@ -8212,6 +8213,7 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
           "type": "integer",
+          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
