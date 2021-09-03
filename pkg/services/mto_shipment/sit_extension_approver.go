@@ -35,7 +35,7 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 	}
 
 	if sitExtension.MTOShipmentID != shipment.ID {
-		return nil, errors.New("SITExtension's shipment ID does not match shipment ID provided")
+		return nil, services.NewNotFoundError(shipmentID, "while looking for SITExtension's shipment ID")
 	}
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)

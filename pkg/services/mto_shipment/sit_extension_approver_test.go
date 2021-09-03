@@ -71,7 +71,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), otherMtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "SITExtension's shipment ID does not match shipment ID provided")
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), otherMtoShipment.ID.String())
 	})
 
 	suite.T().Run("Updates the shipment's SIT days allowance and the SIT extension's status and approved days if all fields are valid", func(t *testing.T) {
