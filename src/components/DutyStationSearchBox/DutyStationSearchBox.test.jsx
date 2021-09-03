@@ -198,7 +198,7 @@ describe('DutyStationSearchBox', () => {
       render(<DutyStationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
-      const option = await screen.findByText('Luke AFB');
+      const option = await screen.findByText('Luke');
       expect(option).toBeInTheDocument();
 
       const optionsContainer = option.closest('div').parentElement;
@@ -238,7 +238,7 @@ describe('DutyStationSearchBox', () => {
         />,
       );
       userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
-      userEvent.click(await screen.findByText('Luke AFB'));
+      userEvent.click(await screen.findByText('Luke'));
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({

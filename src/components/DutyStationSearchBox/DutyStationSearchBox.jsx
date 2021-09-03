@@ -13,6 +13,28 @@ import { DutyStationShape } from 'types';
 
 const getOptionName = (option) => option.name;
 
+const formatOptionLabel = (option, input) => {
+  const { name } = option;
+  const { inputValue } = input;
+
+  const optionLabel = name || '';
+  const inputText = inputValue || '';
+
+  const searchIndex = optionLabel.toLowerCase().indexOf(inputText.toLowerCase());
+
+  if (searchIndex === -1) {
+    return <span>{optionLabel}</span>;
+  }
+
+  return (
+    <span>
+      {optionLabel.substr(0, searchIndex)}
+      <mark>{optionLabel.substr(searchIndex, inputText.length)}</mark>
+      {optionLabel.substr(searchIndex + inputText.length)}
+    </span>
+  );
+};
+
 const uswdsBlack = '#565c65';
 const uswdsBlue = '#2491ff';
 
@@ -113,7 +135,7 @@ export const DutyStationSearchBoxComponent = (props) => {
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          getOptionLabel={getOptionName}
+          formatOptionLabel={formatOptionLabel}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}
