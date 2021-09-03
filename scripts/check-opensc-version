@@ -4,7 +4,7 @@ set -eu -o pipefail
 
 VERSION="0.21"
 
-OPENSC_VERSION=$(brew info --cask opensc | head -n1 | cut -d" " -f2 )
+OPENSC_VERSION=$(opensc-tool --info | head -n1 | cut -d" " -f2 )
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${OPENSC_VERSION%.*}
