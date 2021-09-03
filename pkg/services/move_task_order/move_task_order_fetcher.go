@@ -2,7 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -101,8 +100,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		mto.MTOShipments[i].Reweigh = reweigh
 	}
 
-	fmt.Println()
-
 	return mto, nil
 }
 
@@ -173,7 +170,6 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 		case sql.ErrNoRows:
 			return &models.Reweigh{}, nil
 		default:
-			fmt.Println(err)
 			return &models.Reweigh{}, err
 		}
 	}

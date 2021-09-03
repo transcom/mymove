@@ -43,7 +43,8 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		// Not Found Error -> Not Found Response
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateReweighNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateReweighNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateReweighUnprocessableEntity().WithPayload(

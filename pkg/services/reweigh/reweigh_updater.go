@@ -75,7 +75,5 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, err
 	}
 
-	updatedReweigh.Shipment = shipment
-
 	return &updatedReweigh, nil
 }

@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 	})
 
 	suite.T().Run("Success 200 - Update reweigh verification reason", func(t *testing.T) {
-		// Testcase:   reweigh us updated with the verrification reason
+		// Testcase:   reweigh is updated with the verification reason
 		// Expected:   Success response 200
 
 		// Update with verification reason
