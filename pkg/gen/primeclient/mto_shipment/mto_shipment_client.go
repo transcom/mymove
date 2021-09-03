@@ -42,6 +42,8 @@ type ClientService interface {
 
 	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error)
 
+	UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -337,6 +339,53 @@ func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, 
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for updateMTOShipmentStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  UpdateReweigh updates reweigh
+
+  ### Functionality
+This endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.
+Only one of weight or verificationReason should be sent in the request body.
+
+A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
+A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
+so not all shipments will have a reweigh weight.
+
+*/
+func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateReweighParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateReweigh",
+		Method:             "PATCH",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateReweighReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateReweighOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateReweigh: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

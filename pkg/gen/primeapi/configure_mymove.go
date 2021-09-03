@@ -110,6 +110,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentUpdateReweighHandler == nil {
+		api.MtoShipmentUpdateReweighHandler = mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
+		})
+	}
 
 	api.PreServerShutdown = func() {}
 
