@@ -346,8 +346,12 @@ func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, 
   UpdateReweigh updates reweigh
 
   ### Functionality
-This endpoint is used to **update** the reweigh for an MTO Shipment. This endpoint enables the reweigh weight,
-and response to be updated. This endpoint **cannot create** a reweigh.
+This endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.
+Only one of weight or verificationReason should be sent in the request body.
+
+A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
+A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
+so not all shipments will have a reweigh weight.
 
 */
 func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error) {

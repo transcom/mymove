@@ -675,7 +675,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
       "patch": {
-        "description": "### Functionality\nThis endpoint is used to **update** the reweigh for an MTO Shipment. This endpoint enables the reweigh weight,\nand response to be updated. This endpoint **cannot create** a reweigh.\n",
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
         "consumes": [
           "application/json"
         ],
@@ -3815,7 +3815,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
       "patch": {
-        "description": "### Functionality\nThis endpoint is used to **update** the reweigh for an MTO Shipment. This endpoint enables the reweigh weight,\nand response to be updated. This endpoint **cannot create** a reweigh.\n",
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
         "consumes": [
           "application/json"
         ],
