@@ -41,8 +41,3 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 
 	return SITExtension
 }
-
-// MakeDefaultSITExtension returns a SITExtension with default values
-func MakeDefaultSITExtension(db *pop.Connection) models.SITExtension {
-	return MakeSITExtension(db, Assertions{})
-}
