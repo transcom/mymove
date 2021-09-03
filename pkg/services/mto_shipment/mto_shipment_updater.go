@@ -123,6 +123,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks
 	}
 
+	if requestedUpdatedShipment.BillableWeightCap != nil {
+		dbShipment.BillableWeightCap = requestedUpdatedShipment.BillableWeightCap
+	}
+
+	if requestedUpdatedShipment.BillableWeightJustification != nil {
+		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		agentsToCreateOrUpdate := []models.MTOAgent{}
@@ -493,6 +501,8 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
 		mtoShipment.Diversion,
+		mtoShipment.BillableWeightCap,
+		mtoShipment.BillableWeightJustification,
 		mtoShipment.ID,
 	}
 }
@@ -519,7 +529,9 @@ func generateUpdateMTOShipmentQuery() string {
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
 			secondary_pickup_address_id = ?,
-			diversion = ?
+			diversion = ?,
+			billable_weight_cap = ?,
+			billable_weight_justification = ?
 		WHERE
 			id = ?
 	`
