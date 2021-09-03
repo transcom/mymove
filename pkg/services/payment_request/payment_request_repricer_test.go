@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -15,17 +16,17 @@ import (
 )
 
 const (
-	repriceTestPickupZip             = "30907"
-	repriceTestDestinationZip        = "78234"
-	repriceTestMSFee                 = unit.Cents(25513)
-	repriceTestCSFee                 = unit.Cents(22399)
-	repriceTestDLHPrice              = unit.Millicents(6000)
-	repriceTestFSCPrice              = unit.Millicents(277600)
-	repriceTestEstimatedWeight       = unit.Pound(3500)
-	repriceTestOriginalWeight        = unit.Pound(3652)
-	repriceTestChangedOriginalWeight = unit.Pound(3412)
-	repriceTestEscalationCompounded  = 1.04071
-	repriceTestZip3Distance          = 1234
+	repriceTestPickupZip            = "30907"
+	repriceTestDestinationZip       = "78234"
+	repriceTestMSFee                = unit.Cents(25513)
+	repriceTestCSFee                = unit.Cents(22399)
+	repriceTestDLHPrice             = unit.Millicents(6000)
+	repriceTestFSCPrice             = unit.Millicents(277600)
+	repriceTestEstimatedWeight      = unit.Pound(3500)
+	repriceTestOriginalWeight       = unit.Pound(3652)
+	repriceTestNewOriginalWeight    = unit.Pound(3412)
+	repriceTestEscalationCompounded = 1.04071
+	repriceTestZip3Distance         = 1234
 )
 
 func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
@@ -44,45 +45,71 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
 	paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
+	// Add a couple of proof of service docs and prime uploads.
+	for i := 0; i < 2; i++ {
+		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
+			ProofOfServiceDoc: models.ProofOfServiceDoc{
+				PaymentRequestID: paymentRequest.ID,
+			},
+		})
+		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
+			PrimeUpload: models.PrimeUpload{
+				ProofOfServiceDocID: proofOfServiceDoc.ID,
+				ContractorID:        contractor.ID,
+			},
+		})
+		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
+			PrimeUpload: models.PrimeUpload{
+				ProofOfServiceDocID: proofOfServiceDoc.ID,
+				ContractorID:        contractor.ID,
+				DeletedAt:           swag.Time(time.Now()),
+			},
+		})
+	}
+
 	// Adjust shipment's original weight to force different pricing on a reprice.
 	mtoShipment := move.MTOShipments[0]
-	newWeight := repriceTestChangedOriginalWeight
+	newWeight := repriceTestNewOriginalWeight
 	mtoShipment.PrimeActualWeight = &newWeight
 	suite.MustSave(&mtoShipment)
 
 	// Reprice the payment request created above.
 	repricer := NewPaymentRequestRepricer(creator)
-	repricedPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
+	newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
-	// Fetch the old payment request again (since repricing should have changed its status).
-	// Need to eager fetch some related data to use in test assertions below.
-	var reloadedPaymentRequest models.PaymentRequest
+	// Fetch the old payment request again -- status should have changed and it should also
+	// have proof of service docs now.  Need to eager fetch some related data to use in test
+	// assertions below.
+	var oldPaymentRequest models.PaymentRequest
 	err = suite.DB().
 		EagerPreload(
 			"PaymentServiceItems.MTOServiceItem.ReService",
-			"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").
-		Find(&reloadedPaymentRequest, paymentRequest.ID)
+			"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+			"ProofOfServiceDocs.PrimeUploads",
+		).
+		Find(&oldPaymentRequest, paymentRequest.ID)
 	suite.FatalNoError(err)
 
 	// Verify some top-level items on the payment requests.
-	suite.Equal(reloadedPaymentRequest.MoveTaskOrderID, repricedPaymentRequest.MoveTaskOrderID, "both payment requests should point to same move")
-	suite.Equal(len(reloadedPaymentRequest.PaymentServiceItems), len(repricedPaymentRequest.PaymentServiceItems), "both payment requests should have same number of service items")
-	suite.Equal(reloadedPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected, "Exiting payment request status incorrect")
-	suite.Equal(repricedPaymentRequest.Status, models.PaymentRequestStatusPending, "Repriced payment request status incorrect")
+	suite.Equal(oldPaymentRequest.MoveTaskOrderID, newPaymentRequest.MoveTaskOrderID, "Both payment requests should point to same move")
+	suite.Equal(len(oldPaymentRequest.PaymentServiceItems), len(newPaymentRequest.PaymentServiceItems), "Both payment requests should have same number of service items")
+	suite.Equal(oldPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected, "Old payment request status incorrect")
+	suite.Equal(newPaymentRequest.Status, models.PaymentRequestStatusPending, "New payment request status incorrect")
 
 	// Verify that the IDs of the MTO service items remain the same across both payment requests.
-	existingMTOServiceItems := make(map[uuid.UUID]int)
-	for _, paymentServiceItem := range reloadedPaymentRequest.PaymentServiceItems {
-		count := existingMTOServiceItems[paymentServiceItem.MTOServiceItemID]
-		existingMTOServiceItems[paymentServiceItem.MTOServiceItemID] = count + 1
+	oldMTOServiceItemIDs := make(map[uuid.UUID]int)
+	for _, paymentServiceItem := range oldPaymentRequest.PaymentServiceItems {
+		count := oldMTOServiceItemIDs[paymentServiceItem.MTOServiceItemID]
+		oldMTOServiceItemIDs[paymentServiceItem.MTOServiceItemID] = count + 1
 	}
-	repricedMTOServiceItems := make(map[uuid.UUID]int)
-	for _, paymentServiceItem := range repricedPaymentRequest.PaymentServiceItems {
-		count := repricedMTOServiceItems[paymentServiceItem.MTOServiceItemID]
-		repricedMTOServiceItems[paymentServiceItem.MTOServiceItemID] = count + 1
+	newMTOServiceItemIDs := make(map[uuid.UUID]int)
+	for _, paymentServiceItem := range newPaymentRequest.PaymentServiceItems {
+		count := newMTOServiceItemIDs[paymentServiceItem.MTOServiceItemID]
+		newMTOServiceItemIDs[paymentServiceItem.MTOServiceItemID] = count + 1
 	}
-	suite.Equal(existingMTOServiceItems, repricedMTOServiceItems, "Referenced MTOServiceItems are not the same")
+	suite.Equal(oldMTOServiceItemIDs, newMTOServiceItemIDs, "Referenced MTOServiceItems are not the same")
 
 	// Test the service items, prices, and expected changed parameters.  Note that we don't check
 	// all parameters since we assume the payment request creator we're calling has already tested
@@ -92,83 +119,83 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
 		value string
 	}
 
-	strRepriceTestOriginalWeight := strconv.Itoa(repriceTestOriginalWeight.Int())
-	strRepriceTestChangedOriginalWeight := strconv.Itoa(repriceTestChangedOriginalWeight.Int())
+	strTestOriginalWeight := strconv.Itoa(repriceTestOriginalWeight.Int())
+	strTestChangedOriginalWeight := strconv.Itoa(repriceTestNewOriginalWeight.Int())
 	testServicePriceParams := []struct {
-		isRepriced     bool
-		paymentRequest *models.PaymentRequest
-		serviceCode    models.ReServiceCode
-		priceCents     unit.Cents
-		paramsToCheck  []paramMap
+		isNewPaymentRequest bool
+		paymentRequest      *models.PaymentRequest
+		serviceCode         models.ReServiceCode
+		priceCents          unit.Cents
+		paramsToCheck       []paramMap
 	}{
-		// Existing payment request that we were repricing
+		// Old payment request that we were repricing
 		{
-			paymentRequest: &reloadedPaymentRequest,
+			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeMS,
 			priceCents:     unit.Cents(25513),
 		},
 		{
-			paymentRequest: &reloadedPaymentRequest,
+			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeCS,
 			priceCents:     unit.Cents(22399),
 		},
 		{
-			paymentRequest: &reloadedPaymentRequest,
+			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDLH,
 			priceCents:     unit.Cents(281402),
 			paramsToCheck: []paramMap{
-				{models.ServiceItemParamNameWeightOriginal, strRepriceTestOriginalWeight},
-				{models.ServiceItemParamNameWeightBilled, strRepriceTestOriginalWeight},
+				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
 			},
 		},
 		{
-			paymentRequest: &reloadedPaymentRequest,
+			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeFSC,
 			priceCents:     unit.Cents(1420),
 			paramsToCheck: []paramMap{
-				{models.ServiceItemParamNameWeightOriginal, strRepriceTestOriginalWeight},
-				{models.ServiceItemParamNameWeightBilled, strRepriceTestOriginalWeight},
+				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
 			},
 		},
 		// New payment request with new prices
 		{
-			isRepriced:     true,
-			paymentRequest: repricedPaymentRequest,
-			serviceCode:    models.ReServiceCodeMS,
-			priceCents:     unit.Cents(25513),
+			isNewPaymentRequest: true,
+			paymentRequest:      newPaymentRequest,
+			serviceCode:         models.ReServiceCodeMS,
+			priceCents:          unit.Cents(25513),
 		},
 		{
-			isRepriced:     true,
-			paymentRequest: repricedPaymentRequest,
-			serviceCode:    models.ReServiceCodeCS,
-			priceCents:     unit.Cents(22399),
+			isNewPaymentRequest: true,
+			paymentRequest:      newPaymentRequest,
+			serviceCode:         models.ReServiceCodeCS,
+			priceCents:          unit.Cents(22399),
 		},
 		{
-			isRepriced:     true,
-			paymentRequest: repricedPaymentRequest,
-			serviceCode:    models.ReServiceCodeDLH,
-			priceCents:     unit.Cents(262909),
+			isNewPaymentRequest: true,
+			paymentRequest:      newPaymentRequest,
+			serviceCode:         models.ReServiceCodeDLH,
+			priceCents:          unit.Cents(262909),
 			paramsToCheck: []paramMap{
-				{models.ServiceItemParamNameWeightOriginal, strRepriceTestChangedOriginalWeight},
-				{models.ServiceItemParamNameWeightBilled, strRepriceTestChangedOriginalWeight},
+				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
 			},
 		},
 		{
-			isRepriced:     true,
-			paymentRequest: repricedPaymentRequest,
-			serviceCode:    models.ReServiceCodeFSC,
-			priceCents:     unit.Cents(1420), // Price same as before since new weight still in same weight bracket
+			isNewPaymentRequest: true,
+			paymentRequest:      newPaymentRequest,
+			serviceCode:         models.ReServiceCodeFSC,
+			priceCents:          unit.Cents(1420), // Price same as before since new weight still in same weight bracket
 			paramsToCheck: []paramMap{
-				{models.ServiceItemParamNameWeightOriginal, strRepriceTestChangedOriginalWeight},
-				{models.ServiceItemParamNameWeightBilled, strRepriceTestChangedOriginalWeight},
+				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
 			},
 		},
 	}
 
 	for _, servicePriceParam := range testServicePriceParams {
-		label := "for existing payment request"
-		if servicePriceParam.isRepriced {
-			label = "for repriced payment request"
+		label := "for old payment request"
+		if servicePriceParam.isNewPaymentRequest {
+			label = "for new payment request"
 		}
 		foundService := false
 		for _, paymentServiceItem := range servicePriceParam.paymentRequest.PaymentServiceItems {
@@ -193,6 +220,28 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
 		}
 		suite.Truef(foundService, "Could not find service code %s (%s)", servicePriceParam.serviceCode, label)
 	}
+
+	// Check the proof of service docs to make sure they have the same core data
+	if suite.Equal(len(oldPaymentRequest.ProofOfServiceDocs), len(newPaymentRequest.ProofOfServiceDocs), "Both payment requests should have same number of proof of service docs") {
+		for i := 0; i < len(oldPaymentRequest.ProofOfServiceDocs); i++ {
+			suite.Equal(newPaymentRequest.ID, newPaymentRequest.ProofOfServiceDocs[i].PaymentRequestID, "Proof of service doc should point to the new payment request ID")
+		}
+	}
+	oldUploadIDs := make(map[uuid.UUID]int)
+	for _, proofOfServiceDoc := range oldPaymentRequest.ProofOfServiceDocs {
+		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
+			count := oldUploadIDs[primeUpload.UploadID]
+			oldUploadIDs[primeUpload.UploadID] = count + 1
+		}
+	}
+	newUploadIDs := make(map[uuid.UUID]int)
+	for _, proofOfServiceDoc := range newPaymentRequest.ProofOfServiceDocs {
+		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
+			count := newUploadIDs[primeUpload.UploadID]
+			newUploadIDs[primeUpload.UploadID] = count + 1
+		}
+	}
+	suite.Equal(oldUploadIDs, newUploadIDs, "Referenced UploadIDs are not the same")
 }
 
 func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models.PaymentRequest) {
