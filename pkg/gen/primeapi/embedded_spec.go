@@ -23,7 +23,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "\u003c!-- markdownlint-disable MD041 --\u003e\nThe Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -2814,7 +2814,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "\u003c!-- markdownlint-disable MD041 --\u003e\nThe Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
