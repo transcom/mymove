@@ -242,6 +242,12 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
 		}
 	}
 	suite.Equal(oldUploadIDs, newUploadIDs, "Referenced UploadIDs are not the same")
+
+	// Make sure the links between payment requests are set up properly.
+	suite.Nil(oldPaymentRequest.RepricedPaymentRequestID, "Old payment request should have nil link")
+	if suite.NotNil(newPaymentRequest.RepricedPaymentRequestID, "New payment request should not have nil link") {
+		suite.Equal(oldPaymentRequest.ID, *newPaymentRequest.RepricedPaymentRequestID, "New payment request should link to the old payment request ID")
+	}
 }
 
 func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models.PaymentRequest) {

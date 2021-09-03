@@ -46,26 +46,28 @@ var validPaymentRequestStatus = []string{
 
 // PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
-	ID                   uuid.UUID            `json:"id" db:"id"`
-	MoveTaskOrderID      uuid.UUID            `db:"move_id"`
-	IsFinal              bool                 `json:"is_final" db:"is_final"`
-	Status               PaymentRequestStatus `json:"status" db:"status"`
-	RejectionReason      *string              `json:"rejection_reason" db:"rejection_reason"`
-	PaymentRequestNumber string               `json:"payment_request_number" db:"payment_request_number"`
-	SequenceNumber       int                  `json:"sequence_number" db:"sequence_number"`
-	RequestedAt          time.Time            `json:"requested_at" db:"requested_at"`
-	ReviewedAt           *time.Time           `json:"reviewed_at" db:"reviewed_at"`
-	SentToGexAt          *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`
-	ReceivedByGexAt      *time.Time           `json:"received_by_gex_at" db:"received_by_gex_at"`
-	PaidAt               *time.Time           `json:"paid_at" db:"paid_at"`
-	CreatedAt            time.Time            `db:"created_at"`
-	UpdatedAt            time.Time            `db:"updated_at"`
+	ID                       uuid.UUID            `json:"id" db:"id"`
+	MoveTaskOrderID          uuid.UUID            `db:"move_id"`
+	IsFinal                  bool                 `json:"is_final" db:"is_final"`
+	Status                   PaymentRequestStatus `json:"status" db:"status"`
+	RejectionReason          *string              `json:"rejection_reason" db:"rejection_reason"`
+	PaymentRequestNumber     string               `json:"payment_request_number" db:"payment_request_number"`
+	SequenceNumber           int                  `json:"sequence_number" db:"sequence_number"`
+	RequestedAt              time.Time            `json:"requested_at" db:"requested_at"`
+	ReviewedAt               *time.Time           `json:"reviewed_at" db:"reviewed_at"`
+	SentToGexAt              *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`
+	ReceivedByGexAt          *time.Time           `json:"received_by_gex_at" db:"received_by_gex_at"`
+	PaidAt                   *time.Time           `json:"paid_at" db:"paid_at"`
+	CreatedAt                time.Time            `db:"created_at"`
+	UpdatedAt                time.Time            `db:"updated_at"`
+	RepricedPaymentRequestID *uuid.UUID           `json:"repriced_payment_request_id" db:"repriced_payment_request_id"`
 
 	// Associations
-	MoveTaskOrder       Move                `belongs_to:"moves" fk_id:"move_id"`
-	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items" fk_id:"payment_request_id"`
-	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs" fk_id:"payment_request_id"`
-	EdiErrors           EdiErrors           `has_many:"edi_errors" fk_id:"payment_request_id"`
+	MoveTaskOrder          Move                `belongs_to:"moves" fk_id:"move_id"`
+	PaymentServiceItems    PaymentServiceItems `has_many:"payment_service_items" fk_id:"payment_request_id"`
+	ProofOfServiceDocs     ProofOfServiceDocs  `has_many:"proof_of_service_docs" fk_id:"payment_request_id"`
+	EdiErrors              EdiErrors           `has_many:"edi_errors" fk_id:"payment_request_id"`
+	RepricedPaymentRequest *PaymentRequest     `belongs_to:"payment_requests" fk_id:"repriced_payment_request_id"`
 }
 
 // PaymentRequests is a slice of PaymentRequest
@@ -78,5 +80,6 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
 		&validators.StringIsPresent{Field: p.PaymentRequestNumber, Name: "PaymentRequestNumber"},
 		&validators.IntIsGreaterThan{Field: p.SequenceNumber, Name: "SequenceNumber", Compared: 0},
+		&OptionalUUIDIsPresent{Field: p.RepricedPaymentRequestID, Name: "RepricedPaymentRequestID"},
 	), nil
 }

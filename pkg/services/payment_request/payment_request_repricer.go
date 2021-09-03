@@ -61,8 +61,11 @@ func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppCont
 			return err
 		}
 
-		// TODO:
-		//   - Link repriced payment request to old payment request
+		// Link the new payment request to the old one.
+		err = linkNewToOldPaymentRequest(appCtx, newPaymentRequest, &oldPaymentRequest)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})
@@ -105,10 +108,10 @@ func updateOldPaymentRequest(appCtx appcontext.AppContext, oldPaymentRequest *mo
 	oldPaymentRequest.Status = newStatus
 	verrs, err := appCtx.DB().ValidateAndUpdate(oldPaymentRequest)
 	if err != nil {
-		return fmt.Errorf("failed to set old payment request status to %v: %w", newStatus, err)
+		return fmt.Errorf("failed to set old payment request status to %s: %w", newStatus, err)
 	}
 	if verrs.HasAny() {
-		return fmt.Errorf("failed to validate old payment request when setting status to %v: %w", newStatus, verrs)
+		return fmt.Errorf("failed to validate old payment request when setting status to %s: %w", newStatus, verrs)
 	}
 
 	return nil
@@ -147,6 +150,20 @@ func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDoc
 		}
 
 		newPaymentRequest.ProofOfServiceDocs = append(newPaymentRequest.ProofOfServiceDocs, newProofOfServiceDoc)
+	}
+
+	return nil
+}
+
+// linkNewToOldPaymentRequest links a new payment request to the old payment request that was repriced.
+func linkNewToOldPaymentRequest(appCtx appcontext.AppContext, newPaymentRequest *models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
+	newPaymentRequest.RepricedPaymentRequestID = &oldPaymentRequest.ID
+	verrs, err := appCtx.DB().ValidateAndUpdate(newPaymentRequest)
+	if err != nil {
+		return fmt.Errorf("failed to set new payment request to old payment request ID %s: %w", oldPaymentRequest.ID, err)
+	}
+	if verrs.HasAny() {
+		return fmt.Errorf("failed to validate old payment request when setting status to %s: %w", oldPaymentRequest.ID, verrs)
 	}
 
 	return nil
