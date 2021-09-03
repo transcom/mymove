@@ -11,6 +11,7 @@
 
   .secondaryBtn {
     box-shadow: inset 0 0 0 2px $primary;
+
     &:disabled {
       box-shadow: none;
     }
@@ -41,6 +42,7 @@
     font-size: 28px;
     margin: 0px;
   }
+
   p {
     font-size: 15px;
     margin: 0px;
@@ -81,7 +83,7 @@
 .subheaderContainer {
   display: flex;
   justify-content: space-between;
-  color: $base-light;
+  color: $base-lighter;
   @include u-margin-top(1.5);
   @include u-margin-bottom(0);
 
@@ -93,7 +95,7 @@
     flex-basis: 0;
   }
 
-  .subheaderSubsection + .subheaderSubsection {
+  .subheaderSubsection+.subheaderSubsection {
     @include u-margin-left(2);
   }
 
@@ -103,7 +105,7 @@
     line-height: 1.23;
   }
 
-  dt + dd {
+  dt+dd {
     @include u-margin-left(0);
     @include u-margin-top(1);
   }
@@ -134,7 +136,7 @@
       line-height: 1.38;
     }
 
-    dt + dd {
+    dt+dd {
       @include u-margin-left(0.5em);
       @include u-margin-top(0);
     }

@@ -14,6 +14,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	reweigh "github.com/transcom/mymove/pkg/services/reweigh"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
 	primeops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
@@ -37,11 +38,6 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	moveWeights := move.NewMoveWeights()
 
 	primeAPI.ServeError = handlers.ServeCustomError
-
-	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
-		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(),
-	}
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		ctx,
@@ -119,6 +115,11 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
+	}
+
+	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{
+		ctx,
+		reweigh.NewReweighUpdater(),
 	}
 
 	return primeAPI.Serve(nil)

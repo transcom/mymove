@@ -47,20 +47,37 @@ function has_path() {
   esac
 }
 
+# if nix is in use
+if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
+  nix_dir="nix"
+  # add the nix files so that if they change, direnv needs to be reloaded
+  config_hash=$(nix-hash "${nix_dir}")
+  store_hash=$(nix-store -q --hash "${NIX_PROFILE}")
+
+  # The .nix-hash file is created by nix/update.sh
+  if [ ! -r .nix-hash ] || ! grep -q "${config_hash}-${store_hash}" .nix-hash; then
+    echo -e "${YELLOW}WARNING: nix packages out of date Run ${nix_dir}/update.sh${NC}"
+    prereqs_found=false
+  else
+    echo "nix dependencies installed"
+  fi
+else # things only required without nix
+  has asdf "brew install asdf; # then add 'source /usr/local/opt/asdf/asdf.sh' to your shell rc file"
+  has_path ".asdf/shims" "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
+  has nodenv "brew install nodenv"
+  has_path ".nodenv/shims" "nodenv init"
+fi
+
 has aws "brew install awscli"
 has bash "brew install bash"
 has chamber "brew install chamber"
 has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
 has jq "brew install jq"
-has asdf "brew install asdf; # then add 'source /usr/local/opt/asdf/asdf.sh' to your shell rc file"
-has_path ".asdf/shims" "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
 has go "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
 has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
-has nodenv "brew install nodenv"
-has_path ".nodenv/shims" "nodenv init"
 has node "nodenv local 14.17.1"
 
 # not on CircleCI
