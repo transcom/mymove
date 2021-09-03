@@ -45,7 +45,7 @@ describe('ContactInfo page', () => {
     userEvent.click(backButton);
 
     await waitFor(async () => {
-      await expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
+      expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
     });
   });
 
@@ -150,7 +150,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      await expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
+      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
     });
   });
 
@@ -186,7 +186,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      await expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockDispatch).not.toHaveBeenCalled();
     });
   });
   it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', async () => {
@@ -234,7 +234,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      await expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockDispatch).not.toHaveBeenCalled();
     });
   });
 
@@ -288,7 +288,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      await expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
     });
   });
 });
