@@ -118,7 +118,7 @@ export const DutyStationSearchBoxComponent = (props) => {
   });
   const dutyInputClasses = classNames('duty-input-box', {
     [inputName]: true,
-    'duty-input-box-error': errorMsg,
+    [styles.dutyInputBoxError]: errorMsg,
   });
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
