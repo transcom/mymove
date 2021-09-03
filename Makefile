@@ -313,12 +313,12 @@ ifneq ("$(wildcard .swagger_build.stamp)","")
 endif
 
 .PHONY: swagger_generate
-swagger_generate: check_swagger_generate .client_deps.stamp ## Bundles the API definition files into a complete specification
+swagger_generate: .client_deps.stamp check_swagger_generate ## Bundles the API definition files into a complete specification
 	yarn build-redoc
 	touch .swagger_build.stamp
 
 .PHONY: server_generate
-server_generate: swagger_generate .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
+server_generate: .check_go_version.stamp .check_gopath.stamp swagger_generate pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
