@@ -27,6 +27,14 @@ type MTOShipment struct {
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
+	// estimated weight of the shuttle service item provided by the prime
+	// Example: 2500
+	BillableWeightCap *int64 `json:"billableWeightCap,omitempty"`
+
+	// billable weight justification
+	// Example: more weight than expected
+	BillableWeightJustification *string `json:"billableWeightJustification,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,

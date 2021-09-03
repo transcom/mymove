@@ -3397,6 +3397,18 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "billableWeightCap": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
+        "billableWeightJustification": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "more weight than expected"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -4585,6 +4597,18 @@ func init() {
         "agents": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
+        },
+        "billableWeightCap": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
+        "billableWeightJustification": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "more weight than expected"
         },
         "counselorRemarks": {
           "type": "string",
@@ -8773,6 +8797,18 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "billableWeightCap": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
+        "billableWeightJustification": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "more weight than expected"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -9964,6 +10000,18 @@ func init() {
         "agents": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
+        },
+        "billableWeightCap": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
+        "billableWeightJustification": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "more weight than expected"
         },
         "counselorRemarks": {
           "type": "string",
