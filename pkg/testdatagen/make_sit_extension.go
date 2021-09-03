@@ -9,11 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// makeSITExtension creates a single SIT Extension and associated set relationships
-func makeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
+// MakeSITExtension creates a single SIT Extension and associated set relationships
+func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
 
 	var MTOShipmentID uuid.UUID
 	approvedDays := 90
+	requestedDays := 100
 	decisionDate := time.Now()
 	createdAt := time.Now()
 	updatedAt := time.Now()
@@ -25,6 +26,7 @@ func makeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 		RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
 		ContractorRemarks: &contractorRemarks,
 		Status:            models.SITExtensionStatusPending,
+		RequestedDays:     requestedDays,
 		ApprovedDays:      &approvedDays,
 		DecisionDate:      &decisionDate,
 		OfficeRemarks:     &officeRemarks,
@@ -33,7 +35,7 @@ func makeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&SITExtension, assertions.SITExtensions)
+	mergeModels(&SITExtension, assertions.SITExtension)
 
 	mustCreate(db, &SITExtension, assertions.Stub)
 
@@ -42,12 +44,5 @@ func makeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 
 // MakeDefaultSITExtension returns a SITExtension with default values
 func MakeDefaultSITExtension(db *pop.Connection) models.SITExtension {
-	return makeSITExtension(db, Assertions{})
-}
-
-// MakeSITExtensions makes an array of SITExtensions
-func MakeSITExtensions(db *pop.Connection, assertions Assertions) models.SITExtensions {
-	var sitExtensionList models.SITExtensions
-	sitExtensionList = append(sitExtensionList, MakeDefaultSITExtension(db))
-	return sitExtensionList
+	return MakeSITExtension(db, Assertions{})
 }
