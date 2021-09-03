@@ -1481,7 +1481,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
-	suite.Run("Returns 200 when all validations pass", func() {
+	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
