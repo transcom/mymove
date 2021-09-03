@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"sort"
 	"time"
 
@@ -331,7 +332,14 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		ediGenerator.
-			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(func(pr models.PaymentRequest) bool {
+				for _, expectedPr := range prs {
+					if pr.ID == expectedPr.ID {
+						return true
+					}
+				}
+				return false
+			}), false).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -413,7 +421,14 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		ediGenerator.
-			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(func(pr models.PaymentRequest) bool {
+				for _, expectedPr := range prs {
+					if pr.ID == expectedPr.ID {
+						return true
+					}
+				}
+				return false
+			}), false).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -519,7 +534,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		gexSender := &mocks.GexSender{}
 		gexSender.
-			On("SendToGex", services.GEXChannelInvoice, mock.Anything, mock.Anything).Return(&responseFailure, nil)
+			On("SendToGex", services.GEXChannelInvoice, mock.MatchedBy(func(edi string) bool {
+				r := regexp.MustCompile(`^ISA\*`)
+				return r.MatchString(edi)
+			}), mock.MatchedBy(func(filename string) bool {
+				r := regexp.MustCompile(`^\d{4}_\d{2}_\d{2}T\d{2}_\d{2}_\d{2}Z_\d{2}_\d+?_edi858\.txt$`)
+				return r.MatchString(filename)
+			})).Return(&responseFailure, nil)
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -565,7 +586,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		gexSender := &mocks.GexSender{}
 		gexSender.
-			On("SendToGex", services.GEXChannelInvoice, mock.Anything, mock.Anything).Return(&responseSuccess, nil)
+			On("SendToGex", services.GEXChannelInvoice, mock.MatchedBy(func(edi string) bool {
+				r := regexp.MustCompile(`^ISA\*`)
+				return r.MatchString(edi)
+			}), mock.MatchedBy(func(filename string) bool {
+				r := regexp.MustCompile(`^\d{4}_\d{2}_\d{2}T\d{2}_\d{2}_\d{2}Z_\d{2}_\d+?_edi858\.txt$`)
+				return r.MatchString(filename)
+			})).Return(&responseSuccess, nil)
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
