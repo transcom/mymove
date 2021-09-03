@@ -1403,7 +1403,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.NotFoundError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
@@ -1427,7 +1427,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.ConflictError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.ConflictError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
@@ -1450,7 +1450,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
@@ -1474,7 +1474,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, errors.New("UnexpectedError"))
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, errors.New("UnexpectedError"))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
