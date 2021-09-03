@@ -961,6 +961,58 @@ paths:
       description: Approves a SIT extension
       operationId: approveSitExtension
       summary: Approves a SIT extension
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the SIT extension
+        in: path
+        name: sitExtensionID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/DenySitExtension'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully denied a SIT extension
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+        - sitExtension
+      description: Denies a SIT extension
+      operationId: denySitExtension
+      summary: Denies a SIT extension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -3141,6 +3193,13 @@ definitions:
         x-nullable: true
     required:
       - approvedDays
+  DenySitExtension:
+    properties:
+      officeRemarks:
+        description: Remarks from TOO about SIT denial
+        type: string
+        example: Denied this extension as it does not match the criteria
+        x-nullable: true
   PatchMTOServiceItemStatusPayload:
     properties:
       status:

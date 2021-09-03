@@ -80,6 +80,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
+		ShipmentDenySitExtensionHandler: shipment.DenySitExtensionHandlerFunc(func(params shipment.DenySitExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DenySitExtension has not yet been implemented")
+		}),
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
 		}),
@@ -228,6 +231,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
+	// ShipmentDenySitExtensionHandler sets the operation handler for the deny sit extension operation
+	ShipmentDenySitExtensionHandler shipment.DenySitExtensionHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
@@ -392,6 +397,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
+	}
+	if o.ShipmentDenySitExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.DenySitExtensionHandler")
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
@@ -609,6 +617,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/shipments/{shipmentID}"] = shipment.NewDeleteShipment(o.context, o.ShipmentDeleteShipmentHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny"] = shipment.NewDenySitExtension(o.context, o.ShipmentDenySitExtensionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
