@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 
 	"github.com/transcom/mymove/pkg/db/stats"
 )
@@ -22,7 +21,7 @@ func RegisterDBStatsObserver(c *pop.Connection, config TelemetryConfig) {
 	if !config.Enabled {
 		return
 	}
-	meter := global.Meter("gov.transcom.milmove.metrics.db")
+
 	metric.Must(meter).NewInt64ValueObserver(
 		dbPoolName,
 		func(_ context.Context, result metric.Int64ObserverResult) {

@@ -6,7 +6,6 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 )
 
 const heapMemoryName = "heapMemory"
@@ -18,7 +17,6 @@ func RegisterRuntimeObserver(config TelemetryConfig) {
 	if !config.Enabled {
 		return
 	}
-	meter := global.Meter("gov.transcom.milmove.metrics.runtime")
 	metric.Must(meter).NewInt64ValueObserver(
 		heapMemoryName,
 		func(_ context.Context, result metric.Int64ObserverResult) {

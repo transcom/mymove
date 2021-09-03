@@ -32,6 +32,17 @@ type TelemetryConfig struct {
 	CollectSeconds   int
 }
 
+const (
+	defaultCollectSeconds = 30
+	tracerName            = "io.opentelemetry.traces.milmove"
+	metricName            = "io.opentelemetry.metrics.milmove"
+)
+
+var (
+	tracer trace.Tracer
+	meter  metric.Meter
+)
+
 // ConfigureTelemetry currently the target for distributed tracing / opentelemetry is
 // local development environments, but this may change in the future
 // to include hosted/deployed environments
@@ -93,7 +104,7 @@ func ConfigureTelemetry(logger *zap.Logger, config TelemetryConfig) (shutdown fu
 	// metrics periodically.
 	collectSeconds := config.CollectSeconds
 	if collectSeconds == 0 {
-		collectSeconds = 5
+		collectSeconds = defaultCollectSeconds
 	}
 	metricExporter := exporter.(exportmetric.Exporter)
 	pusher := controller.New(
@@ -137,5 +148,13 @@ func ConfigureTelemetry(logger *zap.Logger, config TelemetryConfig) (shutdown fu
 		)
 	}
 
+	tracer = otel.Tracer(tracerName)
+	meter = global.Meter(metricName)
+
 	return shutdown
+}
+
+// DefaultTracer returns the default global tracer
+func DefaultTracer() trace.Tracer {
+	return tracer
 }
