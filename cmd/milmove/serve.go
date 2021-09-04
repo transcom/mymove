@@ -36,6 +36,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -1013,7 +1014,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls"),
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -1029,7 +1030,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-tls"),
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -1047,7 +1048,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,
