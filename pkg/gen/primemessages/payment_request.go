@@ -52,6 +52,12 @@ type PaymentRequest struct {
 	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// repriced payment request ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Read Only: true
+	// Format: uuid
+	RepricedPaymentRequestID *strfmt.UUID `json:"repricedPaymentRequestID,omitempty"`
+
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
 }
@@ -73,6 +79,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateProofOfServiceDocs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRepricedPaymentRequestID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -142,6 +152,18 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *PaymentRequest) validateRepricedPaymentRequestID(formats strfmt.Registry) error {
+	if swag.IsZero(m.RepricedPaymentRequestID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("repricedPaymentRequestID", "body", "uuid", m.RepricedPaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PaymentRequest) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -178,6 +200,10 @@ func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateProofOfServiceDocs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRepricedPaymentRequestID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -239,6 +265,15 @@ func (m *PaymentRequest) contextValidateProofOfServiceDocs(ctx context.Context, 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateRepricedPaymentRequestID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "repricedPaymentRequestID", "body", m.RepricedPaymentRequestID); err != nil {
+		return err
 	}
 
 	return nil

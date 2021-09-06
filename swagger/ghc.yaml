@@ -2591,6 +2591,12 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      repricedPaymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        readOnly: true
+        x-nullable: true
       eTag:
         type: string
       reviewedAt:

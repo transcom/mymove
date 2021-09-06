@@ -3926,6 +3926,13 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
+        "repricedPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "reviewedAt": {
           "type": "string",
           "format": "date-time",
@@ -9301,6 +9308,13 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
+        },
+        "repricedPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reviewedAt": {
           "type": "string",
