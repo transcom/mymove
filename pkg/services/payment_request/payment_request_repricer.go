@@ -40,6 +40,11 @@ func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppCont
 			return err
 		}
 
+		// Only pending payment requests can be repriced.
+		if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
+			return fmt.Errorf("only pending payment requests can be repriced, but this payment request has status of %s", oldPaymentRequest.Status)
+		}
+
 		// Re-create the payment request arg including service items, then call the create service (which should
 		// price it with current inputs).
 		inputPaymentRequest := buildPaymentRequestForRepricing(oldPaymentRequest)
