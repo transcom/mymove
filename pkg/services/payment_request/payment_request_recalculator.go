@@ -6,19 +6,23 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type paymentRequestRecalculator struct {
-	paymentRequestCreator services.PaymentRequestCreator
+	paymentRequestCreator       services.PaymentRequestCreator
+	paymentRequestStatusUpdater services.PaymentRequestStatusUpdater
 }
 
 // NewPaymentRequestRecalculator returns a new payment request recalculator
-func NewPaymentRequestRecalculator(paymentRequestCreator services.PaymentRequestCreator) services.PaymentRequestRecalculator {
+func NewPaymentRequestRecalculator(paymentRequestCreator services.PaymentRequestCreator, paymentRequestStatusUpdater services.PaymentRequestStatusUpdater) services.PaymentRequestRecalculator {
 	return &paymentRequestRecalculator{
-		paymentRequestCreator: paymentRequestCreator,
+		paymentRequestCreator:       paymentRequestCreator,
+		paymentRequestStatusUpdater: paymentRequestStatusUpdater,
 	}
 }
 
@@ -56,6 +60,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 		}
 		return nil, services.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
 	}
+	oldPaymentRequestEtag := etag.GenerateEtag(oldPaymentRequest.UpdatedAt)
 
 	// Only pending payment requests can be recalculated.
 	if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
@@ -71,7 +76,8 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	}
 
 	// Set the (now) old payment request's status.
-	err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
+	oldPaymentRequest.Status = models.PaymentRequestStatusDeprecated
+	_, err = p.paymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &oldPaymentRequest, oldPaymentRequestEtag)
 	if err != nil {
 		return nil, err
 	}
@@ -115,20 +121,6 @@ func buildPaymentRequestForRecalcuating(oldPaymentRequest models.PaymentRequest)
 	newPaymentRequest.PaymentServiceItems = newPaymentServiceItems
 
 	return newPaymentRequest
-}
-
-func updateOldPaymentRequestStatus(appCtx appcontext.AppContext, oldPaymentRequest *models.PaymentRequest) error {
-	newStatus := models.PaymentRequestStatusDeprecated
-	oldPaymentRequest.Status = newStatus
-	verrs, err := appCtx.DB().ValidateAndUpdate(oldPaymentRequest)
-	if err != nil {
-		return services.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to set old payment request status to %s for ID %s", newStatus, oldPaymentRequest.ID))
-	}
-	if verrs.HasAny() {
-		return services.NewInvalidInputError(oldPaymentRequest.ID, err, verrs, fmt.Sprintf("failed to validate old payment request when setting status to %s", newStatus))
-	}
-
-	return nil
 }
 
 // associateProofOfServiceDocs duplicates/associates a set of proof of service doc relationships to a payment request.

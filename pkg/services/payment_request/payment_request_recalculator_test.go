@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -80,7 +82,8 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	suite.MustSave(&mtoShipment)
 
 	// Recalculate the payment request created above.
-	recalculator := NewPaymentRequestRecalculator(creator)
+	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
@@ -99,6 +102,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	// Verify some top-level items on the payment requests.
 	suite.Equal(oldPaymentRequest.MoveTaskOrderID, newPaymentRequest.MoveTaskOrderID, "Both payment requests should point to same move")
+	suite.Len(oldPaymentRequest.PaymentServiceItems, 4)
 	suite.Equal(len(oldPaymentRequest.PaymentServiceItems), len(newPaymentRequest.PaymentServiceItems), "Both payment requests should have same number of service items")
 	suite.Equal(oldPaymentRequest.Status, models.PaymentRequestStatusDeprecated, "Old payment request status incorrect")
 	suite.Equal(newPaymentRequest.Status, models.PaymentRequestStatusPending, "New payment request status incorrect")
@@ -227,6 +231,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	}
 
 	// Check the proof of service docs to make sure they have the same core data
+	suite.Len(oldPaymentRequest.ProofOfServiceDocs, 2)
 	if suite.Equal(len(oldPaymentRequest.ProofOfServiceDocs), len(newPaymentRequest.ProofOfServiceDocs), "Both payment requests should have same number of proof of service docs") {
 		for i := 0; i < len(oldPaymentRequest.ProofOfServiceDocs); i++ {
 			suite.Equal(newPaymentRequest.ID, newPaymentRequest.ProofOfServiceDocs[i].PaymentRequestID, "Proof of service doc should point to the new payment request ID")
@@ -246,6 +251,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			newUploadIDs[primeUpload.UploadID] = count + 1
 		}
 	}
+	suite.Len(oldUploadIDs, 4)
 	suite.Equal(oldUploadIDs, newUploadIDs, "Referenced UploadIDs are not the same")
 
 	// Make sure the links between payment requests are set up properly.
@@ -265,7 +271,8 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	recalculator := NewPaymentRequestRecalculator(creator)
+	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 
 	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
@@ -294,19 +301,40 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
 		// Mock out a creator.
+		errString := "mock creator test error"
 		mockCreator := &mocks.PaymentRequestCreator{}
 		mockCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest"),
-		).Return(nil, errors.New("test error"))
+		).Return(nil, errors.New(errString))
 
-		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator)
+		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "test error")
+			suite.Equal(err.Error(), errString)
+		}
+	})
+
+	suite.T().Run("Can handle error when updating old payment request status", func(t *testing.T) {
+		// Mock out a status updater.
+		errString := "mock status updater test error"
+		mockStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		mockStatusUpdater.On("UpdatePaymentRequestStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PaymentRequest"),
+			mock.AnythingOfType("string"),
+		).Return(nil, errors.New(errString))
+
+		recalculatorWithMockStatusUpdater := NewPaymentRequestRecalculator(creator, mockStatusUpdater)
+
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
+		suite.Nil(newPaymentRequest)
+		if suite.Error(err) {
+			suite.Equal(err.Error(), errString)
 		}
 	})
 }
