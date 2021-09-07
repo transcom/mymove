@@ -2999,6 +2999,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        x-nullable: true
       eTag:
         type: string
   UpdateShipment:
