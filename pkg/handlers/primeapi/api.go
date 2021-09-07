@@ -35,7 +35,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
-	moveWeights := move.NewMoveWeights()
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	primeAPI.ServeError = handlers.ServeCustomError
 

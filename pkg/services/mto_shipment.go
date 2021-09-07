@@ -58,7 +58,7 @@ type ShipmentCancellationRequester interface {
 //ShipmentReweighRequester is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentReweighRequester --disable-version-string
 type ShipmentReweighRequester interface {
-	RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error)
+	RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requestor models.ReweighRequester) (*models.Reweigh, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status

@@ -16,13 +16,13 @@ type ShipmentReweighRequester struct {
 	mock.Mock
 }
 
-// RequestShipmentReweigh provides a mock function with given fields: appCtx, shipmentID
-func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
-	ret := _m.Called(appCtx, shipmentID)
+// RequestShipmentReweigh provides a mock function with given fields: appCtx, shipmentID, requestor
+func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requestor models.ReweighRequester) (*models.Reweigh, error) {
+	ret := _m.Called(appCtx, shipmentID, requestor)
 
 	var r0 *models.Reweigh
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Reweigh); ok {
-		r0 = rf(appCtx, shipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) *models.Reweigh); ok {
+		r0 = rf(appCtx, shipmentID, requestor)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Reweigh)
@@ -30,8 +30,8 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.App
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, shipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) error); ok {
+		r1 = rf(appCtx, shipmentID, requestor)
 	} else {
 		r1 = ret.Error(1)
 	}
