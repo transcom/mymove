@@ -62,6 +62,6 @@ fi
 if [[ "${numberOfValidFindings}" -gt 0 ]]; then
   echo "Scan found ${numberOfValidFindings} findings!"
   exit 1
-elif [[ "${numberOfValidFindings}" -ne  "${totalNumberOfFindings}" ]]; then
+elif [[ "${numberOfValidFindings}" -ne "${totalNumberOfFindings}" ]]; then
   echo "Scan found findings, but excluded one or more them."
 fi
