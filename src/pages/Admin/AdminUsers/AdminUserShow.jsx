@@ -29,10 +29,10 @@ const AdminUserShow = (props) => {
         <TextField source="email" />
         <TextField source="firstName" />
         <TextField source="lastName" />
-        <TextField source="organizationId" />
-        <BooleanField source="active" />
-        <DateField source="createdAt" showTime />
-        <DateField source="updatedAt" showTime />
+        <TextField source="organizationId" label="Organization Id" />
+        <BooleanField source="active" addLabel label="Active" />
+        <DateField source="createdAt" showTime addLabel />
+        <DateField source="updatedAt" showTime addLabel />
       </SimpleShowLayout>
     </Show>
   );
