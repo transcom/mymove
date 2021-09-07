@@ -166,7 +166,7 @@ describe('ResidentialAddress page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(screen.queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
