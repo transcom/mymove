@@ -187,8 +187,9 @@ func (e StaleIdentifierError) Error() string {
 
 //CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
 func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
-	if session.IsOfficeApp() && session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		if mtoShipment.Status != models.MTOShipmentStatusSubmitted {
+	if session.IsOfficeApp() && session.IsOfficeUser() {
+		if (session.Roles.HasRole(roles.RoleTypeServicesCounselor) && mtoShipment.Status != models.MTOShipmentStatusSubmitted) ||
+			(session.Roles.HasRole(roles.RoleTypeTIO) && mtoShipment.Status != models.MTOShipmentStatusApproved) {
 			return false, nil
 		}
 

@@ -1,8 +1,9 @@
 package payloads
 
 import (
-	"github.com/transcom/mymove/pkg/unit"
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
