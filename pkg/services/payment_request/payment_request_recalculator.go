@@ -11,25 +11,25 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type paymentRequestRepricer struct {
+type paymentRequestRecalculator struct {
 	paymentRequestCreator services.PaymentRequestCreator
 }
 
-// NewPaymentRequestRepricer returns a new payment request repricer
-func NewPaymentRequestRepricer(paymentRequestCreator services.PaymentRequestCreator) services.PaymentRequestRepricer {
-	return &paymentRequestRepricer{
+// NewPaymentRequestRecalculator returns a new payment request recalculator
+func NewPaymentRequestRecalculator(paymentRequestCreator services.PaymentRequestCreator) services.PaymentRequestRecalculator {
+	return &paymentRequestRecalculator{
 		paymentRequestCreator: paymentRequestCreator,
 	}
 }
 
-func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
 	var newPaymentRequest *models.PaymentRequest
 
 	// Make sure we do this whole process in a transaction so partial changes do not get made committed
 	// in the event of an error.
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
-		newPaymentRequest, err = p.doReprice(txnAppCtx, paymentRequestID)
+		newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID)
 		return err
 	})
 
@@ -40,8 +40,8 @@ func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppCont
 	return newPaymentRequest, nil
 }
 
-// doReprice handles the core repricing process; put in separate method to make it easier to call from the transactional context.
-func (p *paymentRequestRepricer) doReprice(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+// doRecalculate handles the core recalculation process; put in separate method to make it easier to call from the transactional context.
+func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
 	// Fetch the payment request and payment service items from the old request.
 	var oldPaymentRequest models.PaymentRequest
 	err := appCtx.DB().
@@ -57,21 +57,21 @@ func (p *paymentRequestRepricer) doReprice(appCtx appcontext.AppContext, payment
 		return nil, services.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
 	}
 
-	// Only pending payment requests can be repriced.
+	// Only pending payment requests can be recalculated.
 	if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
-		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only pending payment requests can be repriced, but this payment request has status of %s", oldPaymentRequest.Status))
+		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only pending payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
 	}
 
 	// Re-create the payment request arg including service items, then call the create service (which should
 	// price it with current inputs).
-	inputPaymentRequest := buildPaymentRequestForRepricing(oldPaymentRequest)
+	inputPaymentRequest := buildPaymentRequestForRecalcuating(oldPaymentRequest)
 	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
 	}
 
 	// Set the (now) old payment request's status.
-	// TODO: We need a better status for this -- something like "REPRICED".
+	// TODO: We need a better status for this -- something like "DEPRECATED".
 	err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
 	if err != nil {
 		return nil, err
@@ -92,8 +92,8 @@ func (p *paymentRequestRepricer) doReprice(appCtx appcontext.AppContext, payment
 	return newPaymentRequest, nil
 }
 
-// buildPaymentRequestForRepricing builds up the expected payment request data based upon the old payment request.
-func buildPaymentRequestForRepricing(oldPaymentRequest models.PaymentRequest) models.PaymentRequest {
+// buildPaymentRequestForRecalcuating builds up the expected payment request data based upon the old payment request.
+func buildPaymentRequestForRecalcuating(oldPaymentRequest models.PaymentRequest) models.PaymentRequest {
 	newPaymentRequest := models.PaymentRequest{
 		IsFinal:         oldPaymentRequest.IsFinal,
 		MoveTaskOrderID: oldPaymentRequest.MoveTaskOrderID,
@@ -170,7 +170,7 @@ func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDoc
 	return nil
 }
 
-// linkNewToOldPaymentRequest links a new payment request to the old payment request that was repriced.
+// linkNewToOldPaymentRequest links a new payment request to the old payment request that was recalculated.
 func linkNewToOldPaymentRequest(appCtx appcontext.AppContext, newPaymentRequest *models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
 	newPaymentRequest.RepricedPaymentRequestID = &oldPaymentRequest.ID
 	verrs, err := appCtx.DB().ValidateAndUpdate(newPaymentRequest)

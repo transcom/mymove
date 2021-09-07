@@ -21,29 +21,29 @@ import (
 )
 
 const (
-	repriceTestPickupZip            = "30907"
-	repriceTestDestinationZip       = "78234"
-	repriceTestMSFee                = unit.Cents(25513)
-	repriceTestCSFee                = unit.Cents(22399)
-	repriceTestDLHPrice             = unit.Millicents(6000)
-	repriceTestFSCPrice             = unit.Millicents(277600)
-	repriceTestEstimatedWeight      = unit.Pound(3500)
-	repriceTestOriginalWeight       = unit.Pound(3652)
-	repriceTestNewOriginalWeight    = unit.Pound(3412)
-	repriceTestEscalationCompounded = 1.04071
-	repriceTestZip3Distance         = 1234
+	recalculateTestPickupZip            = "30907"
+	recalculateTestDestinationZip       = "78234"
+	recalculateTestMSFee                = unit.Cents(25513)
+	recalculateTestCSFee                = unit.Cents(22399)
+	recalculateTestDLHPrice             = unit.Millicents(6000)
+	recalculateTestFSCPrice             = unit.Millicents(277600)
+	recalculateTestEstimatedWeight      = unit.Pound(3500)
+	recalculateTestOriginalWeight       = unit.Pound(3652)
+	recalculateTestNewOriginalWeight    = unit.Pound(3412)
+	recalculateTestEscalationCompounded = 1.04071
+	recalculateTestZip3Distance         = 1234
 )
 
-func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
+func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
-	move, paymentRequestArg := suite.setupRepriceData()
+	move, paymentRequestArg := suite.setupRecalculateData()
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
-		repriceTestPickupZip,
-		repriceTestDestinationZip,
-	).Return(repriceTestZip3Distance, nil)
+		recalculateTestPickupZip,
+		recalculateTestDestinationZip,
+	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
@@ -73,15 +73,15 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
 		})
 	}
 
-	// Adjust shipment's original weight to force different pricing on a reprice.
+	// Adjust shipment's original weight to force different pricing on a recalculation.
 	mtoShipment := move.MTOShipments[0]
-	newWeight := repriceTestNewOriginalWeight
+	newWeight := recalculateTestNewOriginalWeight
 	mtoShipment.PrimeActualWeight = &newWeight
 	suite.MustSave(&mtoShipment)
 
-	// Reprice the payment request created above.
-	repricer := NewPaymentRequestRepricer(creator)
-	newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
+	// Recalculate the payment request created above.
+	recalculator := NewPaymentRequestRecalculator(creator)
+	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
 	// Fetch the old payment request again -- status should have changed and it should also
@@ -124,8 +124,8 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
 		value string
 	}
 
-	strTestOriginalWeight := strconv.Itoa(repriceTestOriginalWeight.Int())
-	strTestChangedOriginalWeight := strconv.Itoa(repriceTestNewOriginalWeight.Int())
+	strTestOriginalWeight := strconv.Itoa(recalculateTestOriginalWeight.Int())
+	strTestChangedOriginalWeight := strconv.Itoa(recalculateTestNewOriginalWeight.Int())
 	testServicePriceParams := []struct {
 		isNewPaymentRequest bool
 		paymentRequest      *models.PaymentRequest
@@ -133,7 +133,7 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
 		priceCents          unit.Cents
 		paramsToCheck       []paramMap
 	}{
-		// Old payment request that we were repricing
+		// Old payment request that we were recalculating
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeMS,
@@ -255,21 +255,21 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
 	}
 }
 
-func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
+func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
-		repriceTestPickupZip,
-		repriceTestDestinationZip,
-	).Return(repriceTestZip3Distance, nil)
+		recalculateTestPickupZip,
+		recalculateTestDestinationZip,
+	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	repricer := NewPaymentRequestRepricer(creator)
+	recalculator := NewPaymentRequestRecalculator(creator)
 
 	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
-		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(services.NotFoundError{}, err)
@@ -283,7 +283,7 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 				Status: models.PaymentRequestStatusPaid,
 			},
 		})
-		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(services.ConflictError{}, err)
@@ -292,7 +292,7 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 		}
 	})
 
-	suite.T().Run("Can handle error when creating new repriced payment request", func(t *testing.T) {
+	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
 		// Mock out a creator.
 		mockCreator := &mocks.PaymentRequestCreator{}
 		mockCreator.On("CreatePaymentRequest",
@@ -300,10 +300,10 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 			mock.AnythingOfType("*models.PaymentRequest"),
 		).Return(nil, errors.New("test error"))
 
-		repricerWithMockCreator := NewPaymentRequestRepricer(mockCreator)
+		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		newPaymentRequest, err := repricerWithMockCreator.RepricePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
+		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Contains(err.Error(), "test error")
@@ -311,14 +311,14 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 	})
 }
 
-func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models.PaymentRequest) {
+func (suite *PaymentRequestServiceSuite) setupRecalculateData() (models.Move, models.PaymentRequest) {
 	// Pickup/destination addresses
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "235 Prospect Valley Road SE",
 			City:           "Augusta",
 			State:          "GA",
-			PostalCode:     repriceTestPickupZip,
+			PostalCode:     recalculateTestPickupZip,
 		},
 	})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -326,14 +326,14 @@ func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models
 			StreetAddress1: "17 8th St",
 			City:           "San Antonio",
 			State:          "TX",
-			PostalCode:     repriceTestDestinationZip,
+			PostalCode:     recalculateTestDestinationZip,
 		},
 	})
 
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
-			EscalationCompounded: repriceTestEscalationCompounded,
+			EscalationCompounded: recalculateTestEscalationCompounded,
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",
@@ -354,7 +354,7 @@ func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models
 	msTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      msService.ID,
-		PriceCents:     repriceTestMSFee,
+		PriceCents:     recalculateTestMSFee,
 	}
 	suite.MustSave(&msTaskOrderFee)
 
@@ -367,7 +367,7 @@ func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models
 	csTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      csService.ID,
-		PriceCents:     repriceTestCSFee,
+		PriceCents:     recalculateTestCSFee,
 	}
 	suite.MustSave(&csTaskOrderFee)
 
@@ -379,14 +379,14 @@ func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models
 			DomesticServiceAreaID: serviceArea.ID,
 			DomesticServiceArea:   serviceArea,
 			IsPeakPeriod:          false,
-			PriceMillicents:       repriceTestDLHPrice,
+			PriceMillicents:       recalculateTestDLHPrice,
 		},
 	})
 
 	// Create move, shipment, and service items for MS, CS, DLH, and FSC.
 	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
-	estimatedWeight := repriceTestEstimatedWeight
-	originalWeight := repriceTestOriginalWeight
+	estimatedWeight := recalculateTestEstimatedWeight
+	originalWeight := recalculateTestOriginalWeight
 	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status:             models.MoveStatusAPPROVED,
@@ -406,7 +406,7 @@ func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
 		PublicationDate:       publicationDate,
-		FuelPriceInMillicents: repriceTestFSCPrice,
+		FuelPriceInMillicents: recalculateTestFSCPrice,
 	}
 	suite.MustSave(&ghcDieselFuelPrice)
 
