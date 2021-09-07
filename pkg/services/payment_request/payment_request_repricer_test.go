@@ -1,7 +1,9 @@
 package paymentrequest
 
 import (
+	"errors"
 	"strconv"
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -11,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -29,19 +32,19 @@ const (
 	repriceTestZip3Distance         = 1234
 )
 
-func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
+func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
 	move, paymentRequestArg := suite.setupRepriceData()
 
 	// Mock out a planner.
-	planner := &routemocks.Planner{}
-	planner.On("Zip3TransitDistance",
-		mock.Anything,
-		mock.Anything,
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("Zip3TransitDistance",
+		repriceTestPickupZip,
+		repriceTestDestinationZip,
 	).Return(repriceTestZip3Distance, nil)
 
 	// Create an initial payment request.
-	creator := NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 	paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
@@ -248,6 +251,59 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequest() {
 	if suite.NotNil(newPaymentRequest.RepricedPaymentRequestID, "New payment request should not have nil link") {
 		suite.Equal(oldPaymentRequest.ID, *newPaymentRequest.RepricedPaymentRequestID, "New payment request should link to the old payment request ID")
 	}
+}
+
+func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("Zip3TransitDistance",
+		repriceTestPickupZip,
+		repriceTestDestinationZip,
+	).Return(repriceTestZip3Distance, nil)
+
+	// Create an initial payment request.
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	repricer := NewPaymentRequestRepricer(creator)
+
+	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
+		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
+		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
+		suite.Nil(newPaymentRequest)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "no rows in result set")
+		}
+	})
+
+	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
+		paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPaid,
+			},
+		})
+		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
+		suite.Nil(newPaymentRequest)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "only pending payment requests can be repriced, but this payment request has status of "+models.PaymentRequestStatusPaid)
+		}
+	})
+
+	suite.T().Run("Can handle error when creating new repriced payment request", func(t *testing.T) {
+		// Mock out a creator.
+		mockCreator := &mocks.PaymentRequestCreator{}
+		mockCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PaymentRequest"),
+		).Return(nil, errors.New("test error"))
+
+		repricerWithMockCreator := NewPaymentRequestRepricer(mockCreator)
+
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		newPaymentRequest, err := repricerWithMockCreator.RepricePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
+		suite.Nil(newPaymentRequest)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "test error")
+		}
+	})
 }
 
 func (suite *PaymentRequestServiceSuite) setupRepriceData() (models.Move, models.PaymentRequest) {

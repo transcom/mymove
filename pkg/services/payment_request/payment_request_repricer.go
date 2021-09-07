@@ -55,7 +55,7 @@ func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppCont
 
 		// Set the (now) old payment request's status.
 		// TODO: We need a better status for this -- something like "REPRICED".
-		err = updateOldPaymentRequest(appCtx, &oldPaymentRequest)
+		err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
 		if err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func buildPaymentRequestForRepricing(oldPaymentRequest models.PaymentRequest) mo
 	return newPaymentRequest
 }
 
-func updateOldPaymentRequest(appCtx appcontext.AppContext, oldPaymentRequest *models.PaymentRequest) error {
+func updateOldPaymentRequestStatus(appCtx appcontext.AppContext, oldPaymentRequest *models.PaymentRequest) error {
 	newStatus := models.PaymentRequestStatusReviewedAllRejected
 	oldPaymentRequest.Status = newStatus
 	verrs, err := appCtx.DB().ValidateAndUpdate(oldPaymentRequest)
