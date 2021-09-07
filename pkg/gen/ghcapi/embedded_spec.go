@@ -2384,6 +2384,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -7998,6 +7999,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true

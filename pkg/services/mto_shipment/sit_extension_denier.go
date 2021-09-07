@@ -43,6 +43,10 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 		return nil, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	// var updatedShipment models.MTOShipment
+	// err = appCtx.DB().Q().Find(&updatedShipment, shipmentID)
+	// return &updatedShipment, err
+
 	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks)
 }
 
@@ -80,12 +84,9 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
-		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
-		if e := f.handleError(sitExtension.ID, verrs, err); e != nil {
+		if e := appCtx.DB().Q().Find(&returnedShipment, shipment.ID); e != nil {
 			return e
 		}
-
-		returnedShipment = shipment
 
 		return nil
 	})

@@ -99,9 +99,7 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 
 func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITExtension, approvedDays int, officeRemarks *string) error {
 	sitExtension.ApprovedDays = &approvedDays
-	if officeRemarks != nil {
-		sitExtension.OfficeRemarks = officeRemarks
-	}
+	sitExtension.OfficeRemarks = officeRemarks
 	sitExtension.Status = models.SITExtensionStatusApproved
 	now := time.Now()
 	sitExtension.DecisionDate = &now

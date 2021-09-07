@@ -36,7 +36,7 @@ type ApproveSitExtensionParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
 	  Required: true
 	  In: header
 	*/
