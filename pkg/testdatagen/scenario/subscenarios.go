@@ -209,6 +209,16 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 	}
 }
 
+func subScenarioSITExtentions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createTOO(appCtx)
+		createTIO(appCtx)
+		createTXO(appCtx)
+
+		createMoveWithSITExtensions(appCtx, userUploader)
+	}
+}
+
 func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {
@@ -244,5 +254,8 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithMultipleOrdersFiles(appCtx, userUploader, primeUploader)
 		createHHGMoveWithAmendedOrders(appCtx, userUploader, primeUploader)
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
+
+		createMoveWithSITExtensions(appCtx, userUploader)
+
 	}
 }

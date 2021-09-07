@@ -16,8 +16,6 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 	approvedDays := 90
 	requestedDays := 100
 	decisionDate := time.Now()
-	createdAt := time.Now()
-	updatedAt := time.Now()
 	contractorRemarks := "some remarks here from the contractor"
 	officeRemarks := "some remarks here from the office"
 
@@ -25,13 +23,11 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 		MTOShipmentID:     MTOShipmentID,
 		RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
 		ContractorRemarks: &contractorRemarks,
-		Status:            models.SITExtensionStatusPending,
+		Status:            models.SITExtensionStatusApproved,
 		RequestedDays:     requestedDays,
 		ApprovedDays:      &approvedDays,
 		DecisionDate:      &decisionDate,
 		OfficeRemarks:     &officeRemarks,
-		CreatedAt:         createdAt,
-		UpdatedAt:         updatedAt,
 	}
 
 	// Overwrite values with those from assertions

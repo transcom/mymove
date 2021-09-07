@@ -283,17 +283,31 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 	}
 
 	payload := &ghcmessages.SitExtension{
-		ID:                strfmt.UUID(sitExtension.ID.String()),
-		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
-		RequestReason:     string(sitExtension.RequestReason),
-		ContractorRemarks: string(*sitExtension.ContractorRemarks),
-		Status:            string(sitExtension.Status),
-		ApprovedDays:      int64(*sitExtension.ApprovedDays),
-		DecisionDate:      strfmt.DateTime(*sitExtension.DecisionDate),
-		OfficeRemarks:     string(*sitExtension.OfficeRemarks),
-		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
-		UpdatedAt:         (*strfmt.DateTime)(&sitExtension.UpdatedAt),
+		ID:            strfmt.UUID(sitExtension.ID.String()),
+		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason: string(sitExtension.RequestReason),
+		Status:        string(sitExtension.Status),
+		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:     (*strfmt.DateTime)(&sitExtension.UpdatedAt),
 	}
+
+	if sitExtension.ApprovedDays != nil && *sitExtension.ApprovedDays > 0 {
+		payload.ApprovedDays = int64(*sitExtension.ApprovedDays)
+	}
+
+	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
+		payload.ContractorRemarks = *sitExtension.ContractorRemarks
+	}
+
+	if sitExtension.DecisionDate != nil && !sitExtension.DecisionDate.IsZero() {
+		payload.DecisionDate = strfmt.DateTime(*sitExtension.DecisionDate)
+	}
+
+	if sitExtension.OfficeRemarks != nil && len(*sitExtension.OfficeRemarks) > 0 {
+		payload.OfficeRemarks = *sitExtension.OfficeRemarks
+	}
+
 	return payload
 }
 
