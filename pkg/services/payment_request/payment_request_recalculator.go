@@ -69,7 +69,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 
 	// Re-create the payment request arg including service items, then call the create service (which should
 	// price it with current inputs).
-	inputPaymentRequest := buildPaymentRequestForRecalcuating(oldPaymentRequest)
+	inputPaymentRequest := buildPaymentRequestForRecalculating(oldPaymentRequest)
 	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
@@ -97,8 +97,8 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	return newPaymentRequest, nil
 }
 
-// buildPaymentRequestForRecalcuating builds up the expected payment request data based upon the old payment request.
-func buildPaymentRequestForRecalcuating(oldPaymentRequest models.PaymentRequest) models.PaymentRequest {
+// buildPaymentRequestForRecalculating builds up the expected payment request data based upon the old payment request.
+func buildPaymentRequestForRecalculating(oldPaymentRequest models.PaymentRequest) models.PaymentRequest {
 	newPaymentRequest := models.PaymentRequest{
 		IsFinal:         oldPaymentRequest.IsFinal,
 		MoveTaskOrderID: oldPaymentRequest.MoveTaskOrderID,
