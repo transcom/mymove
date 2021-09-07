@@ -160,6 +160,14 @@ describe('paymentRequestStatusReadable', () => {
   it('returns expected string for PAID', () => {
     expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
   });
+
+  it('returns expected string for EDI_ERROR', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
+  });
+
+  it('returns expected string for DEPRECATED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
+  });
 });
 
 describe('formatDaysInTransit', () => {

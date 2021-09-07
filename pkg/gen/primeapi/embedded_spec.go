@@ -2280,7 +2280,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -5508,7 +5509,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {

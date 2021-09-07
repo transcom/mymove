@@ -2793,6 +2793,7 @@ definitions:
       - RECEIVED_BY_GEX
       - PAID
       - EDI_ERROR
+      - DEPRECATED
     title: Payment Request Status
     type: string
   ProofOfServiceDocs:

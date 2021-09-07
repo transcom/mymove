@@ -32,6 +32,8 @@ const (
 	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
 	// PaymentRequestStatusEDIError an error has occurred
 	PaymentRequestStatusEDIError PaymentRequestStatus = "EDI_ERROR"
+	// PaymentRequestStatusDeprecated is deprecated
+	PaymentRequestStatusDeprecated PaymentRequestStatus = "DEPRECATED"
 )
 
 var validPaymentRequestStatus = []string{
@@ -42,6 +44,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusReceivedByGex),
 	string(PaymentRequestStatusPaid),
 	string(PaymentRequestStatusEDIError),
+	string(PaymentRequestStatusDeprecated),
 }
 
 // PaymentRequest is an object representing a payment request on a move task order

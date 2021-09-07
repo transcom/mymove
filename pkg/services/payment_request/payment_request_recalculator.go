@@ -71,7 +71,6 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	}
 
 	// Set the (now) old payment request's status.
-	// TODO: We need a better status for this -- something like "DEPRECATED".
 	err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
 	if err != nil {
 		return nil, err
@@ -119,7 +118,7 @@ func buildPaymentRequestForRecalcuating(oldPaymentRequest models.PaymentRequest)
 }
 
 func updateOldPaymentRequestStatus(appCtx appcontext.AppContext, oldPaymentRequest *models.PaymentRequest) error {
-	newStatus := models.PaymentRequestStatusReviewedAllRejected
+	newStatus := models.PaymentRequestStatusDeprecated
 	oldPaymentRequest.Status = newStatus
 	verrs, err := appCtx.DB().ValidateAndUpdate(oldPaymentRequest)
 	if err != nil {
