@@ -28,55 +28,65 @@ func (p *paymentRequestRepricer) RepricePaymentRequest(appCtx appcontext.AppCont
 	// Make sure we do this whole process in a transaction so partial changes do not get made committed
 	// in the event of an error.
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// Fetch the payment request and payment service items from the old request.
-		var oldPaymentRequest models.PaymentRequest
-		err := txnAppCtx.DB().
-			EagerPreload(
-				"PaymentServiceItems.MTOServiceItem.ReService",
-				"ProofOfServiceDocs.PrimeUploads",
-			).
-			Find(&oldPaymentRequest, paymentRequestID)
-		if err != nil {
-			return err
-		}
-
-		// Only pending payment requests can be repriced.
-		if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
-			return fmt.Errorf("only pending payment requests can be repriced, but this payment request has status of %s", oldPaymentRequest.Status)
-		}
-
-		// Re-create the payment request arg including service items, then call the create service (which should
-		// price it with current inputs).
-		inputPaymentRequest := buildPaymentRequestForRepricing(oldPaymentRequest)
-		newPaymentRequest, err = p.paymentRequestCreator.CreatePaymentRequest(txnAppCtx, &inputPaymentRequest)
-		if err != nil {
-			return err
-		}
-
-		// Set the (now) old payment request's status.
-		// TODO: We need a better status for this -- something like "REPRICED".
-		err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
-		if err != nil {
-			return err
-		}
-
-		// Duplicate the proof-of-service upload associations to the new payment request.
-		err = associateProofOfServiceDocs(appCtx, oldPaymentRequest.ProofOfServiceDocs, newPaymentRequest)
-		if err != nil {
-			return err
-		}
-
-		// Link the new payment request to the old one.
-		err = linkNewToOldPaymentRequest(appCtx, newPaymentRequest, &oldPaymentRequest)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		var err error
+		newPaymentRequest, err = p.doReprice(txnAppCtx, paymentRequestID)
+		return err
 	})
 
 	if transactionError != nil {
 		return nil, transactionError
+	}
+
+	return newPaymentRequest, nil
+}
+
+// doReprice handles the core repricing process; put in separate method to make it easier to call from the transactional context.
+func (p *paymentRequestRepricer) doReprice(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+	// Fetch the payment request and payment service items from the old request.
+	var oldPaymentRequest models.PaymentRequest
+	err := appCtx.DB().
+		EagerPreload(
+			"PaymentServiceItems.MTOServiceItem.ReService",
+			"ProofOfServiceDocs.PrimeUploads",
+		).
+		Find(&oldPaymentRequest, paymentRequestID)
+	if err != nil {
+		if err.Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(paymentRequestID, "for PaymentRequest")
+		}
+		return nil, services.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
+	}
+
+	// Only pending payment requests can be repriced.
+	if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
+		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only pending payment requests can be repriced, but this payment request has status of %s", oldPaymentRequest.Status))
+	}
+
+	// Re-create the payment request arg including service items, then call the create service (which should
+	// price it with current inputs).
+	inputPaymentRequest := buildPaymentRequestForRepricing(oldPaymentRequest)
+	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
+	if err != nil {
+		return nil, err // Just pass the error type from the PaymentRequestCreator.
+	}
+
+	// Set the (now) old payment request's status.
+	// TODO: We need a better status for this -- something like "REPRICED".
+	err = updateOldPaymentRequestStatus(appCtx, &oldPaymentRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	// Duplicate the proof-of-service upload associations to the new payment request.
+	err = associateProofOfServiceDocs(appCtx, oldPaymentRequest.ProofOfServiceDocs, newPaymentRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	// Link the new payment request to the old one.
+	err = linkNewToOldPaymentRequest(appCtx, newPaymentRequest, &oldPaymentRequest)
+	if err != nil {
+		return nil, err
 	}
 
 	return newPaymentRequest, nil
@@ -113,10 +123,10 @@ func updateOldPaymentRequestStatus(appCtx appcontext.AppContext, oldPaymentReque
 	oldPaymentRequest.Status = newStatus
 	verrs, err := appCtx.DB().ValidateAndUpdate(oldPaymentRequest)
 	if err != nil {
-		return fmt.Errorf("failed to set old payment request status to %s: %w", newStatus, err)
+		return services.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to set old payment request status to %s for ID %s", newStatus, oldPaymentRequest.ID))
 	}
 	if verrs.HasAny() {
-		return fmt.Errorf("failed to validate old payment request when setting status to %s: %w", newStatus, verrs)
+		return services.NewInvalidInputError(oldPaymentRequest.ID, err, verrs, fmt.Sprintf("failed to validate old payment request when setting status to %s", newStatus))
 	}
 
 	return nil
@@ -130,10 +140,10 @@ func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDoc
 		}
 		verrs, err := appCtx.DB().ValidateAndCreate(&newProofOfServiceDoc)
 		if err != nil {
-			return fmt.Errorf("failed to create proof of service doc for new payment request ID %s: %w", newPaymentRequest.ID, err)
+			return services.NewQueryError("ProofOfServiceDoc", err, fmt.Sprintf("failed to create proof of service doc for new payment request ID %s", newPaymentRequest.ID))
 		}
 		if verrs.HasAny() {
-			return fmt.Errorf("failed to validate proof of service doc for new payment request ID %s: %w", newPaymentRequest.ID, verrs)
+			return services.NewInvalidInputError(newPaymentRequest.ID, err, verrs, "failed to validate proof of service doc")
 		}
 
 		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
@@ -145,10 +155,10 @@ func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDoc
 			}
 			verrs, err := appCtx.DB().ValidateAndCreate(&newPrimeUpload)
 			if err != nil {
-				return fmt.Errorf("failed to create prime upload for new payment request ID %s and new proof of service doc ID %s: %w", newPaymentRequest.ID, newProofOfServiceDoc.ID, err)
+				return services.NewQueryError("PrimeUpload", err, fmt.Sprintf("failed to create prime upload for new payment request ID %s and new proof of service doc ID %s", newPaymentRequest.ID, newProofOfServiceDoc.ID))
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate proof of service doc for new payment request ID %s and new proof of service doc ID %s: %w", newPaymentRequest.ID, newProofOfServiceDoc.ID, verrs)
+				return services.NewInvalidInputError(newProofOfServiceDoc.ID, err, verrs, "failed to validate prime upload")
 			}
 
 			newProofOfServiceDoc.PrimeUploads = append(newProofOfServiceDoc.PrimeUploads, newPrimeUpload)
@@ -165,10 +175,10 @@ func linkNewToOldPaymentRequest(appCtx appcontext.AppContext, newPaymentRequest 
 	newPaymentRequest.RepricedPaymentRequestID = &oldPaymentRequest.ID
 	verrs, err := appCtx.DB().ValidateAndUpdate(newPaymentRequest)
 	if err != nil {
-		return fmt.Errorf("failed to set new payment request to old payment request ID %s: %w", oldPaymentRequest.ID, err)
+		return services.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to link new payment request to old payment request ID %s", oldPaymentRequest.ID))
 	}
 	if verrs.HasAny() {
-		return fmt.Errorf("failed to validate old payment request when setting status to %s: %w", oldPaymentRequest.ID, verrs)
+		return services.NewInvalidInputError(newPaymentRequest.ID, err, verrs, fmt.Sprintf("failed to validate new payment request when linking to old payment request ID %s", oldPaymentRequest.ID))
 	}
 
 	return nil

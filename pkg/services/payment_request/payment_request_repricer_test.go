@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -270,7 +272,8 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "no rows in result set")
+			suite.IsType(services.NotFoundError{}, err)
+			suite.Contains(err.Error(), bogusPaymentRequestID.String())
 		}
 	})
 
@@ -283,7 +286,9 @@ func (suite *PaymentRequestServiceSuite) TestRepricePaymentRequestErrors() {
 		newPaymentRequest, err := repricer.RepricePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "only pending payment requests can be repriced, but this payment request has status of "+models.PaymentRequestStatusPaid)
+			suite.IsType(services.ConflictError{}, err)
+			suite.Contains(err.Error(), paidPaymentRequest.ID.String())
+			suite.Contains(err.Error(), models.PaymentRequestStatusPaid)
 		}
 	})
 
