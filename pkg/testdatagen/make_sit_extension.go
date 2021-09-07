@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -13,21 +11,20 @@ import (
 func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
 
 	var MTOShipmentID uuid.UUID
-	approvedDays := 90
+	var MTOShipment models.MTOShipment
+	if isZeroUUID(assertions.MTOShipment.ID) {
+		MTOShipment = MakeMTOShipment(db, assertions)
+		MTOShipmentID = MTOShipment.ID
+	}
+
 	requestedDays := 100
-	decisionDate := time.Now()
-	contractorRemarks := "some remarks here from the contractor"
-	officeRemarks := "some remarks here from the office"
 
 	SITExtension := models.SITExtension{
-		MTOShipmentID:     MTOShipmentID,
-		RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
-		ContractorRemarks: &contractorRemarks,
-		Status:            models.SITExtensionStatusApproved,
-		RequestedDays:     requestedDays,
-		ApprovedDays:      &approvedDays,
-		DecisionDate:      &decisionDate,
-		OfficeRemarks:     &officeRemarks,
+		MTOShipmentID: MTOShipmentID,
+		MTOShipment:   MTOShipment,
+		RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+		Status:        models.SITExtensionStatusApproved,
+		RequestedDays: requestedDays,
 	}
 
 	// Overwrite values with those from assertions
