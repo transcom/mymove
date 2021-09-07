@@ -36,7 +36,7 @@ get_findings() {
   # Description:
   # https://github.com/aws/containers-roadmap/issues/1388
   # ECR reports falso positives for this vulnerability. This is a
-  # non-actionableb finding outside of our control, so we are excluding it from
+  # non-actionable finding outside of our control, so we are excluding it from
   # our scans.
   validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2020-28928"))')
 
