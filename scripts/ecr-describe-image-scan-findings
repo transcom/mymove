@@ -41,7 +41,7 @@ get_findings() {
   validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2020-28928"))')
 
   # Save the total number of findings.
-  totalNumberOfFindings=$(echo "${findings}" | jq -r ". | length")
+  totalNumberOfFindings=$(echo "${findingsArray}" | jq -r ". | length")
 
   # Save the number of valid scan findings.
   numberOfValidFindings=$(echo "${validFindings}" | jq -r ". | length")
