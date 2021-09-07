@@ -390,19 +390,19 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 	}
 
 	return &ghcmessages.PaymentRequest{
-		ID:                       *handlers.FmtUUID(pr.ID),
-		IsFinal:                  &pr.IsFinal,
-		MoveTaskOrderID:          *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:            Move(&pr.MoveTaskOrder),
-		PaymentRequestNumber:     pr.PaymentRequestNumber,
-		RepricedPaymentRequestID: handlers.FmtUUIDPtr(pr.RepricedPaymentRequestID),
-		RejectionReason:          pr.RejectionReason,
-		Status:                   ghcmessages.PaymentRequestStatus(pr.Status),
-		ETag:                     etag.GenerateEtag(pr.UpdatedAt),
-		ServiceItems:             *PaymentServiceItems(&pr.PaymentServiceItems),
-		ReviewedAt:               handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:       serviceDocs,
-		CreatedAt:                strfmt.DateTime(pr.CreatedAt),
+		ID:                              *handlers.FmtUUID(pr.ID),
+		IsFinal:                         &pr.IsFinal,
+		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		PaymentRequestNumber:            pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                 pr.RejectionReason,
+		Status:                          ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:                    *PaymentServiceItems(&pr.PaymentServiceItems),
+		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:              serviceDocs,
+		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 	}, nil
 }
 

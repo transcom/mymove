@@ -2024,17 +2024,17 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "repricedPaymentRequestID": {
+        "recalculationOfPaymentRequestID": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -4732,17 +4732,17 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "repricedPaymentRequestID": {
+        "recalculationOfPaymentRequestID": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"

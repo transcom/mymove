@@ -172,7 +172,7 @@ func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDoc
 
 // linkNewToOldPaymentRequest links a new payment request to the old payment request that was recalculated.
 func linkNewToOldPaymentRequest(appCtx appcontext.AppContext, newPaymentRequest *models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
-	newPaymentRequest.RepricedPaymentRequestID = &oldPaymentRequest.ID
+	newPaymentRequest.RecalculationOfPaymentRequestID = &oldPaymentRequest.ID
 	verrs, err := appCtx.DB().ValidateAndUpdate(newPaymentRequest)
 	if err != nil {
 		return services.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to link new payment request to old payment request ID %s", oldPaymentRequest.ID))

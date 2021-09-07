@@ -454,14 +454,14 @@ func MTOHideMove(hiddenMove services.HiddenMove) *supportmessages.MTOHideMove {
 // PaymentRequest converts PaymentRequest model to payload
 func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 	return &supportmessages.PaymentRequest{
-		ID:                       *handlers.FmtUUID(pr.ID),
-		IsFinal:                  &pr.IsFinal,
-		MoveTaskOrderID:          *handlers.FmtUUID(pr.MoveTaskOrderID),
-		PaymentRequestNumber:     pr.PaymentRequestNumber,
-		RepricedPaymentRequestID: handlers.FmtUUIDPtr(pr.RepricedPaymentRequestID),
-		RejectionReason:          pr.RejectionReason,
-		Status:                   supportmessages.PaymentRequestStatus(pr.Status),
-		ETag:                     etag.GenerateEtag(pr.UpdatedAt),
+		ID:                              *handlers.FmtUUID(pr.ID),
+		IsFinal:                         &pr.IsFinal,
+		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
+		PaymentRequestNumber:            pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                 pr.RejectionReason,
+		Status:                          supportmessages.PaymentRequestStatus(pr.Status),
+		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
 	}
 }
 

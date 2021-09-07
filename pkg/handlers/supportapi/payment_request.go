@@ -106,20 +106,20 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                       existingPaymentRequest.ID,
-		MoveTaskOrder:            existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID:          existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:                  existingPaymentRequest.IsFinal,
-		Status:                   status,
-		RejectionReason:          rejectionReason,
-		RequestedAt:              existingPaymentRequest.RequestedAt,
-		ReviewedAt:               &reviewedDate,
-		SentToGexAt:              &sentGexDate,
-		ReceivedByGexAt:          &recGexDate,
-		PaidAt:                   &paidAtDate,
-		PaymentRequestNumber:     existingPaymentRequest.PaymentRequestNumber,
-		RepricedPaymentRequestID: existingPaymentRequest.RepricedPaymentRequestID,
-		SequenceNumber:           existingPaymentRequest.SequenceNumber,
+		ID:                              existingPaymentRequest.ID,
+		MoveTaskOrder:                   existingPaymentRequest.MoveTaskOrder,
+		MoveTaskOrderID:                 existingPaymentRequest.MoveTaskOrderID,
+		IsFinal:                         existingPaymentRequest.IsFinal,
+		Status:                          status,
+		RejectionReason:                 rejectionReason,
+		RequestedAt:                     existingPaymentRequest.RequestedAt,
+		ReviewedAt:                      &reviewedDate,
+		SentToGexAt:                     &sentGexDate,
+		ReceivedByGexAt:                 &recGexDate,
+		PaidAt:                          &paidAtDate,
+		PaymentRequestNumber:            existingPaymentRequest.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: existingPaymentRequest.RecalculationOfPaymentRequestID,
+		SequenceNumber:                  existingPaymentRequest.SequenceNumber,
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
