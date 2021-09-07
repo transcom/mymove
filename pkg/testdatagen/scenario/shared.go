@@ -4734,7 +4734,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 	customerSIT := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 	ordersSIT := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			ID:              uuid.FromStringOrNil("796a0acd-1ccc-4a2g-a9b3-e44906ced689"),
+			ID:              uuid.Must(uuid.NewV4()),
 			ServiceMemberID: customerSIT.ID,
 			ServiceMember:   customerSIT,
 		},
@@ -4743,7 +4743,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 
 	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("7cbe57ba-fd4b-45b7-aa9a-1970f1908ae9"),
+			ID:                 uuid.Must(uuid.NewV4()),
 			OrdersID:           ordersSIT.ID,
 			Status:             models.MoveStatusAPPROVED,
 			AvailableToPrimeAt: swag.Time(time.Now()),
@@ -4765,7 +4765,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 
 	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("cfd010d3-1f63-421c-a92c-39987a0b4228"),
+			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
 			ReviewedAt:    swag.Time(time.Now()),
 			MoveTaskOrder: moveSIT,
