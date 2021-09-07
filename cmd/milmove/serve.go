@@ -792,7 +792,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		ordersMux.PathPrefix("/").Handler(ordersapi.NewOrdersAPIHandler(handlerContext))
+		api := ordersapi.NewOrdersAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 	if v.GetBool(cli.ServeDPSFlag) {
 		dpsMux := site.Host(appnames.DpsServername).PathPrefix("/dps/v0/").Subrouter()
@@ -808,7 +810,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			dpsMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		dpsMux.PathPrefix("/").Handler(dpsapi.NewDPSAPIHandler(handlerContext))
+		api := dpsapi.NewDPSAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		dpsMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSDDCFlag) {
@@ -847,7 +851,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		primeMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSupportFlag) {
@@ -921,7 +927,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
-		internalAPIMux.PathPrefix("/").Handler(api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -940,7 +947,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
-		adminAPIMux.PathPrefix("/").Handler(adminapi.NewAdminAPIHandler(handlerContext))
+		api := adminapi.NewAdminAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		adminAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServePrimeSimulatorFlag) {
@@ -959,7 +968,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeSimulatorAPIMux.Use(userAuthMiddleware)
 		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
 		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
-		primeSimulatorAPIMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeSimulatorAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeGHCFlag) {
@@ -977,7 +988,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
-		ghcAPIMux.PathPrefix("/").Handler(api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
