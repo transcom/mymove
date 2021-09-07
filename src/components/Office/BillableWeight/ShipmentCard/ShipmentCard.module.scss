@@ -5,6 +5,10 @@
 .container {
   @include u-padding-x(0);
 
+  :global(.usa-button) {
+    width: fit-content;
+  }
+
   header {
     @include u-padding-x(2);
     @include u-padding-bottom(2);
@@ -70,10 +74,6 @@
     h3 {
       @include u-margin-bottom(1);
       font-size: 17px;
-    }
-
-    .editBtn {
-      width: fit-content;
     }
   }
 }

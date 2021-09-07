@@ -7,7 +7,7 @@ import styles from './index.module.scss';
 const TabNav = ({ items, role }) => (
   <nav className={classNames(styles.tabNav)} role={role}>
     <div>
-      <ul className={classNames(styles.tabList)} role="tablist">
+      <ul className={classNames(styles.tabList)}>
         {items.map((item, index) => (
           <li key={index.toString()} className={classNames(styles.tabItem)}>
             {item}

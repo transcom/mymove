@@ -205,7 +205,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			fetch.NewFetcher(queryBuilder),
 			ctx.Planner(),
 			moveRouter,
-			move.NewMoveWeights(),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		),
 	}
 

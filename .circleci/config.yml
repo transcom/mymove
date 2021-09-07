@@ -1971,21 +1971,7 @@ workflows:
             branches:
               only: master
 
-      - deploy_stg_app_niprnet:
-          requires:
-            - deploy_stg_migrations
-          filters:
-            branches:
-              only: master
-
       - deploy_stg_app_client_tls:
-          requires:
-            - deploy_stg_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_stg_app_client_tls_niprnet:
           requires:
             - deploy_stg_migrations
           filters:
@@ -2004,9 +1990,7 @@ workflows:
           requires:
             - deploy_stg_tasks
             - deploy_stg_app
-            - deploy_stg_app_niprnet
             - deploy_stg_app_client_tls
-            - deploy_stg_app_client_tls_niprnet
             - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
