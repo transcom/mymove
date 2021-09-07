@@ -1,6 +1,8 @@
 package mtoshipment
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -21,7 +23,7 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
-	if shipment.Reweigh != nil {
+	if shipment.Reweigh != nil && shipment.Reweigh.ID != uuid.Nil {
 		if shipment.Reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
 			reweighWeight = shipment.Reweigh.Weight
 			if int(*shipment.PrimeActualWeight) < int(*reweighWeight) {
@@ -30,7 +32,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 				calculatedWeight = reweighWeight
 			}
 		}
-	} else if shipment.Reweigh == nil && shipment.BillableWeightCap == nil {
+	} else if shipment.BillableWeightCap == nil {
 		calculatedWeight = shipment.PrimeActualWeight
 	}
 
