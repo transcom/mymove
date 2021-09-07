@@ -63,7 +63,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	userRolesCreator := usersroles.NewUsersRolesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		ctx,
-		officeuser.NewOfficeUserCreator(queryBuilder),
+		officeuser.NewOfficeUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
@@ -132,7 +132,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		ctx,
 		user.NewUserSessionRevocation(queryBuilder),
-		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
@@ -144,7 +144,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
 		ctx,
-		adminuser.NewAdminUserCreator(queryBuilder),
+		adminuser.NewAdminUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 

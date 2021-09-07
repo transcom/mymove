@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -15,37 +14,6 @@ import (
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
 )
-
-// FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
-type FetchMTOUpdatesHandler struct {
-	handlers.HandlerContext
-	services.MoveTaskOrderFetcher
-}
-
-// Handle fetches all move task orders with the option to filter since a particular date
-func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
-
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IsAvailableToPrime: true,
-	}
-	if params.Since != nil {
-		timeSince := time.Unix(*params.Since, 0)
-		searchParams.Since = &timeSince
-	}
-
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(appCtx, &searchParams)
-
-	if err != nil {
-		logger.Error("Unexpected error while fetching records:", zap.Error(err))
-		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-	}
-
-	payload := payloads.MoveTaskOrders(&mtos)
-
-	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
-}
 
 // ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {

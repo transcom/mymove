@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape, func, number, bool } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

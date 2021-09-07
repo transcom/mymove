@@ -77,8 +77,8 @@ install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install-hooks
 
 .PHONY: prereqs
-prereqs: .prereqs.stamp ## Check that pre-requirements are installed
-.prereqs.stamp: scripts/prereqs
+prereqs: .prereqs.stamp ## Check that pre-requirements are installed, includes dependency scripts
+.prereqs.stamp: scripts/prereqs scripts/check-aws-cli-version scripts/check-aws-vault-version scripts/check-bash-version scripts/check-chamber-version scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version scripts/check-opensc-version
 	scripts/prereqs
 	touch .prereqs.stamp
 

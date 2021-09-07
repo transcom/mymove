@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
-import { concat, reject, every, includes, isEqual } from 'lodash';
+import { concat, every, includes, isEqual, reject } from 'lodash';
 
 import 'filepond/dist/filepond.min.css';
 import './index.css';

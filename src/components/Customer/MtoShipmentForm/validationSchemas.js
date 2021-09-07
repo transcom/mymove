@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import * as Yup from 'yup';
 
-import { ZIP_CODE_REGEX, requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
 
 export const AgentSchema = Yup.object().shape({
   firstName: Yup.string(),

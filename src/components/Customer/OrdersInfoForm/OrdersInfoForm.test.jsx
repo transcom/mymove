@@ -5,8 +5,17 @@ import selectEvent from 'react-select-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
-  ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
+jest.mock('components/DutyStationSearchBox/api', () => ({
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postal_code: '85309',
+      state: 'AZ',
+      street_address_1: 'n/a',
+    }),
+  ),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -229,7 +238,14 @@ describe('OrdersInfoForm component', () => {
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
           new_duty_station: {
-            address: undefined,
+            address: {
+              city: 'Glendale Luke AFB',
+              country: 'United States',
+              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+              postal_code: '85309',
+              state: 'AZ',
+              street_address_1: 'n/a',
+            },
             address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
             affiliation: 'AIR_FORCE',
             created_at: '2021-02-11T16:48:04.117Z',
