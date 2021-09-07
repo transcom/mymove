@@ -116,6 +116,12 @@ type MTOShipment struct {
 	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
 	ShipmentType interface{} `json:"shipmentType,omitempty"`
 
+	// sit days allowance
+	SitDaysAllowance *int64 `json:"sitDaysAllowance,omitempty"`
+
+	// sit extensions
+	SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
@@ -189,6 +195,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSecondaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitExtensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -429,6 +439,21 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 	return nil
 }
 
+func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitExtensions) { // not required
+		return nil
+	}
+
+	if err := m.SitExtensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -485,6 +510,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitExtensions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -587,6 +616,18 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
 	}
 
 	return nil

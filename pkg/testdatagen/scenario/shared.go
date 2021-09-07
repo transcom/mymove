@@ -4729,6 +4729,83 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
+func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+	customerSIT := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+	ordersSIT := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.Must(uuid.NewV4()),
+			ServiceMemberID: customerSIT.ID,
+			ServiceMember:   customerSIT,
+		},
+		UserUploader: userUploader,
+	})
+
+	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.Must(uuid.NewV4()),
+			OrdersID:           ordersSIT.ID,
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSIT,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID: mtoShipmentSIT.ID,
+		},
+	})
+
+	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.Must(uuid.NewV4()),
+			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
+			MoveTaskOrder: moveSIT,
+		},
+		Move: moveSIT,
+	})
+
+	serviceItemASIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		PaymentRequest: paymentRequestSIT,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	serviceItemBSIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		PaymentRequest: paymentRequestSIT,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		MTOServiceItem: serviceItemASIT,
+		PaymentRequest: paymentRequestSIT,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		MTOServiceItem: serviceItemBSIT,
+		PaymentRequest: paymentRequestSIT,
+	})
+}
+
 // createRandomMove creates a random move with fake data that has been approved for usage
 func createRandomMove(
 	appCtx appcontext.AppContext,
