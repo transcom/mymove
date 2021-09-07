@@ -76,5 +76,6 @@
     @include u-padding-left(4);
     @include u-border-top('2px');
     @include u-border-top('gray-10');
+    margin-top: auto;
   }
 }
