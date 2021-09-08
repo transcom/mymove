@@ -3493,7 +3493,7 @@ func init() {
           "x-nullable": true
         },
         "billableWeightCap": {
-          "description": "estimated weight of the shuttle service item provided by the prime",
+          "description": "TIO override billable weight to be used for calculations",
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
@@ -9079,7 +9079,7 @@ func init() {
           "x-nullable": true
         },
         "billableWeightCap": {
-          "description": "estimated weight of the shuttle service item provided by the prime",
+          "description": "TIO override billable weight to be used for calculations",
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,

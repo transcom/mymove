@@ -27,7 +27,7 @@ type MTOShipment struct {
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
-	// estimated weight of the shuttle service item provided by the prime
+	// TIO override billable weight to be used for calculations
 	// Example: 2500
 	BillableWeightCap *int64 `json:"billableWeightCap,omitempty"`
 
