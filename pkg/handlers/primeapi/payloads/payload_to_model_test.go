@@ -111,3 +111,29 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 }
+
+func (suite *PayloadsSuite) TestReweighModelFromUpdate() {
+	mtoShipmentIDField, _ := uuid.NewV4()
+	mtoShipmentIDString := handlers.FmtUUID(mtoShipmentIDField)
+
+	idField, _ := uuid.NewV4()
+	idString := handlers.FmtUUID(idField)
+
+	verificationReason := "Because I said so"
+	weight := int64(2000)
+
+	reweigh := &primemessages.UpdateReweigh{
+		VerificationReason: &verificationReason,
+		Weight:             &weight,
+	}
+
+	suite.T().Run("Success - Returns a reweigh model", func(t *testing.T) {
+		returnedModel := ReweighModelFromUpdate(reweigh, *idString, *mtoShipmentIDString)
+
+		suite.Equal(idField.String(), returnedModel.ID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.ShipmentID.String())
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(reweigh.Weight), returnedModel.Weight)
+		suite.Equal(reweigh.VerificationReason, returnedModel.VerificationReason)
+	})
+
+}

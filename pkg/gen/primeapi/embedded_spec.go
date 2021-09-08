@@ -673,6 +673,87 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateReweigh",
+        "operationId": "updateReweigh",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the reweigh",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the reweigh being updated",
+            "name": "reweighID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReweigh"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the reweigh.",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
@@ -1934,6 +2015,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -2368,6 +2452,70 @@ func init() {
         "NSTUB"
       ]
     },
+    "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
+      ]
+    },
     "ServiceItem": {
       "type": "object",
       "properties": {
@@ -2665,6 +2813,27 @@ func init() {
           "enum": [
             "CANCELED"
           ]
+        }
+      }
+    },
+    "UpdateReweigh": {
+      "description": "Contains the fields available to the Prime when updating a reweigh record.",
+      "type": "object",
+      "properties": {
+        "verificationReason": {
+          "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed because the shipment was already delivered"
+        },
+        "weight": {
+          "description": "The total reweighed weight for the shipment in pounds.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
         }
       }
     },
@@ -3619,6 +3788,111 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateReweigh",
+        "operationId": "updateReweigh",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the reweigh",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the reweigh being updated",
+            "name": "reweighID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReweigh"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the reweigh.",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -4962,6 +5236,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -5396,6 +5673,70 @@ func init() {
         "NSTUB"
       ]
     },
+    "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
+      ]
+    },
     "ServiceItem": {
       "type": "object",
       "properties": {
@@ -5696,6 +6037,27 @@ func init() {
           "enum": [
             "CANCELED"
           ]
+        }
+      }
+    },
+    "UpdateReweigh": {
+      "description": "Contains the fields available to the Prime when updating a reweigh record.",
+      "type": "object",
+      "properties": {
+        "verificationReason": {
+          "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed because the shipment was already delivered"
+        },
+        "weight": {
+          "description": "The total reweighed weight for the shipment in pounds.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
         }
       }
     },
