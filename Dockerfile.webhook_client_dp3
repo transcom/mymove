@@ -8,7 +8,7 @@ FROM milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562
 # hadolint ignore=DL3002
 USER root
 COPY config/tls/api.demo.dp3.us.p7b /tmp/all-public-dod-certs.der.p7b
-RUN openssl pkcs7 -print_certs -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
+RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
 RUN update-ca-certificates
 
 #########
