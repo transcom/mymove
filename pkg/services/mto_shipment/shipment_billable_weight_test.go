@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -15,6 +17,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		originalWeight := unit.Pound(1000)
 		reweigh := models.Reweigh{
 			Weight: &reweighWeight,
+			ID:     uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
 		}
 		shipment := models.MTOShipment{
 			PrimeActualWeight: &originalWeight,
@@ -33,6 +36,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		originalWeight := unit.Pound(900)
 		reweigh := models.Reweigh{
 			Weight: &reweighWeight,
+			ID:     uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d985"),
 		}
 		shipment := models.MTOShipment{
 			PrimeActualWeight: &originalWeight,
@@ -62,6 +66,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		billableWeight := unit.Pound(950)
 		reweigh := models.Reweigh{
 			Weight: &reweighWeight,
+			ID:     uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d986"),
 		}
 		shipment := models.MTOShipment{
 			PrimeActualWeight: &originalWeight,
