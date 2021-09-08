@@ -167,7 +167,7 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 
 		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(mtoServiceItem.ReService.Code, payloadServiceItem)
 		if err != nil {
-			return models.PaymentServiceItems{}, nil, err
+			return nil, verrs, err
 		}
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
