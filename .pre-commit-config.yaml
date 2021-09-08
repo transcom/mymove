@@ -104,7 +104,9 @@ repos:
         language: script
         files: swagger/*
         types: [yaml]
-        exclude: swagger-def/*
+        exclude: swagger-def/* # These are partial swagger files that are compiled into the ones in swagger/*.
+                               # They will be checked unless explicitly excluded, but they will fail.
+                               # By only validating the compiled files, we are effectively checking these files as well.
 
   - repo: local
     hooks:
