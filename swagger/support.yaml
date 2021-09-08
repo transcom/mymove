@@ -270,7 +270,7 @@ paths:
     patch:
       summary: updatePaymentRequestStatus
       description: |
-        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
         A status of REVIEWED can optionally have a `rejectionReason`.
 
@@ -1602,6 +1602,12 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      recalculationOfPaymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        readOnly: true
+        x-nullable: true
       eTag:
         type: string
         readOnly: true
@@ -1630,6 +1636,7 @@ definitions:
       - RECEIVED_BY_GEX
       - PAID
       - EDI_ERROR
+      - DEPRECATED
     title: Payment Request Status
     type: string
   ProcessReviewedPaymentRequests:
