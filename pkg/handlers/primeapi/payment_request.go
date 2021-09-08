@@ -185,7 +185,7 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(reServiceCode
 
 	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
 		if !AllowedParamKeysPaymentRequest.Contains(reServiceCode, payloadServiceItemParam.Key) {
-			return models.PaymentServiceItemParams{}, fmt.Errorf("the parameter %s is either invalid or cannot be passed while creating a payment request", payloadServiceItemParam.Key)
+			return models.PaymentServiceItemParams{}, fmt.Errorf("the parameter %s is either invalid or cannot be passed while creating a payment request for a %s service item", payloadServiceItemParam.Key, reServiceCode)
 		}
 		paymentServiceItemParam := models.PaymentServiceItemParam{
 			// ID and PaymentServiceItemID to be filled in when payment request is created
