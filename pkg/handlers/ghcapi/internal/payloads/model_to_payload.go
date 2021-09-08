@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -375,6 +376,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	if mtoShipment.ScheduledPickupDate != nil {
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
+
+	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
+	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+
+	// CalculatedBillableWeight is intentionally not a part of the mto_shipments model
+	// because we don't want to store a derived value in the database
+	payload.CalculatedBillableWeight = handlers.FmtPoundPtr(calculatedWeights.CalculatedBillableWeight)
 
 	return payload
 }

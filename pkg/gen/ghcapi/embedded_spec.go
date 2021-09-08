@@ -3593,6 +3593,12 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "calculatedBillableWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": 2000
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -9293,6 +9299,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "more weight than expected"
+        },
+        "calculatedBillableWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": 2000
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
