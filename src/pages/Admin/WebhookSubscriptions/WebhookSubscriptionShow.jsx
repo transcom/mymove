@@ -29,8 +29,8 @@ const WebhookSubscriptionShow = (props) => {
         <TextField source="callbackUrl" />
         <NumberField source="severity" />
         <TextField source="status" />
-        <DateField source="updatedAt" showTime />
-        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime addLabel />
+        <DateField source="createdAt" showTime addLabel />
       </SimpleShowLayout>
     </Show>
   );
