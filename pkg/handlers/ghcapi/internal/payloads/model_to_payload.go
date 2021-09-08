@@ -276,33 +276,82 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	}
 }
 
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.SitExtension{
+		ID:            strfmt.UUID(sitExtension.ID.String()),
+		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason: string(sitExtension.RequestReason),
+		Status:        string(sitExtension.Status),
+		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:     (*strfmt.DateTime)(&sitExtension.UpdatedAt),
+	}
+
+	if sitExtension.ApprovedDays != nil && *sitExtension.ApprovedDays > 0 {
+		payload.ApprovedDays = int64(*sitExtension.ApprovedDays)
+	}
+
+	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
+		payload.ContractorRemarks = *sitExtension.ContractorRemarks
+	}
+
+	if sitExtension.DecisionDate != nil && !sitExtension.DecisionDate.IsZero() {
+		payload.DecisionDate = strfmt.DateTime(*sitExtension.DecisionDate)
+	}
+
+	if sitExtension.OfficeRemarks != nil && len(*sitExtension.OfficeRemarks) > 0 {
+		payload.OfficeRemarks = *sitExtension.OfficeRemarks
+	}
+
+	return payload
+}
+
+// SITExtensions payload
+func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensions {
+	payload := make(ghcmessages.SitExtensions, len(*sitExtensions))
+
+	if len(*sitExtensions) > 0 {
+		for i, m := range *sitExtensions {
+			copyOfSitExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			payload[i] = SITExtension(&copyOfSitExtension)
+		}
+	}
+	return &payload
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	payload := &ghcmessages.MTOShipment{
-		ID:                          strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:                ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		Status:                      ghcmessages.MTOShipmentStatus(mtoShipment.Status),
-		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:         mtoShipment.CounselorRemarks,
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		RejectionReason:          mtoShipment.RejectionReason,
+		PickupAddress:            Address(mtoShipment.PickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
+		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
+		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		Diversion:                mtoShipment.Diversion,
+		Reweigh:                  Reweigh(mtoShipment.Reweigh),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
+		SitExtensions:            *SITExtensions(&mtoShipment.SITExtensions),
+    BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		RejectionReason:             mtoShipment.RejectionReason,
-		PickupAddress:               Address(mtoShipment.PickupAddress),
-		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
-		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
-		DestinationAddress:          Address(mtoShipment.DestinationAddress),
-		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
-		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
-		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
-		Diversion:                   mtoShipment.Diversion,
-		Reweigh:                     Reweigh(mtoShipment.Reweigh),
-		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
-		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
-		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

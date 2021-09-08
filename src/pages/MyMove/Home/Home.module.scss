@@ -95,7 +95,7 @@
     flex-basis: 0;
   }
 
-  .subheaderSubsection+.subheaderSubsection {
+  .subheaderSubsection + .subheaderSubsection {
     @include u-margin-left(2);
   }
 
@@ -105,7 +105,7 @@
     line-height: 1.23;
   }
 
-  dt+dd {
+  dt + dd {
     @include u-margin-left(0);
     @include u-margin-top(1);
   }
@@ -136,9 +136,13 @@
       line-height: 1.38;
     }
 
-    dt+dd {
+    dt + dd {
       @include u-margin-left(0.5em);
       @include u-margin-top(0);
     }
   }
+}
+
+.alertMessage {
+  @include u-margin-y(1em);
 }

@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,

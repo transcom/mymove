@@ -2358,6 +2358,83 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
+      "patch": {
+        "description": "Approves a SIT extension",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Approves a SIT extension",
+        "operationId": "approveSitExtension",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveSitExtension"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved a SIT extension",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the SIT extension",
+          "name": "sitExtensionID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -2565,6 +2642,24 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "ApproveSitExtension": {
+      "required": [
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT approval",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Approved for three weeks rather than requested 45 days"
         }
       }
     },
@@ -3508,6 +3603,13 @@ func init() {
             "INTERNATIONAL_UB"
           ]
         },
+        "sitDaysAllowance": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "sitExtensions": {
+          "$ref": "#/definitions/SitExtensions"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -4386,6 +4488,72 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "SitExtension": {
+      "properties": {
+        "approvedDays": {
+          "type": "integer"
+        },
+        "contractorRemarks": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string"
+        },
+        "requestReason": {
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SitExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitExtension"
+      }
     },
     "TacValid": {
       "type": "object",
@@ -7740,6 +7908,101 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
+      "patch": {
+        "description": "Approves a SIT extension",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Approves a SIT extension",
+        "operationId": "approveSitExtension",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveSitExtension"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved a SIT extension",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the SIT extension",
+          "name": "sitExtensionID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -7962,6 +8225,24 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "ApproveSitExtension": {
+      "required": [
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT approval",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Approved for three weeks rather than requested 45 days"
         }
       }
     },
@@ -8908,6 +9189,13 @@ func init() {
             "INTERNATIONAL_UB"
           ]
         },
+        "sitDaysAllowance": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "sitExtensions": {
+          "$ref": "#/definitions/SitExtensions"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -9786,6 +10074,72 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "SitExtension": {
+      "properties": {
+        "approvedDays": {
+          "type": "integer"
+        },
+        "contractorRemarks": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string"
+        },
+        "requestReason": {
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SitExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitExtension"
+      }
     },
     "TacValid": {
       "type": "object",

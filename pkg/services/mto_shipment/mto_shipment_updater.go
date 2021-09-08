@@ -440,6 +440,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		if newShipment.PrimeActualWeight != nil {
+			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
+				err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		// A diverted shipment gets set to the SUBMITTED status automatically:
 		if !dbShipment.Diversion && newShipment.Diversion {
 			newShipment.Status = models.MTOShipmentStatusSubmitted

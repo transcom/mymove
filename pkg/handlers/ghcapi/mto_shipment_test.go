@@ -44,6 +44,7 @@ type listMTOShipmentsSubtestData struct {
 	mtoServiceItem models.MTOServiceItem
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
+	sitExtension   models.SITExtension
 }
 
 func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
@@ -65,6 +66,11 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	subtestData.mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			MTOShipmentID: &mtoShipment.ID,
+		},
+	})
+	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID: mtoShipment.ID,
 		},
 	})
 
@@ -89,6 +95,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		shipments := subtestData.shipments
 		mtoAgent := subtestData.mtoAgent
 		mtoServiceItem := subtestData.mtoServiceItem
+		sitExtension := subtestData.sitExtension
 
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
@@ -108,6 +115,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
+		suite.Equal(sitExtension.ID.String(), okResponse.Payload[0].SitExtensions[0].ID.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
@@ -1403,7 +1411,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.NotFoundError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
@@ -1427,7 +1435,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.ConflictError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.ConflictError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
@@ -1450,7 +1458,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
@@ -1474,7 +1482,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, errors.New("UnexpectedError"))
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, errors.New("UnexpectedError"))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
@@ -1784,7 +1792,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	suite.Run("Successful PATCH - Integration Test", func() {
 		builder := query.NewQueryBuilder()
