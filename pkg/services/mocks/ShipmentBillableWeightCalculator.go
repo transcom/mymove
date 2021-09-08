@@ -15,7 +15,7 @@ type ShipmentBillableWeightCalculator struct {
 }
 
 // CalculateShipmentBillableWeight provides a mock function with given fields: shipment
-func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
+func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
 	ret := _m.Called(shipment)
 
 	var r0 services.BillableWeightInputs
@@ -25,5 +25,12 @@ func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(ship
 		r0 = ret.Get(0).(services.BillableWeightInputs)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.MTOShipment) error); ok {
+		r1 = rf(shipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

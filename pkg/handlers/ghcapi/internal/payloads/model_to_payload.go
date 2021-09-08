@@ -321,7 +321,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
-	calculatedWeights := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
 
 	// CalculatedBillableWeight is intentionally not a part of the mto_shipments model
 	// because we don't want to store a derived value in the database
