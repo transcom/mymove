@@ -485,7 +485,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
