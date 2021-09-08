@@ -1729,6 +1729,8 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 	customerRemarks := "help"
 	counselorRemarks := "counselor approved"
+	billableWeightCap := int64(8000)
+	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
 	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
@@ -1744,12 +1746,14 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
 	payload := ghcmessages.UpdateShipment{
-		RequestedPickupDate:   strfmt.Date(time.Now()),
-		RequestedDeliveryDate: strfmt.Date(time.Now()),
-		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,
-		CustomerRemarks:       &customerRemarks,
-		CounselorRemarks:      &counselorRemarks,
-		Agents:                agents,
+		BillableWeightJustification: &billableWeightJustification,
+		BillableWeightCap:           &billableWeightCap,
+		RequestedPickupDate:         strfmt.Date(time.Now()),
+		RequestedDeliveryDate:       strfmt.Date(time.Now()),
+		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
+		CustomerRemarks:             &customerRemarks,
+		CounselorRemarks:            &counselorRemarks,
+		Agents:                      agents,
 	}
 	payload.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
@@ -1815,6 +1819,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
+		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
 		suite.Equal(params.Body.CustomerRemarks, updatedShipment.CustomerRemarks)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
