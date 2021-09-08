@@ -1877,6 +1877,15 @@ workflows:
           requires:
             - build_tasks
 
+      - build_dp3_app:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+            - pre_deps_yarn
+          filters:
+            branches:
+              only: MB-9050
+
       - push_app_demo:
           requires:
             - build_dp3_app
@@ -1891,9 +1900,24 @@ workflows:
             branches:
               only: MB-9050
 
+      - build_dp3_tasks:
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only: MB-9050
+
       - push_tasks_demo:
           requires:
             - build_dp3_tasks
+          filters:
+            branches:
+              only: MB-9050
+
+      - build_dp3_webhook_client:
+          requires:
+            - anti_virus
+            - pre_deps_golang
           filters:
             branches:
               only: MB-9050
