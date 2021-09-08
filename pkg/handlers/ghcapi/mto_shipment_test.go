@@ -1527,8 +1527,8 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		payload := okResponse.Payload
 		suite.IsType(&shipmentops.ApproveSitExtensionOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
-		// this should work, I think, but doesn't
-		// suite.Equal("APPROVED", &payload.SitExtensions[0].Status)
+		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
+		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
 	})
 }
 
@@ -1565,11 +1565,10 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
 		}
 		response := handler.Handle(denyParams)
-		// okResponse := response.(*shipmentops.DenySitExtensionOK)
-		// payload := okResponse.Payload
+		okResponse := response.(*shipmentops.DenySitExtensionOK)
+		payload := okResponse.Payload
 		suite.IsType(&shipmentops.DenySitExtensionOK{}, response)
-		// this should work, I think, but doesn't
-		// suite.Equal("DENIED", &payload.SitExtensions[0].Status)
+		suite.Equal("DENIED", payload.SitExtensions[0].Status)
 	})
 }
 

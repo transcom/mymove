@@ -124,6 +124,11 @@ func (f *sitExtensionApprover) updateSitDaysAllowance(appCtx appcontext.AppConte
 		return &shipment, e
 	}
 
+	err = appCtx.DB().Q().Eager().Find(&shipment, shipment.ID)
+	if err != nil {
+		return nil, services.NewNotFoundError(shipment.ID, "looking for MTOShipment")
+	}
+
 	return &shipment, nil
 }
 
