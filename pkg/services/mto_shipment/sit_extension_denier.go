@@ -84,7 +84,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
-		if e := appCtx.DB().Q().Eager().Find(&returnedShipment, shipment.ID); e != nil {
+		if e := appCtx.DB().Q().EagerPreload("SITExtensions").Find(&returnedShipment, shipment.ID); e != nil {
 			return services.NewNotFoundError(shipment.ID, "looking for MTOShipment")
 		}
 
