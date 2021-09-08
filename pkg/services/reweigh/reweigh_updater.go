@@ -15,21 +15,47 @@ import (
 
 // reweighUpdater needs to be updates to have checks for validation
 type reweighUpdater struct {
+	checks []reweighValidator
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater() services.ReweighUpdater {
-	return &reweighUpdater{}
+func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
+	return &reweighUpdater{
+		checks: []reweighValidator{
+			checkShipmentID(),
+			checkReweighID(),
+			checkRequiredFields(),
+			checkPrimeAvailability(moveAvailabilityChecker),
+		},
+	}
+}
+
+// UpdateReweighCheck passes the Prime validator key to CreateReweigh
+func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
+	return f.UpdateReweigh(appCtx, reweigh, eTag, f.checks...)
 }
 
 // UpdateReweigh updates the Reweigh table
-func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
+func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
 	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
+		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
+	}
+
+	shipment := models.MTOShipment{}
+	// Find the shipment, return error if not found
+	err = appCtx.DB().Find(&shipment, reweigh.ShipmentID)
+	if err != nil {
+		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Shipment")
+	}
+	oldReweigh.Shipment = shipment
+
+	err = validateReweigh(appCtx, *reweigh, &oldReweigh, &oldReweigh.Shipment, checks...)
+	if err != nil {
+		return nil, err
 	}
 
 	if reweigh.VerificationReason != nil {
@@ -64,7 +90,6 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	}
 
 	// Need to pull out this common code. It is from reweigh requester
-	var shipment models.MTOShipment
 	err = appCtx.DB().Q().
 		Eager("Reweigh").
 		Find(&shipment, reweigh.ShipmentID)

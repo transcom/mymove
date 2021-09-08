@@ -31,7 +31,7 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 	newReweigh := payloads.ReweighModelFromUpdate(payload, params.ReweighID, params.MtoShipmentID)
 
 	// Call the service object
-	updatedReweigh, err := h.ReweighUpdater.UpdateReweigh(appCtx, newReweigh, eTag)
+	updatedReweigh, err := h.ReweighUpdater.UpdateReweighCheck(appCtx, newReweigh, eTag)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
