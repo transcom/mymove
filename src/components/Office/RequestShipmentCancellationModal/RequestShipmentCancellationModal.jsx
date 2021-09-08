@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
-import Modal, { ModalTitle, ModalClose, ModalActions } from 'components/Modal/Modal';
+import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) => (
   <div>

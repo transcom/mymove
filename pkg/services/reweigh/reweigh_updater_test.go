@@ -18,7 +18,7 @@ import (
 )
 
 func (suite *ReweighSuite) TestReweighUpdater() {
-	reweighUpdater := NewReweighUpdater(suite.DB(), movetaskorder.NewMoveTaskOrderChecker())
+	reweighUpdater := NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker())
 	currentTime := time.Now()
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -64,15 +64,5 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
-	})
-	// InvalidInputError
-	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
-		badRequestedby := models.ReweighRequester("not requested by anyone")
-		newReweigh.RequestedBy = badRequestedby
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &newReweigh, eTag)
-
-		suite.Error(err)
-		suite.Nil(updatedReweigh)
-		suite.IsType(services.InvalidInputError{}, err)
 	})
 }

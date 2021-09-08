@@ -1,7 +1,8 @@
 import React from 'react';
 import { string, number, shape } from 'prop-types';
 import classnames from 'classnames';
-import { Button } from '@trussworks/react-uswds';
+
+import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
 
 import styles from './ShipmentCard.module.scss';
 
@@ -63,9 +64,12 @@ export default function ShipmentCard({
         </div>
       </div>
       <footer>
-        <h3>Billable weight</h3>
-        <span>{formatWeight(billableWeight)}</span>
-        <Button className={styles.editBtn}>Edit</Button>
+        <EditBillableWeight
+          title="Billable weight"
+          billableWeight={billableWeight}
+          originalWeight={originalWeight}
+          estimatedWeight={estimatedWeight}
+        />
       </footer>
     </ShipmentContainer>
   );

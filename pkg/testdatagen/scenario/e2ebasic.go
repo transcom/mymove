@@ -13,9 +13,11 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/swag"
@@ -53,65 +55,39 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
-func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator string) {
-	submittedAt := time.Now()
-	ordersSC := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: true,
+/*
+ * Users
+ */
+
+func serviceMemberNoUploadedOrders(db *pop.Connection) {
+	/*
+		A Service member that has no uploaded orders
+	*/
+	email := "needs@orde.rs"
+	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
+	loginGovID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 
-	moveSC := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     locator,
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
-		},
-		Order: ordersSC,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: moveSC,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-
-	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
-	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: moveSC,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("NEEDS"),
+			LastName:      models.StringPointer("ORDERS"),
+			PersonalEmail: models.StringPointer(email),
 		},
 	})
 }
 
-// Run does that data load thing
-func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCtx.DB()
-	logger := appCtx.Logger()
-	moveRouter := moverouter.NewMoveRouter()
-	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
-	var allDutyStations []models.DutyStation
-	db.All(&allDutyStations)
-
-	var originDutyStationsInGBLOC []models.DutyStation
-	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		All(&originDutyStationsInGBLOC)
-
-	/*
-	 * Basic user with office access
-	 */
+func basicUserWithOfficeAccess(db *pop.Connection) {
 	ppmOfficeRole := roles.Role{}
 	err := db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
 	if err != nil {
@@ -135,38 +111,211 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			Active: true,
 		},
 	})
+}
 
-	/*
-	 * Service member with no uploaded orders
-	 */
-	email = "needs@orde.rs"
-	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
-	loginGovID = uuid.Must(uuid.NewV4())
+func userWithRoles(db *pop.Connection) {
+	smRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomer in the DB: %w", err))
+	}
+	email := "role_tester@service.mil"
+	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884079"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
+			Roles:         []roles.Role{smRole},
 		},
 	})
+}
 
-	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+func userWithTOORole(db *pop.Connection) {
+	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	email := "too_role@office.mil"
+	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
+			Email:  email,
+			Active: true,
+			UserID: &tooUUID,
+		},
+	})
+}
+
+func userWithTIORole(db *pop.Connection) {
+	tioRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	email := "tio_role@office.mil"
+	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tioUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
+			Email:  email,
+			Active: true,
+			UserID: &tioUUID,
+		},
+	})
+}
+
+func userWithServicesCounselorRole(db *pop.Connection) {
+	servicesCounselorRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email := "services_counselor_role@office.mil"
+	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            servicesCounselorUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+			Email:  email,
+			Active: true,
+			UserID: &servicesCounselorUUID,
+		},
+	})
+}
+
+func userWithTOOandTIORole(db *pop.Connection) {
+	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	email := "too_tio_role@office.mil"
+	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("NEEDS"),
-			LastName:      models.StringPointer("ORDERS"),
-			PersonalEmail: models.StringPointer(email),
+			User:   user,
+			UserID: user.ID,
 		},
 	})
+}
 
-	/*
-	 * Service member with uploaded orders and a new ppm
-	 */
-	email = "ppm@incomple.te"
-	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
-	loginGovID = uuid.Must(uuid.NewV4())
+func userWithTOOandTIOandServicesCounselorRole(db *pop.Connection) {
+	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	servicesCounselorRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email := "too_tio_services_counselor_role@office.mil"
+	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            ttooTioServicesUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole, servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+			Email:  email,
+			Active: true,
+			UserID: &ttooTioServicesUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
+		},
+	})
+}
+
+/*
+ * Moves
+ */
+
+func serviceMemberWithUploadedOrdersAndNewPPM(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@incomple.te"
+	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -202,13 +351,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with uploaded orders, a new ppm and no advance
-	 */
-	email = "ppm@advance.no"
-	uuidStr = "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithUploadedOrdersNewPPMNoAdvance(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@advance.no"
+	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -236,17 +384,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 	moveRouter.Submit(appCtx, &ppmNoAdvance.Move)
-	verrs, err = models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * office user finds the move: office user completes storage panel
-	 */
-	email = "office.user.completes@storage.panel"
-	uuidStr = "ebac4efd-c980-48d6-9cce-99fb34644789"
-	loginGovID = uuid.Must(uuid.NewV4())
+func officeUserFindsMoveCompletesStoragePanel(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "office.user.completes@storage.panel"
+	uuidStr := "ebac4efd-c980-48d6-9cce-99fb34644789"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -277,17 +424,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err = models.SaveMoveDependencies(db, &ppmStorage.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmStorage.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * office user finds the move: office user cancels storage panel
-	 */
-	email = "office.user.cancelss@storage.panel"
-	uuidStr = "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
-	loginGovID = uuid.Must(uuid.NewV4())
+func officeUserFindsMoveCancelsStoragePanel(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "office.user.cancelss@storage.panel"
+	uuidStr := "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -318,17 +464,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err = models.SaveMoveDependencies(db, &ppmNoStorage.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmNoStorage.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * A move, that will be canceled by the E2E test
-	 */
-	email = "ppm-to-cancel@example.com"
-	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
-	loginGovID = uuid.Must(uuid.NewV4())
+func aMoveThatWillBeCancelledByAnE2ETest(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm-to-cancel@example.com"
+	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -356,17 +501,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 	moveRouter.Submit(appCtx, &ppmToCancel.Move)
-	verrs, err = models.SaveMoveDependencies(db, &ppmToCancel.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm in progress
-	 */
-	email = "ppm.on@progre.ss"
-	uuidStr = "20199d12-5165-4980-9ca7-19b5dc9f1032"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMInProgress(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm.on@progre.ss"
+	uuidStr := "20199d12-5165-4980-9ca7-19b5dc9f1032"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -396,17 +540,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	})
 	moveRouter.Submit(appCtx, &ppm1.Move)
 	moveRouter.Approve(appCtx, &ppm1.Move)
-	verrs, err = models.SaveMoveDependencies(db, &ppm1.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm1.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm move with payment requested
-	 */
-	email = "ppm@paymentrequest.ed"
-	uuidStr = "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMMoveWithPaymentRequested01(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@paymentrequest.ed"
+	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -448,17 +591,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err = models.SaveMoveDependencies(db, &ppm2.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm2.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm move that has requested payment
-	 */
-	email = "ppmpayment@request.ed"
-	uuidStr = "beccca28-6e15-40cc-8692-261cae0d4b14"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMMoveWithPaymentRequested02(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppmpayment@request.ed"
+	uuidStr := "beccca28-6e15-40cc-8692-261cae0d4b14"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -518,18 +660,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err = models.SaveMoveDependencies(db, &ppm3.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm3.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm move that has requested payment
-	 */
-
-	email = "ppm.excludecalculations.expenses"
-	uuidStr = "4f092d53-9005-4371-814d-0c88e970d2f7"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMMoveWithPaymentRequested03(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm.excludecalculations.expenses"
+	uuidStr := "4f092d53-9005-4371-814d-0c88e970d2f7"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -539,9 +679,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 	// Date picked essentialy at random, but needs to be within TestYear
-	originalMoveDate = time.Date(testdatagen.TestYear, time.December, 10, 23, 0, 0, 0, time.UTC)
-	actualMoveDate = time.Date(testdatagen.TestYear, time.December, 11, 10, 0, 0, 0, time.UTC)
-	moveTypeDetail = internalmessages.OrdersTypeDetailPCSTDY
+	originalMoveDate := time.Date(testdatagen.TestYear, time.December, 10, 23, 0, 0, 0, time.UTC)
+	actualMoveDate := time.Date(testdatagen.TestYear, time.December, 11, 10, 0, 0, 0, time.UTC)
+	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	assertions := testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("350f0450-1cb8-4aa8-8a85-2d0f45899447"),
@@ -577,7 +717,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err = models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
@@ -603,12 +743,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	/*
-	 * A PPM move that has been canceled.
-	 */
-	email = "ppm-canceled@example.com"
-	uuidStr = "20102768-4d45-449c-a585-81bc386204b1"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+
+func aCanceledPPMMove(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm-canceled@example.com"
+	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -636,7 +776,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 	moveRouter.Submit(appCtx, &ppmCanceled.Move)
-	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
@@ -645,49 +785,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with orders and a move
-	 */
-	email = "profile@comple.te"
-	uuidStr = "13f3949d-0d53-4be4-b1b1-ae4314793f34"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("0a1e72b0-1b9f-442b-a6d3-7b7cfa6bbb95"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Profile"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893308161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
-			Locator: "BLABLA",
-			Status:  models.MoveStatusSUBMITTED,
-		},
-		UserUploader: userUploader,
-	})
-
-	/*
-	 * A service member with orders and a move, but no move type selected
-	 */
-	email = "sm_no_move_type@example.com"
-	uuidStr = "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithOrdersAndAMoveNoMoveType(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "sm_no_move_type@example.com"
+	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -712,12 +815,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	/*
-	 * A service member with orders and a submitted move with a ppm and hhg
-	 */
-	email = "combo@ppm.hhg"
-	uuidStr = "6016e423-f8d5-44ca-98a8-af03c8445c94"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+
+func serviceMemberWithOrdersAndAMovePPMandHHG(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "combo@ppm.hhg"
+	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -780,6 +883,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+	rejectionReason := "a rejection reason"
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -787,6 +891,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusRejected,
+			RejectionReason:      &rejectionReason,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
@@ -804,17 +909,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	moveRouter.Submit(appCtx, &move)
-	verrs, err = models.SaveMoveDependencies(db, &move)
+	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * A service member with an hhg only, unsubmitted move
-	 */
-	email = "hhg@only.unsubmitted"
-	uuidStr = "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithUnsubmittedHHG(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "hhg@only.unsubmitted"
+	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -836,8 +940,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	selectedMoveType = models.SelectedMoveTypeHHG
-	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+	selectedMoveType := models.SelectedMoveTypeHHG
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
 			ServiceMember:   smWithHHG,
@@ -849,8 +953,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	estimatedHHGWeight = unit.Pound(1400)
-	actualHHGWeight = unit.Pound(2000)
+	estimatedHHGWeight := unit.Pound(1400)
+	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("b67157bd-d2eb-47e2-94b6-3bc90f6fb8fe"),
@@ -864,12 +968,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	/*
-	 * A service member with an NTS, NTS-R shipment, & unsubmitted move
-	 */
-	email = "nts@ntsr.unsubmitted"
-	uuidStr = "583cfbe1-cb34-4381-9e1f-54f68200da1b"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+
+func serviceMemberWithNTSandNTSRandUnsubmittedMove01(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "nts@ntsr.unsubmitted"
+	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -891,8 +995,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	selectedMoveType = models.SelectedMoveTypeNTS
-	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+	selectedMoveType := models.SelectedMoveTypeNTS
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
 			ServiceMember:   smWithNTS,
@@ -949,12 +1053,11 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	/*
-	 * ANOTHER service member with an NTS, NTS-R shipment, & unsubmitted move
-	 */
-	email = "nts2@ntsr.unsubmitted"
-	uuidStr = "80da86f3-9dac-4298-8b03-b753b443668e"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+func serviceMemberWithNTSandNTSRandUnsubmittedMove02(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "nts2@ntsr.unsubmitted"
+	uuidStr := "80da86f3-9dac-4298-8b03-b753b443668e"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -964,8 +1067,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	smWithNTSID = "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
-	smWithNTS = testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+	smWithNTSID := "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
+	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil(smWithNTSID),
 			UserID:        uuid.FromStringOrNil(uuidStr),
@@ -976,8 +1079,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	selectedMoveType = models.SelectedMoveTypeNTS
-	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+	selectedMoveType := models.SelectedMoveTypeNTS
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
 			ServiceMember:   smWithNTS,
@@ -989,9 +1092,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	estimatedNTSWeight = unit.Pound(1400)
-	actualNTSWeight = unit.Pound(2000)
-	ntsShipment = testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+	estimatedNTSWeight := unit.Pound(1400)
+	actualNTSWeight := unit.Pound(2000)
+	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
@@ -1012,7 +1115,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	ntsrShipment = testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
@@ -1034,63 +1137,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	/*
-	* Creates two valid, unclaimed access codes
-	 */
-	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:     "X3FQJK",
-			MoveType: models.SelectedMoveTypeHHG,
-		},
-	})
-	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:     "ABC123",
-			MoveType: models.SelectedMoveTypePPM,
-		},
-	})
-	email = "accesscode@mail.com"
-	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-	sm := models.ServiceMember{
-		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
-		UserID:        uuid.FromStringOrNil(uuidStr),
-		FirstName:     models.StringPointer("Claimed"),
-		LastName:      models.StringPointer("Access Code"),
-		Edipi:         models.StringPointer("163105198"),
-		PersonalEmail: models.StringPointer(email),
-	}
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: sm,
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
-			Locator: "CLAIMD",
-		},
-		UserUploader: userUploader,
-	})
-	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:            "ZYX321",
-			MoveType:        models.SelectedMoveTypePPM,
-			ServiceMember:   sm,
-			ServiceMemberID: &sm.ID,
-		},
-	})
+}
 
-	/*
-	 * Service member with a ppm ready to request payment
-	 */
-	email = "ppm@requestingpayment.newflow"
-	uuidStr = "745e0eba-4028-4c78-a262-818b00802748"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMReadyToRequestPayment01(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@requestingpayment.newflow"
+	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1099,6 +1151,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			Active:        true,
 		},
 	})
+	pastTime := nextValidMoveDateMinusTen
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
@@ -1128,17 +1182,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	verrs, err = models.SaveMoveDependencies(db, &ppm6.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm ready to request payment
-	 */
-	email = "ppm@continue.requestingpayment"
-	uuidStr = "4ebc03b7-c801-4c0d-806c-a95aed242102"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMReadyToRequestPayment02(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@continue.requestingpayment"
+	uuidStr := "4ebc03b7-c801-4c0d-806c-a95aed242102"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1147,6 +1200,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			Active:        true,
 		},
 	})
+	pastTime := nextValidMoveDateMinusTen
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm7 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0cfb9fc6-82dd-404b-aa39-4deb6dba6c66"),
@@ -1176,17 +1231,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	moveRouter.Approve(appCtx, &ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	verrs, err = models.SaveMoveDependencies(db, &ppm7.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm7.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm ready to request payment
-	 */
-	email = "ppm@requestingpay.ment"
-	uuidStr = "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMReadyToRequestPayment03(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@requestingpay.ment"
+	uuidStr := "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1195,6 +1249,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			Active:        true,
 		},
 	})
+	pastTime := nextValidMoveDateMinusTen
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm5 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("ff1f56c0-544e-4109-8168-f91ebcbbb878"),
@@ -1225,17 +1281,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	verrs, err = models.SaveMoveDependencies(db, &ppm5.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm5.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Service member with a ppm move approved, but not in progress
-	 */
-	email = "ppm@approv.ed"
-	uuidStr = "70665111-7bbb-4876-a53d-18bb125c943e"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithPPMApprovedNotInProgress(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	email := "ppm@approv.ed"
+	uuidStr := "70665111-7bbb-4876-a53d-18bb125c943e"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1276,17 +1331,52 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	verrs, err = models.SaveMoveDependencies(db, &ppmApproved.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmApproved.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
+}
 
-	/*
-	 * Another service member with orders and a move
-	 */
-	email = "profile@co.mple.te"
-	uuidStr = "99360a51-8cfa-4e25-ae57-24e66077305f"
-	loginGovID = uuid.Must(uuid.NewV4())
+func serviceMemberWithOrdersAndPPMMove01(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "profile@comple.te"
+	uuidStr := "13f3949d-0d53-4be4-b1b1-ae4314793f34"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0a1e72b0-1b9f-442b-a6d3-7b7cfa6bbb95"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Profile"),
+			LastName:      models.StringPointer("Complete"),
+			Edipi:         models.StringPointer("8893308161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
+			Locator: "BLABLA",
+			Status:  models.MoveStatusSUBMITTED,
+		},
+		UserUploader: userUploader,
+	})
+
+}
+
+func serviceMemberWithOrdersAndPPMMove02(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "profile@co.mple.te"
+	uuidStr := "99360a51-8cfa-4e25-ae57-24e66077305f"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1316,9 +1406,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 
-	email = "profile@complete.draft"
-	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+
+func serviceMemberWithOrdersAndPPMMove03(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "profile@complete.draft"
+	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884070"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1348,9 +1441,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 
-	email = "profile2@complete.draft"
-	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884077"
-	loginGovID = uuid.Must(uuid.NewV4())
+}
+
+func serviceMemberWithOrdersAndPPMMove04(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "profile2@complete.draft"
+	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884077"
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1380,50 +1476,19 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		UserUploader: userUploader,
 	})
 
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
-		},
-	})
+}
 
-	dependentsAuthorized := true
-
-	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
-		Entitlement: models.Entitlement{
-			DependentsAuthorized: &dependentsAuthorized,
-		},
-	})
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
-		Entitlement:  entitlements,
-	})
-	mtoSelectedMoveType := models.SelectedMoveTypeHHG
-	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          "TEST12",
-			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			Status:           models.MoveStatusSUBMITTED,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &mtoSelectedMoveType,
-		},
-	})
-
-	customer2 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+func serviceMemberWithOrdersAndPPMMove05(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
 		},
 	})
-	orders2 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4"),
-			ServiceMemberID: customer2.ID,
-			ServiceMember:   customer2,
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
 	})
@@ -1431,20 +1496,22 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			OrdersID: orders2.ID,
+			OrdersID: orders.ID,
 		},
 	})
+}
 
-	customer3 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+func serviceMemberWithOrdersAndPPMMove06(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
 		},
 	})
-	orders3 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7"),
-			ServiceMemberID: customer3.ID,
-			ServiceMember:   customer3,
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
 	})
@@ -1452,20 +1519,22 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			OrdersID: orders3.ID,
+			OrdersID: orders.ID,
 		},
 	})
+}
 
-	customer4 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+func serviceMemberWithOrdersAndPPMMove07(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
 		},
 	})
-	orders4 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
-			ServiceMemberID: customer4.ID,
-			ServiceMember:   customer4,
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
 	})
@@ -1473,20 +1542,22 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
-			OrdersID: orders4.ID,
+			OrdersID: orders.ID,
 		},
 	})
+}
 
-	customer5 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+func serviceMemberWithOrdersAndPPMMove08(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
 		},
 	})
-	orders5 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
-			ServiceMemberID: customer5.ID,
-			ServiceMember:   customer5,
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
 	})
@@ -1494,12 +1565,558 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
-			OrdersID: orders5.ID,
+			OrdersID: orders.ID,
+		},
+	})
+}
+
+func serviceMemberWithPPMMoveWithAccessCode(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "accesscode@mail.com"
+	uuidStr := "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	sm := models.ServiceMember{
+		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
+		UserID:        uuid.FromStringOrNil(uuidStr),
+		FirstName:     models.StringPointer("Claimed"),
+		LastName:      models.StringPointer("Access Code"),
+		Edipi:         models.StringPointer("163105198"),
+		PersonalEmail: models.StringPointer(email),
+	}
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: sm,
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
+			Locator: "CLAIMD",
+		},
+		UserUploader: userUploader,
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:            "ZYX321",
+			MoveType:        models.SelectedMoveTypePPM,
+			ServiceMember:   sm,
+			ServiceMemberID: &sm.ID,
+		},
+	})
+}
+
+func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator string) {
+	submittedAt := time.Now()
+	ordersSC := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
 		},
 	})
 
-	estimatedWeight := unit.Pound(1400)
-	actualWeight := unit.Pound(2000)
+	moveSC := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     locator,
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: ordersSC,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createBasicNTSMove(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "nts.test.user@example.com"
+	uuidStr := "2194daed-3589-408f-b988-e9889c9f120e"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7273579005"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
+			Locator: "NTS000",
+		},
+		UserUploader: userUploader,
+	})
+
+}
+
+func createBasicMovePPM01(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "ppm.test.user1@example.com"
+	uuidStr := "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("2342122439"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
+			Locator: "PPM001",
+		},
+		UserUploader: userUploader,
+	})
+
+}
+func createBasicMovePPM02(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "ppm.test.user2@example.com"
+	uuidStr := "324dec0a-850c-41c8-976b-068e27121b84"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6213314987"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
+			Locator: "PPM002",
+		},
+		UserUploader: userUploader,
+	})
+}
+
+func createBasicMovePPM03(db *pop.Connection, userUploader *uploader.UserUploader) {
+	email := "ppm.test.user3@example.com"
+	uuidStr := "f154929c-5f07-41f5-b90c-d90b83d5773d"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7814245500"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
+			Locator: "PPM003",
+		},
+		UserUploader: userUploader,
+	})
+}
+
+func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUploader *uploader.UserUploader) {
+	/*
+		Creates a move for the TIO flow
+	*/
+	msCost := unit.Cents(10000)
+	dlhCost := unit.Cents(99999)
+	csCost := unit.Cents(25000)
+	fscCost := unit.Cents(55555)
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+		},
+	})
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+			Locator:            "TIOFLO",
+			OrdersID:           orders.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	mtoShipmentHHG := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+		},
+		Move: mto,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
+			MTOShipment:   mtoShipmentHHG,
+			MTOShipmentID: mtoShipmentHHG.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	paymentRequestHHG := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
+			MoveTaskOrder:   mto,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		Move: mto,
+	})
+
+	// for soft deleted proof of service docs
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequestHHG,
+	})
+
+	deletedAt := time.Now()
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+			},
+			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			DeletedAt:    &deletedAt,
+		},
+	})
+
+	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequestHHG,
+		MTOServiceItem: serviceItemMS,
+	})
+
+	// Shuttling service item
+	doshutCost := unit.Cents(623)
+	approvedAtTime := time.Now()
+	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24934894h"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTime,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipmentHHG,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &doshutCost,
+		},
+		PaymentRequest: paymentRequestHHG,
+		MTOServiceItem: serviceItemDOSHUT,
+	})
+
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		db,
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipmentHHG,
+			PaymentRequest: paymentRequestHHG,
+		},
+	)
+
+	// Crating service item
+	dcrtCost := unit.Cents(623)
+	approvedAtTimeCRT := time.Now()
+	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894c"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTimeCRT,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipmentHHG,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Dom Crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequestHHG,
+		MTOServiceItem: serviceItemDCRT,
+	})
+
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		db,
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipmentHHG,
+			PaymentRequest: paymentRequestHHG,
+		},
+	)
+
+	// Domestic line haul service item
+	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
+		},
+		Move: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequestHHG,
+		MTOServiceItem: serviceItemDLH,
+	})
+
+	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
+	additionalPaymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
+			MoveTaskOrder:   mto,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+			SequenceNumber:  2,
+			CreatedAt:       createdAtTime,
+		},
+		Move: mto,
+	})
+
+	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: additionalPaymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
@@ -1511,103 +2128,29 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 		Move: mto,
 	})
-
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
-		},
-	})
-
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
-			MoveTaskOrder: mto,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
-		},
-		Move: mto,
-	})
-
-	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
-		},
-		Move:        mto,
-		MTOShipment: MTOShipment,
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
-		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
-
-	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("eeb82080-0a83-46b8-938c-63c7b73a7e45"),
+			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
 		},
 	})
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
+			PriceCents: &fscCost,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
+		PaymentRequest: additionalPaymentRequest,
+		MTOServiceItem: serviceItemFSC,
 	})
+}
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-		},
-		PrimeUploader: primeUploader,
-	})
-
-	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	// Creates custom test.jpg prime upload
-	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
-	if verrs.HasAny() || err != nil {
-		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
-	}
-
-	// Creates custom test.png prime upload
-	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
-	if verrs.HasAny() || err != nil {
-		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
-	}
-
+func createMoveWithServiceItemsandPaymentRequests02(db *pop.Connection, userUploader *uploader.UserUploader) {
 	msCost := unit.Cents(10000)
+
 	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
@@ -1731,12 +2274,14 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	dopCost := unit.Cents(3456)
-	rejectionReason := "Customer no longer required this service"
+
+	rejectionReason8 := "Customer no longer required this service"
+
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
 			Status:          models.MTOServiceItemStatusRejected,
-			RejectionReason: &rejectionReason,
+			RejectionReason: &rejectionReason8,
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
@@ -1889,48 +2434,59 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		Move:        move8,
 		MTOShipment: mtoShipment8,
 	})
+}
 
-	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection, appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	logger := appCtx.Logger()
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 		},
 	})
-
-	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	dependentsAuthorized := true
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+		},
+	})
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
-			ServiceMemberID: customer7.ID,
-			ServiceMember:   customer7,
+			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
+		Entitlement:  entitlements,
 	})
-
-	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
+	mtoSelectedMoveType := models.SelectedMoveTypeHHG
+	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
-			Locator:            "TIOFLO",
-			OrdersID:           orders7.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+			Locator:          "TEST12",
+			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			Status:           models.MoveStatusSUBMITTED,
+			OrdersID:         orders.ID,
+			Orders:           orders,
+			SelectedMoveType: &mtoSelectedMoveType,
 		},
 	})
 
-	mtoShipmentHHG7 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
+			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff2b5"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
 		},
-		Move: mto7,
+		Move: mto,
 	})
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
-			MTOShipment:   mtoShipmentHHG7,
-			MTOShipmentID: mtoShipmentHHG7.ID,
+			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
 			FirstName:     swag.String("Test"),
 			LastName:      swag.String("Agent"),
 			Email:         swag.String("test@test.email.com"),
@@ -1938,23 +2494,56 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
-			MoveTaskOrder:   mto7,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
+			MoveTaskOrder: mto,
+			IsFinal:       false,
+			Status:        models.PaymentRequestStatusPending,
 		},
-		Move: mto7,
+		Move: mto,
+	})
+	dcrtCost := unit.Cents(99999)
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
 	})
 
-	// for soft deleted proof of service docs
-	proofOfService = testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest7,
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDCRT,
 	})
 
-	deletedAt := time.Now()
+	ducrtCost := unit.Cents(99999)
+	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("eeb82080-0a83-46b8-938c-63c7b73a7e45"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ducrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDUCRT,
+	})
+
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequest,
+	})
+
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
 			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
@@ -1964,252 +2553,32 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
 			},
 			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
 		},
+		PrimeUploader: primeUploader,
 	})
 
-	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
-		},
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequest,
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &msCost,
-		},
-		PaymentRequest: paymentRequest7,
-		MTOServiceItem: serviceItemMS7,
-	})
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 
-	serviceItemDLH7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
-		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dlhCost,
-		},
-		PaymentRequest: paymentRequest7,
-		MTOServiceItem: serviceItemDLH7,
-	})
-
-	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
-	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
-			MoveTaskOrder:   mto7,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
-			SequenceNumber:  2,
-			CreatedAt:       createdAtTime,
-		},
-		Move: mto7,
-	})
-
-	serviceItemCS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &csCost,
-		},
-		PaymentRequest: additionalPaymentRequest7,
-		MTOServiceItem: serviceItemCS7,
-	})
-
-	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
-		},
-		Move:        mto7,
-		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &fscCost,
-		},
-		PaymentRequest: additionalPaymentRequest7,
-		MTOServiceItem: serviceItemFSC7,
-	})
-
-	/* A user with Roles */
-	smRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomer in the DB: %w", err))
-	}
-	email = "role_tester@service.mil"
-	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884079"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{smRole},
-		},
-	})
-
-	/* A user with too role */
-	tooRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
-	email = "too_role@office.mil"
-	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooUUID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole},
-		},
-	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
-			Email:  email,
-			Active: true,
-			UserID: &tooUUID,
-		},
-	})
-
-	/* A user with tio role */
-	tioRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
+}
 
-	email = "tio_role@office.mil"
-	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tioUUID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tioRole},
-		},
-	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
-			Email:  email,
-			Active: true,
-			UserID: &tioUUID,
-		},
-	})
-
-	/* A user with services counselor role */
-	servicesCounselorRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
-	}
-
-	email = "services_counselor_role@office.mil"
-	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            servicesCounselorUUID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{servicesCounselorRole},
-		},
-	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
-			Email:  email,
-			Active: true,
-			UserID: &servicesCounselorUUID,
-		},
-	})
-
-	/* A user with both too and tio roles */
-	email = "too_tio_role@office.mil"
-	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
-	loginGovID = uuid.Must(uuid.NewV4())
-	user := testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioUUID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
-		},
-	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
-		},
-	})
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
-		},
-	})
-
-	/* A user with too, tio, and services counselor roles */
-	email = "too_tio_services_counselor_role@office.mil"
-	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
-	loginGovID = uuid.Must(uuid.NewV4())
-	user = testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            ttooTioServicesUUID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole, servicesCounselorRole},
-		},
-	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
-			Email:  email,
-			Active: true,
-			UserID: &ttooTioServicesUUID,
-		},
-	})
-
+func createMoveWithSinceParamater(db *pop.Connection, userUploader *uploader.UserUploader) {
 	// A more recent MTO for demonstrating the since parameter
 	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -2310,6 +2679,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+}
+
+func createMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {
 	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
@@ -2439,6 +2811,37 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+}
+
+// Run does that data load thing
+func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
+	moveRouter := moverouter.NewMoveRouter()
+	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	var allDutyStations []models.DutyStation
+	db.All(&allDutyStations)
+
+	var originDutyStationsInGBLOC []models.DutyStation
+	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		All(&originDutyStationsInGBLOC)
+
+	/*
+	* Creates two valid, unclaimed access codes
+	 */
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "X3FQJK",
+			MoveType: models.SelectedMoveTypeHHG,
+		},
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "ABC123",
+			MoveType: models.SelectedMoveTypePPM,
+		},
+	})
+
 	// Create one webhook subscription for PaymentRequestUpdate
 	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
 		WebhookSubscription: models.WebhookSubscription{
@@ -2446,135 +2849,56 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	email = "nts.test.user@example.com"
-	uuidStr = "2194daed-3589-408f-b988-e9889c9f120e"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	// Users
+	serviceMemberNoUploadedOrders(db)
+	basicUserWithOfficeAccess(db)
+	userWithRoles(db)
+	userWithTOORole(db)
+	userWithTIORole(db)
+	userWithServicesCounselorRole(db)
+	userWithTOOandTIORole(db)
+	userWithTOOandTIOandServicesCounselorRole(db)
 
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("7273579005"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
-			Locator: "NTS000",
-		},
-		UserUploader: userUploader,
-	})
-
-	email = "ppm.test.user1@example.com"
-	uuidStr = "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("2342122439"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
-			Locator: "PPM001",
-		},
-		UserUploader: userUploader,
-	})
-
-	email = "ppm.test.user2@example.com"
-	uuidStr = "324dec0a-850c-41c8-976b-068e27121b84"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("6213314987"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
-			Locator: "PPM002",
-		},
-		UserUploader: userUploader,
-	})
-
-	email = "ppm.test.user3@example.com"
-	uuidStr = "f154929c-5f07-41f5-b90c-d90b83d5773d"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("7814245500"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
-			Locator: "PPM003",
-		},
-		UserUploader: userUploader,
-	})
+	// Moves
+	serviceMemberWithUploadedOrdersAndNewPPM(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithUploadedOrdersNewPPMNoAdvance(db, appCtx, userUploader, moveRouter)
+	officeUserFindsMoveCompletesStoragePanel(db, appCtx, userUploader, moveRouter)
+	officeUserFindsMoveCancelsStoragePanel(db, appCtx, userUploader, moveRouter)
+	aMoveThatWillBeCancelledByAnE2ETest(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMInProgress(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMMoveWithPaymentRequested01(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMMoveWithPaymentRequested02(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMMoveWithPaymentRequested03(db, appCtx, userUploader, moveRouter)
+	aCanceledPPMMove(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithOrdersAndAMoveNoMoveType(db, userUploader)
+	serviceMemberWithOrdersAndAMovePPMandHHG(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithUnsubmittedHHG(db, userUploader)
+	serviceMemberWithNTSandNTSRandUnsubmittedMove01(db, userUploader)
+	serviceMemberWithNTSandNTSRandUnsubmittedMove02(db, userUploader)
+	serviceMemberWithPPMReadyToRequestPayment01(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMReadyToRequestPayment02(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMReadyToRequestPayment03(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithPPMApprovedNotInProgress(db, appCtx, userUploader, moveRouter)
+	serviceMemberWithOrdersAndPPMMove01(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove02(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove03(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove04(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove05(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove06(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove07(db, userUploader)
+	serviceMemberWithOrdersAndPPMMove08(db, userUploader)
+	serviceMemberWithPPMMoveWithAccessCode(db, userUploader)
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE1ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE4ET")
+	createBasicNTSMove(db, userUploader)
+	createBasicMovePPM01(db, userUploader)
+	createBasicMovePPM02(db, userUploader)
+	createBasicMovePPM03(db, userUploader)
+	createMoveWithServiceItemsandPaymentRequests01(db, userUploader)
+	createMoveWithServiceItemsandPaymentRequests02(db, userUploader)
+	createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db, appCtx, userUploader, primeUploader)
+	createMoveWithSinceParamater(db, userUploader)
+	createMoveWithTaskOrderServices(db, userUploader)
 }

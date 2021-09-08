@@ -13,14 +13,12 @@ import (
 
 // reweighCreator sets up the service object
 type reweighCreator struct {
-	db     *pop.Connection
 	checks []reweighValidator
 }
 
 // NewReweighCreator creates a new struct with the service dependencies
 func NewReweighCreator(db *pop.Connection) services.ReweighCreator {
 	return &reweighCreator{
-		db: db,
 		checks: []reweighValidator{
 			checkShipmentID(),
 			checkRequiredFields(),
@@ -49,7 +47,7 @@ func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, err
 	}
 
-	verrs, err := f.db.ValidateAndCreate(reweigh)
+	verrs, err := appCtx.DB().ValidateAndCreate(reweigh)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the reweigh.")

@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape } from 'prop-types';
+import { string, arrayOf, func, shape, number } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -14,12 +14,13 @@ export default function BillableWeightCard({
   weightAllowance,
   totalBillableWeight,
   shipments,
+  onReviewWeights,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
         <h2>Billable weights</h2>
-        <Button>Review weights</Button>
+        <Button onClick={onReviewWeights}>Review weights</Button>
       </div>
       <div className={styles.spaceBetween}>
         <div>
@@ -36,7 +37,7 @@ export default function BillableWeightCard({
           <h5>Total billable weight</h5>
           <h4>{formatWeight(totalBillableWeight)}</h4>
           <div className={styles.shipmentList}>
-            <ShipmentList shipments={shipments} showShipmentWeight />
+            <ShipmentList shipments={shipments} showShipmentWeight moveSubmitted />
           </div>
         </div>
       </div>
@@ -45,15 +46,16 @@ export default function BillableWeightCard({
 }
 
 BillableWeightCard.propTypes = {
-  maxBillableWeight: string.isRequired,
-  weightRequested: string.isRequired,
-  weightAllowance: string.isRequired,
-  totalBillableWeight: string.isRequired,
+  maxBillableWeight: number.isRequired,
+  weightRequested: number.isRequired,
+  weightAllowance: number.isRequired,
+  totalBillableWeight: number.isRequired,
+  onReviewWeights: func.isRequired,
   shipments: arrayOf(
     shape({
       id: string.isRequired,
       shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: string }),
+      reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
 };

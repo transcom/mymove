@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer, Tag, Button, Alert } from '@trussworks/react-uswds';
+import { Alert, Button, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
@@ -9,6 +9,7 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import returnLowestValue from '../../../utils/returnLowestValue';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
@@ -17,7 +18,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
@@ -32,8 +33,9 @@ import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
+  acknowledgeExcessWeightRisk,
   patchMTOServiceItemStatus,
-  updateAllowance,
+  updateBillableWeight,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
 } from 'services/ghcApi';
@@ -62,6 +64,15 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED
+  );
+}
+
+// only sum estimated/actual/reweigh weights for shipments in these statuses
+function includedStatuses(status) {
+  return (
+    status === shipmentStatuses.APPROVED ||
+    status === shipmentStatuses.DIVERSION_REQUESTED ||
+    status === shipmentStatuses.CANCELLATION_REQUESTED
   );
 }
 
@@ -174,8 +185,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const [mutateOrders] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
         orders: {
@@ -196,6 +208,26 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
+    onSuccess: () => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
     },
   });
 
@@ -237,8 +269,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
-  const handleUpdateAllowance = (maxBillableWeight) => {
+  const handleUpdateBillableWeight = (maxBillableWeight) => {
     mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+  };
+
+  const handleAcknowledgeExcessWeightRisk = () => {
+    mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
 
   useEffect(() => {
@@ -270,30 +306,26 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    const shipmentSections = [];
-    mtoShipments?.forEach((shipment) => {
-      if (
-        shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-        shipment.status === shipmentStatuses.CANCELED
-      ) {
-        shipmentSections.push({
+    const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
+      if (showShipmentFilter(shipment)) {
+        previous.push({
           id: shipment.id,
           label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
         });
       }
-    });
-    setSections(shipmentSections);
+      return previous;
+    }, []);
+    setSections(shipmentSections || []);
   }, [mtoShipments]);
 
   useEffect(() => {
     let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatuses(s.status))) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        ?.filter((s) => s.primeEstimatedWeight && includedStatuses(s.status))
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
@@ -301,13 +333,28 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setEstimatedWeightTotal(estimatedWeightCalc);
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       excessBillableWeightCount = 1;
       setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
     }
 
-    setIsWeightAlertVisible(!!excessBillableWeightCount);
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
+    const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
+
+    setIsWeightAlertVisible(showWeightAlert);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
+
+  // Edge case of diversion shipments being counted twice
+  const moveWeightTotal = useMemo(() => {
+    return (
+      mtoShipments
+        ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
+        .reduce((prev, current) => {
+          return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
+        }, 0) || null
+    );
+  }, [mtoShipments]);
 
   useEffect(() => {
     // attach scroll listener
@@ -340,6 +387,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleHideWeightAlert = () => {
+    handleAcknowledgeExcessWeightRisk();
     setIsWeightAlertVisible(false);
   };
 
@@ -359,15 +407,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         </GridContainer>
       </div>
     );
-  }
-
-  let moveWeightTotal = null;
-  if (mtoShipments?.some((s) => s.primeActualWeight)) {
-    moveWeightTotal = mtoShipments
-      ?.filter((s) => s.primeActualWeight)
-      .reduce((prev, current) => {
-        return prev + current.primeActualWeight;
-      }, 0);
   }
 
   const excessWeightAlertControl = (
@@ -430,7 +469,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <EditMaxBillableWeightModal
               defaultWeight={order.entitlement.totalWeight}
               maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateAllowance}
+              onSubmit={handleUpdateBillableWeight}
               onClose={setIsWeightModalVisible}
             />
           )}

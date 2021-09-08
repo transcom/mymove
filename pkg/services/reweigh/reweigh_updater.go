@@ -2,26 +2,25 @@ package reweigh
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
-	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// reweighUpdater handles the db connection
+// reweighUpdater needs to be updates to have checks for validation
 type reweighUpdater struct {
-	db     *pop.Connection
 	checks []reweighValidator
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater(db *pop.Connection, moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
+func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
 	return &reweighUpdater{
-		db: db,
 		checks: []reweighValidator{
 			checkShipmentID(),
 			checkReweighID(),
@@ -59,6 +58,13 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, err
 	}
 
+	if reweigh.VerificationReason != nil {
+		now := time.Now()
+		reweigh.VerificationProvidedAt = &now
+	}
+
+	newReweigh := mergeReweigh(*reweigh, &oldReweigh)
+
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	if encodedUpdatedAt != eTag {
@@ -66,7 +72,7 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := f.db.ValidateAndSave(reweigh)
+	verrs, err := appCtx.DB().ValidateAndSave(newReweigh)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
@@ -78,9 +84,21 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 
 	// Get the updated reweigh and return
 	updatedReweigh := models.Reweigh{}
-	err = f.db.Find(&updatedReweigh, reweigh.ID)
+	err = appCtx.DB().Find(&updatedReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
+
+	// Need to pull out this common code. It is from reweigh requester
+	err = appCtx.DB().Q().
+		Eager("Reweigh").
+		Find(&shipment, reweigh.ShipmentID)
+
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
+	}
+
 	return &updatedReweigh, nil
 }

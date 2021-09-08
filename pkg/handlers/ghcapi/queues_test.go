@@ -219,10 +219,12 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	})
 
 	// Create a shipment on hhgMove that has Rejected status
+	rejectionReason := "unnecessary"
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: hhgMove,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusRejected,
+			Status:          models.MTOShipmentStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 	})
 

@@ -1,0 +1,48 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.weightSummaryContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 14px;
+
+    .weightSummaryHeading {
+        @include u-font-size('body', '3xs');
+        @include u-text('bold');
+        @include u-margin-top(0);
+        @include u-margin-bottom(.5);
+        color: $base-darkest;
+    }
+
+    .marginBottom {
+      @include u-margin-bottom(2);
+    }
+
+    .weight {
+        text-align: right;
+        width: 102px;
+    }
+
+    .noEdit {
+        width: 34px;
+    }
+
+    hr {
+        @include u-margin-top(0);
+        @include u-margin-bottom(.5);
+    }
+
+    svg {
+        float: left;
+        height: 25px;
+    }
+
+    .warningFlag {
+        color: $warning;
+    }
+
+    .errorFlag {
+        color: $error;
+    }
+}

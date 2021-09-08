@@ -10,7 +10,7 @@ const DocsUploaded = ({ files }) => (
       {files.length} File{files.length > 1 ? 's' : ''} uploaded
     </h6>
     {files.map((file) => (
-      <div key={`${file.id}_${file.filename}`} className={styles['doc-list-item']}>
+      <div key={`${file.id}_${file.filename}`} className={styles['doc-list-item']} data-testid="doc-list-item">
         <FontAwesomeIcon icon="file" className={styles['docs-icon']} />
         {file.filename}
       </div>

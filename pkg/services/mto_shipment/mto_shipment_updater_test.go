@@ -49,7 +49,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 	).Return(500, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
@@ -617,10 +617,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			Status: models.MTOShipmentStatusApproved,
 		},
 	})
+	rejectionReason := "exotic animals are banned"
 	rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusRejected,
+			Status:          models.MTOShipmentStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted
@@ -1009,7 +1011,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
@@ -1049,7 +1051,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
 	suite.T().Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func(t *testing.T) {
@@ -1106,6 +1108,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		actualWeight := unit.Pound(7200)
 		primeShipment.PrimeActualWeight = &actualWeight
 
+		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(nil)
+
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
 		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
@@ -1142,5 +1146,103 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh() {
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	planner := &mocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+
+	suite.T().Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func(t *testing.T) {
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+				Status:             models.MoveStatusAPPROVED,
+			},
+		})
+		actualWeight := unit.Pound(7200)
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		primeShipment.PrimeActualWeight = &actualWeight
+
+		_, err := updater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		err = suite.DB().Eager("Reweigh").Reload(&primeShipment)
+		suite.NoError(err)
+
+		suite.NotNil(primeShipment.Reweigh)
+		suite.Equal(primeShipment.ID.String(), primeShipment.Reweigh.ShipmentID.String())
+		suite.NotNil(primeShipment.Reweigh.RequestedAt)
+		suite.Equal(models.ReweighRequesterSystem, primeShipment.Reweigh.RequestedBy)
+	})
+
+	suite.T().Run("Skips calling check auto reweigh if actual weight was not provided in request", func(t *testing.T) {
+		moveWeights := &mockservices.MoveWeights{}
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		estimatedWeight := unit.Pound(7200)
+		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
+
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")
+	})
+
+	suite.T().Run("Skips calling check auto reweigh if the updated actual weight matches the db value", func(t *testing.T) {
+		moveWeights := &mockservices.MoveWeights{}
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		actualWeight := unit.Pound(7200)
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+				PrimeActualWeight:   &actualWeight,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		primeShipment.PrimeActualWeight = &actualWeight
+
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")
 	})
 }

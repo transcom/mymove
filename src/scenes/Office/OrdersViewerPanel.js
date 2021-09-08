@@ -10,7 +10,7 @@ import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMem
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField, editablePanelify, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
 
 import './office.scss';

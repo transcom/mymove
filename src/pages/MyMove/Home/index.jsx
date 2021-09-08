@@ -8,12 +8,12 @@ import { withRouter } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
+  HelperAmendedOrders,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
-  HelperAmendedOrders,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';

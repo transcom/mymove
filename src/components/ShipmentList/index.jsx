@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape, func, number, bool } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -7,7 +7,8 @@ import styles from './ShipmentList.module.scss';
 
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { shipmentTypes } from 'constants/shipments';
+import shipmentIsOverweight from 'utils/shipmentIsOverweight';
 
 export const ShipmentListItem = ({
   shipment,
@@ -22,7 +23,10 @@ export const ShipmentListItem = ({
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
+    [styles[`shipment-list-item-HHG`]]:
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
 
@@ -40,14 +44,14 @@ export const ShipmentListItem = ({
       tabIndex="0"
     >
       <strong>
-        {getShipmentTypeLabel(shipment.shipmentType)}
+        {shipmentTypes[shipment.shipmentType]}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
-      {showShipmentWeight && <div className={styles.shipmentWeight}>{formatWeight(shipment.billableWeightCap)}</div>}
+      {showShipmentWeight && <div className={styles.shipmentWeight}>{formatWeight(shipment.billableWeight)}</div>}
       {(isOverweight || isMissingWeight) && (
         <div>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
@@ -107,7 +111,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         if (showShipmentWeight) {
           canEdit = false;
           showNumber = false;
-          if (parseInt(shipment.billableWeightCap, 10) > parseInt(shipment.primeEstimatedWeight, 10) * 1.1) {
+          if (shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight)) {
             isOverweight = true;
           }
           if (shipment.reweigh?.id && !shipment.reweigh?.weight) {
@@ -137,7 +141,7 @@ ShipmentList.propTypes = {
     shape({
       id: string.isRequired,
       shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: string }),
+      reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
   onShipmentClick: func,

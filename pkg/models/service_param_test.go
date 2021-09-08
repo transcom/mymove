@@ -13,6 +13,7 @@ func (suite *ModelSuite) TestServiceParamValidation() {
 		validServiceParam := models.ServiceParam{
 			ServiceID:             uuid.Must(uuid.NewV4()),
 			ServiceItemParamKeyID: uuid.Must(uuid.NewV4()),
+			IsOptional:            false,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validServiceParam, expErrors)

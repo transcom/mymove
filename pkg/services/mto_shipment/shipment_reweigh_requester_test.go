@@ -23,7 +23,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		})
 		fetchedShipment := models.MTOShipment{}
 
-		reweigh, err := requester.RequestShipmentReweigh(suite.TestAppContext(), shipment.ID)
+		reweigh, err := requester.RequestShipmentReweigh(suite.TestAppContext(), shipment.ID, models.ReweighRequesterTOO)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, reweigh.Shipment.MoveTaskOrderID)
@@ -38,13 +38,15 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	})
 
 	suite.T().Run("When the shipment is not in a permitted status, returns a ConflictError", func(t *testing.T) {
+		rejectionReason := "rejection reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
 			},
 		})
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), rejectedShipment.ID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), rejectedShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -55,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		existingShipment := reweigh.Shipment
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), existingShipment.ID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), existingShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -65,7 +67,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), badShipmentID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), badShipmentID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

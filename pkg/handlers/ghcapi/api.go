@@ -115,6 +115,15 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ctx,
 		order.NewOrderUpdater(),
 	}
+	ghcAPI.OrderUpdateBillableWeightHandler = UpdateBillableWeightHandler{
+		ctx,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
+
+	ghcAPI.OrderAcknowledgeExcessWeightRiskHandler = AcknowledgeExcessWeightRiskHandler{
+		ctx,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		ctx,
@@ -196,7 +205,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			fetch.NewFetcher(queryBuilder),
 			ctx.Planner(),
 			moveRouter,
-			move.NewMoveWeights(),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		),
 	}
 

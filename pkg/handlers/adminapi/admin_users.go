@@ -110,7 +110,7 @@ type CreateAdminUserHandler struct {
 func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	organizationID, err := uuid.FromString(payload.OrganizationID.String())
 	if err != nil {
