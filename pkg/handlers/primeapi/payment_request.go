@@ -165,7 +165,10 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			MTOServiceItem:   mtoServiceItem,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(mtoServiceItem.ReService.Code, payloadServiceItem)
+		if err != nil {
+			return models.PaymentServiceItems{}, nil, err
+		}
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
@@ -177,10 +180,13 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, verrs, nil
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(reServiceCode models.ReServiceCode, payloadMTOServiceItem *primemessages.ServiceItem) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
 	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
+		if !AllowedParamKeysPaymentRequest.Contains(reServiceCode, payloadServiceItemParam.Key) {
+			return models.PaymentServiceItemParams{}, fmt.Errorf("the parameter %s is either invalid or cannot be passed while creating a payment request", payloadServiceItemParam.Key)
+		}
 		paymentServiceItemParam := models.PaymentServiceItemParam{
 			// ID and PaymentServiceItemID to be filled in when payment request is created
 			IncomingKey: payloadServiceItemParam.Key,
@@ -190,5 +196,5 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOSer
 		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
 	}
 
-	return paymentServiceItemParams
+	return paymentServiceItemParams, nil
 }
