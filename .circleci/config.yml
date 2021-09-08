@@ -1900,7 +1900,7 @@ workflows:
 
       - push_webhook_client_demo:
           requires:
-            - build_webhook_client
+            - build_dp3_webhook_client
           filters:
             branches:
               only: MB-9050
