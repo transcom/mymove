@@ -205,13 +205,23 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			fetch.NewFetcher(queryBuilder),
 			ctx.Planner(),
 			moveRouter,
-			move.NewMoveWeights(),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		),
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
 		HandlerContext: ctx,
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
+	}
+
+	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
+		ctx,
+		mtoshipment.NewSITExtensionApprover(),
+	}
+
+	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
+		ctx,
+		mtoshipment.NewSITExtensionDenier(),
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}

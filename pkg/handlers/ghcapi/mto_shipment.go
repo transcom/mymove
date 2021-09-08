@@ -80,6 +80,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryAssociation("SecondaryDeliveryAddress"),
 		query.NewQueryAssociation("MTOServiceItems.Dimensions"),
 		query.NewQueryAssociation("Reweigh"),
+		query.NewQueryAssociation("SITExtensions"),
 	})
 
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
@@ -668,7 +669,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID)
+	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID, models.ReweighRequesterTOO)
 
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
@@ -718,4 +719,93 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipme
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentReweighHandler could not generate the event", zap.Error(err))
 	}
+}
+
+// ApproveSITExtensionHandler approves a SIT extension
+type ApproveSITExtensionHandler struct {
+	handlers.HandlerContext
+	services.SITExtensionApprover
+}
+
+// Handle ... approves the SIT extension
+func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensionParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error approving SIT extension", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewApproveSitExtensionNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewApproveSitExtensionUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewApproveSitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return shipmentops.NewApproveSitExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewApproveSitExtensionInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
+	}
+
+	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+	sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
+	approvedDays := int(*params.Body.ApprovedDays)
+	officeRemarks := params.Body.OfficeRemarks
+	updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	shipmentPayload := payloads.MTOShipment(updatedShipment)
+
+	return shipmentops.NewApproveSitExtensionOK().WithPayload(shipmentPayload)
+}
+
+// DenySITExtensionHandler denies a SIT extension
+type DenySITExtensionHandler struct {
+	handlers.HandlerContext
+	services.SITExtensionDenier
+}
+
+// Handle ... denies the SIT extension
+func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error denying SIT extension", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewDenySitExtensionNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewDenySitExtensionUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return shipmentops.NewDenySitExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewDenySitExtensionInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
+	}
+
+	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+	sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
+	officeRemarks := params.Body.OfficeRemarks
+	updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	shipmentPayload := payloads.MTOShipment(updatedShipment)
+
+	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }

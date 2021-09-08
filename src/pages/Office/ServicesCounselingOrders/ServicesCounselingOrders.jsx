@@ -8,8 +8,7 @@ import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
-
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
@@ -93,7 +92,7 @@ const ServicesCounselingOrders = () => {
         {(formik) => {
           return (
             <form onSubmit={formik.handleSubmit}>
-              <div className={styles.orderDetails}>
+              <div className={styles.content}>
                 <div className={styles.top}>
                   <Button
                     className={styles.closeButton}

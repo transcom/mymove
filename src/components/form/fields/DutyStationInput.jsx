@@ -2,7 +2,7 @@ import { useField } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyStationInput = (props) => {

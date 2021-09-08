@@ -8,9 +8,9 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
@@ -122,14 +122,14 @@ const ServicesCounselingMoveAllowances = () => {
   };
 
   return (
-    <div className={documentWrapperStyles.sidebar}>
+    <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={documentWrapperStyles.orderDetails}>
-              <div className={documentWrapperStyles.top}>
+            <div className={styles.content}>
+              <div className={styles.top}>
                 <Button
-                  className={documentWrapperStyles.closeButton}
+                  className={styles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -137,16 +137,16 @@ const ServicesCounselingMoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={documentWrapperStyles.header} data-testid="allowances-header">
+                <h2 className={styles.header} data-testid="allowances-header">
                   View allowances
                 </h2>
                 <div>
-                  <Link className={documentWrapperStyles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
                     View orders
                   </Link>
                 </div>
               </div>
-              <div className={documentWrapperStyles.body}>
+              <div className={styles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
@@ -154,8 +154,8 @@ const ServicesCounselingMoveAllowances = () => {
                   header="Counseling"
                 />
               </div>
-              <div className={documentWrapperStyles.bottom}>
-                <div className={documentWrapperStyles.buttonGroup}>
+              <div className={styles.bottom}>
+                <div className={styles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>

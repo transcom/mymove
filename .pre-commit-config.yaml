@@ -154,3 +154,12 @@ repos:
         language: script
         files: swagger/(support|prime).yaml
         types: [yaml]
+
+  - repo: local
+    hooks:
+      - id: post-merge-migrate
+        name: post-merge checker
+        entry: scripts/check-changes
+        language: script
+        stages: [post-merge]
+        pass_filenames: false

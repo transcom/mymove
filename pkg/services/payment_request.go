@@ -16,6 +16,12 @@ type PaymentRequestCreator interface {
 	CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error)
 }
 
+// PaymentRequestRecalculator is the exported interface for recalculating a payment request
+//go:generate mockery --name PaymentRequestRecalculator --disable-version-string
+type PaymentRequestRecalculator interface {
+	RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
+}
+
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery --name PaymentRequestListFetcher --disable-version-string
 type PaymentRequestListFetcher interface {

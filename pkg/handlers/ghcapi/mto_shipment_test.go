@@ -7,6 +7,7 @@ import (
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -19,8 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
-
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -44,6 +43,7 @@ type listMTOShipmentsSubtestData struct {
 	mtoServiceItem models.MTOServiceItem
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
+	sitExtension   models.SITExtension
 }
 
 func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
@@ -65,6 +65,11 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	subtestData.mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			MTOShipmentID: &mtoShipment.ID,
+		},
+	})
+	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID: mtoShipment.ID,
 		},
 	})
 
@@ -89,6 +94,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		shipments := subtestData.shipments
 		mtoAgent := subtestData.mtoAgent
 		mtoServiceItem := subtestData.mtoServiceItem
+		sitExtension := subtestData.sitExtension
 
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
@@ -108,6 +114,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
+		suite.Equal(sitExtension.ID.String(), okResponse.Payload[0].SitExtensions[0].ID.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
@@ -1403,7 +1410,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.NotFoundError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
@@ -1427,7 +1434,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.ConflictError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.ConflictError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
@@ -1450,7 +1457,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
@@ -1474,10 +1481,94 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(nil, errors.New("UnexpectedError"))
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, errors.New("UnexpectedError"))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
+	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
+		sitDaysAllowance := 20
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		})
+		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		sitExtensionApprover := mtoshipment.NewSITExtensionApprover()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveSITExtensionHandler{
+			handlerContext,
+			sitExtensionApprover,
+		}
+		approvedDays := int64(10)
+		officeRemarks := "new office remarks"
+		approveParams := shipmentops.ApproveSitExtensionParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.ApproveSitExtension{
+				ApprovedDays:  &approvedDays,
+				OfficeRemarks: &officeRemarks,
+			},
+			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
+			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
+		}
+		response := handler.Handle(approveParams)
+		okResponse := response.(*shipmentops.ApproveSitExtensionOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.ApproveSitExtensionOK{}, response)
+		suite.Equal(int64(30), *payload.SitDaysAllowance)
+		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
+		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+	})
+}
+
+func (suite *HandlerSuite) TestDenySITExtensionHandler() {
+	suite.Run("Returns 200 when validations pass", func() {
+		sitDaysAllowance := 20
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		})
+		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		sitExtensionDenier := mtoshipment.NewSITExtensionDenier()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DenySITExtensionHandler{
+			handlerContext,
+			sitExtensionDenier,
+		}
+		officeRemarks := "new office remarks on denial of extension"
+		denyParams := shipmentops.DenySitExtensionParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.DenySitExtension{
+				OfficeRemarks: &officeRemarks,
+			},
+			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
+			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
+		}
+		response := handler.Handle(denyParams)
+		okResponse := response.(*shipmentops.DenySitExtensionOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.DenySitExtensionOK{}, response)
+		suite.Equal("DENIED", payload.SitExtensions[0].Status)
 	})
 }
 
@@ -1721,6 +1812,8 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 	customerRemarks := "help"
 	counselorRemarks := "counselor approved"
+	billableWeightCap := int64(8000)
+	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
 	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
@@ -1736,12 +1829,14 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
 	payload := ghcmessages.UpdateShipment{
-		RequestedPickupDate:   strfmt.Date(time.Now()),
-		RequestedDeliveryDate: strfmt.Date(time.Now()),
-		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,
-		CustomerRemarks:       &customerRemarks,
-		CounselorRemarks:      &counselorRemarks,
-		Agents:                agents,
+		BillableWeightJustification: &billableWeightJustification,
+		BillableWeightCap:           &billableWeightCap,
+		RequestedPickupDate:         strfmt.Date(time.Now()),
+		RequestedDeliveryDate:       strfmt.Date(time.Now()),
+		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
+		CustomerRemarks:             &customerRemarks,
+		CounselorRemarks:            &counselorRemarks,
+		Agents:                      agents,
 	}
 	payload.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
@@ -1780,7 +1875,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	suite.Run("Successful PATCH - Integration Test", func() {
 		builder := query.NewQueryBuilder()
@@ -1807,6 +1902,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
+		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
 		suite.Equal(params.Body.CustomerRemarks, updatedShipment.CustomerRemarks)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
