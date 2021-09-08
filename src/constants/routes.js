@@ -45,5 +45,6 @@ export const servicesCounselingRoutes = {
 };
 
 export const tioRoutes = {
+  PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
   BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
 };

@@ -7,8 +7,7 @@ import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from './Orders.module.scss';
-
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -142,7 +141,7 @@ const Orders = () => {
           const tacWarning = isValidTac.isValid ? '' : tacWarningMsg;
           return (
             <form onSubmit={formik.handleSubmit}>
-              <div className={styles.orderDetails}>
+              <div className={styles.content}>
                 <div className={styles.top}>
                   <Button
                     className={styles.closeButton}
