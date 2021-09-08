@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -159,13 +161,15 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
-
+	billableWeightCap := unit.Pound(*mtoShipment.BillableWeightCap)
 	model := &models.MTOShipment{
-		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:   &requestedPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		CustomerRemarks:       mtoShipment.CustomerRemarks,
-		CounselorRemarks:      mtoShipment.CounselorRemarks,
+		BillableWeightCap:           &billableWeightCap,
+		BillableWeightJustification: mtoShipment.BillableWeightJustification,
+		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:         &requestedPickupDate,
+		RequestedDeliveryDate:       &requestedDeliveryDate,
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		CounselorRemarks:            mtoShipment.CounselorRemarks,
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)

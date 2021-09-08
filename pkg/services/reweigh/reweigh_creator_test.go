@@ -31,7 +31,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		// Set up:		Established valid shipment and valid reweigh
 		// Expected:	New reweigh successfully created
 		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweigh(appCtx, newReweigh)
+		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
 
 		suite.Nil(err)
 		suite.NotNil(createdReweigh)
@@ -39,11 +39,23 @@ func (suite *ReweighSuite) TestReweighCreator() {
 
 	})
 
+	// InvalidInputError
+	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
+		badRequestedby := models.ReweighRequester("not requested by anyone")
+		newReweigh.RequestedBy = badRequestedby
+		reweighCreator := NewReweighCreator(suite.DB())
+		createReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
+
+		suite.Error(err)
+		suite.Nil(createReweigh)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
 	suite.T().Run("Not Found Error", func(t *testing.T) {
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		newReweigh.ShipmentID = notFoundUUID
 		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweigh(appCtx, newReweigh)
+		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
 
 		suite.Nil(createdReweigh)
 		suite.IsType(services.NotFoundError{}, err)

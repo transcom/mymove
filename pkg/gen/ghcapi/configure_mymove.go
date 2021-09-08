@@ -65,6 +65,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
 		})
 	}
+	if api.ShipmentApproveSitExtensionHandler == nil {
+		api.ShipmentApproveSitExtensionHandler = shipment.ApproveSitExtensionHandlerFunc(func(params shipment.ApproveSitExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveSitExtension has not yet been implemented")
+		})
+	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {
 		api.OrderCounselingUpdateAllowanceHandler = order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -83,6 +88,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
+		})
+	}
+	if api.ShipmentDenySitExtensionHandler == nil {
+		api.ShipmentDenySitExtensionHandler = shipment.DenySitExtensionHandlerFunc(func(params shipment.DenySitExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DenySitExtension has not yet been implemented")
 		})
 	}
 	if api.MtoAgentFetchMTOAgentListHandler == nil {

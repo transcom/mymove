@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { func, number, string, node } from 'prop-types';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MovingInfo.module.scss';
 
-import { generalRoutes, customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatWeight } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { RouteProps } from 'types/router';
 
 const IconSection = ({ icon, headline, children }) => (
@@ -73,14 +73,14 @@ export class MovingInfo extends Component {
                 </p>
               </IconSection>
               <IconSection icon="truck-moving" headline="If you use movers, they will:">
-                <p>
+                <div className={styles.IconSectionList}>
                   <ul>
                     <li>Help estimate how much your belongings weigh</li>
                     <li>Set pack and pickup dates based on your preferred pickup date</li>
                     <li>Contact you after you talk to a move counselor</li>
                     <li>Be your main point of contact during your move</li>
                   </ul>
-                </p>
+                </div>
               </IconSection>
               <IconSection icon="car" headline="It's common to move some things yourself.">
                 <p>

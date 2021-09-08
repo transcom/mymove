@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
+jest.mock('components/DutyStationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Test City',

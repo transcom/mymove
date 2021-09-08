@@ -27,6 +27,19 @@ type MTOShipment struct {
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
+	// TIO override billable weight to be used for calculations
+	// Example: 2500
+	BillableWeightCap *int64 `json:"billableWeightCap,omitempty"`
+
+	// billable weight justification
+	// Example: more weight than expected
+	BillableWeightJustification *string `json:"billableWeightJustification,omitempty"`
+
+	// calculated billable weight
+	// Example: 2000
+	// Read Only: true
+	CalculatedBillableWeight *int64 `json:"calculatedBillableWeight,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -116,6 +129,12 @@ type MTOShipment struct {
 	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
 	ShipmentType interface{} `json:"shipmentType,omitempty"`
 
+	// sit days allowance
+	SitDaysAllowance *int64 `json:"sitDaysAllowance,omitempty"`
+
+	// sit extensions
+	SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
@@ -189,6 +208,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSecondaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitExtensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -429,6 +452,21 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 	return nil
 }
 
+func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitExtensions) { // not required
+		return nil
+	}
+
+	if err := m.SitExtensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -460,6 +498,10 @@ func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCalculatedBillableWeight(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -488,6 +530,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitExtensions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -495,6 +541,15 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) contextValidateCalculatedBillableWeight(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "calculatedBillableWeight", "body", m.CalculatedBillableWeight); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -587,6 +642,18 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
 	}
 
 	return nil

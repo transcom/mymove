@@ -1,12 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 
 import { Orders } from './Orders';
 
-import { getServiceMember, getOrdersForServiceMember, createOrders, patchOrders } from 'services/internalApi';
+import { createOrders, getOrdersForServiceMember, getServiceMember, patchOrders } from 'services/internalApi';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -16,8 +16,17 @@ jest.mock('services/internalApi', () => ({
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
-  ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
+jest.mock('components/DutyStationSearchBox/api', () => ({
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postal_code: '85309',
+      state: 'AZ',
+      street_address_1: 'n/a',
+    }),
+  ),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {

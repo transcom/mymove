@@ -1,8 +1,7 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MockProviders } from 'testUtils';
@@ -44,10 +43,10 @@ describe('ResidentialAddress page', () => {
   it('renders the ResidentialAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
 
-    const { queryByRole } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Current mailing address', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Current mailing address', level: 1 })).toBeInTheDocument();
     });
   });
 
@@ -58,9 +57,9 @@ describe('ResidentialAddress page', () => {
       valid: true,
     }));
 
-    const { findByLabelText } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
-    const postalCodeInput = await findByLabelText('ZIP');
+    const postalCodeInput = await screen.findByLabelText('ZIP');
 
     const postalCode = '99999';
 
@@ -75,9 +74,9 @@ describe('ResidentialAddress page', () => {
   it('back button goes to the Current duty station step', async () => {
     const testProps = generateTestProps(blankAddress);
 
-    const { findByRole } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
-    const backButton = await findByRole('button', { name: 'Back' });
+    const backButton = await screen.findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
@@ -94,15 +93,15 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole, getByLabelText } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
-    userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
-    userEvent.type(getByLabelText(/Address 2/), fakeAddress.street_address_2);
-    userEvent.type(getByLabelText('City'), fakeAddress.city);
-    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
+    userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.street_address_1);
+    userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.street_address_2);
+    userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
+    userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
+    userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postal_code);
 
-    const submitButton = getByRole('button', { name: 'Next' });
+    const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -122,13 +121,13 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
 
-    const { getByRole, findByRole } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
-    const submitButton = getByRole('button', { name: 'Next' });
+    const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
-    const alert = await findByRole('alert');
+    const alert = await screen.findByRole('alert');
 
     expect(alert).toHaveTextContent(
       'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
@@ -157,9 +156,9 @@ describe('ResidentialAddress page', () => {
       }),
     );
 
-    const { getByRole, queryByText } = render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...testProps} />);
 
-    const submitButton = getByRole('button', { name: 'Next' });
+    const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -167,7 +166,7 @@ describe('ResidentialAddress page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
@@ -190,7 +189,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DUTY STATION COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "DUTY STATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -216,17 +215,21 @@ describe('requireCustomerState ResidentialAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_STATION_PATH));
+    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    await waitFor(async () => {
+      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_STATION_PATH));
+    });
   });
 
-  it('does not redirect if the current state equals the "DUTY STATION COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "DUTY STATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -255,17 +258,21 @@ describe('requireCustomerState ResidentialAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    await waitFor(async () => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does not redirect if the current state is after the "DUTY STATION COMPLETE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "DUTY STATION COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -300,17 +307,21 @@ describe('requireCustomerState ResidentialAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    await waitFor(async () => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -350,13 +361,17 @@ describe('requireCustomerState ResidentialAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    await waitFor(async () => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });

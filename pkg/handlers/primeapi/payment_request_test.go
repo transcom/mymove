@@ -573,7 +573,36 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
+	csService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeCS,
+		},
+	})
+	csTaskOrderFee := models.ReTaskOrderFee{
+		ContractYearID: contractYear.ID,
+		ServiceID:      csService.ID,
+		PriceCents:     unit.Cents(22399),
+	}
+	suite.MustSave(&csTaskOrderFee)
+
+	msService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+		},
+	})
+	msTaskOrderFee := models.ReTaskOrderFee{
+		ContractYearID: contractYear.ID,
+		ServiceID:      msService.ID,
+		PriceCents:     unit.Cents(25513),
+	}
+	suite.MustSave(&msTaskOrderFee)
+
+	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
 	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: &availableToPrimeAt,
+		},
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &testEstWeight,
 			PrimeActualWeight:    &testActualWeight,
@@ -583,6 +612,14 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			DestinationAddress:   &destinationAddress,
 		},
 	})
+
+	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
+	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
+		PublicationDate:       publicationDate,
+		FuelPriceInMillicents: unit.Millicents(277600),
+	}
+	suite.MustSave(&ghcDieselFuelPrice)
+
 	return moveTaskOrder, mtoServiceItems
 }
 

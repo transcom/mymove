@@ -2,6 +2,9 @@ package reweigh
 
 import (
 	"testing"
+	"time"
+
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
@@ -15,8 +18,16 @@ import (
 )
 
 func (suite *ReweighSuite) TestReweighUpdater() {
-	reweighUpdater := NewReweighUpdater(suite.DB())
-	oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
+	reweighUpdater := NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker())
+	currentTime := time.Now()
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &currentTime,
+		},
+	})
+	oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		MTOShipment: shipment,
+	})
 	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	newReweigh := oldReweigh
 
@@ -26,7 +37,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	suite.T().Run("Updated reweigh - Success", func(t *testing.T) {
 		newWeight := unit.Pound(200)
 		newReweigh.Weight = &newWeight
-		updatedReweigh, err := reweighUpdater.UpdateReweigh(appCtx, &newReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &newReweigh, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedReweigh)
@@ -39,7 +50,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		notFoundReweigh := newReweigh
 		notFoundReweigh.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedReweigh, err := reweighUpdater.UpdateReweigh(appCtx, &notFoundReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &notFoundReweigh, eTag)
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
@@ -48,20 +59,10 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	})
 	// PreconditionFailedError
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedReweigh, err := reweighUpdater.UpdateReweigh(appCtx, &newReweigh, "nada") // base validation
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &newReweigh, "nada") // base validation
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
-	})
-	// InvalidInputError
-	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
-		badRequestedby := models.ReweighRequester("not requested by anyone")
-		newReweigh.RequestedBy = badRequestedby
-		updatedReweigh, err := reweighUpdater.UpdateReweigh(appCtx, &newReweigh, eTag)
-
-		suite.Error(err)
-		suite.Nil(updatedReweigh)
-		suite.IsType(services.InvalidInputError{}, err)
 	})
 }

@@ -23,7 +23,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -124,7 +124,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -166,7 +170,7 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -291,7 +295,11 @@ func init() {
             "required": true
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -405,7 +413,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -479,7 +491,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -619,7 +635,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -640,6 +660,87 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateReweigh",
+        "operationId": "updateReweigh",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the reweigh",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the reweigh being updated",
+            "name": "reweighID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReweigh"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the reweigh.",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -677,7 +778,11 @@ func init() {
             "required": true
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           },
           {
             "name": "body",
@@ -1910,6 +2015,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -2145,6 +2253,13 @@ func init() {
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2165,7 +2280,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -2344,6 +2460,70 @@ func init() {
         "NSTUB"
       ]
     },
+    "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
+      ]
+    },
     "ServiceItem": {
       "type": "object",
       "properties": {
@@ -2491,7 +2671,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -2644,6 +2824,27 @@ func init() {
         }
       }
     },
+    "UpdateReweigh": {
+      "description": "Contains the fields available to the Prime when updating a reweigh record.",
+      "type": "object",
+      "properties": {
+        "verificationReason": {
+          "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed because the shipment was already delivered"
+        },
+        "weight": {
+          "description": "The total reweighed weight for the shipment in pounds.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -2669,64 +2870,37 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
     "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
           "type": "object",
-          "required": [
-            "invalidFields"
-          ],
-          "properties": {
-            "invalidFields": {
-              "type": "object",
-              "additionalProperties": {
-                "description": "List of errors for the field",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         }
-      ]
-    }
-  },
-  "parameters": {
-    "ifMatch": {
-      "type": "string",
-      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-      "name": "If-Match",
-      "in": "header",
-      "required": true
+      }
     }
   },
   "responses": {
@@ -2785,7 +2959,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location.\nAll of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments.\nAn **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance.\nIf the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
@@ -2814,7 +2988,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -2991,7 +3165,7 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -3622,6 +3796,111 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateReweigh",
+        "operationId": "updateReweigh",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the reweigh",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the reweigh being updated",
+            "name": "reweighID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReweigh"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the reweigh.",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -4965,6 +5244,9 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "reweigh": {
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -5200,6 +5482,13 @@ func init() {
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -5220,7 +5509,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -5397,6 +5687,70 @@ func init() {
         "MS",
         "NSTH",
         "NSTUB"
+      ]
+    },
+    "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
       ]
     },
     "ServiceItem": {
@@ -5549,7 +5903,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -5702,6 +6056,27 @@ func init() {
         }
       }
     },
+    "UpdateReweigh": {
+      "description": "Contains the fields available to the Prime when updating a reweigh record.",
+      "type": "object",
+      "properties": {
+        "verificationReason": {
+          "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The reweigh was not performed because the shipment was already delivered"
+        },
+        "weight": {
+          "description": "The total reweighed weight for the shipment in pounds.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -5727,64 +6102,40 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
     "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
+          "$ref": "#/definitions/ValidationErrorAllOf1"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
           "type": "object",
-          "required": [
-            "invalidFields"
-          ],
-          "properties": {
-            "invalidFields": {
-              "type": "object",
-              "additionalProperties": {
-                "description": "List of errors for the field",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         }
-      ]
-    }
-  },
-  "parameters": {
-    "ifMatch": {
-      "type": "string",
-      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-      "name": "If-Match",
-      "in": "header",
-      "required": true
+      }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {
@@ -5843,7 +6194,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location.\nAll of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments.\nAn **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance.\nIf the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {

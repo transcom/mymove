@@ -3,7 +3,9 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -24,9 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
-
-	"net/http/httptest"
-	"time"
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
@@ -308,7 +307,14 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.T().Run("prevent handler from updating payment request status to unapproved statuses", func(t *testing.T) {
-		nonApprovedPRStatuses := [5]ghcmessages.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR", "PENDING"}
+		nonApprovedPRStatuses := [...]ghcmessages.PaymentRequestStatus{
+			ghcmessages.PaymentRequestStatusSENTTOGEX,
+			ghcmessages.PaymentRequestStatusRECEIVEDBYGEX,
+			ghcmessages.PaymentRequestStatusPAID,
+			ghcmessages.PaymentRequestStatusEDIERROR,
+			ghcmessages.PaymentRequestStatusPENDING,
+			ghcmessages.PaymentRequestStatusDEPRECATED,
+		}
 
 		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
 			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())

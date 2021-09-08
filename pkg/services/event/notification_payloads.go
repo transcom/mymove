@@ -92,14 +92,15 @@ func PaymentRequestModelToPayload(paymentRequest *models.PaymentRequest) *primem
 
 	paymentServiceItems := PaymentServiceItemsModelToPayload(&paymentRequest.PaymentServiceItems)
 	return &primemessages.PaymentRequest{
-		ID:                   strfmt.UUID(paymentRequest.ID.String()),
-		IsFinal:              &paymentRequest.IsFinal,
-		MoveTaskOrderID:      strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
-		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
-		RejectionReason:      paymentRequest.RejectionReason,
-		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
-		PaymentServiceItems:  *paymentServiceItems,
-		ETag:                 etag.GenerateEtag(paymentRequest.UpdatedAt),
+		ID:                              strfmt.UUID(paymentRequest.ID.String()),
+		IsFinal:                         &paymentRequest.IsFinal,
+		MoveTaskOrderID:                 strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		PaymentRequestNumber:            paymentRequest.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(paymentRequest.RecalculationOfPaymentRequestID),
+		RejectionReason:                 paymentRequest.RejectionReason,
+		Status:                          primemessages.PaymentRequestStatus(paymentRequest.Status),
+		PaymentServiceItems:             *paymentServiceItems,
+		ETag:                            etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
 

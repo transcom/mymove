@@ -20,13 +20,13 @@ func NewShipmentReweighRequester() services.ShipmentReweighRequester {
 }
 
 // RequestShipmentReweigh Requests the shipment reweigh
-func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requester models.ReweighRequester) (*models.Reweigh, error) {
 	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	reweigh, err := f.createReweigh(appCtx, shipment, checkReweighAllowed())
+	reweigh, err := f.createReweigh(appCtx, shipment, requester, checkReweighAllowed())
 
 	return reweigh, err
 }
@@ -47,14 +47,14 @@ func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, sh
 	return &shipment, nil
 }
 
-func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, shipment *models.MTOShipment, checks ...validator) (*models.Reweigh, error) {
+func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, shipment *models.MTOShipment, requester models.ReweighRequester, checks ...validator) (*models.Reweigh, error) {
 	if verr := validateShipment(appCtx, shipment, shipment, checks...); verr != nil {
 		return nil, verr
 	}
 
 	now := time.Now()
 	reweigh := models.Reweigh{
-		RequestedBy: models.ReweighRequesterTOO,
+		RequestedBy: requester,
 		RequestedAt: now,
 		ShipmentID:  shipment.ID,
 	}
