@@ -205,8 +205,6 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.Ap
 	}
 
 	return true, nil
-
-	return true, nil
 }
 
 func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
