@@ -20,7 +20,7 @@ var (
 	}
 )
 
-// Contains checks to see if the provided file type is acceptable
+// Contains checks to see if the provided param key is valid for the given service code
 func (apk AllowedParamKeys) Contains(serviceCode models.ReServiceCode, paramKeyName string) bool {
 	allowedKeys, ok := apk[serviceCode]
 	if !ok {
