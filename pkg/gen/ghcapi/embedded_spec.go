@@ -2384,6 +2384,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -2392,6 +2393,83 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully approved a SIT extension",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the SIT extension",
+          "name": "sitExtensionID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny": {
+      "patch": {
+        "description": "Denies a SIT extension",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Denies a SIT extension",
+        "operationId": "denySitExtension",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DenySitExtension"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully denied a SIT extension",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -2653,6 +2731,7 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
           "type": "integer",
+          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
@@ -2951,6 +3030,16 @@ func init() {
         "FIRST",
         "SECOND"
       ]
+    },
+    "DenySitExtension": {
+      "properties": {
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT denial",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Denied this extension as it does not match the criteria"
+        }
+      }
     },
     "DeptIndicator": {
       "type": "string",
@@ -7942,6 +8031,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -7950,6 +8040,101 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully approved a SIT extension",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the SIT extension",
+          "name": "sitExtensionID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny": {
+      "patch": {
+        "description": "Denies a SIT extension",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Denies a SIT extension",
+        "operationId": "denySitExtension",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DenySitExtension"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully denied a SIT extension",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -8244,6 +8429,7 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension",
           "type": "integer",
+          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
@@ -8545,6 +8731,16 @@ func init() {
         "FIRST",
         "SECOND"
       ]
+    },
+    "DenySitExtension": {
+      "properties": {
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT denial",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Denied this extension as it does not match the criteria"
+        }
+      }
     },
     "DeptIndicator": {
       "type": "string",

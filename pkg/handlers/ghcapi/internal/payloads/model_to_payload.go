@@ -326,6 +326,11 @@ func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensio
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	var sitDaysAllowance *int64
+	if mtoShipment.SITDaysAllowance != nil {
+		sda := int64(*mtoShipment.SITDaysAllowance)
+		sitDaysAllowance = &sda
+	}
 	payload := &ghcmessages.MTOShipment{
 		ID:                          strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -349,6 +354,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
 		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
+		SitDaysAllowance:            sitDaysAllowance,
 		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,

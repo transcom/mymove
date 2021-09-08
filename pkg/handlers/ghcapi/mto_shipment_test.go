@@ -7,6 +7,7 @@ import (
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -19,8 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
-
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -1486,6 +1485,90 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
+	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
+		sitDaysAllowance := 20
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		})
+		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		sitExtensionApprover := mtoshipment.NewSITExtensionApprover()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveSITExtensionHandler{
+			handlerContext,
+			sitExtensionApprover,
+		}
+		approvedDays := int64(10)
+		officeRemarks := "new office remarks"
+		approveParams := shipmentops.ApproveSitExtensionParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.ApproveSitExtension{
+				ApprovedDays:  &approvedDays,
+				OfficeRemarks: &officeRemarks,
+			},
+			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
+			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
+		}
+		response := handler.Handle(approveParams)
+		okResponse := response.(*shipmentops.ApproveSitExtensionOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.ApproveSitExtensionOK{}, response)
+		suite.Equal(int64(30), *payload.SitDaysAllowance)
+		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
+		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+	})
+}
+
+func (suite *HandlerSuite) TestDenySITExtensionHandler() {
+	suite.Run("Returns 200 when validations pass", func() {
+		sitDaysAllowance := 20
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		})
+		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		sitExtensionDenier := mtoshipment.NewSITExtensionDenier()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DenySITExtensionHandler{
+			handlerContext,
+			sitExtensionDenier,
+		}
+		officeRemarks := "new office remarks on denial of extension"
+		denyParams := shipmentops.DenySitExtensionParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.DenySitExtension{
+				OfficeRemarks: &officeRemarks,
+			},
+			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
+			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
+		}
+		response := handler.Handle(denyParams)
+		okResponse := response.(*shipmentops.DenySitExtensionOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.DenySitExtensionOK{}, response)
+		suite.Equal("DENIED", payload.SitExtensions[0].Status)
 	})
 }
 
