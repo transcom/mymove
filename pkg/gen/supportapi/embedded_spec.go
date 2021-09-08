@@ -237,11 +237,7 @@ func init() {
         "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -346,11 +342,7 @@ func init() {
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -420,11 +412,7 @@ func init() {
         "operationId": "updateMTOShipmentStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -599,11 +587,7 @@ func init() {
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -2283,8 +2267,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -2333,29 +2315,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -2430,6 +2412,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -2476,6 +2467,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
@@ -4992,8 +4984,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -5042,32 +5032,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "$ref": "#/definitions/ValidationErrorAllOf1"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
-    },
-    "ValidationErrorAllOf1": {
-      "type": "object"
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -5142,6 +5129,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -5188,6 +5184,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
