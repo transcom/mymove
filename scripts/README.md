@@ -11,19 +11,20 @@ If you want to see if scripts are not listed in this file you can run
 These scripts are primarily used for managing the developers
 environment.
 
-| Script Name               | Description                                                            |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `check-aws-cli-version`   | checks the awscli version required for the project                     |
-| `check-aws-vault-version` | checks the aws-vault version required for the project                  |
-| `check-bash-version`      | Script helps ensure that /etc/shells has all the correct entries in it |
-| `check-chamber-version`   | checks the chamber version required for the project                    |
-| `check-go-version`        | checks the go version required for the project                         |
-| `check-gopath`            | checks the go path is correct for the project                          |
-| `check-hosts-file`        | Script helps ensure that /etc/hosts has all the correct entries in it  |
-| `check-node-version`      | checks the node version required for the project                       |
-| `check-opensc-version`    | checks the opensc version required for the project                     |
-| `kill-process-on-port`    | asks to kill a process running on the specified port                   |
-| `prereqs`                 | validate if all prerequisite programs have been installed              |
+| Script Name               | Description                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `check-aws-cli-version`   | checks the awscli version required for the project                                                              |
+| `check-aws-vault-version` | checks the aws-vault version required for the project                                                           |
+| `check-bash-version`      | Script helps ensure that /etc/shells has all the correct entries in it                                          |
+| `check-changes`           | Script to check for changes since the last `git pull` using `git diff` for any file changes to a given path     |
+| `check-chamber-version`   | checks the chamber version required for the project                                                             |
+| `check-go-version`        | checks the go version required for the project                                                                  |
+| `check-gopath`            | checks the go path is correct for the project                                                                   |
+| `check-hosts-file`        | Script helps ensure that /etc/hosts has all the correct entries in it                                           |
+| `check-node-version`      | checks the node version required for the project                                                                |
+| `check-opensc-version`    | checks the opensc version required for the project                                                              |
+| `kill-process-on-port`    | asks to kill a process running on the specified port                                                            |
+| `prereqs`                 | validate if all prerequisite programs have been installed                                                       |
 
 ## AWS Scripts
 

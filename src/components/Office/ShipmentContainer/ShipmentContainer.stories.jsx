@@ -1,5 +1,5 @@
 import React from 'react';
-import { text, object, number, boolean } from '@storybook/addon-knobs';
+import { boolean, number, object, text } from '@storybook/addon-knobs';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 import ShipmentHeading from '../ShipmentHeading/ShipmentHeading';

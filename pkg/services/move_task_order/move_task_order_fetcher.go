@@ -90,6 +90,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	for i, shipment := range mto.MTOShipments {
+		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
+
+		if reweighErr != nil {
+			return &models.Move{}, err
+		}
+
+		mto.MTOShipments[i].Reweigh = reweigh
+	}
+
 	return mto, nil
 }
 
@@ -146,4 +156,22 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 		}
 	}
 	// No return since this function uses pointers to modify the referenced query directly
+}
+
+//fetchReweigh retrieves a reweigh for a given shipment id
+func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	reweigh := &models.Reweigh{}
+	err := appCtx.DB().
+		Where("shipment_id = ?", shipmentID).
+		First(reweigh)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &models.Reweigh{}, nil
+		default:
+			return &models.Reweigh{}, err
+		}
+	}
+	return reweigh, nil
 }

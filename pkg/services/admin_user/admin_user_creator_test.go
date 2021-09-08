@@ -5,6 +5,13 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/notifications/mocks"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -15,9 +22,21 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The AdminUserCreator needs a NotificationSender for sending user activity emails to system admins.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := mocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
+}
+
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 	queryBuilder := query.NewQueryBuilder()
-	organization := testdatagen.MakeDefaultOrganization(suite.DB())
+
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: models.User{
@@ -27,6 +46,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		},
 	})
 
+	organization := testdatagen.MakeDefaultOrganization(suite.DB())
 	userInfo := models.AdminUser{
 		LastName:       "Spaceman",
 		FirstName:      "Leo",
@@ -36,7 +56,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		Role:           models.SystemAdminRole,
 	}
 
-	// Happy path
+	// Happy path - creates a new User as well
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
@@ -54,14 +74,16 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewAdminUserCreator(builder)
-		adminUser, verrs, err := creator.CreateAdminUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewAdminUserCreator(builder, mockSender)
+		adminUser, verrs, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
 		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
 	})
 
 	// Reuses existing user if it's already been created for an office or service member
@@ -93,13 +115,15 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
+		mockSender := setUpMockNotificationSender()
 
-		creator := NewAdminUserCreator(builder)
-		adminUser, verrs, err := creator.CreateAdminUser(suite.TestAppContext(), &existingUserInfo, filter)
+		creator := NewAdminUserCreator(builder, mockSender)
+		adminUser, verrs, err := creator.CreateAdminUser(appCtx, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
 	})
 
 	// Bad organization ID
@@ -112,8 +136,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewAdminUserCreator(builder)
-		_, _, err := creator.CreateAdminUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 	})
@@ -151,8 +175,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(builder)
-		_, verrs, _ := creator.CreateAdminUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, verrs, _ := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
@@ -185,8 +209,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(builder)
-		_, _, err := creator.CreateAdminUser(suite.TestAppContext(), &userInfo, filter)
+		creator := NewAdminUserCreator(builder, setUpMockNotificationSender())
+		_, _, err := creator.CreateAdminUser(appCtx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

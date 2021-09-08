@@ -34,16 +34,6 @@ func main() {
 	}
 	initRootFlags(root.PersistentFlags())
 
-	fetchMTOsCommand := &cobra.Command{
-		Use:          "fetch-mto-updates",
-		Short:        "Fetch all MTOs available to prime",
-		Long:         "fetch move task orders",
-		RunE:         prime.FetchMTOUpdates,
-		SilenceUsage: true,
-	}
-	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
-	root.AddCommand(fetchMTOsCommand)
-
 	listMovesCommand := &cobra.Command{
 		Use:          "list-moves",
 		Short:        "An optimized fetch for all moves available to Prime",
@@ -74,7 +64,7 @@ func main() {
 		Use:          "support-list-mtos",
 		Short:        "Fetch all MTOs",
 		Long:         "fetch all move task orders",
-		RunE:         prime.FetchMTOUpdates,
+		RunE:         support.ListMTOs,
 		SilenceUsage: true,
 	}
 	support.InitListMTOsFlags(listMTOsCommand.Flags())

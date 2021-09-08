@@ -61,14 +61,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		suite.Error(err)
 	})
 
-	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func() {
+	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
 		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 3
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+		weightBilledIndex := 3
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), paramsWithBelowMinimumWeight)
 		if suite.Error(err) {
@@ -113,11 +113,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	suite.Run("PriceUsingParams validation errors", func() {
 		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 3
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+		weightBilledIndex := 3
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		// No ActualPickupDate
 		missingActualPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameActualPickupDate)
@@ -125,11 +125,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		suite.Error(err)
 		suite.Equal("could not find param with key ActualPickupDate", err.Error())
 
-		// No WeightBilledActual
-		missingWeightBilledActual := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingWeightBilledActual)
+		// No WeightBilled
+		missingWeightBilled := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
+		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingWeightBilled)
 		suite.Error(err)
-		suite.Equal("could not find param with key WeightBilledActual", err.Error())
+		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No FSCWeightBasedDistanceMultiplier
 		missingFSCWeightBasedDistanceMultiplier := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
@@ -147,11 +147,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	suite.Run("can't find distance", func() {
 		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 3
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+		weightBilledIndex := 3
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		paramsWithBadReference := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
@@ -182,7 +182,7 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 				Value:   fmt.Sprintf("%d", 1234), // bogus number, won't be used
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(fscTestWeight)),
 			},

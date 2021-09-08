@@ -64,7 +64,8 @@ describe('formatters', () => {
     });
 
     it('should default to DD-MMM-YY ouptut format', () => {
-      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+      const inputFormat = 'MMM-DD-YY';
+      expect(formatters.formatDate('Nov-11-99', inputFormat)).toBe('11-Nov-99');
     });
   });
 
@@ -158,6 +159,14 @@ describe('paymentRequestStatusReadable', () => {
 
   it('returns expected string for PAID', () => {
     expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
+  });
+
+  it('returns expected string for EDI_ERROR', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
+  });
+
+  it('returns expected string for DEPRECATED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
   });
 });
 

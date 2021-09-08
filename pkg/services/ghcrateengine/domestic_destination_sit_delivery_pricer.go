@@ -34,7 +34,7 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -64,6 +64,6 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest,
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), serviceAreaDest,
 		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, unit.Miles(distanceZipSITDest))
 }

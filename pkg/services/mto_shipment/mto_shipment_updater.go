@@ -123,6 +123,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks
 	}
 
+	if requestedUpdatedShipment.BillableWeightCap != nil {
+		dbShipment.BillableWeightCap = requestedUpdatedShipment.BillableWeightCap
+	}
+
+	if requestedUpdatedShipment.BillableWeightJustification != nil {
+		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		agentsToCreateOrUpdate := []models.MTOAgent{}
@@ -179,12 +187,21 @@ func (e StaleIdentifierError) Error() string {
 
 //CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
 func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
-	if session.IsOfficeApp() && session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		if mtoShipment.Status != models.MTOShipmentStatusSubmitted {
+	if session.IsOfficeApp() && session.IsOfficeUser() {
+		switch mtoShipment.Status {
+		case models.MTOShipmentStatusSubmitted:
+			if session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return true, nil
+			}
+		case models.MTOShipmentStatusApproved:
+			if session.Roles.HasRole(roles.RoleTypeTIO) {
+				return true, nil
+			}
+		default:
 			return false, nil
 		}
 
-		return true, nil
+		return false, nil
 	}
 
 	return true, nil
@@ -421,6 +438,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		if newShipment.PrimeActualWeight != nil {
+			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
+				err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		// A diverted shipment gets set to the SUBMITTED status automatically:
 		if !dbShipment.Diversion && newShipment.Diversion {
 			newShipment.Status = models.MTOShipmentStatusSubmitted
@@ -493,6 +519,8 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
 		mtoShipment.Diversion,
+		mtoShipment.BillableWeightCap,
+		mtoShipment.BillableWeightJustification,
 		mtoShipment.ID,
 	}
 }
@@ -519,7 +547,9 @@ func generateUpdateMTOShipmentQuery() string {
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
 			secondary_pickup_address_id = ?,
-			diversion = ?
+			diversion = ?,
+			billable_weight_cap = ?,
+			billable_weight_justification = ?
 		WHERE
 			id = ?
 	`

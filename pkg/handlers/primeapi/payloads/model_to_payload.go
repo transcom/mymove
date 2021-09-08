@@ -22,6 +22,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		MoveCode:           moveTaskOrder.Locator,
@@ -47,17 +48,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
-	return payload
-}
-
-// MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder {
-	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
-
-	for i, m := range *moveTaskOrders {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MoveTaskOrder(&copyOfM)
-	}
 	return payload
 }
 
@@ -270,14 +260,15 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 
 	paymentServiceItems := PaymentServiceItems(&paymentRequest.PaymentServiceItems)
 	return &primemessages.PaymentRequest{
-		ID:                   strfmt.UUID(paymentRequest.ID.String()),
-		IsFinal:              &paymentRequest.IsFinal,
-		MoveTaskOrderID:      strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
-		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
-		RejectionReason:      paymentRequest.RejectionReason,
-		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
-		PaymentServiceItems:  *paymentServiceItems,
-		ETag:                 etag.GenerateEtag(paymentRequest.UpdatedAt),
+		ID:                              strfmt.UUID(paymentRequest.ID.String()),
+		IsFinal:                         &paymentRequest.IsFinal,
+		MoveTaskOrderID:                 strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		PaymentRequestNumber:            paymentRequest.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(paymentRequest.RecalculationOfPaymentRequestID),
+		RejectionReason:                 paymentRequest.RejectionReason,
+		Status:                          primemessages.PaymentRequestStatus(paymentRequest.Status),
+		PaymentServiceItems:             *paymentServiceItems,
+		ETag:                            etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
 
@@ -381,6 +372,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
@@ -544,6 +536,28 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 		payload = append(payload, MTOServiceItem(&copyOfP))
 	}
 	return &payload
+}
+
+// Reweigh returns the reweigh payload
+func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.Reweigh{
+		ID:                     strfmt.UUID(reweigh.ID.String()),
+		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
+		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),
+		RequestedBy:            primemessages.ReweighRequester(reweigh.RequestedBy),
+		CreatedAt:              strfmt.DateTime(reweigh.CreatedAt),
+		UpdatedAt:              strfmt.DateTime(reweigh.UpdatedAt),
+		ETag:                   etag.GenerateEtag(reweigh.UpdatedAt),
+		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
+		VerificationReason:     handlers.FmtStringPtr(reweigh.VerificationReason),
+		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+	}
+
+	return payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

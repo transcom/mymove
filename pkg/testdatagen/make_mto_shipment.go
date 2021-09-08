@@ -17,6 +17,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
 	counselorRemarks := mtoShipment.CounselorRemarks
+	billableWeightJustification := mtoShipment.BillableWeightJustification
+	billableWeightCap := mtoShipment.BillableWeightCap
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -84,18 +86,20 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:         moveTaskOrder,
-		MoveTaskOrderID:       moveTaskOrder.ID,
-		RequestedPickupDate:   &requestedPickupDate,
-		ScheduledPickupDate:   &scheduledPickupDate,
-		ActualPickupDate:      &actualPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		CustomerRemarks:       swag.String("Please treat gently"),
-		CounselorRemarks:      counselorRemarks,
-		PrimeEstimatedWeight:  estimatedWeight,
-		PrimeActualWeight:     &actualWeight,
-		ShipmentType:          shipmentType,
-		Status:                shipmentStatus,
+		MoveTaskOrder:               moveTaskOrder,
+		MoveTaskOrderID:             moveTaskOrder.ID,
+		RequestedPickupDate:         &requestedPickupDate,
+		ScheduledPickupDate:         &scheduledPickupDate,
+		ActualPickupDate:            &actualPickupDate,
+		RequestedDeliveryDate:       &requestedDeliveryDate,
+		CustomerRemarks:             swag.String("Please treat gently"),
+		CounselorRemarks:            counselorRemarks,
+		PrimeEstimatedWeight:        estimatedWeight,
+		PrimeActualWeight:           &actualWeight,
+		ShipmentType:                shipmentType,
+		Status:                      shipmentStatus,
+		BillableWeightCap:           billableWeightCap,
+		BillableWeightJustification: billableWeightJustification,
 	}
 
 	if shipmentHasDeliveryDetails {

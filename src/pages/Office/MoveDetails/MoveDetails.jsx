@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import handleScroll from 'utils/handleScroll';
-import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';

@@ -350,7 +350,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
@@ -773,7 +773,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -928,7 +928,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
@@ -1379,7 +1379,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	handler := UpdateMTOShipmentStatusHandler{
 		context,

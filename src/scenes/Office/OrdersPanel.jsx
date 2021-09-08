@@ -16,7 +16,7 @@ import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';

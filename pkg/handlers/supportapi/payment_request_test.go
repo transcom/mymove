@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   time.Now().Format("20060102"),
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "4242",
 		},
@@ -467,7 +467,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 				Value:   currentTime.Format(testDateFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "4242",
 			},
@@ -541,15 +541,16 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	sentToGEXTime := time.Now()
 	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                   reviewedPRs[0].ID,
-		MoveTaskOrder:        reviewedPRs[0].MoveTaskOrder,
-		MoveTaskOrderID:      reviewedPRs[0].MoveTaskOrderID,
-		IsFinal:              reviewedPRs[0].IsFinal,
-		Status:               models.PaymentRequestStatusSentToGex,
-		RejectionReason:      reviewedPRs[0].RejectionReason,
-		SentToGexAt:          &sentToGEXTime,
-		PaymentRequestNumber: reviewedPRs[0].PaymentRequestNumber,
-		SequenceNumber:       reviewedPRs[0].SequenceNumber,
+		ID:                              reviewedPRs[0].ID,
+		MoveTaskOrder:                   reviewedPRs[0].MoveTaskOrder,
+		MoveTaskOrderID:                 reviewedPRs[0].MoveTaskOrderID,
+		IsFinal:                         reviewedPRs[0].IsFinal,
+		Status:                          models.PaymentRequestStatusSentToGex,
+		RejectionReason:                 reviewedPRs[0].RejectionReason,
+		SentToGexAt:                     &sentToGEXTime,
+		PaymentRequestNumber:            reviewedPRs[0].PaymentRequestNumber,
+		SequenceNumber:                  reviewedPRs[0].SequenceNumber,
+		RecalculationOfPaymentRequestID: reviewedPRs[0].RecalculationOfPaymentRequestID,
 	}
 	paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
 	paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(reviewedPRs, nil)

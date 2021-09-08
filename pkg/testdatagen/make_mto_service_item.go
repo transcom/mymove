@@ -90,16 +90,22 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 		ServiceCode: models.ReServiceCodeCS,
 		ServiceItemParamKeys: []models.ServiceItemParamKey{
 			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
 				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
 				Description: "mto available to prime at",
 				Type:        models.ServiceItemParamTypeTimestamp,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameContractCode,
-				Description: "contract code",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginSystem,
+				Key:         models.ServiceItemParamNamePriceRateOrFactor,
+				Description: "price, rate, or factor",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
 			},
 		},
 	}
@@ -108,16 +114,22 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 		ServiceCode: models.ReServiceCodeMS,
 		ServiceItemParamKeys: []models.ServiceItemParamKey{
 			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
 				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
 				Description: "mto available to prime at",
 				Type:        models.ServiceItemParamTypeTimestamp,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameContractCode,
-				Description: "contract code",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginSystem,
+				Key:         models.ServiceItemParamNamePriceRateOrFactor,
+				Description: "price, rate, or factor",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
 			},
 		},
 	}
@@ -126,22 +138,16 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 		ServiceCode: models.ReServiceCodeDLH,
 		ServiceItemParamKeys: []models.ServiceItemParamKey{
 			{
-				Key:         models.ServiceItemParamNameWeightEstimated,
-				Description: "estimated weight",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginPrime,
-			},
-			{
-				Key:         models.ServiceItemParamNameRequestedPickupDate,
-				Description: "requested pickup date",
-				Type:        models.ServiceItemParamTypeDate,
-				Origin:      models.ServiceItemParamOriginPrime,
-			},
-			{
 				Key:         models.ServiceItemParamNameContractCode,
 				Description: "contract code",
 				Type:        models.ServiceItemParamTypeString,
 				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractYearName,
+				Description: "contract year name",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPricer,
 			},
 			{
 				Key:         models.ServiceItemParamNameDistanceZip3,
@@ -150,9 +156,63 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameZipPickupAddress,
-				Description: "zip pickup address",
+				Key:         models.ServiceItemParamNameEscalationCompounded,
+				Description: "escalation compounded",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameIsPeak,
+				Description: "is peak",
+				Type:        models.ServiceItemParamTypeBoolean,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNamePriceRateOrFactor,
+				Description: "price, rate, or factor",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameRequestedPickupDate,
+				Description: "requested pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameServiceAreaOrigin,
+				Description: "service area origin",
 				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightAdjusted,
+				Description: "adjusted weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilled,
+				Description: "billed weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightOriginal,
+				Description: "original weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightReweigh,
+				Description: "reweigh weight",
+				Type:        models.ServiceItemParamTypeInteger,
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
 			{
@@ -162,20 +222,8 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
 			{
-				Key:         models.ServiceItemParamNameWeightBilledActual,
-				Description: "weight billed actual",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginSystem,
-			},
-			{
-				Key:         models.ServiceItemParamNameWeightActual,
-				Description: "weight actual",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginPrime,
-			},
-			{
-				Key:         models.ServiceItemParamNameServiceAreaOrigin,
-				Description: "service area actual",
+				Key:         models.ServiceItemParamNameZipPickupAddress,
+				Description: "zip pickup address",
 				Type:        models.ServiceItemParamTypeString,
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
@@ -186,27 +234,15 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 		ServiceCode: models.ReServiceCodeFSC,
 		ServiceItemParamKeys: []models.ServiceItemParamKey{
 			{
-				Key:         models.ServiceItemParamNameEIAFuelPrice,
-				Description: "eia fuel price",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginSystem,
-			},
-			{
-				Key:         models.ServiceItemParamNameContractCode,
-				Description: "contract code",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginSystem,
-			},
-			{
 				Key:         models.ServiceItemParamNameActualPickupDate,
 				Description: "actual pickup date",
 				Type:        models.ServiceItemParamTypeDate,
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
 			{
-				Key:         models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
-				Description: "fsc weight based multiplier",
-				Type:        models.ServiceItemParamTypeDecimal,
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
@@ -222,10 +258,70 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameWeightBilledActual,
-				Description: "weight billed actual",
+				Key:         models.ServiceItemParamNameEIAFuelPrice,
+				Description: "eia fuel price",
 				Type:        models.ServiceItemParamTypeInteger,
 				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameFSCMultiplier,
+				Description: "fsc multiplier",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameFSCPriceDifferenceInCents,
+				Description: "fsc price difference in cents",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+				Description: "fsc weight based multiplier",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightAdjusted,
+				Description: "adjusted weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilled,
+				Description: "billed weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightOriginal,
+				Description: "original weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightReweigh,
+				Description: "reweigh weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameZipDestAddress,
+				Description: "zip destination address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameZipPickupAddress,
+				Description: "zip pickup address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
 			},
 		},
 	}
@@ -266,6 +362,7 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 		mtoServiceItem := MakeMTOServiceItem(db, Assertions{
 			Move:        mto,
 			MTOShipment: mtoShipment,
+			ReService:   reService,
 		})
 
 		return mtoServiceItem

@@ -6,6 +6,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,14 +18,21 @@ type userUpdater struct {
 	builder           userQueryBuilder
 	officeUserUpdater services.OfficeUserUpdater
 	adminUserUpdater  services.AdminUserUpdater
+	sender            notifications.NotificationSender
 }
 
 // NewUserUpdater returns a new admin user creator builder
-func NewUserUpdater(builder userQueryBuilder, officeUserUpdater services.OfficeUserUpdater, adminUserUpdater services.AdminUserUpdater) services.UserUpdater {
+func NewUserUpdater(
+	builder userQueryBuilder,
+	officeUserUpdater services.OfficeUserUpdater,
+	adminUserUpdater services.AdminUserUpdater,
+	sender notifications.NotificationSender,
+) services.UserUpdater {
 	return &userUpdater{
 		builder,
 		officeUserUpdater,
 		adminUserUpdater,
+		sender,
 	}
 }
 
@@ -31,6 +40,7 @@ func NewUserUpdater(builder userQueryBuilder, officeUserUpdater services.OfficeU
 func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
+	var userActivityEmail notifications.Notification
 
 	if user == nil {
 		return nil, nil, nil
@@ -43,6 +53,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 	}
 
 	// Update user's new status for Active
+	userWasActive := foundUser.Active
 	foundUser.Active = user.Active
 
 	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
@@ -90,8 +101,32 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 				appCtx.Logger().Error("Could not update admin user", zap.Error(err))
 			}
 		}
+
+		if userWasActive {
+			email, emailErr := notifications.NewUserAccountDeactivated(
+				appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
+			if emailErr != nil {
+				appCtx.Logger().Error("Could not send user deactivation email", zap.Error(emailErr))
+			} else {
+				userActivityEmail = notifications.Notification(email)
+			}
+		}
+	} else if !userWasActive {
+		email, emailErr := notifications.NewUserAccountActivated(
+			appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
+		if emailErr != nil {
+			appCtx.Logger().Error("Could not send user activation email", zap.Error(emailErr))
+		} else {
+			userActivityEmail = notifications.Notification(email)
+		}
+	}
+
+	if userActivityEmail != nil {
+		err = o.sender.SendNotification(userActivityEmail)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	return &foundUser, nil, nil
-
 }

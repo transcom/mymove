@@ -115,9 +115,9 @@ $DOCKER_RUN \
 #
 
 ##Integration test for Prime API
-##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+##Return moves from the list-moves endpoint where is_available_for_prime is true
 function prime_api_client () {
-  # Cannot mount directories in CircleCI so certificates and data are built into the container	##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+  # Cannot mount directories in CircleCI so certificates and data are built into the container
   $DOCKER_RUN \
     --link="mymove_milmove_1:primelocal" \
     --net "${NETWORK}" \
@@ -134,16 +134,16 @@ function prime_api_client () {
 
 
 #Integration test/health check for Prime API
-#Return mtos from the fetch-mto-updates endpoint where available_to_prime_at is NOT NULL
-mtos=$(prime_api_client fetch-mto-updates)
-#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
-mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
-echo "$mtoShipments"
+#Return moves from the list-moves endpoint where available_to_prime_at is NOT NULL
+moves=$(prime_api_client list-moves)
+#Returns move IDs from the list-moves response (this would fail if API returns 500/400)
+moveID=$(echo "$moves" | jq '.[0] | .id')
+echo "$moveID"
 
 #Integration test/health check for Support API
 #Return all mtos regardless of whether or not they have been made available to prime at some point
 list_mtos=$(prime_api_client support-list-mtos)
-#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
+#Returns mtoShipments from the support-list-mtos response (this would fail if API returns 500/400)
 supportMtoShipments=$(echo "$list_mtos" | jq '.[0] | .mtoShipments')
 echo "$supportMtoShipments"
 
