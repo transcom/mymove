@@ -3007,6 +3007,16 @@ definitions:
         $ref: '#/definitions/SitExtensions'
       eTag:
         type: string
+      billableWeightCap:
+        type: integer
+        description: TIO override billable weight to be used for calculations
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
+      billableWeightJustification:
+        type: string
+        example: more weight than expected
+        x-nullable: true
   SitExtensions:
     items:
       $ref: '#/definitions/SitExtension'
@@ -3073,6 +3083,16 @@ definitions:
       counselorRemarks:
         type: string
         example: counselor approved
+        x-nullable: true
+      billableWeightCap:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
+      billableWeightJustification:
+        type: string
+        example: more weight than expected
         x-nullable: true
       pickupAddress:
         allOf:
