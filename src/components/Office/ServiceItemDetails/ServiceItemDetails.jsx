@@ -25,7 +25,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DOASIT':
     case 'DOPSIT': {
       detailSection = (
-        <React.Fragment>
+        <>
           <dl>
             {generateDetailText(
               {
@@ -37,7 +37,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
-        </React.Fragment>
+        </>
       );
       break;
     }
