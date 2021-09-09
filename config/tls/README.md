@@ -132,4 +132,4 @@ The certificates live in the `client_certs` table for both the MilMove and Order
 
 ## Certs for api.demo.dp3.us
 
-This certifcate and chain were made with SSLMate. The key/pair and chain are held in the Engineer Vault for 1Password.
+This certificate and chain were made with SSLMate. The key/pair and chain are held in the Engineer Vault for 1Password.
