@@ -5,8 +5,6 @@ apiDefinitions:
 lint:
   extends:
     - recommended
-  rules:
-    no-unused-components: warning
 referenceDocs:
   htmlTemplate: swagger/index.html
   # NOTE: modifying most theme attributes won't work here - use Redoc.init for standalone instead
