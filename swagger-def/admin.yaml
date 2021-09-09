@@ -5,7 +5,7 @@ info:
   title: move.mil Admin API
   license:
     name: MIT
-    url: 'https://github.com/transcom/mymove/blob/master/LICENSE.md'
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 basePath: /admin/v1
 consumes:
   - application/json
@@ -305,10 +305,10 @@ definitions:
         example: 98.01
       linehaulRate:
         type: number
-        example: 0.26085695149376986
+        example: 0.26085695149376985000
       sitRate:
         type: number
-        example: 0.26085695149376986
+        example: 0.26085695149376985000
       offerCount:
         type: integer
         example: 1
@@ -466,15 +466,15 @@ definitions:
           - WY
       postalCode:
         type: string
-        description: 'zip code, international allowed'
+        description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       country:
         type: string
         title: Country
         x-nullable: true
-        example: USA
+        example: 'USA'
         default: USA
     required:
       - streetAddress1
@@ -486,7 +486,7 @@ definitions:
     properties:
       email:
         type: string
-        example: user@userdomain.com
+        example: 'user@userdomain.com'
         title: Email
       firstName:
         type: string
@@ -507,7 +507,7 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
       roles:
         type: array
         items:
@@ -544,18 +544,18 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
   OfficeUserRole:
     type: object
     properties:
       name:
         type: string
-        example: Transportation Ordering Officer
+        example: 'Transportation Ordering Officer'
         x-nullable: true
         title: name
       roleType:
         type: string
-        example: transportation_ordering_officer
+        example: 'transportation_ordering_officer'
         x-nullable: true
         title: roleType
   AdminUserCreatePayload:
@@ -563,7 +563,7 @@ definitions:
     properties:
       email:
         type: string
-        example: user@userdomain.com
+        example: 'user@userdomain.com'
         title: Email
       firstName:
         type: string
@@ -574,7 +574,7 @@ definitions:
       organizationId:
         type: string
         format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
   MoveUpdatePayload:
     type: object
     required:
@@ -879,8 +879,8 @@ definitions:
   WebhookSubscription:
     type: object
     description: >-
-      Represents subscribers who expect certain notifications to be pushed to
-      their servers. Used for the Prime and Prime-related events specifically.
+      Represents subscribers who expect certain notifications to be pushed to their servers.
+      Used for the Prime and Prime-related events specifically.
     properties:
       id:
         type: string
@@ -897,9 +897,7 @@ definitions:
         $ref: '#/definitions/WebhookSubscriptionStatus'
       callbackUrl:
         type: string
-        description: >-
-          The URL to which the notifications for this subscription will be
-          pushed to.
+        description: The URL to which the notifications for this subscription will be pushed to.
         x-nullable: true
       severity:
         type: integer
@@ -908,9 +906,8 @@ definitions:
       eventKey:
         type: string
         description: >-
-          A string used to represent which events this subscriber expects to be
-          notified about. Corresponds to the possible event_key values in
-          webhook_notifications.
+          A string used to represent which events this subscriber expects to be notified about.
+          Corresponds to the possible event_key values in webhook_notifications.
         x-nullable: true
       createdAt:
         type: string
@@ -949,14 +946,11 @@ definitions:
       eventKey:
         type: string
         description: >-
-          A string used to represent which events this subscriber expects to be
-          notified about. Corresponds to the possible event_key values in
-          webhook_notifications.
+          A string used to represent which events this subscriber expects to be notified about.
+          Corresponds to the possible event_key values in webhook_notifications.
       callbackUrl:
         type: string
-        description: >-
-          The URL to which the notifications for this subscription will be
-          pushed to.
+        description: The URL to which the notifications for this subscription will be pushed to.
     required:
       - subscriberId
       - status
@@ -987,7 +981,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -995,13 +989,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/AccessCodes'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: access codes not found
-        '500':
+        500:
           description: server error
   /office_users:
     get:
@@ -1027,7 +1021,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1035,13 +1029,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/OfficeUsers'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: office not found
-        '500':
+        500:
           description: server error
     post:
       summary: create an office user
@@ -1056,17 +1050,17 @@ paths:
           schema:
             $ref: '#/definitions/OfficeUserCreatePayload'
       responses:
-        '201':
+        201:
           description: Successfully created Office User
           schema:
             $ref: '#/definitions/OfficeUser'
-        '422':
+        422:
           description: validation error
           schema:
             $ref: '#/definitions/ValidationError'
-        '500':
+        500:
           description: internal server error
-  '/office_users/{officeUserId}':
+  /office_users/{officeUserId}:
     get:
       summary: Get an office user
       description: Returns the given office user
@@ -1080,17 +1074,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/OfficeUser'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: office not found
-        '500':
+        500:
           description: server error
     patch:
       summary: Updates an office user
@@ -1110,17 +1104,17 @@ paths:
           schema:
             $ref: '#/definitions/OfficeUserUpdatePayload'
       responses:
-        '200':
+        200:
           description: Successfully updated Office User
           schema:
             $ref: '#/definitions/OfficeUser'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to update an office user
-        '500':
+        500:
           description: Server error
   /transportation_service_provider_performances:
     get:
@@ -1146,7 +1140,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1154,15 +1148,15 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/TransportationServiceProviderPerformances'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: office not found
-        '500':
+        500:
           description: server error
-  '/transportation_service_provider_performances/{tsppId}':
+  /transportation_service_provider_performances/{tsppId}:
     get:
       summary: Fetch a specific tspp
       description: Returns a single tspp
@@ -1176,17 +1170,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/TransportationServiceProviderPerformance'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: tspp not found
-        '500':
+        500:
           description: server error
   /admin_users:
     get:
@@ -1214,7 +1208,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1222,13 +1216,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/AdminUsers'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: admin users not found
-        '500':
+        500:
           description: server error
     post:
       summary: create an admin user
@@ -1243,19 +1237,19 @@ paths:
           schema:
             $ref: '#/definitions/AdminUserCreatePayload'
       responses:
-        '201':
+        201:
           description: Successfully created Admin User
           schema:
             $ref: '#/definitions/AdminUser'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to create an admin user
-        '500':
+        500:
           description: Server error
-  '/admin_users/{adminUserId}':
+  /admin_users/{adminUserId}:
     get:
       summary: Fetch a specific admin user
       description: Returns a single admin user
@@ -1269,17 +1263,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/AdminUser'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: admin user not found
-        '500':
+        500:
           description: server error
     patch:
       summary: Updates an admin user
@@ -1299,17 +1293,17 @@ paths:
           schema:
             $ref: '#/definitions/AdminUserUpdatePayload'
       responses:
-        '200':
+        200:
           description: Successfully updated Admin User
           schema:
             $ref: '#/definitions/AdminUser'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to update an admin user
-        '500':
+        500:
           description: Server error
   /offices:
     get:
@@ -1335,7 +1329,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1343,13 +1337,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/TransportationOffices'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: office not found
-        '500':
+        500:
           description: server error
   /electronic_orders:
     get:
@@ -1377,7 +1371,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1385,13 +1379,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/ElectronicOrders'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: not found
-        '500':
+        500:
           description: server error
   /electronic_orders/totals:
     get:
@@ -1412,19 +1406,19 @@ paths:
           items:
             type: string
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/ElectronicOrdersTotals'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: not found
-        '500':
+        500:
           description: server error
-  '/uploads/{uploadId}':
+  /uploads/{uploadId}:
     get:
       summary: Get information about an upload
       description: Returns the given upload and information about the uploader and move
@@ -1438,17 +1432,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/UploadInformation'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: upload not found
-        '500':
+        500:
           description: server error
   /organizations:
     get:
@@ -1476,7 +1470,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1484,13 +1478,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/Organizations'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: not found
-        '500':
+        500:
           description: server error
   /notifications:
     get:
@@ -1516,7 +1510,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1524,13 +1518,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/Notifications'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: not found
-        '500':
+        500:
           description: server error
   /moves:
     get:
@@ -1556,7 +1550,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1564,15 +1558,15 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/Moves'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: not found
-        '500':
+        500:
           description: server error
-  '/moves/{moveID}':
+  /moves/{moveID}:
     get:
       summary: Get information about a move
       description: Returns the given move and its relevant info
@@ -1586,26 +1580,24 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: Success
           schema:
             $ref: '#/definitions/Move'
-        '400':
+        400:
           description: Invalid request
-        '401':
+        401:
           description: Must be authenticated to use this endpoint
-        '404':
+        404:
           description: Move not found
-        '500':
+        500:
           description: Server error
     patch:
       summary: Disables or re-enables a move
       description: >
-        Allows the user to change the `show` field on the selected field to
-        either `True` or `False`. A "shown" move will appear to all users as
-        normal, a "hidden" move will not be returned or editable using any other
-        endpoint (besides those in the Support API), and thus effectively
-        deactivated.
+        Allows the user to change the `show` field on the selected field to either `True` or `False`.
+        A "shown" move will appear to all users as normal, a "hidden" move will not be returned or editable using any other endpoint
+        (besides those in the Support API), and thus effectively deactivated.
       operationId: updateMove
       tags:
         - move
@@ -1622,21 +1614,21 @@ paths:
           schema:
             $ref: '#/definitions/MoveUpdatePayload'
       responses:
-        '200':
+        200:
           description: Successfully updated the Mov
           schema:
             $ref: '#/definitions/Move'
-        '400':
+        400:
           description: Invalid request
-        '401':
+        401:
           description: Must be authenticated to use this endpoint
-        '403':
+        403:
           description: Not authorized to update this move
-        '404':
+        404:
           description: Move not found
-        '422':
+        422:
           description: Invalid input
-        '500':
+        500:
           description: Server error
   /users:
     get:
@@ -1662,7 +1654,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1670,15 +1662,15 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/Users'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: users not found
-        '500':
+        500:
           description: server error
-  '/users/{userId}':
+  /users/{userId}:
     get:
       summary: Get information about a user
       description: Returns the given user and their sessions
@@ -1692,17 +1684,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/User'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: user not found
-        '500':
+        500:
           description: server error
     patch:
       summary: Update a user's session or active status
@@ -1722,23 +1714,23 @@ paths:
           schema:
             $ref: '#/definitions/UserUpdatePayload'
       responses:
-        '200':
+        200:
           description: Successfully updated User
           schema:
             $ref: '#/definitions/User'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to update this user
-        '404':
+        404:
           description: Not found
-        '422':
+        422:
           description: Validation error
           schema:
             $ref: '#/definitions/ValidationError'
-        '500':
+        500:
           description: Server error
   /webhook_subscriptions:
     get:
@@ -1764,7 +1756,7 @@ paths:
           name: order
           type: boolean
       responses:
-        '200':
+        200:
           description: success
           headers:
             Content-Range:
@@ -1772,13 +1764,13 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/WebhookSubscriptions'
-        '400':
+        400:
           description: Invalid request
-        '401':
+        401:
           description: Not authenticated for this endpoint
-        '404':
+        404:
           description: Webhook subscriptions not found
-        '500':
+        500:
           description: Server error
     post:
       summary: create a webhook subscription
@@ -1793,19 +1785,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateWebhookSubscription'
       responses:
-        '201':
+        201:
           description: Successfully created webhook subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to create a webhook subscription
-        '500':
+        500:
           description: Server error
-  '/webhook_subscriptions/{webhookSubscriptionId}':
+  /webhook_subscriptions/{webhookSubscriptionId}:
     get:
       summary: Get information about a webhook subscription
       description: Returns the given webhook subscription and its details
@@ -1819,17 +1811,17 @@ paths:
           format: uuid
           required: true
       responses:
-        '200':
+        200:
           description: success
           schema:
             $ref: '#/definitions/WebhookSubscription'
-        '400':
+        400:
           description: invalid request
-        '401':
+        401:
           description: request requires user authentication
-        '404':
+        404:
           description: subscription not found
-        '500':
+        500:
           description: server error
     patch:
       summary: Update a webhook subscription
@@ -1853,28 +1845,26 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
-        '200':
+        200:
           description: Successfully updated webhook subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
-        '400':
+        400:
           description: Invalid Request
-        '401':
+        401:
           description: Must be authenticated to use this end point
-        '403':
+        403:
           description: Not authorized to update this webhook subscription
-        '404':
+        404:
           description: subscription not found
-        '412':
+        412:
           description: Precondition failed
-        '422':
+        422:
           description: Validation error
           schema:
             $ref: '#/definitions/ValidationError'
-        '500':
+        500:
           description: Server error

@@ -291,12 +291,8 @@ paths:
         type: string
         format: uuid
     post:
-      summary: >-
-        Saves the date and time a TOO acknowledged the excess weight risk by
-        dismissing the alert
-      description: >-
-        Saves the date and time a TOO acknowledged the excess weight risk by
-        dismissing the alert
+      summary: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+      description: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
       operationId: acknowledgeExcessWeightRisk
       tags:
         - order
@@ -508,7 +504,7 @@ paths:
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
-  /mto-shipments:
+  '/mto-shipments':
     post:
       summary: createMTOShipment
       description: |
@@ -647,10 +643,8 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           schema:
@@ -941,9 +935,7 @@ paths:
           schema:
             $ref: '#/definitions/ApproveSitExtension'
         - in: header
-          description: >-
-            We want the shipment's eTag rather than the SIT extension eTag as
-            the SIT extension is always associated with a shipment
+          description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
           type: string
           required: true
@@ -1463,7 +1455,7 @@ paths:
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
-  '/documents/{documentId}':
+  /documents/{documentId}:
     get:
       summary: Returns a document
       description: Returns a document and its uploads
@@ -1500,15 +1492,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: >-
-        Gets queued list of all customer moves needing services counseling by
-        GBLOC origin
+      summary: Gets queued list of all customer moves needing services counseling by GBLOC origin
       description: >
-        An office services counselor user will be assigned a transportation
-        office that will determine which moves are displayed in their queue
-        based on the origin duty station.  GHC moves will show up here onced
-        they have reached the NEEDS SERVICE COUNSELING status after submission
-        from a customer or created on a customer's behalf.
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
       operationId: getServicesCounselingQueue
       tags:
         - queues
@@ -1525,22 +1511,22 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
-            - dodID
-            - branch
-            - locator
-            - status
-            - requestedMoveDate
-            - submittedAt
-            - originGBLOC
-            - destinationDutyStation
+            [
+              lastName,
+              dodID,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              destinationDutyStation,
+            ]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -1566,9 +1552,7 @@ paths:
           name: submittedAt
           type: string
           format: date-time
-          description: >-
-            Start of the submitted at date in the user's local time zone
-            converted to UTC
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: originGBLOC
           type: string
@@ -1602,11 +1586,7 @@ paths:
         - application/json
       summary: Gets queued list of all customer moves by GBLOC origin
       description: >
-        An office TOO user will be assigned a transportation office that will
-        determine which moves are displayed in their queue based on the origin
-        duty station.  GHC moves will show up here onced they have reached the
-        submitted status sent by the customer and have move task orders,
-        shipments, and service items to approve.
+        An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
       operationId: getMovesQueue
       tags:
         - queues
@@ -1622,20 +1602,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum:
-            - lastName
-            - dodID
-            - branch
-            - locator
-            - status
-            - destinationDutyStation
+          enum: [lastName, dodID, branch, locator, status, destinationDutyStation]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -1678,9 +1650,7 @@ paths:
         - application/json
       summary: Gets queued list of all payment requests by GBLOC origin
       description: >
-        An office TIO user will be assigned a transportation office that will
-        determine which payment requests are displayed in their queue based on
-        the origin duty station.
+        An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.
       operationId: getPaymentRequestsQueue
       tags:
         - queues
@@ -1688,21 +1658,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum:
-            - lastName
-            - locator
-            - submittedAt
-            - branch
-            - status
-            - dodID
-            - age
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: page
@@ -1716,9 +1677,7 @@ paths:
           name: submittedAt
           type: string
           format: date-time
-          description: >-
-            Start of the submitted at date in the user's local time zone
-            converted to UTC
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: branch
           type: string
@@ -1755,7 +1714,7 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-  /tac/valid:
+  '/tac/valid':
     get:
       summary: Validation of a TAC value
       description: Returns a boolean based on whether a tac value is valid or not
@@ -1954,7 +1913,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
+        example: 'USA'
         default: USA
     required:
       - street_address_1
@@ -2244,7 +2203,7 @@ definitions:
         $ref: '#/definitions/Contractor'
       locator:
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       ordersId:
         type: string
         format: uuid
@@ -2260,16 +2219,12 @@ definitions:
       excess_weight_qualified_at:
         type: string
         format: date-time
-        description: >-
-          Timestamp of when the estimated shipment weights of the move reached
-          90% of the weight allowance
+        description: Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
         x-nullable: true
       excess_weight_acknowledged_at:
         type: string
         format: date-time
-        description: >-
-          Timestamp of when the TOO acknowledged the excess weight risk by
-          either dismissing the alert or updating the max billable weight
+        description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
         x-nullable: true
       createdAt:
         type: string
@@ -2352,7 +2307,7 @@ definitions:
         $ref: '#/definitions/Customer'
       moveCode:
         type: string
-        example: H2XFJF
+        example: 'H2XFJF'
       first_name:
         type: string
         example: John
@@ -2392,7 +2347,7 @@ definitions:
       order_number:
         type: string
         x-nullable: true
-        example: 030-00362
+        example: '030-00362'
       order_type:
         $ref: '#/definitions/OrdersType'
       order_type_detail:
@@ -2412,12 +2367,12 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: N002214CSW32Y9
+        example: 'N002214CSW32Y9'
         x-nullable: true
       has_dependents:
         type: boolean
@@ -2426,9 +2381,7 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         example: false
-        title: >-
-          Do you have a spouse who will need to move items related to their
-          occupation (also known as spouse pro-gear)?
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
     type: object
@@ -2494,26 +2447,24 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: 030-00362
+        example: '030-00362'
       tac:
         type: string
         title: TAC
         minLength: 4
         maxLength: 4
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: N002214CSW32Y9
+        example: 'N002214CSW32Y9'
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       ordersAcknowledgement:
-        description: >-
-          Confirmation that the new amended orders were reviewed after
-          previously approving the original orders
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
         type: boolean
         x-nullable: true
     required:
@@ -2627,7 +2578,7 @@ definitions:
         type: string
       locator:
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       referenceId:
         example: 1001-3456
         type: string
@@ -3031,17 +2982,14 @@ definitions:
         example: handle with care
         x-nullable: true
       counselorRemarks:
-        description: >
-          The counselor can use the counselor remarks field to inform the movers
-          about any
-
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
 
-          Counselors enters this information when creating or editing an MTO
-          Shipment. Optional field.
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -3182,16 +3130,13 @@ definitions:
         type: string
       requestedPickupDate:
         description: >
-          The customer's preferred pickup date. Other dates, such as required
-          delivery date and (outside MilMove) the pack date, are derived from
-          this date.
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
         format: date
         type: string
       customerRemarks:
-        description: >
-          The customer can use the customer remarks field to inform the services
-          counselor and the movers about any
-
+        description: |
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
@@ -3202,17 +3147,14 @@ definitions:
         example: handle with care
         x-nullable: true
       counselorRemarks:
-        description: >
-          The counselor can use the counselor remarks field to inform the movers
-          about any
-
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
 
-          Counselors enters this information when creating or editing an MTO
-          Shipment. Optional field.
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -3446,9 +3388,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOServiceItemDimension'
   CustomerContactType:
-    description: >-
-      Describes a customer contact type for a MTOServiceItem of type domestic
-      destination SIT.
+    description: Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.
     type: string
     enum:
       - FIRST
@@ -3629,9 +3569,7 @@ definitions:
       age:
         type: number
         format: integer
-        description: >-
-          Days since the payment request has been requested.  Decimal
-          representation will allow more accurate sorting.
+        description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
       submittedAt:
         type: string
         format: date-time
@@ -3672,9 +3610,7 @@ definitions:
         format: date-time
         type: string
       verificationReason:
-        example: >-
-          The reweigh was not performed due to some justification provided by
-          the Prime
+        example: 'The reweigh was not performed due to some justification provided by the Prime'
         type: string
         x-nullable: true
       weight:
@@ -3688,6 +3624,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+
   ReweighRequester:
     type: string
     enum:

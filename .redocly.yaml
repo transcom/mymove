@@ -1,5 +1,9 @@
 # See https://redoc.ly/docs/cli/configuration/ for more information.
 apiDefinitions:
+  admin: swagger-def/admin.yaml
+  ghc: swagger-def/ghc.yaml
+  internal: swagger-def/internal.yaml
+  orders: swagger-def/orders.yaml
   prime: swagger-def/prime.yaml
   support: swagger-def/support.yaml
 lint:
