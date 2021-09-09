@@ -16,6 +16,7 @@ jest.mock('formik', () => {
         onChange: mockOnChange,
       },
       { touched: true, error: 'sample error' },
+      { setValue: () => {}, setTouched: () => {} },
     ],
   };
 });
