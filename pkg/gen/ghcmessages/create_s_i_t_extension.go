@@ -19,10 +19,11 @@ import (
 // swagger:model CreateSITExtension
 type CreateSITExtension struct {
 
-	// Number of days approved for SIT extension. In TOO creation, this will match requested days.
+	// Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
 	// Example: 21
+	// Required: true
 	// Minimum: 1
-	ApprovedDays int64 `json:"approvedDays,omitempty"`
+	ApprovedDays *int64 `json:"approvedDays"`
 
 	// Remarks from TOO about SIT extension creation
 	// Example: Customer needs additional storage time as their new place of residence is not yet ready
@@ -30,13 +31,13 @@ type CreateSITExtension struct {
 
 	// Reason from service counselor-provided picklist for SIT extension
 	// Example: AWAITING_COMPLETION_OF_RESIDENCE
-	// Enum: [SERIOUS_ILLNESS_MEMBER SERIOUS_ILLNESS_DEPENDENT IMPENDING_ASSIGNEMENT DIRECTED_TEMPORARY_DUTY NONAVAILABILITY_OF_CIVILIAN_HOUSING AWAITING_COMPLETION_OF_RESIDENCE OTHER]
-	RequestReason interface{} `json:"requestReason,omitempty"`
+	// Required: true
+	RequestReason *string `json:"requestReason"`
 
-	// Number of days requested for SIT extension. In TOO creation, this will match approved days by default.
-	// Example: 21
-	// Minimum: 1
-	RequestedDays int64 `json:"requestedDays,omitempty"`
+	// shipment ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Format: uuid
+	ShipmentID strfmt.UUID `json:"shipmentID,omitempty"`
 }
 
 // Validate validates this create s i t extension
@@ -47,7 +48,11 @@ func (m *CreateSITExtension) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRequestedDays(formats); err != nil {
+	if err := m.validateRequestReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -58,23 +63,33 @@ func (m *CreateSITExtension) Validate(formats strfmt.Registry) error {
 }
 
 func (m *CreateSITExtension) validateApprovedDays(formats strfmt.Registry) error {
-	if swag.IsZero(m.ApprovedDays) { // not required
-		return nil
+
+	if err := validate.Required("approvedDays", "body", m.ApprovedDays); err != nil {
+		return err
 	}
 
-	if err := validate.MinimumInt("approvedDays", "body", m.ApprovedDays, 1, false); err != nil {
+	if err := validate.MinimumInt("approvedDays", "body", *m.ApprovedDays, 1, false); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *CreateSITExtension) validateRequestedDays(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedDays) { // not required
+func (m *CreateSITExtension) validateRequestReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("requestReason", "body", m.RequestReason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateSITExtension) validateShipmentID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentID) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("requestedDays", "body", m.RequestedDays, 1, false); err != nil {
+	if err := validate.FormatOf("shipmentID", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
 		return err
 	}
 

@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -113,6 +113,30 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	return modelAddress
+}
+
+// SITExtensionFromCreate model
+func SITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtension) *models.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	var approvedDays *int
+	sda := int(*sitExtension.ApprovedDays)
+	approvedDays = &sda
+
+	model := &models.SITExtension{
+		MTOShipmentID: uuid.FromStringOrNil(sitExtension.ShipmentID.String()),
+		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		// todo: is this done here? approved days will always be equal to requested days during too creation
+		RequestedDays: int(*sitExtension.ApprovedDays),
+		// todo: do I do this here?
+		Status:        models.SITExtensionStatusApproved,
+		ApprovedDays:  approvedDays,
+		OfficeRemarks: sitExtension.OfficeRemarks,
+	}
+
+	return model
 }
 
 // MTOShipmentModelFromCreate model

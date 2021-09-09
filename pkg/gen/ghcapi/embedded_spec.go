@@ -3017,9 +3017,13 @@ func init() {
       }
     },
     "CreateSITExtension": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
       "properties": {
         "approvedDays": {
-          "description": "Number of days approved for SIT extension. In TOO creation, this will match requested days.",
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
           "type": "integer",
           "minimum": 1,
           "example": 21
@@ -3032,22 +3036,13 @@ func init() {
         },
         "requestReason": {
           "description": "Reason from service counselor-provided picklist for SIT extension",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
+          "type": "string",
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         },
-        "requestedDays": {
-          "description": "Number of days requested for SIT extension. In TOO creation, this will match approved days by default.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -8825,9 +8820,13 @@ func init() {
       }
     },
     "CreateSITExtension": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
       "properties": {
         "approvedDays": {
-          "description": "Number of days approved for SIT extension. In TOO creation, this will match requested days.",
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
           "type": "integer",
           "minimum": 1,
           "example": 21
@@ -8840,22 +8839,13 @@ func init() {
         },
         "requestReason": {
           "description": "Reason from service counselor-provided picklist for SIT extension",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
+          "type": "string",
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         },
-        "requestedDays": {
-          "description": "Number of days requested for SIT extension. In TOO creation, this will match approved days by default.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

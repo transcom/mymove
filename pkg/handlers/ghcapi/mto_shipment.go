@@ -809,3 +809,50 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }
+
+// CreateSITExtension creates a SIT extension in the approved state
+type CreateSITExtensionHandler struct {
+	handlers.HandlerContext
+	// TODO: take from Namibia's branch, most likely, just use approver for now
+	services.SITExtensionCreator
+}
+
+// Handle creates the approved SIT extension
+func (h CreateSITExtensionHandler) Handle(params shipmentops.CreateSitExtensionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	payload := params.Body
+
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return shipmentops.NewCreateSitExtensionBadRequest()
+	}
+
+	sitExtension := payloads.SITExtensionFromCreate(payload)
+	// sitExtension, err := h.sitExtensionCreator.CreateSITExtension(appCtx, sitExtension, nil)
+
+	// if err != nil {
+	// 	logger.Error("ghcapi.CreateSITExtension error", zap.Error(err))
+	// 	switch e := err.(type) {
+	// 	case services.NotFoundError:
+	// 		payload := ghcmessages.Error{
+	// 			Message: handlers.FmtString(err.Error()),
+	// 		}
+	// 		return shipmentops.NewCreateSITExtensionNotFound().WithPayload(&payload)
+	// 	case services.InvalidInputError:
+	// 		payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
+	// 		return shipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
+	// 	case services.QueryError:
+	// 		if e.Unwrap() != nil {
+	// 			// If you can unwrap, log the internal error (usually a pq error) for better debugging
+	// 			logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+	// 		}
+	// 		return shipmentops.NewCreateMTOShipmentInternalServerError()
+	// 	default:
+	// 		return shipmentops.NewCreateMTOShipmentInternalServerError()
+	// 	}
+	// }
+
+	// returnPayload := payloads.MTOShipment(mtoShipment)
+	// return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
