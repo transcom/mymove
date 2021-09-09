@@ -10,9 +10,12 @@ import { convertFromThousandthInchToInch, formatWeight } from 'shared/formatters
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
-    <div key={`${id}-${detail}`} className={classnames(styles.detailLine, className)}>
-      <dt className={styles.detailType}>{detail}:</dt> <dd>{details[`${detail}`]}</dd>
-    </div>
+    <>
+      <dt key={`${id}-${detail}`} className={classnames(styles.detailLine, className)}>
+        <strong>{detail}</strong>:
+      </dt>{' '}
+      <dd className={styles.detailLine}>{details[`${detail}`]}</dd>
+    </>
   ));
 
   return detailList;
