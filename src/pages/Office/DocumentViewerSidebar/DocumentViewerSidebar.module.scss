@@ -8,7 +8,12 @@
   height: 100%;
   width: 400px;
 
-  h1,h2,h3,h4,h5,h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin: 0;
     font-weight: bold;
   }
@@ -29,7 +34,7 @@
     color: $base;
     font-weight: normal;
     text-transform: uppercase;
-    @include u-margin-top(0.5)
+    @include u-margin-top(0.5);
   }
 
   header {
@@ -58,10 +63,10 @@
     background: $bg-gray;
     overflow-y: auto;
     overflow-x: hidden;
-    min-height: 675px;
     @include u-padding-x(4);
     @include u-padding-top(3);
     @include u-padding-bottom(5);
+    height: 100%;
   }
 
   footer {
@@ -72,5 +77,6 @@
     @include u-padding-left(4);
     @include u-border-top('2px');
     @include u-border-top('gray-10');
+    margin-top: auto;
   }
 }

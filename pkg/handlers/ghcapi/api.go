@@ -214,6 +214,16 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
+	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
+		ctx,
+		mtoshipment.NewSITExtensionApprover(),
+	}
+
+	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
+		ctx,
+		mtoshipment.NewSITExtensionDenier(),
+	}
+
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{

@@ -13,26 +13,41 @@ import (
 
 // reweighCreator sets up the service object
 type reweighCreator struct {
-	db *pop.Connection
+	checks []reweighValidator
 }
 
 // NewReweighCreator creates a new struct with the service dependencies
 func NewReweighCreator(db *pop.Connection) services.ReweighCreator {
 	return &reweighCreator{
-		db: db,
+		checks: []reweighValidator{
+			checkShipmentID(),
+			checkRequiredFields(),
+		},
 	}
 }
 
+// CreateReweighCheck passes the Prime validator key to CreateReweigh
+func (f *reweighCreator) CreateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh) (*models.Reweigh, error) {
+	return f.CreateReweigh(appCtx, reweigh, f.checks...)
+}
+
 // CreateReweigh creates a reweigh
-func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh) (*models.Reweigh, error) {
+func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, checks ...reweighValidator) (*models.Reweigh, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	err := f.db.Find(mtoShipment, reweigh.ShipmentID)
+	// Find the shipment, return error if not found
+	err := appCtx.DB().Find(mtoShipment, reweigh.ShipmentID)
+
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
 	}
 
-	verrs, err := f.db.ValidateAndCreate(reweigh)
+	err = validateReweigh(appCtx, *reweigh, nil, mtoShipment, checks...)
+	if err != nil {
+		return nil, err
+	}
+
+	verrs, err := appCtx.DB().ValidateAndCreate(reweigh)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the reweigh.")

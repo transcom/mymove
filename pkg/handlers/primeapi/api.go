@@ -119,7 +119,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{
 		ctx,
-		reweigh.NewReweighUpdater(),
+		reweigh.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
 	return primeAPI.Serve(nil)

@@ -22,6 +22,7 @@ type ApproveSitExtension struct {
 	// Number of days approved for SIT extension
 	// Example: 21
 	// Required: true
+	// Minimum: 1
 	ApprovedDays *int64 `json:"approvedDays"`
 
 	// Remarks from TOO about SIT approval
@@ -46,6 +47,10 @@ func (m *ApproveSitExtension) Validate(formats strfmt.Registry) error {
 func (m *ApproveSitExtension) validateApprovedDays(formats strfmt.Registry) error {
 
 	if err := validate.Required("approvedDays", "body", m.ApprovedDays); err != nil {
+		return err
+	}
+
+	if err := validate.MinimumInt("approvedDays", "body", *m.ApprovedDays, 1, false); err != nil {
 		return err
 	}
 

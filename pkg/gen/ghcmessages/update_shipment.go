@@ -22,6 +22,14 @@ type UpdateShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// estimated weight of the shuttle service item provided by the prime
+	// Example: 2500
+	BillableWeightCap *int64 `json:"billableWeightCap,omitempty"`
+
+	// billable weight justification
+	// Example: more weight than expected
+	BillableWeightJustification *string `json:"billableWeightJustification,omitempty"`
+
 	// counselor remarks
 	// Example: counselor approved
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`

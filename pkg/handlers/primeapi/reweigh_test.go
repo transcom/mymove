@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -37,7 +39,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 	// Create handler
 	handler := UpdateReweighHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		reweighservice.NewReweighUpdater(),
+		reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
 	var updatedETag string

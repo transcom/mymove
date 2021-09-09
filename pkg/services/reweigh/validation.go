@@ -1,6 +1,8 @@
 package reweigh
 
 import (
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -15,6 +17,34 @@ type reweighValidator interface {
 	// It is safe to return a *validate.Errors with zero added errors as
 	// a success case.
 	Validate(a appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error
+}
+
+// validateReweigh checks an MTOAgent against a passed-in set of business rule checks
+func validateReweigh(
+	appCtx appcontext.AppContext,
+	newReweigh models.Reweigh,
+	oldReweigh *models.Reweigh,
+	shipment *models.MTOShipment,
+	checks ...reweighValidator,
+) (result error) {
+	verrs := validate.NewErrors()
+	for _, checker := range checks {
+		if err := checker.Validate(appCtx, newReweigh, oldReweigh, shipment); err != nil {
+			switch e := err.(type) {
+			case *validate.Errors:
+				// accumulate validation errors
+				verrs.Append(e)
+			default:
+				// non-validation errors have priority,
+				// and short-circuit doing any further checks
+				return err
+			}
+		}
+	}
+	if verrs.HasAny() {
+		result = services.NewInvalidInputError(newReweigh.ID, nil, verrs, "Invalid input found while validating the reweigh.")
+	}
+	return result
 }
 
 // reweighValidatorFunc is an adapter type for converting a function into an implementation of reweighValidator

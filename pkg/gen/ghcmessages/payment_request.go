@@ -51,6 +51,12 @@ type PaymentRequest struct {
 	// proof of service docs
 	ProofOfServiceDocs ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
+	// recalculation of payment request ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Read Only: true
+	// Format: uuid
+	RecalculationOfPaymentRequestID *strfmt.UUID `json:"recalculationOfPaymentRequestID,omitempty"`
+
 	// rejection reason
 	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -87,6 +93,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateProofOfServiceDocs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRecalculationOfPaymentRequestID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -176,6 +186,18 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *PaymentRequest) validateRecalculationOfPaymentRequestID(formats strfmt.Registry) error {
+	if swag.IsZero(m.RecalculationOfPaymentRequestID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("recalculationOfPaymentRequestID", "body", "uuid", m.RecalculationOfPaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReviewedAt) { // not required
 		return nil
@@ -238,6 +260,10 @@ func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateRecalculationOfPaymentRequestID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateServiceItems(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -290,6 +316,15 @@ func (m *PaymentRequest) contextValidateProofOfServiceDocs(ctx context.Context, 
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("proofOfServiceDocs")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateRecalculationOfPaymentRequestID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "recalculationOfPaymentRequestID", "body", m.RecalculationOfPaymentRequestID); err != nil {
 		return err
 	}
 

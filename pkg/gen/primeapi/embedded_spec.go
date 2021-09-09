@@ -2253,6 +2253,13 @@ func init() {
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2273,7 +2280,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -5474,6 +5482,13 @@ func init() {
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -5494,7 +5509,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
