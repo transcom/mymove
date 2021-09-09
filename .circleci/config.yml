@@ -113,9 +113,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for demo env'
           command: |
-            echo "export DEMO_DP3_CERT=$TLS_CERT" >> $BASH_ENV
-            echo "export DEMO_DP3_KEY=$TLS_KEY" >> $BASH_ENV
-            echo "export DEMO_DP3_CA=$TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$DEMO_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$DEMO_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$DEMO_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_exp:
     steps:
@@ -132,9 +132,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for exp env'
           command: |
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -151,9 +151,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for stg env'
           command: |
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_prd:
     steps:
@@ -170,9 +170,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -189,9 +189,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for gov-dev env'
           command: |
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT=$TLS_CERT" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY=$TLS_KEY" >> $BASH_ENV
-            echo "export EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA=$TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_com_dev:
     steps:
