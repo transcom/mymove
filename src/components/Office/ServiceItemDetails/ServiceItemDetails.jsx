@@ -29,7 +29,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DOPSIT': {
       detailSection = (
         <div>
-          <dl>
+          <dl className={styles.detailList}>
             {generateDetailText(
               {
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
