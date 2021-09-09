@@ -8,7 +8,6 @@ VALUES
 INSERT INTO service_params
 (id,service_id,service_item_param_key_id,created_at,updated_at)
 VALUES
--- Shipment Mgmt Services
 ('d7a8bcfe-b645-45a6-886a-16d8f5a2148a',(SELECT id FROM re_services WHERE code='DOASIT'), (SELECT id FROM service_item_param_keys where key='SITPaymentRequestStart'), now(), now()),
 ('5942fee8-4e5b-4f27-ba35-b353dace72a3',(SELECT id FROM re_services WHERE code='DOASIT'), (SELECT id FROM service_item_param_keys where key='SITPaymentRequestEnd'), now(), now()),
 
