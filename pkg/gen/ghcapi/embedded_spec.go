@@ -2358,6 +2358,60 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/": {
+      "post": {
+        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Create an approved SIT extension",
+        "operationId": "createSitExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtension"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Extension.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
       "patch": {
         "description": "Approves a SIT extension",
@@ -2959,6 +3013,41 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        }
+      }
+    },
+    "CreateSITExtension": {
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. In TOO creation, this will match requested days.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        },
+        "requestedDays": {
+          "description": "Number of days requested for SIT extension. In TOO creation, this will match approved days by default.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
         }
       }
     },
@@ -8011,6 +8100,72 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/": {
+      "post": {
+        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Create an approved SIT extension",
+        "operationId": "createSitExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtension"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Extension.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
       "patch": {
         "description": "Approves a SIT extension",
@@ -8666,6 +8821,41 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        }
+      }
+    },
+    "CreateSITExtension": {
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. In TOO creation, this will match requested days.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        },
+        "requestedDays": {
+          "description": "Number of days requested for SIT extension. In TOO creation, this will match approved days by default.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
         }
       }
     },
