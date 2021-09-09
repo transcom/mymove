@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -92,5 +94,59 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		_, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
+	})
+
+	suite.T().Run("Eagerly loaded reweigh where a reweigh exists", func(t *testing.T) {
+		actualWeight := unit.Pound(3100)
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PrimeActualWeight: &actualWeight,
+			},
+		})
+		reweigh := testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, unit.Pound(3000))
+
+		var dbShipment models.MTOShipment
+		err := suite.DB().Eager("Reweigh").Find(&dbShipment, shipment.ID)
+		suite.FatalNoError(err)
+
+		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
+		suite.NoError(err)
+		suite.Equal(reweigh.Weight, billableWeightCalculations.CalculatedBillableWeight)
+	})
+
+	suite.T().Run("Eagerly loaded reweigh where a reweight does not exist", func(t *testing.T) {
+		actualWeight := unit.Pound(3100)
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PrimeActualWeight: &actualWeight,
+			},
+		})
+		// No reweigh
+
+		var dbShipment models.MTOShipment
+		err := suite.DB().Eager("Reweigh").Find(&dbShipment, shipment.ID)
+		suite.FatalNoError(err)
+
+		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
+		suite.NoError(err)
+		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
+	})
+
+	suite.T().Run("Did not eagerly load reweigh even though one exists", func(t *testing.T) {
+		actualWeight := unit.Pound(3100)
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PrimeActualWeight: &actualWeight,
+			},
+		})
+		testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, unit.Pound(3000))
+
+		var dbShipment models.MTOShipment
+		err := suite.DB().Find(&dbShipment, shipment.ID)
+		suite.FatalNoError(err)
+
+		_, err = billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Invalid shipment, must have Reweigh eager loaded")
 	})
 }
