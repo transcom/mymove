@@ -1,8 +1,8 @@
 INSERT INTO service_item_param_keys
 (id,key,description,type,origin,created_at,updated_at)
 VALUES
-('76452034-86f5-4932-a0e0-a977454e1e80','SITPaymentRequestStart', 'Start of billing period for SIT additional days', 'DATE', 'PRIME', now(), now()),
-('d7db37e7-a92b-4612-ab7c-3647e37dc8bc','SITPaymentRequestEnd', 'End of billing period for SIT additional days', 'DATE', 'PRIME', now(), now());
+('76452034-86f5-4932-a0e0-a977454e1e80','SITPaymentRequestStart', 'Start of time period being billed for SIT additional days', 'DATE', 'PRIME', now(), now()),
+('d7db37e7-a92b-4612-ab7c-3647e37dc8bc','SITPaymentRequestEnd', 'End of time period being billed for SIT additional days', 'DATE', 'PRIME', now(), now());
 
 
 INSERT INTO service_params
