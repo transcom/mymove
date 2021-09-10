@@ -93,8 +93,7 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 
 func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string) error {
 	serviceItem.Status = status
-	updatedAt := time.Now()
-	serviceItem.UpdatedAt = updatedAt
+	now := time.Now()
 
 	if status == models.MTOServiceItemStatusRejected {
 		if rejectionReason == nil {
@@ -104,14 +103,14 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			return err
 		}
 		serviceItem.RejectionReason = rejectionReason
-		serviceItem.RejectedAt = &updatedAt
+		serviceItem.RejectedAt = &now
 		// clear field if previously accepted
 		serviceItem.ApprovedAt = nil
 	} else if status == models.MTOServiceItemStatusApproved {
 		// clear fields if previously rejected
 		serviceItem.RejectionReason = nil
 		serviceItem.RejectedAt = nil
-		serviceItem.ApprovedAt = &updatedAt
+		serviceItem.ApprovedAt = &now
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
