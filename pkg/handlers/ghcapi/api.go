@@ -120,6 +120,11 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		order.NewExcessWeightRiskManager(moveRouter),
 	}
 
+	ghcAPI.OrderUpdateMaxBillableWeightAsTIOHandler = UpdateMaxBillableWeightAsTIOHandler{
+		ctx,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
+
 	ghcAPI.OrderAcknowledgeExcessWeightRiskHandler = AcknowledgeExcessWeightRiskHandler{
 		ctx,
 		order.NewExcessWeightRiskManager(moveRouter),
