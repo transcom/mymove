@@ -131,9 +131,9 @@ rules:
 
 # DEFINITIONS
   definitions-sort:
-    description: Definitions MUST be sorted alphabetically
-    #message: "{{error}}"
-    severity: error
+    description: Definitions should be sorted alphabetically
+    #message: "{{warn}}"
+    severity: warn
     given: $.definitions
     then:
       function: alphabetical

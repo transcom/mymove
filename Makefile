@@ -304,8 +304,21 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
+.PHONY: check_swagger_generate
+check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
+.swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+ifneq ("$(wildcard .swagger_build.stamp)","")
+	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
+	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
+endif
+
+.PHONY: swagger_generate
+swagger_generate: .client_deps.stamp check_swagger_generate ## Bundles the API definition files into a complete specification
+	yarn build-redoc
+	touch .swagger_build.stamp
+
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
+server_generate: .check_go_version.stamp .check_gopath.stamp swagger_generate pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
@@ -319,7 +332,7 @@ server_run_standalone: check_log_dir server_build client_build db_dev_run redis_
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
-	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
+	find ./swagger-def -type f | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
@@ -1015,8 +1028,8 @@ webhook_client_start:
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
-		-e GEX_MTLS_CLIENT_CERT \
-		-e GEX_MTLS_CLIENT_KEY \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_CERT \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_KEY \
 		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
@@ -1078,7 +1091,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d
+	docker pull milmove/circleci-docker:milmove-app-012fdffe4833f88f67607cd6801f166d0014c239
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

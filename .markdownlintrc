@@ -6,5 +6,6 @@
     "siblings_only": true
   },
   "MD014": false,
+  "MD041": false,
   "single-trailing-newline": false
 }
