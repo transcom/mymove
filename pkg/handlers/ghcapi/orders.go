@@ -296,6 +296,52 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 	return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
 }
 
+// UpdateMaxBillableWeightAsTIOHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight/tio
+type UpdateMaxBillableWeightAsTIOHandler struct {
+	handlers.HandlerContext
+	excessWeightRiskManager services.ExcessWeightRiskManager
+}
+
+// Handle ... updates the authorized weight
+func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating max billable weight", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		return handleError(services.NewForbiddenError("is not a TIO"))
+	}
+
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+	remarks := params.Body.TioRemarks
+	updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	h.triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx, orderID, moveID, params)
+
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+}
+
 // AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk
 type AcknowledgeExcessWeightRiskHandler struct {
 	handlers.HandlerContext
@@ -427,6 +473,24 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
+	}
+}
+
+func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateMaxBillableWeightAsTIOParams) {
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateMaxBillableWeightAsTIOEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateMaxBillableWeightAsTIOHandler could not generate the event")
 	}
 }
 
