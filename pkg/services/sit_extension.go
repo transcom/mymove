@@ -18,3 +18,8 @@ type SITExtensionApprover interface {
 type SITExtensionDenier interface {
 	DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error)
 }
+
+//SITExtensionCreator creates a SIT extension
+type SITExtensionCreator interface {
+	CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.Reweigh, error)
+}
