@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { shipmentStatuses } from 'constants/shipments';
 import returnLowestValue from 'utils/returnLowestValue';
 
+// only sum estimated/actual/reweigh weights for shipments in these statuses
 export const includedStatuses = (status) => {
   return (
     status === shipmentStatuses.APPROVED ||

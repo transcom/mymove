@@ -9,7 +9,6 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
-import returnLowestValue from '../../../utils/returnLowestValue';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
@@ -45,6 +44,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
+import { includedStatuses, useCalculatedWeightRequested } from 'hooks/custom';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -64,15 +64,6 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED
-  );
-}
-
-// only sum estimated/actual/reweigh weights for shipments in these statuses
-function includedStatuses(status) {
-  return (
-    status === shipmentStatuses.APPROVED ||
-    status === shipmentStatuses.DIVERSION_REQUESTED ||
-    status === shipmentStatuses.CANCELLATION_REQUESTED
   );
 }
 
@@ -346,15 +337,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
 
   // Edge case of diversion shipments being counted twice
-  const moveWeightTotal = useMemo(() => {
-    return (
-      mtoShipments
-        ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
-        .reduce((prev, current) => {
-          return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
-        }, 0) || null
-    );
-  }, [mtoShipments]);
+  const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
 
   useEffect(() => {
     // attach scroll listener
