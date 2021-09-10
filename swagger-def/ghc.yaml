@@ -363,6 +363,49 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders/{orderID}/update-max-billable-weight/tio':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates the max billable weight with TIO remarks
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements
+      operationId: updateMaxBillableWeightAsTIO
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated Order
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
@@ -2527,6 +2570,25 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+  UpdateMaxBillableWeightAsTIOPayload:
+    type: object
+    properties:
+      authorizedWeight:
+        description: unit is in lbs
+        example: 2000
+        minimum: 1
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      tioRemarks:
+        description: TIO remarks for updating the max billable weight
+        example: Increasing max billable weight
+        type: string
+        minLength: 1
+        x-nullable: true
+    required:
+      - authorizedWeight
+      - tioRemarks
   CounselingUpdateAllowancePayload:
     type: object
     properties:
