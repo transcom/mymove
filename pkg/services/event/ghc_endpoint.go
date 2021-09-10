@@ -106,6 +106,9 @@ const GhcCounselingUpdateAllowanceEndpointKey = "Ghc.CounselingUpdateAllowance"
 // GhcUpdateBillableWeightEndpointKey is the key for the updateBillableWeight endpoint in ghc
 const GhcUpdateBillableWeightEndpointKey = "Ghc.UpdateBillableWeight"
 
+// GhcUpdateMaxBillableWeightAsTIOEndpointKey is the key for the updateMaxBillableWeightAsTIO endpoint in ghc
+const GhcUpdateMaxBillableWeightAsTIOEndpointKey = "Ghc.UpdateMaxBillableWeightAsTIO"
+
 // GhcAcknowledgeExcessWeightRiskEndpointKey is the key for the AcknowledgeExcessWeightRisk endpoint in ghc
 const GhcAcknowledgeExcessWeightRiskEndpointKey = "Ghc.AcknowledgeExcessWeightRisk"
 
@@ -242,6 +245,10 @@ var ghcEndpoints = EndpointMapType{
 	GhcUpdateBillableWeightEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateBillableWeight",
+	},
+	GhcUpdateMaxBillableWeightAsTIOEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateMaxBillableWeightAsTIO",
 	},
 	GhcAcknowledgeExcessWeightRiskEndpointKey: {
 		APIName:     GhcAPIName,
