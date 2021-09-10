@@ -13,6 +13,9 @@ import (
 	"testing"
 	"time"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
@@ -302,6 +305,41 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 	return eTag, serviceItem, move
 }
 
+func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowledgedAmendedOrders() (string, models.MTOServiceItem, models.Move) {
+	storer := storageTest.NewFakeS3Storage(true)
+	userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
+	suite.NoError(err)
+	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
+			DocumentID: &amendedDocument.ID,
+			Document:   amendedDocument,
+			UploaderID: amendedDocument.ServiceMember.UserID,
+		},
+		UserUploader: userUploader,
+	})
+
+	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
+	now := time.Now()
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			UploadedAmendedOrders:   &amendedDocument,
+			UploadedAmendedOrdersID: &amendedDocument.ID,
+			ServiceMember:           amendedDocument.ServiceMember,
+			ServiceMemberID:         amendedDocument.ServiceMemberID,
+		},
+		Move: models.Move{ExcessWeightQualifiedAt: &now},
+	})
+
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+	return eTag, serviceItem, move
+}
+
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
@@ -317,14 +355,19 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+		suite.NotNil(serviceItem.ApprovedAt)
+		suite.Nil(serviceItem.RejectionReason)
+		suite.Nil(serviceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that the move's status changes to Approvals Requested if any of its service
@@ -337,9 +380,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
@@ -347,7 +393,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(serviceItem.RejectedAt)
 		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that the move's status changes to Approved if the service item is
@@ -359,9 +404,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.Equal(models.MTOServiceItemStatusRejected, serviceItem.Status)
@@ -369,7 +417,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NotNil(serviceItem.RejectedAt)
 		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that a service item's status can only be updated if the Move's status
@@ -382,13 +429,50 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Cannot approve or reject a service item if the move's status is neither Approved nor Approvals Requested.")
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusDRAFT, move.Status)
 		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
 		suite.Nil(updatedServiceItem)
+	})
+
+	suite.T().Run("does not approve the move if unacknowledged amended orders exist", func(t *testing.T) {
+		suite.SetupTest()
+
+		eTag, serviceItem, move := suite.createServiceItemForMoveWithUnacknowledgedAmendedOrders()
+		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
+
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+		suite.Nil(serviceItem.RejectionReason)
+		suite.Nil(serviceItem.RejectedAt)
+		suite.NotNil(serviceItem.ApprovedAt)
+		suite.NotNil(updatedServiceItem)
+	})
+
+	suite.T().Run("Returns an error when eTag is stale", func(t *testing.T) {
+		suite.SetupTest()
+		_, serviceItem, _ := suite.createServiceItem()
+		rejectionReason = swag.String("incomplete")
+
+		_, err := updater.UpdateMTOServiceItemStatus(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")
+
 		suite.Error(err)
-		suite.Contains(err.Error(), "Cannot update a service item on a move that is not currently approved")
+		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
 }

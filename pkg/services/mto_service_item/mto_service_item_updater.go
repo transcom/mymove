@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -41,139 +42,114 @@ func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter ser
 }
 
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
-	var mtoServiceItem models.MTOServiceItem
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItemID),
-	}
-	err := p.builder.FetchOne(appCtx, &mtoServiceItem, queryFilters)
-
+	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+		return &models.MTOServiceItem{}, err
 	}
 
-	var move models.Move
-	moveFilter := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
-	}
-	err = p.builder.FetchOne(appCtx, &move, moveFilter)
-	moveID := mtoServiceItem.MoveTaskOrderID
+	return p.approveOrRejectServiceItem(appCtx, *mtoServiceItem, status, rejectionReason, eTag, checkMoveStatus(), checkETag())
+}
+
+func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
+	var serviceItem models.MTOServiceItem
+	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&serviceItem, serviceItemID)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "MoveID")
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(serviceItemID, "while looking for service item")
+		}
 	}
 
-	// Service item status can only be updated if a Move's status is either Approved
-	// or Approvals Requested, so check and fail early.
-	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		return nil, services.NewConflictError(
-			move.ID,
-			fmt.Sprintf("Cannot update a service item on a move that is not currently approved. The current status for the move with ID %s is %s", move.ID, move.Status),
-		)
+	return &serviceItem, nil
+}
+
+func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string, eTag string, checks ...validator) (*models.MTOServiceItem, error) {
+	if verr := validateServiceItem(appCtx, &serviceItem, eTag, checks...); verr != nil {
+		return nil, verr
 	}
 
-	mtoServiceItem.Status = status
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := p.updateServiceItem(txnAppCtx, serviceItem, status, rejectionReason); err != nil {
+			return err
+		}
+		move := serviceItem.MoveTaskOrder
+		err := txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
+		if err != nil {
+			return err
+		}
+
+		if err = p.approveMoveOrRequestApproval(txnAppCtx, move.Orders, move); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return &serviceItem, nil
+}
+
+func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string) error {
+	serviceItem.Status = status
 	updatedAt := time.Now()
-	mtoServiceItem.UpdatedAt = updatedAt
+	serviceItem.UpdatedAt = updatedAt
 
 	if status == models.MTOServiceItemStatusRejected {
 		if rejectionReason == nil {
 			verrs := validate.NewErrors()
 			verrs.Add("rejectionReason", "field must be provided when status is set to REJECTED")
-			err := services.NewInvalidInputError(mtoServiceItemID, nil, verrs, "Invalid input found in the request.")
-			return nil, err
+			err := services.NewInvalidInputError(serviceItem.ID, nil, verrs, "Invalid input found in the request.")
+			return err
 		}
-		mtoServiceItem.RejectionReason = rejectionReason
-		mtoServiceItem.RejectedAt = &updatedAt
+		serviceItem.RejectionReason = rejectionReason
+		serviceItem.RejectedAt = &updatedAt
 		// clear field if previously accepted
-		mtoServiceItem.ApprovedAt = nil
+		serviceItem.ApprovedAt = nil
 	} else if status == models.MTOServiceItemStatusApproved {
 		// clear fields if previously rejected
-		mtoServiceItem.RejectionReason = nil
-		mtoServiceItem.RejectedAt = nil
-		mtoServiceItem.ApprovedAt = &updatedAt
+		serviceItem.RejectionReason = nil
+		serviceItem.RejectedAt = nil
+		serviceItem.ApprovedAt = &updatedAt
 	}
 
-	verrs, err := p.builder.UpdateOne(appCtx, &mtoServiceItem, &eTag)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 
-	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(mtoServiceItemID, err, verrs, "")
+	return p.handleError(serviceItem.ID, verrs, err)
+}
+
+func (p *mtoServiceItemUpdater) approveMoveOrRequestApproval(appCtx appcontext.AppContext, order models.Order, move models.Move) error {
+	var err error
+
+	if p.moveShouldBeApproved(order, move) {
+		err = p.moveRouter.Approve(appCtx, &move)
+	} else {
+		err = p.moveRouter.SendToOfficeUser(appCtx, &move)
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(mtoServiceItemID, "")
-		}
-
-		switch err.(type) {
-		case query.StaleIdentifierError:
-			return &models.MTOServiceItem{}, services.NewPreconditionFailedError(mtoServiceItemID, err)
-		}
+		return err
 	}
 
-	// If there are no service items that are SUBMITTED then we need to change
-	// the move status to APPROVED
-	moveShouldBeMoveApproved := true
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 
-	if status == models.MTOServiceItemStatusSubmitted {
-		moveShouldBeMoveApproved = false
-	} else {
-		// Fetch move again since other service items could have been updated
-		err = p.builder.FetchOne(appCtx, &move, moveFilter)
-		if err != nil {
-			return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
-		}
+	return p.handleError(move.ID, verrs, err)
+}
 
-		for _, mtoServiceItem := range move.MTOServiceItems {
-			if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
-				moveShouldBeMoveApproved = false
-				break
-			}
-		}
+func (p *mtoServiceItemUpdater) moveShouldBeApproved(order models.Order, move models.Move) bool {
+	return orderservice.MoveHasReviewedServiceItems(move) && orderservice.MoveHasAcknowledgedOrdersAmendment(order)
+}
 
-		// All service items may be reviewed but amended orders should keep the move in
-		// APPROVALS REQUESTED status
-		if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
-			moveShouldBeMoveApproved = false
-		}
+func (p *mtoServiceItemUpdater) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+	if verrs != nil && verrs.HasAny() {
+		return services.NewInvalidInputError(modelID, nil, verrs, "")
+	}
+	if err != nil {
+		return err
 	}
 
-	if moveShouldBeMoveApproved {
-		err = p.moveRouter.Approve(appCtx, &move)
-		if err != nil {
-			return nil, err
-		}
-		verrs, err = p.builder.UpdateOne(appCtx, &move, nil)
-		if verrs != nil && verrs.HasAny() {
-			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
-		}
-
-		if err != nil {
-			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(move.ID, "")
-			}
-		}
-	}
-	// If the move should not be APPROVED (due to one or more service items
-	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
-	// so the TOO can review it.
-	if !moveShouldBeMoveApproved {
-		err = p.moveRouter.SendToOfficeUser(appCtx, &move)
-		if err != nil {
-			return nil, err
-		}
-		verrs, err = p.builder.UpdateOne(appCtx, &move, nil)
-		if verrs != nil && verrs.HasAny() {
-			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
-		}
-
-		if err != nil {
-			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(move.ID, "")
-			}
-		}
-	}
-
-	return &mtoServiceItem, err
+	return nil
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators

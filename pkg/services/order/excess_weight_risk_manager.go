@@ -174,8 +174,8 @@ func (f *excessWeightRiskManager) moveShouldBeApproved(order models.Order) bool 
 	move := order.Moves[0]
 
 	return excessWeightRiskShouldBeAcknowledged(move) &&
-		moveHasAcknowledgedOrdersAmendment(order) &&
-		moveHasReviewedServiceItems(move)
+		MoveHasAcknowledgedOrdersAmendment(order) &&
+		MoveHasReviewedServiceItems(move)
 }
 
 func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
@@ -189,14 +189,17 @@ func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate
 	return nil
 }
 
-func moveHasAcknowledgedOrdersAmendment(order models.Order) bool {
+// MoveHasAcknowledgedOrdersAmendment checks if the TOO has acknowledged amended orders
+func MoveHasAcknowledgedOrdersAmendment(order models.Order) bool {
 	if order.UploadedAmendedOrdersID != nil && order.AmendedOrdersAcknowledgedAt == nil {
 		return false
 	}
 	return true
 }
 
-func moveHasReviewedServiceItems(move models.Move) bool {
+// MoveHasReviewedServiceItems checks if the TOO still needs to accept or reject
+// service items
+func MoveHasReviewedServiceItems(move models.Move) bool {
 	for _, mtoServiceItem := range move.MTOServiceItems {
 		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
 			return false
