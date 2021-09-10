@@ -33,7 +33,7 @@ func (f *reweighCreator) CreateReweighCheck(appCtx appcontext.AppContext, reweig
 
 // CreateReweigh creates a reweigh
 func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, checks ...reweighValidator) (*models.Reweigh, error) {
-	// Get existing shipment and agents information for validation
+	// Get existing shipment information for validation
 	mtoShipment := &models.MTOShipment{}
 	// Find the shipment, return error if not found
 	err := appCtx.DB().Find(mtoShipment, reweigh.ShipmentID)
