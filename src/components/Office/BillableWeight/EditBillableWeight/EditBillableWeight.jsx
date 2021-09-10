@@ -83,9 +83,9 @@ export default function EditBillableWeight({
 }) {
   const [showEditBtn, setShowEditBtn] = useState(true);
 
-  function toggleEdit() {
+  const toggleEdit = () => {
     setShowEditBtn(!showEditBtn);
-  }
+  };
 
   return (
     <>

@@ -1028,8 +1028,8 @@ webhook_client_start:
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
-		-e GEX_MTLS_CLIENT_CERT \
-		-e GEX_MTLS_CLIENT_KEY \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_CERT \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_KEY \
 		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
@@ -1091,7 +1091,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d
+	docker pull milmove/circleci-docker:milmove-app-012fdffe4833f88f67607cd6801f166d0014c239
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
