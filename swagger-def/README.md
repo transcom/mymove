@@ -1,17 +1,10 @@
 # Swagger Definitions
 
-This folder contains the files that together define MilMove's APIs. In particular, the API specifications currently
-being built from these files are:
+This folder contains the files that together define MilMove's APIs. All API specifications that are in active
+development or production are being built from these files.
 
-* **Prime API**
-* **Support API** (non-production)
-
-Their respective entrypoints are:
-
-* `prime.yaml`
-* `support.yaml`
-
-Both of these YAML files contain references to the entire API definition.
+The entrypoints for each of these APIs are the top-level YAML files in this folder. Each distinct YAML file on this
+level corresponds to a complete API definition.
 
 ## Contents
 
