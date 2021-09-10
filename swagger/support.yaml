@@ -531,7 +531,7 @@ paths:
         request identified
 
         by the given payment request ID. Note that the EDI returned in the JSON
-        payload will have \n where there
+        payload will have where there
 
         would normally be line breaks (due to JSON not allowing line breaks in a
         string).
