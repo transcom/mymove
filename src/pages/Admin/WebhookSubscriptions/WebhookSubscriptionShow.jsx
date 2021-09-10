@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, DateField, NumberField } from 'react-admin';
+import { DateField, NumberField, Show, SimpleShowLayout, TextField } from 'react-admin';
 import PropTypes from 'prop-types';
 
 const WebhookSubscriptionShowTitle = ({ record }) => {

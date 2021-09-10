@@ -660,6 +660,17 @@ composable
 instrumentation
 goroutines
 opentelemetry
+Redoc
+Redocly
+filename
+filenames
+entrypoint
+entrypoints
+schemas
+v2.0
+api.demo.dp3.us
+non-ATO
+SSLMate
 
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md

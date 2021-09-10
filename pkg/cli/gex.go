@@ -29,10 +29,6 @@ const (
 	GEXURLFlag string = "gex-url"
 	// SendToSyncada is the flag to control if we try sending files to syncada or not
 	SendToSyncada string = "send-to-syncada"
-	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to US Bank via GEX
-	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
-	// GEXChannelDataWarehouse is the URL query parameter that we use when sending data to the IGC data warehouse
-	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
 )
 
 var gexHostnames = []string{
@@ -43,12 +39,6 @@ var gexHostnames = []string{
 var gexPaths = []string{
 	"/msg_data/submit",
 	"/msg_data/submit/",
-}
-
-var gexChannels = []string{
-	"",
-	GEXChannelInvoice,
-	GEXChannelDataWarehouse,
 }
 
 // InitGEXFlags initializes GEX command line flags
@@ -88,8 +78,8 @@ func CheckGEX(v *viper.Viper) error {
 	}
 
 	channel := u.Query().Get("channel")
-	if !stringSliceContains(gexChannels, channel) {
-		return fmt.Errorf("invalid gexUrl channel query parameter %s, expecting one of %q", channel, gexChannels)
+	if channel != "" {
+		return fmt.Errorf("invalid gex channel query parameter %s", channel)
 	}
 
 	if len(v.GetString(GEXBasicAuthUsernameFlag)) == 0 {

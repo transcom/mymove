@@ -27,7 +27,7 @@ func SendToSyncada(appCtx appcontext.AppContext, edi string, icn int64, gexSende
 	}
 	if gexSender != nil {
 		logger.Info("SendToSyncada() is in send mode using GEX, sending syncadaFileName: " + syncadaFileName)
-		resp, err := gexSender.SendToGex(edi, syncadaFileName)
+		resp, err := gexSender.SendToGex(services.GEXChannelInvoice, edi, syncadaFileName)
 		if err != nil {
 			logger.Error("GEX Sender encountered an error", zap.Error(err))
 			return fmt.Errorf("GEX sender encountered an error: %w", err)
