@@ -51,7 +51,9 @@ export const ShipmentListItem = ({
       {!showShipmentWeight && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
-      {showShipmentWeight && <div className={styles.shipmentWeight}>{formatWeight(shipment.billableWeight)}</div>}
+      {showShipmentWeight && (
+        <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
+      )}
       {(isOverweight || isMissingWeight) && (
         <div>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
