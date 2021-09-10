@@ -103,10 +103,9 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div className={styles.detailCrating}>
           <dl>
-            {description && generateDetailText({ Description: description }, id)} <br />
+            {description && generateDetailText({ Description: description }, id)}
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
-            <br />
-            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)} <br />
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
