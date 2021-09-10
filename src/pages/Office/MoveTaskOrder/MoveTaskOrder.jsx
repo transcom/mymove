@@ -44,7 +44,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { includedStatuses, useCalculatedWeightRequested } from 'hooks/custom';
+import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -314,9 +314,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatuses(s.status))) {
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && includedStatuses(s.status))
+        ?.filter((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
