@@ -10,12 +10,12 @@ import { convertFromThousandthInchToInch, formatWeight } from 'shared/formatters
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
-    <>
+    <span className={styles.detailList}>
       <dt key={`${id}-${detail}`} className={classnames(styles.detailLine, className)}>
         <strong>{detail}</strong>:
       </dt>{' '}
       <dd className={styles.detailLine}>{details[`${detail}`]}</dd>
-    </>
+    </span>
   ));
 
   return detailList;
@@ -29,7 +29,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DOPSIT': {
       detailSection = (
         <div>
-          <dl className={styles.detailList}>
+          <dl>
             {generateDetailText(
               {
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
@@ -50,7 +50,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
       const { firstCustomerContact, secondCustomerContact } = details;
       detailSection = (
         <div>
-          <dl>
+          <dl className={styles.detailList}>
             {firstCustomerContact &&
               generateDetailText(
                 {
@@ -103,9 +103,10 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div className={styles.detailCrating}>
           <dl>
-            {description && generateDetailText({ Description: description }, id)}
+            {description && generateDetailText({ Description: description }, id)} <br />
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
-            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
+            <br />
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)} <br />
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}

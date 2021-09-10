@@ -2,6 +2,10 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
+.detailList {
+  display: block;
+}
+
 .detailLine {
   @include u-font-size('body', '3xs');
 }
