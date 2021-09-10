@@ -4744,6 +4744,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.Must(uuid.NewV4()),
+			Locator:            "SITEXT",
 			OrdersID:           ordersSIT.ID,
 			Status:             models.MoveStatusAPPROVED,
 			AvailableToPrimeAt: swag.Time(time.Now()),

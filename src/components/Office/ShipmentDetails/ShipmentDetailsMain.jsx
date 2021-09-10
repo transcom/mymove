@@ -1,6 +1,8 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
+import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
+
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
@@ -25,11 +27,13 @@ const ShipmentDetailsMain = ({
     primeActualWeight,
     counselorRemarks,
     customerRemarks,
+    sitExtensions,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
   return (
     <div className={className}>
+      <ShipmentSITExtensions sitExtensions={sitExtensions} />
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}

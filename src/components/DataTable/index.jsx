@@ -4,8 +4,8 @@ import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
-const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
-  <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
+const DataTable = ({ columnHeaders, dataRow, icon, custClass }) => (
+  <table className={classnames(styles.DataTable, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
         {columnHeaders.map((header) => (
@@ -27,7 +27,7 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
           // eslint-disable-next-line react/no-array-index-key
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!icon && i === 0 })}>
-              <span>{cell}</span>
+              <div>{cell}</div>
               {!!icon && i === 0 && icon}
             </div>
           </td>
@@ -37,16 +37,16 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
   </table>
 );
 
-DataPoint.propTypes = {
+DataTable.propTypes = {
   columnHeaders: PropTypes.arrayOf(PropTypes.node).isRequired,
   dataRow: PropTypes.arrayOf(PropTypes.node).isRequired,
   icon: PropTypes.node,
   custClass: PropTypes.string,
 };
 
-DataPoint.defaultProps = {
+DataTable.defaultProps = {
   icon: null,
   custClass: '',
 };
 
-export default DataPoint;
+export default DataTable;

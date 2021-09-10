@@ -4,18 +4,18 @@ import * as PropTypes from 'prop-types';
 
 import styles from './importantShipmentDates.module.scss';
 
-import DataPoint from 'components/DataPoint/index';
-import DataPointGroup from 'components/DataPointGroup/index';
+import DataTable from 'components/DataTable/index';
+import DataTableWrapper from 'components/DataTableWrapper/index';
 
 const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) => {
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
-      <DataPointGroup>
-        <DataPoint
+      <DataTableWrapper>
+        <DataTable
           columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
           dataRow={[requestedPickupDate, scheduledPickupDate]}
         />
-      </DataPointGroup>
+      </DataTableWrapper>
     </div>
   );
 };
