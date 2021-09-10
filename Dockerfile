@@ -1,5 +1,14 @@
+FROM debian AS build-env
+
+ADD config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
+ADD config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+RUN update-ca-certificates
+
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
+COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
