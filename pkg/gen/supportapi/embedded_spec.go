@@ -571,6 +571,61 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/recalculate": {
+      "post": {
+        "description": "Recalculates an existing pending payment request by creating a new payment request for the same service\nitems but is priced based on the current inputs (weights, dates, etc.). The previously existing payment\nrequest is then deprecated. A link is made between the new and existing payment requests.\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "recalculatePaymentRequest",
+        "operationId": "recalculatePaymentRequest",
+        "responses": {
+          "201": {
+            "description": "The new payment request with recalculated pricing.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request to recalculate.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
@@ -3236,6 +3291,85 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of the payment request for which EDI should be generated.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/recalculate": {
+      "post": {
+        "description": "Recalculates an existing pending payment request by creating a new payment request for the same service\nitems but is priced based on the current inputs (weights, dates, etc.). The previously existing payment\nrequest is then deprecated. A link is made between the new and existing payment requests.\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "recalculatePaymentRequest",
+        "operationId": "recalculatePaymentRequest",
+        "responses": {
+          "201": {
+            "description": "The new payment request with recalculated pricing.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request to recalculate.",
           "name": "paymentRequestID",
           "in": "path",
           "required": true

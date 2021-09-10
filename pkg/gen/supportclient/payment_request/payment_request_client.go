@@ -36,6 +36,8 @@ type ClientService interface {
 
 	ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams, opts ...ClientOption) (*ProcessReviewedPaymentRequestsOK, error)
 
+	RecalculatePaymentRequest(params *RecalculatePaymentRequestParams, opts ...ClientOption) (*RecalculatePaymentRequestCreated, error)
+
 	UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams, opts ...ClientOption) (*UpdatePaymentRequestStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -172,6 +174,51 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for processReviewedPaymentRequests: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  RecalculatePaymentRequest recalculates payment request
+
+  Recalculates an existing pending payment request by creating a new payment request for the same service
+items but is priced based on the current inputs (weights, dates, etc.). The previously existing payment
+request is then deprecated. A link is made between the new and existing payment requests.
+
+This is a support endpoint and will not be available in production.
+
+*/
+func (a *Client) RecalculatePaymentRequest(params *RecalculatePaymentRequestParams, opts ...ClientOption) (*RecalculatePaymentRequestCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRecalculatePaymentRequestParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "recalculatePaymentRequest",
+		Method:             "POST",
+		PathPattern:        "/payment-requests/{paymentRequestID}/recalculate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &RecalculatePaymentRequestReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RecalculatePaymentRequestCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for recalculatePaymentRequest: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
