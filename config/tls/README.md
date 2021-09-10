@@ -75,7 +75,7 @@ notAfter=Nov 23 13:51:28 2022 GMT
 
 You can read this as the certificate is valid until November 23, 2022.
 
-## DoD WCF certificate authority certifates
+## DoD WCF certificate authority certificates
 
 These certificates are required when running the app through the BCAP. When running traffic through
 the BCAP, various AWS services present TLS certificate chains that include these certificates,
