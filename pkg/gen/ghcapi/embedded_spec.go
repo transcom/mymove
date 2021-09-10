@@ -968,6 +968,9 @@ func init() {
               "$ref": "#/definitions/MTOShipments"
             }
           },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -6304,6 +6307,12 @@ func init() {
             "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {

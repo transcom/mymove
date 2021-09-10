@@ -9,6 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+//MTOShipmentFetcher is the service object interface for fetching all shipments of a move
+//go:generate mockery --name MTOShipmentFetcher --disable-version-string
+type MTOShipmentFetcher interface {
+	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.MTOShipments, error)
+}
+
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //go:generate mockery --name MTOShipmentUpdater --disable-version-string
 type MTOShipmentUpdater interface {

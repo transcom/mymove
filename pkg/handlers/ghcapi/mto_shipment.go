@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
@@ -24,14 +23,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerContext
-	services.ListFetcher
-	services.Fetcher
+	services.MTOShipmentFetcher
 }
 
 // Handle listing mto shipments for the move task order
@@ -39,62 +36,31 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
-	// return any parsing error
+	handleError := func(err error) middleware.Responder {
+		logger.Error("ListMTOShipmentsHandler error", zap.Error(err))
+		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+		switch err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
+		case services.ForbiddenError:
+			return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
+		default:
+			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+		}
+	}
+
+	if session := appCtx.Session(); !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+		handleError(services.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
+	}
+
+	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
+
+	shipments, err := h.ListMTOShipments(appCtx, moveID)
 	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
-		logger.Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
-
-		return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
+		handleError(err)
 	}
 
-	// check if move task order exists first
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
-	}
-
-	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
-	if err != nil {
-		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
-
-		return mtoshipmentops.NewListMTOShipmentsNotFound()
-	}
-
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
-	}
-
-	// TODO: These associations could be preloaded, but it will require Pop 5.3.4 to land first as it
-	//   has a fix for using a "has_many" association that has a pointer-based foreign key (like the
-	//   case with "MTOServiceItems.ReService"). There appear to be other changes that will need to be
-	//   made for Pop 5.3.4 though (see https://ustcdp3.slack.com/archives/CP497TGAU/p1620421441217700).
-	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("MTOServiceItems.ReService"),
-		query.NewQueryAssociation("MTOAgents"),
-		query.NewQueryAssociation("PickupAddress"),
-		query.NewQueryAssociation("SecondaryPickupAddress"),
-		query.NewQueryAssociation("DestinationAddress"),
-		query.NewQueryAssociation("SecondaryPickupAddress"),
-		query.NewQueryAssociation("SecondaryDeliveryAddress"),
-		query.NewQueryAssociation("MTOServiceItems.Dimensions"),
-		query.NewQueryAssociation("Reweigh"),
-		query.NewQueryAssociation("SITExtensions"),
-	})
-
-	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
-
-	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(appCtx, &shipments, queryFilters, queryAssociations, nil, queryOrder)
-	// return any errors
-	if err != nil {
-		logger.Error("Error fetching mto shipments : ", zap.Error(err))
-
-		return mtoshipmentops.NewListMTOShipmentsInternalServerError()
-	}
-
-	payload := payloads.MTOShipments(&shipments)
+	payload := payloads.MTOShipments(shipments)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
