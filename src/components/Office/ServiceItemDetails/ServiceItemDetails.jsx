@@ -12,7 +12,7 @@ function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
     <span className={styles.detailList}>
       <dt key={`${id}-${detail}`} className={classnames(styles.detailLine, className)}>
-        <strong>{detail}</strong>:
+        <strong>{detail}:</strong>
       </dt>{' '}
       <dd className={styles.detailLine}>{details[`${detail}`]}</dd>
     </span>
