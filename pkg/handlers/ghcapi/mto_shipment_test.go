@@ -74,10 +74,10 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment}
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateOfficeRequest(req, requestUser)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
 		HTTPRequest:     req,

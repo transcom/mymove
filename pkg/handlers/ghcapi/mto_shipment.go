@@ -33,7 +33,7 @@ type ListMTOShipmentsHandler struct {
 
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	handleError := func(err error) middleware.Responder {
@@ -49,7 +49,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		}
 	}
 
-	if session := appCtx.Session(); !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
 		handleError(services.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 	}
 
