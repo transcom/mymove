@@ -2526,8 +2526,7 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          },
-          "readOnly": true
+          }
         }
       }
     },
@@ -5772,8 +5771,7 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/ServiceItemParamsItems0"
-          },
-          "readOnly": true
+          }
         }
       }
     },
