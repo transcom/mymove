@@ -11,7 +11,7 @@ import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMem
 import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
-import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { createModifiedSchemaForOrdersTypesFlag } from 'utils/featureFlags';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 

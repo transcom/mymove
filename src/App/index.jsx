@@ -9,7 +9,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
 import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
-import { detectFlags } from 'shared/featureFlags';
+import { detectFlags } from 'utils/featureFlags';
 
 import '../icons';
 import 'shared/shared.css';
