@@ -3,7 +3,8 @@ FROM debian:stable AS build-env
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
 RUN apt-get update
-RUN apt-get install -y ca-certificates
+# hadolint ignore=DL3008
+RUN apt-get install -y ca-certificates --no-install-recommends
 RUN update-ca-certificates
 
 # hadolint ignore=DL3007
