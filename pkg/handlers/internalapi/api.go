@@ -145,7 +145,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()), ctx.NotificationSender()),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
