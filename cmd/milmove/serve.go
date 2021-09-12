@@ -425,8 +425,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("webserver starting up")
 
 	telemetryConfig := trace.TelemetryConfig{
-		Enabled:  true,
-		Endpoint: "stdout",
+		Enabled:          true,
+		Endpoint:         "stdout",
+		SamplingFraction: 1,
 	}
 	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
 	defer telemetryShutdownFn()
@@ -1032,11 +1033,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "no-tls",
-			Host:        listenInterface,
-			Port:        v.GetInt(cli.NoTLSPortFlag),
-			Logger:      logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls"),
+			Name:   "no-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.NoTLSPortFlag),
+			Logger: logger,
+			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
+				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -1048,11 +1050,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.TLSPortFlag),
-			Logger:       logger,
-			HTTPHandler:  otelhttp.NewHandler(site, "server-tls"),
+			Name:   "tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.TLSPortFlag),
+			Logger: logger,
+			HTTPHandler: otelhttp.NewHandler(site, "server-tls",
+				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -1066,10 +1069,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "mutual-tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.MutualTLSPortFlag),
-			Logger:       logger,
+			Name:   "mutual-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.MutualTLSPortFlag),
+			Logger: logger,
+			HTTPHandler: otelhttp.NewHandler(site, "server-mtls",
+				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,
