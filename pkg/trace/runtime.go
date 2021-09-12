@@ -1,30 +1,27 @@
 package trace
 
 import (
-	"context"
-	"runtime"
+	"time"
 
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.uber.org/zap"
 )
-
-const heapMemoryName = "heapMemory"
-const heapMemoryDesc = "heatMemory Desc"
 
 // RegisterRuntimeObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterRuntimeObserver(config TelemetryConfig) {
+func RegisterRuntimeObserver(logger *zap.Logger, config TelemetryConfig) {
 	if !config.Enabled {
 		return
 	}
-	metric.Must(meter).NewInt64ValueObserver(
-		heapMemoryName,
-		func(_ context.Context, result metric.Int64ObserverResult) {
-			var mem runtime.MemStats
-			runtime.ReadMemStats(&mem)
-			result.Observe(int64(mem.HeapAlloc),
-				attribute.String(heapMemoryName, heapMemoryDesc))
-		},
-		metric.WithDescription(heapMemoryDesc))
+	collectSeconds := config.CollectSeconds
+	if collectSeconds == 0 {
+		collectSeconds = defaultCollectSeconds
+	}
+
+	if err := runtime.Start(
+		runtime.WithMinimumReadMemStatsInterval(time.Duration(collectSeconds) * time.Second),
+	); err != nil {
+		logger.Fatal("failed to start runtime instrumentation:", zap.Error(err))
+	}
 
 }

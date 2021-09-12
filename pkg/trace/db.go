@@ -22,7 +22,7 @@ func RegisterDBStatsObserver(c *pop.Connection, config TelemetryConfig) {
 		return
 	}
 
-	metric.Must(meter).NewInt64ValueObserver(
+	metric.Must(meter).NewInt64UpDownCounterObserver(
 		dbPoolName,
 		func(_ context.Context, result metric.Int64ObserverResult) {
 			dbStats, err := stats.DBStats(c)
@@ -33,7 +33,7 @@ func RegisterDBStatsObserver(c *pop.Connection, config TelemetryConfig) {
 		},
 		metric.WithDescription(dbPoolDesc))
 
-	metric.Must(meter).NewInt64ValueObserver(
+	metric.Must(meter).NewInt64UpDownCounterObserver(
 		dbWaitDurationName,
 		func(_ context.Context, result metric.Int64ObserverResult) {
 			dbStats, err := stats.DBStats(c)

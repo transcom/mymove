@@ -431,8 +431,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
 	defer telemetryShutdownFn()
 
-	trace.RegisterRuntimeObserver(telemetryConfig)
-
 	err = checkServeConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
@@ -513,6 +511,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	trace.RegisterDBStatsObserver(dbConnection, telemetryConfig)
+	trace.RegisterRuntimeObserver(logger, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)

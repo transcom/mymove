@@ -8,9 +8,12 @@ import (
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpgrpc"
-	"go.opentelemetry.io/otel/exporters/stdout"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
@@ -58,27 +61,42 @@ func ConfigureTelemetry(logger *zap.Logger, config TelemetryConfig) (shutdown fu
 		return shutdown
 	}
 
-	var exporter interface{}
+	var spanExporter sdktrace.SpanExporter
+	var metricExporter exportmetric.Exporter
+
 	var err error
 
 	switch config.Endpoint {
 	case "stdout":
-		exporter, err = stdout.NewExporter(stdout.WithPrettyPrint())
+		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
 		if err != nil {
-			logger.Error("unable to create otel stdout exporter", zap.Error(err))
+			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
+			break
+		}
+		metricExporter, err = stdoutmetric.New(stdoutmetric.WithPrettyPrint())
+		if err != nil {
+			logger.Error("unable to create otel stdout metric exporter", zap.Error(err))
 			break
 		}
 	default:
-		driver := otlpgrpc.NewDriver(
-			otlpgrpc.WithInsecure(),
-			otlpgrpc.WithEndpoint(config.Endpoint),
+		spanClient := otlptracegrpc.NewClient(
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint(config.Endpoint),
 		)
-		exporter, err = otlp.NewExporter(ctx, driver)
+		spanExporter, err = otlptrace.New(ctx, spanClient)
 		if err != nil {
-			logger.Error("failed to create otel exporter", zap.Error(err))
+			logger.Error("failed to create otel trace exporter", zap.Error(err))
 		}
+		metricClient := otlpmetricgrpc.NewClient(
+			otlpmetricgrpc.WithInsecure(),
+			otlpmetricgrpc.WithEndpoint(config.Endpoint),
+		)
+		metricExporter, err = otlpmetric.New(ctx, metricClient)
+		if err != nil {
+			logger.Error("failed to create otel metric exporter", zap.Error(err))
+		}
+
 	}
-	spanExporter := exporter.(sdktrace.SpanExporter)
 	// Create a tracer provider that processes spans using a
 	// batch-span-processor.
 	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
@@ -106,7 +124,6 @@ func ConfigureTelemetry(logger *zap.Logger, config TelemetryConfig) (shutdown fu
 	if collectSeconds == 0 {
 		collectSeconds = defaultCollectSeconds
 	}
-	metricExporter := exporter.(exportmetric.Exporter)
 	pusher := controller.New(
 		processor.New(
 			simple.NewWithExactDistribution(),
