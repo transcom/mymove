@@ -275,7 +275,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			return err
 		}
 
-		if err = o.approveMoveOrRequestApproval(txnAppCtx, move.Orders, move); err != nil {
+		if err = ApproveMoveOrRequestApproval(txnAppCtx, o.moveRouter, move.Orders, move); err != nil {
 			return err
 		}
 
@@ -293,13 +293,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	return &createdServiceItems, nil, nil
 }
 
-func (o *mtoServiceItemCreator) approveMoveOrRequestApproval(appCtx appcontext.AppContext, order models.Order, move models.Move) error {
+// ApproveMoveOrRequestApproval routes the move appropriately based on whether or
+// not the TOO has any tasks requiring their attention.
+func ApproveMoveOrRequestApproval(appCtx appcontext.AppContext, moveRouter services.MoveRouter, order models.Order, move models.Move) error {
 	var err error
 
-	if o.moveShouldBeApproved(order, move) {
-		err = o.moveRouter.Approve(appCtx, &move)
+	if MoveShouldBeApproved(order, move) {
+		err = moveRouter.Approve(appCtx, &move)
 	} else {
-		err = o.moveRouter.SendToOfficeUser(appCtx, &move)
+		err = moveRouter.SendToOfficeUser(appCtx, &move)
 	}
 
 	if err != nil {
@@ -308,14 +310,16 @@ func (o *mtoServiceItemCreator) approveMoveOrRequestApproval(appCtx appcontext.A
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 
-	return o.handleError(move.ID, verrs, err)
+	return HandleError(move.ID, verrs, err)
 }
 
-func (o *mtoServiceItemCreator) moveShouldBeApproved(order models.Order, move models.Move) bool {
+// MoveShouldBeApproved checks if the TOO no longer has any tasks requiring action.
+func MoveShouldBeApproved(order models.Order, move models.Move) bool {
 	return orderservice.MoveHasReviewedServiceItems(move) && orderservice.MoveHasAcknowledgedOrdersAmendment(order)
 }
 
-func (o *mtoServiceItemCreator) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+// HandleError is a helper function for capturing common errors.
+func HandleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(modelID, nil, verrs, "")
 	}

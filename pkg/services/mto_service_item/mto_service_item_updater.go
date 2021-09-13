@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -80,7 +79,7 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 			return err
 		}
 
-		if err = p.approveMoveOrRequestApproval(txnAppCtx, move.Orders, move); err != nil {
+		if err = ApproveMoveOrRequestApproval(txnAppCtx, p.moveRouter, move.Orders, move); err != nil {
 			return err
 		}
 
@@ -119,44 +118,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
-	if e := p.handleError(serviceItem.ID, verrs, err); e != nil {
+	if e := HandleError(serviceItem.ID, verrs, err); e != nil {
 		return nil, e
 	}
 
 	return &serviceItem, nil
-}
-
-func (p *mtoServiceItemUpdater) approveMoveOrRequestApproval(appCtx appcontext.AppContext, order models.Order, move models.Move) error {
-	var err error
-
-	if p.moveShouldBeApproved(order, move) {
-		err = p.moveRouter.Approve(appCtx, &move)
-	} else {
-		err = p.moveRouter.SendToOfficeUser(appCtx, &move)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-
-	return p.handleError(move.ID, verrs, err)
-}
-
-func (p *mtoServiceItemUpdater) moveShouldBeApproved(order models.Order, move models.Move) bool {
-	return orderservice.MoveHasReviewedServiceItems(move) && orderservice.MoveHasAcknowledgedOrdersAmendment(order)
-}
-
-func (p *mtoServiceItemUpdater) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
-	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
