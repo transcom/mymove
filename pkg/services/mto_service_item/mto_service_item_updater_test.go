@@ -363,6 +363,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
 		suite.NotNil(serviceItem.ApprovedAt)
 		suite.Nil(serviceItem.RejectionReason)

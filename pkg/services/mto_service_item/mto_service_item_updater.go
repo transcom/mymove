@@ -67,12 +67,15 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 		return nil, verr
 	}
 
+	var returnedServiceItem models.MTOServiceItem
+
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := p.updateServiceItem(txnAppCtx, serviceItem, status, rejectionReason); err != nil {
+		updatedServiceItem, err := p.updateServiceItem(txnAppCtx, serviceItem, status, rejectionReason)
+		if err != nil {
 			return err
 		}
 		move := serviceItem.MoveTaskOrder
-		err := txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
+		err = txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
 		if err != nil {
 			return err
 		}
@@ -81,6 +84,8 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 			return err
 		}
 
+		returnedServiceItem = *updatedServiceItem
+
 		return nil
 	})
 
@@ -88,10 +93,10 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 		return nil, transactionError
 	}
 
-	return &serviceItem, nil
+	return &returnedServiceItem, nil
 }
 
-func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string) error {
+func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string) (*models.MTOServiceItem, error) {
 	serviceItem.Status = status
 	now := time.Now()
 
@@ -100,7 +105,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			verrs := validate.NewErrors()
 			verrs.Add("rejectionReason", "field must be provided when status is set to REJECTED")
 			err := services.NewInvalidInputError(serviceItem.ID, nil, verrs, "Invalid input found in the request.")
-			return err
+			return nil, err
 		}
 		serviceItem.RejectionReason = rejectionReason
 		serviceItem.RejectedAt = &now
@@ -114,8 +119,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
+	if e := p.handleError(serviceItem.ID, verrs, err); e != nil {
+		return nil, e
+	}
 
-	return p.handleError(serviceItem.ID, verrs, err)
+	return &serviceItem, nil
 }
 
 func (p *mtoServiceItemUpdater) approveMoveOrRequestApproval(appCtx appcontext.AppContext, order models.Order, move models.Move) error {
