@@ -18,12 +18,12 @@ readonly environment="${1}"
 case "${environment}" in
   stg)
     compare_host=my.stg.move.mil
-    health_check_hosts=my.stg.move.mil
+    health_check_hosts=api.stg.move.mil,my.stg.move.mil
     export AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
     compare_host=my.move.mil
-    health_check_hosts=my.move.mil
+    health_check_hosts=api.move.mil,my.move.mil
     export AWS_ACCOUNT_ID=015533997236
     ;;
   *)

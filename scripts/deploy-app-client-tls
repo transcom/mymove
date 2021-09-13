@@ -17,23 +17,23 @@ readonly environment="${1:-exp}"
 
 case "${environment}" in
   demo)
-    compare_host=api.demo.dp3.us
+    compare_host=my.demo.dp3.us
     health_check_hosts=api.demo.dp3.us,my.demo.dp3.us
     export AWS_ACCOUNT_ID=447641181206
     ;;
   exp)
     compare_host=my.exp.move.mil
-    health_check_hosts=my.exp.move.mil
+    health_check_hosts=api.exp.move.mil,my.exp.move.mil
     export AWS_ACCOUNT_ID=015681133840
     ;;
   stg)
     compare_host=my.stg.move.mil
-    health_check_hosts=my.stg.move.mil
+    health_check_hosts=api.stg.move.mil,my.stg.move.mil
     export AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
     compare_host=my.move.mil
-    health_check_hosts=my.move.mil
+    health_check_hosts=api.move.mil,my.move.mil
     export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
