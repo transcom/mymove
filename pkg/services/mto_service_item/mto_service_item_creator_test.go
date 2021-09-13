@@ -199,13 +199,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	// Happy path: If the service item is created successfully it should be returned
 	suite.T().Run("200 Success - SIT Service Item Creation", func(t *testing.T) {
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItem)
-
-		var foundMove models.Move
-		suite.DB().Find(&foundMove, move.ID)
-
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItems)
+
+		var foundMove models.Move
+		err = suite.DB().Find(&foundMove, move.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 3)

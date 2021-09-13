@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -266,51 +267,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		moveShouldBeApproved := true
-
-		// If any of the requested service items are in SUBMITTED status, then
-		// we need to change the move status to APPROVALS REQUESTED so the TOO
-		// can review them. Setting moveSouldBeApproved to false is how we know
-		// to set it to APPROVALS REQUESTED further down below.
-		for _, serviceItem := range requestedServiceItems {
-			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-				moveShouldBeApproved = false
-				break
-			}
-		}
-
 		// In case other service items have been created at the same time on this
 		// same move, we fetch the move from the DB and check if it has any
 		// submitted service items.
-		err = txnAppCtx.DB().Reload(&move)
+		err = txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
 		if err != nil {
-			return fmt.Errorf("%e", err)
-		}
-		for _, serviceItem := range move.MTOServiceItems {
-			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-				moveShouldBeApproved = false
-				break
-			}
+			return err
 		}
 
-		if moveShouldBeApproved {
-			err = o.moveRouter.Approve(txnAppCtx, &move)
-			if err != nil {
-				return fmt.Errorf("%e", err)
-			}
-			verrs, err = o.builder.UpdateOne(txnAppCtx, &move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
-		} else {
-			err = o.moveRouter.SendToOfficeUser(txnAppCtx, &move)
-			if err != nil {
-				return fmt.Errorf("%e", err)
-			}
-			verrs, err = o.builder.UpdateOne(txnAppCtx, &move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
+		if err = o.approveMoveOrRequestApproval(txnAppCtx, move.Orders, move); err != nil {
+			return err
 		}
 
 		return nil
@@ -325,6 +291,39 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	return &createdServiceItems, nil, nil
+}
+
+func (o *mtoServiceItemCreator) approveMoveOrRequestApproval(appCtx appcontext.AppContext, order models.Order, move models.Move) error {
+	var err error
+
+	if o.moveShouldBeApproved(order, move) {
+		err = o.moveRouter.Approve(appCtx, &move)
+	} else {
+		err = o.moveRouter.SendToOfficeUser(appCtx, &move)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+
+	return o.handleError(move.ID, verrs, err)
+}
+
+func (o *mtoServiceItemCreator) moveShouldBeApproved(order models.Order, move models.Move) bool {
+	return orderservice.MoveHasReviewedServiceItems(move) && orderservice.MoveHasAcknowledgedOrdersAmendment(order)
+}
+
+func (o *mtoServiceItemCreator) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+	if verrs != nil && verrs.HasAny() {
+		return services.NewInvalidInputError(modelID, nil, verrs, "")
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one
