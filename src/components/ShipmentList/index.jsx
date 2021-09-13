@@ -113,7 +113,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         if (showShipmentWeight) {
           canEdit = false;
           showNumber = false;
-          if (shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight)) {
+          if (shipmentIsOverweight(shipment.estimatedWeight, shipment.calculatedBillableWeight)) {
             isOverweight = true;
           }
           if (shipment.reweigh?.id && !shipment.reweigh?.weight) {
