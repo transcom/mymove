@@ -23,7 +23,7 @@ export const Card = (argTypes) => (
         {
           id: '0002',
           shipmentType: 'HHG',
-          billableWeight: 3200,
+          calculatedBillableWeight: 3200,
           estimatedWeight: 5000,
           reweigh: { id: '1234' },
         },
