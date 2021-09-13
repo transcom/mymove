@@ -1,31 +1,32 @@
 @import 'shared/styles/_basics';
 
-.mtoShipmentSITExtensions td {
-  vertical-align: top;
-
-  > p {
-    margin-left: 10px;
+.mtoShipmentSITExtensions {
+  p {
+    margin-left: 8px;
   }
+  td {
+    vertical-align: top;
 
-  div {
-    display: flex;
-  }
+    div {
+      display: flex;
+    }
 
-  dl {
-    margin-top: 0;
-  }
+    dl {
+      margin-top: 0;
+    }
 
-  dt,
-  dd {
-    @include u-font-size('body', '3xs');
-  }
+    dt,
+    dd {
+      @include u-font-size('body', '3xs');
+    }
 
-  dt {
-    @include u-font-weight('bold');
-    white-space: nowrap;
-  }
+    dt {
+      @include u-font-weight('bold');
+      white-space: nowrap;
+    }
 
-  dd {
-    margin-left: 5px;
+    dd {
+      margin-left: 5px;
+    }
   }
 }

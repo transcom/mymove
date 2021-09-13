@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import PropTypes from 'prop-types';
 
-import { SIT_EXTENSION_REASON, SIT_EXTENSION_STATUS } from 'shared/constants';
+import { SIT_EXTENSION_REASON, SIT_EXTENSION_STATUS } from '../constants/sitExtensions';
 
 export const SITExtensionReasons = PropTypes.oneOf([
   SIT_EXTENSION_REASON.SERIOUS_ILLNESS_MEMBER,
