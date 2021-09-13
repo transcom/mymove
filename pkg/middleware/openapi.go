@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
-	"go.opentelemetry.io/otel/trace"
+
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 // OpenAPIWithContext descripes an API that implements go-openapi Context method
@@ -20,8 +22,13 @@ func OpenAPITracing(api OpenAPIWithContext) func(next http.Handler) http.Handler
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			matchedRoute, _, found := api.Context().RouteInfo(r)
 			if found {
-				span := trace.SpanFromContext(r.Context())
-				span.SetAttributes(semconv.HTTPTargetKey.String(matchedRoute.PathPattern))
+				logger := logging.FromContext(r.Context())
+				labeler, ok := otelhttp.LabelerFromContext(r.Context())
+				if !ok {
+					logger.Warn("Cannot get labeler from context")
+				} else {
+					labeler.Add(semconv.HTTPTargetKey.String(matchedRoute.PathPattern))
+				}
 			}
 			next.ServeHTTP(w, r)
 		}

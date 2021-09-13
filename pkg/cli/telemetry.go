@@ -6,22 +6,22 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/transcom/mymove/pkg/trace"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 const (
 	// TelemetryEnabledFlag is the Trace Enable Flag
-	TelemetryEnabledFlag string = "trace-enabled"
+	TelemetryEnabledFlag string = "telemetry-enabled"
 	// TelemetryEndpointFlag configures the endpoint used for open
 	// telemetry tracing
-	TelemetryEndpointFlag string = "trace-endpoint"
+	TelemetryEndpointFlag string = "telemetry-endpoint"
 	// TelemetryUseXrayIDFlag enables using AWS Xray Trace IDs for open telemetry
-	TelemetryUseXrayIDFlag string = "trace-use-xray-id"
+	TelemetryUseXrayIDFlag string = "telemetry-use-xray-id"
 	// TelemetrySamplingFractionFlag configures the percent of traces to sample
-	TelemetrySamplingFractionFlag string = "trace-sampling-fraction"
+	TelemetrySamplingFractionFlag string = "telemetry-sampling-fraction"
 	// TelemetryCollectSecondsFlag configures the metric collection
 	// period in seconds
-	TelemetryCollectSecondsFlag string = "trace-collect-seconds"
+	TelemetryCollectSecondsFlag string = "telemetry-collect-seconds"
 )
 
 // InitTelemetryFlags initializes the open telemetry flags
@@ -34,8 +34,8 @@ func InitTelemetryFlags(flag *pflag.FlagSet) {
 }
 
 // CheckTelemetry validates the telemetry config
-func CheckTelemetry(v *viper.Viper) (*trace.TelemetryConfig, error) {
-	config := &trace.TelemetryConfig{}
+func CheckTelemetry(v *viper.Viper) (*telemetry.Config, error) {
+	config := &telemetry.Config{}
 	config.Enabled = v.GetBool(TelemetryEnabledFlag)
 	if !config.Enabled {
 		return config, nil

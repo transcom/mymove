@@ -65,7 +65,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/trace"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 // initServeFlags - Order matters!
@@ -433,7 +433,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("invalid trace config", zap.Error(err))
 	}
 
-	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
+	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
 	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
@@ -510,8 +510,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	trace.RegisterDBStatsObserver(dbConnection, telemetryConfig)
-	trace.RegisterRuntimeObserver(logger, telemetryConfig)
+	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
+	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
@@ -681,9 +681,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))
-	if telemetryConfig.Enabled {
-		site.Use(otelmux.Middleware("milmove"))
-	}
 
 	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
@@ -759,11 +756,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(logger))
 	staticMux.Use(middleware.RequestLogger(logger))
+	if telemetryConfig.Enabled {
+		staticMux.Use(otelmux.Middleware("static"))
+	}
 	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	downloadMux := site.PathPrefix("/downloads/").Subrouter()
 	downloadMux.Use(middleware.ValidMethodsStatic(logger))
 	downloadMux.Use(middleware.RequestLogger(logger))
+	if telemetryConfig.Enabled {
+		downloadMux.Use(otelmux.Middleware("download"))
+	}
 	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	site.Handle("/favicon.ico", clientHandler)
@@ -821,6 +824,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		sddcDPSMux.Use(sddcDetectionMiddleware)
 		sddcDPSMux.Use(middleware.NoCache(logger))
 		sddcDPSMux.Use(middleware.RequestLogger(logger))
+		if telemetryConfig.Enabled {
+			sddcDPSMux.Use(otelmux.Middleware("sddc"))
+		}
 		sddcDPSMux.Handle("/set_cookie",
 			dpsauth.NewSetCookieHandler(logger,
 				dpsAuthSecretKey,
@@ -999,6 +1005,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		},
 	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
+	authMux.Use(otelmux.Middleware("auth"))
 	authMux.Handle("/login-gov", authentication.RedirectHandler{Context: authContext}).Methods("GET")
 	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, dbConnection, notificationSender)).Methods("GET")
 	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, dbConnection)).Methods("POST")
@@ -1006,6 +1013,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
+		localAuthMux.Use(otelmux.Middleware("devlocal"))
 		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, dbConnection)).Methods("GET")
 		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, dbConnection, appnames)).Methods("POST")
 		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames)).Methods("POST")
@@ -1026,18 +1034,24 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.PathPrefix("/").Handler(indexHandler(build, logger)).Methods("GET", "HEAD")
 
+	otelHTTPOptions := []otelhttp.Option{}
+	if telemetryConfig.ReadEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
+	}
+	if telemetryConfig.WriteEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
+	}
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "no-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.NoTLSPortFlag),
-			Logger: logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
-				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
+			Name:        "no-tls",
+			Host:        listenInterface,
+			Port:        v.GetInt(cli.NoTLSPortFlag),
+			Logger:      logger,
+			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls", otelHTTPOptions...),
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -1049,12 +1063,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.TLSPortFlag),
-			Logger: logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-tls",
-				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
+			Name:         "tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.TLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -1068,12 +1081,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "mutual-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.MutualTLSPortFlag),
-			Logger: logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-mtls",
-				otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents)),
+			Name:         "mutual-tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.MutualTLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,

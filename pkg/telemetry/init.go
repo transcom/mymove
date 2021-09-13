@@ -1,4 +1,4 @@
-package trace
+package telemetry
 
 import (
 	"context"
@@ -26,13 +26,15 @@ import (
 	"go.uber.org/zap"
 )
 
-// TelemetryConfig defines the config necessary to enable telemetry gathering
-type TelemetryConfig struct {
+// Config defines the config necessary to enable telemetry gathering
+type Config struct {
 	Enabled          bool
 	Endpoint         string
 	UseXrayID        bool
 	SamplingFraction float64
 	CollectSeconds   int
+	ReadEvents       bool
+	WriteEvents      bool
 }
 
 const (
@@ -46,10 +48,10 @@ var (
 	meter  metric.Meter
 )
 
-// ConfigureTelemetry currently the target for distributed tracing / opentelemetry is
+// Init currently the target for distributed tracing / opentelemetry is
 // local development environments, but this may change in the future
 // to include hosted/deployed environments
-func ConfigureTelemetry(logger *zap.Logger, config *TelemetryConfig) (shutdown func()) {
+func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	ctx := context.Background()
 	shutdown = func() {}
 

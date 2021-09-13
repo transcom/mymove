@@ -1,4 +1,4 @@
-package trace
+package telemetry
 
 import (
 	"time"
@@ -9,7 +9,7 @@ import (
 
 // RegisterRuntimeObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterRuntimeObserver(logger *zap.Logger, config *TelemetryConfig) {
+func RegisterRuntimeObserver(logger *zap.Logger, config *Config) {
 	if !config.Enabled {
 		return
 	}
