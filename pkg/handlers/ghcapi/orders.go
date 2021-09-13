@@ -339,7 +339,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 
 	orderPayload := payloads.Order(updatedOrder)
 
-	return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+	return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
 }
 
 // AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk

@@ -1419,12 +1419,13 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-		orderOK := response.(*orderop.UpdateBillableWeightOK)
+		orderOK := response.(*orderop.UpdateMaxBillableWeightAsTIOOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.UpdateBillableWeightOK{}, response)
+		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+		suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TIO role", func() {
@@ -1451,7 +1452,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			updater,
 		}
 
-		updater.AssertNumberOfCalls(suite.T(), "UpdateBillableWeightAsTOO", 0)
+		updater.AssertNumberOfCalls(suite.T(), "UpdateMaxBillableWeightAsTIO", 0)
 
 		response := handler.Handle(params)
 
@@ -1496,7 +1497,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1512,9 +1513,10 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			updater,
 		}
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		tioRemarks := params.Body.TioRemarks
 
-		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1527,7 +1529,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1543,9 +1545,10 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			updater,
 		}
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		tioRemarks := params.Body.TioRemarks
 
-		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
 
 		response := handler.Handle(params)
 
