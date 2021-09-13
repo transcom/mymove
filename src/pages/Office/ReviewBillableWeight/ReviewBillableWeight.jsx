@@ -42,7 +42,7 @@ export const ReviewBillableWeight = ({ match }) => {
               <Alert slim type="error">
                 {`Max billable weight exceeded. \nPlease resolve.`}
               </Alert>
-              {!mtoShipments[0].reweighWeight && (
+              {(!mtoShipments[0].reweighWeight || !mtoShipments[0].estimatedWeight) && (
                 <Alert slim type="warning">
                   Shipment missing information
                 </Alert>
@@ -64,7 +64,7 @@ export const ReviewBillableWeight = ({ match }) => {
             <div style={{ height: '100%', width: '350px' }}>
               <ShipmentCard
                 billableWeight={mtoShipments[0].billableWeight}
-                dateReweighRequested="mtoShipments[0].dateReweighRequested"
+                dateReweighRequested={mtoShipments[0].dateReweighRequested}
                 departedDate={mtoShipments[0].departedDate}
                 pickupAddress={mtoShipments[selectedShipmentIndex].pickupAddress}
                 destinationAddress={mtoShipments[0].destinationAddress}
