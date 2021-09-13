@@ -9,7 +9,7 @@ import (
 
 // RegisterRuntimeObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterRuntimeObserver(logger *zap.Logger, config TelemetryConfig) {
+func RegisterRuntimeObserver(logger *zap.Logger, config *TelemetryConfig) {
 	if !config.Enabled {
 		return
 	}

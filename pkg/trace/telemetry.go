@@ -49,7 +49,7 @@ var (
 // ConfigureTelemetry currently the target for distributed tracing / opentelemetry is
 // local development environments, but this may change in the future
 // to include hosted/deployed environments
-func ConfigureTelemetry(logger *zap.Logger, config TelemetryConfig) (shutdown func()) {
+func ConfigureTelemetry(logger *zap.Logger, config *TelemetryConfig) (shutdown func()) {
 	ctx := context.Background()
 	shutdown = func() {}
 

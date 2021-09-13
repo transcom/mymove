@@ -17,7 +17,7 @@ const dbWaitDurationDesc = "dbWaitDuration description"
 
 // RegisterDBStatsObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterDBStatsObserver(c *pop.Connection, config TelemetryConfig) {
+func RegisterDBStatsObserver(c *pop.Connection, config *TelemetryConfig) {
 	if !config.Enabled {
 		return
 	}

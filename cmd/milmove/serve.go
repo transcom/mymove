@@ -424,18 +424,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	logger.Info("webserver starting up")
 
-	telemetryConfig := trace.TelemetryConfig{
-		Enabled:          true,
-		Endpoint:         "stdout",
-		SamplingFraction: 1,
-	}
-	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
-	defer telemetryShutdownFn()
-
 	err = checkServeConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+	telemetryConfig, err := cli.CheckTelemetry(v)
+	if err != nil {
+		logger.Fatal("invalid trace config", zap.Error(err))
+	}
+
+	telemetryShutdownFn := trace.ConfigureTelemetry(logger, telemetryConfig)
+	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
