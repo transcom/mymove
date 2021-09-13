@@ -169,6 +169,8 @@ func (f *excessWeightRiskManager) updateMaxBillableWeightWithTIORemarks(appCtx a
 			return err
 		}
 
+		order.Moves[0] = *updatedMove
+
 		return nil
 	})
 
