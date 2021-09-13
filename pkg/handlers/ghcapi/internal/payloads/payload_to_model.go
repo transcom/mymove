@@ -115,22 +115,20 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 	return modelAddress
 }
 
-// SITExtensionFromCreate model
-func SITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtension) *models.SITExtension {
+// ApprovedSITExtensionFromCreate model
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITExtension) *models.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
 
 	var approvedDays *int
-	sda := int(*sitExtension.ApprovedDays)
-	approvedDays = &sda
+	ad := int(*sitExtension.ApprovedDays)
+	approvedDays = &ad
 
 	model := &models.SITExtension{
 		MTOShipmentID: uuid.FromStringOrNil(sitExtension.ShipmentID.String()),
 		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
-		// todo: is this done here? approved days will always be equal to requested days during too creation
 		RequestedDays: int(*sitExtension.ApprovedDays),
-		// todo: do I do this here?
 		Status:        models.SITExtensionStatusApproved,
 		ApprovedDays:  approvedDays,
 		OfficeRemarks: sitExtension.OfficeRemarks,

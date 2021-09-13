@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// CreateSitExtensionURL generates an URL for the create sit extension operation
-type CreateSitExtensionURL struct {
+// CreateApprovedSitExtensionURL generates an URL for the create approved sit extension operation
+type CreateApprovedSitExtensionURL struct {
 	ShipmentID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type CreateSitExtensionURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *CreateSitExtensionURL) WithBasePath(bp string) *CreateSitExtensionURL {
+func (o *CreateApprovedSitExtensionURL) WithBasePath(bp string) *CreateApprovedSitExtensionURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,12 +34,12 @@ func (o *CreateSitExtensionURL) WithBasePath(bp string) *CreateSitExtensionURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *CreateSitExtensionURL) SetBasePath(bp string) {
+func (o *CreateApprovedSitExtensionURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *CreateSitExtensionURL) Build() (*url.URL, error) {
+func (o *CreateApprovedSitExtensionURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/shipments/{shipmentID}/sit-extensions/"
@@ -48,7 +48,7 @@ func (o *CreateSitExtensionURL) Build() (*url.URL, error) {
 	if shipmentID != "" {
 		_path = strings.Replace(_path, "{shipmentID}", shipmentID, -1)
 	} else {
-		return nil, errors.New("shipmentId is required on CreateSitExtensionURL")
+		return nil, errors.New("shipmentId is required on CreateApprovedSitExtensionURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *CreateSitExtensionURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *CreateSitExtensionURL) Must(u *url.URL, err error) *url.URL {
+func (o *CreateApprovedSitExtensionURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *CreateSitExtensionURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *CreateSitExtensionURL) String() string {
+func (o *CreateApprovedSitExtensionURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *CreateSitExtensionURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *CreateApprovedSitExtensionURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on CreateSitExtensionURL")
+		return nil, errors.New("scheme is required for a full url on CreateApprovedSitExtensionURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on CreateSitExtensionURL")
+		return nil, errors.New("host is required for a full url on CreateApprovedSitExtensionURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *CreateSitExtensionURL) BuildFull(scheme, host string) (*url.URL, error)
 }
 
 // StringFull returns the string representation of a complete url
-func (o *CreateSitExtensionURL) StringFull(scheme, host string) string {
+func (o *CreateApprovedSitExtensionURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

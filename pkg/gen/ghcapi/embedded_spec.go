@@ -2372,7 +2372,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtension",
+        "operationId": "createApprovedSitExtension",
         "parameters": [
           {
             "type": "string",
@@ -2386,8 +2386,15 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateSITExtension"
+              "$ref": "#/definitions/CreateApprovedSITExtension"
             }
+          },
+          {
+            "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -2956,6 +2963,36 @@ func init() {
         }
       }
     },
+    "CreateApprovedSITExtension": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "type": "string",
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -3013,36 +3050,6 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "CreateSITExtension": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -8109,7 +8116,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtension",
+        "operationId": "createApprovedSitExtension",
         "parameters": [
           {
             "type": "string",
@@ -8123,8 +8130,15 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateSITExtension"
+              "$ref": "#/definitions/CreateApprovedSITExtension"
             }
+          },
+          {
+            "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -8759,6 +8773,36 @@ func init() {
         }
       }
     },
+    "CreateApprovedSITExtension": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "type": "string",
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -8816,36 +8860,6 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "CreateSITExtension": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

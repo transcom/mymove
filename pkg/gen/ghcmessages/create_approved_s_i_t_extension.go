@@ -14,10 +14,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreateSITExtension create s i t extension
+// CreateApprovedSITExtension create approved s i t extension
 //
-// swagger:model CreateSITExtension
-type CreateSITExtension struct {
+// swagger:model CreateApprovedSITExtension
+type CreateApprovedSITExtension struct {
 
 	// Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
 	// Example: 21
@@ -40,8 +40,8 @@ type CreateSITExtension struct {
 	ShipmentID strfmt.UUID `json:"shipmentID,omitempty"`
 }
 
-// Validate validates this create s i t extension
-func (m *CreateSITExtension) Validate(formats strfmt.Registry) error {
+// Validate validates this create approved s i t extension
+func (m *CreateApprovedSITExtension) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateApprovedDays(formats); err != nil {
@@ -62,7 +62,7 @@ func (m *CreateSITExtension) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateSITExtension) validateApprovedDays(formats strfmt.Registry) error {
+func (m *CreateApprovedSITExtension) validateApprovedDays(formats strfmt.Registry) error {
 
 	if err := validate.Required("approvedDays", "body", m.ApprovedDays); err != nil {
 		return err
@@ -75,7 +75,7 @@ func (m *CreateSITExtension) validateApprovedDays(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *CreateSITExtension) validateRequestReason(formats strfmt.Registry) error {
+func (m *CreateApprovedSITExtension) validateRequestReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("requestReason", "body", m.RequestReason); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (m *CreateSITExtension) validateRequestReason(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *CreateSITExtension) validateShipmentID(formats strfmt.Registry) error {
+func (m *CreateApprovedSITExtension) validateShipmentID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ShipmentID) { // not required
 		return nil
 	}
@@ -96,13 +96,13 @@ func (m *CreateSITExtension) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this create s i t extension based on context it is used
-func (m *CreateSITExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this create approved s i t extension based on context it is used
+func (m *CreateApprovedSITExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *CreateSITExtension) MarshalBinary() ([]byte, error) {
+func (m *CreateApprovedSITExtension) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -110,8 +110,8 @@ func (m *CreateSITExtension) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *CreateSITExtension) UnmarshalBinary(b []byte) error {
-	var res CreateSITExtension
+func (m *CreateApprovedSITExtension) UnmarshalBinary(b []byte) error {
+	var res CreateApprovedSITExtension
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

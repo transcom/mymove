@@ -74,11 +74,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
 		}),
+		ShipmentCreateApprovedSitExtensionHandler: shipment.CreateApprovedSitExtensionHandlerFunc(func(params shipment.CreateApprovedSitExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateApprovedSitExtension has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
-		}),
-		ShipmentCreateSitExtensionHandler: shipment.CreateSitExtensionHandlerFunc(func(params shipment.CreateSitExtensionParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.CreateSitExtension has not yet been implemented")
 		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
@@ -230,10 +230,10 @@ type MymoveAPI struct {
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
+	// ShipmentCreateApprovedSitExtensionHandler sets the operation handler for the create approved sit extension operation
+	ShipmentCreateApprovedSitExtensionHandler shipment.CreateApprovedSitExtensionHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
-	// ShipmentCreateSitExtensionHandler sets the operation handler for the create sit extension operation
-	ShipmentCreateSitExtensionHandler shipment.CreateSitExtensionHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// ShipmentDenySitExtensionHandler sets the operation handler for the deny sit extension operation
@@ -397,11 +397,11 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderCounselingUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
 	}
+	if o.ShipmentCreateApprovedSitExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.CreateApprovedSitExtensionHandler")
+	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
-	}
-	if o.ShipmentCreateSitExtensionHandler == nil {
-		unregistered = append(unregistered, "shipment.CreateSitExtensionHandler")
 	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
@@ -620,11 +620,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateApprovedSitExtension(o.context, o.ShipmentCreateApprovedSitExtensionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateSitExtension(o.context, o.ShipmentCreateSitExtensionHandler)
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

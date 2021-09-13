@@ -810,49 +810,52 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }
 
-// CreateSITExtension creates a SIT extension in the approved state
-type CreateSITExtensionHandler struct {
+// CreateApprovedSITExtensionHandler creates a SIT extension in the approved state
+type CreateApprovedSITExtensionHandler struct {
 	handlers.HandlerContext
-	// TODO: take from Namibia's branch, most likely, just use approver for now
+	// TODO: take from Namibia's branch, most likely?
 	services.SITExtensionCreator
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionHandler) Handle(params shipmentops.CreateSitExtensionParams) middleware.Responder {
+func (h CreateApprovedSITExtensionHandler) Handle(params shipmentops.CreateApprovedSitExtensionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
 
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
-		return shipmentops.NewCreateSitExtensionBadRequest()
+		return shipmentops.NewCreateApprovedSitExtensionBadRequest()
 	}
 
-	sitExtension := payloads.SITExtensionFromCreate(payload)
-	// sitExtension, err := h.sitExtensionCreator.CreateSITExtension(appCtx, sitExtension, nil)
+	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload)
+	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+	shipment, err := h.SITExtensionCreator.CreateApprovedSITExtension(appCtx, sitExtension, shipmentID, params.IfMatch)
 
-	// if err != nil {
-	// 	logger.Error("ghcapi.CreateSITExtension error", zap.Error(err))
-	// 	switch e := err.(type) {
-	// 	case services.NotFoundError:
-	// 		payload := ghcmessages.Error{
-	// 			Message: handlers.FmtString(err.Error()),
-	// 		}
-	// 		return shipmentops.NewCreateSITExtensionNotFound().WithPayload(&payload)
-	// 	case services.InvalidInputError:
-	// 		payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
-	// 		return shipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
-	// 	case services.QueryError:
-	// 		if e.Unwrap() != nil {
-	// 			// If you can unwrap, log the internal error (usually a pq error) for better debugging
-	// 			logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
-	// 		}
-	// 		return shipmentops.NewCreateMTOShipmentInternalServerError()
-	// 	default:
-	// 		return shipmentops.NewCreateMTOShipmentInternalServerError()
-	// 	}
-	// }
+	if err != nil {
+		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			payload := ghcmessages.Error{
+				Message: handlers.FmtString(err.Error()),
+			}
+			return shipmentops.NewCreateApprovedSitExtensionNotFound().WithPayload(&payload)
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewCreateApprovedSitExtensionUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
+			}
+			return shipmentops.NewCreateApprovedSitExtensionInternalServerError()
+		default:
+			return shipmentops.NewCreateApprovedSitExtensionInternalServerError()
+		}
+	}
 
-	// returnPayload := payloads.MTOShipment(mtoShipment)
-	// return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+	returnPayload := payloads.MTOShipment(shipment)
+	return shipmentops.NewCreateApprovedSitExtensionOK().WithPayload(returnPayload)
 }
