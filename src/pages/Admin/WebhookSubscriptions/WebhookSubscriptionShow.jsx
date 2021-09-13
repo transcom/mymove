@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, DateField, NumberField } from 'react-admin';
+import { DateField, NumberField, Show, SimpleShowLayout, TextField } from 'react-admin';
 import PropTypes from 'prop-types';
 
 const WebhookSubscriptionShowTitle = ({ record }) => {
@@ -29,8 +29,8 @@ const WebhookSubscriptionShow = (props) => {
         <TextField source="callbackUrl" />
         <NumberField source="severity" />
         <TextField source="status" />
-        <DateField source="updatedAt" showTime />
-        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime addLabel />
+        <DateField source="createdAt" showTime addLabel />
       </SimpleShowLayout>
     </Show>
   );

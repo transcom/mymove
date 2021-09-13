@@ -40,8 +40,8 @@ const OfficeUserShow = (props) => {
         <TextField source="middleInitials" />
         <TextField source="lastName" />
         <TextField source="telephone" />
-        <BooleanField source="active" />
-        <ArrayField source="roles">
+        <BooleanField source="active" addLabel />
+        <ArrayField source="roles" addLabel>
           <Datagrid>
             <TextField source="roleName" />
           </Datagrid>
@@ -49,8 +49,8 @@ const OfficeUserShow = (props) => {
         <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
           <TextField component="pre" source="name" />
         </ReferenceField>
-        <DateField source="createdAt" showTime />
-        <DateField source="updatedAt" showTime />
+        <DateField source="createdAt" showTime addLabel />
+        <DateField source="updatedAt" showTime addLabel />
       </SimpleShowLayout>
     </Show>
   );

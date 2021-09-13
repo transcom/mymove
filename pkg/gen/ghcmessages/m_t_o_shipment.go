@@ -27,6 +27,19 @@ type MTOShipment struct {
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
+	// TIO override billable weight to be used for calculations
+	// Example: 2500
+	BillableWeightCap *int64 `json:"billableWeightCap,omitempty"`
+
+	// billable weight justification
+	// Example: more weight than expected
+	BillableWeightJustification *string `json:"billableWeightJustification,omitempty"`
+
+	// calculated billable weight
+	// Example: 2000
+	// Read Only: true
+	CalculatedBillableWeight *int64 `json:"calculatedBillableWeight,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -485,6 +498,10 @@ func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCalculatedBillableWeight(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -524,6 +541,15 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) contextValidateCalculatedBillableWeight(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "calculatedBillableWeight", "body", m.CalculatedBillableWeight); err != nil {
+		return err
+	}
+
 	return nil
 }
 

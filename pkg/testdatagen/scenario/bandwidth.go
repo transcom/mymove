@@ -203,13 +203,18 @@ func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTO
 func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	billableWeight := unit.Pound(4000)
+	billableWeightJustification := "heavy"
+
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               shipmentStatus,
+			PrimeEstimatedWeight:        &estimatedWeight,
+			PrimeActualWeight:           &actualWeight,
+			ShipmentType:                models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:                swag.Time(time.Now()),
+			Status:                      shipmentStatus,
+			BillableWeightCap:           &billableWeight,
+			BillableWeightJustification: &billableWeightJustification,
 		},
 		Move: move,
 	})

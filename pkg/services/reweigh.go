@@ -7,10 +7,10 @@ import (
 
 // ReweighCreator creates a reweigh
 type ReweighCreator interface {
-	CreateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh) (*models.Reweigh, error)
+	CreateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh) (*models.Reweigh, error)
 }
 
-// ReweighUpdater creates a reweigh
+// ReweighUpdater updates a reweigh
 type ReweighUpdater interface {
-	UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error)
+	UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error)
 }

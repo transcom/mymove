@@ -1,8 +1,7 @@
 import React from 'react';
 import { useParams, matchPath, useLocation } from 'react-router-dom';
 
-import ordersStyles from '../Orders/Orders.module.scss';
-
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -27,9 +26,9 @@ const MoveDocumentWrapper = () => {
   const documentsForViewer = Object.values(upload).concat(Object.values(amendedUpload || {}));
 
   return (
-    <div className={ordersStyles.Orders}>
+    <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
-        <div className={ordersStyles.embed}>
+        <div className={styles.embed}>
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}

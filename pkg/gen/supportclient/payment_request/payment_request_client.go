@@ -45,7 +45,7 @@ type ClientService interface {
   GetPaymentRequestEDI gets payment request e d i
 
   Returns the EDI (Electronic Data Interchange) message for the payment request identified
-by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
+by the given payment request ID. Note that the EDI returned in the JSON payload will have where there
 would normally be line breaks (due to JSON not allowing line breaks in a string).
 
 This is a support endpoint and will not be available in production.
@@ -178,7 +178,7 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 /*
   UpdatePaymentRequestStatus updates payment request status
 
-  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
+  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 

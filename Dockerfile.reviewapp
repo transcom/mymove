@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d as builder
+FROM milmove/circleci-docker:milmove-app-012fdffe4833f88f67607cd6801f166d0014c239 as builder
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
 # hadolint ignore=DL3002
@@ -57,7 +57,7 @@ RUN set -x \
   && make bin/generate-test-data
 
 # define migrations before client build since it doesn't need client
-FROM alpine:3.12.7 as migrate
+FROM alpine:3.14.2 as migrate
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove

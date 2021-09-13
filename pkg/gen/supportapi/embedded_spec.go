@@ -237,11 +237,7 @@ func init() {
         "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -346,11 +342,7 @@ func init() {
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -420,11 +412,7 @@ func init() {
         "operationId": "updateMTOShipmentStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -533,7 +521,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -585,7 +573,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -599,11 +587,7 @@ func init() {
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -2024,6 +2008,13 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2059,7 +2050,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -2275,8 +2267,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -2325,29 +2315,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -2422,6 +2412,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -2468,6 +2467,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
@@ -3171,7 +3171,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -3244,7 +3244,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -4725,6 +4725,13 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4760,7 +4767,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -4976,8 +4984,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -5026,32 +5032,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "$ref": "#/definitions/ValidationErrorAllOf1"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
-    },
-    "ValidationErrorAllOf1": {
-      "type": "object"
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -5126,6 +5129,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -5172,6 +5184,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {

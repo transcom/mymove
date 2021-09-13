@@ -44,6 +44,7 @@ var environments = []string{
 	EnvironmentExperimental,
 	EnvironmentTest,
 	EnvironmentDevelopment,
+	EnvironmentDemo,
 	EnvironmentExp,
 	EnvironmentStg,
 	EnvironmentPrd,

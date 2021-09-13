@@ -208,7 +208,6 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	gexSender := invoice.NewGexSenderHTTP(
 		gexURL,
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString(cli.GEXBasicAuthUsernameFlag),

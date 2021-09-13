@@ -1,16 +1,11 @@
 package supportapi
 
 import (
-	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/db/sequence"
-	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/spf13/viper"
 
@@ -81,22 +76,24 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	// Let's map the incoming status to our enumeration type
 	switch params.Body.Status {
-	case "PENDING":
+	case supportmessages.PaymentRequestStatusPENDING:
 		status = models.PaymentRequestStatusPending
-	case "REVIEWED":
+	case supportmessages.PaymentRequestStatusREVIEWED:
 		status = models.PaymentRequestStatusReviewed
 		reviewedDate = time.Now()
-	case "SENT_TO_GEX":
+	case supportmessages.PaymentRequestStatusSENTTOGEX:
 		status = models.PaymentRequestStatusSentToGex
 		sentGexDate = time.Now()
-	case "RECEIVED_BY_GEX":
+	case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
 		status = models.PaymentRequestStatusReceivedByGex
 		recGexDate = time.Now()
-	case "PAID":
+	case supportmessages.PaymentRequestStatusPAID:
 		status = models.PaymentRequestStatusPaid
 		paidAtDate = time.Now()
-	case "EDI_ERROR":
+	case supportmessages.PaymentRequestStatusEDIERROR:
 		status = models.PaymentRequestStatusEDIError
+	case supportmessages.PaymentRequestStatusDEPRECATED:
+		status = models.PaymentRequestStatusDeprecated
 	}
 
 	// If we got a rejection reason let's use it
@@ -106,19 +103,20 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                   existingPaymentRequest.ID,
-		MoveTaskOrder:        existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID:      existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:              existingPaymentRequest.IsFinal,
-		Status:               status,
-		RejectionReason:      rejectionReason,
-		RequestedAt:          existingPaymentRequest.RequestedAt,
-		ReviewedAt:           &reviewedDate,
-		SentToGexAt:          &sentGexDate,
-		ReceivedByGexAt:      &recGexDate,
-		PaidAt:               &paidAtDate,
-		PaymentRequestNumber: existingPaymentRequest.PaymentRequestNumber,
-		SequenceNumber:       existingPaymentRequest.SequenceNumber,
+		ID:                              existingPaymentRequest.ID,
+		MoveTaskOrder:                   existingPaymentRequest.MoveTaskOrder,
+		MoveTaskOrderID:                 existingPaymentRequest.MoveTaskOrderID,
+		IsFinal:                         existingPaymentRequest.IsFinal,
+		Status:                          status,
+		RejectionReason:                 rejectionReason,
+		RequestedAt:                     existingPaymentRequest.RequestedAt,
+		ReviewedAt:                      &reviewedDate,
+		SentToGexAt:                     &sentGexDate,
+		ReceivedByGexAt:                 &recGexDate,
+		PaidAt:                          &paidAtDate,
+		PaymentRequestNumber:            existingPaymentRequest.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: existingPaymentRequest.RecalculationOfPaymentRequestID,
+		SequenceNumber:                  existingPaymentRequest.SequenceNumber,
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
@@ -291,41 +289,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		// Set up viper to read environment variables
-		v := viper.New()
-		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-		v.AutomaticEnv()
-		gexURL := v.GetString(cli.GEXURLFlag)
-		dbEnv := v.GetString(cli.DbEnvFlag)
-
-		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
-		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
-		// test ICNs in Syncada.
-		var icnSequencer sequence.Sequencer
-		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
-		icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
-		if err != nil {
-			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
-		}
-
-		certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
-		if err != nil {
-			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
-		}
-		certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
-		if certificates == nil || rootCAs == nil || err != nil {
-			logger.Fatal("Error in getting tls certs", zap.Error(err))
-		}
-		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-
-		gexSender := invoice.NewGexSenderHTTP(
-			gexURL,
-			cli.GEXChannelInvoice,
-			true,
-			tlsConfig,
-			v.GetString(cli.GEXBasicAuthUsernameFlag),
-			v.GetString(cli.GEXBasicAuthPasswordFlag))
-		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx, true, icnSequencer, gexSender)
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx, true, h.ICNSequencer(), h.GexSender())
 		if err != nil {
 			msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
 			logger.Error(msg, zap.Error(err))
@@ -354,26 +318,28 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		// Update each payment request to have the given status
 		for _, pr := range paymentRequests {
 			switch paymentRequestStatus {
-			case "PENDING":
+			case supportmessages.PaymentRequestStatusPENDING:
 				pr.Status = models.PaymentRequestStatusPending
-			case "REVIEWED":
+			case supportmessages.PaymentRequestStatusREVIEWED:
 				reviewedAt := time.Now()
 				pr.Status = models.PaymentRequestStatusReviewed
 				pr.ReviewedAt = &reviewedAt
-			case "SENT_TO_GEX":
+			case supportmessages.PaymentRequestStatusSENTTOGEX:
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex
 				pr.SentToGexAt = &sentToGex
-			case "RECEIVED_BY_GEX":
+			case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
 				recByGex := time.Now()
 				pr.Status = models.PaymentRequestStatusReceivedByGex
 				pr.ReceivedByGexAt = &recByGex
-			case "PAID":
+			case supportmessages.PaymentRequestStatusPAID:
 				paidAt := time.Now()
 				pr.Status = models.PaymentRequestStatusPaid
 				pr.PaidAt = &paidAt
-			case "EDI_ERROR":
+			case supportmessages.PaymentRequestStatusEDIERROR:
 				pr.Status = models.PaymentRequestStatusEDIError
+			case supportmessages.PaymentRequestStatusDEPRECATED:
+				pr.Status = models.PaymentRequestStatusDeprecated
 			case "":
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex
@@ -406,6 +372,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		v := viper.New()
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
+		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 
 		sshClient, err := cli.InitGEXSSH(v, logger)
 		if err != nil {
@@ -430,14 +398,12 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, *deleteFromSyncada)
 
-		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
 		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, time.Time{}, invoice.NewEDI997Processor())
 		if err != nil {
 			logger.Error("Error reading 997 responses", zap.Error(err))
 		} else {
 			logger.Info("Successfully processed 997 responses")
 		}
-		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor())
 		if err != nil {
 			logger.Error("Error reading 824 responses", zap.Error(err))

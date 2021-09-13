@@ -1,11 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import { push } from 'connected-react-router';
 import { Field, reduxForm } from 'redux-form';
 
-import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { getResponseError, patchServiceMember } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
@@ -15,12 +15,12 @@ import SaveCancelButtons from './SaveCancelButtons';
 import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
-  selectServiceMemberFromLoggedInUser,
-  selectMoveIsInDraft,
-  selectCurrentOrders,
   selectCurrentMove,
-  selectHasCurrentPPM,
+  selectCurrentOrders,
   selectEntitlementsForLoggedInUser,
+  selectHasCurrentPPM,
+  selectMoveIsInDraft,
+  selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 
 import './Review.css';

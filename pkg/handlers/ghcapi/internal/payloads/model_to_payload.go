@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -326,30 +327,38 @@ func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensio
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	var sitDaysAllowance *int64
+	if mtoShipment.SITDaysAllowance != nil {
+		sda := int64(*mtoShipment.SITDaysAllowance)
+		sitDaysAllowance = &sda
+	}
 	payload := &ghcmessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
-		CounselorRemarks:         mtoShipment.CounselorRemarks,
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RejectionReason:          mtoShipment.RejectionReason,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
-		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
-		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
-		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
-		Diversion:                mtoShipment.Diversion,
-		Reweigh:                  Reweigh(mtoShipment.Reweigh),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
-		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
-		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
-		SitExtensions:            *SITExtensions(&mtoShipment.SITExtensions),
+		ID:                          strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		Status:                      ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:            mtoShipment.CounselorRemarks,
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		RejectionReason:             mtoShipment.RejectionReason,
+		PickupAddress:               Address(mtoShipment.PickupAddress),
+		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:          Address(mtoShipment.DestinationAddress),
+		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
+		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
+		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		Diversion:                   mtoShipment.Diversion,
+		Reweigh:                     Reweigh(mtoShipment.Reweigh),
+		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
+		SitDaysAllowance:            sitDaysAllowance,
+		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
+		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
+		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -367,6 +376,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	if mtoShipment.ScheduledPickupDate != nil {
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
+
+	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
+	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+
+	// CalculatedBillableWeight is intentionally not a part of the mto_shipments model
+	// because we don't want to store a derived value in the database
+	payload.CalculatedBillableWeight = handlers.FmtPoundPtr(calculatedWeights.CalculatedBillableWeight)
 
 	return payload
 }
@@ -439,18 +455,19 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 	}
 
 	return &ghcmessages.PaymentRequest{
-		ID:                   *handlers.FmtUUID(pr.ID),
-		IsFinal:              &pr.IsFinal,
-		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:        Move(&pr.MoveTaskOrder),
-		PaymentRequestNumber: pr.PaymentRequestNumber,
-		RejectionReason:      pr.RejectionReason,
-		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
-		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
-		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
-		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:   serviceDocs,
-		CreatedAt:            strfmt.DateTime(pr.CreatedAt),
+		ID:                              *handlers.FmtUUID(pr.ID),
+		IsFinal:                         &pr.IsFinal,
+		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		PaymentRequestNumber:            pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                 pr.RejectionReason,
+		Status:                          ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:                    *PaymentServiceItems(&pr.PaymentServiceItems),
+		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:              serviceDocs,
+		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 	}, nil
 }
 
