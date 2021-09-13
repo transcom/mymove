@@ -17,15 +17,15 @@ type MTOShipmentFetcher struct {
 }
 
 // ListMTOShipments provides a mock function with given fields: appCtx, moveID
-func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.MTOShipments, error) {
+func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
 	ret := _m.Called(appCtx, moveID)
 
-	var r0 *models.MTOShipments
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.MTOShipments); ok {
+	var r0 []models.MTOShipment
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) []models.MTOShipment); ok {
 		r0 = rf(appCtx, moveID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOShipments)
+			r0 = ret.Get(0).([]models.MTOShipment)
 		}
 	}
 

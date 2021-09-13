@@ -99,6 +99,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			mtoshipment.NewMTOShipmentFetcher(),
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		response := handler.Handle(params)
@@ -121,6 +122,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockMTOShipmentFetcher,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewQueryError("MTOShipment", errors.New("query error"), ""))
@@ -138,6 +140,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockMTOShipmentFetcher,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
@@ -294,6 +297,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -321,6 +325,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -347,6 +352,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -373,6 +379,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -399,6 +406,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -425,6 +433,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -451,6 +460,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -487,6 +497,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.RequestShipmentDiversionParams{
@@ -514,6 +525,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -540,6 +552,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -566,6 +579,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -592,6 +606,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -618,6 +633,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -644,6 +660,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
 			requester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -681,6 +698,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
@@ -708,6 +726,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -734,6 +753,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -760,6 +780,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -786,6 +807,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -812,6 +834,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -838,6 +861,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
 			approver,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1133,6 +1157,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.RequestShipmentCancellationParams{
@@ -1160,6 +1185,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1186,6 +1212,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1212,6 +1239,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1238,6 +1266,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1264,6 +1293,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1290,6 +1320,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
 			canceler,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1324,6 +1355,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.RequestShipmentReweighParams{
@@ -1355,6 +1387,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1377,6 +1410,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1400,6 +1434,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1424,6 +1459,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1447,6 +1483,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1481,6 +1518,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		handler := ApproveSITExtensionHandler{
 			handlerContext,
 			sitExtensionApprover,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
@@ -1525,6 +1563,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		handler := DenySITExtensionHandler{
 			handlerContext,
 			sitExtensionDenier,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 		officeRemarks := "new office remarks on denial of extension"
 		denyParams := shipmentops.DenySitExtensionParams{
@@ -1857,6 +1896,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1899,6 +1939,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1922,6 +1963,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
@@ -1949,6 +1991,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1975,6 +2018,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -2001,6 +2045,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			&mockUpdater,
+			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		err := errors.New("ServerError")

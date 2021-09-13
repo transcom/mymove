@@ -29,6 +29,7 @@ import (
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerContext
 	services.MTOShipmentFetcher
+	services.ShipmentSITStatus
 }
 
 // Handle listing mto shipments for the move task order
@@ -59,8 +60,12 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	if err != nil {
 		handleError(err)
 	}
+	mtoShipments := models.MTOShipments(shipments)
 
-	payload := payloads.MTOShipments(shipments)
+	shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
+
+	sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
+	payload := payloads.MTOShipments(&mtoShipments, sitStatusPayload)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
@@ -106,7 +111,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		}
 	}
 
-	returnPayload := payloads.MTOShipment(mtoShipment)
+	returnPayload := payloads.MTOShipment(mtoShipment, nil)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
 
@@ -115,6 +120,7 @@ type UpdateShipmentHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MTOShipmentUpdater
+	services.ShipmentSITStatus
 }
 
 // Handle updates shipments
@@ -230,7 +236,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
 
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	returnPayload := payloads.MTOShipment(updatedMtoShipment, sitStatusPayload)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }
 
@@ -301,6 +310,7 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 type ApproveShipmentHandler struct {
 	handlers.HandlerContext
 	services.ShipmentApprover
+	services.ShipmentSITStatus
 }
 
 // Handle approves a shipment
@@ -337,7 +347,10 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
 }
 
@@ -365,6 +378,7 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 type RequestShipmentDiversionHandler struct {
 	handlers.HandlerContext
 	services.ShipmentDiversionRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment diversion
@@ -401,7 +415,10 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 	h.triggerRequestShipmentDiversionEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
 }
 
@@ -429,6 +446,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(sh
 type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerContext
 	services.ShipmentDiversionApprover
+	services.ShipmentSITStatus
 }
 
 // Handle approves a shipment diversion
@@ -465,7 +483,10 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload)
 }
 
@@ -530,7 +551,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 
 	h.triggerShipmentRejectionEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	payload := payloads.MTOShipment(shipment, nil)
 	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
 }
 
@@ -558,6 +579,7 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 type RequestShipmentCancellationHandler struct {
 	handlers.HandlerContext
 	services.ShipmentCancellationRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment diversion
@@ -594,7 +616,10 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 	h.triggerRequestShipmentCancellationEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
 }
 
@@ -622,6 +647,7 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 type RequestShipmentReweighHandler struct {
 	handlers.HandlerContext
 	services.ShipmentReweighRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment reweigh
@@ -663,7 +689,11 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
-	payload := payloads.Reweigh(reweigh)
+
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.Reweigh(reweigh, sitStatusPayload)
 	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
 }
 
@@ -691,6 +721,7 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipme
 type ApproveSITExtensionHandler struct {
 	handlers.HandlerContext
 	services.SITExtensionApprover
+	services.ShipmentSITStatus
 }
 
 // Handle ... approves the SIT extension
@@ -727,7 +758,10 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensio
 		return handleError(err)
 	}
 
-	shipmentPayload := payloads.MTOShipment(updatedShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
 	return shipmentops.NewApproveSitExtensionOK().WithPayload(shipmentPayload)
 }
@@ -736,6 +770,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensio
 type DenySITExtensionHandler struct {
 	handlers.HandlerContext
 	services.SITExtensionDenier
+	services.ShipmentSITStatus
 }
 
 // Handle ... denies the SIT extension
@@ -771,7 +806,10 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 		return handleError(err)
 	}
 
-	shipmentPayload := payloads.MTOShipment(updatedShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }

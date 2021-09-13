@@ -2913,6 +2913,30 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  SITStatus:
+    properties:
+      location:
+        enum:
+          - "At origin"
+          - "At destination"
+      totalSITDaysUsed:
+        type: integer
+        minimum: 0
+      daysInSIT:
+        type: integer
+        minimum: 0
+      daysRemaining:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      pastSITServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -3019,6 +3043,8 @@ definitions:
         x-nullable: true
       sitExtensions:
         $ref: '#/definitions/SitExtensions'
+      sitStatus:
+        $ref: '#/definitions/SITStatus'
       eTag:
         type: string
       billableWeightCap:

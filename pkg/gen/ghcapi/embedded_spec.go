@@ -3708,6 +3708,9 @@ func init() {
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
         },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -4507,6 +4510,37 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "daysRemaining": {
+          "type": "integer"
+        },
+        "location": {
+          "enum": [
+            "At origin",
+            "At destination"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
     },
     "ServiceItemParamName": {
       "type": "string",
@@ -9421,6 +9455,9 @@ func init() {
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
         },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -10220,6 +10257,40 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "daysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "enum": [
+            "At origin",
+            "At destination"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     },
     "ServiceItemParamName": {
       "type": "string",

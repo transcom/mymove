@@ -16,14 +16,14 @@ func NewMTOShipmentFetcher() services.MTOShipmentFetcher {
 	return &mtoShipmentFetcher{}
 }
 
-func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.MTOShipments, error) {
+func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
 	var move models.Move
 	err := appCtx.DB().Find(&move, moveID)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "move not found")
 	}
 
-	var shipments models.MTOShipments
+	var shipments []models.MTOShipment
 	// TODO: These associations could be preloaded, but it will require Pop 5.3.4 to land first as it
 	//   has a fix for using a "has_many" association that has a pointer-based foreign key (like the
 	//   case with "MTOServiceItems.ReService"). There appear to be other changes that will need to be
@@ -37,5 +37,5 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		return nil, err
 	}
 
-	return &shipments, nil
+	return shipments, nil
 }
