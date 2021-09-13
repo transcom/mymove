@@ -15,6 +15,9 @@ describe('feature flags', () => {
     expect(detectEnvironment('production', 'office.exp.move.mil')).toEqual('experimental');
     expect(detectEnvironment('production', 'my.exp.move.mil')).toEqual('experimental');
 
+    expect(detectEnvironment('production', 'my.demo.dp3.us')).toEqual('demo');
+    expect(detectEnvironment('production', 'office.demo.dp3.us')).toEqual('demo');
+
     expect(detectEnvironment('production', 'localhost')).toEqual('development');
     expect(detectEnvironment('production', 'milmovelocal')).toEqual('development');
     expect(detectEnvironment('production', 'officelocal')).toEqual('development');

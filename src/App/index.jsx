@@ -10,10 +10,10 @@ import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
 import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'utils/featureFlags';
-
 import '../icons';
 import 'shared/shared.css';
 import './index.css';
+import MarkerIO from 'components/ThirdParty/MarkerIO';
 
 const Office = lazy(() => import('pages/Office'));
 const MyMove = lazy(() => import('scenes/MyMove'));
@@ -54,6 +54,7 @@ const App = () => {
               <ConnectedRouter history={history}>
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Office />
+                  {flags.markerIO && <MarkerIO />}
                 </Suspense>
                 <ReactQueryDevtools initialIsOpen={false} />
               </ConnectedRouter>
@@ -80,6 +81,7 @@ const App = () => {
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingPlaceholder />}>
             <MyMove />
+            {flags.markerIO && <MarkerIO />}
           </Suspense>
         </ConnectedRouter>
       </AppContext.Provider>

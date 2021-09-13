@@ -18,6 +18,7 @@ const defaultFlags = {
   allOrdersTypes: false,
   hhgFlow: false,
   ghcFlow: false,
+  markerIO: false,
 };
 
 const environmentFlags = {
@@ -44,6 +45,12 @@ const environmentFlags = {
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
+    markerIO: true,
+  },
+
+  demo: {
+    ...defaultFlags,
+    markerIO: true,
   },
 
   production: {
@@ -97,6 +104,10 @@ export function detectEnvironment(nodeEnv, host) {
     case 'office.exp.move.mil':
     case 'admin.exp.move.mil':
       return 'experimental';
+    case 'my.demo.dp3.us':
+    case 'office.demo.dp3.us':
+    case 'admin.demo.dp3.us':
+      return 'demo';
     default:
       return 'development';
   }
