@@ -814,7 +814,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 type CreateApprovedSITExtensionHandler struct {
 	handlers.HandlerContext
 	// TODO: take from Namibia's branch, most likely?
-	services.SITExtensionCreator
+	services.ApprovedSITExtensionCreator
 }
 
 // Handle creates the approved SIT extension
@@ -830,7 +830,7 @@ func (h CreateApprovedSITExtensionHandler) Handle(params shipmentops.CreateAppro
 
 	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload)
 	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
-	shipment, err := h.SITExtensionCreator.CreateApprovedSITExtension(appCtx, sitExtension, shipmentID, params.IfMatch)
+	shipment, err := h.ApprovedSITExtensionCreator.CreateApprovedSITExtension(appCtx, sitExtension, shipmentID, params.IfMatch)
 
 	if err != nil {
 		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))

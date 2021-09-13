@@ -16,8 +16,8 @@ import (
 type sitExtensionCreator struct {
 }
 
-// NewSITExtensionCreator creates a new struct with the service dependencies
-func NewSITExtensionCreator() services.SITExtensionCreator {
+// NewApprovedSITExtensionCreator creates a new struct with the service dependencies
+func NewApprovedSITExtensionCreator() services.ApprovedSITExtensionCreator {
 	return &sitExtensionCreator{}
 }
 

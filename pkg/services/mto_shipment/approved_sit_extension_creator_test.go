@@ -13,7 +13,7 @@ import (
 
 func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
-		sitExtensionCreator := NewSITExtensionCreator()
+		sitExtensionCreator := NewApprovedSITExtensionCreator()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -33,7 +33,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 	})
 
 	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
-		sitExtensionCreator := NewSITExtensionCreator()
+		sitExtensionCreator := NewApprovedSITExtensionCreator()
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -54,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 	})
 
 	suite.T().Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func(t *testing.T) {
-		sitExtensionCreator := NewSITExtensionCreator()
+		sitExtensionCreator := NewApprovedSITExtensionCreator()
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		requestedDays := 45

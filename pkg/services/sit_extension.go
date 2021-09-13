@@ -19,8 +19,8 @@ type SITExtensionDenier interface {
 	DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error)
 }
 
-//SITExtensionCreator is the service object interface for denying a SIT extension
-//go:generate mockery --name SITExtensionCreator --disable-version-string
-type SITExtensionCreator interface {
+//ApprovedSITExtensionCreator is the service object interface to create an approved SIT extension
+//go:generate mockery --name ApprovedSITExtensionCreator --disable-version-string
+type ApprovedSITExtensionCreator interface {
 	CreateApprovedSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }

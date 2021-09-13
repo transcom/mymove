@@ -226,7 +226,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentCreateApprovedSitExtensionHandler = CreateApprovedSITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionCreator(),
+		mtoshipment.NewApprovedSITExtensionCreator(),
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}
