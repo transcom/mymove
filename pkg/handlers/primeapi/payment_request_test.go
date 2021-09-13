@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 						Params: []*primemessages.ServiceItemParamsItems0{
 							{
 								Key:   string(models.ServiceItemParamNameSITPaymentRequestStart),
-								Value: "5678",
+								Value: "2021-08-05",
 							},
 						},
 					},
