@@ -53,7 +53,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 		suite.Contains(err.Error(), mtoShipment.ID.String())
 	})
 
-	suite.T().Run("Creates an approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func(t *testing.T) {
+	suite.T().Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func(t *testing.T) {
 		sitExtensionCreator := NewSITExtensionCreator()
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -76,13 +76,18 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 		err = suite.DB().Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
 		var sitExtensionInDB models.SITExtension
-		err = suite.DB().Find(&sitExtensionInDB, updatedShipment.ID)
+		err = suite.DB().First(&sitExtensionInDB)
 		suite.NoError(err)
+
+		var allSITExtensions []models.SITExtension
+		err = suite.DB().All(&allSITExtensions)
+		suite.NoError(err)
+		suite.Equal(1, len(allSITExtensions))
 
 		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(requestedDays, *updatedShipment.SITDaysAllowance)
 		suite.Equal(requestedDays, *sitExtensionInDB.ApprovedDays)
-		suite.Equal(requestedDays, &sitExtensionInDB.RequestedDays)
+		suite.Equal(requestedDays, sitExtensionInDB.RequestedDays)
 		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
 		suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
 	})

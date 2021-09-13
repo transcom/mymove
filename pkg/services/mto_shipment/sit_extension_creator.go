@@ -21,7 +21,7 @@ func NewSITExtensionCreator() services.SITExtensionCreator {
 	return &sitExtensionCreator{}
 }
 
-// CreateApprovedSITExtension creates a SIT Extension with a status of APPROVED
+// CreateApprovedSITExtension creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
 func (f *sitExtensionCreator) CreateApprovedSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
