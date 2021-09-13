@@ -77,6 +77,10 @@ type Move struct {
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
+	// tio remarks
+	// Example: approved additional weight
+	TioRemarks *string `json:"tioRemarks,omitempty"`
+
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`

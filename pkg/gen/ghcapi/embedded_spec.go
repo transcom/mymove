@@ -1497,7 +1497,7 @@ func init() {
     },
     "/orders/{orderID}/update-max-billable-weight/tio": {
       "patch": {
-        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements",
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
         "consumes": [
           "application/json"
         ],
@@ -1519,10 +1519,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -3886,6 +3883,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -4047,6 +4049,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -5082,6 +5087,15 @@ func init() {
       }
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -5134,6 +5148,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {
@@ -7068,7 +7083,7 @@ func init() {
     },
     "/orders/{orderID}/update-max-billable-weight/tio": {
       "patch": {
-        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements",
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
         "consumes": [
           "application/json"
         ],
@@ -7091,6 +7106,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -9697,6 +9713,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -9858,6 +9879,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -10899,6 +10923,15 @@ func init() {
       "type": "object"
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -10951,6 +10984,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {

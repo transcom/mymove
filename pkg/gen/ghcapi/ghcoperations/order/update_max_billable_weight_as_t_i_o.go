@@ -33,7 +33,7 @@ func NewUpdateMaxBillableWeightAsTIO(ctx *middleware.Context, handler UpdateMaxB
 
 Updates the max billable weight with TIO remarks
 
-Updates the DBAuthorizedWeight attribute for the Order Entitlements
+Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
 
 */
 type UpdateMaxBillableWeightAsTIO struct {
