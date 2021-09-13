@@ -3,6 +3,8 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -22,7 +24,7 @@ func (r WeightReweighLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 
 	var reweighWeight *unit.Pound
 	// Make sure there's a reweigh weight since that's nullable
-	if r.MTOShipment.Reweigh != nil {
+	if r.MTOShipment.Reweigh != nil && r.MTOShipment.Reweigh.ID != uuid.Nil {
 		reweighWeight = r.MTOShipment.Reweigh.Weight
 	}
 
