@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const DataTable = ({ columnHeaders, dataRow, icon, custClass }) => (
-  <table className={classnames(styles.DataTable, 'table--data-point', custClass)}>
+  <table className={classnames(styles.dataTable, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
         {columnHeaders.map((header) => (
@@ -27,7 +27,7 @@ const DataTable = ({ columnHeaders, dataRow, icon, custClass }) => (
           // eslint-disable-next-line react/no-array-index-key
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!icon && i === 0 })}>
-              <div>{cell}</div>
+              <span>{cell}</span>
               {!!icon && i === 0 && icon}
             </div>
           </td>

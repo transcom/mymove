@@ -5,7 +5,7 @@ import propTypes from 'prop-types';
 import styles from './index.module.scss';
 
 const DataTableWrapper = ({ children, className }) => {
-  return <div className={classnames(styles.DataTableWrapper, 'table--data-point-group', className)}>{children}</div>;
+  return <div className={classnames(styles.dataTableWrapper, 'table--data-point-group', className)}>{children}</div>;
 };
 
 DataTableWrapper.propTypes = {

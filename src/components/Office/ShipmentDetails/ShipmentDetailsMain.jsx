@@ -1,11 +1,10 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
-
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
+import ShipmentSITExtensions from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensions';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';

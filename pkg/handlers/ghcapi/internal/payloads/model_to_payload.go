@@ -290,6 +290,7 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
 		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
 		RequestReason: string(sitExtension.RequestReason),
+		RequestedDays: int64(sitExtension.RequestedDays),
 		Status:        string(sitExtension.Status),
 		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
 		UpdatedAt:     (*strfmt.DateTime)(&sitExtension.UpdatedAt),
