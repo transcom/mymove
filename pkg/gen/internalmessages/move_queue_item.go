@@ -21,7 +21,7 @@ import (
 type MoveQueueItem struct {
 
 	// actual move date
-	// Example: 2018-04-25
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
@@ -40,7 +40,7 @@ type MoveQueueItem struct {
 	CustomerName *string `json:"customer_name"`
 
 	// delivered date
-	// Example: 2017-07-21T17:32:28Z
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	DeliveredDate *strfmt.DateTime `json:"delivered_date,omitempty"`
 
@@ -75,12 +75,12 @@ type MoveQueueItem struct {
 	ID *strfmt.UUID `json:"id"`
 
 	// invoice approved date
-	// Example: 2017-07-21T17:32:28Z
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	InvoiceApprovedDate *strfmt.DateTime `json:"invoice_approved_date,omitempty"`
 
 	// last modified date
-	// Example: 2017-07-21T17:32:28Z
+	// Example: 2017-07-21T17:32:28.000Z
 	// Required: true
 	// Format: date-time
 	LastModifiedDate *strfmt.DateTime `json:"last_modified_date"`
@@ -91,7 +91,7 @@ type MoveQueueItem struct {
 	Locator *string `json:"locator"`
 
 	// move date
-	// Example: 2018-04-25
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	MoveDate *strfmt.Date `json:"move_date,omitempty"`
 
@@ -109,12 +109,12 @@ type MoveQueueItem struct {
 	OriginGbloc *string `json:"origin_gbloc,omitempty"`
 
 	// original move date
-	// Example: 2018-04-25
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
 	// pm survey conducted date
-	// Example: 2017-07-21T17:32:28Z
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	PmSurveyConductedDate *strfmt.DateTime `json:"pm_survey_conducted_date,omitempty"`
 
@@ -132,7 +132,7 @@ type MoveQueueItem struct {
 	Status *string `json:"status"`
 
 	// submitted date
-	// Example: 2018-04-25
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date-time
 	SubmittedDate *strfmt.DateTime `json:"submitted_date,omitempty"`
 

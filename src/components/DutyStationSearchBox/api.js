@@ -1,4 +1,4 @@
-import { getClient, checkResponse } from 'shared/Swagger/api';
+import { checkResponse, getClient } from 'shared/Swagger/api';
 
 export async function SearchDutyStations(query) {
   const client = await getClient();

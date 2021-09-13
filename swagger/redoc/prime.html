@@ -4,22 +4,43 @@
   <title>Prime API Reference</title>
   <!-- needed for adaptive design -->
   <meta content="width=device-width, initial-scale=1" name="viewport">
+  <meta charset="UTF-8">
 
-  <!--
-  ReDoc uses font options from the parent element
-  So override default browser styles
-  -->
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <!-- fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- theme -->
+  <link href="_theme.css" rel="stylesheet">
+  <script src="_theme.js"></script>
+
   <!-- {{{redocHead}}} -->
 </head>
 <body>
+  <header>
+    <div class="navbar">
+      <a class="navbar-brand" href="../index.html">MilMove API Documentation</a>
+      <ul class="navbar-list">
+        <li class="navbar-list-item">
+          <a href="https://github.com/transcom/mymove">GitHub</a>
+        </li>
+        <li class="navbar-list-item">
+          <a href="https://github.com/transcom/mymove/wiki">Wiki</a>
+        </li>
+      </ul>
+    </div>
+    <nav class="nav-header">
+      <a aria-current="page" class="nav-link active" href="prime.html">Prime</a>
+      <a class="nav-link" href="support.html">Support</a>
+    </nav>
+  </header>
+
   <!-- {{{redocHTML}}} -->
-  <redoc spec-url='../prime.yaml'></redoc>
-  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"> </script>
+  <main id="prime-redoc"></main>
+
+  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+  <script>
+    Redoc.init('../prime.yaml', REDOC_THEME, document.getElementById('prime-redoc'));
+  </script>
 </body>
 </html>

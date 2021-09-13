@@ -1,14 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
+import { Field, FormSection, getFormValues, reduxForm } from 'redux-form';
 
 import { selectMove } from 'shared/Entities/modules/moves';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberForOrders, updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
-import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
-import { PanelSwaggerField, PanelField, editablePanelify, RowBasedHeader } from 'shared/EditablePanel';
+import { editablePanelify, PanelField, PanelSwaggerField, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
