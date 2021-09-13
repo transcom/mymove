@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	html "html/template"
+	"strings"
 	text "text/template"
 
 	"github.com/gobuffalo/pop/v5"
@@ -27,18 +28,20 @@ type ReweighRequested struct {
 	db           *pop.Connection
 	logger       Logger
 	moveID       uuid.UUID
+	shipment     models.MTOShipment
 	session      *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
 // NewReweighRequested returns a new move submitted notification
-func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *ReweighRequested {
+func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID, shipment models.MTOShipment) *ReweighRequested {
 
 	return &ReweighRequested{
 		db:           db,
 		logger:       logger,
 		moveID:       moveID,
+		shipment:     shipment,
 		session:      session,
 		htmlTemplate: reweighRequestedHTMLTemplate,
 		textTemplate: reweighRequestedTextTemplate,
@@ -71,9 +74,11 @@ func (m ReweighRequested) emails() ([]emailContent, error) {
 		m.logger.Error("error rendering template", zap.Error(err))
 	}
 
+	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
+
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "FYI: Your HHG should be reweighed before it is delivered",
+		subject:        fmt.Sprintf("FYI: Your %v should be reweighed before it is delivered", shipmentType),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}

@@ -9,12 +9,13 @@ import (
 
 func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
+	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
-	}, move.ID)
+	}, move.ID, shipment)
 	subject := "FYI: Your HHG should be reweighed before it is delivered"
 
 	emails, err := notification.emails()
@@ -32,11 +33,12 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 
 func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
+	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
-	}, move.ID)
+	}, move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedHTMLContent := `<p><strong>Essential information</strong></p>
 <ul>
@@ -76,11 +78,12 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 
 func (suite *NotificationSuite) TestReweighRequestedTextTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
+	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
-	}, move.ID)
+	}, move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedTextContent := `Essential information
 * MilMove let your movers know that they need to reweigh your HHG shipment before they deliver it to your destination
