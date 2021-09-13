@@ -244,56 +244,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
-	suite.Run("fail to create payment request with invalid SIT dates", func() {
-		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
-		returnedPaymentRequest := models.PaymentRequest{
-			ID:                   subtestData.paymentRequestID,
-			MoveTaskOrderID:      subtestData.moveTaskOrderID,
-			PaymentRequestNumber: "1234-5678-1",
-			CreatedAt:            time.Now(),
-			UpdatedAt:            time.Now(),
-			PaymentServiceItems: []models.PaymentServiceItem{
-				{
-					ID: subtestData.serviceItemID3,
-				},
-			},
-		}
-
-		paymentRequestCreator := &mocks.PaymentRequestCreator{}
-		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
-
-		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestCreator,
-		}
-
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
-
-		params := paymentrequestop.CreatePaymentRequestParams{
-			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				ServiceItems: []*primemessages.ServiceItem{
-					{
-						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
-						Params: []*primemessages.ServiceItemParamsItems0{
-							{
-								Key:   string(models.ServiceItemParamNameSITPaymentRequestStart),
-								Value: "5678",
-							},
-						},
-					},
-				},
-				PointOfContact: "user@prime.com",
-			},
-		}
-		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
-	})
 	suite.Run("failed create payment request -- nil body", func() {
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
