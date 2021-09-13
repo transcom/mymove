@@ -15,6 +15,14 @@ tags:
   - name: queues
   - name: move
   - name: order
+    description: >
+      Move Orders - Commonly called “Orders,” especially in customer-facing
+      language. Orders are plural because they're a bundle of related orders
+      issued bya Service (e.g. Army, Air Force, Navy) to a customer that
+      authorize (and order) that customer to move from one location to another.
+
+      Orders are backed by $$ in the bank to support that move, which is
+      identified by a Line of Account (LOA) code on the orders document.
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -377,7 +385,9 @@ paths:
         format: uuid
     patch:
       summary: Updates the max billable weight with TIO remarks
-      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements
+      description: >-
+        Updates the DBAuthorizedWeight attribute for the Order Entitlements and
+        move TIO remarks
       operationId: updateMaxBillableWeightAsTIO
       tags:
         - order
@@ -391,10 +401,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
+        - $ref: '#/parameters/ifMatch'
       responses:
         '200':
           description: updated Order
@@ -2314,6 +2321,10 @@ definitions:
           Timestamp of when the TOO acknowledged the excess weight risk by
           either dismissing the alert or updating the max billable weight
         x-nullable: true
+      tioRemarks:
+        type: string
+        example: approved additional weight
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -2419,6 +2430,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3811,3 +3824,13 @@ responses:
     description: The payload was unprocessable.
     schema:
       $ref: '#/definitions/ValidationError'
+parameters:
+  ifMatch:
+    in: header
+    name: If-Match
+    type: string
+    required: true
+    description: >
+      Optimistic locking is implemented via the `If-Match` header. If the ETag
+      header does not match the value of the resource on the server, the server
+      rejects the change with a `412 Precondition Failed` error.

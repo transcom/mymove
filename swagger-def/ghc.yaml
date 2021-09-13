@@ -14,7 +14,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - name: order
+  - $ref: 'tags/order.yaml'
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -373,7 +373,7 @@ paths:
         format: uuid
     patch:
       summary: Updates the max billable weight with TIO remarks
-      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
       operationId: updateMaxBillableWeightAsTIO
       tags:
         - order
@@ -387,10 +387,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: updated Order
@@ -2269,6 +2266,10 @@ definitions:
         format: date-time
         description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
         x-nullable: true
+      tioRemarks:
+        type: string
+        example: approved additional weight
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -2374,6 +2375,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
