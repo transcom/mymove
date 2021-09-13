@@ -5,10 +5,12 @@ export function shipmentIsOverweight(estimatedWeight, weightCap) {
 }
 
 export function calcWeightRequested(mtoShipments) {
-  return mtoShipments.reduce(
-    (accum, shipment) => accum + Math.min(shipment.primeActualWeight, shipment?.reweigh.weight),
-    0,
-  );
+  return mtoShipments.reduce((accum, shipment) => {
+    if (!shipment.reweigh?.weight) {
+      return accum + shipment.primeActualWeight;
+    }
+    return accum + Math.min(shipment.primeActualWeight, shipment.reweigh.weight);
+  }, 0);
 }
 
 export function calcTotalBillableWeight(mtoShipments) {
@@ -16,7 +18,12 @@ export function calcTotalBillableWeight(mtoShipments) {
     if (shipment.billableWeightCap) {
       return accum + shipment.billableWeightCap;
     }
-    return accum + Math.min(shipment.primeActualWeight, shipment?.reweigh.weight);
+
+    if (!shipment.reweigh?.weight) {
+      return accum + shipment.primeActualWeight;
+    }
+
+    return accum + Math.min(shipment.primeActualWeight, shipment.reweigh.weight);
   }, 0);
 }
 

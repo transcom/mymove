@@ -39,7 +39,7 @@ export default function ReviewBillableWeight() {
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={documentsForViewer} />{' '}
+        <DocumentViewer files={documentsForViewer} />
       </div>
       <div className={styles.sidebar}>
         {sidebarType === 'MAX' ? (

@@ -8,7 +8,7 @@ import styles from './ShipmentList.module.scss';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
-import shipmentIsOverweight from 'utils/shipmentIsOverweight';
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 export const ShipmentListItem = ({
   shipment,
