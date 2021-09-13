@@ -64,7 +64,7 @@ export const ReviewBillableWeight = ({ match }) => {
             <div style={{ height: '100%', width: '350px' }}>
               <ShipmentCard
                 billableWeight={mtoShipments[0].billableWeight}
-                dateReweighRequested={mtoShipments[0].dateReweighRequested}
+                dateReweighRequested="mtoShipments[0].dateReweighRequested"
                 departedDate={mtoShipments[0].departedDate}
                 pickupAddress={mtoShipments[selectedShipmentIndex].pickupAddress}
                 destinationAddress={mtoShipments[0].destinationAddress}
