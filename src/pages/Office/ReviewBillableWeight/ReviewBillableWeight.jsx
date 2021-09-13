@@ -6,8 +6,11 @@ import { generatePath } from 'react-router';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
+import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
+import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
-import { useOrdersDocumentQueries } from 'hooks/queries';
+import { calcWeightRequested, calcTotalBillableWeight, calcTotalEstimatedWeight } from 'utils/shipmentWeights';
+import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -17,10 +20,16 @@ export default function ReviewBillableWeight() {
   const [sidebarType, setSidebarType] = React.useState('MAX');
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-
+  const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // weights
+  const maxBillableWeight = order.entitlement.authorizedWeight;
+  const weightAllowance = order.entitlement.totalWeight;
+  const weightRequested = calcWeightRequested(mtoShipments);
+  const totalBillableWeight = calcTotalBillableWeight(mtoShipments);
+  const totalEstimatedWeight = calcTotalEstimatedWeight(mtoShipments);
   const documentsForViewer = Object.values(upload);
 
   const handleClose = () => {
@@ -30,13 +39,25 @@ export default function ReviewBillableWeight() {
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={documentsForViewer} />
+        <DocumentViewer files={documentsForViewer} />{' '}
       </div>
       <div className={styles.sidebar}>
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
-              Review max billable weight content should go in here
+              <WeightSummary
+                maxBillableWeight={maxBillableWeight}
+                totalBillableWeight={totalBillableWeight}
+                weightRequested={weightRequested}
+                weightAllowance={weightAllowance}
+                shipments={mtoShipments}
+              />
+              <EditBillableWeight
+                title="Max billable weight"
+                estimatedWeight={totalEstimatedWeight}
+                maxBillableWeight={maxBillableWeight}
+                weightAllowance={weightAllowance}
+              />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
               <Button

@@ -88,7 +88,7 @@ export default function EditBillableWeight({
   };
 
   return (
-    <>
+    <div className={styles.wrapper}>
       <h4 className={styles.header}>{title}</h4>
       {showEditBtn ? (
         <>
@@ -118,7 +118,7 @@ export default function EditBillableWeight({
           )}
 
           <Fieldset className={styles.fieldset}>
-            <TextInput className={styles.maxBillableWeight} type="number" /> lbs
+            <TextInput className={styles.maxBillableWeight} type="number" value={maxBillableWeight} /> lbs
             <Label htmlFor="remarks">Remarks</Label>
             <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
           </Fieldset>
@@ -130,7 +130,7 @@ export default function EditBillableWeight({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

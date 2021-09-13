@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './WeightSummary.module.scss';
 
 import { formatWeight } from 'shared/formatters';
-import shipmentIsOverweight from 'utils/shipmentIsOverweight';
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 const WeightSummary = ({
   maxBillableWeight,
@@ -39,12 +39,12 @@ const WeightSummary = ({
         {shipments.map((shipment) => {
           return (
             <div className={styles.weight}>
-              {shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight) ? (
+              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
                 <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
               ) : (
                 <div className={styles.noEdit} />
               )}
-              {formatWeight(shipment.billableWeight)}
+              {formatWeight(shipment.billableWeightCap)}
             </div>
           );
         })}
