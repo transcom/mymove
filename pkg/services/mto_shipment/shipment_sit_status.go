@@ -36,7 +36,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	// Collect all Departure SITs from origin and destination and find the most recent SIT service item
 	for i, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT {
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT) &&
+			serviceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItem.SITEntryDate.After(today) {
 				// There is a SIT service item that hasn't entered storage yet skip for now
 			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
