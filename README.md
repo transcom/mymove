@@ -910,13 +910,10 @@ the value of the `basePath:` stanza at the root of the generated
 You can view the documentation for the following APIs (powered by Swagger UI) at
 the following URLS with a local client and server running:
 
-* internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
-
-* admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
-
-* GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
-
-* Prime API: <http://primelocal:3000/swagger-ui/prime.html>
+* internal API: [http://milmovelocal:3000/swagger-ui/internal.html](http://milmovelocal:3000/swagger-ui/internal.html)
+* admin API: [http://milmovelocal:3000/swagger-ui/admin.html](http://milmovelocal:3000/swagger-ui/admin.html)
+* GHC API: [http://milmovelocal:3000/swagger-ui/ghc.html](http://milmovelocal:3000/swagger-ui/ghc.html)
+* Prime API: [http://primelocal:3000/swagger-ui/prime.html](http://primelocal:3000/swagger-ui/prime.html)
 
 For more information on _API / Swagger_ definitions, please review the README
 documentation found in the `./swagger/README.md` and `./swagger-def/README.md`
