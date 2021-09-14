@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, DateField, BooleanField } from 'react-admin';
+import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
 import PropTypes from 'prop-types';
 
 const MoveShowTitle = ({ record }) => {
