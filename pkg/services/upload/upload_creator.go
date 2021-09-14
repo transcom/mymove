@@ -33,22 +33,24 @@ func (u *uploadCreator) CreateUpload(
 	uploadType models.UploadType,
 ) (*models.Upload, error) {
 	var upload *models.Upload
-	var uploadError error
+	var uploadErr error
 
 	// If we are already in a transaction, don't start one
 	if appCtx.DB().TX != nil {
-		upload, uploadError = u.createUploadTxn(appCtx, file, uploadFilename, uploadType)
+		upload, uploadErr = u.createUploadTxn(appCtx, file, uploadFilename, uploadType)
 	} else {
+		// This error is ignored because the value is saved directly to the variable defined outside of the
+		// transaction function, uploadError
 		_ = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			upload, uploadError = u.createUploadTxn(txnAppCtx, file, uploadFilename, uploadType)
-			if uploadError != nil {
-				return uploadError // this value is saved to the variable defined outside of the transaction function
+			upload, uploadErr = u.createUploadTxn(txnAppCtx, file, uploadFilename, uploadType)
+			if uploadErr != nil {
+				return uploadErr
 			}
 			return nil
 		})
 	}
-	if uploadError != nil {
-		return nil, uploadError
+	if uploadErr != nil {
+		return nil, uploadErr
 	}
 
 	return upload, nil
