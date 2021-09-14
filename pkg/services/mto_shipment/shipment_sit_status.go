@@ -28,7 +28,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	}
 
 	var shipmentSITStatus services.SITStatus
-	var mostRecentSIT *models.MTOServiceItem
+	var currentSIT *models.MTOServiceItem
 
 	year, month, day := time.Now().Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -37,37 +37,38 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	for i, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
 		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT {
-			if mostRecentSIT == nil {
-				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
-				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
-				mostRecentSIT = &shipment.MTOServiceItems[i]
-			} else if mostRecentSIT.SITEntryDate.Before(*serviceItem.SITEntryDate) {
-				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, *mostRecentSIT)
-				shipmentSITStatus.DaysInSIT = daysInSIT(*mostRecentSIT, today)
-				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
-				mostRecentSIT = &shipment.MTOServiceItems[i]
-			} else {
+			if serviceItem.SITEntryDate.After(today) {
+				// There is a SIT service item that hasn't entered storage yet skip for now
+			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
+				// SIT is in the past
 				shipmentSITStatus.TotalSITDaysUsed += daysInSIT(serviceItem, today)
 				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, shipment.MTOServiceItems[i])
+			} else {
+				// SIT is currently in storage
+				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
+				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
+				currentSIT = &shipment.MTOServiceItems[i]
 			}
 		}
 	}
 
 	// There were no departure SIT service items for this shipment
-	if mostRecentSIT == nil {
+	if currentSIT == nil && len(shipmentSITStatus.PastSITs) == 0 {
 		return nil
 	}
 
 	shipmentSITStatus.ShipmentID = shipment.ID
 
-	if mostRecentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
-		shipmentSITStatus.Location = OriginSITLocation
-	} else {
-		shipmentSITStatus.Location = DestinationSITLocation
-	}
+	if currentSIT != nil {
+		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
+			shipmentSITStatus.Location = OriginSITLocation
+		} else {
+			shipmentSITStatus.Location = DestinationSITLocation
+		}
 
-	shipmentSITStatus.SITEntryDate = *mostRecentSIT.SITEntryDate
-	shipmentSITStatus.SITDepartureDate = mostRecentSIT.SITDepartureDate
+		shipmentSITStatus.SITEntryDate = *currentSIT.SITEntryDate
+		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
+	}
 
 	// previously created shipments will not have a value here
 	if shipment.SITDaysAllowance != nil {
