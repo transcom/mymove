@@ -160,7 +160,7 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 		Where("mto_shipments.id = ?", shipmentID).
 		First(&serviceMember)
 	if err != nil {
-		return &serviceMember, fmt.Errorf("error fetching service member email for shipment ID: %s with error %w", shipmentID, err)
+		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
 	}
 	return &serviceMember, nil
 }
