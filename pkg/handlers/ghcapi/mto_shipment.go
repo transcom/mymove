@@ -810,14 +810,14 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }
 
-// CreateSITExtensionAsTOO creates a SIT extension in the approved state
-type CreateSITExtensionAsTOO struct {
+// CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
+type CreateSITExtensionAsTOOHandler struct {
 	handlers.HandlerContext
 	services.SITExtensionCreatorAsTOO
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionAsTOO) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
+func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
