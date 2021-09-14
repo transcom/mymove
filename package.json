@@ -134,7 +134,7 @@
     "@zeplin/cli": "1.1.12",
     "@zeplin/cli-connect-react-plugin": "1.1.1",
     "@zeplin/cli-connect-storybook-plugin": "^0.5.4",
-    "cypress": "^8.3.1",
+    "cypress": "^8.4.0",
     "cypress-audit": "^1.0.0",
     "cypress-wait-until": "^1.7.1",
     "danger": "^10.6.6",
