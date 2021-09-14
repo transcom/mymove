@@ -31,7 +31,7 @@ export default function ReviewBillableWeight() {
     setSelectedShipmentIndex(newSelectedShipmentIdx);
   };
 
-  const isLastShipment = selectedShipmentIndex === mtoShipments.length - 1;
+  const isLastShipment = selectedShipmentIndex === mtoShipments?.length - 1;
   const history = useHistory();
   const [sidebarType, setSidebarType] = React.useState('MAX');
 
