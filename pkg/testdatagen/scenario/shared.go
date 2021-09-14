@@ -1303,7 +1303,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	originPickupSIT = *updatedDOPSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -1337,7 +1337,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	serviceItemDDDSIT = *updatedDDDSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
