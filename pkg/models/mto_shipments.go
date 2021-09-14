@@ -150,7 +150,7 @@ func (m MTOShipment) TableName() string {
 	return "mto_shipments"
 }
 
-// GetCustomerFromShipment gets the service member's email given a shipment id
+// GetCustomerFromShipment gets the service member given a shipment id
 func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().
