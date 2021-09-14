@@ -19,7 +19,7 @@ export const Card = (argTypes) => (
       weightAllowance={8000}
       onReviewWeights={argTypes.onReviewWeights}
       shipments={[
-        { id: '0001', shipmentType: 'HHG', billableWeight: 6161, estimatedWeight: 5600 },
+        { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6161, estimatedWeight: 5600 },
         {
           id: '0002',
           shipmentType: 'HHG',
@@ -27,7 +27,7 @@ export const Card = (argTypes) => (
           estimatedWeight: 5000,
           reweigh: { id: '1234' },
         },
-        { id: '0003', shipmentType: 'HHG', billableWeight: 3400, estimatedWeight: 5000 },
+        { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3400, estimatedWeight: 5000 },
       ]}
     />
   </div>
