@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewBillableWeight from './ReviewBillableWeight';
 
-import { useOrdersDocumentQueries } from 'hooks/queries';
+import { formatWeight } from 'shared/formatters';
+import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { calcWeightRequested, calcTotalBillableWeight, calcTotalEstimatedWeight } from 'utils/shipmentWeights';
 
 // Mock the document viewer since we're not really testing that aspect here.
 // Document Viewer tests should be covered in the component itself.
@@ -15,6 +17,7 @@ jest.mock('components/DocumentViewer/DocumentViewer', () => {
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
+  useMovePaymentRequestsQueries: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -61,43 +64,51 @@ const mockDestinationDutyStation = {
   name: 'Fort Gordon',
 };
 
-const useOrdersDocumentQueriesReturnValue = {
-  orders: {
-    1: {
-      agency: 'ARMY',
-      customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
-      date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
-      destinationDutyStation: mockDestinationDutyStation,
-      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
-      entitlement: {
-        authorizedWeight: 5000,
-        dependentsAuthorized: true,
-        eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
-        id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
-        nonTemporaryStorage: true,
-        privatelyOwnedVehicle: true,
-        proGearWeight: 2000,
-        proGearWeightSpouse: 500,
-        requiredMedicalEquipmentWeight: 1000,
-        organizationalClothingAndIndividualEquipment: true,
-        storageInTransit: 2,
-        totalDependents: 1,
-        totalWeight: 5000,
-      },
-      first_name: 'Leo',
-      grade: 'E_1',
-      id: '1',
-      last_name: 'Spacemen',
-      order_number: 'ORDER3',
-      order_type: 'PERMANENT_CHANGE_OF_STATION',
-      order_type_detail: 'HHG_PERMITTED',
-      originDutyStation: mockOriginDutyStation,
-      report_by_date: '2018-08-01',
-      tac: 'F8E1',
-      sac: 'E2P3',
+const mockOrders = {
+  1: {
+    agency: 'ARMY',
+    customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+    date_issued: '2018-03-15',
+    department_indicator: 'AIR_FORCE',
+    destinationDutyStation: mockDestinationDutyStation,
+    eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
+    entitlement: {
+      authorizedWeight: 5000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
+      id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      requiredMedicalEquipmentWeight: 1000,
+      organizationalClothingAndIndividualEquipment: true,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 5000,
     },
+    first_name: 'Leo',
+    grade: 'E_1',
+    id: '1',
+    last_name: 'Spacemen',
+    order_number: 'ORDER3',
+    order_type: 'PERMANENT_CHANGE_OF_STATION',
+    order_type_detail: 'HHG_PERMITTED',
+    originDutyStation: mockOriginDutyStation,
+    report_by_date: '2018-08-01',
+    tac: 'F8E1',
+    sac: 'E2P3',
   },
+};
+
+const mockMtoShipments = [
+  { id: 1, billableWeightCap: 1000, primeEstimatedWeight: 1000, primeActualWeight: 300, reweigh: { weight: 100 } },
+  { id: 2, billableWeightCap: 2000, primeEstimatedWeight: 2000, primeActualWeight: 400, reweigh: { weight: 1000 } },
+  { id: 3, billableWeightCap: 3000, primeEstimatedWeight: 7000, primeActualWeight: 300, reweigh: { weight: 200 } },
+];
+
+const useOrdersDocumentQueriesReturnValue = {
+  orders: mockOrders,
   upload: {
     z: {
       id: 'z',
@@ -106,6 +117,11 @@ const useOrdersDocumentQueriesReturnValue = {
       url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
     },
   },
+};
+
+const useMovePaymentRequestsReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: mockMtoShipments,
 };
 
 const loadingReturnValue = {
@@ -124,6 +140,7 @@ describe('ReviewBillableWeight', () => {
   describe('check loading and error component states', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       render(<ReviewBillableWeight />);
 
@@ -133,6 +150,7 @@ describe('ReviewBillableWeight', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       render(<ReviewBillableWeight />);
 
@@ -143,6 +161,7 @@ describe('ReviewBillableWeight', () => {
 
   it('renders the component', () => {
     useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
     render(<ReviewBillableWeight />);
     expect(screen.getByText('Review weights')).toBeInTheDocument();
@@ -165,6 +184,7 @@ describe('ReviewBillableWeight', () => {
 
   it('takes the user to review the shipment weights when the review weights button is clicked', async () => {
     useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
     render(<ReviewBillableWeight />);
 
@@ -176,5 +196,34 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Shipment weights')).toBeInTheDocument();
     });
+  });
+
+  it('renders weight summary', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+    const weightRequested = formatWeight(calcWeightRequested(mockMtoShipments));
+    const totalBillableWeight = formatWeight(calcTotalBillableWeight(mockMtoShipments));
+    render(<ReviewBillableWeight />);
+    expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
+      formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
+    );
+    expect(screen.getByTestId('weightAllowance').textContent).toBe(
+      formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
+    );
+    expect(screen.getByTestId('weightRequested').textContent).toBe(weightRequested);
+    expect(screen.getByTestId('totalBillableWeight').textContent).toBe(totalBillableWeight);
+  });
+
+  it.only('renders max billable weight and edit view', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+    const estimatedWeight = formatWeight(calcTotalEstimatedWeight(mockMtoShipments) * 1.1);
+    const weightAllowance = formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight);
+
+    render(<ReviewBillableWeight />);
+
+    userEvent.click(screen.getByText('Edit'));
+    expect(screen.getByTestId('maxWeight-weightAllowance').textContent).toBe(weightAllowance);
+    expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe(estimatedWeight);
   });
 });

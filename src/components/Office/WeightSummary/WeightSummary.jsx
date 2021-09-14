@@ -19,15 +19,19 @@ const WeightSummary = ({
     <div className={styles.weightSummaryContainer}>
       <div>
         <h4 className={styles.weightSummaryHeading}>Max billable weight</h4>
-        <div className={styles.marginBottom}>{formatWeight(maxBillableWeight)}</div>
+        <div data-testid="maxBillableWeight" className={styles.marginBottom}>
+          {formatWeight(maxBillableWeight)}
+        </div>
         <h4 className={styles.weightSummaryHeading}>Weight requested</h4>
-        <div className={styles.marginBottom}>{formatWeight(weightRequested)}</div>
+        <div data-testid="weightRequested" className={styles.marginBottom}>
+          {formatWeight(weightRequested)}
+        </div>
         <h4 className={styles.weightSummaryHeading}>Weight allowance</h4>
-        <div>{formatWeight(weightAllowance)}</div>
+        <div data-testid="weightAllowance">{formatWeight(weightAllowance)}</div>
       </div>
       <div>
         <h4 className={styles.weightSummaryHeading}>Total billable weight</h4>
-        <div className={styles.weight}>
+        <div data-testid="totalBillableWeight" className={styles.weight}>
           {totalBillableWeightFlag ? (
             <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
           ) : (
@@ -38,7 +42,7 @@ const WeightSummary = ({
         <hr />
         {shipments.map((shipment) => {
           return (
-            <div className={styles.weight}>
+            <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
               {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
                 <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
               ) : (
@@ -58,13 +62,17 @@ WeightSummary.propTypes = {
   weightRequested: number.isRequired,
   weightAllowance: number.isRequired,
   totalBillableWeight: number.isRequired,
-  totalBillableWeightFlag: bool.isRequired,
+  totalBillableWeightFlag: bool,
   shipments: arrayOf(
     shape({
-      billableWeight: number.isRequired,
-      estimatedWeight: number.isRequired,
+      billableWeightCap: number.isRequired,
+      primeEstimatedWeight: number.isRequired,
     }),
   ).isRequired,
+};
+
+WeightSummary.defaultProps = {
+  totalBillableWeightFlag: false,
 };
 
 export default WeightSummary;
