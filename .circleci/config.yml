@@ -132,9 +132,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for exp env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -1809,7 +1809,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: fix-exp-deploy
 
       - integration_tests_mtls:
           requires:
@@ -1822,7 +1822,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: fix-exp-deploy
 
       - client_test:
           requires:
@@ -1830,7 +1830,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: fix-exp-deploy
 
       - server_test:
           requires:
@@ -1838,7 +1838,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: fix-exp-deploy
 
       - build_app:
           requires:
@@ -1977,28 +1977,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - push_migrations_exp:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - push_tasks_exp:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - push_webhook_client_exp:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - deploy_exp_migrations:
           requires:
@@ -2013,35 +2013,35 @@ workflows:
             - push_webhook_client_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - deploy_exp_webhook_client:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: fix-exp-deploy
 
       - push_app_stg:
           requires:
