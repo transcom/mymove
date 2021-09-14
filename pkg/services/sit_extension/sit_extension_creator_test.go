@@ -1,13 +1,14 @@
 package sitextension
 
 import (
+	"testing"
+
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"testing"
-	"time"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
@@ -16,10 +17,10 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// Create a valid SIT Extension for the move
 	sit := &models.SITExtension{
-		RequestReason: string(),
-		RequestedDays: int(),
-		DecisionDate: time.Time,
-		MTOShipmentID:  mtoShipment.ID,
+		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+		Status:        models.SITExtensionStatusApproved,
+		MTOShipmentID: mtoShipment.ID,
+		RequestedDays: 10,
 	}
 
 	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)

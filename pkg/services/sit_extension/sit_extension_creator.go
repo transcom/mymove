@@ -3,9 +3,12 @@ package sitextension
 import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+
+	"fmt"
 )
 
 type sitExtensionCreator struct {
@@ -40,12 +43,13 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 
 	err = validateSITExtension(appCtx, *sitExtension, shipment, checks...)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
 	verrs, err := appCtx.DB().ValidateAndCreate(sitExtension)
 
-	if verrs !=nil && verrs.HasAny() {
+	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the SIT extension.")
 	} else if err != nil {
 		return nil, services.NewQueryError("SITExtension", err, "")

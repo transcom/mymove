@@ -2,6 +2,7 @@ package sitextension
 
 import (
 	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -13,11 +14,13 @@ import (
 
 // checkShipmentID checks that the user can't change the shipment ID
 func checkShipmentID() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension,  _ *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		if sitExtension.MTOShipmentID == uuid.Nil {
 			verrs.Add("MTOShipmentID", "Shipment ID is required")
+			fmt.Println("☀️")
+			fmt.Println(verrs)
 		}
 		return verrs
 	})
@@ -27,24 +30,17 @@ func checkShipmentID() sitExtensionValidator {
 func checkRequiredFields() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-
 		var sitStatus models.SITExtensionStatus
 		var sitExtensionReason models.SITExtensionRequestReason
-		var approvedDays = sitExtension.ApprovedDays
-		var decisionDate = sitExtension.DecisionDate
-
+		var sitRequestedDays int
 
 		sitStatus = sitExtension.Status
 		sitExtensionReason = sitExtension.RequestReason
+		sitRequestedDays = sitExtension.RequestedDays
 
-		// Check that we have something in the ApprovedDays field:
-		if approvedDays == nil {
-			verrs.Add("approvedDays", "cannot be empty")
-		}
-
-		// Check that we have something in the DecisionDate field:
-		if decisionDate == nil {
-			verrs.Add("decisionDate", "cannot be empty")
+		// Check that we have something in the Status field:
+		if sitRequestedDays == 0 {
+			verrs.Add("RequestedDays", "cannot be blank")
 		}
 
 		// Check that we have something in the Status field:
@@ -63,7 +59,7 @@ func checkRequiredFields() sitExtensionValidator {
 
 //checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension,  shipment *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
 		if shipment == nil {
 			return services.NewNotFoundError(sitExtension.ID, "while looking for Prime-available Shipment")
 		}

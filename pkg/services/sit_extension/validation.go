@@ -2,6 +2,7 @@ package sitextension
 
 import (
 	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -24,7 +25,7 @@ func validateSITExtension(
 ) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {
-		if err := checker.Validate(appCtx, sitExtension,  shipment); err != nil {
+		if err := checker.Validate(appCtx, sitExtension, shipment); err != nil {
 			switch e := err.(type) {
 			case *validate.Errors:
 				// accumulate validation errors
