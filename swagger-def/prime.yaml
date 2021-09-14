@@ -2164,6 +2164,8 @@ definitions:
       - ServiceAreaOrigin
       - ServicesScheduleDest
       - ServicesScheduleOrigin
+      - SITPaymentRequestEnd
+      - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
       - WeightAdjusted
