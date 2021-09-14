@@ -102,9 +102,36 @@ const mockOrders = {
 };
 
 const mockMtoShipments = [
-  { id: 1, billableWeightCap: 1000, primeEstimatedWeight: 1000, primeActualWeight: 300, reweigh: { weight: 100 } },
-  { id: 2, billableWeightCap: 2000, primeEstimatedWeight: 2000, primeActualWeight: 400, reweigh: { weight: 1000 } },
-  { id: 3, billableWeightCap: 3000, primeEstimatedWeight: 7000, primeActualWeight: 300, reweigh: { weight: 200 } },
+  {
+    id: 1,
+    billableWeightCap: 1000,
+    primeEstimatedWeight: 1000,
+    primeActualWeight: 300,
+    reweigh: { weight: 100, verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+    destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+    actualPickupDate: '2021-08-31',
+  },
+  {
+    id: 2,
+    billableWeightCap: 2000,
+    primeEstimatedWeight: 2000,
+    primeActualWeight: 400,
+    reweigh: { weight: 1000, verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+    destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+    actualPickupDate: '2021-08-31',
+  },
+  {
+    id: 3,
+    billableWeightCap: 3000,
+    primeEstimatedWeight: 7000,
+    primeActualWeight: 300,
+    reweigh: { weight: 200, verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+    destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+    actualPickupDate: '2021-08-31',
+  },
 ];
 
 const useOrdersDocumentQueriesReturnValue = {
@@ -195,6 +222,29 @@ describe('ReviewBillableWeight', () => {
     await waitFor(() => {
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Shipment weights')).toBeInTheDocument();
+
+      const weightRequested = formatWeight(calcWeightRequested(mockMtoShipments));
+      const totalBillableWeight = formatWeight(calcTotalBillableWeight(mockMtoShipments));
+      expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
+        formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
+      );
+      expect(screen.getByTestId('weightAllowance').textContent).toBe(
+        formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
+      );
+      expect(screen.getByTestId('weightRequested').textContent).toBe(weightRequested);
+      expect(screen.getByTestId('totalBillableWeight').textContent).toBe(totalBillableWeight);
+      expect(screen.getByTestId('ShipmentContainer')).toBeInTheDocument();
+      // shipment container labels
+      expect(screen.getByText('Departed')).toBeInTheDocument();
+      expect(screen.getByText('From')).toBeInTheDocument();
+      expect(screen.getByText('To')).toBeInTheDocument();
+      expect(screen.getByText('Estimated weight')).toBeInTheDocument();
+      expect(screen.getByText('Original weight')).toBeInTheDocument();
+      expect(screen.getByText('Reweigh weight')).toBeInTheDocument();
+      expect(screen.getByText('Date reweigh requested')).toBeInTheDocument();
+      expect(screen.getByText('Reweigh remarks')).toBeInTheDocument();
+      expect(screen.getByText('Billable weight')).toBeInTheDocument();
+      expect(screen.getByText('reweigh required')).toBeInTheDocument();
     });
   });
 
@@ -214,7 +264,7 @@ describe('ReviewBillableWeight', () => {
     expect(screen.getByTestId('totalBillableWeight').textContent).toBe(totalBillableWeight);
   });
 
-  it.only('renders max billable weight and edit view', () => {
+  it('renders max billable weight and edit view', () => {
     useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
     useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
     const estimatedWeight = formatWeight(calcTotalEstimatedWeight(mockMtoShipments) * 1.1);

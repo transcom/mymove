@@ -70,7 +70,7 @@ export default function ShipmentCard({
               <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
             </div>
             <div className={classnames(styles.field, styles.remarks)}>
-              <strong>Reweigh Remarks</strong>
+              <strong>Reweigh remarks</strong>
               <span>{reweighRemarks}</span>
             </div>
           </div>

@@ -5,6 +5,8 @@ import { generatePath } from 'react-router';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
+import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
+
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -36,7 +38,7 @@ export default function ReviewBillableWeight() {
     if (newSelectedShipmentIdx >= 0) {
       setSelectedShipmentIndex(newSelectedShipmentIdx);
     } else {
-      setSidebarType('Max');
+      setSidebarType('MAX');
     }
   };
 
@@ -61,6 +63,8 @@ export default function ReviewBillableWeight() {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
 
+  const selectedShipment = mtoShipments[selectedShipmentIndex];
+
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
@@ -70,6 +74,11 @@ export default function ReviewBillableWeight() {
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
+              {maxBillableWeight > weightAllowance && (
+                <Alert slim type="error">
+                  {`Max billable weight exceeded. \nPlease resolve.`}
+                </Alert>
+              )}
               <WeightSummary
                 maxBillableWeight={maxBillableWeight}
                 totalBillableWeight={totalBillableWeight}
@@ -98,51 +107,49 @@ export default function ReviewBillableWeight() {
           <DocumentViewerSidebar
             title="Review weights"
             subtitle="Shipment weights"
-            description={`Shipment ${selectedShipmentIndex + 1} of ${mtoShipments.length}`}
+            description={`Shipment ${selectedShipmentIndex + 1} of ${mtoShipments?.length}`}
             onClose={() => {}}
           >
             <DocumentViewerSidebar.Content>
-              <div style={{ width: '350px', backgroundColor: 'white', marginBottom: '16px' }}>
-                <Alert slim type="error">
-                  {`Max billable weight exceeded. \nPlease resolve.`}
-                </Alert>
-                {(!mtoShipments[0].reweighWeight || !mtoShipments[0].estimatedWeight) && (
+              <div className={reviewBillableWeightStyles.contentContainer}>
+                {((!selectedShipment.reweigh?.weight && selectedShipment.reweigh?.requestedAt) ||
+                  !selectedShipment.primeEstimatedWeight) && (
                   <Alert slim type="warning">
                     Shipment missing information
                   </Alert>
                 )}
-                {shipmentIsOverweight(mtoShipments[0].estimatedWeight, mtoShipments[0].billableWeight) && (
+                {shipmentIsOverweight(selectedShipment.primeEstimatedWeight, selectedShipment.primeActualWeight) && (
                   <Alert slim type="warning">
                     Shipment exceeds 110% of estimated weight.
                   </Alert>
                 )}
-                <WeightSummary
-                  maxBillableWeight={maxBillableWeight}
-                  totalBillableWeight={totalBillableWeight}
-                  weightRequested={weightRequested}
-                  weightAllowance={weightAllowance}
-                  totalBillableWeightFlag
-                  shipments={mtoShipments}
-                />
+                <div className={reviewBillableWeightStyles.weightSummary}>
+                  <WeightSummary
+                    maxBillableWeight={maxBillableWeight}
+                    totalBillableWeight={totalBillableWeight}
+                    weightRequested={weightRequested}
+                    weightAllowance={weightAllowance}
+                    totalBillableWeightFlag
+                    shipments={mtoShipments}
+                  />
+                </div>
               </div>
-              <div style={{ height: '100%', width: '350px' }}>
+              <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
-                  billableWeight={mtoShipments[0].billableWeight}
-                  dateReweighRequested={mtoShipments[0].dateReweighRequested}
-                  departedDate={mtoShipments[0].departedDate}
-                  pickupAddress={mtoShipments[selectedShipmentIndex].pickupAddress}
-                  destinationAddress={mtoShipments[0].destinationAddress}
-                  estimatedWeight={mtoShipments[0].estimatedWeight}
-                  originalWeight={mtoShipments[0].originalWeight}
-                  reweighRemarks={mtoShipments[0].reweighRemarks}
-                  reweighWeight={mtoShipments[0].reweighWeight}
+                  billableWeight={selectedShipment.billableWeightCap}
+                  dateReweighRequested={selectedShipment.reweigh?.requestedAt}
+                  departedDate={selectedShipment.actualPickupDate}
+                  pickupAddress={selectedShipment.pickupAddress}
+                  destinationAddress={selectedShipment.destinationAddress}
+                  estimatedWeight={selectedShipment.primeEstimatedWeight}
+                  originalWeight={selectedShipment.primeActualWeight}
+                  reweighRemarks={selectedShipment.reweigh?.verificationReason}
+                  reweighWeight={selectedShipment.reweigh?.weight}
                 />
               </div>
             </DocumentViewerSidebar.Content>
-            <DocumentViewerSidebar.Footer
-              style={{ position: 'fixed', bottom: '0', width: '100%', backgroundColor: 'white' }}
-            >
-              <div style={{ display: 'flex' }}>
+            <DocumentViewerSidebar.Footer className={reviewBillableWeightStyles.footer}>
+              <div className={reviewBillableWeightStyles.flex}>
                 <Button type="button" onClick={handleClickBackButton} secondary>
                   Back
                 </Button>

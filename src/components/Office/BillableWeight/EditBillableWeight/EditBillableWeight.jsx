@@ -120,7 +120,7 @@ export default function EditBillableWeight({
           )}
 
           <Fieldset className={styles.fieldset}>
-            <TextInput className={styles.maxBillableWeight} type="number" value={maxBillableWeight} /> lbs
+            <TextInput className={styles.maxBillableWeight} type="number" defaultValue={maxBillableWeight} /> lbs
             <Label htmlFor="remarks">Remarks</Label>
             <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
           </Fieldset>
@@ -140,7 +140,7 @@ EditBillableWeight.propTypes = {
   billableWeight: number,
   billableWeightJustification: string,
   estimatedWeight: number,
-  maxBillableWeight: number.isRequired,
+  maxBillableWeight: number,
   originalWeight: number,
   title: string.isRequired,
   totalBillableWeight: number,
@@ -153,5 +153,6 @@ EditBillableWeight.defaultProps = {
   originalWeight: null,
   totalBillableWeight: null,
   weightAllowance: null,
+  maxBillableWeight: null,
   billableWeightJustification: '',
 };
