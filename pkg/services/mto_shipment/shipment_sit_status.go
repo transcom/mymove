@@ -69,9 +69,9 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	shipmentSITStatus.SITEntryDate = *mostRecentSIT.SITEntryDate
 	shipmentSITStatus.SITDepartureDate = mostRecentSIT.SITDepartureDate
 
-	if mostRecentSIT.SITDepartureDate != nil && today.Before(*mostRecentSIT.SITDepartureDate) {
-		daysRemaining := int(mostRecentSIT.SITDepartureDate.Sub(today).Hours()) / 24
-		shipmentSITStatus.DaysRemaining = &daysRemaining
+	// previously created shipments will not have a value here
+	if shipment.SITDaysAllowance != nil {
+		shipmentSITStatus.TotalDaysRemaining = *shipment.SITDaysAllowance - shipmentSITStatus.TotalSITDaysUsed
 	}
 
 	return &shipmentSITStatus

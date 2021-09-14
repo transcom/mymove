@@ -334,7 +334,7 @@ func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
 	}
 	payload := &ghcmessages.SITStatus{
 		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
-		DaysRemaining:       handlers.FmtIntPtrToInt64(shipmentSITStatuses.DaysRemaining),
+		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
 		Location:            shipmentSITStatuses.Location,
 		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs),
 		SitDepartureDate:    handlers.FmtDateTimePtr(shipmentSITStatuses.SITDepartureDate),
@@ -588,6 +588,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		SITPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
+		SitEntryDate:     handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitDepartureDate: handlers.FmtDateTimePtr(s.SITDepartureDate),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),

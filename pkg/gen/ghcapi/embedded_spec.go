@@ -3471,6 +3471,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -4516,9 +4526,6 @@ func init() {
         "daysInSIT": {
           "type": "integer"
         },
-        "daysRemaining": {
-          "type": "integer"
-        },
         "location": {
           "enum": [
             "ORIGIN",
@@ -4536,6 +4543,9 @@ func init() {
         "sitEntryDate": {
           "type": "string",
           "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
@@ -9218,6 +9228,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -10264,10 +10284,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "daysRemaining": {
-          "type": "integer",
-          "minimum": 0
-        },
         "location": {
           "enum": [
             "ORIGIN",
@@ -10285,6 +10301,10 @@ func init() {
         "sitEntryDate": {
           "type": "string",
           "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
         },
         "totalSITDaysUsed": {
           "type": "integer",

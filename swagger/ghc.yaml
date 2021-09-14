@@ -2922,10 +2922,10 @@ definitions:
       totalSITDaysUsed:
         type: integer
         minimum: 0
-      daysInSIT:
+      totalDaysRemaining:
         type: integer
         minimum: 0
-      daysRemaining:
+      daysInSIT:
         type: integer
         minimum: 0
       sitEntryDate:
@@ -3322,6 +3322,14 @@ definitions:
       SITPostalCode:
         type: string
         readOnly: true
+        x-nullable: true
+      sitEntryDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitDepartureDate:
+        type: string
+        format: date-time
         x-nullable: true
       feeType:
         enum:

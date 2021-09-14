@@ -56,11 +56,19 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusApproved,
 			CounselorRemarks: handlers.FmtString("counselor remark"),
 			SITDaysAllowance: &sitAllowance,
 		},
 	})
+
+	secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
 	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipmentID: mtoShipment.ID,
@@ -75,12 +83,25 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
 
 	year, month, day := time.Now().Date()
-	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	departureDate := today.Add(time.Hour * 24 * 30)
-
+	lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
+	lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
 	subtestData.sit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate:     &today,
+			SITEntryDate:     &lastMonthEntry,
+			SITDepartureDate: &lastMonthDeparture,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipment,
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+	})
+
+	aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+	departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+	subtestData.sit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:     &aWeekAgo,
 			SITDepartureDate: &departureDate,
 		},
 		Move:        mto,
@@ -96,7 +117,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	})
 
-	subtestData.shipments = models.MTOShipments{mtoShipment}
+	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment}
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
@@ -129,20 +150,30 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
-		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
-		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
-		suite.Equal(sitExtension.ID.String(), okResponse.Payload[0].SitExtensions[0].ID.String())
+		suite.Len(okResponse.Payload, 2)
 
-		suite.Equal(int64(90), *okResponse.Payload[0].SitDaysAllowance)
-		suite.Equal(mtoshipment.OriginSITLocation, okResponse.Payload[0].SitStatus.Location)
-		suite.Equal(int64(0), *okResponse.Payload[0].SitStatus.DaysInSIT)
-		suite.Equal(int64(30), *okResponse.Payload[0].SitStatus.DaysRemaining)
-		suite.Equal(int64(0), *okResponse.Payload[0].SitStatus.TotalSITDaysUsed)
-		suite.Equal(subtestData.sit.SITEntryDate.Format(strfmt.MarshalFormat), okResponse.Payload[0].SitStatus.SitEntryDate.String())
-		suite.Equal(subtestData.sit.SITDepartureDate.Format(strfmt.MarshalFormat), okResponse.Payload[0].SitStatus.SitDepartureDate.String())
+		payloadShipment := okResponse.Payload[0]
+		suite.Equal(shipments[0].ID.String(), payloadShipment.ID.String())
+		suite.Equal(*shipments[0].CounselorRemarks, *payloadShipment.CounselorRemarks)
+		suite.Equal(mtoAgent.ID.String(), payloadShipment.MtoAgents[0].ID.String())
+		suite.Equal(mtoServiceItem.ID.String(), payloadShipment.MtoServiceItems[0].ID.String())
+		suite.Equal(sitExtension.ID.String(), payloadShipment.SitExtensions[0].ID.String())
+
+		suite.Equal(shipments[1].ID.String(), okResponse.Payload[1].ID.String())
+
+		suite.Equal(int64(90), *payloadShipment.SitDaysAllowance)
+		suite.Equal(mtoshipment.OriginSITLocation, payloadShipment.SitStatus.Location)
+		suite.Equal(int64(7), *payloadShipment.SitStatus.DaysInSIT)
+		suite.Equal(int64(76), *payloadShipment.SitStatus.TotalDaysRemaining)
+		suite.Equal(int64(14), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current
+		suite.Equal(subtestData.sit.SITEntryDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitEntryDate.String())
+		suite.Equal(subtestData.sit.SITDepartureDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitDepartureDate.String())
+
+		suite.Len(payloadShipment.SitStatus.PastSITServiceItems, 1)
+		year, month, day := time.Now().Date()
+		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
+		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItems[0].SitEntryDate.String())
+
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {

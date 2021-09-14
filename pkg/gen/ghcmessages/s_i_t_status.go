@@ -23,10 +23,6 @@ type SITStatus struct {
 	// Minimum: 0
 	DaysInSIT *int64 `json:"daysInSIT,omitempty"`
 
-	// days remaining
-	// Minimum: 0
-	DaysRemaining *int64 `json:"daysRemaining,omitempty"`
-
 	// location
 	// Enum: [ORIGIN DESTINATION]
 	Location interface{} `json:"location,omitempty"`
@@ -42,6 +38,10 @@ type SITStatus struct {
 	// Format: date-time
 	SitEntryDate strfmt.DateTime `json:"sitEntryDate,omitempty"`
 
+	// total days remaining
+	// Minimum: 0
+	TotalDaysRemaining *int64 `json:"totalDaysRemaining,omitempty"`
+
 	// total s i t days used
 	// Minimum: 0
 	TotalSITDaysUsed *int64 `json:"totalSITDaysUsed,omitempty"`
@@ -55,10 +55,6 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDaysRemaining(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validatePastSITServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
@@ -68,6 +64,10 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTotalDaysRemaining(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,18 +87,6 @@ func (m *SITStatus) validateDaysInSIT(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MinimumInt("daysInSIT", "body", *m.DaysInSIT, 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *SITStatus) validateDaysRemaining(formats strfmt.Registry) error {
-	if swag.IsZero(m.DaysRemaining) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("daysRemaining", "body", *m.DaysRemaining, 0, false); err != nil {
 		return err
 	}
 
@@ -138,6 +126,18 @@ func (m *SITStatus) validateSitEntryDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("sitEntryDate", "body", "date-time", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatus) validateTotalDaysRemaining(formats strfmt.Registry) error {
+	if swag.IsZero(m.TotalDaysRemaining) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("totalDaysRemaining", "body", *m.TotalDaysRemaining, 0, false); err != nil {
 		return err
 	}
 
