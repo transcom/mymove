@@ -40,7 +40,7 @@ func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter ser
 	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter}
 }
 
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
 	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err

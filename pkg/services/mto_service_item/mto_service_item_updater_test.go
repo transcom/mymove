@@ -353,7 +353,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItem()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 		suite.NoError(err)
 
@@ -379,7 +379,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		move.Status = models.MoveStatusAPPROVED
 		suite.MustSave(&move)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
 		suite.NoError(err)
 
@@ -403,7 +403,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag, serviceItem, move := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
 		suite.NoError(err)
 
@@ -427,7 +427,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
 		suite.Error(err)
@@ -447,7 +447,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.SetupTest()
 
 		eTag, serviceItem, move := suite.createServiceItemForMoveWithUnacknowledgedAmendedOrders()
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 		suite.NoError(err)
 
@@ -469,7 +469,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		_, serviceItem, _ := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
-		_, err := updater.UpdateMTOServiceItemStatus(
+		_, err := updater.ApproveOrRejectServiceItem(
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")
 
 		suite.Error(err)
