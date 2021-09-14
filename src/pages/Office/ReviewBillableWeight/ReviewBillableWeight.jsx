@@ -23,6 +23,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 export default function ReviewBillableWeight() {
   const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
+  const [sidebarType, setSidebarType] = React.useState('MAX');
 
   const { moveCode } = useParams();
   const handleClickNextButton = () => {
@@ -32,11 +33,14 @@ export default function ReviewBillableWeight() {
 
   const handleClickBackButton = () => {
     const newSelectedShipmentIdx = selectedShipmentIndex - 1;
-    setSelectedShipmentIndex(newSelectedShipmentIdx);
+    if (newSelectedShipmentIdx >= 0) {
+      setSelectedShipmentIndex(newSelectedShipmentIdx);
+    } else {
+      setSidebarType('Max');
+    }
   };
 
   const history = useHistory();
-  const [sidebarType, setSidebarType] = React.useState('MAX');
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
