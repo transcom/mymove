@@ -44,17 +44,21 @@ type listMTOShipmentsSubtestData struct {
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
 	sitExtension   models.SITExtension
+	sit            models.MTOServiceItem
 }
 
 func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
 	subtestData = &listMTOShipmentsSubtestData{}
 
 	mto := testdatagen.MakeDefaultMove(suite.DB())
+
+	sitAllowance := int(90)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status:           models.MTOShipmentStatusSubmitted,
 			CounselorRemarks: handlers.FmtString("counselor remark"),
+			SITDaysAllowance: &sitAllowance,
 		},
 	})
 	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -67,6 +71,25 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 			MTOShipmentID: &mtoShipment.ID,
 		},
 	})
+
+	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	departureDate := today.Add(time.Hour * 24 * 30)
+
+	subtestData.sit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:     &today,
+			SITDepartureDate: &departureDate,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipment,
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+	})
+
 	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 		SITExtension: models.SITExtension{
 			MTOShipmentID: mtoShipment.ID,
@@ -112,6 +135,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 		suite.Equal(sitExtension.ID.String(), okResponse.Payload[0].SitExtensions[0].ID.String())
+
+		suite.Equal(int64(90), *okResponse.Payload[0].SitDaysAllowance)
+		suite.Equal(mtoshipment.OriginSITLocation, okResponse.Payload[0].SitStatus.Location)
+		suite.Equal(int64(0), *okResponse.Payload[0].SitStatus.DaysInSIT)
+		suite.Equal(int64(30), *okResponse.Payload[0].SitStatus.DaysRemaining)
+		suite.Equal(int64(0), *okResponse.Payload[0].SitStatus.TotalSITDaysUsed)
+		suite.Equal(subtestData.sit.SITEntryDate.Format(strfmt.MarshalFormat), okResponse.Payload[0].SitStatus.SitEntryDate.String())
+		suite.Equal(subtestData.sit.SITDepartureDate.Format(strfmt.MarshalFormat), okResponse.Payload[0].SitStatus.SitDepartureDate.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {

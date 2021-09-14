@@ -30,21 +30,24 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	var shipmentSITStatus services.SITStatus
 	var mostRecentSIT *models.MTOServiceItem
 
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
 	// Collect all Departure SITs from origin and destination and find the most recent SIT service item
 	for i, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
 		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT {
 			if mostRecentSIT == nil {
-				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem)
+				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
 				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
 				mostRecentSIT = &shipment.MTOServiceItems[i]
 			} else if mostRecentSIT.SITEntryDate.Before(*serviceItem.SITEntryDate) {
 				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, *mostRecentSIT)
-				shipmentSITStatus.DaysInSIT = daysInSIT(*mostRecentSIT)
+				shipmentSITStatus.DaysInSIT = daysInSIT(*mostRecentSIT, today)
 				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
 				mostRecentSIT = &shipment.MTOServiceItems[i]
 			} else {
-				shipmentSITStatus.TotalSITDaysUsed += daysInSIT(serviceItem)
+				shipmentSITStatus.TotalSITDaysUsed += daysInSIT(serviceItem, today)
 				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, shipment.MTOServiceItems[i])
 			}
 		}
@@ -66,7 +69,6 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	shipmentSITStatus.SITEntryDate = *mostRecentSIT.SITEntryDate
 	shipmentSITStatus.SITDepartureDate = mostRecentSIT.SITDepartureDate
 
-	today := time.Now()
 	if mostRecentSIT.SITDepartureDate != nil && today.Before(*mostRecentSIT.SITDepartureDate) {
 		daysRemaining := int(mostRecentSIT.SITDepartureDate.Sub(today).Hours()) / 24
 		shipmentSITStatus.DaysRemaining = &daysRemaining
@@ -75,8 +77,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	return &shipmentSITStatus
 }
 
-func daysInSIT(serviceItem models.MTOServiceItem) int {
-	today := time.Now()
+func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 	if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
 		return int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
 	} else if serviceItem.SITEntryDate.Before(today) {
