@@ -200,7 +200,6 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		ctx,
 		fetch.NewFetcher(queryBuilder),
-
 		mtoshipment.NewMTOShipmentUpdater(
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),

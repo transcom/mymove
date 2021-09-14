@@ -51,14 +51,12 @@ func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Sessio
 func (m ReweighRequested) emails() ([]emailContent, error) {
 	var emails []emailContent
 
-	var serviceMember models.ServiceMember
-	err := m.db.Q().
-		InnerJoin("orders", "orders.service_member_id = service_members.id").
-		InnerJoin("moves", "moves.orders_id = orders.id").
-		Where("moves.id = ?", m.shipment.MoveTaskOrderID).
-		First(&serviceMember)
+	serviceMember, err := models.GetCustomerFromShipment(m.db, m.shipment.ID)
 	if err != nil {
-		return emails, fmt.Errorf("error fetching service member email for shipment ID: %s with error %w", m.shipment.MoveTaskOrderID, err)
+		m.logger.Error("error retrieving service member associated with this shipment", zap.Error(err))
+	}
+	if len(*serviceMember.PersonalEmail) == 0 {
+		return emails, fmt.Errorf("no email found for service member")
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(reweighRequestedEmailData{})
