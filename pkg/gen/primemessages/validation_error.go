@@ -20,8 +20,6 @@ import (
 type ValidationError struct {
 	ClientError
 
-	ValidationErrorAllOf1
-
 	// invalid fields
 	// Required: true
 	InvalidFields map[string][]string `json:"invalidFields"`
@@ -37,20 +35,14 @@ func (m *ValidationError) UnmarshalJSON(raw []byte) error {
 	m.ClientError = aO0
 
 	// AO1
-	var aO1 ValidationErrorAllOf1
-	if err := swag.ReadJSON(raw, &aO1); err != nil {
-		return err
-	}
-	m.ValidationErrorAllOf1 = aO1
-
-	// now for regular properties
-	var propsValidationError struct {
+	var dataAO1 struct {
 		InvalidFields map[string][]string `json:"invalidFields"`
 	}
-	if err := swag.ReadJSON(raw, &propsValidationError); err != nil {
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
-	m.InvalidFields = propsValidationError.InvalidFields
+
+	m.InvalidFields = dataAO1.InvalidFields
 
 	return nil
 }
@@ -64,24 +56,17 @@ func (m ValidationError) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO0)
-
-	aO1, err := swag.WriteJSON(m.ValidationErrorAllOf1)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, aO1)
-
-	// now for regular properties
-	var propsValidationError struct {
+	var dataAO1 struct {
 		InvalidFields map[string][]string `json:"invalidFields"`
 	}
-	propsValidationError.InvalidFields = m.InvalidFields
 
-	jsonDataPropsValidationError, errValidationError := swag.WriteJSON(propsValidationError)
-	if errValidationError != nil {
-		return nil, errValidationError
+	dataAO1.InvalidFields = m.InvalidFields
+
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
 	}
-	_parts = append(_parts, jsonDataPropsValidationError)
+	_parts = append(_parts, jsonDataAO1)
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -93,7 +78,6 @@ func (m *ValidationError) Validate(formats strfmt.Registry) error {
 	if err := m.ClientError.Validate(formats); err != nil {
 		res = append(res, err)
 	}
-	// validation for a type composition with ValidationErrorAllOf1
 
 	if err := m.validateInvalidFields(formats); err != nil {
 		res = append(res, err)
@@ -122,7 +106,6 @@ func (m *ValidationError) ContextValidate(ctx context.Context, formats strfmt.Re
 	if err := m.ClientError.ContextValidate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
-	// validation for a type composition with ValidationErrorAllOf1
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
@@ -147,8 +130,3 @@ func (m *ValidationError) UnmarshalBinary(b []byte) error {
 	*m = res
 	return nil
 }
-
-// ValidationErrorAllOf1 validation error all of1
-//
-// swagger:model ValidationErrorAllOf1
-type ValidationErrorAllOf1 interface{}

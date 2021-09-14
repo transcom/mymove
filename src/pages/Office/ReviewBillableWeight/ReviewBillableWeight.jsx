@@ -3,10 +3,11 @@ import { Button, Alert } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 
+import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
+
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import ShipmentCard from 'components/Office/BillableWeight/ShipmentCard/ShipmentCard';
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
@@ -21,13 +22,25 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 export default function ReviewBillableWeight() {
+  const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
+
   const { moveCode } = useParams();
+  const handleClickNextButton = () => {
+    const newSelectedShipmentIdx = selectedShipmentIndex + 1;
+    setSelectedShipmentIndex(newSelectedShipmentIdx);
+  };
+
+  const handleClickBackButton = () => {
+    const newSelectedShipmentIdx = selectedShipmentIndex - 1;
+    setSelectedShipmentIndex(newSelectedShipmentIdx);
+  };
+
   const history = useHistory();
   const [sidebarType, setSidebarType] = React.useState('MAX');
-  const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
+  const isLastShipment = selectedShipmentIndex === mtoShipments?.length - 1;
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -43,18 +56,6 @@ export default function ReviewBillableWeight() {
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
-
-  const handleClickNextButton = () => {
-    const newSelectedShipmentIdx = selectedShipmentIndex + 1;
-    setSelectedShipmentIndex(newSelectedShipmentIdx);
-  };
-
-  const handleClickBackButton = () => {
-    const newSelectedShipmentIdx = selectedShipmentIndex - 1;
-    setSelectedShipmentIndex(newSelectedShipmentIdx);
-  };
-
-  const isLastShipment = selectedShipmentIndex === mtoShipments?.length - 1;
 
   return (
     <div className={styles.DocumentWrapper}>
@@ -101,7 +102,7 @@ export default function ReviewBillableWeight() {
                 <Alert slim type="error">
                   {`Max billable weight exceeded. \nPlease resolve.`}
                 </Alert>
-                {!mtoShipments[0].reweighWeight && (
+                {(!mtoShipments[0].reweighWeight || !mtoShipments[0].estimatedWeight) && (
                   <Alert slim type="warning">
                     Shipment missing information
                   </Alert>

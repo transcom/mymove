@@ -41,9 +41,8 @@ type Upload struct {
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Required: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// status
 	// Enum: [INFECTED CLEAN PROCESSING]
@@ -56,9 +55,8 @@ type Upload struct {
 
 	// url
 	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Required: true
 	// Format: uri
-	URL *strfmt.URI `json:"url"`
+	URL strfmt.URI `json:"url,omitempty"`
 }
 
 // Validate validates this upload
@@ -143,9 +141,8 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
+	if swag.IsZero(m.ID) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
@@ -213,9 +210,8 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateURL(formats strfmt.Registry) error {
-
-	if err := validate.Required("url", "body", m.URL); err != nil {
-		return err
+	if swag.IsZero(m.URL) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {

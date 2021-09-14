@@ -88,8 +88,8 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...Client
 
   Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
-updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment requests,
-is later than the provided date and time.
+updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
+requests, is later than the provided date and time.
 
 **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
 been set, that move will always appear in this list.

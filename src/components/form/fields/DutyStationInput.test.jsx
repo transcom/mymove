@@ -6,8 +6,8 @@ import AsyncSelect from 'react-select/async';
 import { DutyStationInput } from './DutyStationInput';
 
 import {
-  DutyStationSearchBoxContainer,
   DutyStationSearchBoxComponent,
+  DutyStationSearchBoxContainer,
 } from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 const mockOnChange = jest.fn();
