@@ -21,5 +21,5 @@ type SITExtensionDenier interface {
 
 //SITExtensionCreator creates a SIT extension
 type SITExtensionCreator interface {
-	CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.Reweigh, error)
+	CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error)
 }
