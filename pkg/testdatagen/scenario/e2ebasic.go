@@ -2482,6 +2482,17 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 		Move: mto,
 	})
 
+	sitContractorRemarks1 := "The customer requested an extension."
+	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID:     MTOShipment.ID,
+			ContractorRemarks: &sitContractorRemarks1,
+			OfficeRemarks:     &sitOfficeRemarks1,
+			RequestedDays:     30,
+		},
+	})
+
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),

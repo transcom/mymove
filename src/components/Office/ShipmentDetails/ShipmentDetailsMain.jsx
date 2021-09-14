@@ -32,7 +32,7 @@ const ShipmentDetailsMain = ({
 
   return (
     <div className={className}>
-      <ShipmentSITExtensions sitExtensions={sitExtensions} />
+      {sitExtensions && <ShipmentSITExtensions sitExtensions={sitExtensions} />}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
