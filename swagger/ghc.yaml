@@ -2917,8 +2917,8 @@ definitions:
     properties:
       location:
         enum:
-          - "At origin"
-          - "At destination"
+          - "ORIGIN"
+          - "DESTINATION"
       totalSITDaysUsed:
         type: integer
         minimum: 0

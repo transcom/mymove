@@ -9,10 +9,10 @@ import (
 )
 
 // OriginSITLocation is the constant representing when the shipment in storage occurs at the origin
-const OriginSITLocation = "origin"
+const OriginSITLocation = "ORIGIN"
 
 // DestinationSITLocation is the constant representing when the shipment in storage occurs at the destination
-const DestinationSITLocation = "At destination"
+const DestinationSITLocation = "DESTINATION"
 
 type shipmentSITStatus struct {
 }

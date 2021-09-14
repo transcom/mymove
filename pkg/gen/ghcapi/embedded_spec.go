@@ -4521,8 +4521,8 @@ func init() {
         },
         "location": {
           "enum": [
-            "At origin",
-            "At destination"
+            "ORIGIN",
+            "DESTINATION"
           ]
         },
         "pastSITServiceItems": {
@@ -10270,8 +10270,8 @@ func init() {
         },
         "location": {
           "enum": [
-            "At origin",
-            "At destination"
+            "ORIGIN",
+            "DESTINATION"
           ]
         },
         "pastSITServiceItems": {

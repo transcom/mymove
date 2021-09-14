@@ -28,7 +28,7 @@ type SITStatus struct {
 	DaysRemaining *int64 `json:"daysRemaining,omitempty"`
 
 	// location
-	// Enum: [At origin At destination]
+	// Enum: [ORIGIN DESTINATION]
 	Location interface{} `json:"location,omitempty"`
 
 	// past s i t service items
