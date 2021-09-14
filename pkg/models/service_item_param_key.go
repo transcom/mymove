@@ -122,6 +122,10 @@ const (
 	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
 	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
 	ServiceItemParamNameServicesScheduleOrigin ServiceItemParamName = "ServicesScheduleOrigin"
+	// ServiceItemParamNameSITPaymentRequestEnd is the param key name SITPaymentRequestEnd
+	ServiceItemParamNameSITPaymentRequestEnd ServiceItemParamName = "SITPaymentRequestEnd"
+	// ServiceItemParamNameSITPaymentRequestStart is the param key name SITPaymentRequestStart
+	ServiceItemParamNameSITPaymentRequestStart ServiceItemParamName = "SITPaymentRequestStart"
 	// ServiceItemParamNameSITScheduleDest is the param key name SITScheduleDest
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
@@ -146,10 +150,6 @@ const (
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
-	// ServiceItemParamNameSITPaymentRequestStart is the param key name SITPaymentRequestStart
-	ServiceItemParamNameSITPaymentRequestStart ServiceItemParamName = "SITPaymentRequestStart"
-	// ServiceItemParamNameSITPaymentRequestEnd is the param key name SITPaymentRequestEnd
-	ServiceItemParamNameSITPaymentRequestEnd ServiceItemParamName = "SITPaymentRequestEnd"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -248,6 +248,8 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameServiceAreaOrigin,
 	ServiceItemParamNameServicesScheduleDest,
 	ServiceItemParamNameServicesScheduleOrigin,
+	ServiceItemParamNameSITPaymentRequestEnd,
+	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
 	ServiceItemParamNameWeightAdjusted,
@@ -260,8 +262,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
 	ServiceItemParamNameZipSITOriginHHGActualAddress,
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
-	ServiceItemParamNameSITPaymentRequestStart,
-	ServiceItemParamNameSITPaymentRequestEnd,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -318,6 +318,8 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
 	string(ServiceItemParamNameServicesScheduleOrigin),
+	string(ServiceItemParamNameSITPaymentRequestEnd),
+	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightAdjusted),
@@ -330,8 +332,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
 	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
 	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
-	string(ServiceItemParamNameSITPaymentRequestStart),
-	string(ServiceItemParamNameSITPaymentRequestEnd),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types
