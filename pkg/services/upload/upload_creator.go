@@ -64,7 +64,7 @@ func (u *uploadCreator) createUploadTxn(
 	newUploader, err := uploader.NewUploader(u.fileStorer, uploader.MaxFileSizeLimit, uploadType)
 	if err != nil {
 		if err == uploader.ErrFileSizeLimitExceedsMax {
-			return nil, services.NewBadDataError(err.Error()) //todo - improve this messaging
+			return nil, services.NewBadDataError(err.Error()) // sends up the error message from the uploader err
 		}
 		return nil, err
 	}
