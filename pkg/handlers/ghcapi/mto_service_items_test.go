@@ -182,7 +182,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
-		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+		serviceItemStatusUpdater.On("ApproveOrRejectServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
-		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+		serviceItemStatusUpdater.On("ApproveOrRejectServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
-		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+		serviceItemStatusUpdater.On("ApproveOrRejectServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,

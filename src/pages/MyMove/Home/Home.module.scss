@@ -143,6 +143,11 @@
   }
 }
 
-.alertMessage {
+.alertMessageSecondLine {
+  display: block;
   @include u-margin-y(1em);
+}
+
+.alertMessageFirstLine {
+  display: block;
 }
