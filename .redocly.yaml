@@ -1,16 +1,14 @@
 # See https://redoc.ly/docs/cli/configuration/ for more information.
 apiDefinitions:
-  prime: swagger/prime.yaml
-  support: swagger/support.yaml
+  admin: swagger-def/admin.yaml
+  ghc: swagger-def/ghc.yaml
+  internal: swagger-def/internal.yaml
+  orders: swagger-def/orders.yaml
+  prime: swagger-def/prime.yaml
+  support: swagger-def/support.yaml
 lint:
   extends:
     - recommended
-  rules:
-    no-unused-components: warning
 referenceDocs:
   htmlTemplate: swagger/index.html
-  theme:
-    colors:
-      primary:
-        main: "#32329f"
   # NOTE: modifying most theme attributes won't work here - use Redoc.init for standalone instead
