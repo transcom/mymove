@@ -25,14 +25,18 @@ const ShipmentSITExtensions = (props) => {
           <dt>Reason:</dt>
           <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
         </div>
-        <div>
-          <dt>Contractor remarks:</dt>
-          <dd>{sitExt.contractorRemarks}</dd>
-        </div>
-        <div>
-          <dt>Office remarks:</dt>
-          <dd>{sitExt.officeRemarks}</dd>
-        </div>
+        {sitExt.contractorRemarks && (
+          <div>
+            <dt>Contractor remarks:</dt>
+            <dd>{sitExt.contractorRemarks}</dd>
+          </div>
+        )}
+        {sitExt.officeRemarks && (
+          <div>
+            <dt>Office remarks:</dt>
+            <dd>{sitExt.officeRemarks}</dd>
+          </div>
+        )}
       </dl>
     );
   });

@@ -4770,14 +4770,10 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		},
 	})
 
-	sitContractorRemarks2 := "The customer requested an different extension."
-	sitOfficeRemarks2 := "The service member continues to be unable to move into their new home at the expected time."
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
-			MTOShipmentID:     mtoShipmentSIT.ID,
-			ContractorRemarks: &sitContractorRemarks2,
-			OfficeRemarks:     &sitOfficeRemarks2,
-			RequestedDays:     90,
+			MTOShipmentID: mtoShipmentSIT.ID,
+			RequestedDays: 90,
 		},
 	})
 
