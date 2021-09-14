@@ -50,22 +50,15 @@ func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Sessio
 
 func (m ReweighRequested) emails() ([]emailContent, error) {
 	var emails []emailContent
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
-	if err != nil {
-		return emails, err
-	}
 
-	orders, err := models.FetchOrderForUser(m.db, m.session, move.OrdersID)
+	var serviceMember models.ServiceMember
+	err := m.db.Q().
+		InnerJoin("orders", "orders.service_member_id = service_members.id").
+		InnerJoin("moves", "moves.orders_id = orders.id").
+		Where("moves.id = ?", m.shipment.MoveTaskOrderID).
+		First(&serviceMember)
 	if err != nil {
-		return emails, err
-	}
-
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
-	if err != nil {
-		return emails, err
-	}
-	if serviceMember.PersonalEmail == nil {
-		return emails, fmt.Errorf("no email found for service member")
+		return emails, fmt.Errorf("error fetching service member email for shipment ID: %s with error %w", m.shipment.MoveTaskOrderID, err)
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(reweighRequestedEmailData{})
@@ -84,7 +77,7 @@ func (m ReweighRequested) emails() ([]emailContent, error) {
 	}
 
 	m.logger.Info("Generated reweigh requested email",
-		zap.String("moveLocator", move.Locator))
+		zap.String("moveLocator", m.shipment.MoveTaskOrder.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
