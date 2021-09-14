@@ -416,7 +416,13 @@ func ServiceParamLookupInitialize(
 	if err != nil {
 		return nil, err
 	}
-
+	paramKey = models.ServiceItemParamNameWeightAdjusted
+	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightAdjustedLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &s, nil
 }
 
