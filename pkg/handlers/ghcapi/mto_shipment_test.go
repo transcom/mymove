@@ -85,10 +85,11 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	year, month, day := time.Now().Date()
 	lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
 	lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
-	subtestData.sit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			SITEntryDate:     &lastMonthEntry,
 			SITDepartureDate: &lastMonthDeparture,
+			Status:           models.MTOServiceItemStatusApproved,
 		},
 		Move:        mto,
 		MTOShipment: mtoShipment,
@@ -103,6 +104,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		MTOServiceItem: models.MTOServiceItem{
 			SITEntryDate:     &aWeekAgo,
 			SITDepartureDate: &departureDate,
+			Status:           models.MTOServiceItemStatusApproved,
 		},
 		Move:        mto,
 		MTOShipment: mtoShipment,
