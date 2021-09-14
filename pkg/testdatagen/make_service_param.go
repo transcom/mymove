@@ -37,6 +37,35 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	}
 
 	serviceParam.IsOptional = false
+	switch assertions.ServiceParam.ServiceItemParamKey.Key {
+	case models.ServiceItemParamNameWeightEstimated:
+		fallthrough
+	case models.ServiceItemParamNameWeightReweigh:
+		fallthrough
+	case models.ServiceItemParamNameWeightAdjusted:
+		serviceParam.IsOptional = true
+		assertions.ServiceParam.IsOptional = true
+	}
+
+	switch serviceParam.ServiceItemParamKey.Key {
+	case models.ServiceItemParamNameWeightEstimated:
+		fallthrough
+	case models.ServiceItemParamNameWeightReweigh:
+		fallthrough
+	case models.ServiceItemParamNameWeightAdjusted:
+		serviceParam.IsOptional = true
+		assertions.ServiceParam.IsOptional = true
+	}
+
+	switch assertions.ServiceItemParamKey.Key {
+	case models.ServiceItemParamNameWeightEstimated:
+		fallthrough
+	case models.ServiceItemParamNameWeightReweigh:
+		fallthrough
+	case models.ServiceItemParamNameWeightAdjusted:
+		serviceParam.IsOptional = true
+		assertions.ServiceParam.IsOptional = true
+	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&serviceParam, assertions.ServiceParam)
