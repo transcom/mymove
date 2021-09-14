@@ -19,6 +19,7 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+import { useCalculatedTotalBillableWeight, useCalculatedWeightRequested } from 'hooks/custom';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -75,6 +76,9 @@ const MovePaymentRequests = ({
     };
   }, [sections, activeSection]);
 
+  const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
+  const weightRequested = useCalculatedWeightRequested(mtoShipments);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -112,14 +116,10 @@ const MovePaymentRequests = ({
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
           <div className={txoStyles.section} id="billable-weights">
-            {/* TODO
-                totalBillableWeights needs to be calculated using serviceObject from MB-9278
-                weightRequested needs to be calculated using the serviceObject from MB-9278
-              */}
             <BillableWeightCard
               maxBillableWeight={order?.entitlement?.authorizedWeight}
-              totalBillableWeight={0}
-              weightRequested={0}
+              totalBillableWeight={totalBillableWeight}
+              weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={mtoShipments}
