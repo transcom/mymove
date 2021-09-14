@@ -45,6 +45,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
 		case services.ForbiddenError:
 			return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
+		case services.QueryError:
+			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
 		default:
 			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
 		}
@@ -58,7 +60,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 	shipments, err := h.ListMTOShipments(appCtx, moveID)
 	if err != nil {
-		handleError(err)
+		return handleError(err)
 	}
 	mtoShipments := models.MTOShipments(shipments)
 

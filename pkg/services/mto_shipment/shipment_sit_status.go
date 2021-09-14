@@ -9,7 +9,7 @@ import (
 )
 
 // OriginSITLocation is the constant representing when the shipment in storage occurs at the origin
-const OriginSITLocation = "At origin"
+const OriginSITLocation = "origin"
 
 // DestinationSITLocation is the constant representing when the shipment in storage occurs at the destination
 const DestinationSITLocation = "At destination"

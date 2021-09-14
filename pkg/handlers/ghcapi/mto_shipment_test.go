@@ -117,16 +117,17 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	suite.Run("Failure list fetch - Internal Server Error", func() {
 		subtestData := suite.makeListMTOShipmentsSubtestData()
 		params := subtestData.params
-		mockMTOShipmentFetcher := mocks.MTOShipmentFetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockMTOShipmentFetcher,
+			mockMTOShipmentFetcher,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
+		fmt.Println("failure list fetch test 500")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
@@ -135,16 +136,17 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		subtestData := suite.makeListMTOShipmentsSubtestData()
 		params := subtestData.params
 
-		mockMTOShipmentFetcher := mocks.MTOShipmentFetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockMTOShipmentFetcher,
+			mockMTOShipmentFetcher,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
+		fmt.Println("failure list fetch 404")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})
