@@ -9,8 +9,12 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
-import { calcWeightRequested, calcTotalBillableWeight, calcTotalEstimatedWeight } from 'utils/shipmentWeights';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import {
+  useCalculatedTotalBillableWeight,
+  useCalculatedWeightRequested,
+  useCalculatedEstimatedWeight,
+} from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -21,15 +25,15 @@ export default function ReviewBillableWeight() {
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
+  const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
+  const weightRequested = useCalculatedWeightRequested(mtoShipments);
+  const totalEstimatedWeight = useCalculatedEstimatedWeight(mtoShipments);
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  // weights
   const maxBillableWeight = order.entitlement.authorizedWeight;
   const weightAllowance = order.entitlement.totalWeight;
-  const weightRequested = calcWeightRequested(mtoShipments);
-  const totalBillableWeight = calcTotalBillableWeight(mtoShipments);
-  const totalEstimatedWeight = calcTotalEstimatedWeight(mtoShipments);
+
   const documentsForViewer = Object.values(upload);
 
   const handleClose = () => {
