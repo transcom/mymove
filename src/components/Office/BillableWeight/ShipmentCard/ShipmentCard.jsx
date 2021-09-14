@@ -39,9 +39,13 @@ export default function ShipmentCard({
         </section>
       </header>
       <div className={styles.weights}>
-        <div className={styles.field}>
+        <div
+          className={classnames(styles.field, {
+            [styles.missing]: !estimatedWeight,
+          })}
+        >
           <strong>Estimated weight</strong>
-          <span>{formatWeight(estimatedWeight)}</span>
+          <span>{estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}</span>
         </div>
         <div
           className={classnames(styles.field, {
@@ -51,22 +55,26 @@ export default function ShipmentCard({
           <strong>Original weight</strong>
           <span>{formatWeight(originalWeight)}</span>
         </div>
-        <div
-          className={classnames(styles.field, {
-            [styles.missing]: !reweighWeight,
-          })}
-        >
-          <strong>Reweigh weight</strong>
-          <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
-        </div>
-        <div className={styles.field}>
-          <strong>Date reweigh requested</strong>
-          <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
-        </div>
-        <div className={classnames(styles.field, styles.remarks)}>
-          <strong>Remarks</strong>
-          <span>{reweighRemarks}</span>
-        </div>
+        {dateReweighRequested && (
+          <div>
+            <div
+              className={classnames(styles.field, {
+                [styles.missing]: !reweighWeight,
+              })}
+            >
+              <strong>Reweigh weight</strong>
+              <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
+            </div>
+            <div className={styles.field}>
+              <strong>Date reweigh requested</strong>
+              <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
+            </div>
+            <div className={classnames(styles.field, styles.remarks)}>
+              <strong>Reweigh Remarks</strong>
+              <span>{reweighRemarks}</span>
+            </div>
+          </div>
+        )}
       </div>
       <footer>
         <EditBillableWeight

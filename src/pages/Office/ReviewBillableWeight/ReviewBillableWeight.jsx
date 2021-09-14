@@ -37,6 +37,7 @@ export default function ReviewBillableWeight() {
   const weightRequested = calcWeightRequested(mtoShipments);
   const totalBillableWeight = calcTotalBillableWeight(mtoShipments);
   const totalEstimatedWeight = calcTotalEstimatedWeight(mtoShipments);
+
   const documentsForViewer = Object.values(upload);
 
   const handleClose = () => {
