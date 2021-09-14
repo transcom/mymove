@@ -13,16 +13,11 @@ import (
 
 // checkShipmentID checks that the user can't change the shipment ID
 func checkShipmentID() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension *models.SITExtension,  _ *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension,  _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		if sitExtension == nil {
-			if sitExtension.MTOShipmentID == uuid.Nil {
-				verrs.Add("MTOShipmentID", "Shipment ID is required")
-			}
-		} else {
-			if sitExtension.MTOShipmentID != uuid.Nil  {
-				verrs.Add("MTOShipmentID", "cannot be updated")
-			}
+
+		if sitExtension.MTOShipmentID == uuid.Nil {
+			verrs.Add("MTOShipmentID", "Shipment ID is required")
 		}
 		return verrs
 	})
@@ -30,7 +25,7 @@ func checkShipmentID() sitExtensionValidator {
 
 // checkRequiredFields checks that the required fields are included
 func checkRequiredFields() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension *models.SITExtension, _ *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		var sitStatus models.SITExtensionStatus
@@ -38,11 +33,9 @@ func checkRequiredFields() sitExtensionValidator {
 		var approvedDays = sitExtension.ApprovedDays
 		var decisionDate = sitExtension.DecisionDate
 
-		// Set any pre-existing values as the baseline:
-		if sitExtension != nil {
-			sitStatus = sitExtension.Status
-			sitExtensionReason = sitExtension.RequestReason
-		}
+
+		sitStatus = sitExtension.Status
+		sitExtensionReason = sitExtension.RequestReason
 
 		// Check that we have something in the ApprovedDays field:
 		if approvedDays == nil {
