@@ -13,16 +13,16 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type sitExtensionCreator struct {
+type sitExtensionCreatorAsTOO struct {
 }
 
-// NewApprovedSITExtensionCreator creates a new struct with the service dependencies
-func NewApprovedSITExtensionCreator() services.ApprovedSITExtensionCreator {
-	return &sitExtensionCreator{}
+// NewCreateSITExtensionAsTOO creates a new struct with the service dependencies
+func NewCreateSITExtensionAsTOO() services.SITExtensionCreatorAsTOO {
+	return &sitExtensionCreatorAsTOO{}
 }
 
-// CreateApprovedSITExtension creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
-func (f *sitExtensionCreator) CreateApprovedSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+// CreateSITExtensionAsTOO creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
+func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (f *sitExtensionCreator) CreateApprovedSITExtension(appCtx appcontext.AppCo
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionCreator) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {
+func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {
 	if shipment.SITDaysAllowance != nil {
 		sda := approvedDays + int(*shipment.SITDaysAllowance)
 		shipment.SITDaysAllowance = &sda
@@ -78,7 +78,7 @@ func (f *sitExtensionCreator) updateSitDaysAllowance(appCtx appcontext.AppContex
 	return &shipment, nil
 }
 
-func (f *sitExtensionCreator) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *sitExtensionCreatorAsTOO) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
@@ -91,7 +91,7 @@ func (f *sitExtensionCreator) findShipment(appCtx appcontext.AppContext, shipmen
 	return &shipment, nil
 }
 
-func (f *sitExtensionCreator) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+func (f *sitExtensionCreatorAsTOO) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(modelID, nil, verrs, "")
 	}

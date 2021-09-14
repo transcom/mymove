@@ -1572,6 +1572,50 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	})
 }
 
+// func (suite *HandlerSuite) CreateApprovedSITExtensionHandler() {
+// 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance when validations pass", func() {
+// 		sitDaysAllowance := 20
+// 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+// 			MTOShipment: models.MTOShipment{
+// 				SITDaysAllowance: &sitDaysAllowance,
+// 			},
+// 		})
+// 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+// 			MTOShipment: mtoShipment,
+// 		})
+// 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+// 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+// 		sitExtensionApprover := mtoshipment.NewSITExtensionApprover()
+// 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
+// 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+// 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+// 		handler := ApproveSITExtensionHandler{
+// 			handlerContext,
+// 			sitExtensionApprover,
+// 		}
+// 		approvedDays := int64(10)
+// 		officeRemarks := "new office remarks"
+// 		approveParams := shipmentops.ApproveSitExtensionParams{
+// 			HTTPRequest: req,
+// 			IfMatch:     eTag,
+// 			Body: &ghcmessages.ApproveSitExtension{
+// 				ApprovedDays:  &approvedDays,
+// 				OfficeRemarks: &officeRemarks,
+// 			},
+// 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
+// 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
+// 		}
+// 		response := handler.Handle(approveParams)
+// 		okResponse := response.(*shipmentops.ApproveSitExtensionOK)
+// 		payload := okResponse.Payload
+// 		suite.IsType(&shipmentops.ApproveSitExtensionOK{}, response)
+// 		suite.Equal(int64(30), *payload.SitDaysAllowance)
+// 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
+// 		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+// 	})
+// }
+
 type createMTOShipmentSubtestData struct {
 	builder *query.Builder
 	params  mtoshipmentops.CreateMTOShipmentParams

@@ -11,9 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
+func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
-		sitExtensionCreator := NewApprovedSITExtensionCreator()
+		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -26,14 +26,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateApprovedSITExtension(suite.TestAppContext(), &sitExtensionToSave, nonexistentUUID, eTag)
+		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, nonexistentUUID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
-		sitExtensionCreator := NewApprovedSITExtensionCreator()
+		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -46,7 +46,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateApprovedSITExtension(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -54,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 	})
 
 	suite.T().Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func(t *testing.T) {
-		sitExtensionCreator := NewApprovedSITExtensionCreator()
+		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		requestedDays := 45
@@ -69,7 +69,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateApprovedSITExtension() {
 			Status:        models.SITExtensionStatusApproved,
 		}
 
-		updatedShipment, err := sitExtensionCreator.CreateApprovedSITExtension(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		updatedShipment, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
