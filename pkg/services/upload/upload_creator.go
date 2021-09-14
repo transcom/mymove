@@ -40,12 +40,9 @@ func (u *uploadCreator) CreateUpload(
 		upload, uploadErr = u.createUploadTxn(appCtx, file, uploadFilename, uploadType)
 	} else {
 		// This error is ignored because the value is saved directly to the variable defined outside of the
-		// transaction function, uploadError
+		// transaction function, uploadErr
 		_ = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			upload, uploadErr = u.createUploadTxn(txnAppCtx, file, uploadFilename, uploadType)
-			if uploadErr != nil {
-				return uploadErr
-			}
 			return nil
 		})
 	}
