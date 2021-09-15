@@ -10,19 +10,19 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type UploadsServiceSuite struct {
+type UploadServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *UploadsServiceSuite) TestAppContext() appcontext.AppContext {
+func (suite *UploadServiceSuite) TestAppContext() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
-func TestUploadsServiceSuite(t *testing.T) {
+func TestUploadServiceSuite(t *testing.T) {
 
-	hs := &UploadsServiceSuite{
+	hs := &UploadServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
