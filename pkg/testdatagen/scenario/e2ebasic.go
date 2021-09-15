@@ -2484,12 +2484,13 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+	sitApprovedDays := 30
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
 			MTOShipmentID:     MTOShipment.ID,
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
-			RequestedDays:     30,
+			ApprovedDays:      &sitApprovedDays,
 		},
 	})
 

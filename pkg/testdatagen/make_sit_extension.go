@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -41,14 +43,17 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 		MTOShipmentID = MTOShipment.ID
 	}
 
-	requestedDays := 100
+	approvedDays := 100
+	decisionDate := time.Now()
 
 	SITExtension := models.SITExtension{
 		MTOShipmentID: MTOShipmentID,
 		MTOShipment:   MTOShipment,
 		RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 		Status:        models.SITExtensionStatusApproved,
-		RequestedDays: requestedDays,
+		ApprovedDays:  &approvedDays,
+		DecisionDate:  &decisionDate,
+		RequestedDays: 90,
 	}
 
 	// Overwrite values with those from assertions
