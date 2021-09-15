@@ -562,6 +562,8 @@ paths:
           description: Successfully retrieved all mto shipments for a move task order
           schema:
             $ref: '#/definitions/MTOShipments'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -2911,6 +2913,30 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  SITStatus:
+    properties:
+      location:
+        enum:
+          - "ORIGIN"
+          - "DESTINATION"
+      totalSITDaysUsed:
+        type: integer
+        minimum: 0
+      totalDaysRemaining:
+        type: integer
+        minimum: 0
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      pastSITServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -3017,6 +3043,8 @@ definitions:
         x-nullable: true
       sitExtensions:
         $ref: '#/definitions/SitExtensions'
+      sitStatus:
+        $ref: '#/definitions/SITStatus'
       eTag:
         type: string
       billableWeightCap:
@@ -3294,6 +3322,14 @@ definitions:
       SITPostalCode:
         type: string
         readOnly: true
+        x-nullable: true
+      sitEntryDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitDepartureDate:
+        type: string
+        format: date-time
         x-nullable: true
       feeType:
         enum:
