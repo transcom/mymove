@@ -79,13 +79,15 @@ export default function ReviewBillableWeight() {
                   {`Max billable weight exceeded. \nPlease resolve.`}
                 </Alert>
               )}
-              <WeightSummary
-                maxBillableWeight={maxBillableWeight}
-                totalBillableWeight={totalBillableWeight}
-                weightRequested={weightRequested}
-                weightAllowance={weightAllowance}
-                shipments={mtoShipments}
-              />
+              <div className={reviewBillableWeightStyles.weightSummary}>
+                <WeightSummary
+                  maxBillableWeight={maxBillableWeight}
+                  totalBillableWeight={totalBillableWeight}
+                  weightRequested={weightRequested}
+                  weightAllowance={weightAllowance}
+                  shipments={mtoShipments}
+                />
+              </div>
               <EditBillableWeight
                 title="Max billable weight"
                 estimatedWeight={totalEstimatedWeight}
