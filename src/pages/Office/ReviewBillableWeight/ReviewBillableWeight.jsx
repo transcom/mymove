@@ -110,7 +110,7 @@ export default function ReviewBillableWeight() {
             title="Review weights"
             subtitle="Shipment weights"
             description={`Shipment ${selectedShipmentIndex + 1} of ${mtoShipments?.length}`}
-            onClose={() => {}}
+            onClose={handleClose}
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>

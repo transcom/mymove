@@ -2,7 +2,7 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.container {
+div.container {
   @include u-padding-x(0);
 
   :global(.usa-button) {
@@ -17,6 +17,7 @@
     display: block;
 
     h2 {
+      color: $base-darkest;
       @include u-margin-bottom(1);
     }
   }
@@ -43,9 +44,13 @@
       }
 
       & > * {
-        @include u-padding-x(1);
+        @include u-padding-left(1);
         @include u-padding-y(1.5);
-        width: 51%;
+        width: 50%;
+      }
+
+      span {
+        @include u-padding-left(1.5);
       }
     }
 
