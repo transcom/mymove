@@ -14,9 +14,9 @@ type WeightAdjustedLookup struct {
 
 func (r WeightAdjustedLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	if r.MTOShipment.BillableWeightCap == nil {
-		return "", fmt.Errorf("could not find adjusted weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		return "", nil
 	}
 
-	value := fmt.Sprintf("%d", int(*r.MTOShipment.BillableWeightCap))
+	value := fmt.Sprintf("%d", (*r.MTOShipment.BillableWeightCap).Int())
 	return value, nil
 }
