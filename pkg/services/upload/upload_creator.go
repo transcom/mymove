@@ -17,12 +17,13 @@ import (
 const filenameTimeFormat string = "20060102150405"
 
 type uploadCreator struct {
-	fileStorer storage.FileStorer
+	fileStorer   storage.FileStorer
+	allowedTypes uploader.AllowedFileTypes
 }
 
 // NewUploadCreator returns a new uploadCreator
 func NewUploadCreator(fileStorer storage.FileStorer) services.UploadCreator {
-	return &uploadCreator{fileStorer}
+	return &uploadCreator{fileStorer, uploader.AllowedTypesPDFImages}
 }
 
 // CreateUpload uploads a new document to an AWS S3 bucket
@@ -51,7 +52,7 @@ func (u *uploadCreator) CreateUpload(
 
 		newUploader.SetUploadStorageKey(fileName)
 
-		newUpload, verrs, err := newUploader.CreateUpload(txnAppCtx, uploader.File{File: aFile}, uploader.AllowedTypesAny)
+		newUpload, verrs, err := newUploader.CreateUpload(txnAppCtx, uploader.File{File: aFile}, u.allowedTypes)
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
 		} else if err != nil {
