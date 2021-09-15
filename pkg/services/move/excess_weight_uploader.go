@@ -14,11 +14,17 @@ import (
 
 type excessWeightUploader struct {
 	uploadCreator services.UploadCreator
+	checks        []validator
 }
 
 // NewMoveExcessWeightUploader returns a new excessWeightUploader
 func NewMoveExcessWeightUploader(uploadCreator services.UploadCreator) services.MoveExcessWeightUploader {
-	return &excessWeightUploader{uploadCreator}
+	return &excessWeightUploader{uploadCreator, basicChecks()}
+}
+
+// NewPrimeMoveExcessWeightUploader returns a new excessWeightUploader
+func NewPrimeMoveExcessWeightUploader(uploadCreator services.UploadCreator) services.MoveExcessWeightUploader {
+	return &excessWeightUploader{uploadCreator, primeChecks()}
 }
 
 // CreateExcessWeightUpload uploads an excess weight document and updates the move with the new upload info
@@ -36,7 +42,10 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 		return nil, services.NewNotFoundError(moveID, "while looking for move")
 	}
 
-	// Validate todo
+	// Run the (read-only) validations
+	if verr := validateMove(appCtx, *move, nil, u.checks...); verr != nil {
+		return nil, verr
+	}
 
 	// Open transaction to create upload and update the move
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
