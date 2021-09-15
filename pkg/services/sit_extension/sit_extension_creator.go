@@ -22,13 +22,13 @@ func NewSitExtensionCreator() services.SITExtensionCreator {
 	}
 }
 
-// CreateSITExtensionCheck passes teh Prime validator to CreateSITExtension
-func (f *sitExtensionCreator) CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
-	return f.CreateSITExtension(appCtx, sitExtension, f.checks...)
-}
+//// CreateSITExtensionCheck passes teh Prime validator to CreateSITExtension
+//func (f *sitExtensionCreator) CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
+//	return f.CreateSITExtension(appCtx, sitExtension, f.checks...)
+//}
 
 // CreateSITExtension creates a SIT extension
-func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension, checks ...sitExtensionValidator) (*models.SITExtension, error) {
+func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
 	// Get existing shipment info
 	shipment := &models.MTOShipment{}
 	// Find the shipment, return error if not found
@@ -38,7 +38,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 		return nil, services.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	err = validateSITExtension(appCtx, *sitExtension, shipment, checks...)
+	err = validateSITExtension(appCtx, *sitExtension, shipment, f.checks...)
 	if err != nil {
 		return nil, err
 	}

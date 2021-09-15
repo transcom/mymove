@@ -30,7 +30,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Set up:		Established valid shipment and valid SIT extension
 		// Expected:	New reweigh successfully created
 		sitExtensionCreator := NewSitExtensionCreator()
-		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Nil(err)
 		suite.NotNil(createdSITExtension)
@@ -43,7 +43,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		badRequestReason := models.SITExtensionRequestReason("none")
 		sit.RequestReason = badRequestReason
 		sitExtensionCreator := NewSitExtensionCreator()
-		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Error(err)
 		suite.Nil(createdSITExtension)
@@ -54,7 +54,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		sit.MTOShipmentID = notFoundUUID
 		sitExtensionCreator := NewSitExtensionCreator()
-		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Nil(createdSITExtension)
 		suite.IsType(services.NotFoundError{}, err)
