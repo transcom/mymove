@@ -20,6 +20,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
@@ -785,20 +787,23 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 	method := "POST"
 	urlFormat := "/payment-requests/%s/recalculate"
 
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.TestLogger())
+
 	suite.T().Run("golden path", func(t *testing.T) {
 		samplePaymentRequest := models.PaymentRequest{
-			ID:                   uuid.Must(uuid.NewV4()),
-			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
-			Status:               models.PaymentRequestStatusPending,
-			PaymentRequestNumber: "1111-2222-1",
-			SequenceNumber:       1,
+			ID:                              uuid.Must(uuid.NewV4()),
+			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
+			Status:                          models.PaymentRequestStatusPending,
+			PaymentRequestNumber:            "1111-2222-1",
+			SequenceNumber:                  1,
+			RecalculationOfPaymentRequestID: &paymentRequestID,
 		}
 
 		mockRecalculator := &mocks.PaymentRequestRecalculator{}
 		mockRecalculator.On("RecalculatePaymentRequest",
-			mock.AnythingOfType("*appcontext.appContext"),
+			appCtx,
 			paymentRequestID,
-		).Return(&samplePaymentRequest, nil)
+		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
 			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestRecalculator: mockRecalculator,
@@ -811,6 +816,8 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		}
 		response := handler.Handle(params)
 
+		mockRecalculator.AssertExpectations(t)
+
 		if suite.IsType(paymentrequestop.NewRecalculatePaymentRequestCreated(), response) {
 			paymentRequestResponse := response.(*paymentrequestop.RecalculatePaymentRequestCreated)
 			payload := paymentRequestResponse.Payload
@@ -819,6 +826,9 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			suite.Equal(samplePaymentRequest.Status.String(), string(payload.Status))
 			suite.Equal(samplePaymentRequest.PaymentRequestNumber, payload.PaymentRequestNumber)
 			// SequenceNumber is not on payload at all as it's an internal representation.
+			if suite.NotNil(payload.RecalculationOfPaymentRequestID.String()) {
+				suite.Equal(samplePaymentRequest.RecalculationOfPaymentRequestID.String(), payload.RecalculationOfPaymentRequestID.String())
+			}
 		}
 	})
 
@@ -865,7 +875,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		suite.T().Run(testName, func(t *testing.T) {
 			mockRecalculator := &mocks.PaymentRequestRecalculator{}
 			mockRecalculator.On("RecalculatePaymentRequest",
-				mock.AnythingOfType("*appcontext.appContext"),
+				appCtx,
 				paymentRequestID,
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{
@@ -879,6 +889,8 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 				PaymentRequestID: strfmtPaymentRequestID,
 			}
 			response := handler.Handle(params)
+
+			mockRecalculator.AssertExpectations(t)
 
 			suite.IsType(testCase.responseType, response)
 		})
