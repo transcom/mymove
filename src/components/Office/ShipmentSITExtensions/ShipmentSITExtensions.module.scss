@@ -15,14 +15,23 @@
     }
   }
 
-  p {
+  > p {
     @include u-margin-left(1);
   }
+  > p:nth-of-type(2) {
+    @include u-font-weight('bold');
+  }
+
   td {
     vertical-align: top;
 
     div {
       display: flex;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 0;
     }
 
     dl {

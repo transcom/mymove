@@ -53,6 +53,24 @@ const ShipmentSITExtensions = (props) => {
     );
   });
 
+  const daysAuthorizedAndUsed = (
+    <>
+      <p>XX authorized</p>
+      <p>XX used</p>
+    </>
+  );
+
+  const daysRemainingAndEndDate = (
+    <>
+      <p>XX remaining</p>
+      <p>Ends XX Sep 2021</p>
+    </>
+  );
+
+  const daysInDestSIT = <p>XX</p>;
+  const dateEnteredSIT = <p>XX Sep 2021</p>;
+  const previouslyUsedSIT = <p>XX days at origin (XX Sep 2021 - XX Oct 2021)</p>;
+
   return (
     <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions)} testID="sitExtensions">
       <div className={styles.title}>
@@ -66,6 +84,16 @@ const ShipmentSITExtensions = (props) => {
         )}
       </div>
 
+      <DataTable
+        columnHeaders={['Total day of SIT', 'Total days remaining']}
+        dataRow={[daysAuthorizedAndUsed, daysRemainingAndEndDate]}
+      />
+      <p>Current location: destination</p>
+      <DataTable
+        columnHeaders={['Days in destination SIT', 'Date entered SIT']}
+        dataRow={[daysInDestSIT, dateEnteredSIT]}
+      />
+      <DataTable columnHeaders={['Previously used SIT']} dataRow={[previouslyUsedSIT]} />
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
       {showModal && (
         <ReviewSITExtensionsModal
