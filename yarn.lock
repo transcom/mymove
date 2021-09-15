@@ -16746,10 +16746,10 @@ react-idle-timer@^4.6.4:
   resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.4.tgz#71ba954ba6f464df24d46a94e63c5ef19f7319dc"
   integrity sha512-iq61dPud8fgj7l1KOJEY5pyiD532fW0KcIe/5XUe/0lB/4Vytoy4tZBlLGSiYodPzKxTL6HyKoOmG6tyzjD7OQ==
 
-react-imask@^6.1.0:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/react-imask/-/react-imask-6.2.1.tgz#6f5c6323afe77fd6650dfb24fa0844ea1f0ed95d"
-  integrity sha512-Pe5lxB1Yrra4Z2wxCzfKT48dZOJhfu7depHlfVODn3nkVFnez4l2fBf4N4jw0ZVDWGWdOU3F400/Dtscn9tG/A==
+react-imask@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/react-imask/-/react-imask-6.2.2.tgz#1a6574828370158bfa7bf6bdf0db255206ef10c0"
+  integrity sha512-CKZhc3OrcMc+VjihSm4CLJlOXX1HIaVfTzLc498eN6RKveRUUqRAjqZWqLFoqg3D85p08WEl3NDLU7w5HdPcUw==
   dependencies:
     imask "^6.2.0"
     prop-types "^15.7.2"
