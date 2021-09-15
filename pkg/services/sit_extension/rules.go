@@ -28,13 +28,10 @@ func checkShipmentID() sitExtensionValidator {
 func checkRequiredFields() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		var sitStatus models.SITExtensionStatus
-		var sitExtensionReason models.SITExtensionRequestReason
-		var sitRequestedDays int
 
-		sitStatus = sitExtension.Status
-		sitExtensionReason = sitExtension.RequestReason
-		sitRequestedDays = sitExtension.RequestedDays
+		sitStatus := sitExtension.Status
+		sitExtensionReason := sitExtension.RequestReason
+		sitRequestedDays := sitExtension.RequestedDays
 
 		// Check that we have something in the SIT RequestedDays field:
 		if sitRequestedDays == 0 {
