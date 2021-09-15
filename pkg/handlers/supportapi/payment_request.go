@@ -220,12 +220,12 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			return paymentrequestop.NewGetPaymentRequestEDINotFound().
 				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 
-		// InvalidInputError -> Unprocessable Entity reponse
+		// InvalidInputError -> Unprocessable Entity response
 		case services.InvalidInputError:
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
 				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 
-		// ConflictError -> Conflict Error reponse
+		// ConflictError -> Conflict Error response
 		case services.ConflictError:
 			return paymentrequestop.NewGetPaymentRequestEDIConflict().
 				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
@@ -235,7 +235,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				// Note we do not expose this detail in the payload
-				logger.Error("Error retrieving an EDI for thepayment request", zap.Error(e.Unwrap()))
+				logger.Error("Error retrieving an EDI for the payment request", zap.Error(e.Unwrap()))
 			}
 			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
 				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
@@ -416,4 +416,50 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)
+}
+
+// RecalculatePaymentRequestHandler recalculates a payment request
+type RecalculatePaymentRequestHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestRecalculator
+}
+
+// Handle getting the EDI for a given payment request
+func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.RecalculatePaymentRequestParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+
+	newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID)
+
+	if err != nil {
+		switch e := err.(type) {
+		case *services.BadDataError:
+			return paymentrequestop.NewRecalculatePaymentRequestBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+		case services.NotFoundError:
+			return paymentrequestop.NewRecalculatePaymentRequestNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.ConflictError:
+			return paymentrequestop.NewRecalculatePaymentRequestConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		case services.PreconditionFailedError:
+			return paymentrequestop.NewRecalculatePaymentRequestPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		case services.InvalidCreateInputError:
+			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				// Note we do not expose this detail in the payload
+				logger.Error("Error recalculating payment request", zap.Error(e.Unwrap()))
+			}
+			return paymentrequestop.NewRecalculatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		default:
+			logger.Error(fmt.Sprintf("Error recalculating payment request for ID: %s: %s", paymentRequestID, err))
+			return paymentrequestop.NewRecalculatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+
+	returnPayload := payloads.PaymentRequest(newPaymentRequest)
+
+	return paymentrequestop.NewRecalculatePaymentRequestCreated().WithPayload(returnPayload)
 }
