@@ -22,11 +22,6 @@ func NewSitExtensionCreator() services.SITExtensionCreator {
 	}
 }
 
-//// CreateSITExtensionCheck passes teh Prime validator to CreateSITExtension
-//func (f *sitExtensionCreator) CreateSITExtensionCheck(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
-//	return f.CreateSITExtension(appCtx, sitExtension, f.checks...)
-//}
-
 // CreateSITExtension creates a SIT extension
 func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
 	// Get existing shipment info
