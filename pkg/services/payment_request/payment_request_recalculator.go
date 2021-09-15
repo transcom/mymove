@@ -68,7 +68,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	}
 
 	// Set the (now) old payment request's status.  Doing this before we recalculate in case the create
-	// payment request service needs to know that this will be deprecated if reaculation is successful.
+	// payment request service needs to know that this will be deprecated if recalculation is successful.
 	oldPaymentRequest.Status = models.PaymentRequestStatusDeprecated
 	_, err = p.paymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &oldPaymentRequest, oldPaymentRequestEtag)
 	if err != nil {
