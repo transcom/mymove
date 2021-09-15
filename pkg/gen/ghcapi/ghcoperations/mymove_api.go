@@ -77,6 +77,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
+		ShipmentCreateSitExtensionAsTOOHandler: shipment.CreateSitExtensionAsTOOHandlerFunc(func(params shipment.CreateSitExtensionAsTOOParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateSitExtensionAsTOO has not yet been implemented")
+		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
@@ -232,6 +235,8 @@ type MymoveAPI struct {
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// ShipmentCreateSitExtensionAsTOOHandler sets the operation handler for the create sit extension as t o o operation
+	ShipmentCreateSitExtensionAsTOOHandler shipment.CreateSitExtensionAsTOOHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// ShipmentDenySitExtensionHandler sets the operation handler for the deny sit extension operation
@@ -399,6 +404,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.ShipmentCreateSitExtensionAsTOOHandler == nil {
+		unregistered = append(unregistered, "shipment.CreateSitExtensionAsTOOHandler")
 	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
@@ -621,6 +629,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateSitExtensionAsTOO(o.context, o.ShipmentCreateSitExtensionAsTOOHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

@@ -238,6 +238,12 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
+	ghcAPI.ShipmentCreateSitExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
+		ctx,
+		mtoshipment.NewCreateSITExtensionAsTOO(),
+		shipmentSITStatus,
+	}
+
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{

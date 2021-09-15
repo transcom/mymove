@@ -815,3 +815,60 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }
+
+// CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
+type CreateSITExtensionAsTOOHandler struct {
+	handlers.HandlerContext
+	services.SITExtensionCreatorAsTOO
+	services.ShipmentSITStatus
+}
+
+// Handle creates the approved SIT extension
+func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	payload := params.Body
+	shipmentID := params.ShipmentID
+
+	handleError := func(err error) middleware.Responder {
+		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			payload := ghcmessages.Error{
+				Message: handlers.FmtString(err.Error()),
+			}
+			return shipmentops.NewCreateSitExtensionAsTOONotFound().WithPayload(&payload)
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewCreateSitExtensionAsTOOUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
+			}
+			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
+		case services.ForbiddenError:
+			return shipmentops.NewCreateSitExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
+		}
+	}
+
+	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
+	shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
+	}
+
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+	returnPayload := payloads.MTOShipment(shipment, sitStatusPayload)
+	return shipmentops.NewCreateSitExtensionAsTOOOK().WithPayload(returnPayload)
+}
