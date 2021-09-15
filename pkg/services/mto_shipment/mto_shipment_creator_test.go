@@ -26,9 +26,9 @@ type createShipmentSubtestData struct {
 func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
 	subtestData = &createShipmentSubtestData{}
 
-	subtestData.appContext = suite.TestAppContext()
-
 	subtestData.move = testdatagen.MakeMove(suite.DB(), assertions)
+
+	subtestData.appContext = suite.TestAppContext()
 
 	builder := query.NewQueryBuilder()
 	createNewBuilder := func() createMTOShipmentQueryBuilder {
@@ -340,6 +340,25 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		err = suite.DB().Find(&updatedMove, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+	})
+
+	suite.T().Run("Sets expected default SIT days allowance", func(t *testing.T) {
+		// This test will have to change in the future, but for now, service members are expected to get 90 days by
+		// default.
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			Stub: true,
+		})
+
+		clearedShipment := clearShipmentIDFields(&mtoShipment)
+
+		createdShipment, err := creator.CreateMTOShipment(subtestData.appContext, clearedShipment, nil)
+
+		suite.NoError(err)
+		suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance)
 	})
 }
 

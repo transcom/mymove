@@ -45,6 +45,13 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
+// Other values will likely be added to this once we deal with different types of customers.
+// Can't be constants because we need pointers to these values and you can't get a pointer to a const.
+var (
+	// DefaultServiceMemberSITDaysAllowance is the default number of SIT days a service member is allowed
+	DefaultServiceMemberSITDaysAllowance = 90
+)
+
 // MTOShipmentStatus represents the possible statuses for a mto shipment
 type MTOShipmentStatus string
 

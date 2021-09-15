@@ -154,6 +154,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.Status = models.MTOShipmentStatusDraft
 		}
 
+		// Assign default SITDaysAllowance based on customer type...but we only have service members right now.
+		// Once we introduce more, this logic will have to change.
+		shipment.SITDaysAllowance = &models.DefaultServiceMemberSITDaysAllowance
+
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
 
