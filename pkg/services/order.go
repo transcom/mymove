@@ -36,6 +36,7 @@ type OrderUpdater interface {
 type ExcessWeightRiskManager interface {
 	AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error)
+	UpdateMaxBillableWeightAsTIO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, remarks *string, eTag string) (*models.Order, uuid.UUID, error)
 }
 
 // ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders

@@ -255,7 +255,6 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithAmendedOrders(appCtx, userUploader, primeUploader)
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 
-		createMoveWithSITExtensions(appCtx, userUploader)
 		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
 	}
 }

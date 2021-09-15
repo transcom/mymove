@@ -1,0 +1,8 @@
+name: order
+description: >
+  Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a
+  bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that
+  customer to move from one location to another.
+
+  Orders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the
+  orders document.

@@ -14,7 +14,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - name: order
+  - $ref: 'tags/order.yaml'
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -348,6 +348,46 @@ paths:
           name: If-Match
           type: string
           required: true
+      responses:
+        '200':
+          description: updated Order
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/orders/{orderID}/update-max-billable-weight/tio':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates the max billable weight with TIO remarks
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
+      operationId: updateMaxBillableWeightAsTIO
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: updated Order
@@ -2228,6 +2268,10 @@ definitions:
         format: date-time
         description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
         x-nullable: true
+      tioRemarks:
+        type: string
+        example: approved additional weight
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -2333,6 +2377,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2529,6 +2575,25 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+  UpdateMaxBillableWeightAsTIOPayload:
+    type: object
+    properties:
+      authorizedWeight:
+        description: unit is in lbs
+        example: 2000
+        minimum: 1
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      tioRemarks:
+        description: TIO remarks for updating the max billable weight
+        example: Increasing max billable weight
+        type: string
+        minLength: 1
+        x-nullable: true
+    required:
+      - authorizedWeight
+      - tioRemarks
   CounselingUpdateAllowancePayload:
     type: object
     properties:

@@ -4731,6 +4731,7 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 
 func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+
 	customerSIT := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 	ordersSIT := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -4744,6 +4745,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.Must(uuid.NewV4()),
+			Locator:            "SITEXT",
 			OrdersID:           ordersSIT.ID,
 			Status:             models.MoveStatusAPPROVED,
 			AvailableToPrimeAt: swag.Time(time.Now()),
@@ -4754,6 +4756,17 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		Move: moveSIT,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	sitContractorRemarks1 := "The customer requested an extension."
+	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID:     mtoShipmentSIT.ID,
+			ContractorRemarks: &sitContractorRemarks1,
+			OfficeRemarks:     &sitOfficeRemarks1,
 		},
 	})
 

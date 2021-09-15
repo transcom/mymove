@@ -2,7 +2,7 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.dataPoint {
+.dataTable {
   .table--small {
     th {
       @include u-padding-x(1);

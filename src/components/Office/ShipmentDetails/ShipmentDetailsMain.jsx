@@ -4,6 +4,7 @@ import * as PropTypes from 'prop-types';
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
+import ShipmentSITExtensions from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensions';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
@@ -25,11 +26,13 @@ const ShipmentDetailsMain = ({
     primeActualWeight,
     counselorRemarks,
     customerRemarks,
+    sitExtensions,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
   return (
     <div className={className}>
+      {sitExtensions && <ShipmentSITExtensions sitExtensions={sitExtensions} />}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}

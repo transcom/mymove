@@ -2,7 +2,7 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.dataPointGroup {
+.dataTableWrapper {
   @include u-padding(1);
   box-sizing: border-box;
 
