@@ -42,6 +42,10 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 		})
 
 		suite.Run("Fail - Move not found", func() {
+			// Testing the number of uploads on DB prior to failure so we can make sure the DB rolls back the upload
+			numUploadsBefore, countErr := suite.DB().Count(models.Upload{})
+			suite.NoError(countErr)
+
 			notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 			updatedMove, err := excessWeightUploader.CreateExcessWeightUpload(
@@ -51,6 +55,11 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 
 			suite.IsType(services.NotFoundError{}, err)
 			suite.Contains(err.Error(), notFoundUUID.String())
+
+			// Check the DB rollback
+			numUploadsAfter, countErr := suite.DB().Count(models.Upload{})
+			suite.NoError(countErr)
+			suite.Equal(numUploadsBefore, numUploadsAfter)
 		})
 
 		err := testFile.Close()
@@ -83,6 +92,10 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 		})
 
 		suite.Run("Fail - Cannot create upload for non-Prime move", func() {
+			// Testing the number of uploads on DB prior to failure so we can make sure the DB rolls back the upload
+			numUploadsBefore, countErr := suite.DB().Count(models.Upload{})
+			suite.NoError(countErr)
+
 			updatedMove, err := primeExcessWeightUploader.CreateExcessWeightUpload(
 				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypePRIME)
 			suite.Nil(updatedMove)
@@ -90,6 +103,11 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 
 			suite.IsType(services.NotFoundError{}, err)
 			suite.Contains(err.Error(), move.ID.String())
+
+			// Check the DB rollback
+			numUploadsAfter, countErr := suite.DB().Count(models.Upload{})
+			suite.NoError(countErr)
+			suite.Equal(numUploadsBefore, numUploadsAfter)
 		})
 
 		err := testFile.Close()
