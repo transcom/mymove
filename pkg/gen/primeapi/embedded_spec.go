@@ -1803,8 +1803,7 @@ func init() {
           "type": "object",
           "required": [
             "reason",
-            "reServiceCode",
-            "description"
+            "reServiceCode"
           ],
           "properties": {
             "actualWeight": {
@@ -1813,11 +1812,6 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
-            },
-            "description": {
-              "description": "Details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
@@ -5060,8 +5054,7 @@ func init() {
           "type": "object",
           "required": [
             "reason",
-            "reServiceCode",
-            "description"
+            "reServiceCode"
           ],
           "properties": {
             "actualWeight": {
@@ -5070,11 +5063,6 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
-            },
-            "description": {
-              "description": "Details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
