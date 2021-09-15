@@ -4,17 +4,23 @@ import propTypes from 'prop-types';
 
 import styles from './index.module.scss';
 
-const DataTableWrapper = ({ children, className }) => {
-  return <div className={classnames(styles.dataTableWrapper, 'table--data-point-group', className)}>{children}</div>;
+const DataTableWrapper = ({ children, className, testID }) => {
+  return (
+    <div className={classnames(styles.dataTableWrapper, 'table--data-point-group', className)} data-testid={testID}>
+      {children}
+    </div>
+  );
 };
 
 DataTableWrapper.propTypes = {
   className: propTypes.string,
   children: propTypes.node.isRequired,
+  testID: propTypes.string,
 };
 
 DataTableWrapper.defaultProps = {
   className: '',
+  testID: '',
 };
 
 export default DataTableWrapper;

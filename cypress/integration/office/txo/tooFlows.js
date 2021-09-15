@@ -76,10 +76,6 @@ describe('TOO user', () => {
     cy.get('[data-testid="ShipmentContainer"]');
     cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
 
-    // View SIT extension display
-    cy.get('[data-testid="sitExtensions"]');
-    cy.contains('');
-
     // Navigate back to Move Details
     cy.get('[data-testid="MoveDetails-Tab"]').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
@@ -353,7 +349,7 @@ describe('TOO user', () => {
 
     // View SIT extension display
     cy.get('[data-testid="sitExtensions"]');
-    cy.contains('100 days added');
+    cy.contains('30 days added');
     cy.contains('The customer requested an extension.');
   });
 });
