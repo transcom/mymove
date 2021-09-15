@@ -7,13 +7,12 @@ import MovePaymentRequests from './MovePaymentRequests';
 
 import MOVE_STATUSES from 'constants/moves';
 import { MockProviders } from 'testUtils';
-import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
-  useMoveDetailsQueries: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -40,6 +39,48 @@ const move = {
   orders: {
     sac: '1234456',
     tac: '1213',
+  },
+};
+
+const order = {
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  has_dependents: false,
+  issue_date: '2020-08-11',
+  grade: 'RANK',
+  moves: ['123'],
+  origin_duty_station: {
+    name: 'Test Duty Station',
+    address: {
+      postal_code: '123456',
+    },
+  },
+  new_duty_station: {
+    name: 'New Test Duty Station',
+    address: {
+      postal_code: '123456',
+    },
+  },
+  report_by_date: '2020-08-31',
+  service_member_id: '666',
+  spouse_has_pro_gear: false,
+  status: MOVE_STATUSES.SUBMITTED,
+  uploaded_orders: {
+    uploads: [],
+  },
+  entitlement: {
+    authorizedWeight: 8000,
+    dependentsAuthorized: true,
+    eTag: 'MjAyMS0wOC0yNFQxODoyNDo0MC45NzIzMTha',
+    id: '188842d1-cf88-49ec-bd2f-dfa98da44bb2',
+    nonTemporaryStorage: true,
+    organizationalClothingAndIndividualEquipment: true,
+    privatelyOwnedVehicle: true,
+    proGearWeight: 2000,
+    proGearWeightSpouse: 500,
+    requiredMedicalEquipmentWeight: 1000,
+    storageInTransit: 2,
+    totalDependents: 1,
+    totalWeight: 8000,
   },
 };
 
@@ -105,6 +146,12 @@ const multiplePaymentRequests = {
       scheduledPickupDate: '2020-01-09T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 9000,
+      primeActualWeight: 500,
+      reweigh: {
+        id: 'reweighID1',
+        weight: 100,
+      },
       mtoServiceItems: [
         {
           id: '5',
@@ -131,6 +178,12 @@ const multiplePaymentRequests = {
       scheduledPickupDate: '2020-01-10T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 1000,
+      primeActualWeight: 5000,
+      reweigh: {
+        id: 'reweighID2',
+        weight: 600,
+      },
       mtoServiceItems: [
         {
           id: '9',
@@ -157,6 +210,12 @@ const multiplePaymentRequests = {
       scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 300,
+      reweigh: {
+        id: 'reweighID3',
+        weight: 900,
+      },
       mtoServiceItems: [
         {
           id: '12',
@@ -176,6 +235,7 @@ const multiplePaymentRequests = {
       ],
     },
   ],
+  order,
 };
 
 const singleReviewedPaymentRequest = {
@@ -216,6 +276,12 @@ const singleReviewedPaymentRequest = {
       scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 300,
+      reweigh: {
+        id: 'reweighID',
+        weight: 900,
+      },
       mtoServiceItems: [
         {
           id: '3',
@@ -225,55 +291,36 @@ const singleReviewedPaymentRequest = {
       ],
     },
   ],
-};
-
-const orders = {
-  order: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
-    has_dependents: false,
-    issue_date: '2020-08-11',
-    grade: 'RANK',
-    moves: ['123'],
-    origin_duty_station: {
-      name: 'Test Duty Station',
-      address: {
-        postal_code: '123456',
-      },
-    },
-    new_duty_station: {
-      name: 'New Test Duty Station',
-      address: {
-        postal_code: '123456',
-      },
-    },
-    report_by_date: '2020-08-31',
-    service_member_id: '666',
-    spouse_has_pro_gear: false,
-    status: MOVE_STATUSES.SUBMITTED,
-    uploaded_orders: {
-      uploads: [],
-    },
-    entitlement: {
-      authorizedWeight: 8000,
-      dependentsAuthorized: true,
-      eTag: 'MjAyMS0wOC0yNFQxODoyNDo0MC45NzIzMTha',
-      id: '188842d1-cf88-49ec-bd2f-dfa98da44bb2',
-      nonTemporaryStorage: true,
-      organizationalClothingAndIndividualEquipment: true,
-      privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
-      proGearWeightSpouse: 500,
-      requiredMedicalEquipmentWeight: 1000,
-      storageInTransit: 2,
-      totalDependents: 1,
-      totalWeight: 8000,
-    },
-  },
+  order,
 };
 
 const emptyPaymentRequests = {
   paymentRequests: [],
-  mtoShipments: [],
+  mtoShipments: [
+    {
+      shipmentType: 'HHG',
+      id: '2',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 300,
+      reweigh: {
+        id: 'reweighID',
+        weight: 900,
+      },
+      mtoServiceItems: [
+        {
+          id: '3',
+          mtoShipmentID: '2',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+      ],
+    },
+  ],
+  order,
 };
 
 const loadingReturnValue = {
@@ -300,7 +347,6 @@ describe('MovePaymentRequests', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -310,7 +356,6 @@ describe('MovePaymentRequests', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
-      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -322,7 +367,6 @@ describe('MovePaymentRequests', () => {
   describe('with multiple payment requests', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('renders without errors', () => {
@@ -364,7 +408,6 @@ describe('MovePaymentRequests', () => {
   describe('renders side navigation for each section', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
-      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it.each([
@@ -408,7 +451,6 @@ describe('MovePaymentRequests', () => {
   describe('with no payment requests for move', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('does not render side navigation for payment request section', () => {
@@ -453,7 +495,6 @@ describe('MovePaymentRequests', () => {
   describe('a billable weight', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('navigates the user to the reivew billable weight page', async () => {

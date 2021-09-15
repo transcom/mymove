@@ -36,7 +36,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		expectedFilename := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), 12345)
 		gexSender.
-			On("SendToGex", fakeEdi, expectedFilename).Return(response, nil)
+			On("SendToGex", services.GEXChannelInvoice, fakeEdi, expectedFilename).Return(response, nil)
 		err := SendToSyncada(suite.TestAppContext(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.NoError(err)
 	})
@@ -48,7 +48,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		expectedFilename := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), 12345)
 		gexSender.
-			On("SendToGex", fakeEdi, expectedFilename).Return(response, nil)
+			On("SendToGex", services.GEXChannelInvoice, fakeEdi, expectedFilename).Return(response, nil)
 		err := SendToSyncada(suite.TestAppContext(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("received error response when sending EDI to GEX &{ 403  0 0 map[] <nil> 0 [] false false map[] <nil> <nil>}", err.Error())
@@ -60,7 +60,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		expectedFilename := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), 12345)
 		gexSender.
-			On("SendToGex", fakeEdi, expectedFilename).Return(nil, nil)
+			On("SendToGex", services.GEXChannelInvoice, fakeEdi, expectedFilename).Return(nil, nil)
 		err := SendToSyncada(suite.TestAppContext(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("no response when sending EDI to GEX", err.Error())
@@ -72,7 +72,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		expectedFilename := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), 12345)
 		gexSender.
-			On("SendToGex", fakeEdi, expectedFilename).Return(nil, fmt.Errorf("gex send threw error"))
+			On("SendToGex", services.GEXChannelInvoice, fakeEdi, expectedFilename).Return(nil, fmt.Errorf("gex send threw error"))
 		err := SendToSyncada(suite.TestAppContext(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("GEX sender encountered an error: gex send threw error", err.Error())

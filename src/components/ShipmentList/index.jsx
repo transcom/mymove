@@ -8,7 +8,7 @@ import styles from './ShipmentList.module.scss';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
-import shipmentIsOverweight from 'utils/shipmentIsOverweight';
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 export const ShipmentListItem = ({
   shipment,
@@ -51,7 +51,9 @@ export const ShipmentListItem = ({
       {!showShipmentWeight && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
-      {showShipmentWeight && <div className={styles.shipmentWeight}>{formatWeight(shipment.billableWeight)}</div>}
+      {showShipmentWeight && (
+        <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
+      )}
       {(isOverweight || isMissingWeight) && (
         <div>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
@@ -111,7 +113,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         if (showShipmentWeight) {
           canEdit = false;
           showNumber = false;
-          if (shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight)) {
+          if (shipmentIsOverweight(shipment.estimatedWeight, shipment.calculatedBillableWeight)) {
             isOverweight = true;
           }
           if (shipment.reweigh?.id && !shipment.reweigh?.weight) {

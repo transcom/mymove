@@ -509,6 +509,23 @@ func main() {
 	support.InitHideNonFakeMoveTaskOrdersFlags(hideNonFakeMoveTaskOrdersCommand.Flags())
 	root.AddCommand(hideNonFakeMoveTaskOrdersCommand)
 
+	recalculatePaymentRequestCommand := &cobra.Command{
+		Use:   "support-recalculate-payment-request",
+		Short: "Recalculates the given payment request",
+		Long: `
+  This command recalculates the payment request with the given ID by
+  creating a new payment request and deprecating the existing one.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a payment request ID using the --id arg.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/recalculate
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         support.RecalculatePaymentRequest,
+		SilenceUsage: true,
+	}
+	support.InitGetPaymentRequestEDIFlags(recalculatePaymentRequestCommand.Flags())
+	root.AddCommand(recalculatePaymentRequestCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

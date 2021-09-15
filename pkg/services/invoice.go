@@ -11,10 +11,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// GEXChannel type to define constants for valid GEX Channels
+type GEXChannel string
+
+const (
+	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to US Bank via GEX
+	GEXChannelInvoice GEXChannel = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
+	// GEXChannelDataWarehouse is the URL query parameter that we use when sending data to the IGC data warehouse
+	GEXChannelDataWarehouse GEXChannel = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
+)
+
 // GexSender is an interface for sending and receiving a request
 //go:generate mockery --name GexSender --disable-version-string
 type GexSender interface {
-	SendToGex(edi string, filename string) (resp *http.Response, err error)
+	SendToGex(channel GEXChannel, edi string, filename string) (resp *http.Response, err error)
 }
 
 // GHCPaymentRequestInvoiceGenerator is the exported interface for generating an invoice

@@ -7,8 +7,13 @@
   @include u-margin-top(2);
 }
 
+.wrapper {
+  @include u-margin-top(2);
+}
+
 .header {
   @include u-margin-bottom(0.5);
+  margin-top: 2rem;
   font-size: 17px;
   color: $base-darker;
   font-weight: bold;

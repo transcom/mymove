@@ -359,6 +359,11 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppCon
 }
 
 func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection, paymentServiceItemParam models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItemParam, *string, *string, error) {
+	/* Note that we are not validating the param key type here.
+	 * For now, invalid params will be caught when they are parsed in lookups.
+	 * In the future we may want to add more validation here to catch things earlier.
+	 */
+
 	// If the ServiceItemParamKeyID is provided, verify it exists; otherwise, lookup
 	// via the IncomingKey field
 	var key, value string

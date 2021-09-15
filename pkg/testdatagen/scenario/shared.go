@@ -1303,7 +1303,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	originPickupSIT = *updatedDOPSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -1337,7 +1337,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	serviceItemDDDSIT = *updatedDDDSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -4731,6 +4731,7 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 
 func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+
 	customerSIT := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 	ordersSIT := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -4744,6 +4745,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.Must(uuid.NewV4()),
+			Locator:            "SITEXT",
 			OrdersID:           ordersSIT.ID,
 			Status:             models.MoveStatusAPPROVED,
 			AvailableToPrimeAt: swag.Time(time.Now()),
@@ -4754,6 +4756,17 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		Move: moveSIT,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	sitContractorRemarks1 := "The customer requested an extension."
+	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID:     mtoShipmentSIT.ID,
+			ContractorRemarks: &sitContractorRemarks1,
+			OfficeRemarks:     &sitOfficeRemarks1,
 		},
 	})
 
@@ -4804,6 +4817,84 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		MTOServiceItem: serviceItemBSIT,
 		PaymentRequest: paymentRequestSIT,
 	})
+}
+
+func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.Must(uuid.NewV4()),
+			Locator:            "S1TT3R",
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+		UserUploader: userUploader,
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		ReService: models.ReService{
+			Code: "MS",
+		},
+		Move: move,
+	})
+
+	sitDaysAllowance := 90
+	mtoShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:           models.MTOShipmentStatusApproved,
+			SITDaysAllowance: &sitDaysAllowance,
+		},
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	twoMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	oneMonthAgo := twoMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+	// This will in practice not exist without DOFSIT and DOASIT
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &twoMonthsAgo,
+			SITDepartureDate: &oneMonthAgo,
+			SITPostalCode:    &postalCode,
+			Reason:           &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+		MTOShipment: mtoShipment,
+		Move:        move,
+	})
+
+	oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
+	dddsit := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &oneWeekAgo,
+			Reason:       &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+		MTOShipment: mtoShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItem: dddsit,
+	})
+
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			Type: models.CustomerContactTypeSecond,
+		},
+		MTOServiceItem: dddsit,
+	})
+
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage

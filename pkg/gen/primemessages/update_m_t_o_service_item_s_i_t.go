@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMTOServiceItemSIT Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
+// UpdateMTOServiceItemSIT Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
 //
 //
 // swagger:model UpdateMTOServiceItemSIT

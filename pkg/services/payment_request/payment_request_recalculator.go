@@ -67,19 +67,20 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only pending payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
 	}
 
+	// Set the (now) old payment request's status.  Doing this before we recalculate in case the create
+	// payment request service needs to know that this will be deprecated if recalculation is successful.
+	oldPaymentRequest.Status = models.PaymentRequestStatusDeprecated
+	_, err = p.paymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &oldPaymentRequest, oldPaymentRequestEtag)
+	if err != nil {
+		return nil, err
+	}
+
 	// Re-create the payment request arg including service items, then call the create service (which should
 	// price it with current inputs).
 	inputPaymentRequest := buildPaymentRequestForRecalculating(oldPaymentRequest)
 	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
-	}
-
-	// Set the (now) old payment request's status.
-	oldPaymentRequest.Status = models.PaymentRequestStatusDeprecated
-	_, err = p.paymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &oldPaymentRequest, oldPaymentRequestEtag)
-	if err != nil {
-		return nil, err
 	}
 
 	// Duplicate the proof-of-service upload associations to the new payment request.

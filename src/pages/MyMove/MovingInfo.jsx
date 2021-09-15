@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { func, number, string, node } from 'prop-types';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MovingInfo.module.scss';
 
-import { generalRoutes, customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatWeight } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { RouteProps } from 'types/router';
 
 const IconSection = ({ icon, headline, children }) => (

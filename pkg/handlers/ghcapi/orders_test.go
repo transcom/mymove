@@ -937,6 +937,12 @@ type updateBillableWeightHandlerSubtestData struct {
 	body  *ghcmessages.UpdateBillableWeightPayload
 }
 
+type updateMaxBillableWeightAsTIOHandlerSubtestData struct {
+	move  models.Move
+	order models.Order
+	body  *ghcmessages.UpdateMaxBillableWeightAsTIOPayload
+}
+
 func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData *updateAllowanceHandlerSubtestData) {
 	subtestData = &updateAllowanceHandlerSubtestData{}
 
@@ -960,6 +966,24 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+	}
+	return subtestData
+}
+
+func (suite *HandlerSuite) makeUpdateMaxBillableWeightAsTIOHandlerSubtestData() (subtestData *updateMaxBillableWeightAsTIOHandlerSubtestData) {
+	subtestData = &updateMaxBillableWeightAsTIOHandlerSubtestData{}
+	now := time.Now()
+	subtestData.move = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{ExcessWeightQualifiedAt: &now},
+	})
+	subtestData.order = subtestData.move.Orders
+
+	newAuthorizedWeight := int64(10000)
+	newRemarks := "TIO remarks"
+
+	subtestData.body = &ghcmessages.UpdateMaxBillableWeightAsTIOPayload{
+		AuthorizedWeight: &newAuthorizedWeight,
+		TioRemarks:       &newRemarks,
 	}
 	return subtestData
 }
@@ -1363,6 +1387,172 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceUnprocessableEntity{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-max-billable-weight/tio", nil)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateMaxBillableWeightAsTIOParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		router := moverouter.NewMoveRouter()
+		handler := UpdateMaxBillableWeightAsTIOHandler{
+			context,
+			orderservice.NewExcessWeightRiskManager(router),
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		orderOK := response.(*orderop.UpdateMaxBillableWeightAsTIOOK)
+		ordersPayload := orderOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
+		suite.Equal(order.ID.String(), ordersPayload.ID.String())
+		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+		suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
+	})
+
+	suite.Run("Returns a 403 when the user does not have TIO role", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateMaxBillableWeightAsTIOParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateMaxBillableWeightAsTIOHandler{
+			context,
+			updater,
+		}
+
+		updater.AssertNumberOfCalls(suite.T(), "UpdateMaxBillableWeightAsTIO", 0)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOForbidden{}, response)
+	})
+
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateMaxBillableWeightAsTIOParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateMaxBillableWeightAsTIOHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		tioRemarks := params.Body.TioRemarks
+
+		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIONotFound{}, response)
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateMaxBillableWeightAsTIOParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     "",
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateMaxBillableWeightAsTIOHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		tioRemarks := params.Body.TioRemarks
+
+		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOPreconditionFailed{}, response)
+	})
+
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateMaxBillableWeightAsTIOParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateMaxBillableWeightAsTIOHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		tioRemarks := params.Body.TioRemarks
+
+		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOUnprocessableEntity{}, response)
 	})
 }
 

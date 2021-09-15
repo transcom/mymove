@@ -30,7 +30,6 @@ type ServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// params
-	// Read Only: true
 	Params []*ServiceItemParamsItems0 `json:"params"`
 }
 
@@ -116,10 +115,6 @@ func (m *ServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Re
 }
 
 func (m *ServiceItem) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "params", "body", []*ServiceItemParamsItems0(m.Params)); err != nil {
-		return err
-	}
 
 	for i := 0; i < len(m.Params); i++ {
 

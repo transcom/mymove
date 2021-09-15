@@ -23,3 +23,9 @@ type SITExtensionDenier interface {
 type SITExtensionCreator interface {
 	CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error)
 }
+
+//SITExtensionCreatorAsTOO is the service object interface to create an approved SIT extension
+//go:generate mockery --name SITExtensionCreatorAsTOO --disable-version-string
+type SITExtensionCreatorAsTOO interface {
+	CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}

@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-012fdffe4833f88f67607cd6801f166d0014c239
 
   postgres: &postgres postgres:12.7
 
@@ -108,6 +108,15 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEMO_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEMO_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_demo:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for demo env'
+          command: |
+            echo "export TLS_CERT=$DEMO_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$DEMO_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$DEMO_DP3_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -117,6 +126,15 @@ commands:
             echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  tls_vars_exp:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for exp env'
+          command: |
+            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -128,6 +146,15 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_stg:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for stg env'
+          command: |
+            echo "export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_prd:
     steps:
       - run:
@@ -138,15 +165,14 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
-  aws_vars_transcom_com_dev:
+  tls_vars_prd:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for com-dev env'
+          name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            echo "export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -158,6 +184,26 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for gov-dev env'
+          command: |
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_transcom_com_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for com-dev env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+
   announce_failure:
     parameters:
     steps:
@@ -347,7 +393,7 @@ commands:
       - run:
           name: Compare against deployed commit
           command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -363,14 +409,14 @@ commands:
       - run:
           name: Health Check
           command: |
-            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: TLS Check
           command: |
-            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
   deploy_app_client_tls_niprnet_steps:
     parameters:
@@ -385,7 +431,7 @@ commands:
       - run:
           name: Compare against deployed commit
           command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -401,14 +447,14 @@ commands:
       - run:
           name: Health Check
           command: |
-            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: TLS Check
           command: |
-            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
   deploy_webhook_client_steps:
     parameters:
@@ -1064,6 +1110,33 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `build_dp3_app` builds the application container, replacing DoD chain/certs with non-ato version
+  build_dp3_app:
+    executor: mymove_medium_plus
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run:
+          name: Install Frozen YARN dependencies
+          command: yarn install --frozen-lockfile
+      - run: make client_build
+      - run: make server_build
+      - build_image:
+          dockerfile: Dockerfile.dp3
+          image_name: app
+          tag: web-dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
+
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
     executor: mymove_small
@@ -1279,6 +1352,28 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  #`build_dp3_tasks` builds the task container, replacing DoD chain/certs with non-ato version
+  build_dp3_tasks:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+      - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: make server_generate
+      - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
+      - build_image:
+          dockerfile: Dockerfile.tasks_dp3
+          image_name: tasks
+          tag: dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
+
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
   push_tasks_gov_dev:
     executor: mymove_small
@@ -1365,6 +1460,21 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
+  build_dp3_webhook_client:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run: make bin/webhook-client
+      - build_image:
+          dockerfile: Dockerfile.webhook_client_dp3
+          image_name: webhook_client
+          tag: dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
   # `push_webhook_client_demo` pushes the webhook client container to the demo container repository
   push_webhook_client_demo:
     executor: mymove_small
@@ -1446,6 +1556,7 @@ jobs:
       - APP_ENVIRONMENT: 'demo'
     steps:
       - aws_vars_demo
+      - tls_vars_demo
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want demo to be able to roll back
           health_check_hosts: api.demo.dp3.us
@@ -1461,7 +1572,7 @@ jobs:
       - deploy_webhook_client_steps:
           ecr_env: demo
 
- # `deploy_exp_migrations` deploys migrations to the exp environment
+  # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
     environment:
@@ -1500,6 +1611,7 @@ jobs:
       - APP_ENVIRONMENT: 'exp'
     steps:
       - aws_vars_exp
+      - tls_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
@@ -1574,6 +1686,7 @@ jobs:
       - APP_ENVIRONMENT: 'stg'
     steps:
       - aws_vars_stg
+      - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
@@ -1647,6 +1760,7 @@ jobs:
       - APP_ENVIRONMENT: 'prd'
     steps:
       - aws_vars_prd
+      - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,orders.move.mil
@@ -1763,9 +1877,18 @@ workflows:
           requires:
             - build_tasks
 
+      - build_dp3_app:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+            - pre_deps_yarn
+          filters:
+            branches:
+              only: placeholder_branch_name
+
       - push_app_demo:
           requires:
-            - build_app
+            - build_dp3_app
           filters:
             branches:
               only: placeholder_branch_name
@@ -1777,16 +1900,31 @@ workflows:
             branches:
               only: placeholder_branch_name
 
+      - build_dp3_tasks:
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only: placeholder_branch_name
+
       - push_tasks_demo:
           requires:
-            - build_tasks
+            - build_dp3_tasks
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - build_dp3_webhook_client:
+          requires:
+            - anti_virus
+            - pre_deps_golang
           filters:
             branches:
               only: placeholder_branch_name
 
       - push_webhook_client_demo:
           requires:
-            - build_webhook_client
+            - build_dp3_webhook_client
           filters:
             branches:
               only: placeholder_branch_name

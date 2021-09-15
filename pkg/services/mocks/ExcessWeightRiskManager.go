@@ -70,3 +70,35 @@ func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.A
 
 	return r0, r1, r2
 }
+
+// UpdateMaxBillableWeightAsTIO provides a mock function with given fields: appCtx, orderID, weight, remarks, eTag
+func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, remarks *string, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(appCtx, orderID, weight, remarks, eTag)
+
+	var r0 *models.Order
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) *models.Order); ok {
+		r0 = rf(appCtx, orderID, weight, remarks, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Order)
+		}
+	}
+
+	var r1 uuid.UUID
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) uuid.UUID); ok {
+		r1 = rf(appCtx, orderID, weight, remarks, eTag)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(uuid.UUID)
+		}
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) error); ok {
+		r2 = rf(appCtx, orderID, weight, remarks, eTag)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}

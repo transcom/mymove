@@ -20,6 +20,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
@@ -776,4 +778,121 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		response := handler.Handle(params)
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError(), response)
 	})
+}
+
+func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
+	paymentRequestID := uuid.Must(uuid.NewV4())
+	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
+
+	method := "POST"
+	urlFormat := "/payment-requests/%s/recalculate"
+
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.TestLogger())
+
+	suite.T().Run("golden path", func(t *testing.T) {
+		samplePaymentRequest := models.PaymentRequest{
+			ID:                              uuid.Must(uuid.NewV4()),
+			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
+			Status:                          models.PaymentRequestStatusPending,
+			PaymentRequestNumber:            "1111-2222-1",
+			SequenceNumber:                  1,
+			RecalculationOfPaymentRequestID: &paymentRequestID,
+		}
+
+		mockRecalculator := &mocks.PaymentRequestRecalculator{}
+		mockRecalculator.On("RecalculatePaymentRequest",
+			appCtx,
+			paymentRequestID,
+		).Return(&samplePaymentRequest, nil).Once()
+		handler := RecalculatePaymentRequestHandler{
+			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestRecalculator: mockRecalculator,
+		}
+
+		req := httptest.NewRequest(method, fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		params := paymentrequestop.RecalculatePaymentRequestParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+		response := handler.Handle(params)
+
+		mockRecalculator.AssertExpectations(t)
+
+		if suite.IsType(paymentrequestop.NewRecalculatePaymentRequestCreated(), response) {
+			paymentRequestResponse := response.(*paymentrequestop.RecalculatePaymentRequestCreated)
+			payload := paymentRequestResponse.Payload
+			suite.Equal(samplePaymentRequest.ID.String(), payload.ID.String())
+			suite.Equal(samplePaymentRequest.MoveTaskOrderID.String(), payload.MoveTaskOrderID.String())
+			suite.Equal(samplePaymentRequest.Status.String(), string(payload.Status))
+			suite.Equal(samplePaymentRequest.PaymentRequestNumber, payload.PaymentRequestNumber)
+			// SequenceNumber is not on payload at all as it's an internal representation.
+			if suite.NotNil(payload.RecalculationOfPaymentRequestID) {
+				suite.Equal(samplePaymentRequest.RecalculationOfPaymentRequestID.String(), payload.RecalculationOfPaymentRequestID.String())
+			}
+		}
+	})
+
+	errorTestCases := []struct {
+		testErr      error
+		responseType interface{}
+	}{
+		{
+			services.NewBadDataError("test"),
+			paymentrequestop.NewRecalculatePaymentRequestBadRequest(),
+		},
+		{
+			services.NewNotFoundError(paymentRequestID, "test"),
+			paymentrequestop.NewRecalculatePaymentRequestNotFound(),
+		},
+		{
+			services.NewConflictError(paymentRequestID, "test"),
+			paymentrequestop.NewRecalculatePaymentRequestConflict(),
+		},
+		{
+			services.NewPreconditionFailedError(paymentRequestID, errors.New("test")),
+			paymentrequestop.NewRecalculatePaymentRequestPreconditionFailed(),
+		},
+		{
+			services.NewInvalidInputError(paymentRequestID, errors.New("test"), validate.NewErrors(), "test"),
+			paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity(),
+		},
+		{
+			services.NewInvalidCreateInputError(validate.NewErrors(), "test"),
+			paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity(),
+		},
+		{
+			services.NewQueryError("TestObject", errors.New("test"), "test"),
+			paymentrequestop.NewRecalculatePaymentRequestInternalServerError(),
+		},
+		{
+			errors.New("test"),
+			paymentrequestop.NewRecalculatePaymentRequestInternalServerError(),
+		},
+	}
+
+	for _, testCase := range errorTestCases {
+		testName := fmt.Sprintf("%T error from service should produce %T response type", testCase.testErr, testCase.responseType)
+		suite.T().Run(testName, func(t *testing.T) {
+			mockRecalculator := &mocks.PaymentRequestRecalculator{}
+			mockRecalculator.On("RecalculatePaymentRequest",
+				appCtx,
+				paymentRequestID,
+			).Return(nil, testCase.testErr)
+			handler := RecalculatePaymentRequestHandler{
+				HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+				PaymentRequestRecalculator: mockRecalculator,
+			}
+
+			req := httptest.NewRequest(method, fmt.Sprintf(urlFormat, paymentRequestID), nil)
+			params := paymentrequestop.RecalculatePaymentRequestParams{
+				HTTPRequest:      req,
+				PaymentRequestID: strfmtPaymentRequestID,
+			}
+			response := handler.Handle(params)
+
+			mockRecalculator.AssertExpectations(t)
+
+			suite.IsType(testCase.responseType, response)
+		})
+	}
 }

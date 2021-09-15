@@ -75,6 +75,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestProcessReviewedPaymentRequestsHandler: payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
 		}),
+		PaymentRequestRecalculatePaymentRequestHandler: payment_request.RecalculatePaymentRequestHandlerFunc(func(params payment_request.RecalculatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.RecalculatePaymentRequest has not yet been implemented")
+		}),
 		WebhookReceiveWebhookNotificationHandler: webhook.ReceiveWebhookNotificationHandlerFunc(func(params webhook.ReceiveWebhookNotificationParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook.ReceiveWebhookNotification has not yet been implemented")
 		}),
@@ -146,6 +149,8 @@ type MymoveAPI struct {
 	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
 	// PaymentRequestProcessReviewedPaymentRequestsHandler sets the operation handler for the process reviewed payment requests operation
 	PaymentRequestProcessReviewedPaymentRequestsHandler payment_request.ProcessReviewedPaymentRequestsHandler
+	// PaymentRequestRecalculatePaymentRequestHandler sets the operation handler for the recalculate payment request operation
+	PaymentRequestRecalculatePaymentRequestHandler payment_request.RecalculatePaymentRequestHandler
 	// WebhookReceiveWebhookNotificationHandler sets the operation handler for the receive webhook notification operation
 	WebhookReceiveWebhookNotificationHandler webhook.ReceiveWebhookNotificationHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -257,6 +262,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_request.ProcessReviewedPaymentRequestsHandler")
+	}
+	if o.PaymentRequestRecalculatePaymentRequestHandler == nil {
+		unregistered = append(unregistered, "payment_request.RecalculatePaymentRequestHandler")
 	}
 	if o.WebhookReceiveWebhookNotificationHandler == nil {
 		unregistered = append(unregistered, "webhook.ReceiveWebhookNotificationHandler")
@@ -394,6 +402,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/process-reviewed"] = payment_request.NewProcessReviewedPaymentRequests(o.context, o.PaymentRequestProcessReviewedPaymentRequestsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/payment-requests/{paymentRequestID}/recalculate"] = payment_request.NewRecalculatePaymentRequest(o.context, o.PaymentRequestRecalculatePaymentRequestHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

@@ -2,15 +2,15 @@ import React from 'react';
 import classnames from 'classnames';
 import * as PropTypes from 'prop-types';
 
-import DataPointGroup from '../../DataPointGroup/index';
-import DataPoint from '../../DataPoint/index';
+import DataTableWrapper from '../../DataTableWrapper/index';
+import DataTable from '../../DataTable/index';
 import styles from '../ShipmentDetails/ShipmentDetails.module.scss';
 
 const ShipmentRemarks = ({ title, remarks }) => {
   return (
-    <DataPointGroup className={classnames('maxw-tablet', styles.ShipmentRemarks)}>
-      <DataPoint columnHeaders={[title]} dataRow={[remarks]} />
-    </DataPointGroup>
+    <DataTableWrapper className={classnames('maxw-tablet', styles.ShipmentRemarks)}>
+      <DataTable columnHeaders={[title]} dataRow={[remarks]} />
+    </DataTableWrapper>
   );
 };
 

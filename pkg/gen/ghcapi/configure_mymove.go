@@ -85,6 +85,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
+	if api.ShipmentCreateSitExtensionAsTOOHandler == nil {
+		api.ShipmentCreateSitExtensionAsTOOHandler = shipment.CreateSitExtensionAsTOOHandlerFunc(func(params shipment.CreateSitExtensionAsTOOParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateSitExtensionAsTOO has not yet been implemented")
+		})
+	}
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
@@ -228,6 +233,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler == nil {
 		api.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler = move_task_order.UpdateMTOStatusServiceCounselingCompletedHandlerFunc(func(params move_task_order.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMTOStatusServiceCounselingCompleted has not yet been implemented")
+		})
+	}
+	if api.OrderUpdateMaxBillableWeightAsTIOHandler == nil {
+		api.OrderUpdateMaxBillableWeightAsTIOHandler = order.UpdateMaxBillableWeightAsTIOHandlerFunc(func(params order.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateMaxBillableWeightAsTIO has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {

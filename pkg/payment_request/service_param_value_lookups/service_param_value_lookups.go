@@ -220,6 +220,14 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameWeightReweigh
+	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightReweighLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	paramKey = models.ServiceItemParamNameZipPickupAddress
 	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipAddressLookup{
 		Address: pickupAddress,
