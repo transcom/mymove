@@ -1498,6 +1498,68 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/update-max-billable-weight/tio": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight with TIO remarks",
+        "operationId": "updateMaxBillableWeightAsTIO",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+            }
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -3837,6 +3899,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -3998,6 +4065,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -4822,6 +4892,30 @@ func init() {
         }
       }
     },
+    "UpdateMaxBillableWeightAsTIOPayload": {
+      "type": "object",
+      "required": [
+        "authorizedWeight",
+        "tioRemarks"
+      ],
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "tioRemarks": {
+          "description": "TIO remarks for updating the max billable weight",
+          "type": "string",
+          "minLength": 1,
+          "x-nullable": true,
+          "example": "Increasing max billable weight"
+        }
+      }
+    },
     "UpdateOrderPayload": {
       "type": "object",
       "required": [
@@ -5040,6 +5134,15 @@ func init() {
       }
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -5092,6 +5195,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {
@@ -6975,6 +7079,87 @@ func init() {
           },
           {
             "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/update-max-billable-weight/tio": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight with TIO remarks",
+        "operationId": "updateMaxBillableWeightAsTIO",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -9594,6 +9779,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -9755,6 +9945,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -10585,6 +10778,30 @@ func init() {
         }
       }
     },
+    "UpdateMaxBillableWeightAsTIOPayload": {
+      "type": "object",
+      "required": [
+        "authorizedWeight",
+        "tioRemarks"
+      ],
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "tioRemarks": {
+          "description": "TIO remarks for updating the max billable weight",
+          "type": "string",
+          "minLength": 1,
+          "x-nullable": true,
+          "example": "Increasing max billable weight"
+        }
+      }
+    },
     "UpdateOrderPayload": {
       "type": "object",
       "required": [
@@ -10806,6 +11023,15 @@ func init() {
       "type": "object"
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -10858,6 +11084,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {

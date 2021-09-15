@@ -58,6 +58,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
 		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 	}
 
 	return payload
@@ -143,8 +144,12 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	var moveCode string
+	var moveTaskOrderID strfmt.UUID
+	var moveTaskOrder models.Move
 	if order.Moves != nil && len(order.Moves) > 0 {
 		moveCode = order.Moves[0].Locator
+		moveTaskOrderID = strfmt.UUID(order.Moves[0].ID.String())
+		moveTaskOrder = order.Moves[0]
 	}
 
 	payload := ghcmessages.Order{
@@ -171,6 +176,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
 		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                    moveCode,
+		MoveTaskOrderID:             moveTaskOrderID,
+		MoveTaskOrder:               Move(&moveTaskOrder),
 	}
 
 	return &payload
