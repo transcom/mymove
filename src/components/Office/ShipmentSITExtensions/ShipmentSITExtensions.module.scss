@@ -2,7 +2,7 @@
 
 .mtoShipmentSITExtensions {
   p {
-    margin-left: 8px;
+    @include u-margin-left(1);
   }
   td {
     vertical-align: top;

@@ -18,8 +18,8 @@ const ShipmentSITExtensions = (props) => {
     return (
       <dl key={sitExt.id}>
         <div>
-          <dt>{sitExt.requestedDays} days added</dt>
-          <dd>on {formatDateFromIso(sitExt.createdAt, 'DD MMM YYYY')}</dd>
+          <dt>{sitExt.approvedDays} days added</dt>
+          <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
         </div>
         <div>
           <dt>Reason:</dt>
