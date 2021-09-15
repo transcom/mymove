@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
@@ -24,77 +23,51 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerContext
-	services.ListFetcher
-	services.Fetcher
+	services.MTOShipmentFetcher
+	services.ShipmentSITStatus
 }
 
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
-	// return any parsing error
+	handleError := func(err error) middleware.Responder {
+		logger.Error("ListMTOShipmentsHandler error", zap.Error(err))
+		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+		switch err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
+		case services.ForbiddenError:
+			return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
+		case services.QueryError:
+			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+		default:
+			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+		handleError(services.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
+	}
+
+	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
+
+	shipments, err := h.ListMTOShipments(appCtx, moveID)
 	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
-		logger.Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
-
-		return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
+		return handleError(err)
 	}
+	mtoShipments := models.MTOShipments(shipments)
 
-	// check if move task order exists first
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
-	}
+	shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
-	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
-	if err != nil {
-		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
-
-		return mtoshipmentops.NewListMTOShipmentsNotFound()
-	}
-
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
-	}
-
-	// TODO: These associations could be preloaded, but it will require Pop 5.3.4 to land first as it
-	//   has a fix for using a "has_many" association that has a pointer-based foreign key (like the
-	//   case with "MTOServiceItems.ReService"). There appear to be other changes that will need to be
-	//   made for Pop 5.3.4 though (see https://ustcdp3.slack.com/archives/CP497TGAU/p1620421441217700).
-	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("MTOServiceItems.ReService"),
-		query.NewQueryAssociation("MTOAgents"),
-		query.NewQueryAssociation("PickupAddress"),
-		query.NewQueryAssociation("SecondaryPickupAddress"),
-		query.NewQueryAssociation("DestinationAddress"),
-		query.NewQueryAssociation("SecondaryPickupAddress"),
-		query.NewQueryAssociation("SecondaryDeliveryAddress"),
-		query.NewQueryAssociation("MTOServiceItems.Dimensions"),
-		query.NewQueryAssociation("Reweigh"),
-		query.NewQueryAssociation("SITExtensions"),
-	})
-
-	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
-
-	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(appCtx, &shipments, queryFilters, queryAssociations, nil, queryOrder)
-	// return any errors
-	if err != nil {
-		logger.Error("Error fetching mto shipments : ", zap.Error(err))
-
-		return mtoshipmentops.NewListMTOShipmentsInternalServerError()
-	}
-
-	payload := payloads.MTOShipments(&shipments)
+	sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
+	payload := payloads.MTOShipments(&mtoShipments, sitStatusPayload)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
@@ -140,7 +113,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		}
 	}
 
-	returnPayload := payloads.MTOShipment(mtoShipment)
+	returnPayload := payloads.MTOShipment(mtoShipment, nil)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
 
@@ -149,6 +122,7 @@ type UpdateShipmentHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MTOShipmentUpdater
+	services.ShipmentSITStatus
 }
 
 // Handle updates shipments
@@ -264,7 +238,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
 
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	returnPayload := payloads.MTOShipment(updatedMtoShipment, sitStatusPayload)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }
 
@@ -335,6 +312,7 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 type ApproveShipmentHandler struct {
 	handlers.HandlerContext
 	services.ShipmentApprover
+	services.ShipmentSITStatus
 }
 
 // Handle approves a shipment
@@ -371,7 +349,10 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
 }
 
@@ -399,6 +380,7 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 type RequestShipmentDiversionHandler struct {
 	handlers.HandlerContext
 	services.ShipmentDiversionRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment diversion
@@ -435,7 +417,10 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 	h.triggerRequestShipmentDiversionEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
 }
 
@@ -463,6 +448,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(sh
 type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerContext
 	services.ShipmentDiversionApprover
+	services.ShipmentSITStatus
 }
 
 // Handle approves a shipment diversion
@@ -499,7 +485,10 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload)
 }
 
@@ -564,7 +553,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 
 	h.triggerShipmentRejectionEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	payload := payloads.MTOShipment(shipment, nil)
 	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
 }
 
@@ -592,6 +581,7 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 type RequestShipmentCancellationHandler struct {
 	handlers.HandlerContext
 	services.ShipmentCancellationRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment diversion
@@ -628,7 +618,10 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 	h.triggerRequestShipmentCancellationEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.MTOShipment(shipment, sitStatusPayload)
 	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
 }
 
@@ -656,6 +649,7 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 type RequestShipmentReweighHandler struct {
 	handlers.HandlerContext
 	services.ShipmentReweighRequester
+	services.ShipmentSITStatus
 }
 
 // Handle Requests a shipment reweigh
@@ -697,7 +691,11 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
-	payload := payloads.Reweigh(reweigh)
+
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	payload := payloads.Reweigh(reweigh, sitStatusPayload)
 	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
 }
 
@@ -725,6 +723,7 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipme
 type ApproveSITExtensionHandler struct {
 	handlers.HandlerContext
 	services.SITExtensionApprover
+	services.ShipmentSITStatus
 }
 
 // Handle ... approves the SIT extension
@@ -761,7 +760,10 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensio
 		return handleError(err)
 	}
 
-	shipmentPayload := payloads.MTOShipment(updatedShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+
+	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
 	return shipmentops.NewApproveSitExtensionOK().WithPayload(shipmentPayload)
 }
@@ -770,6 +772,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensio
 type DenySITExtensionHandler struct {
 	handlers.HandlerContext
 	services.SITExtensionDenier
+	services.ShipmentSITStatus
 }
 
 // Handle ... denies the SIT extension
@@ -805,7 +808,10 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 		return handleError(err)
 	}
 
-	shipmentPayload := payloads.MTOShipment(updatedShipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+
+	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
 	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
 }

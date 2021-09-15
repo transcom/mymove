@@ -16,6 +16,29 @@ type MTOServiceItemUpdater struct {
 	mock.Mock
 }
 
+// ApproveOrRejectServiceItem provides a mock function with given fields: appCtx, mtoServiceItemID, status, rejectionReason, eTag
+func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
+
+	var r0 *models.MTOServiceItem
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOServiceItem)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
+		r1 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem, eTag, validator
 func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItem, eTag, validator)
@@ -78,29 +101,6 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.App
 	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, string) error); ok {
 		r1 = rf(appCtx, serviceItem, eTag)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateMTOServiceItemStatus provides a mock function with given fields: appCtx, mtoServiceItemID, status, rejectionReason, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
-
-	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
-		r0 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOServiceItem)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
-		r1 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

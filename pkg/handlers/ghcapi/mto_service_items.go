@@ -79,7 +79,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
 
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {

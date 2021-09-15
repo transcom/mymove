@@ -37,6 +37,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
 	)
+	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 
 	ghcAPI.ServeError = handlers.ServeCustomError
 
@@ -146,8 +147,8 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
 		ctx,
-		fetch.NewListFetcher(queryBuilder),
-		fetch.NewFetcher(queryBuilder),
+		mtoshipment.NewMTOShipmentFetcher(),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{
@@ -162,6 +163,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 			ctx.Planner(),
 		),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
@@ -169,6 +171,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentDiversionRequester(
 			mtoshipment.NewShipmentRouter(),
 		),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentApproveShipmentDiversionHandler = ApproveShipmentDiversionHandler{
@@ -176,6 +179,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentDiversionApprover(
 			mtoshipment.NewShipmentRouter(),
 		),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentRejectShipmentHandler = RejectShipmentHandler{
@@ -190,11 +194,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentCancellationRequester(
 			mtoshipment.NewShipmentRouter(),
 		),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
 		ctx,
 		mtoshipment.NewShipmentReweighRequester(),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
@@ -207,6 +213,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
@@ -217,11 +224,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
 		ctx,
 		mtoshipment.NewSITExtensionApprover(),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
 		ctx,
 		mtoshipment.NewSITExtensionDenier(),
+		shipmentSITStatus,
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}

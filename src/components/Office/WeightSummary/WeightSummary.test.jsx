@@ -7,15 +7,15 @@ import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 describe('WeightSummary', () => {
   it('renders without crashing', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', billableWeight: 6161, estimatedWeight: 5600 },
+      { id: '0001', shipmentType: 'HHG', billableWeightCap: 6161, estimatedWeight: 5600 },
       {
         id: '0002',
         shipmentType: 'HHG',
-        billableWeight: 3200,
+        billableWeightCap: 3200,
         estimatedWeight: 5000,
         reweigh: { id: '1234' },
       },
-      { id: '0003', shipmentType: 'HHG', billableWeight: 3400, estimatedWeight: 5000 },
+      { id: '0003', shipmentType: 'HHG', billableWeightCap: 3400, estimatedWeight: 5000 },
     ];
 
     const defaultProps = {
@@ -40,8 +40,8 @@ describe('WeightSummary', () => {
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
 
     // shipment weights
-    expect(screen.getByText(formatWeight(shipments[0].billableWeight))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(shipments[1].billableWeight))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(shipments[2].billableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[0].billableWeightCap))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[1].billableWeightCap))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[2].billableWeightCap))).toBeInTheDocument();
   });
 });
