@@ -1,16 +1,15 @@
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
+import { Field, FormSection, getFormValues, reduxForm } from 'redux-form';
 
 import { withContext } from 'shared/AppContext';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberForOrders, updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
-import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate } from 'shared/formatters';
 
-import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { editablePanelify, PanelField, PanelSwaggerField, SwaggerValue } from 'shared/EditablePanel';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';

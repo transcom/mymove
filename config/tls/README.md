@@ -6,7 +6,10 @@ A description of the certificates in this directory will helpful:
 
 | Name | Function |
 | --- | --- |
+| `api.demo.dp3.us.cert` | Certificate for api.demo.dp3.us |
+| `api.demo.dp3.us.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
 | `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
+| `Certificates_PKCS7_v5.11_WCF.pem.p7b` | The collection of certs from which the dod-wcf-* certificates are derived. |
 | `devlocal-ca.key` | Devlocal CA Key |
 | `devlocal-ca.pem` | Devlocal CA PEM |
 | `devlocal-ca.srl` | Devlocal CA Serial |
@@ -16,13 +19,15 @@ A description of the certificates in this directory will helpful:
 | `devlocal-mtls.(cer/key)` | Certs signed by Devlocal CA for mTLS testing |
 | `devlocal-not-dps.(cer/key)` | Certs signed by Devlocal CA for DPS Auth testing |
 | `dod-sw-ca-54.pem` | DoD SW CA-54 package |
+| `dod-wcf-intermediate-ca-1-.pem` | DoD WCF Intermediate CA 1 for allowing TLS connectivity to AWS services in the BCAP |
+| `dod-wcf-root-ca-1-.pem` | DoD WCF Root CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 
 ## DoD certificate authority package
 
 DISA publishes a package of the public certificates of all DoD certificate
-authorities. We use this package to easily validate all DoD-signed certificates
-in dev, test, and production, without having to add them to the underlying OS
-cert store.
+authorities. We use this package to validate all DoD-signed certificates in
+dev, test, and production, without having to add them to the underlying OS cert
+store.
 
 ### Updating the DoD certificate authority package
 
@@ -69,6 +74,19 @@ notAfter=Nov 23 13:51:28 2022 GMT
 ```
 
 You can read this as the certificate is valid until November 23, 2022.
+
+## DoD WCF certificate authority certificates
+
+These certificates are required when running the app through the BCAP. When running traffic through
+the BCAP, various AWS services present TLS certificate chains that include these certificates,
+rather than the standard AWS certificate chains. Therefore, standard calls to AWS services will
+fail due to certificate validation issues without these certificates.
+
+When updating these, make sure to include .crt at the end of the filename when placing them into
+the destination container at /usr/local/share/ca-certificates/ or else update-ca-certificates won't
+add them to /etc/ssl/certs/ca-certificates.crt. This is important because Go looks at that file
+when searching for trusted CA certificates (<https://golang.org/src/crypto/x509/root_linux.go>) in
+both Debian-based (e.g. Distroless) and Alpine-based containers.
 
 ## `devlocal` Certificate Authority
 
@@ -127,3 +145,7 @@ CN=localhost,OU=Not Coast Guard Orders,O=Not Coast Guard,L=Washington,ST=DC,C=US
 ```
 
 The certificates live in the `client_certs` table for both the MilMove and Orders applications.
+
+## Certs for api.demo.dp3.us
+
+This certificate and chain were made with SSLMate. The key/pair and chain are held in the Engineer Vault for 1Password.

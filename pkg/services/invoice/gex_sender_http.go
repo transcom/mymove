@@ -2,13 +2,12 @@ package invoice
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -17,10 +16,9 @@ import (
 const gexRequestTimeout = time.Duration(30) * time.Second
 
 // NewGexSenderHTTP creates a new GexSender service object
-func NewGexSenderHTTP(url string, channel string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
+func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
 	return &gexSenderHTTP{
 		url,
-		channel,
 		isTrueGexURL,
 		tlsConfig,
 		gexBasicAuthUsername,
@@ -31,19 +29,18 @@ func NewGexSenderHTTP(url string, channel string, isTrueGexURL bool, tlsConfig *
 // gexSenderHTTP represents a struct to contain an actual gex request function
 type gexSenderHTTP struct {
 	url                  string
-	channel              string
 	isTrueGexURL         bool
 	tlsConfig            *tls.Config
 	gexBasicAuthUsername string
 	gexBasicAuthPassword string
 }
 
-// SendToGex sends an edi file string as a POST to the gex api
+// SendToGex sends a body string as a POST to the gex api
 // To set local dev to send a real GEX request, replace your env.local:
 // export GEX_URL=""  with "export GEX_URL=https://gexweba.daas.dla.mil/msg_data/submit/"
-func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Response, err error) {
+func (s *gexSenderHTTP) SendToGex(channel services.GEXChannel, body string, filename string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
-	edi = strings.TrimSpace(edi) + "\n"
+	body = strings.TrimSpace(body) + "\n"
 	URL := s.url
 	parsedURL, err := url.Parse(URL)
 	if err != nil {
@@ -54,18 +51,23 @@ func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Respo
 		URL = parsedURL.String()
 	}
 
+	// ensure channel is one of the valid expected ones
+	if !isChannelValid(channel) {
+		return nil, fmt.Errorf("Invalid channel type, expected %q", validGEXChannels())
+	}
+
 	request, err := http.NewRequest(
 		"POST",
 		URL,
-		strings.NewReader(edi),
+		strings.NewReader(body),
 	)
 	if err != nil {
-		return resp, errors.Wrap(err, "Creating GEX POST request")
+		return resp, fmt.Errorf("Creating GEX POST request: %w", err)
 	}
 
 	q := request.URL.Query()
 	q.Add("fname", filename)
-	q.Add("channel", s.channel)
+	q.Add("channel", string(channel))
 	request.URL.RawQuery = q.Encode()
 
 	// We need to provide basic auth credentials for the GEX server, as well as
@@ -77,8 +79,24 @@ func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Respo
 
 	resp, err = client.Do(request)
 	if err != nil {
-		return resp, errors.Wrap(err, "Sending GEX POST request")
+		return resp, fmt.Errorf("Sending GEX POST request: %w", err)
 	}
 
 	return resp, err
+}
+
+func validGEXChannels() []services.GEXChannel {
+	return []services.GEXChannel{
+		services.GEXChannelInvoice,
+		services.GEXChannelDataWarehouse,
+	}
+}
+
+func isChannelValid(channel services.GEXChannel) bool {
+	for _, c := range validGEXChannels() {
+		if channel == c {
+			return true
+		}
+	}
+	return false
 }

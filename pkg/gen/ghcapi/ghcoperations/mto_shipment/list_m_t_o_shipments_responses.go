@@ -60,6 +60,50 @@ func (o *ListMTOShipmentsOK) WriteResponse(rw http.ResponseWriter, producer runt
 	}
 }
 
+// ListMTOShipmentsForbiddenCode is the HTTP code returned for type ListMTOShipmentsForbidden
+const ListMTOShipmentsForbiddenCode int = 403
+
+/*ListMTOShipmentsForbidden The request was denied
+
+swagger:response listMTOShipmentsForbidden
+*/
+type ListMTOShipmentsForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewListMTOShipmentsForbidden creates ListMTOShipmentsForbidden with default headers values
+func NewListMTOShipmentsForbidden() *ListMTOShipmentsForbidden {
+
+	return &ListMTOShipmentsForbidden{}
+}
+
+// WithPayload adds the payload to the list m t o shipments forbidden response
+func (o *ListMTOShipmentsForbidden) WithPayload(payload *ghcmessages.Error) *ListMTOShipmentsForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the list m t o shipments forbidden response
+func (o *ListMTOShipmentsForbidden) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ListMTOShipmentsForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // ListMTOShipmentsNotFoundCode is the HTTP code returned for type ListMTOShipmentsNotFound
 const ListMTOShipmentsNotFoundCode int = 404
 

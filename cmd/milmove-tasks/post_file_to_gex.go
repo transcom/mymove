@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
@@ -122,12 +123,11 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString(cli.GEXURLFlag),
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString(cli.GEXBasicAuthUsernameFlag),
 		v.GetString(cli.GEXBasicAuthPasswordFlag),
-	).SendToGex(ediString, v.GetString("filename"))
+	).SendToGex(services.GEXChannelInvoice, ediString, v.GetString("filename"))
 
 	if err != nil {
 		logger.Fatal("Gex Sender encountered an error", zap.Error(err))

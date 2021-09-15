@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -8,6 +10,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+//MTOShipmentFetcher is the service object interface for fetching all shipments of a move
+//go:generate mockery --name MTOShipmentFetcher --disable-version-string
+type MTOShipmentFetcher interface {
+	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error)
+}
 
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //go:generate mockery --name MTOShipmentUpdater --disable-version-string
@@ -103,4 +111,22 @@ type ShipmentRouter interface {
 	Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error
 	RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+}
+
+// SITStatus is the summary of the current SIT service item days in storage remaining balance and dates
+type SITStatus struct {
+	ShipmentID         uuid.UUID
+	Location           string
+	TotalSITDaysUsed   int
+	TotalDaysRemaining int
+	DaysInSIT          int
+	SITEntryDate       time.Time
+	SITDepartureDate   *time.Time
+	PastSITs           []models.MTOServiceItem
+}
+
+// ShipmentSITStatus is the interface for calculating SIT service item summary balances of shipments
+type ShipmentSITStatus interface {
+	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
+	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) *SITStatus
 }

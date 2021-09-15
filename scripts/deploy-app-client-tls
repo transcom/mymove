@@ -16,23 +16,28 @@ readonly environment="${1:-exp}"
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
+  demo)
+    compare_host=api.demo.dp3.us
+    health_check_hosts=api.demo.dp3.us,my.demo.dp3.us
+    export AWS_ACCOUNT_ID=447641181206
+    ;;
   exp)
-    compare_host=gex.exp.move.mil
-    health_check_hosts=gex.exp.move.mil,my.exp.move.mil,orders.exp.move.mil
+    compare_host=my.exp.move.mil
+    health_check_hosts=my.exp.move.mil
     export AWS_ACCOUNT_ID=015681133840
     ;;
   stg)
-    compare_host=gex.stg.move.mil
-    health_check_hosts=gex.stg.move.mil,my.stg.move.mil,orders.stg.move.mil
+    compare_host=my.stg.move.mil
+    health_check_hosts=my.stg.move.mil
     export AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
-    compare_host=gex.move.mil
-    health_check_hosts=gex.move.mil,my.move.mil,orders.move.mil
+    compare_host=my.move.mil
+    health_check_hosts=my.move.mil
     export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of exp, stg, or prd"
+    echo "<environment> must be one of demo, exp, stg, or prd"
     exit 1
     ;;
 esac
@@ -40,9 +45,9 @@ esac
 APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-gov-west-1
 
-KEY=$(chamber read app-exp move_mil_dod_tls_key -q | base64 -i -)
-CERT=$(chamber read app-exp move_mil_dod_tls_cert -q | base64 -i -)
-CA=$(chamber read app-exp move_mil_dod_ca_cert -q | base64 -i -)
+KEY=$(chamber read "app-${environment}" move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(chamber read "app-${environment}" move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(chamber read "app-${environment}" move_mil_dod_ca_cert -q | base64 -i -)
 
 CIRCLE_SHA1=$(curl -sk --key <(echo "${KEY}" | base64 --decode) --cert <(echo "${CERT}" | base64 --decode) --cacert <(echo "${CA}" | base64 --decode) "https://${compare_host}/health"  | jq -r .gitCommit)
 

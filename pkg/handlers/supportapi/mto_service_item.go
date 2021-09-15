@@ -32,10 +32,10 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 	eTag := params.IfMatch
 	reason := params.Body.RejectionReason
 
-	mtoServiceItem, err := h.UpdateMTOServiceItemStatus(appCtx, mtoServiceItemID, status, reason, eTag)
+	mtoServiceItem, err := h.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, status, reason, eTag)
 
 	if err != nil {
-		logger.Error("UpdateMTOServiceItemStatus error: ", zap.Error(err))
+		logger.Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
