@@ -1,8 +1,6 @@
 package sitextension
 
 import (
-	"time"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -17,41 +15,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkShipmentID", func() {
 		suite.Run("success", func() {
 			sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
-			testCases := map[string]struct {
-				sit models.SITExtension
-			}{
-				"create": {
-					sit: sit,
-				},
-			}
-			for name, testCase := range testCases {
-				suite.Run(name, func() {
-					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.sit, nil)
-					suite.NilOrNoVerrs(err)
-				})
-			}
+			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, nil)
+			suite.NilOrNoVerrs(err)
 		})
 
 		suite.Run("failure", func() {
-			//id := uuid.Must(uuid.NewV4())
-			testCases := map[string]struct {
-				sit models.SITExtension
-			}{
-				"create": {
-					sit: models.SITExtension{},
-				},
-			}
-			for name, testCase := range testCases {
-				suite.Run(name, func() {
-					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.sit, nil)
-					switch verr := err.(type) {
-					case *validate.Errors:
-						suite.True(verr.HasAny())
-						suite.Contains(verr.Keys(), "MTOShipmentID")
-					default:
-						suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-					}
-				})
+			var sit models.SITExtension
+			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, nil)
+			switch verr := err.(type) {
+			case *validate.Errors:
+				suite.True(verr.HasAny())
+				suite.Contains(verr.Keys(), "MTOShipmentID")
+			default:
+				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 			}
 		})
 	})
@@ -65,12 +41,8 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {
-		currentTime := time.Now()
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &currentTime,
-				Status:             models.MoveStatusAPPROVED,
-			},
+			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, &shipment)
