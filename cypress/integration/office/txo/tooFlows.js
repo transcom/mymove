@@ -335,4 +335,21 @@ describe('TOO user', () => {
     cy.get('[data-testid="closeRejectServiceItem"]').click();
     cy.get('[data-testid="alert"]').should('not.exist');
   });
+
+  it('is able to create and edit SIT extensions', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
+
+    // View SIT extension display
+    cy.get('[data-testid="sitExtensions"]');
+    cy.contains('30 days added');
+    cy.contains('The customer requested an extension.');
+  });
 });

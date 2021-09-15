@@ -1,0 +1,35 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.mtoShipmentSITExtensions {
+  p {
+    @include u-margin-left(1);
+  }
+  td {
+    vertical-align: top;
+
+    div {
+      display: flex;
+    }
+
+    dl {
+      margin-top: 0;
+    }
+
+    dt,
+    dd {
+      @include u-font-size('body', '3xs');
+      @include u-line-height('body', 2);
+      color: $base-darker;
+    }
+
+    dt {
+      @include u-font-weight('bold');
+      white-space: nowrap;
+    }
+
+    dd {
+      margin-left: 5px;
+    }
+  }
+}

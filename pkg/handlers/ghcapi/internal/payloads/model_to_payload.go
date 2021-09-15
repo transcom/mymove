@@ -299,6 +299,10 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 		payload.ApprovedDays = int64(*sitExtension.ApprovedDays)
 	}
 
+	if sitExtension.RequestedDays != 0 && sitExtension.RequestedDays > 0 {
+		payload.RequestedDays = int64(sitExtension.RequestedDays)
+	}
+
 	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
 		payload.ContractorRemarks = *sitExtension.ContractorRemarks
 	}
@@ -390,6 +394,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
+	}
+
+	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
+		payload.SitExtensions = *SITExtensions(&mtoShipment.SITExtensions)
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

@@ -69,6 +69,7 @@ const unapprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -93,6 +94,7 @@ const unapprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: undefined,
@@ -156,6 +158,7 @@ const someShipmentsApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -180,6 +183,7 @@ const someShipmentsApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: [
@@ -273,6 +277,7 @@ const allApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -299,6 +304,7 @@ const allApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -325,6 +331,7 @@ const allApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '6',
@@ -351,6 +358,7 @@ const allApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '7',
@@ -377,6 +385,7 @@ const allApprovedMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: [
@@ -429,6 +438,7 @@ const missingWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -455,6 +465,7 @@ const missingWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -481,6 +492,7 @@ const missingWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
 };
@@ -514,6 +526,7 @@ const missingSomeWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -540,6 +553,7 @@ const missingSomeWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -566,6 +580,7 @@ const missingSomeWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
 };
@@ -597,6 +612,7 @@ const noWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -621,6 +637,7 @@ const noWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -645,6 +662,7 @@ const noWeightQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
 };
@@ -678,6 +696,7 @@ const someWeightNotReturned = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -702,6 +721,7 @@ const someWeightNotReturned = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -728,6 +748,7 @@ const someWeightNotReturned = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
 };
@@ -782,6 +803,7 @@ const riskOfExcessWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 50,
       primeActualWeight: 50,
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -805,6 +827,7 @@ const riskOfExcessWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 40,
       primeActualWeight: 40,
+      sitExtensions: [],
     },
   ],
 };
@@ -864,6 +887,7 @@ const approvedMTOWithCancelledShipmentQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: [
@@ -937,6 +961,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         weight: 99,
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -963,6 +988,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -989,6 +1015,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         weight: 99,
       },
+      sitExtensions: [],
     },
     {
       id: '6',
@@ -1015,6 +1042,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         weight: 49,
       },
+      sitExtensions: [],
     },
     {
       id: '7',
@@ -1042,6 +1070,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         weight: 99,
       },
+      sitExtensions: [],
     },
     {
       id: '7',
@@ -1069,6 +1098,7 @@ const lowerReweighsMTOQuery = {
       reweigh: {
         weight: 99,
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: [
@@ -1149,6 +1179,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         weight: 101,
       },
+      sitExtensions: [],
     },
     {
       id: '4',
@@ -1175,6 +1206,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         id: '00000000-0000-0000-0000-000000000000',
       },
+      sitExtensions: [],
     },
     {
       id: '5',
@@ -1201,6 +1233,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         weight: 101,
       },
+      sitExtensions: [],
     },
     {
       id: '6',
@@ -1227,6 +1260,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         weight: 51,
       },
+      sitExtensions: [],
     },
     {
       id: '7',
@@ -1254,6 +1288,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         weight: 101,
       },
+      sitExtensions: [],
     },
     {
       id: '7',
@@ -1281,6 +1316,7 @@ const lowerActualsMTOQuery = {
       reweigh: {
         weight: 101,
       },
+      sitExtensions: [],
     },
   ],
   mtoServiceItems: [

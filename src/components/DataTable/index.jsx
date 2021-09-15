@@ -4,8 +4,8 @@ import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
-const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
-  <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
+const DataTable = ({ columnHeaders, dataRow, icon, custClass }) => (
+  <table className={classnames(styles.dataTable, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
         {columnHeaders.map((header) => (
@@ -37,16 +37,16 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
   </table>
 );
 
-DataPoint.propTypes = {
+DataTable.propTypes = {
   columnHeaders: PropTypes.arrayOf(PropTypes.node).isRequired,
   dataRow: PropTypes.arrayOf(PropTypes.node).isRequired,
   icon: PropTypes.node,
   custClass: PropTypes.string,
 };
 
-DataPoint.defaultProps = {
+DataTable.defaultProps = {
   icon: null,
   custClass: '',
 };
 
-export default DataPoint;
+export default DataTable;

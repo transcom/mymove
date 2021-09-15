@@ -2,7 +2,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { get } from 'lodash';
 
-import DataPoint from 'components/DataPoint';
+import DataTable from 'components/DataTable';
 
 const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivingAgent }) => {
   const customerRemarksBody = <>{customerRemarks}</>;
@@ -46,13 +46,13 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
   return (
     <>
       <div className="container">
-        <DataPoint columnHeaders={['Customer remarks']} dataRow={[customerRemarksBody]} />
+        <DataTable columnHeaders={['Customer remarks']} dataRow={[customerRemarksBody]} />
       </div>
       <div className="container">
-        <DataPoint columnHeaders={['Releasing agent']} dataRow={[releasingAgentBody]} />
+        <DataTable columnHeaders={['Releasing agent']} dataRow={[releasingAgentBody]} />
       </div>
       <div className="container">
-        <DataPoint columnHeaders={['Receiving agent']} dataRow={[receivingAgentBody]} />
+        <DataTable columnHeaders={['Receiving agent']} dataRow={[receivingAgentBody]} />
       </div>
     </>
   );

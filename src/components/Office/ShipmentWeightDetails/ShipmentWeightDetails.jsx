@@ -3,8 +3,8 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
 
-import DataPointGroup from '../../DataPointGroup/index';
-import DataPoint from '../../DataPoint/index';
+import DataTableWrapper from '../../DataTableWrapper/index';
+import DataTable from '../../DataTable/index';
 
 import styles from './ShipmentWeightDetails.module.scss';
 
@@ -29,15 +29,15 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
   );
   return (
     <div className={classnames('maxw-tablet', styles.ShipmentWeightDetails)}>
-      <DataPointGroup className="maxw-mobile">
-        <DataPoint
+      <DataTableWrapper className="maxw-mobile">
+        <DataTable
           columnHeaders={['Estimated weight']}
           dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
         />
-      </DataPointGroup>
-      <DataPointGroup className="maxw-mobile">
-        <DataPoint columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
-      </DataPointGroup>
+      </DataTableWrapper>
+      <DataTableWrapper className="maxw-mobile">
+        <DataTable columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
+      </DataTableWrapper>
     </div>
   );
 };
