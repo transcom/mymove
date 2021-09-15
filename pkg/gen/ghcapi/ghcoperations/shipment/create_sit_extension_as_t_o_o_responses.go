@@ -101,6 +101,50 @@ func (o *CreateSitExtensionAsTOOBadRequest) WriteResponse(rw http.ResponseWriter
 	}
 }
 
+// CreateSitExtensionAsTOOForbiddenCode is the HTTP code returned for type CreateSitExtensionAsTOOForbidden
+const CreateSitExtensionAsTOOForbiddenCode int = 403
+
+/*CreateSitExtensionAsTOOForbidden The request was denied
+
+swagger:response createSitExtensionAsTOOForbidden
+*/
+type CreateSitExtensionAsTOOForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewCreateSitExtensionAsTOOForbidden creates CreateSitExtensionAsTOOForbidden with default headers values
+func NewCreateSitExtensionAsTOOForbidden() *CreateSitExtensionAsTOOForbidden {
+
+	return &CreateSitExtensionAsTOOForbidden{}
+}
+
+// WithPayload adds the payload to the create sit extension as t o o forbidden response
+func (o *CreateSitExtensionAsTOOForbidden) WithPayload(payload *ghcmessages.Error) *CreateSitExtensionAsTOOForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create sit extension as t o o forbidden response
+func (o *CreateSitExtensionAsTOOForbidden) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateSitExtensionAsTOOForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateSitExtensionAsTOONotFoundCode is the HTTP code returned for type CreateSitExtensionAsTOONotFound
 const CreateSitExtensionAsTOONotFoundCode int = 404
 

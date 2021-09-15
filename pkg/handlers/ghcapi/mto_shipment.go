@@ -842,6 +842,8 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 			}
 			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
+		case services.ForbiddenError:
+			return shipmentops.NewCreateSitExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
 		}
