@@ -17,16 +17,21 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	testFileName := "upload-test.pdf"
 
 	suite.Run("Default", func() {
-		excessWeightUploader := NewMoveExcessWeightUploader(uploadCreator)
-
-		testFileName := "upload-test.pdf"
-		testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
-		suite.Require().NoError(fileErr)
+		defaultUploader := NewMoveExcessWeightUploader(uploadCreator)
 
 		suite.Run("Success - Excess weight upload is created and move is updated", func() {
-			updatedMove, err := excessWeightUploader.CreateExcessWeightUpload(
+			testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
+			suite.Require().NoError(fileErr)
+
+			defer func() {
+				closeErr := testFile.Close()
+				suite.NoError(closeErr, "Error occurred while closing the test file.")
+			}()
+
+			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
 				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypeUSER)
 			suite.NoError(err)
 			suite.Require().NotNil(updatedMove)
@@ -42,9 +47,17 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 		})
 
 		suite.Run("Fail - Move not found", func() {
+			testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
+			suite.Require().NoError(fileErr)
+
+			defer func() {
+				closeErr := testFile.Close()
+				suite.NoError(closeErr, "Error occurred while closing the test file.")
+			}()
+
 			notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
-			updatedMove, err := excessWeightUploader.CreateExcessWeightUpload(
+			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
 				suite.TestAppContext(), notFoundUUID, testFile, testFileName, models.UploadTypeUSER)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
@@ -53,14 +66,27 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Contains(err.Error(), notFoundUUID.String())
 		})
 
-		suite.Run("Fail - Invalid upload type causes error and rolls back transaction", func() {
+		suite.Run("Fail - Move validation error rolls back transaction", func() {
+			testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
+			suite.Require().NoError(fileErr)
+
+			defer func() {
+				closeErr := testFile.Close()
+				suite.NoError(closeErr, "Error occurred while closing the test file.")
+			}()
+
+			// A move cannot have a blank locator, so this will cause an error with the Validate function.
+			// This validation happens during the DB update on the move, which happens AFTER the file has been
+			// successfully uploaded using the UploadCreator.
+			suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET locator='' WHERE id=$1;", move.ID).Exec())
+
 			// Testing the number of uploads on DB prior to failure so we can make sure the DB rolls back the upload
 			numUploadsBefore, countErr := suite.DB().Count(models.Upload{})
 			suite.NoError(countErr)
 			suite.Greater(numUploadsBefore, 0) // should have at least 1, likely 2 from the test data
 
-			updatedMove, err := excessWeightUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), move.ID, testFile, testFileName, "INVALID")
+			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
+				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypeUSER)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
@@ -69,22 +95,23 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.NoError(countErr)
 			suite.Equal(numUploadsBefore, numUploadsAfter)
 		})
-
-		err := testFile.Close()
-		suite.NoError(err, "Error occurred while closing the test file for basic uploader.")
 	})
 
 	suite.Run("Prime", func() {
-		primeExcessWeightUploader := NewPrimeMoveExcessWeightUploader(uploadCreator)
-
-		testFileName := "upload-test.pdf"
-		testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
-		suite.Require().NoError(fileErr)
+		primeUploader := NewPrimeMoveExcessWeightUploader(uploadCreator)
 
 		suite.Run("Success - Excess weight upload is created for a Prime-available move", func() {
+			testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
+			suite.Require().NoError(fileErr)
+
+			defer func() {
+				closeErr := testFile.Close()
+				suite.NoError(closeErr, "Error occurred while closing the test file.")
+			}()
+
 			primeMove := testdatagen.MakeAvailableMove(suite.DB())
 
-			updatedMove, err := primeExcessWeightUploader.CreateExcessWeightUpload(
+			updatedMove, err := primeUploader.CreateExcessWeightUpload(
 				suite.TestAppContext(), primeMove.ID, testFile, testFileName, models.UploadTypePRIME)
 			suite.NoError(err)
 			suite.Require().NotNil(updatedMove)
@@ -100,7 +127,15 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 		})
 
 		suite.Run("Fail - Cannot create upload for non-Prime move", func() {
-			updatedMove, err := primeExcessWeightUploader.CreateExcessWeightUpload(
+			testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
+			suite.Require().NoError(fileErr)
+
+			defer func() {
+				closeErr := testFile.Close()
+				suite.NoError(closeErr, "Error occurred while closing the test file.")
+			}()
+
+			updatedMove, err := primeUploader.CreateExcessWeightUpload(
 				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypePRIME)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
@@ -108,8 +143,5 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.IsType(services.NotFoundError{}, err)
 			suite.Contains(err.Error(), move.ID.String())
 		})
-
-		err := testFile.Close()
-		suite.NoError(err, "Error occurred while closing the test file for Prime uploader.")
 	})
 }
