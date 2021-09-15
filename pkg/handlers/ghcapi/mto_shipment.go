@@ -821,6 +821,7 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
+	shipmentID := params.ShipmentID
 
 	handleError := func(err error) middleware.Responder {
 		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
@@ -846,9 +847,8 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 		}
 	}
 
-	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload)
-	shipmentID := sitExtension.MTOShipmentID
-	shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, shipmentID, params.IfMatch)
+	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
+	shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
 	if err != nil {
 		return handleError(err)
 	}

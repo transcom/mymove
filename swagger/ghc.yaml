@@ -3277,10 +3277,6 @@ definitions:
         x-nullable: true
   CreateSITExtensionAsTOO:
     properties:
-      shipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
       requestReason:
         description: Reason from service counselor-provided picklist for SIT extension
         example: 'AWAITING_COMPLETION_OF_RESIDENCE'

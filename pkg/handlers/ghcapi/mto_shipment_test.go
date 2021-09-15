@@ -1599,7 +1599,6 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
-				ShipmentID:    *handlers.FmtUUID(mtoShipment.ID),
 			},
 			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 		}
@@ -1643,7 +1642,6 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
-				ShipmentID:    *handlers.FmtUUID(mtoShipment.ID),
 			},
 			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 		}

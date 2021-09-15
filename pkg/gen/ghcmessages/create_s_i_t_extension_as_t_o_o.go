@@ -35,11 +35,6 @@ type CreateSITExtensionAsTOO struct {
 	// Required: true
 	// Enum: [SERIOUS_ILLNESS_MEMBER SERIOUS_ILLNESS_DEPENDENT IMPENDING_ASSIGNEMENT DIRECTED_TEMPORARY_DUTY NONAVAILABILITY_OF_CIVILIAN_HOUSING AWAITING_COMPLETION_OF_RESIDENCE OTHER]
 	RequestReason *string `json:"requestReason"`
-
-	// shipment ID
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Format: uuid
-	ShipmentID strfmt.UUID `json:"shipmentID,omitempty"`
 }
 
 // Validate validates this create s i t extension as t o o
@@ -51,10 +46,6 @@ func (m *CreateSITExtensionAsTOO) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -129,18 +120,6 @@ func (m *CreateSITExtensionAsTOO) validateRequestReason(formats strfmt.Registry)
 
 	// value enum
 	if err := m.validateRequestReasonEnum("requestReason", "body", *m.RequestReason); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateSITExtensionAsTOO) validateShipmentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ShipmentID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("shipmentID", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
 		return err
 	}
 

@@ -116,14 +116,14 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 }
 
 // ApprovedSITExtensionFromCreate model
-func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO) *models.SITExtension {
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
 
 	ad := int(*sitExtension.ApprovedDays)
 	model := &models.SITExtension{
-		MTOShipmentID: uuid.FromStringOrNil(sitExtension.ShipmentID.String()),
+		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
 		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
 		RequestedDays: int(*sitExtension.ApprovedDays),
 		Status:        models.SITExtensionStatusApproved,
