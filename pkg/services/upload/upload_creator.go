@@ -33,56 +33,36 @@ func (u *uploadCreator) CreateUpload(
 	uploadType models.UploadType,
 ) (*models.Upload, error) {
 	var upload *models.Upload
-	var uploadErr error
 
-	// If we are already in a transaction, don't start one
-	if appCtx.DB().TX != nil {
-		upload, uploadErr = u.createUploadTxn(appCtx, file, uploadFilename, uploadType)
-	} else {
-		// This error is ignored because the value is saved directly to the variable defined outside of the
-		// transaction function, uploadErr
-		_ = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			upload, uploadErr = u.createUploadTxn(txnAppCtx, file, uploadFilename, uploadType)
-			return nil
-		})
-	}
-	if uploadErr != nil {
-		return nil, uploadErr
-	}
-
-	return upload, nil
-}
-
-// createUploadTxn contains the bare code to create an models.Upload record from within or without a transaction
-func (u *uploadCreator) createUploadTxn(
-	appCtx appcontext.AppContext,
-	file io.ReadCloser,
-	uploadFilename string,
-	uploadType models.UploadType,
-) (*models.Upload, error) {
-
-	newUploader, err := uploader.NewUploader(u.fileStorer, uploader.MaxFileSizeLimit, uploadType)
-	if err != nil {
-		if err == uploader.ErrFileSizeLimitExceedsMax {
-			return nil, services.NewBadDataError(err.Error()) // sends up the error message from the uploader err
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		newUploader, err := uploader.NewUploader(u.fileStorer, uploader.MaxFileSizeLimit, uploadType)
+		if err != nil {
+			if err == uploader.ErrFileSizeLimitExceedsMax {
+				return services.NewBadDataError(err.Error()) // preserves the error message from the uploader err
+			}
+			return err
 		}
-		return nil, err
-	}
 
-	fileName := time.Now().Format(filenameTimeFormat) + "-" + uploadFilename
+		fileName := time.Now().Format(filenameTimeFormat) + "-" + uploadFilename
+		aFile, err := newUploader.PrepareFileForUpload(txnAppCtx, file, fileName)
+		if err != nil {
+			return err
+		}
 
-	aFile, err := newUploader.PrepareFileForUpload(appCtx, file, fileName)
-	if err != nil {
-		return nil, err
-	}
+		newUploader.SetUploadStorageKey(fileName)
 
-	newUploader.SetUploadStorageKey(fileName)
+		newUpload, verrs, err := newUploader.CreateUpload(txnAppCtx, uploader.File{File: aFile}, uploader.AllowedTypesAny)
+		if verrs != nil && verrs.HasAny() {
+			return services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
+		} else if err != nil {
+			return fmt.Errorf("Failure to upload file: %v", err)
+		}
 
-	upload, verrs, err := newUploader.CreateUpload(appCtx, uploader.File{File: aFile}, uploader.AllowedTypesAny)
-	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
-	} else if err != nil {
-		return nil, fmt.Errorf("Failure to upload file: %v", err)
+		upload = newUpload
+		return nil
+	})
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	return upload, nil
