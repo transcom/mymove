@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import { forEach } from 'lodash';
+
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Simple feature toggling for client-side code.
@@ -18,48 +18,69 @@ const defaultFlags = {
   allOrdersTypes: false,
   hhgFlow: false,
   ghcFlow: false,
+  markerIO: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, {
+  development: {
+    ...defaultFlags,
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-  }),
+  },
 
-  test: Object.assign({}, defaultFlags),
+  test: {
+    ...defaultFlags,
+  },
 
-  experimental: Object.assign({}, defaultFlags, {
+  experimental: {
+    ...defaultFlags,
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-  }),
+  },
 
-  staging: Object.assign({}, defaultFlags, {
+  staging: {
+    ...defaultFlags,
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-  }),
+    markerIO: true,
+  },
 
-  production: Object.assign({}, defaultFlags, {
+  demo: {
+    ...defaultFlags,
+    markerIO: true,
+  },
+
+  production: {
+    ...defaultFlags,
     sitPanel: false,
-  }),
+  },
+};
+
+const validateFlag = (name) => {
+  // Warn if the value being fetched was never set.
+  if (Object.keys(defaultFlags).indexOf(name) === -1) {
+    milmoveLog(MILMOVE_LOG_LEVEL.WARN, `'${name}' is not a valid flag name.`);
+    return false;
+  }
+  return true;
 };
 
 export function flagsFromURL(search) {
   const params = queryString.parse(search);
-  let flags = {};
-
-  forEach(params, function (value, key) {
-    let [prefix, name] = key.split(':');
-    if (prefix === 'flag' && name.length > 0) {
-      if (validateFlag(name)) {
-        // name is validated by the previous line
-        flags[name] = value === 'true';
-      }
+  return Object.entries(params).reduce((mem, pair) => {
+    const [key, value] = pair;
+    const [prefix, name] = key.split(':');
+    if (prefix === 'flag' && name.length > 0 && validateFlag(name)) {
+      return {
+        ...mem,
+        [name]: value === 'true',
+      };
     }
-  });
-  return flags;
+    return mem;
+  }, {});
 }
 
 // Return the name of the current environment as a string.
@@ -83,34 +104,33 @@ export function detectEnvironment(nodeEnv, host) {
     case 'office.exp.move.mil':
     case 'admin.exp.move.mil':
       return 'experimental';
+    case 'my.demo.dp3.us':
+    case 'office.demo.dp3.us':
+    case 'admin.demo.dp3.us':
+      return 'demo';
     default:
       return 'development';
   }
 }
 
-function validateFlag(name) {
-  // Warn if the value being fetched was never set.
-  if (Object.keys(defaultFlags).indexOf(name) === -1) {
-    milmoveLog(MILMOVE_LOG_LEVEL.WARN, `'${name}' is not a valid flag name.`);
-    return false;
-  }
-  return true;
-}
-
 export function detectFlags(nodeEnv, host, search) {
-  let env = detectEnvironment(nodeEnv, host);
+  const env = detectEnvironment(nodeEnv, host);
   // env can only be one of the values hard-coded into detectEnvironment()
-  return Object.assign({}, environmentFlags[env], flagsFromURL(search));
+  return {
+    ...environmentFlags[env],
+    ...flagsFromURL(search),
+  };
 }
 
 export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
-  const ordersTypeSchema = Object.assign({}, schema.properties.orders_type, {
-    enum: [schema.properties.orders_type.enum[0]],
-  });
-  const properties = Object.assign({}, schema.properties, { orders_type: ordersTypeSchema });
-  const modifiedSchema = Object.assign({}, schema, {
-    properties: properties,
-  });
-
-  return modifiedSchema;
+  return {
+    ...schema,
+    properties: {
+      ...schema.properties,
+      orders_type: {
+        ...schema.properties.orders_type,
+        enum: [schema.properties.orders_type.enum[0]],
+      },
+    },
+  };
 };

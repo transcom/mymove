@@ -1572,7 +1572,7 @@ jobs:
       - deploy_webhook_client_steps:
           ecr_env: demo
 
- # `deploy_exp_migrations` deploys migrations to the exp environment
+  # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
     environment:
