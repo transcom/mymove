@@ -29,7 +29,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Under test:	CreateSITExtension
 		// Set up:		Established valid shipment and valid SIT extension
 		// Expected:	New reweigh successfully created
-		sitExtensionCreator := NewSitExtensionCreator(suite.DB())
+		sitExtensionCreator := NewSitExtensionCreator()
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
 
 		suite.Nil(err)
@@ -42,7 +42,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	suite.T().Run("SIT Extension with validation errors returns an InvalidInputError", func(t *testing.T) {
 		badRequestReason := models.SITExtensionRequestReason("none")
 		sit.RequestReason = badRequestReason
-		sitExtensionCreator := NewSitExtensionCreator(suite.DB())
+		sitExtensionCreator := NewSitExtensionCreator()
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
 
 		suite.Error(err)
@@ -53,7 +53,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	suite.T().Run("Not Found Error", func(t *testing.T) {
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		sit.MTOShipmentID = notFoundUUID
-		sitExtensionCreator := NewSitExtensionCreator(suite.DB())
+		sitExtensionCreator := NewSitExtensionCreator()
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtensionCheck(appCtx, sit)
 
 		suite.Nil(createdSITExtension)

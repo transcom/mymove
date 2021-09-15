@@ -1,14 +1,11 @@
 package sitextension
 
 import (
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-
-	"fmt"
 )
 
 type sitExtensionCreator struct {
@@ -16,7 +13,7 @@ type sitExtensionCreator struct {
 }
 
 // NewSitExtensionCreator creates a new struct with the service dependencies
-func NewSitExtensionCreator(db *pop.Connection) services.SITExtensionCreator {
+func NewSitExtensionCreator() services.SITExtensionCreator {
 	return &sitExtensionCreator{
 		checks: []sitExtensionValidator{
 			checkShipmentID(),
@@ -43,7 +40,6 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 
 	err = validateSITExtension(appCtx, *sitExtension, shipment, checks...)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
