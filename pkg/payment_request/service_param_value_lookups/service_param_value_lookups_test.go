@@ -156,6 +156,36 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 	return mtoServiceItem, paymentRequest, paramLookup
 }
 
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+				Name: string(code),
+			},
+			MTOShipment: models.MTOShipment{
+				PrimeActualWeight: &originalWeight,
+				ShipmentType:      shipmentType,
+				BillableWeightCap: &adjustedWeight,
+			},
+		})
+
+	var shipment models.MTOShipment
+	suite.NoError(suite.DB().Find(&shipment, *mtoServiceItem.MTOShipmentID))
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+			},
+		})
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	suite.FatalNoError(err)
+
+	return mtoServiceItem, paymentRequest, paramLookup
+}
+
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.T().Run("contract passed in", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
