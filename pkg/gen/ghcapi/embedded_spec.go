@@ -2385,6 +2385,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/CreateSITExtensionAsTOO"
             }
@@ -3044,6 +3045,15 @@ func init() {
         "requestReason": {
           "description": "Reason from service counselor-provided picklist for SIT extension",
           "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         },
         "shipmentID": {
@@ -8129,6 +8139,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/CreateSITExtensionAsTOO"
             }
@@ -8854,6 +8865,15 @@ func init() {
         "requestReason": {
           "description": "Reason from service counselor-provided picklist for SIT extension",
           "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         },
         "shipmentID": {

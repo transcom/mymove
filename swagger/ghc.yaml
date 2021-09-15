@@ -932,6 +932,7 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/CreateSITExtensionAsTOO'
+          required: true
         - in: header
           description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
@@ -3284,6 +3285,14 @@ definitions:
         description: Reason from service counselor-provided picklist for SIT extension
         example: 'AWAITING_COMPLETION_OF_RESIDENCE'
         type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       approvedDays:
         description: Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
         type: integer

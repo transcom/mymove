@@ -818,20 +818,11 @@ type CreateSITExtensionAsTOOHandler struct {
 
 // Handle creates the approved SIT extension
 func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
 
-	if payload == nil {
-		logger.Error("Invalid mto shipment: params Body is nil")
-		return shipmentops.NewCreateSitExtensionAsTOOBadRequest()
-	}
-
-	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload)
-	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
-	shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, shipmentID, params.IfMatch)
-
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -853,6 +844,17 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 		default:
 			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
 		}
+	}
+
+	sitExtension := payloads.ApprovedSITExtensionFromCreate(payload)
+	shipmentID := sitExtension.MTOShipmentID
+	shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, shipmentID, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
 	}
 
 	returnPayload := payloads.MTOShipment(shipment)

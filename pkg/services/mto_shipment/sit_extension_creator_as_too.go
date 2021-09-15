@@ -33,7 +33,7 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 		return nil, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	var returnedShipment models.MTOShipment
+	var returnedShipment *models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(sitExtension)
@@ -41,12 +41,10 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 			return e
 		}
 
-		updatedShipment, err := f.updateSitDaysAllowance(txnAppCtx, *shipment, *sitExtension.ApprovedDays)
+		returnedShipment, err = f.updateSitDaysAllowance(txnAppCtx, *shipment, *sitExtension.ApprovedDays)
 		if err != nil {
 			return err
 		}
-
-		returnedShipment = *updatedShipment
 
 		return nil
 	})
@@ -55,7 +53,7 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 		return nil, transactionError
 	}
 
-	return &returnedShipment, nil
+	return returnedShipment, nil
 }
 
 func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {

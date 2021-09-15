@@ -7,6 +7,7 @@ package shipment
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -41,6 +42,7 @@ type CreateSitExtensionAsTOOParams struct {
 	*/
 	IfMatch string
 	/*
+	  Required: true
 	  In: body
 	*/
 	Body *ghcmessages.CreateSITExtensionAsTOO
@@ -68,7 +70,11 @@ func (o *CreateSitExtensionAsTOOParams) BindRequest(r *http.Request, route *midd
 		defer r.Body.Close()
 		var body ghcmessages.CreateSITExtensionAsTOO
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("body", "body", "", err))
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body", ""))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -84,6 +90,8 @@ func (o *CreateSitExtensionAsTOOParams) BindRequest(r *http.Request, route *midd
 				o.Body = &body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("body", "body", ""))
 	}
 
 	rShipmentID, rhkShipmentID, _ := route.Params.GetOK("shipmentID")

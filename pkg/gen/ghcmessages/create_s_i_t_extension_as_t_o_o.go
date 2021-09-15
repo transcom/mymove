@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -32,6 +33,7 @@ type CreateSITExtensionAsTOO struct {
 	// Reason from service counselor-provided picklist for SIT extension
 	// Example: AWAITING_COMPLETION_OF_RESIDENCE
 	// Required: true
+	// Enum: [SERIOUS_ILLNESS_MEMBER SERIOUS_ILLNESS_DEPENDENT IMPENDING_ASSIGNEMENT DIRECTED_TEMPORARY_DUTY NONAVAILABILITY_OF_CIVILIAN_HOUSING AWAITING_COMPLETION_OF_RESIDENCE OTHER]
 	RequestReason *string `json:"requestReason"`
 
 	// shipment ID
@@ -75,9 +77,58 @@ func (m *CreateSITExtensionAsTOO) validateApprovedDays(formats strfmt.Registry) 
 	return nil
 }
 
+var createSITExtensionAsTOOTypeRequestReasonPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERIOUS_ILLNESS_MEMBER","SERIOUS_ILLNESS_DEPENDENT","IMPENDING_ASSIGNEMENT","DIRECTED_TEMPORARY_DUTY","NONAVAILABILITY_OF_CIVILIAN_HOUSING","AWAITING_COMPLETION_OF_RESIDENCE","OTHER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		createSITExtensionAsTOOTypeRequestReasonPropEnum = append(createSITExtensionAsTOOTypeRequestReasonPropEnum, v)
+	}
+}
+
+const (
+
+	// CreateSITExtensionAsTOORequestReasonSERIOUSILLNESSMEMBER captures enum value "SERIOUS_ILLNESS_MEMBER"
+	CreateSITExtensionAsTOORequestReasonSERIOUSILLNESSMEMBER string = "SERIOUS_ILLNESS_MEMBER"
+
+	// CreateSITExtensionAsTOORequestReasonSERIOUSILLNESSDEPENDENT captures enum value "SERIOUS_ILLNESS_DEPENDENT"
+	CreateSITExtensionAsTOORequestReasonSERIOUSILLNESSDEPENDENT string = "SERIOUS_ILLNESS_DEPENDENT"
+
+	// CreateSITExtensionAsTOORequestReasonIMPENDINGASSIGNEMENT captures enum value "IMPENDING_ASSIGNEMENT"
+	CreateSITExtensionAsTOORequestReasonIMPENDINGASSIGNEMENT string = "IMPENDING_ASSIGNEMENT"
+
+	// CreateSITExtensionAsTOORequestReasonDIRECTEDTEMPORARYDUTY captures enum value "DIRECTED_TEMPORARY_DUTY"
+	CreateSITExtensionAsTOORequestReasonDIRECTEDTEMPORARYDUTY string = "DIRECTED_TEMPORARY_DUTY"
+
+	// CreateSITExtensionAsTOORequestReasonNONAVAILABILITYOFCIVILIANHOUSING captures enum value "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+	CreateSITExtensionAsTOORequestReasonNONAVAILABILITYOFCIVILIANHOUSING string = "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+
+	// CreateSITExtensionAsTOORequestReasonAWAITINGCOMPLETIONOFRESIDENCE captures enum value "AWAITING_COMPLETION_OF_RESIDENCE"
+	CreateSITExtensionAsTOORequestReasonAWAITINGCOMPLETIONOFRESIDENCE string = "AWAITING_COMPLETION_OF_RESIDENCE"
+
+	// CreateSITExtensionAsTOORequestReasonOTHER captures enum value "OTHER"
+	CreateSITExtensionAsTOORequestReasonOTHER string = "OTHER"
+)
+
+// prop value enum
+func (m *CreateSITExtensionAsTOO) validateRequestReasonEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createSITExtensionAsTOOTypeRequestReasonPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *CreateSITExtensionAsTOO) validateRequestReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("requestReason", "body", m.RequestReason); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateRequestReasonEnum("requestReason", "body", *m.RequestReason); err != nil {
 		return err
 	}
 

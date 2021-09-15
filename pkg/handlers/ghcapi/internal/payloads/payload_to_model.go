@@ -121,16 +121,13 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtension
 		return nil
 	}
 
-	var approvedDays *int
 	ad := int(*sitExtension.ApprovedDays)
-	approvedDays = &ad
-
 	model := &models.SITExtension{
 		MTOShipmentID: uuid.FromStringOrNil(sitExtension.ShipmentID.String()),
 		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
 		RequestedDays: int(*sitExtension.ApprovedDays),
 		Status:        models.SITExtensionStatusApproved,
-		ApprovedDays:  approvedDays,
+		ApprovedDays:  &ad,
 		OfficeRemarks: sitExtension.OfficeRemarks,
 	}
 

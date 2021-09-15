@@ -1573,7 +1573,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 }
 
 func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
-	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance when validations pass", func() {
+	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{},
 		})
@@ -1603,11 +1603,57 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 			},
 			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 		}
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(createParams)
 		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
 		payload := okResponse.Payload
 		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
 		suite.Equal(int64(10), *payload.SitDaysAllowance)
+		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
+		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+	})
+
+	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment that already has an allowance when validations pass", func() {
+		sitDaysAllowance := 20
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		})
+
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := CreateSITExtensionAsTOOHandler{
+			handlerContext,
+			sitExtensionCreatorAsTOO,
+		}
+		approvedDays := int64(10)
+		officeRemarks := "new office remarks"
+		requestReason := "OTHER"
+		createParams := shipmentops.CreateSitExtensionAsTOOParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.CreateSITExtensionAsTOO{
+				ApprovedDays:  &approvedDays,
+				OfficeRemarks: &officeRemarks,
+				RequestReason: &requestReason,
+				ShipmentID:    *handlers.FmtUUID(mtoShipment.ID),
+			},
+			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+		}
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
+		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
 	})
