@@ -826,7 +826,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			suite.Equal(samplePaymentRequest.Status.String(), string(payload.Status))
 			suite.Equal(samplePaymentRequest.PaymentRequestNumber, payload.PaymentRequestNumber)
 			// SequenceNumber is not on payload at all as it's an internal representation.
-			if suite.NotNil(payload.RecalculationOfPaymentRequestID.String()) {
+			if suite.NotNil(payload.RecalculationOfPaymentRequestID) {
 				suite.Equal(samplePaymentRequest.RecalculationOfPaymentRequestID.String(), payload.RecalculationOfPaymentRequestID.String())
 			}
 		}
