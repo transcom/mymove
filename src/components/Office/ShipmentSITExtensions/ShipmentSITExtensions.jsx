@@ -44,7 +44,7 @@ const ShipmentSITExtensions = (props) => {
   return (
     <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions)}>
       <p>SIT (STORAGE IN TRANSIT)</p>
-      <DataTable columnHeaders={['SIT extension authorized']} dataRow={[mappedSITExtensionList]} />
+      <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
     </DataTableWrapper>
   );
 };
