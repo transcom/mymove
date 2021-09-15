@@ -43,6 +43,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 
 			suite.Equal(models.UploadTypeUSER, updatedMove.ExcessWeightUpload.UploadType)
 			suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileName)
+			suite.Contains(updatedMove.ExcessWeightUpload.Filename, move.ID.String())
 			suite.Contains(updatedMove.ExcessWeightUpload.StorageKey, testFileName)
 		})
 

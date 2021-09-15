@@ -49,7 +49,8 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 
 	// Open transaction to create upload and update the move
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		excessWeightUpload, err := u.uploadCreator.CreateUpload(txnAppCtx, file, uploadFilename, uploadType)
+		excessWeightUpload, err := u.uploadCreator.CreateUpload(
+			txnAppCtx, file, fmt.Sprintf("/move/%s/%s", move.ID, uploadFilename), uploadType)
 		if err != nil {
 			return err
 		}
