@@ -35,3 +35,13 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
     );
   }, [mtoShipments]);
 };
+
+export const useCalculatedEstimatedWeight = (mtoShipments) => {
+  return useMemo(() => {
+    return mtoShipments
+      ?.filter((s) => includedStatusesForCalculatingWeights(s.status))
+      .reduce((prev, current) => {
+        return prev + current.primeEstimatedWeight;
+      }, 0);
+  }, [mtoShipments]);
+};

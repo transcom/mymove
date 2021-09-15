@@ -968,6 +968,9 @@ func init() {
               "$ref": "#/definitions/MTOShipments"
             }
           },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -3468,6 +3471,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -3704,6 +3717,9 @@ func init() {
         },
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
+        },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
@@ -4504,6 +4520,37 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
     },
     "ServiceItemParamName": {
       "type": "string",
@@ -6306,6 +6353,12 @@ func init() {
               "$ref": "#/definitions/MTOShipments"
             }
           },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
@@ -9175,6 +9228,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -9411,6 +9474,9 @@ func init() {
         },
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
+        },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
@@ -10211,6 +10277,40 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     },
     "ServiceItemParamName": {
       "type": "string",

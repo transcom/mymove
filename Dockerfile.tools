@@ -3,6 +3,9 @@ FROM alpine:3.14.2
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox
 
+COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
+COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
+
 COPY bin/generate-test-data /bin/generate-test-data
 COPY bin/prime-api-client /bin/prime-api-client
 
@@ -19,6 +22,7 @@ COPY pkg/testdatagen/testdata/update_mto_shipment.json /bin/pkg/testdatagen/test
 # Install tools needed in container
 RUN apk update
 # hadolint ignore=DL3018
-RUN apk add postgresql-client bash --no-cache
+RUN apk add postgresql-client bash ca-certificates --no-cache
+RUN update-ca-certificates
 
 WORKDIR /bin

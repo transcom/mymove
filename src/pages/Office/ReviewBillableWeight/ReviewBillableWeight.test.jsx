@@ -6,7 +6,7 @@ import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { formatWeight } from 'shared/formatters';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
-import { calcWeightRequested, calcTotalBillableWeight, calcTotalEstimatedWeight } from 'utils/shipmentWeights';
+import { shipmentStatuses } from 'constants/shipments';
 
 // Mock the document viewer since we're not really testing that aspect here.
 // Document Viewer tests should be covered in the component itself.
@@ -104,6 +104,8 @@ const mockOrders = {
 const mockMtoShipments = [
   {
     id: 1,
+    status: shipmentStatuses.APPROVED,
+    calculatedBillableWeight: 3000,
     billableWeightCap: 1000,
     primeEstimatedWeight: 1000,
     primeActualWeight: 300,
@@ -114,6 +116,8 @@ const mockMtoShipments = [
   },
   {
     id: 2,
+    status: shipmentStatuses.APPROVED,
+    calculatedBillableWeightCap: 2000,
     billableWeightCap: 2000,
     primeEstimatedWeight: 2000,
     primeActualWeight: 400,
@@ -124,6 +128,8 @@ const mockMtoShipments = [
   },
   {
     id: 3,
+    status: shipmentStatuses.DIVERSION_REQUESTED,
+    calculatedBillableWeight: 3000,
     billableWeightCap: 3000,
     primeEstimatedWeight: 7000,
     primeActualWeight: 300,
@@ -223,16 +229,12 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Shipment weights')).toBeInTheDocument();
 
-      const weightRequested = formatWeight(calcWeightRequested(mockMtoShipments));
-      const totalBillableWeight = formatWeight(calcTotalBillableWeight(mockMtoShipments));
       expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
       );
       expect(screen.getByTestId('weightAllowance').textContent).toBe(
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
       );
-      expect(screen.getByTestId('weightRequested').textContent).toBe(weightRequested);
-      expect(screen.getByTestId('totalBillableWeight').textContent).toBe(totalBillableWeight);
       expect(screen.getByTestId('ShipmentContainer')).toBeInTheDocument();
       // shipment container labels
       expect(screen.getByText('Departed')).toBeInTheDocument();
@@ -251,8 +253,6 @@ describe('ReviewBillableWeight', () => {
   it('renders weight summary', () => {
     useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
     useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-    const weightRequested = formatWeight(calcWeightRequested(mockMtoShipments));
-    const totalBillableWeight = formatWeight(calcTotalBillableWeight(mockMtoShipments));
     render(<ReviewBillableWeight />);
     expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
       formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
@@ -260,20 +260,19 @@ describe('ReviewBillableWeight', () => {
     expect(screen.getByTestId('weightAllowance').textContent).toBe(
       formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
     );
-    expect(screen.getByTestId('weightRequested').textContent).toBe(weightRequested);
-    expect(screen.getByTestId('totalBillableWeight').textContent).toBe(totalBillableWeight);
+    expect(screen.getByTestId('weightRequested').textContent).toBe('700 lbs');
+    expect(screen.getByTestId('totalBillableWeight').textContent).toBe('6,000 lbs');
   });
 
   it('renders max billable weight and edit view', () => {
     useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
     useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-    const estimatedWeight = formatWeight(calcTotalEstimatedWeight(mockMtoShipments) * 1.1);
     const weightAllowance = formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight);
 
     render(<ReviewBillableWeight />);
 
     userEvent.click(screen.getByText('Edit'));
     expect(screen.getByTestId('maxWeight-weightAllowance').textContent).toBe(weightAllowance);
-    expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe(estimatedWeight);
+    expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
   });
 });

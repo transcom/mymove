@@ -110,6 +110,14 @@ type MTOServiceItem struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// sit departure date
+	// Format: date-time
+	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
+
+	// sit entry date
+	// Format: date-time
+	SitEntryDate *strfmt.DateTime `json:"sitEntryDate,omitempty"`
+
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
 
@@ -190,6 +198,14 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRejectedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEntryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -428,6 +444,30 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("rejectedAt", "body", "date-time", m.RejectedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateSitDepartureDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitDepartureDate", "body", "date-time", m.SitDepartureDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateSitEntryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEntryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEntryDate", "body", "date-time", m.SitEntryDate.String(), formats); err != nil {
 		return err
 	}
 

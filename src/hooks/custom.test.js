@@ -4,6 +4,7 @@ import {
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
+  useCalculatedEstimatedWeight,
 } from 'hooks/custom';
 import { shipmentStatuses } from 'constants/shipments';
 
@@ -99,5 +100,40 @@ describe('for all shipments that are approved, have a cancellation requested, or
     rerender();
 
     expect(result.current).toBe(1100);
+  });
+  it('useCalculatedTotalEstimatedWeight', () => {
+    let mtoShipments = [
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 10,
+        status: shipmentStatuses.DRAFT,
+      },
+      {
+        primeEstimatedWeight: 4000,
+        calculatedBillableWeight: 500,
+        status: shipmentStatuses.APPROVED,
+      },
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 200,
+        status: shipmentStatuses.CANCELLATION_REQUESTED,
+      },
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 300,
+        status: shipmentStatuses.DIVERSION_REQUESTED,
+      },
+    ];
+
+    const { result, rerender } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(6000);
+
+    mtoShipments = mtoShipments.concat([
+      { primeEstimatedWeight: 2000, calculatedBillableWeight: 100, status: shipmentStatuses.APPROVED },
+    ]);
+    rerender();
+
+    expect(result.current).toBe(8000);
   });
 });
