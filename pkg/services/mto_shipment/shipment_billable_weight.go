@@ -20,6 +20,8 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 // CalculateShipmentBillableWeight calculates a shipment's billable weight
 // if a shipment has a reweigh weight and an original weight, it returns the lowest weight
 // if there's a billableWeightCap set that takes precedence
+// The reweigh is assumed to have been loaded for the passed in shipment for this service to
+// guarantee that the correct calculated weight is returned.
 func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
