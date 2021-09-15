@@ -12,15 +12,13 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// checkShipmentID checks that the user can't change the shipment ID
+// checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is
 func checkShipmentID() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		if sitExtension.MTOShipmentID == uuid.Nil {
 			verrs.Add("MTOShipmentID", "Shipment ID is required")
-			fmt.Println("☀️")
-			fmt.Println(verrs)
 		}
 		return verrs
 	})
@@ -38,7 +36,7 @@ func checkRequiredFields() sitExtensionValidator {
 		sitExtensionReason = sitExtension.RequestReason
 		sitRequestedDays = sitExtension.RequestedDays
 
-		// Check that we have something in the Status field:
+		// Check that we have something in the SIT RequestedDays field:
 		if sitRequestedDays == 0 {
 			verrs.Add("RequestedDays", "cannot be blank")
 		}

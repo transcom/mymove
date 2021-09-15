@@ -11,8 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"fmt"
 )
 
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
@@ -63,7 +61,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, nil)
 		suite.NotNil(err)
 		suite.IsType(services.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintln("not found while looking for Prime-available Shipment"), err.Error())
+		suite.Equal("not found while looking for Prime-available Shipment", err.Error())
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {
@@ -71,6 +69,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &currentTime,
+				Status:             models.MoveStatusAPPROVED,
 			},
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
