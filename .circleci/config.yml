@@ -132,9 +132,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for exp env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -151,9 +151,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for stg env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_prd:
     steps:
@@ -170,9 +170,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -1795,7 +1795,7 @@ workflows:
           # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - integration_tests:
           requires:
@@ -1809,7 +1809,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: kh-MB-9314-add-MarkerIO-external-script
+              ignore: placeholder_branch_name
 
       - integration_tests_mtls:
           requires:
@@ -1822,7 +1822,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: kh-MB-9314-add-MarkerIO-external-script
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -1830,7 +1830,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: kh-MB-9314-add-MarkerIO-external-script
+              ignore: placeholder_branch_name
 
       - server_test:
           requires:
@@ -1838,7 +1838,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: kh-MB-9314-add-MarkerIO-external-script
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -1884,35 +1884,35 @@ workflows:
             - pre_deps_yarn
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_app_demo:
           requires:
             - build_dp3_app
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - build_dp3_tasks:
           requires:
             - build_tools
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_tasks_demo:
           requires:
             - build_dp3_tasks
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - build_dp3_webhook_client:
           requires:
@@ -1920,14 +1920,14 @@ workflows:
             - pre_deps_golang
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_webhook_client_demo:
           requires:
             - build_dp3_webhook_client
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_demo_migrations:
           requires:
@@ -1942,63 +1942,63 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_demo_app_client_tls:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_app_exp:
           requires:
             - build_app
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_migrations_exp:
           requires:
             - build_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_tasks_exp:
           requires:
             - build_tasks
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_webhook_client_exp:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_exp_migrations:
           requires:
@@ -2013,35 +2013,35 @@ workflows:
             - push_webhook_client_exp
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - deploy_exp_webhook_client:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: kh-MB-9314-add-MarkerIO-external-script
+              only: placeholder_branch_name
 
       - push_app_stg:
           requires:
