@@ -44,7 +44,8 @@ func (u *uploadCreator) CreateUpload(
 			return err
 		}
 
-		fileName := time.Now().Format(filenameTimeFormat) + "-" + uploadFilename
+		// Suffix the filename with a timestamp for uniqueness
+		fileName := uploadFilename + "-" + time.Now().Format(filenameTimeFormat)
 		aFile, err := newUploader.PrepareFileForUpload(txnAppCtx, file, fileName)
 		if err != nil {
 			return err
