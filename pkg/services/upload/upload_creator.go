@@ -1,10 +1,11 @@
 package upload
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -36,7 +37,9 @@ func (u *uploadCreator) CreateUpload(
 		newUploader, err := uploader.NewUploader(u.fileStorer, uploader.MaxFileSizeLimit, uploadType)
 		if err != nil {
 			if err == uploader.ErrFileSizeLimitExceedsMax {
-				return services.NewBadDataError(err.Error()) // preserves the error message from the uploader err
+				verrs := validate.NewErrors()
+				verrs.Add("file", err.Error())
+				return services.NewInvalidCreateInputError(verrs, "File cannot be uploaded.")
 			}
 			return err
 		}
@@ -54,7 +57,7 @@ func (u *uploadCreator) CreateUpload(
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
 		} else if err != nil {
-			return fmt.Errorf("Failure to upload file: %v", err)
+			return services.NewQueryError("Upload", err, "Failed to upload file")
 		}
 
 		upload = newUpload

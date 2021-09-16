@@ -59,10 +59,10 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(move)
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidCreateInputError(
-				verrs, "Validation errors found while updating excess weight info on move")
+			return services.NewInvalidInputError(
+				move.ID, err, verrs, "Validation errors found while updating excess weight info on move")
 		} else if err != nil {
-			return fmt.Errorf("Failure to update excess weight info on move: %v", err)
+			return services.NewQueryError("Move", err, "Failed to update excess weight info on move")
 		}
 
 		return nil
