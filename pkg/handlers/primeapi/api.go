@@ -44,7 +44,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
-	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}

@@ -44,14 +44,14 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return movetaskorderops.NewListMovesOK().WithPayload(payload)
 }
 
-// GetMoveTaskOrderHandlerFunc returns the details for a particular move
-type GetMoveTaskOrderHandlerFunc struct {
+// GetMoveTaskOrderHandler returns the details for a particular move
+type GetMoveTaskOrderHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
 // Handle fetches a move from the database using its UUID or move code
-func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
+func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	searchParams := services.MoveTaskOrderFetcherParams{

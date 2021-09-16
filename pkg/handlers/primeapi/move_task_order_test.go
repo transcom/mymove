@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	handler := GetMoveTaskOrderHandlerFunc{context,
+	handler := GetMoveTaskOrderHandler{context,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
