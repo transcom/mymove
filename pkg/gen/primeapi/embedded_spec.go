@@ -2823,6 +2823,7 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",
@@ -6083,6 +6084,7 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",
