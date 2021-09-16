@@ -53,9 +53,43 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
+	suite.T().Run("If the shipment has an original weight and reweigh with no id and no set billable weight cap, it should return the original weight", func(t *testing.T) {
+		originalWeight := unit.Pound(900)
+		reweigh := models.Reweigh{
+			ID: uuid.Nil,
+		}
+		shipment := models.MTOShipment{
+			PrimeActualWeight: &originalWeight,
+			Reweigh:           &reweigh,
+		}
+
+		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
+		suite.NoError(err)
+		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
+	})
+
 	suite.T().Run("If the shipment has an original weight and no reweigh weight and no set billable weight cap, it should return the original weight", func(t *testing.T) {
 		originalWeight := unit.Pound(900)
-		reweigh := models.Reweigh{}
+		reweigh := models.Reweigh{
+			ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d985"),
+		}
+		shipment := models.MTOShipment{
+			PrimeActualWeight: &originalWeight,
+			Reweigh:           &reweigh,
+		}
+
+		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
+		suite.NoError(err)
+		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
+	})
+
+	suite.T().Run("If the shipment has an original weight and 0 for the reweigh weight and no set billable weight cap, it should return the original weight", func(t *testing.T) {
+		reweighWeight := unit.Pound(0)
+		originalWeight := unit.Pound(900)
+		reweigh := models.Reweigh{
+			Weight: &reweighWeight,
+			ID:     uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d985"),
+		}
 		shipment := models.MTOShipment{
 			PrimeActualWeight: &originalWeight,
 			Reweigh:           &reweigh,

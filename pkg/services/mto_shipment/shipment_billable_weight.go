@@ -25,17 +25,27 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
+	var primeActualWeight *unit.Pound
 	if shipment.Reweigh == nil {
 		return services.BillableWeightInputs{}, services.NewConflictError(shipment.ID, "Invalid shipment, must have Reweigh eager loaded")
 	}
 	if shipment.Reweigh != nil && shipment.Reweigh.ID != uuid.Nil {
 		if shipment.Reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
 			reweighWeight = shipment.Reweigh.Weight
-			if int(*shipment.PrimeActualWeight) < int(*reweighWeight) {
-				calculatedWeight = shipment.PrimeActualWeight
-			} else {
+			primeActualWeight = shipment.PrimeActualWeight
+			if int(*primeActualWeight) < int(*reweighWeight) {
+				calculatedWeight = primeActualWeight
+			} else if int(*reweighWeight) > 0 {
+				// Only use the reweigh weight if it's greater than 0
 				calculatedWeight = reweighWeight
+			} else {
+				// If the prime actual weight is not lower than the reweigh weight, but the
+				// reweigh weight is 0, use the prime actual weight.
+				calculatedWeight = primeActualWeight
 			}
+		} else if shipment.Reweigh.Weight == nil && shipment.PrimeActualWeight != nil {
+			// if there is no reweigh weight, use the prime actual weight if it is not nil.
+			calculatedWeight = shipment.PrimeActualWeight
 		}
 	} else if shipment.BillableWeightCap == nil {
 		calculatedWeight = shipment.PrimeActualWeight
