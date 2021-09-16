@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/storage"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -555,6 +557,65 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
 		VerificationReason:     handlers.FmtStringPtr(reweigh.VerificationReason),
 		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+	}
+
+	return payload
+}
+
+// ExcessWeightRecord returns the fields on the move related to excess weights,
+// and returns the uploaded document set as the ExcessWeightUpload on the move.
+func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemessages.ExcessWeightRecord {
+	if move == nil || move.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.ExcessWeightRecord{
+		MoveID: handlers.FmtUUIDPtr(&move.ID),
+	}
+	if move.ExcessWeightQualifiedAt != nil {
+		payload.MoveExcessWeightQualifiedAt = strfmt.DateTime(*move.ExcessWeightQualifiedAt)
+	}
+	if move.ExcessWeightAcknowledgedAt != nil {
+		payload.MoveExcessWeightAcknowledgedAt = strfmt.DateTime(*move.ExcessWeightAcknowledgedAt)
+	}
+
+	upload := Upload(storer, move.ExcessWeightUpload)
+	if upload == nil {
+		//todo how handle? error?
+		return nil
+	}
+	payload.Upload = *upload
+
+	return payload
+}
+
+// Upload returns the data for an uploaded file.
+func Upload(storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+	if upload == nil || upload.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.Upload{
+		ID:          strfmt.UUID(upload.ID.String()),
+		Bytes:       &upload.Bytes,
+		ContentType: &upload.ContentType,
+		Filename:    &upload.Filename,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	if err != nil {
+		//todo how to handle this properly?
+		return nil
+	}
+	payload.URL = *handlers.FmtURI(url)
+
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		payload.Status = "PROCESSING"
+	} else {
+		payload.Status = tags["av-status"]
 	}
 
 	return payload

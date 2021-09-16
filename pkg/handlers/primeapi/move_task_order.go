@@ -3,6 +3,10 @@ package primeapi
 import (
 	"fmt"
 
+	"github.com/go-openapi/runtime"
+
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -85,11 +89,30 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 // CreateExcessWeightRecordHandler uploads an excess weight record file
 type CreateExcessWeightRecordHandler struct {
 	handlers.HandlerContext
+	uploader services.MoveExcessWeightUploader
 }
 
 // Handle uploads the file passed into the request and updates the move
 func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateExcessWeightRecordParams) middleware.Responder {
-	return movetaskorderops.NewCreateExcessWeightRecordCreated()
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+			payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	excessWeightRecord, err := h.uploader.CreateExcessWeightUpload(
+		appCtx, moveID, file.Data, file.Header.Filename, models.UploadTypePRIME)
+	if err != nil {
+		logger.Error("primeapi.CreateExcessWeightRecord error", zap.Error(err))
+	}
+
+	payload := payloads.ExcessWeightRecord(h.FileStorer(), excessWeightRecord)
+	return movetaskorderops.NewCreateExcessWeightRecordCreated().WithPayload(payload)
 }
 
 // UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
