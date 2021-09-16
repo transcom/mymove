@@ -133,7 +133,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "ADDRESS COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "ADDRESS COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -169,10 +169,13 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-address'));
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-address'));
+    });
   });
 
-  it('does not redirect if the current state equals the "ADDRESS COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "ADDRESS COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -211,10 +214,13 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does not redirect if the current state is after the "ADDRESS COMPLETE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "ADDRESS COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -256,10 +262,13 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -306,6 +315,9 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });
