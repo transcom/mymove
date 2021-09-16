@@ -18,7 +18,7 @@ describe('BackupContactInfoFields component', () => {
   });
 
   describe('with pre-filled values', () => {
-    it('renders a legend and all backup contact info inputs', () => {
+    it('renders a legend and all backup contact info inputs', async () => {
       const initialValues = {
         email: 'test@example.com',
         name: 'test',
@@ -30,13 +30,13 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" />
         </Formik>,
       );
-      expect(screen.getByLabelText('Name')).toHaveValue(initialValues.name);
-      expect(screen.getByLabelText('Email')).toHaveValue(initialValues.email);
-      expect(screen.getByLabelText('Phone')).toHaveValue(initialValues.telephone);
+      expect(await screen.findByLabelText('Name')).toHaveValue(initialValues.name);
+      expect(await screen.findByLabelText('Email')).toHaveValue(initialValues.email);
+      expect(await screen.findByLabelText('Phone')).toHaveValue(initialValues.telephone);
     });
   });
 
-  it('can namespace fields', () => {
+  it('can namespace fields', async () => {
     const namespace = 'backup_contact';
 
     const initialBackupInfo = {
@@ -54,8 +54,9 @@ describe('BackupContactInfoFields component', () => {
         <BackupContactInfoFields legend="Backup contact" name={namespace} />
       </Formik>,
     );
-    expect(screen.getByLabelText('Name')).toHaveValue(initialBackupInfo.name);
-    expect(screen.getByLabelText('Email')).toHaveValue(initialBackupInfo.email);
-    expect(screen.getByLabelText('Phone')).toHaveValue(initialBackupInfo.telephone);
+
+    expect(await screen.findByLabelText('Name')).toHaveValue(initialBackupInfo.name);
+    expect(await screen.findByLabelText('Email')).toHaveValue(initialBackupInfo.email);
+    expect(await screen.findByLabelText('Phone')).toHaveValue(initialBackupInfo.telephone);
   });
 });

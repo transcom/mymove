@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, waitFor } from '@testing-library/react';
@@ -162,13 +161,11 @@ describe('requireCustomerState BackupMailingAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupMailingAddress {...props} />
       </MockProviders>,
     );
-
-    expect(wrapper.exists()).toBe(true);
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-address'));
@@ -207,13 +204,11 @@ describe('requireCustomerState BackupMailingAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupMailingAddress {...props} />
       </MockProviders>,
     );
-
-    expect(wrapper.exists()).toBe(true);
 
     await waitFor(() => {
       expect(mockDispatch).not.toHaveBeenCalled();
@@ -255,13 +250,11 @@ describe('requireCustomerState BackupMailingAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupMailingAddress {...props} />
       </MockProviders>,
     );
-
-    expect(wrapper.exists()).toBe(true);
 
     await waitFor(() => {
       expect(mockDispatch).not.toHaveBeenCalled();
@@ -308,13 +301,11 @@ describe('requireCustomerState BackupMailingAddress', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupMailingAddress {...props} />
       </MockProviders>,
     );
-
-    expect(wrapper.exists()).toBe(true);
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(push('/'));
