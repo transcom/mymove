@@ -170,9 +170,6 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 			},
 		})
 
-	var shipment models.MTOShipment
-	suite.NoError(suite.DB().Find(&shipment, *mtoServiceItem.MTOShipmentID))
-
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
