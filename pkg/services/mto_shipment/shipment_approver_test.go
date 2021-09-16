@@ -25,32 +25,6 @@ import (
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 
-	// Need some values for reServices
-	reServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeDSH,
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-		models.ReServiceCodeDNPKF,
-		models.ReServiceCodeDMHF,
-		models.ReServiceCodeDBHF,
-		models.ReServiceCodeDBTF,
-	}
-
-	for _, serviceCode := range reServiceCodes {
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code:      serviceCode,
-				Name:      "test",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
-		})
-	}
-
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
 		WeightLbsLower:     0,

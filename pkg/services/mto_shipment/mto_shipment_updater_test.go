@@ -117,12 +117,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.T().Run("Can retrieve existing shipment", func(t *testing.T) {
 
 		existingShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
-		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: "DCRT",
-				Name: "Dom. Crating",
-			},
-		})
+
+		var reServiceDomCrating models.ReService
+		err := suite.DB().Where("code = $1", models.ReServiceCodeDCRT).First(&reServiceDomCrating)
+		suite.NoError(err)
 
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -628,31 +626,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	shipment.Status = models.MTOShipmentStatusSubmitted
 	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
-	//Need some values for reServices
-	reServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeDSH,
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-		models.ReServiceCodeDNPKF,
-		models.ReServiceCodeDMHF,
-		models.ReServiceCodeDBHF,
-		models.ReServiceCodeDBTF,
-	}
-
-	for _, serviceCode := range reServiceCodes {
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code:      serviceCode,
-				Name:      "test",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
-		})
-	}
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,

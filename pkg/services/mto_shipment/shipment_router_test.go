@@ -3,22 +3,36 @@ package mtoshipment
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestApprove() {
-	shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+type routerApproveSubtestData struct {
+	appContext      appcontext.AppContext
+	shipmentRouter  services.ShipmentRouter
+	unsavedShipment models.MTOShipment
+}
+
+func (suite *MTOShipmentServiceSuite) createRouterApproveSubtestData() (subtestData *routerApproveSubtestData) {
+	subtestData = &routerApproveSubtestData{}
+
+	subtestData.shipmentRouter = NewShipmentRouter()
+
+	subtestData.unsavedShipment = testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status: models.MoveStatusAPPROVED,
 		},
 		Stub: true,
 	})
-	shipmentRouter := NewShipmentRouter()
 
-	suite.Nil(shipment.ApprovedDate)
+	subtestData.appContext = suite.TestAppContext()
 
+	return subtestData
+}
+
+func (suite *MTOShipmentServiceSuite) TestApprove() {
 	validStatuses := []struct {
 		desc   string
 		status models.MTOShipmentStatus
@@ -28,11 +42,15 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			subtestData := suite.createRouterApproveSubtestData()
+
+			shipment := subtestData.unsavedShipment
+
 			shipment.Status = validStatus.status
 			// special case for diversion requested
 			shipment.Diversion = true
 
-			err := shipmentRouter.Approve(suite.TestAppContext(), &shipment)
+			err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -52,9 +70,13 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			subtestData := suite.createRouterApproveSubtestData()
+
+			shipment := subtestData.unsavedShipment
+
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Approve(suite.TestAppContext(), &shipment)
+			err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -64,9 +86,11 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	}
 
 	suite.Run("does not approve a shipment if the move is not Approved or Approvals Requested", func() {
+		subtestData := suite.createRouterApproveSubtestData()
+
 		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{Stub: true})
 
-		err := shipmentRouter.Approve(suite.TestAppContext(), &submittedShipment)
+		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &submittedShipment)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)

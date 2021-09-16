@@ -157,20 +157,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDSHUT,
-				Name: "ReServiceCodeDDSHUT",
-			},
-		})
-
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-				Name: "ReServiceCodeDOFSIT",
-			},
-		})
-
 		serviceItemsList := []models.MTOServiceItem{
 			{
 				MoveTaskOrderID: subtestData.move.ID,
