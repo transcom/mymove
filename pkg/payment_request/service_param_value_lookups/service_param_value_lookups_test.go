@@ -172,6 +172,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
+			Move: mtoServiceItem.MoveTaskOrder,
 			PaymentRequest: models.PaymentRequest{
 				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 			},

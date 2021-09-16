@@ -18,12 +18,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightAdjustedLookup() {
 
 	suite.Run("nil AdjustedWeight should not cause an error", func() {
 		// Set the adjusted weight to nil
-		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithAdjustedWeight(nil, unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		mtoShipment := mtoServiceItem.MTOShipment
-		suite.MustSave(&mtoShipment)
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithAdjustedWeight(nil, unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.NoError(err)
