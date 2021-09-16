@@ -45,7 +45,7 @@ const environmentFlags = {
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-    markerIO: true,
+    markerIO: false,
   },
 
   demo: {
