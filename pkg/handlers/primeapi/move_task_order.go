@@ -82,6 +82,16 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
+// CreateExcessWeightRecordHandler uploads an excess weight record file
+type CreateExcessWeightRecordHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle uploads the file passed into the request and updates the move
+func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateExcessWeightRecordParams) middleware.Responder {
+	return movetaskorderops.NewCreateExcessWeightRecordCreated()
+}
+
 // UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
 type UpdateMTOPostCounselingInformationHandler struct {
 	handlers.HandlerContext
