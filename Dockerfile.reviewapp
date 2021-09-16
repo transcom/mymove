@@ -12,19 +12,6 @@ WORKDIR /build
 COPY Makefile /build/
 COPY scripts /build/scripts
 
-# Install client deps and server deps first since they don't change as
-# often as code
-FROM builder as client_deps
-# js dep needs
-COPY .yarnrc \
-  config-overrides.js jsconfig.json package.json terser-rescript.js \
-  yarn.lock /build/
-COPY .eslintignore .eslintrc.js .prettierignore .prettierrc \
-  /build/
-COPY eslint-plugin-ato /build/eslint-plugin-ato
-RUN set -x \
-  && yarn
-
 FROM builder as server_deps
 ENV GOPATH=/go
 ENV PATH=/go/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -52,7 +39,7 @@ RUN mkdir /build/src
 RUN set -x \
   && make bin/rds-ca-2019-root.pem \
   && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
-  && make server_generate \
+  && scripts/gen-server \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
 
@@ -90,6 +77,18 @@ ENTRYPOINT ["/bin/sh", "-c", \
 ]
 
 # build client after migrate since migrations don't need client
+
+FROM builder as client_deps
+# js dep needs
+COPY .yarnrc \
+  config-overrides.js jsconfig.json package.json terser-rescript.js \
+  yarn.lock /build/
+COPY .eslintignore .eslintrc.js .prettierignore .prettierrc \
+  /build/
+COPY eslint-plugin-ato /build/eslint-plugin-ato
+RUN set -x \
+  && yarn
+
 FROM client_deps as client_builder
 # js build needs
 # copy directories separately
