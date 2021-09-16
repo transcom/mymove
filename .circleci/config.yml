@@ -17,6 +17,38 @@ references:
 
   postgres: &postgres postgres:12.7
 
+  # set demo-branch to the branch you want to deploy to demo, or
+  # `placeholder_branch_name` if you don't want to deploy to demo
+  demo-branch: &demo-branch placeholder_branch_name
+
+  # set exp-branch to the branch you want to deploy to exp, or
+  # `placeholder_branch_name` if you don't want to deploy to exp
+  exp-branch: &exp-branch placeholder_branch_name
+
+  # set acceptance-branch to the branch you want run acceptance tests
+  # on, or `placeholder_branch_name` if you don't want to run them
+  acceptance-branch: &acceptance-branch placeholder_branch_name
+
+  # set integration-ignore-branch to the branch if you don't want to
+  # run integration tests, or `placeholder_branch_name` if you do want
+  # to run them
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+
+  # set integration-mtls-ignore-branch to the branch if you don't want to
+  # run integration tests, or `placeholder_branch_name` if you do want
+  # to run them
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+
+  # set client-ignore-branch to the branch if you don't want to
+  # run client tests, or `placeholder_branch_name` if you do want
+  # to run them
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+
+  # set server-ignore-branch to the branch if you don't want to
+  # run client tests, or `placeholder_branch_name` if you do want
+  # to run them
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+
 executors:
   av_medium:
     resource_class: medium
@@ -1795,7 +1827,7 @@ workflows:
           # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *acceptance-branch
 
       - integration_tests:
           requires:
@@ -1809,7 +1841,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
           requires:
@@ -1822,7 +1854,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *integration-mtls-ignore-branch
 
       - client_test:
           requires:
@@ -1830,7 +1862,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *client-ignore-branch
 
       - server_test:
           requires:
@@ -1838,7 +1870,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *server-ignore-branch
 
       - build_app:
           requires:
@@ -1884,35 +1916,35 @@ workflows:
             - pre_deps_yarn
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - push_app_demo:
           requires:
             - build_dp3_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - build_dp3_tasks:
           requires:
             - build_tools
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - push_tasks_demo:
           requires:
             - build_dp3_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - build_dp3_webhook_client:
           requires:
@@ -1920,14 +1952,14 @@ workflows:
             - pre_deps_golang
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - push_webhook_client_demo:
           requires:
             - build_dp3_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - deploy_demo_migrations:
           requires:
@@ -1942,63 +1974,63 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - deploy_demo_app_client_tls:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *demo-branch
 
       - push_app_exp:
           requires:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_migrations_exp:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_tasks_exp:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_webhook_client_exp:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_migrations:
           requires:
@@ -2013,35 +2045,35 @@ workflows:
             - push_webhook_client_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_webhook_client:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_app_stg:
           requires:
