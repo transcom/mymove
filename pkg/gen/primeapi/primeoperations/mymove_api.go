@@ -48,6 +48,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		MoveTaskOrderCreateExcessWeightRecordHandler: move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOAgentHandler: mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOAgent has not yet been implemented")
 		}),
@@ -133,6 +136,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// MoveTaskOrderCreateExcessWeightRecordHandler sets the operation handler for the create excess weight record operation
+	MoveTaskOrderCreateExcessWeightRecordHandler move_task_order.CreateExcessWeightRecordHandler
 	// MtoShipmentCreateMTOAgentHandler sets the operation handler for the create m t o agent operation
 	MtoShipmentCreateMTOAgentHandler mto_shipment.CreateMTOAgentHandler
 	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
@@ -241,6 +246,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
+		unregistered = append(unregistered, "move_task_order.CreateExcessWeightRecordHandler")
+	}
 	if o.MtoShipmentCreateMTOAgentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOAgentHandler")
 	}
@@ -373,6 +381,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/excess-weight-record"] = move_task_order.NewCreateExcessWeightRecord(o.context, o.MoveTaskOrderCreateExcessWeightRecordHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

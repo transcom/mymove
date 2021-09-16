@@ -153,6 +153,51 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/excess-weight-record':
+    post:
+      summary: createExcessWeightRecord
+      description: >
+        Uploads an excess weight record, which is a document that proves that
+        the movers or contractors have counseled the customer about their excess
+        weight. Excess weight counseling should occur after the sum of the
+        shipments for the customer's move crosses the excess weight alert
+        threshold.
+      operationId: createExcessWeightRecord
+      tags:
+        - moveTaskOrder
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          description: UUID of the move being updated.
+          required: true
+          format: uuid
+          type: string
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: Successfully uploaded the excess weight record file.
+          schema:
+            $ref: '#/definitions/ExcessWeightRecord'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use.
@@ -2699,6 +2744,38 @@ definitions:
       - filename
       - contentType
       - bytes
+  ExcessWeightRecord:
+    description: >-
+      A document uploaded by the movers proving that the customer has been
+      counseled about excess weight.
+    allOf:
+      - $ref: '#/definitions/Upload'
+      - type: object
+        properties:
+          moveId:
+            type: string
+            format: uuid
+            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+            description: The UUID of the move this excess weight record belongs to.
+          moveExcessWeightQualifiedAt:
+            type: string
+            format: date-time
+            readOnly: true
+            description: >
+              The date and time when the sum of all the move's shipments met the
+              excess weight qualification threshold. The system monitors these
+              weights and will update this field automatically.
+          moveExcessWeightAcknowledgedAt:
+            type: string
+            format: date-time
+            readOnly: true
+            description: >
+              The date and time when the TOO acknowledged the excess weight
+              alert, either by dismissing the risk or updating the max billable
+              weight. This will occur after the excess weight record has been
+              uploaded.
+        required:
+          - moveId
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
