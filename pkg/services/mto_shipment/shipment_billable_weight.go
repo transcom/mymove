@@ -29,7 +29,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 	if shipment.Reweigh == nil {
 		return services.BillableWeightInputs{}, services.NewConflictError(shipment.ID, "Invalid shipment, must have Reweigh eager loaded")
 	}
-	if shipment.Reweigh != nil && shipment.Reweigh.ID != uuid.Nil {
+	if shipment.Reweigh.ID != uuid.Nil {
 		if shipment.Reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
 			reweighWeight = shipment.Reweigh.Weight
 			primeActualWeight = shipment.PrimeActualWeight
