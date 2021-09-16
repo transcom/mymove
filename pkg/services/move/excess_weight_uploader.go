@@ -3,7 +3,6 @@ package move
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -55,8 +54,6 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 			return err
 		}
 
-		now := time.Now()
-		move.ExcessWeightQualifiedAt = &now
 		move.ExcessWeightUploadID = &excessWeightUpload.ID
 		move.ExcessWeightUpload = excessWeightUpload
 
