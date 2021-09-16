@@ -1,24 +1,22 @@
 package mtoshipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type createShipmentSubtestData struct {
-	appContext      appcontext.AppContext
+	appCtx          appcontext.AppContext
 	move            models.Move
 	shipmentCreator mtoShipmentCreator
 }
@@ -28,7 +26,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 
 	subtestData.move = testdatagen.MakeMove(suite.DB(), assertions)
 
-	subtestData.appContext = suite.TestAppContext()
+	subtestData.appCtx = suite.TestAppContext()
 
 	builder := query.NewQueryBuilder()
 	createNewBuilder := func() createMTOShipmentQueryBuilder {
@@ -49,7 +47,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Invalid ID fields set
-	suite.T().Run("invalid IDs found", func(t *testing.T) {
+	suite.Run("invalid IDs found", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -58,7 +56,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			Stub: true,
 		})
 
-		createdShipment, err := creator.CreateMTOShipment(subtestData.appContext, &mtoShipment, nil)
+		createdShipment, err := creator.CreateMTOShipment(subtestData.appCtx, &mtoShipment, nil)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -69,7 +67,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	// Unhappy path
-	suite.T().Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func(t *testing.T) {
+	suite.Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -89,7 +87,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Contains(err.Error(), "RequestedPickupDate")
 	})
 
-	suite.T().Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func(t *testing.T) {
+	suite.Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -110,7 +108,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	// Happy path
-	suite.T().Run("If the shipment is created successfully it should be returned", func(t *testing.T) {
+	suite.Run("If the shipment is created successfully it should be returned", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -131,7 +129,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(createdShipment.DestinationAddressID)
 	})
 
-	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
+	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -153,7 +151,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
 	})
 
-	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
+	suite.Run("If the shipment has mto service items", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -192,7 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(createdShipment.MTOServiceItems[0].MTOShipmentID, &createdShipment.ID, "Service items are not the same")
 	})
 
-	suite.T().Run("If the move already has a submitted NTS shipment, it should return a validation error", func(t *testing.T) {
+	suite.Run("If the move already has a submitted NTS shipment, it should return a validation error", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -222,7 +220,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.IsType(services.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("If the move already has a submitted NTSr shipment, it should return a validation error", func(t *testing.T) {
+	suite.Run("If the move already has a submitted NTSr shipment, it should return a validation error", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -252,7 +250,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.IsType(services.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("422 Validation Error - only one mto agent of each type", func(t *testing.T) {
+	suite.Run("422 Validation Error - only one mto agent of each type", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		creator := subtestData.shipmentCreator
 
@@ -294,7 +292,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.IsType(services.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Move status transitions when a new shipment is created and SUBMITTED", func(t *testing.T) {
+	suite.Run("Move status transitions when a new shipment is created and SUBMITTED", func() {
 		// If a new shipment is added to an APPROVED move and given the SUBMITTED status,
 		// the move should transition to "APPROVALS REQUESTED"
 		subtestData := suite.createSubtestData(testdatagen.Assertions{
@@ -328,23 +326,48 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 
-	suite.T().Run("Sets expected default SIT days allowance", func(t *testing.T) {
+	suite.Run("Sets SIT days allowance to default as needed", func() {
 		// This test will have to change in the future, but for now, service members are expected to get 90 days by
 		// default.
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			Stub: true,
-		})
+		testCases := []struct {
+			desc                      string
+			shipmentType              models.MTOShipmentType
+			expectNilSITDaysAllowance bool
+			expectedSITDaysAllowance  int
+		}{
+			{"HHG", models.MTOShipmentTypeHHG, false, models.DefaultServiceMemberSITDaysAllowance},
+			{"NTS", models.MTOShipmentTypeHHGIntoNTSDom, true, 0},
+			{"NTS release", models.MTOShipmentTypeHHGOutOfNTSDom, true, 0},
+		}
 
-		clearedShipment := clearShipmentIDFields(&mtoShipment)
+		for _, tt := range testCases {
+			tt := tt
+			suite.Run(tt.desc, func() {
+				mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+					Move: subtestData.move,
+					MTOShipment: models.MTOShipment{
+						ShipmentType: tt.shipmentType,
+					},
+					Stub: true,
+				})
 
-		createdShipment, err := creator.CreateMTOShipment(subtestData.appContext, clearedShipment, nil)
+				clearedShipment := clearShipmentIDFields(&mtoShipment)
 
-		suite.NoError(err)
-		suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance)
+				createdShipment, err := creator.CreateMTOShipment(appCtx, clearedShipment, nil)
+
+				suite.NoError(err)
+
+				if tt.expectNilSITDaysAllowance {
+					suite.Nil(createdShipment.SITDaysAllowance)
+				} else {
+					suite.Equal(tt.expectedSITDaysAllowance, *createdShipment.SITDaysAllowance)
+				}
+			})
+		}
 	})
 }
 
