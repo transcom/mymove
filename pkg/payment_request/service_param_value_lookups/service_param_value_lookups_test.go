@@ -156,7 +156,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 	return mtoServiceItem, paymentRequest, paramLookup
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight *unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
@@ -166,7 +166,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 			MTOShipment: models.MTOShipment{
 				PrimeActualWeight: &originalWeight,
 				ShipmentType:      shipmentType,
-				BillableWeightCap: &adjustedWeight,
+				BillableWeightCap: adjustedWeight,
 			},
 		})
 
