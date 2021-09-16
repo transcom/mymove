@@ -19,7 +19,7 @@ type reweighValidator interface {
 	Validate(a appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error
 }
 
-// validateReweigh checks an MTOAgent against a passed-in set of business rule checks
+// validateReweigh checks a reweigh against a passed-in set of business rule checks
 func validateReweigh(
 	appCtx appcontext.AppContext,
 	newReweigh models.Reweigh,

@@ -135,6 +135,9 @@ type MTOShipment struct {
 	// sit extensions
 	SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
 
+	// sit status
+	SitStatus *SITStatus `json:"sitStatus,omitempty"`
+
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
@@ -212,6 +215,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitExtensions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -467,6 +474,23 @@ func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateSitStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitStatus) { // not required
+		return nil
+	}
+
+	if m.SitStatus != nil {
+		if err := m.SitStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitStatus")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -531,6 +555,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateSitExtensions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -654,6 +682,20 @@ func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats 
 			return ve.ValidateName("sitExtensions")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSitStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitStatus != nil {
+		if err := m.SitStatus.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitStatus")
+			}
+			return err
+		}
 	}
 
 	return nil

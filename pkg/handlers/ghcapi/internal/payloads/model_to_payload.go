@@ -4,6 +4,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -56,6 +58,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
 		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 	}
 
 	return payload
@@ -141,8 +144,12 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	var moveCode string
+	var moveTaskOrderID strfmt.UUID
+	var moveTaskOrder models.Move
 	if order.Moves != nil && len(order.Moves) > 0 {
 		moveCode = order.Moves[0].Locator
+		moveTaskOrderID = strfmt.UUID(order.Moves[0].ID.String())
+		moveTaskOrder = order.Moves[0]
 	}
 
 	payload := ghcmessages.Order{
@@ -169,6 +176,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
 		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                    moveCode,
+		MoveTaskOrderID:             moveTaskOrderID,
+		MoveTaskOrder:               Move(&moveTaskOrder),
 	}
 
 	return &payload
@@ -297,6 +306,10 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 		payload.ApprovedDays = int64(*sitExtension.ApprovedDays)
 	}
 
+	if sitExtension.RequestedDays != 0 && sitExtension.RequestedDays > 0 {
+		payload.RequestedDays = int64(sitExtension.RequestedDays)
+	}
+
 	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
 		payload.ContractorRemarks = *sitExtension.ContractorRemarks
 	}
@@ -325,13 +338,42 @@ func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensio
 	return &payload
 }
 
-// MTOShipment payload
-func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
-	var sitDaysAllowance *int64
-	if mtoShipment.SITDaysAllowance != nil {
-		sda := int64(*mtoShipment.SITDaysAllowance)
-		sitDaysAllowance = &sda
+// SITStatus payload
+func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
+	if shipmentSITStatuses == nil {
+		return nil
 	}
+	payload := &ghcmessages.SITStatus{
+		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
+		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		Location:            shipmentSITStatuses.Location,
+		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs),
+		SitDepartureDate:    handlers.FmtDateTimePtr(shipmentSITStatuses.SITDepartureDate),
+		SitEntryDate:        strfmt.DateTime(shipmentSITStatuses.SITEntryDate),
+		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+	}
+
+	return payload
+}
+
+// SITStatuses payload
+func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*ghcmessages.SITStatus {
+	sitStatuses := map[string]*ghcmessages.SITStatus{}
+	if len(shipmentSITStatuses) == 0 {
+		return sitStatuses
+	}
+
+	for _, sitStatus := range shipmentSITStatuses {
+		copyOfSITStatus := sitStatus
+		sitStatuses[sitStatus.ShipmentID.String()] = SITStatus(&copyOfSITStatus)
+	}
+
+	return sitStatuses
+}
+
+// MTOShipment payload
+func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
+
 	payload := &ghcmessages.MTOShipment{
 		ID:                          strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -349,16 +391,20 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                   mtoShipment.Diversion,
-		Reweigh:                     Reweigh(mtoShipment.Reweigh),
+		Reweigh:                     Reweigh(mtoShipment.Reweigh, sitStatusPayload),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
 		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
-		SitDaysAllowance:            sitDaysAllowance,
+		SitDaysAllowance:            handlers.FmtIntPtrToInt64(mtoShipment.SITDaysAllowance),
 		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
+	}
+
+	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
+		payload.SitExtensions = *SITExtensions(&mtoShipment.SITExtensions)
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -377,6 +423,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
+	if sitStatusPayload != nil {
+		payload.SitStatus = sitStatusPayload
+	}
+
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
 	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
 
@@ -388,12 +438,16 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 }
 
 // MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
+func MTOShipments(mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MTOShipment(&copyOfMtoShipment)
+		if sitStatus, ok := sitStatusPayload[copyOfMtoShipment.ID.String()]; ok {
+			payload[i] = MTOShipment(&copyOfMtoShipment, sitStatus)
+		} else {
+			payload[i] = MTOShipment(&copyOfMtoShipment, nil)
+		}
 	}
 	return &payload
 }
@@ -549,6 +603,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		SITPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
+		SitEntryDate:     handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitDepartureDate: handlers.FmtDateTimePtr(s.SITDepartureDate),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
@@ -762,7 +818,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 }
 
 // Reweigh payload
-func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
+func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.Reweigh {
 	if reweigh == nil || reweigh.ID == uuid.Nil {
 		return nil
 	}
@@ -773,7 +829,7 @@ func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
 		VerificationReason:     reweigh.VerificationReason,
 		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
 		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
-		Shipment:               MTOShipment(&reweigh.Shipment),
+		Shipment:               MTOShipment(&reweigh.Shipment, sitStatusPayload),
 		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
 	}
 

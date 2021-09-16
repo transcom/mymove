@@ -87,6 +87,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
 		})
 	}
+	if api.PaymentRequestRecalculatePaymentRequestHandler == nil {
+		api.PaymentRequestRecalculatePaymentRequestHandler = payment_request.RecalculatePaymentRequestHandlerFunc(func(params payment_request.RecalculatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.RecalculatePaymentRequest has not yet been implemented")
+		})
+	}
 	if api.WebhookReceiveWebhookNotificationHandler == nil {
 		api.WebhookReceiveWebhookNotificationHandler = webhook.ReceiveWebhookNotificationHandlerFunc(func(params webhook.ReceiveWebhookNotificationParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook.ReceiveWebhookNotification has not yet been implemented")

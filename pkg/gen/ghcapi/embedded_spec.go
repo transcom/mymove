@@ -968,6 +968,9 @@ func init() {
               "$ref": "#/definitions/MTOShipments"
             }
           },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -1458,6 +1461,68 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/update-max-billable-weight/tio": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight with TIO remarks",
+        "operationId": "updateMaxBillableWeightAsTIO",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+            }
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -2358,6 +2423,71 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/": {
+      "post": {
+        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Create an approved SIT extension",
+        "operationId": "createSitExtensionAsTOO",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+            }
+          },
+          {
+            "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Extension.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
       "patch": {
         "description": "Approves a SIT extension",
@@ -2962,6 +3092,40 @@ func init() {
         }
       }
     },
+    "CreateSITExtensionAsTOO": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -3468,6 +3632,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -3705,6 +3879,9 @@ func init() {
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
         },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -3820,6 +3997,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
         },
         "updatedAt": {
           "type": "string",
@@ -3982,6 +4164,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -4505,6 +4690,37 @@ func init() {
         "TOO"
       ]
     },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -4560,6 +4776,8 @@ func init() {
         "ServiceAreaOrigin",
         "ServicesScheduleDest",
         "ServicesScheduleOrigin",
+        "SITPaymentRequestEnd",
+        "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
         "WeightAdjusted",
@@ -4772,6 +4990,30 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Jr."
+        }
+      }
+    },
+    "UpdateMaxBillableWeightAsTIOPayload": {
+      "type": "object",
+      "required": [
+        "authorizedWeight",
+        "tioRemarks"
+      ],
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "tioRemarks": {
+          "description": "TIO remarks for updating the max billable weight",
+          "type": "string",
+          "minLength": 1,
+          "x-nullable": true,
+          "example": "Increasing max billable weight"
         }
       }
     },
@@ -4993,6 +5235,15 @@ func init() {
       }
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -5045,6 +5296,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {
@@ -6306,6 +6558,12 @@ func init() {
               "$ref": "#/definitions/MTOShipments"
             }
           },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
@@ -6922,6 +7180,87 @@ func init() {
           },
           {
             "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/update-max-billable-weight/tio": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight with TIO remarks",
+        "operationId": "updateMaxBillableWeightAsTIO",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -8011,6 +8350,86 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-extensions/": {
+      "post": {
+        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "sitExtension"
+        ],
+        "summary": "Create an approved SIT extension",
+        "operationId": "createSitExtensionAsTOO",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+            }
+          },
+          {
+            "type": "string",
+            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Extension.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
       "patch": {
         "description": "Approves a SIT extension",
@@ -8669,6 +9088,40 @@ func init() {
         }
       }
     },
+    "CreateSITExtensionAsTOO": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "minimum": 1,
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT extension creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT extension",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -9175,6 +9628,16 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -9412,6 +9875,9 @@ func init() {
         "sitExtensions": {
           "$ref": "#/definitions/SitExtensions"
         },
+        "sitStatus": {
+          "$ref": "#/definitions/SITStatus"
+        },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
@@ -9527,6 +9993,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
         },
         "updatedAt": {
           "type": "string",
@@ -9689,6 +10160,9 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -10212,6 +10686,40 @@ func init() {
         "TOO"
       ]
     },
+    "SITStatus": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -10267,6 +10775,8 @@ func init() {
         "ServiceAreaOrigin",
         "ServicesScheduleDest",
         "ServicesScheduleOrigin",
+        "SITPaymentRequestEnd",
+        "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
         "WeightAdjusted",
@@ -10482,6 +10992,30 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Jr."
+        }
+      }
+    },
+    "UpdateMaxBillableWeightAsTIOPayload": {
+      "type": "object",
+      "required": [
+        "authorizedWeight",
+        "tioRemarks"
+      ],
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "tioRemarks": {
+          "description": "TIO remarks for updating the max billable weight",
+          "type": "string",
+          "minLength": 1,
+          "x-nullable": true,
+          "example": "Increasing max billable weight"
         }
       }
     },
@@ -10706,6 +11240,15 @@ func init() {
       "type": "object"
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "Conflict error",
@@ -10758,6 +11301,7 @@ func init() {
       "name": "move"
     },
     {
+      "description": "Move Orders - Commonly called “Orders,” especially in customer-facing language. Orders are plural because they're a bundle of related orders issued bya Service (e.g. Army, Air Force, Navy) to a customer that authorize (and order) that customer to move from one location to another.\nOrders are backed by $$ in the bank to support that move, which is identified by a Line of Account (LOA) code on the orders document.\n",
       "name": "order"
     },
     {

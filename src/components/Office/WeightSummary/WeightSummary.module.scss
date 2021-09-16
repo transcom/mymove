@@ -3,46 +3,48 @@
 @import '../../../shared/styles/colors';
 
 .weightSummaryContainer {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 14px;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 14px;
+  background-color: white;
+  border: 1px solid $border-color;
 
-    .weightSummaryHeading {
-        @include u-font-size('body', '3xs');
-        @include u-text('bold');
-        @include u-margin-top(0);
-        @include u-margin-bottom(.5);
-        color: $base-darkest;
-    }
+  .weightSummaryHeading {
+    @include u-font-size('body', '3xs');
+    @include u-text('bold');
+    @include u-margin-top(0);
+    @include u-margin-bottom(0.5);
+    color: $base-darker;
+  }
 
-    .marginBottom {
-      @include u-margin-bottom(2);
-    }
+  .marginBottom {
+    @include u-margin-bottom(2);
+  }
 
-    .weight {
-        text-align: right;
-        width: 102px;
-    }
+  .weight {
+    text-align: right;
+    width: 102px;
+  }
 
-    .noEdit {
-        width: 34px;
-    }
+  .noEdit {
+    width: 34px;
+  }
 
-    hr {
-        @include u-margin-top(0);
-        @include u-margin-bottom(.5);
-    }
+  hr {
+    @include u-margin-top(0);
+    @include u-margin-bottom(0.5);
+  }
 
-    svg {
-        float: left;
-        height: 25px;
-    }
+  svg {
+    float: left;
+    height: 25px;
+  }
 
-    .warningFlag {
-        color: $warning;
-    }
+  .warningFlag {
+    color: $warning;
+  }
 
-    .errorFlag {
-        color: $error;
-    }
+  .errorFlag {
+    color: $error;
+  }
 }

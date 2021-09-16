@@ -24,6 +24,21 @@ func NewExcessWeightRiskManager(router services.MoveRouter) services.ExcessWeigh
 	return &excessWeightRiskManager{router}
 }
 
+// UpdateMaxBillableWeightAsTIO updates the max billable weight as submitted by a TIO
+func (f *excessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, remarks *string, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
+
+	existingETag := etag.GenerateEtag(order.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	return f.updateMaxBillableWeightWithTIORemarks(appCtx, *order, weight, remarks, CheckRequiredFields())
+}
+
 // UpdateBillableWeightAsTOO updates the max billable weight as submitted by a TOO
 func (f *excessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error) {
 	order, err := f.findOrder(appCtx, orderID)
@@ -127,6 +142,55 @@ func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppCont
 	return &order, move.ID, nil
 }
 
+func (f *excessWeightRiskManager) updateMaxBillableWeightWithTIORemarks(appCtx appcontext.AppContext, order models.Order, weight *int, remarks *string, checks ...Validator) (*models.Order, uuid.UUID, error) {
+	if verr := ValidateOrder(&order, checks...); verr != nil {
+		return nil, uuid.Nil, verr
+	}
+
+	move := order.Moves[0]
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := f.updateAuthorizedWeight(txnAppCtx, order, weight); err != nil {
+			return err
+		}
+
+		updatedMove, err := f.updateMaxBillableWeightTIORemarks(txnAppCtx, move, remarks)
+		if err != nil {
+			return err
+		}
+
+		updatedMove, err = f.acknowledgeExcessWeight(txnAppCtx, *updatedMove)
+		if err != nil {
+			return err
+		}
+
+		_, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		if err != nil {
+			return err
+		}
+
+		order.Moves[0] = *updatedMove
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, uuid.Nil, transactionError
+	}
+
+	return &order, move.ID, nil
+}
+
+func (f *excessWeightRiskManager) updateMaxBillableWeightTIORemarks(appCtx appcontext.AppContext, move models.Move, remarks *string) (*models.Move, error) {
+	move.TIORemarks = remarks
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+	if e := f.handleError(move.ID, verrs, err); e != nil {
+		return &move, e
+	}
+
+	return &move, nil
+}
+
 func (f *excessWeightRiskManager) updateAuthorizedWeight(appCtx appcontext.AppContext, order models.Order, weight *int) error {
 	order.Entitlement.DBAuthorizedWeight = weight
 	verrs, err := appCtx.DB().ValidateAndUpdate(order.Entitlement)
@@ -174,8 +238,8 @@ func (f *excessWeightRiskManager) moveShouldBeApproved(order models.Order) bool 
 	move := order.Moves[0]
 
 	return excessWeightRiskShouldBeAcknowledged(move) &&
-		moveHasAcknowledgedOrdersAmendment(order) &&
-		moveHasReviewedServiceItems(move)
+		MoveHasAcknowledgedOrdersAmendment(order) &&
+		MoveHasReviewedServiceItems(move)
 }
 
 func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
@@ -189,14 +253,17 @@ func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate
 	return nil
 }
 
-func moveHasAcknowledgedOrdersAmendment(order models.Order) bool {
+// MoveHasAcknowledgedOrdersAmendment checks if the TOO has acknowledged amended orders
+func MoveHasAcknowledgedOrdersAmendment(order models.Order) bool {
 	if order.UploadedAmendedOrdersID != nil && order.AmendedOrdersAcknowledgedAt == nil {
 		return false
 	}
 	return true
 }
 
-func moveHasReviewedServiceItems(move models.Move) bool {
+// MoveHasReviewedServiceItems checks if the TOO still needs to accept or reject
+// service items
+func MoveHasReviewedServiceItems(move models.Move) bool {
 	for _, mtoServiceItem := range move.MTOServiceItems {
 		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
 			return false

@@ -11,6 +11,7 @@ describe('ShipmentCard', () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const defaultProps = {
       billableWeight: 4014,
+      maxBillableWeight: 0,
       dateReweighRequested: new Date().toISOString(),
       departedDate: tomorrow.toISOString(),
       pickupAddress: {

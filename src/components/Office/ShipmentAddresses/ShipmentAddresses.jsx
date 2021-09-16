@@ -6,8 +6,8 @@ import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../types/address';
 import { formatAddress } from '../../../utils/shipmentDisplay';
-import DataPointGroup from '../../DataPointGroup/index';
-import DataPoint from '../../DataPoint/index';
+import DataTableWrapper from '../../DataTableWrapper/index';
+import DataTable from '../../DataTable/index';
 
 import styles from './ShipmentAddresses.module.scss';
 
@@ -23,8 +23,8 @@ const ShipmentAddresses = ({
   shipmentInfo,
 }) => {
   return (
-    <DataPointGroup className={classnames('maxw-tablet', styles.mtoShipmentAddresses)}>
-      <DataPoint
+    <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentAddresses)}>
+      <DataTable
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
@@ -42,12 +42,12 @@ const ShipmentAddresses = ({
         dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
-      <DataPoint
+      <DataTable
         columnHeaders={["Customer's addresses", '']}
         dataRow={[formatAddress(pickupAddress), formatAddress(destinationAddress)]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
-    </DataPointGroup>
+    </DataTableWrapper>
   );
 };
 

@@ -40,6 +40,7 @@ type createPaymentRequestHandlerSubtestData struct {
 	paymentRequestID uuid.UUID
 	serviceItemID1   uuid.UUID
 	serviceItemID2   uuid.UUID
+	serviceItemID3   uuid.UUID
 	requestUser      models.User
 }
 
@@ -71,6 +72,16 @@ func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestData() (subtest
 		},
 	})
 
+	subtestData.serviceItemID3, _ = uuid.FromString("d01a9002-7ce5-4c07-9187-c00de15293ed")
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:     models.ReServiceCodeDOASIT,
+			Priority: 99,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			ID: subtestData.serviceItemID3,
+		},
+	})
 	return subtestData
 }
 
@@ -112,6 +123,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 					},
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
+					},
+					{
+						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
 					},
 				},
 				PointOfContact: "user@prime.com",
@@ -179,7 +193,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
-	suite.Run("fail to create payment request adding service item params passed into payload", func() {
+	suite.Run("successfully create payment request with service item params passed into payload", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 		returnedPaymentRequest := models.PaymentRequest{
 			ID:                   subtestData.paymentRequestID,
@@ -189,7 +203,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			UpdatedAt:            time.Now(),
 			PaymentServiceItems: []models.PaymentServiceItem{
 				{
-					ID: subtestData.serviceItemID1,
+					ID: subtestData.serviceItemID3,
 				},
 			},
 		}
@@ -214,11 +228,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
-						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
+						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
 						Params: []*primemessages.ServiceItemParamsItems0{
 							{
-								Key:   "weight",
-								Value: "5678",
+								Key:   string(models.ServiceItemParamNameSITPaymentRequestStart),
+								Value: "2021-08-05",
 							},
 						},
 					},
@@ -227,7 +241,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
 	suite.Run("failed create payment request -- nil body", func() {

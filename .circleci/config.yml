@@ -132,9 +132,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for exp env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -151,9 +151,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for stg env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_prd:
     steps:
@@ -170,9 +170,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -1572,7 +1572,7 @@ jobs:
       - deploy_webhook_client_steps:
           ecr_env: demo
 
- # `deploy_exp_migrations` deploys migrations to the exp environment
+  # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
     environment:

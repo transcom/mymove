@@ -8,9 +8,8 @@ import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 import { selectServiceMemberForOrders, updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { formatDate } from 'shared/formatters';
-
-import { editablePanelify, PanelField, PanelSwaggerField, SwaggerValue } from 'shared/EditablePanel';
-import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { createModifiedSchemaForOrdersTypesFlag } from 'utils/featureFlags';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 

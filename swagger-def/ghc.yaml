@@ -14,7 +14,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - name: order
+  - $ref: 'tags/order.yaml'
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -363,6 +363,46 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders/{orderID}/update-max-billable-weight/tio':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates the max billable weight with TIO remarks
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
+      operationId: updateMaxBillableWeightAsTIO
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
+        - $ref: 'parameters/ifMatch.yaml'
+      responses:
+        '200':
+          description: updated Order
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
@@ -562,6 +602,8 @@ paths:
           description: Successfully retrieved all mto shipments for a move task order
           schema:
             $ref: '#/definitions/MTOShipments'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -909,6 +951,50 @@ paths:
       description: Requests a shipment reweigh
       operationId: requestShipmentReweigh
       summary: Requests a shipment reweigh
+  '/shipments/{shipmentID}/sit-extensions/':
+    post:
+      summary: Create an approved SIT extension
+      description: TOO can creates an already-approved SIT extension on behalf of a customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createSitExtensionAsTOO
+      tags:
+        - shipment
+        - sitExtension
+      parameters:
+        - description: ID of the shipment
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateSITExtensionAsTOO'
+          required: true
+        - in: header
+          description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully created a SIT Extension.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
     parameters:
       - description: ID of the shipment
@@ -2226,6 +2312,10 @@ definitions:
         format: date-time
         description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
         x-nullable: true
+      tioRemarks:
+        type: string
+        example: approved additional weight
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -2331,6 +2421,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2527,6 +2619,25 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+  UpdateMaxBillableWeightAsTIOPayload:
+    type: object
+    properties:
+      authorizedWeight:
+        description: unit is in lbs
+        example: 2000
+        minimum: 1
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      tioRemarks:
+        description: TIO remarks for updating the max billable weight
+        example: Increasing max billable weight
+        type: string
+        minLength: 1
+        x-nullable: true
+    required:
+      - authorizedWeight
+      - tioRemarks
   CounselingUpdateAllowancePayload:
     type: object
     properties:
@@ -2863,6 +2974,8 @@ definitions:
       - ServiceAreaOrigin
       - ServicesScheduleDest
       - ServicesScheduleOrigin
+      - SITPaymentRequestEnd
+      - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
       - WeightAdjusted
@@ -2911,6 +3024,30 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  SITStatus:
+    properties:
+      location:
+        enum:
+          - 'ORIGIN'
+          - 'DESTINATION'
+      totalSITDaysUsed:
+        type: integer
+        minimum: 0
+      totalDaysRemaining:
+        type: integer
+        minimum: 0
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      pastSITServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -3017,6 +3154,8 @@ definitions:
         x-nullable: true
       sitExtensions:
         $ref: '#/definitions/SitExtensions'
+      sitStatus:
+        $ref: '#/definitions/SITStatus'
       eTag:
         type: string
       billableWeightCap:
@@ -3233,6 +3372,33 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
+  CreateSITExtensionAsTOO:
+    properties:
+      requestReason:
+        description: Reason from service counselor-provided picklist for SIT extension
+        example: 'AWAITING_COMPLETION_OF_RESIDENCE'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      approvedDays:
+        description: Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
+        type: integer
+        example: 21
+        minimum: 1
+      officeRemarks:
+        description: Remarks from TOO about SIT extension creation
+        type: string
+        example: Customer needs additional storage time as their new place of residence is not yet ready
+        x-nullable: true
+    required:
+      - requestReason
+      - approvedDays
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -3294,6 +3460,14 @@ definitions:
       SITPostalCode:
         type: string
         readOnly: true
+        x-nullable: true
+      sitEntryDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitDepartureDate:
+        type: string
+        format: date-time
         x-nullable: true
       feeType:
         enum:

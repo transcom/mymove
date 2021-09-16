@@ -52,10 +52,12 @@ function MaxBillableWeightHintText({ weightAllowance, estimatedWeight }) {
   return (
     <>
       <div>
-        <strong>{formatWeight(weightAllowance)}</strong> <span>| weight allowance</span>
+        <strong data-testid="maxWeight-weightAllowance">{formatWeight(weightAllowance)}</strong>{' '}
+        <span>| weight allowance</span>
       </div>
       <div className={styles.hintText}>
-        <strong>{formatWeight(estimatedWeight * 1.1)}</strong> <span>| 110% of total estimated weight</span>
+        <strong data-testid="maxWeight-estimatedWeight">{formatWeight(estimatedWeight * 1.1)}</strong>{' '}
+        <span>| 110% of total estimated weight</span>
       </div>
     </>
   );
@@ -88,7 +90,7 @@ export default function EditBillableWeight({
   };
 
   return (
-    <>
+    <div className={styles.wrapper}>
       <h4 className={styles.header}>{title}</h4>
       {showEditBtn ? (
         <>
@@ -118,7 +120,7 @@ export default function EditBillableWeight({
           )}
 
           <Fieldset className={styles.fieldset}>
-            <TextInput className={styles.maxBillableWeight} type="number" /> lbs
+            <TextInput className={styles.maxBillableWeight} type="number" defaultValue={maxBillableWeight} /> lbs
             <Label htmlFor="remarks">Remarks</Label>
             <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
           </Fieldset>
@@ -130,7 +132,7 @@ export default function EditBillableWeight({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -138,7 +140,7 @@ EditBillableWeight.propTypes = {
   billableWeight: number,
   billableWeightJustification: string,
   estimatedWeight: number,
-  maxBillableWeight: number.isRequired,
+  maxBillableWeight: number,
   originalWeight: number,
   title: string.isRequired,
   totalBillableWeight: number,
@@ -151,5 +153,6 @@ EditBillableWeight.defaultProps = {
   originalWeight: null,
   totalBillableWeight: null,
   weightAllowance: null,
+  maxBillableWeight: null,
   billableWeightJustification: '',
 };

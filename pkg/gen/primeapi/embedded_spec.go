@@ -2526,8 +2526,7 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          },
-          "readOnly": true
+          }
         }
       }
     },
@@ -2586,6 +2585,8 @@ func init() {
         "ServiceAreaOrigin",
         "ServicesScheduleDest",
         "ServicesScheduleOrigin",
+        "SITPaymentRequestEnd",
+        "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
         "WeightAdjusted",
@@ -5772,8 +5773,7 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/ServiceItemParamsItems0"
-          },
-          "readOnly": true
+          }
         }
       }
     },
@@ -5832,6 +5832,8 @@ func init() {
         "ServiceAreaOrigin",
         "ServicesScheduleDest",
         "ServicesScheduleOrigin",
+        "SITPaymentRequestEnd",
+        "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
         "WeightAdjusted",

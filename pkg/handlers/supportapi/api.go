@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
@@ -103,6 +104,17 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
 		// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
 		// is called directly in the handler
+	}
+
+	supportAPI.PaymentRequestRecalculatePaymentRequestHandler = RecalculatePaymentRequestHandler{
+		HandlerContext: ctx,
+		PaymentRequestRecalculator: paymentrequest.NewPaymentRequestRecalculator(
+			paymentrequest.NewPaymentRequestCreator(
+				ctx.GHCPlanner(),
+				ghcrateengine.NewServiceItemPricer(),
+			),
+			paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		),
 	}
 
 	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
