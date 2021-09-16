@@ -189,50 +189,6 @@ func (o *CreateExcessWeightRecordNotFound) WriteResponse(rw http.ResponseWriter,
 	}
 }
 
-// CreateExcessWeightRecordPreconditionFailedCode is the HTTP code returned for type CreateExcessWeightRecordPreconditionFailed
-const CreateExcessWeightRecordPreconditionFailedCode int = 412
-
-/*CreateExcessWeightRecordPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
-
-swagger:response createExcessWeightRecordPreconditionFailed
-*/
-type CreateExcessWeightRecordPreconditionFailed struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *primemessages.ClientError `json:"body,omitempty"`
-}
-
-// NewCreateExcessWeightRecordPreconditionFailed creates CreateExcessWeightRecordPreconditionFailed with default headers values
-func NewCreateExcessWeightRecordPreconditionFailed() *CreateExcessWeightRecordPreconditionFailed {
-
-	return &CreateExcessWeightRecordPreconditionFailed{}
-}
-
-// WithPayload adds the payload to the create excess weight record precondition failed response
-func (o *CreateExcessWeightRecordPreconditionFailed) WithPayload(payload *primemessages.ClientError) *CreateExcessWeightRecordPreconditionFailed {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create excess weight record precondition failed response
-func (o *CreateExcessWeightRecordPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateExcessWeightRecordPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(412)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // CreateExcessWeightRecordUnprocessableEntityCode is the HTTP code returned for type CreateExcessWeightRecordUnprocessableEntity
 const CreateExcessWeightRecordUnprocessableEntityCode int = 422
 

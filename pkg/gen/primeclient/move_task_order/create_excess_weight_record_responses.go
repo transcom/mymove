@@ -47,12 +47,6 @@ func (o *CreateExcessWeightRecordReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
-	case 412:
-		result := NewCreateExcessWeightRecordPreconditionFailed()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 422:
 		result := NewCreateExcessWeightRecordUnprocessableEntity()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -187,38 +181,6 @@ func (o *CreateExcessWeightRecordNotFound) GetPayload() *primemessages.ClientErr
 }
 
 func (o *CreateExcessWeightRecordNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(primemessages.ClientError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewCreateExcessWeightRecordPreconditionFailed creates a CreateExcessWeightRecordPreconditionFailed with default headers values
-func NewCreateExcessWeightRecordPreconditionFailed() *CreateExcessWeightRecordPreconditionFailed {
-	return &CreateExcessWeightRecordPreconditionFailed{}
-}
-
-/* CreateExcessWeightRecordPreconditionFailed describes a response with status code 412, with default header values.
-
-Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
-*/
-type CreateExcessWeightRecordPreconditionFailed struct {
-	Payload *primemessages.ClientError
-}
-
-func (o *CreateExcessWeightRecordPreconditionFailed) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/excess-weight-record][%d] createExcessWeightRecordPreconditionFailed  %+v", 412, o.Payload)
-}
-func (o *CreateExcessWeightRecordPreconditionFailed) GetPayload() *primemessages.ClientError {
-	return o.Payload
-}
-
-func (o *CreateExcessWeightRecordPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 
