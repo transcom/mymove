@@ -109,6 +109,26 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 		appCtx, moveID, file.Data, file.Header.Filename, models.UploadTypePRIME)
 	if err != nil {
 		logger.Error("primeapi.CreateExcessWeightRecord error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewCreateExcessWeightRecordNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.InvalidCreateInputError:
+			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				logger.Error("primeapi.CreateExcessWeightRecord QueryError", zap.Error(e.Unwrap()))
+			}
+			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		default:
+			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		}
 	}
 
 	payload := payloads.ExcessWeightRecord(h.FileStorer(), excessWeightRecord)
