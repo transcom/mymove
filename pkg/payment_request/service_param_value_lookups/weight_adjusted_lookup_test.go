@@ -9,10 +9,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightAdjustedLookup() {
 	key := models.ServiceItemParamNameWeightAdjusted
 
 	suite.Run("adjusted weight is present on MTO Shipment", func() {
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithAdjustedWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithAdjustedWeight(unit.Pound(1000), unit.Pound(2000), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
-		suite.Equal("1234", valueStr)
+		suite.Equal("1000", valueStr)
 	})
 
 	suite.Run("nil AdjustedWeight should not cause an error", func() {
