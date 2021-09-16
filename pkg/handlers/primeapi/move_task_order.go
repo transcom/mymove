@@ -15,13 +15,13 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
+// ListMovesHandler lists movess with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
-// Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
+// Handle fetches all moves with the option to filter since a particular date. Optimized version.
 func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
@@ -44,21 +44,13 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return movetaskorderops.NewListMovesOK().WithPayload(payload)
 }
 
-// UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
-type UpdateMTOPostCounselingInformationHandler struct {
-	handlers.HandlerContext
-	services.Fetcher
-	services.MoveTaskOrderUpdater
-	mtoAvailabilityChecker services.MoveTaskOrderChecker
-}
-
-// GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
+// GetMoveTaskOrderHandlerFunc returns the details for a particular move
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle fetches an MTO from the database using its UUID or move code
+// Handle fetches a move from the database using its UUID or move code
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
@@ -90,7 +82,15 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
-// Handle updates to move task order post-counseling
+// UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
+type UpdateMTOPostCounselingInformationHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MoveTaskOrderUpdater
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
+}
+
+// Handle updates to move post-counseling
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
