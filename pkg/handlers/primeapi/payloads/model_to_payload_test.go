@@ -22,25 +22,31 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	hhgMoveType := models.SelectedMoveTypeHHG
+	excessWeightQualifiedAt := time.Now()
+	excessWeightAcknowledgedAt := time.Now()
+	excessWeightUploadID := uuid.Must(uuid.NewV4())
 
 	basicMove := models.Move{
-		ID:                      moveTaskOrderID,
-		Locator:                 "TESTTEST",
-		CreatedAt:               time.Now(),
-		AvailableToPrimeAt:      &primeTime,
-		OrdersID:                ordersID,
-		Orders:                  models.Order{},
-		ReferenceID:             &referenceID,
-		PaymentRequests:         models.PaymentRequests{},
-		SubmittedAt:             &submittedAt,
-		UpdatedAt:               time.Now(),
-		SelectedMoveType:        &hhgMoveType,
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{},
-		MoveDocuments:           models.MoveDocuments{},
-		Status:                  models.MoveStatusAPPROVED,
-		SignedCertifications:    models.SignedCertifications{},
-		MTOServiceItems:         models.MTOServiceItems{},
-		MTOShipments:            models.MTOShipments{},
+		ID:                         moveTaskOrderID,
+		Locator:                    "TESTTEST",
+		CreatedAt:                  time.Now(),
+		AvailableToPrimeAt:         &primeTime,
+		OrdersID:                   ordersID,
+		Orders:                     models.Order{},
+		ReferenceID:                &referenceID,
+		PaymentRequests:            models.PaymentRequests{},
+		SubmittedAt:                &submittedAt,
+		UpdatedAt:                  time.Now(),
+		SelectedMoveType:           &hhgMoveType,
+		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
+		MoveDocuments:              models.MoveDocuments{},
+		Status:                     models.MoveStatusAPPROVED,
+		SignedCertifications:       models.SignedCertifications{},
+		MTOServiceItems:            models.MTOServiceItems{},
+		MTOShipments:               models.MTOShipments{},
+		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
+		ExcessWeightUploadID:       &excessWeightUploadID,
 	}
 
 	suite.T().Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func(t *testing.T) {
@@ -55,6 +61,10 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
+		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
+		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 	})
 }
 

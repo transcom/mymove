@@ -26,17 +26,20 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 
 	payload := &primemessages.MoveTaskOrder{
-		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveCode:           moveTaskOrder.Locator,
-		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:              Order(&moveTaskOrder.Orders),
-		ReferenceID:        *moveTaskOrder.ReferenceID,
-		PaymentRequests:    *paymentRequests,
-		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveCode:                   moveTaskOrder.Locator,
+		CreatedAt:                  strfmt.DateTime(moveTaskOrder.CreatedAt),
+		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
+		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                      Order(&moveTaskOrder.Orders),
+		ReferenceID:                *moveTaskOrder.ReferenceID,
+		PaymentRequests:            *paymentRequests,
+		MtoShipments:               *mtoShipments,
+		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {

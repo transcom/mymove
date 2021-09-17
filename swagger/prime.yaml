@@ -1498,6 +1498,24 @@ definitions:
           - PARTIAL
       ppmEstimatedWeight:
         type: integer
+      excessWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightUploadId:
+        type: string
+        format: uuid
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       eTag:
         type: string
         readOnly: true

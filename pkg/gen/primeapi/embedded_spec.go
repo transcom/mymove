@@ -2182,6 +2182,27 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightUploadId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -5543,6 +5564,27 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightUploadId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "id": {
