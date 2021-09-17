@@ -960,9 +960,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found.
-          schema:
-            $ref: '#/definitions/ClientError'
+          $ref: '#/responses/NotFound'
         '409':
           $ref: '#/responses/Conflict'
         '422':
@@ -2793,10 +2791,6 @@ responses:
     description: The request payload is invalid.
     schema:
       $ref: '#/definitions/ClientError'
-  PermissionDenied:
-    description: The request was denied.
-    schema:
-      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -2815,6 +2809,10 @@ responses:
     description: The payload was unprocessable.
     schema:
       $ref: '#/definitions/ValidationError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
     schema:

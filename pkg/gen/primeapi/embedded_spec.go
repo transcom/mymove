@@ -902,10 +902,7 @@ func init() {
             "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
             "$ref": "#/responses/Conflict"

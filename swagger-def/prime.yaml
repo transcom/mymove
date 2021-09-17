@@ -61,9 +61,9 @@ paths:
           schema:
             $ref: '#/definitions/ListMoves'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /move-task-orders/{moveID}:
@@ -91,9 +91,9 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '500':
@@ -130,9 +130,9 @@ paths:
           schema:
             $ref: 'definitions/ExcessWeightRecord.yaml'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '422':
@@ -190,9 +190,9 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '412':
@@ -280,9 +280,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '412':
@@ -344,9 +344,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -398,9 +398,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -458,9 +458,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '412':
@@ -520,9 +520,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -568,9 +568,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -674,9 +674,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -726,9 +726,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '409':
@@ -769,13 +769,11 @@ paths:
           schema:
             $ref: '#/definitions/ClientError'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
-          description: The requested resource wasn't found.
-          schema:
-            $ref: '#/definitions/ClientError'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
@@ -819,9 +817,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '403':
-          $ref: '#/responses/PermissionDenied'
+          $ref: 'responses/PermissionDenied.yaml'
         '404':
           $ref: 'responses/NotFound.yaml'
         '422':
@@ -2401,10 +2399,6 @@ definitions:
 responses:
   InvalidRequest:
     description: The request payload is invalid.
-    schema:
-      $ref: '#/definitions/ClientError'
-  PermissionDenied:
-    description: The request was denied.
     schema:
       $ref: '#/definitions/ClientError'
   ServerError:
