@@ -2,6 +2,7 @@ import React from 'react';
 import { string, arrayOf, func, shape, number } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './BillableWeightCard.module.scss';
 
@@ -19,7 +20,17 @@ export default function BillableWeightCard({
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
-        <h2>Billable weights</h2>
+        <div>
+          <h2>Billable weights</h2>
+          {totalBillableWeight > maxBillableWeight && (
+            <div>
+              <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
+              <span data-testid="maxBillableWeightErrorText" className={styles.errorText}>
+                Move exceeds max billable weight
+              </span>
+            </div>
+          )}
+        </div>
         <Button onClick={onReviewWeights}>Review weights</Button>
       </div>
       <div className={styles.spaceBetween}>

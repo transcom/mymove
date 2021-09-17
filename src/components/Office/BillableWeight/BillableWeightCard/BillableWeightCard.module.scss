@@ -84,4 +84,14 @@
   .shipmentList button {
     margin-bottom: 10px;
   }
+
+  .errorFlag {
+    color: $error;
+    @include u-margin-right(.5);
+  }
+
+  .errorText {
+    color: $error-dark;
+    font-weight: bold;
+  }
 }

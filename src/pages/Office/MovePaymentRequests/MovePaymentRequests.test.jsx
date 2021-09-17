@@ -492,9 +492,23 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('a billable weight', () => {
+  describe('a billable weight that does not exceed the max billable weight', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+    });
+
+    it('does not show the max billable weight tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.queryByTestId('maxBillableWeightErrorTag')).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not show the max billable weight error text in the billable weight card', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.queryByText('Move exceeds max billable weight')).not.toBeInTheDocument();
+      });
     });
 
     it('navigates the user to the reivew billable weight page', async () => {
@@ -506,6 +520,26 @@ describe('MovePaymentRequests', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/billable-weight');
+      });
+    });
+  });
+
+  describe('a billable weight that exceeds the max billable weight', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    });
+
+    it('shows the max billable weight tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByTestId('maxBillableWeightErrorTag')).toBeInTheDocument();
+      });
+    });
+
+    it('shows the max billable weight error text in the billable weight card', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByText('Move exceeds max billable weight')).toBeInTheDocument();
       });
     });
   });
