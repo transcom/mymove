@@ -179,7 +179,8 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 
 		okResponse := response.(*movetaskorderops.CreateExcessWeightRecordCreated)
 		suite.Equal(availableMove.ID.String(), okResponse.Payload.MoveID.String())
-		suite.True(okResponse.Payload.MoveExcessWeightQualifiedAt.Equal(strfmt.DateTime(*availableMove.ExcessWeightQualifiedAt)))
+		suite.NotNil(okResponse.Payload.MoveExcessWeightQualifiedAt)
+		suite.True(strfmt.DateTime(*availableMove.ExcessWeightQualifiedAt).Equal(*okResponse.Payload.MoveExcessWeightQualifiedAt))
 		suite.NotEmpty(okResponse.Payload.ID)
 	})
 
