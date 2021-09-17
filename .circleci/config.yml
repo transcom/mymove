@@ -19,34 +19,40 @@ references:
 
   # set demo-branch to the branch you want to deploy to demo, or
   # `placeholder_branch_name` if you don't want to deploy to demo
+  #
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for demo deploys. See the branch settings below.
   demo-branch: &demo-branch placeholder_branch_name
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
+  #
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for exp deploys. See the branch settings below.
   exp-branch: &exp-branch placeholder_branch_name
 
-  # set acceptance-branch to the branch you want run acceptance tests
-  # on, or `placeholder_branch_name` if you don't want to run them
+  # set acceptance-branch to the branch you want to ENABLE acceptance
+  # tests, or `placeholder_branch_name` if you don't want to run them
   acceptance-branch: &acceptance-branch placeholder_branch_name
 
-  # set integration-ignore-branch to the branch if you don't want to
-  # run integration tests, or `placeholder_branch_name` if you do want
-  # to run them
+  # set integration-ignore-branch to the branch if you want to IGNORE
+  # integration tests, or `placeholder_branch_name` if you do want to
+  # run them
   integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
-  # set integration-mtls-ignore-branch to the branch if you don't want to
-  # run integration tests, or `placeholder_branch_name` if you do want
-  # to run them
+  # set integration-mtls-ignore-branch to the branch if you want to
+  # IGNORE mtls integration tests, or `placeholder_branch_name` if you
+  # do want to run them
   integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
-  # set client-ignore-branch to the branch if you don't want to
-  # run client tests, or `placeholder_branch_name` if you do want
-  # to run them
+  # set client-ignore-branch to the branch if you want to IGNORE
+  # client tests, or `placeholder_branch_name` if you do want to run
+  # them
   client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
-  # set server-ignore-branch to the branch if you don't want to
-  # run client tests, or `placeholder_branch_name` if you do want
-  # to run them
+  # set server-ignore-branch to the branch if you want to IGNORE
+  # server tests, or `placeholder_branch_name` if you do want to run
+  # them
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
@@ -1824,7 +1830,8 @@ workflows:
       - acceptance_tests:
           requires:
             - pre_deps_golang
-          # if testing on experimental or demo, you can enable these tests by using your branch name here
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
               only: *acceptance-branch
@@ -1838,7 +1845,8 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental or demo, you can disable these tests by using your branch name here
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
               ignore: *integration-ignore-branch
@@ -1851,7 +1859,8 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental or demo, you can disable these tests by using your branch name here
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
               ignore: *integration-mtls-ignore-branch
@@ -1859,7 +1868,8 @@ workflows:
       - client_test:
           requires:
             - pre_deps_yarn
-          # if testing on experimental or demo, you can disable these tests by using your branch name here
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
               ignore: *client-ignore-branch
@@ -1867,7 +1877,8 @@ workflows:
       - server_test:
           requires:
             - pre_deps_golang
-          # if testing on experimental or demo, you can disable these tests by using your branch name here
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
               ignore: *server-ignore-branch
