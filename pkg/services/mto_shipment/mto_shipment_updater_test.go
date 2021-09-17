@@ -1126,7 +1126,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		actualWeight := unit.Pound(7200)
 		primeShipment.PrimeActualWeight = &actualWeight
 
-		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(nil)
+		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(models.MTOShipments{}, nil)
 
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
