@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -197,12 +198,13 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, m
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
 	router.logMove(appCtx, move)
-	if router.approvable(move) {
-		move.Status = models.MoveStatusAPPROVED
-		appCtx.Logger().Info("SUCCESS: Move approved")
+	if router.alreadyApproved(move) {
 		return nil
 	}
-	if router.alreadyApproved(move) {
+
+	if currentStatusApprovable(*move) {
+		move.Status = models.MoveStatusAPPROVED
+		appCtx.Logger().Info("SUCCESS: Move approved")
 		return nil
 	}
 
@@ -223,8 +225,15 @@ func (router moveRouter) alreadyApproved(move *models.Move) bool {
 	return move.Status == models.MoveStatusAPPROVED
 }
 
-func (router moveRouter) approvable(move *models.Move) bool {
+func currentStatusApprovable(move models.Move) bool {
 	return statusSliceContains(validStatusesBeforeApproval, move.Status)
+}
+
+func approvable(move models.Move) bool {
+	return moveHasReviewedServiceItems(move) &&
+		moveHasAcknowledgedOrdersAmendment(move.Orders) &&
+		moveHasAcknowledgedExcessWeightRisk(move) &&
+		allSITExtensionsAreReviewed(move)
 }
 
 func statusSliceContains(statusSlice []models.MoveStatus, status models.MoveStatus) bool {
@@ -240,6 +249,44 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 	models.MoveStatusSUBMITTED,
 	models.MoveStatusAPPROVALSREQUESTED,
 	models.MoveStatusServiceCounselingCompleted,
+}
+
+func moveHasAcknowledgedOrdersAmendment(order models.Order) bool {
+	if order.UploadedAmendedOrdersID != nil && order.AmendedOrdersAcknowledgedAt == nil {
+		return false
+	}
+	return true
+}
+
+func moveHasReviewedServiceItems(move models.Move) bool {
+	for _, mtoServiceItem := range move.MTOServiceItems {
+		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+			return false
+		}
+	}
+
+	return true
+}
+
+func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
+	// If the move hasn't been flagged for being at risk of excess weight, then
+	// we don't need to check if the risk has been acknowledged.
+	if move.ExcessWeightQualifiedAt == nil {
+		return true
+	}
+	return move.ExcessWeightAcknowledgedAt != nil
+}
+
+func allSITExtensionsAreReviewed(move models.Move) bool {
+	for _, shipment := range move.MTOShipments {
+		for _, sitExtension := range shipment.SITExtensions {
+			if sitExtension.Status == models.SITExtensionStatusPending {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // SendToOfficeUser sets the moves status to
@@ -357,6 +404,44 @@ func (router moveRouter) ApproveAmendedOrders(appCtx appcontext.AppContext, move
 	}
 
 	return move, nil
+}
+
+// ApproveOrRequestApproval routes the move appropriately based on whether or
+// not the TOO has any tasks requiring their attention.
+func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
+	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders", "MTOShipments.SITExtensions").Find(&move, move.ID)
+	if err != nil {
+		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
+		return nil, err
+	}
+
+	if approvable(move) {
+		err = router.Approve(appCtx, &move)
+	} else {
+		err = router.SendToOfficeUser(appCtx, &move)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+	if e := handleError(move.ID, verrs, err); e != nil {
+		return nil, e
+	}
+
+	return &move, nil
+}
+
+func handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+	if verrs != nil && verrs.HasAny() {
+		return services.NewInvalidInputError(modelID, nil, verrs, "")
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (router moveRouter) logMove(appCtx appcontext.AppContext, move *models.Move) {

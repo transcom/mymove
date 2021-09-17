@@ -228,13 +228,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionApprover(),
+		mtoshipment.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionDenier(),
+		mtoshipment.NewSITExtensionDenier(moveRouter),
 		shipmentSITStatus,
 	}
 

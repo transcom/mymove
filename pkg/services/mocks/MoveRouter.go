@@ -51,6 +51,29 @@ func (_m *MoveRouter) ApproveAmendedOrders(appCtx appcontext.AppContext, moveID 
 	return r0, r1
 }
 
+// ApproveOrRequestApproval provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
+	ret := _m.Called(appCtx, move)
+
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Move) *models.Move); ok {
+		r0 = rf(appCtx, move)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.Move) error); ok {
+		r1 = rf(appCtx, move)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Cancel provides a mock function with given fields: appCtx, reason, move
 func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
 	ret := _m.Called(appCtx, reason, move)
