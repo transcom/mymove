@@ -3153,7 +3153,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: 'definitions/SITExtensions/SITExtensions.yaml'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3168,54 +3168,6 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
-  SitExtensions:
-    items:
-      $ref: '#/definitions/SitExtension'
-    type: array
-  SitExtension:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestReason:
-        enum:
-          - SERIOUS_ILLNESS_MEMBER
-          - SERIOUS_ILLNESS_DEPENDENT
-          - IMPENDING_ASSIGNEMENT
-          - DIRECTED_TEMPORARY_DUTY
-          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-          - AWAITING_COMPLETION_OF_RESIDENCE
-          - OTHER
-      contractorRemarks:
-        type: string
-      requestedDays:
-        type: integer
-      status:
-        enum:
-          - PENDING
-          - APPROVED
-          - DENIED
-      approvedDays:
-        type: integer
-      decisionDate:
-        format: date-time
-        type: string
-      officeRemarks:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
   UpdateShipment:
     type: object
     properties:

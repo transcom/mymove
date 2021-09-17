@@ -3219,7 +3219,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: '#/definitions/SITExtensions'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3234,54 +3234,6 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
-  SitExtensions:
-    items:
-      $ref: '#/definitions/SitExtension'
-    type: array
-  SitExtension:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestReason:
-        enum:
-          - SERIOUS_ILLNESS_MEMBER
-          - SERIOUS_ILLNESS_DEPENDENT
-          - IMPENDING_ASSIGNEMENT
-          - DIRECTED_TEMPORARY_DUTY
-          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-          - AWAITING_COMPLETION_OF_RESIDENCE
-          - OTHER
-      contractorRemarks:
-        type: string
-      requestedDays:
-        type: integer
-      status:
-        enum:
-          - PENDING
-          - APPROVED
-          - DENIED
-      approvedDays:
-        type: integer
-      decisionDate:
-        format: date-time
-        type: string
-      officeRemarks:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
   UpdateShipment:
     type: object
     properties:
@@ -3912,6 +3864,63 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  RequestReason:
+    enum:
+      - SERIOUS_ILLNESS_MEMBER
+      - SERIOUS_ILLNESS_DEPENDENT
+      - IMPENDING_ASSIGNEMENT
+      - DIRECTED_TEMPORARY_DUTY
+      - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+      - AWAITING_COMPLETION_OF_RESIDENCE
+      - OTHER
+  SITExtension:
+    type: object
+    description: >-
+      A storage in transit (SIT) Extension is a request for an increase in the
+      billable number of days a shipment is allowed to be in SIT.
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestReason:
+        $ref: '#/definitions/RequestReason'
+      contractorRemarks:
+        example: We need SIT additional days. The customer has not found a house yet.
+        type: string
+      requestedDays:
+        type: integer
+      status:
+        enum:
+          - PENDING
+          - APPROVED
+          - DENIED
+      approvedDays:
+        type: integer
+      decisionDate:
+        format: date-time
+        type: string
+      officeRemarks:
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+  SITExtensions:
+    type: array
+    items:
+      $ref: '#/definitions/SITExtension'
 responses:
   InvalidRequest:
     description: The request payload is invalid
