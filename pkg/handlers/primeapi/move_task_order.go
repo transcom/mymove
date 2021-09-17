@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// ListMovesHandler lists movess with the option to filter since a particular date. Optimized ver.
+// ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher

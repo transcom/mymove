@@ -154,7 +154,7 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	context.SetFileStorer(fakeS3)
 	handler := CreateExcessWeightRecordHandler{
 		context,
-		// Must us the Prime service object in particular:
+		// Must use the Prime service object in particular:
 		moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(context.FileStorer())),
 	}
 
