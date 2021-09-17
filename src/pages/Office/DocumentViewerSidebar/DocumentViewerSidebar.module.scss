@@ -37,7 +37,7 @@
     @include u-margin-top(0.5);
   }
 
-  header {
+  .header {
     display: flex;
     justify-content: space-between;
     @include u-padding-y(3);
@@ -69,7 +69,7 @@
     height: 100%;
   }
 
-  footer {
+  .footer {
     display: flex;
     align-items: center;
 

@@ -1,0 +1,23 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.contentContainer {
+    width: 336px;
+    background-color: $bg-white;
+    @include u-margin-bottom(2);
+}
+
+.footer {
+    position: 'fixed';
+    bottom: '0';
+    width: '100%';
+    background-color: $bg-white;
+}
+
+.flex {
+    display: flex;
+}
+
+.weightSummary {
+    @include u-margin-top(1.5);
+}

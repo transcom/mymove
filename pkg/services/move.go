@@ -1,6 +1,8 @@
 package services
 
 import (
+	"io"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -43,4 +45,16 @@ type MoveRouter interface {
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
 	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error
+}
+
+// MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move
+//go:generate mockery --name MoveExcessWeightUploader --disable-version-string
+type MoveExcessWeightUploader interface {
+	CreateExcessWeightUpload(
+		appCtx appcontext.AppContext,
+		moveID uuid.UUID,
+		file io.ReadCloser,
+		uploadFilename string,
+		uploadType models.UploadType,
+	) (*models.Move, error)
 }

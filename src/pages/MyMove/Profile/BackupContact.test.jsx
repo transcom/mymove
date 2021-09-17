@@ -1,8 +1,7 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedBackupContact, { BackupContact } from './BackupContact';
@@ -47,14 +46,17 @@ describe('BackupContact page', () => {
 
   it('back button goes to the BACKUP ADDRESS step', async () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
+    render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
-    const backButton = queryByText('Back');
+    const backButton = screen.getByText('Back');
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
+    await waitFor(() => {
+      expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
+    });
   });
+
   describe('if there is an existing backup contact', () => {
     it('next button submits the form and goes to the Home step', async () => {
       patchBackupContact.mockImplementation(() => Promise.resolve(testBackupContactValues));
@@ -108,6 +110,7 @@ describe('BackupContact page', () => {
       expect(testProps.push).not.toHaveBeenCalled();
     });
   });
+
   describe('if there is no existing backup contact', () => {
     it('next button submits the form and goes to the Home step', async () => {
       createBackupContactForServiceMember.mockImplementation(() => Promise.resolve(testBackupContactValues));
@@ -167,6 +170,7 @@ describe('BackupContact page', () => {
       expect(testProps.push).not.toHaveBeenCalled();
     });
   });
+
   afterEach(jest.resetAllMocks);
 });
 
@@ -190,7 +194,7 @@ describe('requireCustomerState BackupContact', () => {
     currentBackupContacts: [],
   };
 
-  it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -222,17 +226,20 @@ describe('requireCustomerState BackupContact', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupContact {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/backup-address'));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/backup-address'));
+    });
   });
 
-  it('does not redirect if the current state equals the "BACKUP MAILING ADDRESS COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -267,17 +274,20 @@ describe('requireCustomerState BackupContact', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupContact {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
+
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -317,13 +327,16 @@ describe('requireCustomerState BackupContact', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedBackupContact {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });

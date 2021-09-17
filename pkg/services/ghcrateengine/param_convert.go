@@ -93,6 +93,35 @@ func getParamTime(params models.PaymentServiceItemParams, name models.ServiceIte
 	return timeValue, nil
 }
 
+// GetParamTime exact duplicate of getParamTime, did want to do a bunch of refactoring be should definitely not have both of these.
+// just doing a proof of concept for the moment
+func GetParamTime(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (time.Time, error) {
+	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
+	if paymentServiceItemParam == nil {
+		return time.Time{}, fmt.Errorf("could not find param with key %s", name)
+	}
+
+	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
+	stringValue := paymentServiceItemParam.Value
+	var timeValue time.Time
+	var err error
+	if paramType == models.ServiceItemParamTypeDate {
+		timeValue, err = time.Parse(DateParamFormat, stringValue)
+		if err != nil {
+			return timeValue, fmt.Errorf("could not convert %s to date: %w", stringValue, err)
+		}
+	} else if paramType == models.ServiceItemParamTypeTimestamp {
+		timeValue, err = time.Parse(TimestampParamFormat, stringValue)
+		if err != nil {
+			return timeValue, fmt.Errorf("could not convert %s to timestamp: %w", stringValue, err)
+		}
+	} else {
+		return timeValue, fmt.Errorf("trying to convert %s to a time, but param is of type %s", name, paramType)
+	}
+
+	return timeValue, nil
+}
+
 func getPaymentServiceItemParam(params models.PaymentServiceItemParams, name models.ServiceItemParamName) *models.PaymentServiceItemParam {
 	for _, param := range params {
 		if param.ServiceItemParamKey.Key == name {

@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { push } from 'connected-react-router';
 
@@ -28,20 +27,16 @@ describe('Duty Station page', () => {
   };
 
   it('renders the CurrentDutyStationForm', async () => {
-    await waitFor(() => {
-      const wrapper = mount(<DutyStation {...testProps} />);
-      expect(wrapper.find('CurrentDutyStationForm').exists()).toBe(true);
-    });
+    render(<DutyStation {...testProps} />);
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Current duty station');
   });
 
   it('back button goes to the Contact Info step', async () => {
-    const { queryByText } = render(<DutyStation {...testProps} />);
+    render(<DutyStation {...testProps} />);
 
-    const backButton = queryByText('Back');
+    const backButton = await screen.findByText('Back');
 
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
+    expect(backButton).toBeInTheDocument();
 
     userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
@@ -69,7 +64,7 @@ describe('Duty Station page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(
+    render(
       <DutyStation
         {...testProps}
         serviceMember={testServiceMemberValues}
@@ -77,7 +72,7 @@ describe('Duty Station page', () => {
       />,
     );
 
-    const submitButton = queryByText('Next');
+    const submitButton = screen.getByText('Next');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -122,7 +117,7 @@ describe('Duty Station page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(
+    render(
       <DutyStation
         {...testProps}
         serviceMember={testServiceMemberValues}
@@ -130,7 +125,7 @@ describe('Duty Station page', () => {
       />,
     );
 
-    const submitButton = queryByText('Next');
+    const submitButton = screen.getByText('Next');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -138,7 +133,7 @@ describe('Duty Station page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
@@ -165,7 +160,7 @@ describe('requireCustomerState DutyStation', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "CONTACT INFO COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "CONTACT INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -188,17 +183,18 @@ describe('requireCustomerState DutyStation', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDutyStation {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/contact-info'));
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/contact-info'));
+    });
   });
 
-  it('does not redirect if the current state equals the "CONTACT INFO COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "CONTACT INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -224,16 +220,18 @@ describe('requireCustomerState DutyStation', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDutyStation {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
-  it('does not redirect if the current state is after the "CONTACT INFO COMPLETE" state and profile is not complete', () => {
+
+  it('does not redirect if the current state is after the "CONTACT INFO COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -268,17 +266,18 @@ describe('requireCustomerState DutyStation', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDutyStation {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -318,13 +317,14 @@ describe('requireCustomerState DutyStation', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDutyStation {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });
