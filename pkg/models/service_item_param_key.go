@@ -122,6 +122,10 @@ const (
 	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
 	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
 	ServiceItemParamNameServicesScheduleOrigin ServiceItemParamName = "ServicesScheduleOrigin"
+	// ServiceItemParamNameSITPaymentRequestEnd is the param key name SITPaymentRequestEnd
+	ServiceItemParamNameSITPaymentRequestEnd ServiceItemParamName = "SITPaymentRequestEnd"
+	// ServiceItemParamNameSITPaymentRequestStart is the param key name SITPaymentRequestStart
+	ServiceItemParamNameSITPaymentRequestStart ServiceItemParamName = "SITPaymentRequestStart"
 	// ServiceItemParamNameSITScheduleDest is the param key name SITScheduleDest
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
@@ -244,6 +248,8 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameServiceAreaOrigin,
 	ServiceItemParamNameServicesScheduleDest,
 	ServiceItemParamNameServicesScheduleOrigin,
+	ServiceItemParamNameSITPaymentRequestEnd,
+	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
 	ServiceItemParamNameWeightAdjusted,
@@ -312,6 +318,8 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
 	string(ServiceItemParamNameServicesScheduleOrigin),
+	string(ServiceItemParamNameSITPaymentRequestEnd),
+	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightAdjusted),

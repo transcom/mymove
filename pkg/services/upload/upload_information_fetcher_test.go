@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
+func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 	suite.T().Run("fetch office user upload", func(t *testing.T) {
 		email := "officeuser1@example.com"
 		ou := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{

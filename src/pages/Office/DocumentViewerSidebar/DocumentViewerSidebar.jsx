@@ -8,7 +8,7 @@ import styles from './DocumentViewerSidebar.module.scss';
 export default function DocumentViewerSidebar({ children, description, title, subtitle, onClose }) {
   return (
     <div className={styles.container}>
-      <header>
+      <header className={styles.header}>
         <div>
           <h1>{title}</h1>
           {subtitle && <h2>{subtitle}</h2>}
@@ -45,7 +45,7 @@ DocumentViewerSidebar.Content.propTypes = {
 };
 
 DocumentViewerSidebar.Footer = function Footer({ children }) {
-  return <footer>{children}</footer>;
+  return <footer className={styles.footer}>{children}</footer>;
 };
 
 DocumentViewerSidebar.Footer.propTypes = {

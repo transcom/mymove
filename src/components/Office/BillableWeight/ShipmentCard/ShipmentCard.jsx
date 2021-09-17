@@ -9,6 +9,7 @@ import styles from './ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 export default function ShipmentCard({
   billableWeight,
@@ -38,30 +39,42 @@ export default function ShipmentCard({
         </section>
       </header>
       <div className={styles.weights}>
-        <div className={styles.field}>
+        <div
+          className={classnames(styles.field, {
+            [styles.missing]: !estimatedWeight,
+          })}
+        >
           <strong>Estimated weight</strong>
-          <span>{formatWeight(estimatedWeight)}</span>
-        </div>
-        <div className={styles.field}>
-          <strong>Original weight</strong>
-          <span>{formatWeight(originalWeight)}</span>
+          <span>{estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}</span>
         </div>
         <div
           className={classnames(styles.field, {
-            [styles.missing]: !reweighWeight,
+            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight),
           })}
         >
-          <strong>Reweigh weight</strong>
-          <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
+          <strong>Original weight</strong>
+          <span>{formatWeight(originalWeight)}</span>
         </div>
-        <div className={styles.field}>
-          <strong>Date reweigh requested</strong>
-          <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
-        </div>
-        <div className={classnames(styles.field, styles.remarks)}>
-          <strong>Reweigh remarks</strong>
-          <span>{reweighRemarks}</span>
-        </div>
+        {dateReweighRequested && (
+          <div>
+            <div
+              className={classnames(styles.field, {
+                [styles.missing]: !reweighWeight,
+              })}
+            >
+              <strong>Reweigh weight</strong>
+              <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
+            </div>
+            <div className={styles.field}>
+              <strong>Date reweigh requested</strong>
+              <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
+            </div>
+            <div className={classnames(styles.field, styles.remarks)}>
+              <strong>Reweigh remarks</strong>
+              <span>{reweighRemarks}</span>
+            </div>
+          </div>
+        )}
       </div>
       <footer>
         <EditBillableWeight

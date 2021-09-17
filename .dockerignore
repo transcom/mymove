@@ -66,3 +66,7 @@ cypress/reports
 
 # Certs
 *.srl
+
+# nix
+.gopath
+.npmglobal

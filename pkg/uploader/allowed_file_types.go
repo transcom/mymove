@@ -16,6 +16,9 @@ var (
 	// AllowedTypesPDF accepts PDF files
 	AllowedTypesPDF AllowedFileTypes = []string{"application/pdf"}
 
+	// AllowedTypesPDFImages accepts PDF files and images
+	AllowedTypesPDFImages AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
+
 	// AllowedTypesAny accepts any file type
 	AllowedTypesAny AllowedFileTypes = []string{"*"}
 )

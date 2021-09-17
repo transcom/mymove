@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -113,6 +113,25 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	return modelAddress
+}
+
+// ApprovedSITExtensionFromCreate model
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	ad := int(*sitExtension.ApprovedDays)
+	model := &models.SITExtension{
+		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
+		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		RequestedDays: int(*sitExtension.ApprovedDays),
+		Status:        models.SITExtensionStatusApproved,
+		ApprovedDays:  &ad,
+		OfficeRemarks: sitExtension.OfficeRemarks,
+	}
+
+	return model
 }
 
 // MTOShipmentModelFromCreate model

@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, waitFor } from '@testing-library/react';
@@ -124,7 +123,7 @@ describe('requireCustomerState DodInfo', () => {
     push: jest.fn(),
   };
 
-  it('does not redirect if the current state equals the "EMPTY PROFILE" state', () => {
+  it('does not redirect if the current state equals the "EMPTY PROFILE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -142,17 +141,18 @@ describe('requireCustomerState DodInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDodInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does not redirect if the current state is after the "EMPTY PROFILE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "EMPTY PROFILE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -178,17 +178,18 @@ describe('requireCustomerState DodInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDodInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockDispatch).not.toHaveBeenCalled();
+    });
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -228,13 +229,14 @@ describe('requireCustomerState DodInfo', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedDodInfo {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    });
   });
 });
