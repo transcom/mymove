@@ -6,7 +6,7 @@ import Home from './Home';
 const dataProvider = restProvider('http://admin/v1/...');
 
 describe('AdminHome tests', () => {
-  describe('AdminHome component', () => {
+  describe.skip('AdminHome component', () => {
     let wrapper;
     wrapper = shallow(<Home dataProvider={dataProvider} />);
 
