@@ -2646,6 +2646,7 @@ definitions:
       weight:
         description: The total reweighed weight for the shipment in pounds.
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true

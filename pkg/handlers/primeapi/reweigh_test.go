@@ -107,9 +107,56 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		suite.Equal(&reason, reweighOk.Payload.VerificationReason)
 	})
 
+	suite.T().Run("Failure 422 - Failed to update reweigh weight due to bad request - zero reweigh value", func(t *testing.T) {
+		// Testcase:   reweigh us updated with the new weight of the shipment
+		// Expected:   Failure 422
+
+		// Update with weights
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s/rewighs/%s", reweigh.ShipmentID.String(), reweigh.ID.String()), nil)
+		weight := int64(0)
+
+		params := mtoshipmentops.UpdateReweighParams{
+			HTTPRequest:   req,
+			ReweighID:     *handlers.FmtUUID(reweigh.ID),
+			MtoShipmentID: *handlers.FmtUUID(reweigh.ShipmentID),
+			IfMatch:       updatedETag,
+			Body: &primemessages.UpdateReweigh{
+				Weight: &weight,
+			},
+		}
+
+		// Run swagger validations
+		suite.Error(params.Body.Validate(strfmt.Default))
+
+	})
+
+	suite.T().Run("Failure 422 - Failed to update reweigh weight due to bad request - negative reweigh value", func(t *testing.T) {
+		// Testcase:   reweigh us updated with the new weight of the shipment
+		// Expected:   Failure response 422
+
+		// Update with weights
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s/rewighs/%s", reweigh.ShipmentID.String(), reweigh.ID.String()), nil)
+		weight := int64(-10)
+
+		params := mtoshipmentops.UpdateReweighParams{
+			HTTPRequest:   req,
+			ReweighID:     *handlers.FmtUUID(reweigh.ID),
+			MtoShipmentID: *handlers.FmtUUID(reweigh.ShipmentID),
+			IfMatch:       updatedETag,
+			Body: &primemessages.UpdateReweigh{
+				Weight: &weight,
+			},
+		}
+
+		// Run swagger validations
+		suite.Error(params.Body.Validate(strfmt.Default))
+	})
+
 	suite.T().Run("Failure 404 - Reweigh not found", func(t *testing.T) {
 		// Testcase:   Reweigh ID is not found
-		// Expected:   Success response 404
+		// Expected:   Failure response 404
 
 		// Update with verification reason\
 		badID, _ := uuid.NewV4()
@@ -139,7 +186,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 
 		// Update with reweigh with a bad etag
 		// Testcase:   Reweigh updated with incorrect etag
-		// Expected:   Success response 404
+		// Expected:   Failure response 404
 
 		// Update with verification reason
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s/rewighs/%s", reweigh.ShipmentID.String(), reweigh.ID.String()), nil)
