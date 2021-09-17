@@ -54,7 +54,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
-		suite.NotNil(returnedModel.ETag)
+		suite.NotEmpty(returnedModel.ETag)
 	})
 }
 
@@ -78,16 +78,16 @@ func (suite *PayloadsSuite) TestReweigh() {
 		returnedPayload := Reweigh(&reweigh)
 
 		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
-		suite.Equal(strfmt.UUID(returnedPayload.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(returnedPayload.ShipmentID.String()), returnedPayload.ShipmentID)
-		suite.Equal(strfmt.DateTime(returnedPayload.RequestedAt), returnedPayload.RequestedAt)
+		suite.Equal(strfmt.UUID(reweigh.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(reweigh.ShipmentID.String()), returnedPayload.ShipmentID)
+		suite.Equal(strfmt.DateTime(reweigh.RequestedAt), returnedPayload.RequestedAt)
 		suite.Equal(primemessages.ReweighRequester(reweigh.RequestedBy), returnedPayload.RequestedBy)
-		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(returnedPayload.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(strfmt.DateTime(reweigh.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(reweigh.UpdatedAt), returnedPayload.UpdatedAt)
 		suite.Nil(returnedPayload.Weight)
 		suite.Nil(returnedPayload.VerificationReason)
 		suite.Nil(returnedPayload.VerificationProvidedAt)
-		suite.NotNil(returnedPayload.ETag)
+		suite.NotEmpty(returnedPayload.ETag)
 
 	})
 
@@ -106,17 +106,16 @@ func (suite *PayloadsSuite) TestReweigh() {
 		returnedPayload := Reweigh(&reweigh)
 
 		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
-		suite.Equal(strfmt.UUID(returnedPayload.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(returnedPayload.ShipmentID.String()), returnedPayload.ShipmentID)
-		suite.Equal(strfmt.DateTime(returnedPayload.RequestedAt), returnedPayload.RequestedAt)
+		suite.Equal(strfmt.UUID(reweigh.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(reweigh.ShipmentID.String()), returnedPayload.ShipmentID)
+		suite.Equal(strfmt.DateTime(reweigh.RequestedAt), returnedPayload.RequestedAt)
 		suite.Equal(primemessages.ReweighRequester(reweigh.RequestedBy), returnedPayload.RequestedBy)
-		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(returnedPayload.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(strfmt.DateTime(reweigh.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(reweigh.UpdatedAt), returnedPayload.UpdatedAt)
 		suite.Equal(handlers.FmtPoundPtr(reweigh.Weight), returnedPayload.Weight)
 		suite.Equal(handlers.FmtStringPtr(reweigh.VerificationReason), returnedPayload.VerificationReason)
 		suite.Equal(handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt), returnedPayload.VerificationProvidedAt)
-		suite.NotNil(returnedPayload.ETag)
-
+		suite.NotEmpty(returnedPayload.ETag)
 	})
 }
 
