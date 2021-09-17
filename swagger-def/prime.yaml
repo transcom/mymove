@@ -95,7 +95,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/excess-weight-record':
@@ -134,7 +134,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -194,7 +194,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -232,7 +232,7 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -284,7 +284,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -348,7 +348,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '412':
@@ -402,7 +402,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
@@ -462,7 +462,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -524,7 +524,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '412':
@@ -572,7 +572,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '412':
@@ -678,7 +678,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
@@ -730,7 +730,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '409':
           $ref: 'responses/Conflict.yaml'
         '412':
@@ -823,7 +823,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          $ref: 'responses/NotFound.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -2401,10 +2401,6 @@ definitions:
 responses:
   InvalidRequest:
     description: The request payload is invalid.
-    schema:
-      $ref: '#/definitions/ClientError'
-  NotFound:
-    description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:

@@ -2793,10 +2793,6 @@ responses:
     description: The request payload is invalid.
     schema:
       $ref: '#/definitions/ClientError'
-  NotFound:
-    description: The requested resource wasn't found.
-    schema:
-      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
@@ -2819,6 +2815,10 @@ responses:
     description: The payload was unprocessable.
     schema:
       $ref: '#/definitions/ValidationError'
+  NotFound:
+    description: The requested resource wasn't found.
+    schema:
+      $ref: '#/definitions/ClientError'
   Conflict:
     description: >-
       The request could not be processed because of conflict in the current
