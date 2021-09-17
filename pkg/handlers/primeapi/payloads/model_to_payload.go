@@ -580,11 +580,9 @@ func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemess
 	}
 
 	upload := Upload(storer, move.ExcessWeightUpload)
-	if upload == nil {
-		//todo how handle? error?
-		return nil
+	if upload != nil {
+		payload.Upload = *upload
 	}
-	payload.Upload = *upload
 
 	return payload
 }
@@ -605,17 +603,19 @@ func Upload(storer storage.FileStorer, upload *models.Upload) *primemessages.Upl
 	}
 
 	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
-	if err != nil {
-		//todo how to handle this properly?
-		return nil
+	if err == nil {
+		payload.URL = *handlers.FmtURI(url)
 	}
-	payload.URL = *handlers.FmtURI(url)
 
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
+	if err != nil || tags == nil {
 		payload.Status = "PROCESSING"
 	} else {
-		payload.Status = tags["av-status"]
+		status, ok := tags["av-status"]
+		if !ok {
+			status = "PROCESSING"
+		}
+		payload.Status = status
 	}
 
 	return payload
