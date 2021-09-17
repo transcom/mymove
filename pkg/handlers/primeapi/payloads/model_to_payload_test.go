@@ -4,6 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -115,4 +118,28 @@ func (suite *PayloadsSuite) TestReweigh() {
 		suite.NotNil(returnedPayload.ETag)
 
 	})
+}
+
+func (suite *PayloadsSuite) TestExcessWeightRecord() {
+
+}
+
+func (suite *PayloadsSuite) TestUpload() {
+	fakeFileStorer := test.NewFakeS3Storage(true)
+	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{})
+
+	uploadPayload := Upload(fakeFileStorer, &upload)
+	suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+	suite.Equal(strfmt.DateTime(upload.CreatedAt), uploadPayload.CreatedAt)
+	suite.Equal(strfmt.DateTime(upload.UpdatedAt), uploadPayload.UpdatedAt)
+
+	suite.NotEmpty(uploadPayload.URL)
+	suite.NotEmpty(uploadPayload.Status)
+
+	suite.Require().NotNil(uploadPayload.Bytes)
+	suite.Require().NotNil(uploadPayload.ContentType)
+	suite.Require().NotNil(uploadPayload.Filename)
+	suite.Equal(upload.Bytes, *uploadPayload.Bytes)
+	suite.Equal(upload.ContentType, *uploadPayload.ContentType)
+	suite.Equal(upload.Filename, *uploadPayload.Filename)
 }
