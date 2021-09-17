@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestReweighValidation() {
 			Weight:             &weight,
 		}
 		expErrors := map[string][]string{
-			"weight":              {"-1 is less than or equal to zero."},
+			"weight":              {"-1 is less than or equal to zero"},
 			"verification_reason": {"VerificationReason can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidReweigh, expErrors)
