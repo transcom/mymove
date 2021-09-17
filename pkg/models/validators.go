@@ -105,7 +105,7 @@ type OptionalPoundIsPositive struct {
 func (v *OptionalPoundIsPositive) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
 		if *v.Field <= 0 {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero.", *v.Field))
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than or equal to zero", *v.Field))
 		}
 	}
 }
