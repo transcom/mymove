@@ -115,6 +115,11 @@ export default function ReviewBillableWeight() {
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
+                {totalBillableWeight > maxBillableWeight && (
+                  <Alert slim type="error" data-testid="maxBillableWeightAlert">
+                    {`Max billable weight exceeded. \nPlease resolve.`}
+                  </Alert>
+                )}
                 {((!selectedShipment.reweigh?.weight && selectedShipment.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
                   <Alert slim type="warning">
