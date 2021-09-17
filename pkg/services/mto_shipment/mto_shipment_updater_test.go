@@ -119,8 +119,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		existingShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 
 		var reServiceDomCrating models.ReService
-		err := suite.DB().Where("code = $1", models.ReServiceCodeDCRT).First(&reServiceDomCrating)
-		suite.NoError(err)
+		if err := suite.DB().Where("code = $1", models.ReServiceCodeDCRT).First(&reServiceDomCrating); err != nil {
+			// Something is truncating this when all server tests run, but we need this ReService value to exist
+			reServiceDomCrating = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code:      models.ReServiceCodeDCRT,
+					Name:      "test",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			})
+		}
 
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -669,6 +678,21 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			models.ReServiceCodeDPK,
 			models.ReServiceCodeDUPK,
 		)
+
+		var reServiceCode models.ReService
+		if err := suite.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+			// Something is truncating these when all server tests run, but we need some values for reServices
+			for _, serviceCode := range expectedReServiceCodes {
+				testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+					ReService: models.ReService{
+						Code:      serviceCode,
+						Name:      "test",
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
+				})
+			}
+		}
 
 		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)

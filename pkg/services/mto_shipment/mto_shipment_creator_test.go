@@ -49,14 +49,15 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Invalid ID fields set
 	suite.Run("invalid IDs found", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			Stub: true,
 		})
 
-		createdShipment, err := creator.CreateMTOShipment(subtestData.appCtx, &mtoShipment, nil)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, &mtoShipment, nil)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -69,10 +70,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Unhappy path
 	suite.Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
 		// default is HHG
-		hhgShipmentFail := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		hhgShipmentFail := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			Stub: true,
 		})
@@ -80,7 +82,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		hhgShipmentFailClear.RequestedPickupDate = new(time.Time)
 
 		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(suite.TestAppContext(), hhgShipmentFailClear, nil)
+		_, err := creator.CreateMTOShipment(appCtx, hhgShipmentFailClear, nil)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -89,9 +91,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		ntsrShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
@@ -102,7 +105,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
 
 		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(suite.TestAppContext(), ntsrShipmentNoIDs, nil)
+		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
 
 		suite.NoError(err)
 	})
@@ -110,9 +113,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Happy path
 	suite.Run("If the shipment is created successfully it should be returned", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			Stub: true,
 		})
@@ -120,7 +124,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		serviceItemsList := models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -131,9 +135,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
@@ -144,7 +149,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		serviceItemsList := models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -153,7 +158,28 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("If the shipment has mto service items", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
+
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDDSHUT,
+			models.ReServiceCodeDOFSIT,
+		}
+
+		var reServiceCode models.ReService
+		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+			// Something is truncating these when all server tests run, but we need some values for reServices
+			for _, serviceCode := range expectedReServiceCodes {
+				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
+					ReService: models.ReService{
+						Code:      serviceCode,
+						Name:      "test",
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
+				})
+			}
+		}
 
 		serviceItemsList := []models.MTOServiceItem{
 			{
@@ -173,7 +199,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}
 
 		weight := unit.Pound(2) // for DDSHUT service item type
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				PrimeEstimatedWeight: &weight,
@@ -182,7 +208,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -192,6 +218,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("If the move already has a submitted NTS shipment, it should return a validation error", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -202,7 +229,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 		})
 
-		secondNTSShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		secondNTSShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
@@ -213,7 +240,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		serviceItemsList := models.MTOServiceItems{}
 		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), cleanedNTSShipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSShipment, serviceItemsList)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -222,6 +249,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("If the move already has a submitted NTSr shipment, it should return a validation error", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -232,7 +260,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 		})
 
-		secondNTSrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		secondNTSrShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
@@ -243,7 +271,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		serviceItemsList := models.MTOServiceItems{}
 		cleanedNTSrShipment := clearShipmentIDFields(&secondNTSrShipment)
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), cleanedNTSrShipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSrShipment, serviceItemsList)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -252,6 +280,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("422 Validation Error - only one mto agent of each type", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
 		firstName := "First"
@@ -276,7 +305,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		agents = append(agents, agent1, agent2)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				MTOAgents: agents,
@@ -285,7 +314,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		serviceItemsList := models.MTOServiceItems{}
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), &shipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, &shipment, serviceItemsList)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -300,10 +329,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Status: models.MoveStatusAPPROVED,
 			},
 		})
+		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 		move := subtestData.move
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
@@ -313,7 +343,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		cleanShipment := clearShipmentIDFields(&shipment)
 		serviceItemsList := models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(suite.TestAppContext(), cleanShipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanShipment, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
