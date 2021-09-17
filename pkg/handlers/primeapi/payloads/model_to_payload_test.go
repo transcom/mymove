@@ -121,12 +121,44 @@ func (suite *PayloadsSuite) TestReweigh() {
 }
 
 func (suite *PayloadsSuite) TestExcessWeightRecord() {
+	id, err := uuid.NewV4()
+	suite.Require().NoError(err, "Unexpected error when generating new UUID")
 
+	now := time.Now()
+	fakeFileStorer := test.NewFakeS3Storage(true)
+	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
+
+	suite.T().Run("Success - all data populated", func(t *testing.T) {
+		move := models.Move{
+			ID:                         id,
+			ExcessWeightQualifiedAt:    &now,
+			ExcessWeightAcknowledgedAt: &now,
+			ExcessWeightUploadID:       &upload.ID,
+			ExcessWeightUpload:         &upload,
+		}
+
+		excessWeightRecord := ExcessWeightRecord(fakeFileStorer, &move)
+		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt), excessWeightRecord.MoveExcessWeightQualifiedAt)
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt), excessWeightRecord.MoveExcessWeightAcknowledgedAt)
+
+		suite.Equal(move.ExcessWeightUploadID.String(), excessWeightRecord.ID.String())
+		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
+	})
+
+	suite.T().Run("Success - some nil data, but no errors", func(t *testing.T) {
+		move := models.Move{ID: id}
+
+		excessWeightRecord := ExcessWeightRecord(fakeFileStorer, &move)
+		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
+		suite.Empty(excessWeightRecord.MoveExcessWeightQualifiedAt)
+		suite.Empty(excessWeightRecord.MoveExcessWeightAcknowledgedAt)
+	})
 }
 
 func (suite *PayloadsSuite) TestUpload() {
 	fakeFileStorer := test.NewFakeS3Storage(true)
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{})
+	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 
 	uploadPayload := Upload(fakeFileStorer, &upload)
 	suite.Equal(upload.ID.String(), uploadPayload.ID.String())
