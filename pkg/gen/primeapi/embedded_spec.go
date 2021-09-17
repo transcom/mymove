@@ -1438,12 +1438,16 @@ func init() {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
               "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
               "readOnly": true
             },
             "moveExcessWeightQualifiedAt": {
               "description": "The date and time when the sum of all the move's shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
               "type": "string",
               "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
               "readOnly": true
             },
             "moveId": {
@@ -4822,12 +4826,16 @@ func init() {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
               "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
               "readOnly": true
             },
             "moveExcessWeightQualifiedAt": {
               "description": "The date and time when the sum of all the move's shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
               "type": "string",
               "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
               "readOnly": true
             },
             "moveId": {

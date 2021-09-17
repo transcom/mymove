@@ -148,8 +148,8 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 		excessWeightRecord := ExcessWeightRecord(fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
-		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt), excessWeightRecord.MoveExcessWeightQualifiedAt)
-		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt), excessWeightRecord.MoveExcessWeightAcknowledgedAt)
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt).String(), excessWeightRecord.MoveExcessWeightQualifiedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessWeightAcknowledgedAt.String())
 
 		suite.Equal(move.ExcessWeightUploadID.String(), excessWeightRecord.ID.String())
 		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
@@ -160,8 +160,8 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 		excessWeightRecord := ExcessWeightRecord(fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
-		suite.Empty(excessWeightRecord.MoveExcessWeightQualifiedAt)
-		suite.Empty(excessWeightRecord.MoveExcessWeightAcknowledgedAt)
+		suite.Nil(excessWeightRecord.MoveExcessWeightQualifiedAt)
+		suite.Nil(excessWeightRecord.MoveExcessWeightAcknowledgedAt)
 	})
 }
 

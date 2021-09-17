@@ -24,13 +24,13 @@ type ExcessWeightRecord struct {
 	//
 	// Read Only: true
 	// Format: date-time
-	MoveExcessWeightAcknowledgedAt strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt,omitempty"`
+	MoveExcessWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt"`
 
 	// The date and time when the sum of all the move's shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.
 	//
 	// Read Only: true
 	// Format: date-time
-	MoveExcessWeightQualifiedAt strfmt.DateTime `json:"moveExcessWeightQualifiedAt,omitempty"`
+	MoveExcessWeightQualifiedAt *strfmt.DateTime `json:"moveExcessWeightQualifiedAt"`
 
 	// The UUID of the move this excess weight record belongs to.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -50,9 +50,9 @@ func (m *ExcessWeightRecord) UnmarshalJSON(raw []byte) error {
 
 	// AO1
 	var dataAO1 struct {
-		MoveExcessWeightAcknowledgedAt strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt,omitempty"`
+		MoveExcessWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt"`
 
-		MoveExcessWeightQualifiedAt strfmt.DateTime `json:"moveExcessWeightQualifiedAt,omitempty"`
+		MoveExcessWeightQualifiedAt *strfmt.DateTime `json:"moveExcessWeightQualifiedAt"`
 
 		MoveID *strfmt.UUID `json:"moveId"`
 	}
@@ -79,9 +79,9 @@ func (m ExcessWeightRecord) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, aO0)
 	var dataAO1 struct {
-		MoveExcessWeightAcknowledgedAt strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt,omitempty"`
+		MoveExcessWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt"`
 
-		MoveExcessWeightQualifiedAt strfmt.DateTime `json:"moveExcessWeightQualifiedAt,omitempty"`
+		MoveExcessWeightQualifiedAt *strfmt.DateTime `json:"moveExcessWeightQualifiedAt"`
 
 		MoveID *strfmt.UUID `json:"moveId"`
 	}
@@ -191,7 +191,7 @@ func (m *ExcessWeightRecord) ContextValidate(ctx context.Context, formats strfmt
 
 func (m *ExcessWeightRecord) contextValidateMoveExcessWeightAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "moveExcessWeightAcknowledgedAt", "body", strfmt.DateTime(m.MoveExcessWeightAcknowledgedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "moveExcessWeightAcknowledgedAt", "body", m.MoveExcessWeightAcknowledgedAt); err != nil {
 		return err
 	}
 
@@ -200,7 +200,7 @@ func (m *ExcessWeightRecord) contextValidateMoveExcessWeightAcknowledgedAt(ctx c
 
 func (m *ExcessWeightRecord) contextValidateMoveExcessWeightQualifiedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "moveExcessWeightQualifiedAt", "body", strfmt.DateTime(m.MoveExcessWeightQualifiedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "moveExcessWeightQualifiedAt", "body", m.MoveExcessWeightQualifiedAt); err != nil {
 		return err
 	}
 

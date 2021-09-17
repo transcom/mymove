@@ -573,13 +573,9 @@ func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemess
 	}
 
 	payload := &primemessages.ExcessWeightRecord{
-		MoveID: handlers.FmtUUIDPtr(&move.ID),
-	}
-	if move.ExcessWeightQualifiedAt != nil {
-		payload.MoveExcessWeightQualifiedAt = strfmt.DateTime(*move.ExcessWeightQualifiedAt)
-	}
-	if move.ExcessWeightAcknowledgedAt != nil {
-		payload.MoveExcessWeightAcknowledgedAt = strfmt.DateTime(*move.ExcessWeightAcknowledgedAt)
+		MoveID:                         handlers.FmtUUIDPtr(&move.ID),
+		MoveExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
 	}
 
 	upload := Upload(storer, move.ExcessWeightUpload)
