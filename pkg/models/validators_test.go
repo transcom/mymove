@@ -357,6 +357,66 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 	}
 }
 
+func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {
+	name := "pound"
+	positiveLb := unit.Pound(10)
+	negativeLb := unit.Pound(-20)
+	zeroLb := unit.Pound(0)
+
+	t.Run("field with positive value succeeds", func(t *testing.T) {
+		v := models.OptionalPoundIsNonNegative{
+			Name:  name,
+			Field: &positiveLb,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("field nil value succeeds", func(t *testing.T) {
+		// test with nil pointer
+		v := models.OptionalPoundIsNonNegative{Name: "Name", Field: nil}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() > 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("field with zero value succeeds", func(t *testing.T) {
+		v := models.OptionalPoundIsNonNegative{
+			Name:  name,
+			Field: &zeroLb,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() > 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("field with negative value fails", func(t *testing.T) {
+		v := models.OptionalPoundIsNonNegative{
+			Name:  name,
+			Field: &negativeLb,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+
+		if errs.Count() != 1 {
+			t.Fatal("There should be one error")
+		}
+
+		testErrors := errs.Get(name)
+		expected := fmt.Sprintf("%d is less than zero.", *v.Field)
+		if testErrors[0] != expected {
+			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+		}
+	})
+}
+
 func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 	name := "pound"
 	positiveLb := unit.Pound(10)
