@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -18,17 +20,12 @@ const hoursInADay float64 = 24
 const fullBillingPeriod int = 29
 
 func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
-	moveTaskOrderSITPaymentServiceItems, err := fetchMoveTaskOrderSITPaymentServiceItems(appCtx, s.MTOShipment)
-	if err != nil {
-		return "", err
-	}
-
 	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(appCtx, s.MTOShipment)
 	if err != nil {
 		return "", err
 	}
 
-	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems)
+	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(mtoShipmentSITPaymentServiceItems)
 	if err != nil {
 		return "", err
 	}
@@ -44,27 +41,12 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return strconv.Itoa(remainingMoveTaskOrderSITDays), nil
 	}
 
+	// this maybe goes away?
 	if billableMTOServiceItemSITDays <= 0 {
 		return "", fmt.Errorf("MTO Service Item %v has 0 billable SIT Days", keyData.MTOServiceItemID)
 	}
 
 	return strconv.Itoa(billableMTOServiceItemSITDays), nil
-}
-
-func fetchMoveTaskOrderSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
-	moveTaskOrderSITPaymentServiceItems := models.PaymentServiceItems{}
-
-	err := appCtx.DB().Q().
-		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
-		Join("re_services", "re_services.id = mto_service_items.re_service_id").
-		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
-		Where("payment_service_items.status IN ($1, $2, $3, $4) AND mto_service_items.move_id = ($5) AND re_services.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, mtoShipment.MoveTaskOrderID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
-		All(&moveTaskOrderSITPaymentServiceItems)
-	if err != nil {
-		return models.PaymentServiceItems{}, err
-	}
-
-	return moveTaskOrderSITPaymentServiceItems, nil
 }
 
 func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
@@ -84,13 +66,13 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 }
 
 func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
-	remainingMoveTaskOrderSITDays := 90
+	remainingMoveTaskOrderSITDays := 90 // TODO replace this with the new cap
 
 	for _, moveTaskOrderSITPaymentServiceItem := range moveTaskOrderSITPaymentServiceItems {
 		if isFirstDaySIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
 			remainingMoveTaskOrderSITDays--
 		} else if isAdditionalDaysSIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
-			paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(moveTaskOrderSITPaymentServiceItem)
+			paymentServiceItemSITDays, err := calculateNumberSITAdditionalDays(moveTaskOrderSITPaymentServiceItem)
 			if err != nil {
 				return 0, err
 			}
@@ -99,6 +81,32 @@ func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems 
 	}
 
 	return remainingMoveTaskOrderSITDays, nil
+}
+
+// TODO rename
+func calculateNumberSITAdditionalDays(paymentServiceItem models.PaymentServiceItem) (int, error) {
+	start, end, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
+	if err != nil {
+		return 0, err
+	}
+
+	startDate, err := time.Parse(ghcrateengine.DateParamFormat, start) // TODO consider reusing a function here
+	if err != nil {
+		return 0, err
+	}
+
+	endDate, err := time.Parse(ghcrateengine.DateParamFormat, end) // TODO consider reusing a function here
+	if err != nil {
+		return 0, err
+	}
+
+	// is this math sensitive to things like DST transitions? should probably round not truncate?
+	// although i guess this depends on locale it is using, which is probably utc, so maybe not an issue?
+	days := endDate.Sub(startDate).Hours() / float64(hoursInADay)
+
+	//remainingMoveTaskOrderSITDays = remainingMoveTaskOrderSITDays - paymentServiceItemSITDays
+
+	return int(days), nil
 }
 
 func calculateBillableMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (int, error) {
@@ -248,6 +256,23 @@ func calculateSubmittedMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems mode
 	}
 
 	return originSubmittedMTOShipmentSITDays, destinationSubmittedMTOShipmentSITDays, nil
+}
+
+// TODO change signature and handle errors
+func fetchSITStartAndEndDateParamValues(paymentServiceItem models.PaymentServiceItem) (string, string, error) {
+	start := ""
+	end := ""
+
+	for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestStart {
+			start = paymentServiceItemParam.Value
+		}
+		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestEnd {
+			end = paymentServiceItemParam.Value
+		}
+	}
+
+	return start, end, nil
 }
 
 func fetchNumberDaysSITParamValue(paymentServiceItem models.PaymentServiceItem) (int, error) {
