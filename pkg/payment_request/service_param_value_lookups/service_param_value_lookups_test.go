@@ -157,8 +157,10 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight *unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
+			Move: move,
 			ReService: models.ReService{
 				Code: code,
 				Name: string(code),
@@ -172,7 +174,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
+			Move: move,
 			PaymentRequest: models.PaymentRequest{
 				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 			},
