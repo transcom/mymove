@@ -31,7 +31,7 @@ export default function ShipmentCard({
             <strong>Departed</strong> {formatDateFromIso(departedDate, 'DD MMM YYYY')}
           </span>
           <span>
-            <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
+            <strong>From</strong> {formatAddressShort(pickupAddress)}
           </span>
           <span>
             <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
