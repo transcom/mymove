@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/upload"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -140,6 +144,74 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderNotFound)
 		movePayload := moveResponse.Payload
 		suite.Contains(*movePayload.Detail, failureMove.ID.String())
+	})
+}
+
+func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
+	request := httptest.NewRequest("POST", "/move-task-orders/{moveTaskOrderID}", nil)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := CreateExcessWeightRecordHandler{
+		context,
+		// Must us the Prime service object in particular:
+		moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(context.FileStorer())),
+	}
+
+	suite.T().Run("Success - Created an excess weight record", func(t *testing.T) {
+		now := time.Now()
+		availableMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt:      &now,
+				Status:                  models.MoveStatusAPPROVED,
+				ExcessWeightQualifiedAt: &now,
+			},
+		})
+
+		params := movetaskorderops.CreateExcessWeightRecordParams{
+			HTTPRequest:     request,
+			File:            suite.Fixture("test.pdf"),
+			MoveTaskOrderID: strfmt.UUID(availableMove.ID.String()),
+		}
+
+		response := handler.Handle(params)
+		suite.Require().IsType(&movetaskorderops.CreateExcessWeightRecordCreated{}, response)
+
+		okResponse := response.(*movetaskorderops.CreateExcessWeightRecordCreated)
+		suite.Equal(availableMove.ID.String(), okResponse.Payload.MoveID.String())
+		suite.True(okResponse.Payload.MoveExcessWeightQualifiedAt.Equal(strfmt.DateTime(*availableMove.ExcessWeightQualifiedAt)))
+		suite.NotEmpty(okResponse.Payload.ID)
+	})
+
+	suite.T().Run("Fail - Move not found - 404", func(t *testing.T) {
+		params := movetaskorderops.CreateExcessWeightRecordParams{
+			HTTPRequest:     request,
+			File:            suite.Fixture("test.pdf"),
+			MoveTaskOrderID: strfmt.UUID("00000000-0000-0000-0000-000000000123"),
+		}
+
+		response := handler.Handle(params)
+		suite.Require().IsType(&movetaskorderops.CreateExcessWeightRecordNotFound{}, response)
+
+		notFoundResponse := response.(*movetaskorderops.CreateExcessWeightRecordNotFound)
+		suite.Require().NotNil(notFoundResponse.Payload.Detail)
+		suite.Contains(*notFoundResponse.Payload.Detail, params.MoveTaskOrderID.String())
+	})
+
+	suite.T().Run("Fail - Move not Prime-available - 404", func(t *testing.T) {
+		unavailableMove := testdatagen.MakeDefaultMove(suite.DB()) // default move is not available to Prime
+		params := movetaskorderops.CreateExcessWeightRecordParams{
+			HTTPRequest:     request,
+			File:            suite.Fixture("test.pdf"),
+			MoveTaskOrderID: strfmt.UUID(unavailableMove.ID.String()),
+		}
+
+		response := handler.Handle(params)
+		suite.Require().IsType(&movetaskorderops.CreateExcessWeightRecordNotFound{}, response)
+
+		notFoundResponse := response.(*movetaskorderops.CreateExcessWeightRecordNotFound)
+		suite.Require().NotNil(notFoundResponse.Payload.Detail)
+		suite.Contains(*notFoundResponse.Payload.Detail, unavailableMove.ID.String())
 	})
 }
 
