@@ -52,6 +52,12 @@ func checkRequiredFields() sitExtensionValidator {
 	})
 }
 
+func checkSITRequest() sitExtensionValidator {
+	//return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
+	//
+	//}
+}
+
 //checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
