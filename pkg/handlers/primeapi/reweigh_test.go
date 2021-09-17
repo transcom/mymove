@@ -127,8 +127,8 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		}
 
 		// Run swagger validations
-		suite.Error(params.Body.Validate(strfmt.Default))
-
+		err := params.Body.Validate(strfmt.Default)
+		suite.Equal("validation failure list:\nweight in body should be greater than or equal to 1", err.Error())
 	})
 
 	suite.T().Run("Failure 422 - Failed to update reweigh weight due to bad request - negative reweigh value", func(t *testing.T) {
@@ -151,7 +151,8 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		}
 
 		// Run swagger validations
-		suite.Error(params.Body.Validate(strfmt.Default))
+		err := params.Body.Validate(strfmt.Default)
+		suite.Equal("validation failure list:\nweight in body should be greater than or equal to 1", err.Error())
 	})
 
 	suite.T().Run("Failure 404 - Reweigh not found", func(t *testing.T) {
