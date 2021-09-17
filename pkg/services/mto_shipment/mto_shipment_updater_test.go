@@ -47,7 +47,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
 	mockSender := notificationMocks.NotificationSender{}
 	mockSender.On("SendNotification",
-		mock.AnythingOfType("*notifications.NewReweighRequested"),
+		mock.AnythingOfType("*notifications.ReweighRequested"),
 	).Return(nil)
 
 	return &mockSender
