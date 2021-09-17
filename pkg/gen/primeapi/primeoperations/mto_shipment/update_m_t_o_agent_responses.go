@@ -280,7 +280,7 @@ func (o *UpdateMTOAgentPreconditionFailed) WriteResponse(rw http.ResponseWriter,
 // UpdateMTOAgentUnprocessableEntityCode is the HTTP code returned for type UpdateMTOAgentUnprocessableEntity
 const UpdateMTOAgentUnprocessableEntityCode int = 422
 
-/*UpdateMTOAgentUnprocessableEntity The payload was unprocessable.
+/*UpdateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOAgentUnprocessableEntity
 */

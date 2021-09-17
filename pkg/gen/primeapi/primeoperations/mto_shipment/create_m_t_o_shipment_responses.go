@@ -148,7 +148,7 @@ func (o *CreateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // CreateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type CreateMTOShipmentUnprocessableEntity
 const CreateMTOShipmentUnprocessableEntityCode int = 422
 
-/*CreateMTOShipmentUnprocessableEntity The payload was unprocessable.
+/*CreateMTOShipmentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createMTOShipmentUnprocessableEntity
 */

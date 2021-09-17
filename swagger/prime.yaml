@@ -2805,10 +2805,6 @@ responses:
       request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
-  UnprocessableEntity:
-    description: The payload was unprocessable.
-    schema:
-      $ref: '#/definitions/ValidationError'
   PermissionDenied:
     description: The request was denied.
     schema:
@@ -2817,6 +2813,10 @@ responses:
     description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/ClientError'
+  UnprocessableEntity:
+    description: 'The request was unprocessable, likely due to bad input from the requester.'
+    schema:
+      $ref: '#/definitions/ValidationError'
   Conflict:
     description: >-
       The request could not be processed because of conflict in the current

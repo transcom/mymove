@@ -136,7 +136,7 @@ paths:
         '404':
           $ref: 'responses/NotFound.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
@@ -198,7 +198,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments:
@@ -234,7 +234,7 @@ paths:
         '404':
           $ref: 'responses/NotFound.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
@@ -288,7 +288,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
@@ -354,7 +354,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/agents':
@@ -406,7 +406,7 @@ paths:
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/agents/{agentID}':
@@ -466,7 +466,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}:
@@ -530,7 +530,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/status':
@@ -578,7 +578,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-service-items':
@@ -682,7 +682,7 @@ paths:
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   '/mto-service-items/{mtoServiceItemID}':
@@ -736,7 +736,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /payment-requests:
@@ -777,7 +777,7 @@ paths:
         '409':
           $ref: 'responses/Conflict.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /payment-requests/{paymentRequestID}/uploads:
@@ -823,7 +823,7 @@ paths:
         '404':
           $ref: 'responses/NotFound.yaml'
         '422':
-          $ref: '#/responses/UnprocessableEntity'
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
 definitions:
@@ -2413,7 +2413,3 @@ responses:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
-  UnprocessableEntity:
-    description: The payload was unprocessable.
-    schema:
-      $ref: 'definitions/ValidationError.yaml'

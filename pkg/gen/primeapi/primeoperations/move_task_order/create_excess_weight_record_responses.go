@@ -192,7 +192,7 @@ func (o *CreateExcessWeightRecordNotFound) WriteResponse(rw http.ResponseWriter,
 // CreateExcessWeightRecordUnprocessableEntityCode is the HTTP code returned for type CreateExcessWeightRecordUnprocessableEntity
 const CreateExcessWeightRecordUnprocessableEntityCode int = 422
 
-/*CreateExcessWeightRecordUnprocessableEntity The payload was unprocessable.
+/*CreateExcessWeightRecordUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createExcessWeightRecordUnprocessableEntity
 */

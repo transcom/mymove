@@ -3039,7 +3039,7 @@ func init() {
       }
     },
     "UnprocessableEntity": {
-      "description": "The payload was unprocessable.",
+      "description": "The request was unprocessable, likely due to bad input from the requester.",
       "schema": {
         "$ref": "#/definitions/ValidationError"
       }
@@ -3204,7 +3204,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3303,7 +3303,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3438,7 +3438,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3534,7 +3534,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3591,7 +3591,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3682,7 +3682,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3787,7 +3787,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3871,7 +3871,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3970,7 +3970,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4075,7 +4075,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4172,7 +4172,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4247,7 +4247,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4323,7 +4323,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -6405,7 +6405,7 @@ func init() {
       }
     },
     "UnprocessableEntity": {
-      "description": "The payload was unprocessable.",
+      "description": "The request was unprocessable, likely due to bad input from the requester.",
       "schema": {
         "$ref": "#/definitions/ValidationError"
       }
