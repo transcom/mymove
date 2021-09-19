@@ -23,8 +23,10 @@ const (
 	ServeGHCFlag string = "serve-api-ghc"
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"
-	// ServeSupportFlag is the prime api flag
+	// ServeSupportFlag is the support api flag
 	ServeSupportFlag string = "serve-api-support"
+	// ServePrimeSimulatorFlag is the prime simulator api flag
+	ServePrimeSimulatorFlag string = "serve-prime-simulator"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -37,6 +39,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeGHCFlag, false, "Enable the GHC API Service.")
 	flag.Bool(ServePrimeFlag, false, "Enable the Prime API Service.")
 	flag.Bool(ServeSupportFlag, false, "Enable the Support Service.")
+	flag.Bool(ServePrimeSimulatorFlag, false, "Enable the Prime Simulator Service.")
 }
 
 // CheckServices validates these lovely service flags
@@ -48,6 +51,7 @@ func CheckServices(v *viper.Viper) error {
 	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
 	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
 	primeAPIEnabled := v.GetBool(ServePrimeFlag)
+	primeSimulatorEnabled := v.GetBool(ServePrimeSimulatorFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
@@ -80,6 +84,10 @@ func CheckServices(v *viper.Viper) error {
 		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled) {
 			return errors.New("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
 		}
+	}
+
+	if currentEnvironment == EnvironmentPrd && primeSimulatorEnabled {
+		return errors.New("Prime Simulator cannot be enabled in production")
 	}
 
 	return nil
