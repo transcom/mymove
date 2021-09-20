@@ -15,11 +15,12 @@ import (
 
 // reweighUpdater needs to be updates to have checks for validation
 type reweighUpdater struct {
-	checks []reweighValidator
+	checks       []reweighValidator
+	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
+func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker, recalculator services.PaymentRequestShipmentRecalculator) services.ReweighUpdater {
 	return &reweighUpdater{
 		checks: []reweighValidator{
 			checkShipmentID(),
@@ -27,6 +28,7 @@ func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) se
 			checkRequiredFields(),
 			checkPrimeAvailability(moveAvailabilityChecker),
 		},
+		recalculator: recalculator,
 	}
 }
 
@@ -98,6 +100,22 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
+	}
+
+	/*
+			TODO: The plan is to have function that's callable from the MTOShipment to determine the current billable weight
+		 	TODO: this function will compare original vs reweigh weight and return the weight to use for billable. As well as apply any caps.
+			TODO: for now, going to just do a simple check, this should be deleted when the
+			TODO: real function is in place.
+	*/
+	// if the reweigh weight is less than the MTOShipment's original weight, then recalculate
+	// applicable payment requests
+
+	if *reweigh.Weight < *shipment.PrimeActualWeight {
+		err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &updatedReweigh, nil
