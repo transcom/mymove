@@ -356,7 +356,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 
-	suite.Run("Sets SIT days allowance to default as needed", func() {
+	suite.Run("Sets SIT days allowance to default", func() {
 		// This test will have to change in the future, but for now, service members are expected to get 90 days by
 		// default.
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
@@ -364,14 +364,19 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 
 		testCases := []struct {
-			desc                      string
-			shipmentType              models.MTOShipmentType
-			expectNilSITDaysAllowance bool
-			expectedSITDaysAllowance  int
+			desc         string
+			shipmentType models.MTOShipmentType
 		}{
-			{"HHG", models.MTOShipmentTypeHHG, false, models.DefaultServiceMemberSITDaysAllowance},
-			{"NTS", models.MTOShipmentTypeHHGIntoNTSDom, true, 0},
-			{"NTS release", models.MTOShipmentTypeHHGOutOfNTSDom, true, 0},
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_LONGHAUL_DOMESTIC", models.MTOShipmentTypeHHGLongHaulDom},
+			{"HHG_SHORTHAUL_DOMESTIC", models.MTOShipmentTypeHHGShortHaulDom},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 		}
 
 		for _, tt := range testCases {
@@ -391,11 +396,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 				suite.NoError(err)
 
-				if tt.expectNilSITDaysAllowance {
-					suite.Nil(createdShipment.SITDaysAllowance)
-				} else {
-					suite.Equal(tt.expectedSITDaysAllowance, *createdShipment.SITDaysAllowance)
-				}
+				suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance)
 			})
 		}
 	})
