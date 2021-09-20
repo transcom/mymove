@@ -226,6 +226,48 @@ export function updateMTOShipment({
   );
 }
 
+export function approveSITExtension({
+  shipmentID,
+  sitExtensionID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'shipment.approveSitExtension';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      sitExtensionID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function denySITExtension({
+  shipmentID,
+  sitExtensionID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'shipment.denySitExtension';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      sitExtensionID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
   const operationPath = 'shipment.deleteShipment';
   return makeGHCRequest(

@@ -50,9 +50,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
           </div>
           <Formik
             validationSchema={reviewSITExtensionSchema}
-            onSubmit={(values) => {
-              onSubmit(Number.parseInt(values.maxBillableWeight, 10));
-            }}
+            onSubmit={(e) => onSubmit(sitExtension.id, e)}
             initialValues={{
               acceptExtension: 'yes',
               daysApproved: sitExtension.requestedDays.toString(),

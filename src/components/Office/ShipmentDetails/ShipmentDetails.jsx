@@ -8,7 +8,13 @@ import styles from 'components/Office/ShipmentDetails/ShipmentDetails.module.scs
 import { OrderShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 
-const ShipmentDetails = ({ shipment, order, handleDivertShipment, handleRequestReweighModal }) => {
+const ShipmentDetails = ({
+  shipment,
+  order,
+  handleDivertShipment,
+  handleRequestReweighModal,
+  handleReviewSITExtension,
+}) => {
   const { originDutyStation, destinationDutyStation } = order;
   return (
     <div className={styles.ShipmentDetails}>
@@ -21,6 +27,7 @@ const ShipmentDetails = ({ shipment, order, handleDivertShipment, handleRequestR
           originDutyStationAddress: originDutyStation?.address,
           destinationDutyStationAddress: destinationDutyStation?.address,
         }}
+        handleReviewSITExtension={handleReviewSITExtension}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -36,6 +43,7 @@ ShipmentDetails.propTypes = {
   order: OrderShape.isRequired,
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
+  handleReviewSITExtension: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

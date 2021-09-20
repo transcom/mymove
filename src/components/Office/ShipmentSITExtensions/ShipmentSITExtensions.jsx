@@ -14,10 +14,11 @@ import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensio
 import { formatDateFromIso } from 'shared/formatters';
 
 const ShipmentSITExtensions = (props) => {
-  const { sitExtensions } = props;
+  const { sitExtensions, handleReviewSITExtension } = props;
   const [isReviewSITExtensionModalVisible, setisReviewSITExtensionModalVisible] = useState(false);
-  const handleReviewSITExtension = () => {
+  const reviewSITExtensionSubmit = (sitExtensionID, formValues) => {
     setisReviewSITExtensionModalVisible(false);
+    handleReviewSITExtension(sitExtensionID, formValues);
   };
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
@@ -66,7 +67,7 @@ const ShipmentSITExtensions = (props) => {
       {showModal && (
         <ReviewSITExtensionsModal
           onClose={() => setisReviewSITExtensionModalVisible(false)}
-          onSubmit={handleReviewSITExtension}
+          onSubmit={reviewSITExtensionSubmit}
           sitExtension={pendingSITExtension}
         />
       )}
@@ -76,6 +77,7 @@ const ShipmentSITExtensions = (props) => {
 
 ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape).isRequired,
+  handleReviewSITExtension: PropTypes.func.isRequired,
 };
 
 ShipmentSITExtensions.defaultProps = {};
