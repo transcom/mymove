@@ -19,7 +19,11 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { useCalculatedTotalBillableWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import {
+  includedStatusesForCalculatingWeights,
+  useCalculatedTotalBillableWeight,
+  useCalculatedWeightRequested,
+} from 'hooks/custom';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -116,13 +120,14 @@ const MovePaymentRequests = ({
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
           <div className={txoStyles.section} id="billable-weights">
+            {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
               maxBillableWeight={order?.entitlement?.authorizedWeight}
               totalBillableWeight={totalBillableWeight}
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
-              shipments={mtoShipments}
+              shipments={mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status))}
             />
           </div>
           <h2>Payment requests</h2>
