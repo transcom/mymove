@@ -824,7 +824,7 @@ type CreateSITExtensionAsTOOHandler struct {
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
+func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
@@ -837,10 +837,10 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 			payload := ghcmessages.Error{
 				Message: handlers.FmtString(err.Error()),
 			}
-			return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload)
+			return shipmentops.NewCreateSitExtensionAsTOONotFound().WithPayload(&payload)
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceID(), e.ValidationErrors)
-			return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload)
+			return shipmentops.NewCreateSitExtensionAsTOOUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.QueryError:
@@ -848,11 +848,11 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 			}
-			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
+			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
 		case services.ForbiddenError:
-			return shipmentops.NewCreateSITExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewCreateSitExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
+			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
 		}
 	}
 
@@ -870,5 +870,5 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	returnPayload := payloads.MTOShipment(shipment, sitStatusPayload)
-	return shipmentops.NewCreateSITExtensionAsTOOOK().WithPayload(returnPayload)
+	return shipmentops.NewCreateSitExtensionAsTOOOK().WithPayload(returnPayload)
 }

@@ -2437,7 +2437,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "operationId": "createSitExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -2452,7 +2452,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateSitExtensionAsTOO"
             }
           },
           {
@@ -3092,7 +3092,7 @@ func init() {
         }
       }
     },
-    "CreateSITExtensionAsTOO": {
+    "CreateSitExtensionAsTOO": {
       "required": [
         "requestReason",
         "approvedDays"
@@ -8380,7 +8380,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "operationId": "createSitExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -8395,7 +8395,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateSitExtensionAsTOO"
             }
           },
           {
@@ -9104,7 +9104,7 @@ func init() {
         }
       }
     },
-    "CreateSITExtensionAsTOO": {
+    "CreateSitExtensionAsTOO": {
       "required": [
         "requestReason",
         "approvedDays"

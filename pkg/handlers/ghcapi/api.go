@@ -238,7 +238,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentCreateSITExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
+	ghcAPI.ShipmentCreateSitExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
 		ctx,
 		mtoshipment.NewCreateSITExtensionAsTOO(),
 		shipmentSITStatus,

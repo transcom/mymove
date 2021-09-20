@@ -116,7 +116,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 }
 
 // ApprovedSITExtensionFromCreate model
-func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSitExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}

@@ -1670,10 +1670,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateSitExtensionAsTOOParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateSitExtensionAsTOO{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -1683,9 +1683,9 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
+		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
 		suite.Equal(int64(10), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
@@ -1714,10 +1714,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateSitExtensionAsTOOParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateSitExtensionAsTOO{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -1727,9 +1727,9 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
+		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)

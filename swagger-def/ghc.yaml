@@ -959,7 +959,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSITExtensionAsTOO
+      operationId: createSitExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -973,7 +973,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateSITExtensionAsTOO'
+            $ref: '#/definitions/CreateSitExtensionAsTOO'
           required: true
         - in: header
           description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
@@ -3324,7 +3324,7 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
-  CreateSITExtensionAsTOO:
+  CreateSitExtensionAsTOO:
     properties:
       requestReason:
         description: Reason from service counselor-provided picklist for SIT extension
