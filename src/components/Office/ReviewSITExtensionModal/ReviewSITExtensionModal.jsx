@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -36,93 +37,110 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
           <ModalTitle>
             <h2>Review request for extension</h2>
           </ModalTitle>
-          <div>
-            <dt>Additional days requested:</dt>
-            <dd>{sitExtension.requestedDays}</dd>
-          </div>
-          <div>
-            <dt>Reason:</dt>
-            <dd>{sitExtensionReasons[sitExtension.requestReason]}</dd>
-          </div>
-          <div>
-            <dt>Contractor remarks:</dt>
-            <dd>{sitExtension.contractorRemarks}</dd>
-          </div>
-          <Formik
-            validationSchema={reviewSITExtensionSchema}
-            onSubmit={(e) => onSubmit(sitExtension.id, e)}
-            initialValues={{
-              acceptExtension: 'yes',
-              daysApproved: sitExtension.requestedDays.toString(),
-              officeRemarks: '',
-            }}
-          >
-            {({ isValid, values, setValues }) => {
-              const handleNoSelection = (e) => {
-                if (e.target.value === 'no') {
-                  setValues({
-                    ...values,
-                    acceptExtension: 'no',
-                  });
-                }
-              };
-              return (
-                <Form>
-                  <FormGroup>
-                    <Label>Accept request for extension?</Label>
-                    <div>
-                      <Field
-                        as={Radio}
-                        label="Yes"
-                        id="acceptExtension"
-                        name="acceptExtension"
-                        value="yes"
-                        title="Yes, accept extension"
-                        type="radio"
+          <div className={styles.ModalPanel}>
+            <div className={styles.SITSummary}>
+              <div>
+                <dt>Additional days requested:</dt>
+                <dd>{sitExtension.requestedDays}</dd>
+              </div>
+              <div>
+                <dt>Reason:</dt>
+                <dd>{sitExtensionReasons[sitExtension.requestReason]}</dd>
+              </div>
+              <div>
+                <dt>Contractor remarks:</dt>
+                <dd>{sitExtension.contractorRemarks}</dd>
+              </div>
+            </div>
+            <Formik
+              validationSchema={reviewSITExtensionSchema}
+              onSubmit={(e) => onSubmit(sitExtension.id, e)}
+              initialValues={{
+                acceptExtension: 'yes',
+                daysApproved: sitExtension.requestedDays.toString(),
+                officeRemarks: '',
+              }}
+            >
+              {({ isValid, values, setValues }) => {
+                const handleNoSelection = (e) => {
+                  if (e.target.value === 'no') {
+                    setValues({
+                      ...values,
+                      acceptExtension: 'no',
+                    });
+                  }
+                };
+                return (
+                  <Form>
+                    <FormGroup>
+                      <Label>Accept request for extension?</Label>
+                      <div>
+                        <Field
+                          as={Radio}
+                          label="Yes"
+                          id="acceptExtension"
+                          name="acceptExtension"
+                          value="yes"
+                          title="Yes, accept extension"
+                          type="radio"
+                        />
+                        <Field
+                          as={Radio}
+                          label="No"
+                          id="denyExtension"
+                          name="acceptExtension"
+                          value="no"
+                          title="No, deny extension"
+                          type="radio"
+                          onChange={handleNoSelection}
+                        />
+                      </div>
+                    </FormGroup>
+                    {values.acceptExtension === 'yes' && (
+                      <MaskedTextField
+                        name="daysApproved"
+                        id="daysApproved"
+                        label="Days approved"
+                        mask="num"
+                        blocks={{
+                          num: {
+                            mask: Number,
+                            signed: false,
+                            scale: 0,
+                            thousandsSeparator: ',',
+                          },
+                        }}
+                        lazy={false}
+                        className={classnames(styles.ApprovedDaysInput, 'usa-input')}
                       />
-                      <Field
-                        as={Radio}
-                        label="No"
-                        id="denyExtension"
-                        name="acceptExtension"
-                        value="no"
-                        title="No, deny extension"
-                        type="radio"
-                        onChange={handleNoSelection}
-                      />
-                    </div>
-                  </FormGroup>
-                  {values.acceptExtension === 'yes' && (
-                    <MaskedTextField
-                      name="daysApproved"
-                      id="daysApproved"
-                      label="Days approved"
-                      mask="num"
-                      blocks={{
-                        num: {
-                          mask: Number,
-                          signed: false,
-                          scale: 0,
-                          thousandsSeparator: ',',
-                        },
-                      }}
-                      lazy={false}
+                    )}
+                    <Label>Office remarks</Label>
+                    <Field
+                      as={Textarea}
+                      data-testid="officeRemarks"
+                      label="No"
+                      name="officeRemarks"
+                      id="officeRemarks"
                     />
-                  )}
-                  <Label>Office remarks</Label>
-                  <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
-                  <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
-                    <Button type="button" onClick={() => onClose()} data-testid="modalCancelButton" outline>
-                      Cancel
-                    </Button>
-                  </ModalActions>
-                </Form>
-              );
-            }}
-          </Formik>
+                    <ModalActions>
+                      <Button type="submit" disabled={!isValid}>
+                        Save
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => onClose()}
+                        data-testid="modalCancelButton"
+                        outline
+                        className={styles.CancelButton}
+                      >
+                        Cancel
+                      </Button>
+                    </ModalActions>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </div>
         </Modal>
       </ModalContainer>
     </div>
