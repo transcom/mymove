@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
+import moment from 'moment';
 import { PropTypes } from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
 
@@ -25,6 +26,7 @@ const ShipmentSITExtensions = (props) => {
   const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
   const mappedSITExtensionList = sitExtensions.map((sitExt) => {
+    overallTotalDaysAuthorized += sitExt.approvedDays;
     return (
       <dl key={sitExt.id}>
         {sitExt.approvedDays > 0 && (
@@ -53,23 +55,39 @@ const ShipmentSITExtensions = (props) => {
     );
   });
 
-  const daysAuthorizedAndUsed = (
+  const overallTotalDaysUsed = moment().diff(initialSITItem.sitEntryDate, 'days') + 1;
+  const overallTotalDaysRemaining = overallTotalDaysAuthorized - overallTotalDaysUsed;
+  const overallEndDate = moment().add(overallTotalDaysRemaining, 'days').format('DD MMM YYYY');
+
+  const overallTotalDaysAuthorizedAndUsed = (
     <>
-      <p>XX authorized</p>
-      <p>XX used</p>
+      <p>{overallTotalDaysAuthorized} authorized</p>
+      <p>{overallTotalDaysUsed} used</p>
     </>
   );
 
-  const daysRemainingAndEndDate = (
+  const overallDaysRemainingAndEndDate = (
     <>
-      <p>XX remaining</p>
-      <p>Ends XX Sep 2021</p>
+      <p>{overallTotalDaysRemaining} remaining</p>
+      <p>Ends {overallEndDate}</p>
     </>
   );
 
-  const daysInDestSIT = <p>XX</p>;
-  const dateEnteredSIT = <p>XX Sep 2021</p>;
-  const previouslyUsedSIT = <p>XX days at origin (XX Sep 2021 - XX Oct 2021)</p>;
+  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
+  const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
+  const currentDateEnteredSit = <p>{moment(sitStatus.sitEntryDate).format('DD MMM YYYY')}</p>;
+
+  const previousDaysUsed = sitStatus.pastSITServiceItems.map((pastSITItem) => {
+    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
+    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
+
+    return (
+      <p>
+        {sitDaysUsed} days at {location} ({moment(pastSITItem.sitEntryDate).format('DD MMM YYYY')} -{' '}
+        {moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY')})
+      </p>
+    );
+  });
 
   return (
     <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions)} testID="sitExtensions">
@@ -85,15 +103,15 @@ const ShipmentSITExtensions = (props) => {
       </div>
 
       <DataTable
-        columnHeaders={['Total day of SIT', 'Total days remaining']}
-        dataRow={[daysAuthorizedAndUsed, daysRemainingAndEndDate]}
+        columnHeaders={['Total days of SIT', 'Total days remaining']}
+        dataRow={[overallTotalDaysAuthorizedAndUsed, overallDaysRemainingAndEndDate]}
       />
-      <p>Current location: destination</p>
+      <p>Current location: {currentLocation}</p>
       <DataTable
         columnHeaders={['Days in destination SIT', 'Date entered SIT']}
-        dataRow={[daysInDestSIT, dateEnteredSIT]}
+        dataRow={[currentDaysInSit, currentDateEnteredSit]}
       />
-      <DataTable columnHeaders={['Previously used SIT']} dataRow={[previouslyUsedSIT]} />
+      <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
       {showModal && (
         <ReviewSITExtensionsModal

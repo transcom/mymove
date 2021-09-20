@@ -13,6 +13,7 @@ import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 const ShipmentDetailsMain = ({
   className,
   shipment,
+  storageInTransit,
   dutyStationAddresses,
   handleDivertShipment,
   handleRequestReweighModal,
@@ -28,6 +29,7 @@ const ShipmentDetailsMain = ({
     counselorRemarks,
     customerRemarks,
     sitExtensions,
+    sitStatus,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
@@ -35,6 +37,14 @@ const ShipmentDetailsMain = ({
     <div className={className}>
       {sitExtensions && (
         <ShipmentSITExtensions sitExtensions={sitExtensions} handleReviewSITExtension={handleReviewSITExtension} />
+      )}
+      {sitExtensions && (
+        <ShipmentSITExtensions
+          sitExtensions={sitExtensions}
+          sitStatus={sitStatus}
+          storageInTransit={storageInTransit}
+          shipment={shipment}
+        />
       )}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
@@ -68,6 +78,7 @@ const ShipmentDetailsMain = ({
 ShipmentDetailsMain.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
+  storageInTransit: PropTypes.number.isRequired,
   dutyStationAddresses: PropTypes.shape({
     originDutyStationAddress: AddressShape,
     destinationDutyStationAddress: AddressShape,

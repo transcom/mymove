@@ -1,9 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import PropTypes from 'prop-types';
 
-import { AddressShape } from './address';
-import { AgentShape } from './agent';
-
+import { AddressShape } from 'types/address';
+import { AgentShape } from 'types/agent';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentStatuses } from 'constants/shipments';
 
