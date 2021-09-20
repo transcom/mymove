@@ -275,34 +275,30 @@ describe('ReviewBillableWeight', () => {
     userEvent.click(nextShipment);
     await waitFor(() => {
       expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
-      expect(screen.getByTestId('estimatedWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[1].primeEstimatedWeight),
-      );
-      expect(screen.getByTestId('originalWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[1].primeActualWeight),
-      );
-      expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[1].reweigh.weight));
-      expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
-        formatDateFromIso(mockMtoShipments[1].reweigh.requestedAt, 'DD MMM YYYY'),
-      );
-      expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
     });
+    expect(screen.getByTestId('estimatedWeight').textContent).toBe(
+      formatWeight(mockMtoShipments[1].primeEstimatedWeight),
+    );
+    expect(screen.getByTestId('originalWeight').textContent).toBe(formatWeight(mockMtoShipments[1].primeActualWeight));
+    expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[1].reweigh.weight));
+    expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
+      formatDateFromIso(mockMtoShipments[1].reweigh.requestedAt, 'DD MMM YYYY'),
+    );
+    expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
     userEvent.click(nextShipment);
     await waitFor(() => {
       expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
-      expect(screen.getByTestId('estimatedWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[2].primeEstimatedWeight),
-      );
-      expect(screen.getByTestId('originalWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[2].primeActualWeight),
-      );
-      expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[2].reweigh.weight));
-      expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
-        formatDateFromIso(mockMtoShipments[2].reweigh.requestedAt, 'DD MMM YYYY'),
-      );
-      expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[2].reweigh.verificationReason);
-      expect(screen.queryByRole('button', { name: 'Next Shipment' })).not.toBeInTheDocument();
     });
+    expect(screen.getByTestId('estimatedWeight').textContent).toBe(
+      formatWeight(mockMtoShipments[2].primeEstimatedWeight),
+    );
+    expect(screen.getByTestId('originalWeight').textContent).toBe(formatWeight(mockMtoShipments[2].primeActualWeight));
+    expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[2].reweigh.weight));
+    expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
+      formatDateFromIso(mockMtoShipments[2].reweigh.requestedAt, 'DD MMM YYYY'),
+    );
+    expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[2].reweigh.verificationReason);
+    expect(screen.queryByRole('button', { name: 'Next Shipment' })).not.toBeInTheDocument();
   });
 
   it('takes the user to the previous shipment when the Back button is clicked', async () => {
@@ -320,59 +316,53 @@ describe('ReviewBillableWeight', () => {
     userEvent.click(nextShipment);
     await waitFor(() => {
       expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
-      expect(screen.getByTestId('estimatedWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[2].primeEstimatedWeight),
-      );
-      expect(screen.getByTestId('originalWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[2].primeActualWeight),
-      );
-      expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[2].reweigh.weight));
-      expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
-        formatDateFromIso(mockMtoShipments[2].reweigh.requestedAt, 'DD MMM YYYY'),
-      );
-      expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[2].reweigh.verificationReason);
     });
+    expect(screen.getByTestId('estimatedWeight').textContent).toBe(
+      formatWeight(mockMtoShipments[2].primeEstimatedWeight),
+    );
+    expect(screen.getByTestId('originalWeight').textContent).toBe(formatWeight(mockMtoShipments[2].primeActualWeight));
+    expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[2].reweigh.weight));
+    expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
+      formatDateFromIso(mockMtoShipments[2].reweigh.requestedAt, 'DD MMM YYYY'),
+    );
+    expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[2].reweigh.verificationReason);
 
     const back = screen.getByRole('button', { name: 'Back' });
     userEvent.click(back);
     await waitFor(() => {
       expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
-      expect(screen.getByTestId('estimatedWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[1].primeEstimatedWeight),
-      );
-      expect(screen.getByTestId('originalWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[1].primeActualWeight),
-      );
-      expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[1].reweigh.weight));
-      expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
-        formatDateFromIso(mockMtoShipments[1].reweigh.requestedAt, 'DD MMM YYYY'),
-      );
-      expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
     });
+    expect(screen.getByTestId('estimatedWeight').textContent).toBe(
+      formatWeight(mockMtoShipments[1].primeEstimatedWeight),
+    );
+    expect(screen.getByTestId('originalWeight').textContent).toBe(formatWeight(mockMtoShipments[1].primeActualWeight));
+    expect(screen.getByTestId('reweighWeight').textContent).toBe(formatWeight(mockMtoShipments[1].reweigh.weight));
+    expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
+      formatDateFromIso(mockMtoShipments[1].reweigh.requestedAt, 'DD MMM YYYY'),
+    );
+    expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
 
     userEvent.click(back);
     await waitFor(() => {
       expect(screen.getByText('Shipment 1 of 3')).toBeInTheDocument();
-      expect(screen.getByTestId('estimatedWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[0].primeEstimatedWeight),
-      );
-      expect(screen.getByTestId('originalWeight').textContent).toBe(
-        formatWeight(mockMtoShipments[0].primeActualWeight),
-      );
-      expect(screen.getByTestId('reweighWeight').textContent).toBe('Missing');
-      expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
-        formatDateFromIso(mockMtoShipments[0].reweigh.requestedAt, 'DD MMM YYYY'),
-      );
-      expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[0].reweigh.verificationReason);
     });
+    expect(screen.getByTestId('estimatedWeight').textContent).toBe(
+      formatWeight(mockMtoShipments[0].primeEstimatedWeight),
+    );
+    expect(screen.getByTestId('originalWeight').textContent).toBe(formatWeight(mockMtoShipments[0].primeActualWeight));
+    expect(screen.getByTestId('reweighWeight').textContent).toBe('Missing');
+    expect(screen.getByTestId('dateReweighRequested').textContent).toBe(
+      formatDateFromIso(mockMtoShipments[0].reweigh.requestedAt, 'DD MMM YYYY'),
+    );
+    expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[0].reweigh.verificationReason);
 
     userEvent.click(back);
     await waitFor(() => {
       expect(screen.getByText('Edit max billable weight')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Next Shipment' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Review shipment weights' })).toBeInTheDocument();
     });
+    expect(screen.queryByRole('button', { name: 'Next Shipment' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Review shipment weights' })).toBeInTheDocument();
   });
 
   it('renders weight summary', () => {
