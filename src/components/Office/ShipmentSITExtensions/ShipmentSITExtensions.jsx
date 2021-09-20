@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
 import { PropTypes } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -55,14 +55,17 @@ const ShipmentSITExtensions = (props) => {
 
   return (
     <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions)} testID="sitExtensions">
-      <p>
-        SIT (STORAGE IN TRANSIT){' '}
-        {sitExtensions.some((sitExt) => sitExt.status === SIT_EXTENSION_STATUS.PENDING) && (
-          <Button type="button" onClick={() => setisReviewSITExtensionModalVisible(true)} unstyled>
-            View request
-          </Button>
+      <div className={styles.title}>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        {pendingSITExtension && (
+          <p>
+            <Button type="button" onClick={() => setisReviewSITExtensionModalVisible(true)} unstyled>
+              View request
+            </Button>
+          </p>
         )}
-      </p>
+      </div>
+
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
       {showModal && (
         <ReviewSITExtensionsModal

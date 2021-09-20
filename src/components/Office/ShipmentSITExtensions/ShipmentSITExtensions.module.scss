@@ -2,6 +2,17 @@
 @import 'shared/styles/colors';
 
 .mtoShipmentSITExtensions {
+  .title {
+    display: flex;
+    justify-content: space-between;
+    button {
+      padding-right: 0px;
+    }
+    span {
+      margin-left: 0.5rem !important;
+    }
+  }
+
   p {
     @include u-margin-left(1);
   }
