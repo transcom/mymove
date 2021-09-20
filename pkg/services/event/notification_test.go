@@ -169,7 +169,6 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Equal(mtoServiceItemDOSHUT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDOSHUT.MTOShipmentID.String(), data.MtoShipmentID().String())
 		suite.Equal(string(mtoServiceItemDOSHUT.ReService.Code), *data.ReServiceCode)
-		suite.Equal(*mtoServiceItemDOSHUT.Description, *data.Description)
 		suite.Equal(*mtoServiceItemDOSHUT.Reason, *data.Reason)
 	})
 

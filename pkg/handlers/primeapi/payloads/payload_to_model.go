@@ -310,7 +310,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
-		model.Description = shuttleService.Description
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
