@@ -26,19 +26,24 @@ func NewPaymentRequestRecalculator(paymentRequestCreator services.PaymentRequest
 	}
 }
 
-func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, startNewDBTx bool) (*models.PaymentRequest, error) {
 	var newPaymentRequest *models.PaymentRequest
 
-	// Make sure we do this whole process in a transaction so partial changes do not get made committed
-	// in the event of an error.
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	if startNewDBTx {
+		// Make sure we do this whole process in a transaction so partial changes do not get made committed
+		// in the event of an error.
+		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			var err error
+			newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID)
+			return err
+		})
+		if transactionError != nil {
+			return nil, transactionError
+		}
+	} else {
 		var err error
-		newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID)
-		return err
-	})
-
-	if transactionError != nil {
-		return nil, transactionError
+		newPaymentRequest, err = p.doRecalculate(appCtx, paymentRequestID)
+		return nil, err
 	}
 
 	return newPaymentRequest, nil

@@ -62,12 +62,18 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	}
 
 	// var newPR *models.PaymentRequest
-	for _, pr := range paymentRequests {
-		_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(appCtx, pr.ID)
-		if err != nil {
-			return err
+	startNewTx := false
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, pr := range paymentRequests {
+			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr.ID, startNewTx)
+			if err != nil {
+				return err
+			}
 		}
+		return nil
+	})
+	if transactionError != nil {
+		return transactionError
 	}
-
 	return nil
 }

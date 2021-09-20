@@ -19,7 +19,7 @@ type PaymentRequestCreator interface {
 // PaymentRequestRecalculator is the exported interface for recalculating a payment request
 //go:generate mockery --name PaymentRequestRecalculator --disable-version-string
 type PaymentRequestRecalculator interface {
-	RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
+	RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, startNewTx bool) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestShipmentRecalculator is the exported interface for recalculating payment requests for a shipment

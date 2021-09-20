@@ -430,7 +430,8 @@ func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.Recalcu
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
 
-	newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID)
+	startNewTx := true
+	newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID, startNewTx)
 
 	if err != nil {
 		switch e := err.(type) {
