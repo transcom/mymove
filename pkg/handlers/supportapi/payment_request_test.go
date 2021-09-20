@@ -803,6 +803,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		mockRecalculator.On("RecalculatePaymentRequest",
 			appCtx,
 			paymentRequestID,
+			true, /* start new TX */
 		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
 			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -877,6 +878,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			mockRecalculator.On("RecalculatePaymentRequest",
 				appCtx,
 				paymentRequestID,
+				true, /* start new TX */
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{
 				HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

@@ -62,7 +62,7 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	}
 
 	// var newPR *models.PaymentRequest
-	startNewTx := false
+	startNewTx := false /* re-use Tx from ShipmentRecalculatePaymentRequest service */
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		for _, pr := range paymentRequests {
 			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr.ID, startNewTx)
