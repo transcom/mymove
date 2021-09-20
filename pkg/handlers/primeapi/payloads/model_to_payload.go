@@ -560,6 +560,41 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 	return payload
 }
 
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *primemessages.SitExtension {
+	if sitExtension == nil {
+		return nil
+	}
+	payload := &primemessages.SitExtension{
+		ID:            strfmt.UUID(sitExtension.ID.String()),
+		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason: string(sitExtension.RequestReason),
+		RequestedDays: int64(sitExtension.RequestedDays),
+		Status:        string(sitExtension.Status),
+		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(sitExtension.UpdatedAt),
+	}
+
+	if sitExtension.ApprovedDays != nil && *sitExtension.ApprovedDays > 0 {
+		payload.ApprovedDays = handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays)
+	}
+
+	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
+		payload.ContractorRemarks = sitExtension.ContractorRemarks
+	}
+
+	if sitExtension.DecisionDate != nil && !sitExtension.DecisionDate.IsZero() {
+		payload.DecisionDate = handlers.FmtDateTimePtr(sitExtension.DecisionDate)
+	}
+
+	if sitExtension.OfficeRemarks != nil && len(*sitExtension.OfficeRemarks) > 0 {
+		payload.OfficeRemarks = sitExtension.OfficeRemarks
+	}
+
+	return payload
+}
+
 // InternalServerError describes errors in a standard structure to be returned in the payload.
 // If detail is nil, string defaults to "An internal server error has occurred."
 func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error {

@@ -518,12 +518,12 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateSITExtension'
+            $ref: '#/definitions/CreateSitExtension'
       responses:
         '200':
           description: Successfully created the sit extension request.
           schema:
-            $ref: 'definitions/SITExtensions/SITExtension.yaml'
+            $ref: 'definitions/SitExtensions/SitExtension.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1088,12 +1088,20 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateSITExtension:
-    description: CreateSITExtension contains the fields required for the prime to create a SIT Extension request.
+  CreateSitExtension:
+    description: CreateSitExtension contains the fields required for the prime to create a SIT Extension request.
     type: object
     properties:
       requestReason:
-        $ref: 'definitions/SITExtensions/RequestReason.yaml'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       contractorRemarks:
         type: string
         example: We need SIT additional days. The customer has not found a house yet.

@@ -11,12 +11,23 @@ properties:
     format: uuid
     type: string
   requestReason:
-    $ref: 'RequestReason.yaml'
+    type: string
+    enum:
+      - SERIOUS_ILLNESS_MEMBER
+      - SERIOUS_ILLNESS_DEPENDENT
+      - IMPENDING_ASSIGNEMENT
+      - DIRECTED_TEMPORARY_DUTY
+      - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+      - AWAITING_COMPLETION_OF_RESIDENCE
+      - OTHER
   contractorRemarks:
     example: We need SIT additional days. The customer has not found a house yet.
     type: string
+    x-nullable: true
+    x-omitempty: false
   requestedDays:
     type: integer
+    example: 30
   status:
     enum:
       - PENDING
@@ -24,11 +35,18 @@ properties:
       - DENIED
   approvedDays:
     type: integer
+    example: 30
+    x-nullable: true
+    x-omitempty: false
   decisionDate:
     format: date-time
     type: string
+    x-nullable: true
+    x-omitempty: false
   officeRemarks:
     type: string
+    x-nullable: true
+    x-omitempty: false
   createdAt:
     format: date-time
     type: string

@@ -734,6 +734,69 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/sit-extensions": {
+      "post": {
+        "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createSITExtension",
+        "operationId": "createSITExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSitExtension"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created the sit extension request.",
+            "schema": {
+              "$ref": "#/definitions/SitExtension"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
@@ -1207,6 +1270,37 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
+        }
+      }
+    },
+    "CreateSitExtension": {
+      "description": "CreateSitExtension contains the fields required for the prime to create a SIT Extension request.",
+      "type": "object",
+      "required": [
+        "requestReason",
+        "contractorRemarks",
+        "requestedDays"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
         }
       }
     },
@@ -2620,6 +2714,82 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
+    "SitExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "UpdateMTOServiceItem": {
       "description": "UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
@@ -3930,6 +4100,90 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/sit-extensions": {
+      "post": {
+        "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createSITExtension",
+        "operationId": "createSITExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSitExtension"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created the sit extension request.",
+            "schema": {
+              "$ref": "#/definitions/SitExtension"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
@@ -4464,6 +4718,37 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
+        }
+      }
+    },
+    "CreateSitExtension": {
+      "description": "CreateSitExtension contains the fields required for the prime to create a SIT Extension request.",
+      "type": "object",
+      "required": [
+        "requestReason",
+        "contractorRemarks",
+        "requestedDays"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
         }
       }
     },
@@ -5877,6 +6162,82 @@ func init() {
         "value": {
           "type": "string",
           "example": "Service Item Parameter Value"
+        }
+      }
+    },
+    "SitExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

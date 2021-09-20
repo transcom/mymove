@@ -977,7 +977,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSitExtensionAsTOO
+      operationId: createSITExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -3219,7 +3219,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SITExtensions'
+        $ref: '#/definitions/SitExtensions'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3864,16 +3864,7 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
-  RequestReason:
-    enum:
-      - SERIOUS_ILLNESS_MEMBER
-      - SERIOUS_ILLNESS_DEPENDENT
-      - IMPENDING_ASSIGNEMENT
-      - DIRECTED_TEMPORARY_DUTY
-      - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-      - AWAITING_COMPLETION_OF_RESIDENCE
-      - OTHER
-  SITExtension:
+  SitExtension:
     type: object
     description: >-
       A storage in transit (SIT) Extension is a request for an increase in the
@@ -3888,12 +3879,23 @@ definitions:
         format: uuid
         type: string
       requestReason:
-        $ref: '#/definitions/RequestReason'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       contractorRemarks:
         example: We need SIT additional days. The customer has not found a house yet.
         type: string
+        x-nullable: true
+        x-omitempty: false
       requestedDays:
         type: integer
+        example: 30
       status:
         enum:
           - PENDING
@@ -3901,11 +3903,18 @@ definitions:
           - DENIED
       approvedDays:
         type: integer
+        example: 30
+        x-nullable: true
+        x-omitempty: false
       decisionDate:
         format: date-time
         type: string
+        x-nullable: true
+        x-omitempty: false
       officeRemarks:
         type: string
+        x-nullable: true
+        x-omitempty: false
       createdAt:
         format: date-time
         type: string
@@ -3917,10 +3926,10 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  SITExtensions:
+  SitExtensions:
     type: array
     items:
-      $ref: '#/definitions/SITExtension'
+      $ref: '#/definitions/SitExtension'
 responses:
   InvalidRequest:
     description: The request payload is invalid

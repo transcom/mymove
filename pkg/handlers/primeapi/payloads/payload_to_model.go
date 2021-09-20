@@ -405,6 +405,22 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	return model, nil
 }
 
+// SITExtensionModel transform the request data the sitExtension model
+func SITExtensionModel(sitExtension *primemessages.CreateSitExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	model := &models.SITExtension{
+		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
+		RequestedDays:     int(*sitExtension.RequestedDays),
+		ContractorRemarks: sitExtension.ContractorRemarks,
+		RequestReason:     models.SITExtensionRequestReason(*sitExtension.RequestReason),
+	}
+
+	return model
+}
+
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(

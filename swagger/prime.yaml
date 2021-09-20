@@ -659,12 +659,12 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateSITExtension'
+            $ref: '#/definitions/CreateSitExtension'
       responses:
         '200':
           description: Successfully created the sit extension request.
           schema:
-            $ref: '#/definitions/SITExtension'
+            $ref: '#/definitions/SitExtension'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1288,14 +1288,22 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateSITExtension:
+  CreateSitExtension:
     description: >-
-      CreateSITExtension contains the fields required for the prime to create a
+      CreateSitExtension contains the fields required for the prime to create a
       SIT Extension request.
     type: object
     properties:
       requestReason:
-        $ref: '#/definitions/RequestReason'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       contractorRemarks:
         type: string
         example: We need SIT additional days. The customer has not found a house yet.
@@ -2781,16 +2789,7 @@ definitions:
                 type: string
         required:
           - invalidFields
-  RequestReason:
-    enum:
-      - SERIOUS_ILLNESS_MEMBER
-      - SERIOUS_ILLNESS_DEPENDENT
-      - IMPENDING_ASSIGNEMENT
-      - DIRECTED_TEMPORARY_DUTY
-      - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-      - AWAITING_COMPLETION_OF_RESIDENCE
-      - OTHER
-  SITExtension:
+  SitExtension:
     type: object
     description: >-
       A storage in transit (SIT) Extension is a request for an increase in the
@@ -2805,12 +2804,23 @@ definitions:
         format: uuid
         type: string
       requestReason:
-        $ref: '#/definitions/RequestReason'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       contractorRemarks:
         example: We need SIT additional days. The customer has not found a house yet.
         type: string
+        x-nullable: true
+        x-omitempty: false
       requestedDays:
         type: integer
+        example: 30
       status:
         enum:
           - PENDING
@@ -2818,11 +2828,18 @@ definitions:
           - DENIED
       approvedDays:
         type: integer
+        example: 30
+        x-nullable: true
+        x-omitempty: false
       decisionDate:
         format: date-time
         type: string
+        x-nullable: true
+        x-omitempty: false
       officeRemarks:
         type: string
+        x-nullable: true
+        x-omitempty: false
       createdAt:
         format: date-time
         type: string

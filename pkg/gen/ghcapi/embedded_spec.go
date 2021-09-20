@@ -2437,7 +2437,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtensionAsTOO",
+        "operationId": "createSITExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -4811,23 +4811,35 @@ func init() {
       ]
     },
     "SitExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
       "properties": {
         "approvedDays": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
         },
         "contractorRemarks": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "decisionDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4840,9 +4852,12 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "officeRemarks": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "requestReason": {
+          "type": "string",
           "enum": [
             "SERIOUS_ILLNESS_MEMBER",
             "SERIOUS_ILLNESS_DEPENDENT",
@@ -4854,7 +4869,8 @@ func init() {
           ]
         },
         "requestedDays": {
-          "type": "integer"
+          "type": "integer",
+          "example": 30
         },
         "status": {
           "enum": [
@@ -4866,7 +4882,7 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "readOnly": true
         }
       }
     },
@@ -8364,7 +8380,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtensionAsTOO",
+        "operationId": "createSITExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -10810,23 +10826,35 @@ func init() {
       ]
     },
     "SitExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
       "properties": {
         "approvedDays": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
         },
         "contractorRemarks": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "decisionDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -10839,9 +10867,12 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "officeRemarks": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "requestReason": {
+          "type": "string",
           "enum": [
             "SERIOUS_ILLNESS_MEMBER",
             "SERIOUS_ILLNESS_DEPENDENT",
@@ -10853,7 +10884,8 @@ func init() {
           ]
         },
         "requestedDays": {
-          "type": "integer"
+          "type": "integer",
+          "example": 30
         },
         "status": {
           "enum": [
@@ -10865,7 +10897,7 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "readOnly": true
         }
       }
     },

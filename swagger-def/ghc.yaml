@@ -959,7 +959,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSitExtensionAsTOO
+      operationId: createSITExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -3153,7 +3153,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: 'definitions/SITExtensions/SITExtensions.yaml'
+        $ref: 'definitions/SitExtensions/SitExtensions.yaml'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
