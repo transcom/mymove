@@ -4003,7 +4003,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	})
 
 	estimatedHHGWeight := unit.Pound(1400)
-	actualHHGWeight := unit.Pound(6000)
+	actualHHGWeight := unit.Pound(8900)
 	now := time.Now()
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
