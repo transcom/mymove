@@ -2626,8 +2626,9 @@ func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Status:  models.MoveStatusSUBMITTED,
-			Locator: "INXSWT",
+			Locator: "NOADDR",
 		},
+		UserUploader: userUploader,
 	})
 
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
