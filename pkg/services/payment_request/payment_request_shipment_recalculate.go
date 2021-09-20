@@ -61,6 +61,9 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 		return err
 	}
 
+	// Note: Payment requests can have MTO Service Items from different shipments. RecalculatePaymentRequest
+	// will reprice the whole payment request if the payment request has a service item that needs to be recalculated.
+
 	// var newPR *models.PaymentRequest
 	startNewTx := false /* re-use Tx from ShipmentRecalculatePaymentRequest service */
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
