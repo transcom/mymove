@@ -3153,7 +3153,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: 'definitions/SitExtensions/SitExtensions.yaml'
+        $ref: 'definitions/SitExtensions.yaml'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:

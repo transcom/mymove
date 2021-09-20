@@ -523,7 +523,7 @@ paths:
         '200':
           description: Successfully created the sit extension request.
           schema:
-            $ref: 'definitions/SitExtensions/SitExtension.yaml'
+            $ref: 'definitions/SitExtension.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
