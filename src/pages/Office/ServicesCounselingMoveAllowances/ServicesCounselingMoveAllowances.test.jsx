@@ -1,6 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingMoveAllowances from 'pages/Office/ServicesCounselingMoveAllowances/ServicesCounselingMoveAllowances';
@@ -126,52 +124,40 @@ describe('MoveAllowances page', () => {
   });
 
   describe('Basic rendering', () => {
-    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-
-    const wrapper = mount(
-      <MockProviders initialEntries={['/counseling/moves/1000/allowances']}>
-        <ServicesCounselingMoveAllowances />
-      </MockProviders>,
-    );
-
-    it('renders the sidebar elements', () => {
-      expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View allowances');
-      expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View orders');
-      expect(wrapper.find({ 'data-testid': 'header' }).text()).toBe('Counseling');
+    beforeEach(() => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
     });
 
-    it('renders displays the allowances in the sidebar form', () => {
-      // Pro-gear
-      expect(wrapper.find(`input[data-testid="proGearWeightInput"]`).getDOMNode().value).toBe('2,000');
+    it('renders the sidebar elements', async () => {
+      render(
+        <MockProviders initialEntries={['/counseling/moves/1000/allowances']}>
+          <ServicesCounselingMoveAllowances />
+        </MockProviders>,
+      );
 
-      // Pro-gear spouse
-      expect(wrapper.find(`input[data-testid="proGearWeightSpouseInput"]`).getDOMNode().value).toBe('500');
+      expect(await screen.findByTestId('allowances-header')).toHaveTextContent('View allowances');
+      expect(screen.getByTestId('view-orders')).toHaveTextContent('View orders');
+      expect(screen.getByTestId('header')).toHaveTextContent('Counseling');
+    });
 
-      // RME
-      expect(wrapper.find(`input[data-testid="rmeInput"]`).getDOMNode().value).toBe('1,000');
+    it('renders displays the allowances in the sidebar form', async () => {
+      render(
+        <MockProviders initialEntries={['/counseling/moves/1000/allowances']}>
+          <ServicesCounselingMoveAllowances />
+        </MockProviders>,
+      );
 
-      // Branch
-      expect(wrapper.find(`select[data-testid="branchInput"]`).getDOMNode().value).toBe('ARMY');
+      expect(await screen.findByTestId('proGearWeightInput')).toHaveDisplayValue('2,000');
+      expect(screen.getByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
+      expect(screen.getByTestId('rmeInput')).toHaveDisplayValue('1,000');
+      expect(screen.getByTestId('branchInput')).toHaveDisplayValue('Army');
+      expect(screen.getByTestId('rankInput')).toHaveDisplayValue('E-1');
 
-      // Rank
-      expect(wrapper.find(`select[data-testid="rankInput"]`).getDOMNode().value).toBe('E_1');
+      expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
+      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
-      // OCIE
-      expect(
-        wrapper.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
-      ).toBeTruthy();
-
-      // Authorized weight
-      expect(wrapper.find('dd').at(0).text()).toBe('5,000 lbs');
-
-      // Weight allowance
-      expect(wrapper.find('dd').at(1).text()).toBe('5,000 lbs');
-
-      // Storage in-transit
-      expect(wrapper.find('dd').at(2).text()).toBe('2 days');
-
-      // Dependents authorized
-      expect(wrapper.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeTruthy();
+      expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
+      expect(screen.getByTestId('storageInTransit')).toHaveTextContent('2 days');
     });
   });
 });

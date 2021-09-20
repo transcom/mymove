@@ -1,26 +1,26 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
 
 import { CustomerContactInfoFields } from './index';
 
 describe('ContactInfoFields component', () => {
   it('renders a legend and all service member contact info inputs', () => {
-    const { getByText, getByLabelText } = render(
+    render(
       <Formik>
         <CustomerContactInfoFields legend="Your contact info" />
       </Formik>,
     );
-    expect(getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);
-    expect(getByLabelText('Best contact phone')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('Personal email')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('Phone')).not.toBeChecked();
-    expect(getByLabelText('Email')).not.toBeChecked();
+    expect(screen.getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);
+    expect(screen.getByLabelText('Best contact phone')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Personal email')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Phone')).not.toBeChecked();
+    expect(screen.getByLabelText('Email')).not.toBeChecked();
   });
 
   describe('with pre-filled values', () => {
-    it('renders a legend and all service member contact info inputs', () => {
+    it('renders a legend and all service member contact info inputs', async () => {
       const initialValues = {
         telephone: '555-123-4567',
         secondary_telephone: '555-890-1234',
@@ -29,16 +29,16 @@ describe('ContactInfoFields component', () => {
         email_is_preferred: true,
       };
 
-      const { getByLabelText } = render(
+      render(
         <Formik initialValues={initialValues}>
           <CustomerContactInfoFields legend="Your contact info" name="contact" />
         </Formik>,
       );
-      expect(getByLabelText('Best contact phone')).toHaveValue(initialValues.telephone);
-      expect(getByLabelText(/Alt. phone/)).toHaveValue(initialValues.secondary_telephone);
-      expect(getByLabelText('Personal email')).toHaveValue(initialValues.personal_email);
-      expect(getByLabelText('Phone')).toBeChecked();
-      expect(getByLabelText('Email')).toBeChecked();
+      expect(await screen.findByLabelText('Best contact phone')).toHaveValue(initialValues.telephone);
+      expect(screen.getByLabelText(/Alt. phone/)).toHaveValue(initialValues.secondary_telephone);
+      expect(screen.getByLabelText('Personal email')).toHaveValue(initialValues.personal_email);
+      expect(screen.getByLabelText('Phone')).toBeChecked();
+      expect(screen.getByLabelText('Email')).toBeChecked();
     });
   });
 });

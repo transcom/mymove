@@ -2815,6 +2815,7 @@ func init() {
         "weight": {
           "description": "The total reweighed weight for the shipment in pounds.",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "x-omitempty": false,
@@ -6075,6 +6076,7 @@ func init() {
         "weight": {
           "description": "The total reweighed weight for the shipment in pounds.",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "x-omitempty": false,
