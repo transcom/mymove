@@ -110,11 +110,12 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	*/
 	// if the reweigh weight is less than the MTOShipment's original weight, then recalculate
 	// applicable payment requests
-
-	if *reweigh.Weight < *shipment.PrimeActualWeight {
-		err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
-		if err != nil {
-			return nil, err
+	if reweigh != nil && reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
+		if *reweigh.Weight < *shipment.PrimeActualWeight {
+			err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
