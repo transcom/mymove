@@ -68,7 +68,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithOriginalWeightOnly(originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeights(estimatedWeight *unit.Pound, originalWeight *unit.Pound, reweighWeight *unit.Pound, adjustedWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
@@ -78,41 +78,20 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithOriginalW
 				Name: string(code),
 			},
 			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &originalWeight,
-				ShipmentType:      shipmentType,
-			},
-		})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-
-	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	suite.FatalNoError(err)
-
-	return mtoServiceItem, paymentRequest, paramLookup
-}
-
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			ReService: models.ReService{
-				Code: code,
-				Name: string(code),
-			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				PrimeActualWeight:    &originalWeight,
+				PrimeEstimatedWeight: estimatedWeight,
+				PrimeActualWeight:    originalWeight,
+				BillableWeightCap:    adjustedWeight,
 				ShipmentType:         shipmentType,
 			},
 		})
 
+	if reweighWeight != nil {
+		var shipment models.MTOShipment
+		suite.NoError(suite.DB().Find(&shipment, *mtoServiceItem.MTOShipmentID))
+
+		_ = testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, *reweighWeight)
+	}
+
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
 			Move: move,
@@ -125,43 +104,25 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 	suite.FatalNoError(err)
 
 	return mtoServiceItem, paymentRequest, paramLookup
+}
+
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithOriginalWeightOnly(originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	return suite.setupTestMTOServiceItemWithAllWeights(nil, &originalWeight, nil, nil, code, shipmentType)
+}
+
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	return suite.setupTestMTOServiceItemWithAllWeights(&estimatedWeight, &originalWeight, nil, nil, code, shipmentType)
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithReweigh(reweighWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			ReService: models.ReService{
-				Code: code,
-				Name: string(code),
-			},
-			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &originalWeight,
-				ShipmentType:      shipmentType,
-			},
-		})
-
-	var shipment models.MTOShipment
-	suite.NoError(suite.DB().Find(&shipment, *mtoServiceItem.MTOShipmentID))
-
-	_ = testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, reweighWeight)
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-
-	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	suite.FatalNoError(err)
-
-	return mtoServiceItem, paymentRequest, paramLookup
+	return suite.setupTestMTOServiceItemWithAllWeights(nil, &originalWeight, &reweighWeight, nil, code, shipmentType)
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(estimatedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight *unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	return suite.setupTestMTOServiceItemWithAllWeights(nil, &originalWeight, nil, adjustedWeight, code, shipmentType)
+}
+
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
@@ -171,41 +132,11 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 				Name: string(code),
 			},
 			MTOServiceItem: models.MTOServiceItem{
-				EstimatedWeight: &estimatedWeight,
-				ActualWeight:    &originalWeight,
+				EstimatedWeight: &itemEstimatedWeight,
+				ActualWeight:    &itemOriginalWeight,
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: shipmentType,
-			},
-		})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-
-	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	suite.FatalNoError(err)
-
-	return mtoServiceItem, paymentRequest, paramLookup
-}
-
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedWeight(adjustedWeight *unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			ReService: models.ReService{
-				Code: code,
-				Name: string(code),
-			},
-			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &originalWeight,
-				ShipmentType:      shipmentType,
-				BillableWeightCap: adjustedWeight,
 			},
 		})
 
@@ -284,7 +215,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		})
 	}
 
-	suite.T().Run("MTOShipment is looked up for other serivce items", func(t *testing.T) {
+	suite.T().Run("MTOShipment is looked up for other service items", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,
@@ -303,7 +234,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
-	suite.T().Run("DestinationAddress is looked up for other serivce items", func(t *testing.T) {
+	suite.T().Run("DestinationAddress is looked up for other service items", func(t *testing.T) {
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
@@ -348,7 +279,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		suite.FatalNoError(err)
 	})
 
-	suite.T().Run("PickupAddress is looked up for other serivce items", func(t *testing.T) {
+	suite.T().Run("PickupAddress is looked up for other service items", func(t *testing.T) {
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
