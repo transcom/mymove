@@ -215,7 +215,8 @@ func subScenarioSITExtentions(appCtx appcontext.AppContext, userUploader *upload
 		createTIO(appCtx)
 		createTXO(appCtx)
 
-		createMoveWithSITExtensions(appCtx, userUploader)
+		createMoveWithSITExtensionHistory(appCtx, userUploader)
+		createMoveWithPendingSITExtension(appCtx, userUploader)
 	}
 }
 
