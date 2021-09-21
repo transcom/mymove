@@ -131,7 +131,6 @@ export default function ReviewBillableWeight() {
                     totalBillableWeight={totalBillableWeight}
                     weightRequested={weightRequested}
                     weightAllowance={weightAllowance}
-                    totalBillableWeightFlag
                     shipments={mtoShipments}
                   />
                 </div>

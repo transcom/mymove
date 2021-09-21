@@ -12,7 +12,6 @@ const props = {
   totalBillableWeight: 12460,
   weightRequested: 12460,
   weightAllowance: 8000,
-  totalBillableWeightFlag: true,
   shipments: [
     { id: '0001', shipmentType: 'HHG', billableWeightCap: 6161, primeEstimatedWeight: 5600 },
     {
