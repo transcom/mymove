@@ -25,7 +25,10 @@ export default function BillableWeightCard({
           {totalBillableWeight > maxBillableWeight && (
             <div>
               <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
-              <span data-testid="maxBillableWeightErrorText" className={styles.errorText}>
+              <span
+                data-testid="maxBillableWeightErrorText"
+                className={classnames(styles.errorText, 'usa-error-message')}
+              >
                 Move exceeds max billable weight
               </span>
             </div>
