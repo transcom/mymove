@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -17,7 +19,25 @@ type NumberDaysSITLookup struct {
 }
 
 const hoursInADay float64 = 24
-const fullBillingPeriod int = 29
+
+func (s NumberDaysSITLookup) findCurrentPaymentServiceItem(paymentServiceItems models.PaymentServiceItems, paymentRequestID uuid.UUID, mtoServiceItemID uuid.UUID) (models.PaymentServiceItem, models.PaymentServiceItems, error) {
+	currentPaymentServiceItem := models.PaymentServiceItem{}
+	priorPaymentServiceItems := models.PaymentServiceItems{}
+	found := false
+	for _, psi := range paymentServiceItems {
+		if psi.PaymentRequestID == paymentRequestID && psi.MTOServiceItemID == mtoServiceItemID {
+			currentPaymentServiceItem = psi
+			found = true // TODO do i care if this happens twice? what would that mean?
+		} else {
+			priorPaymentServiceItems = append(priorPaymentServiceItems, psi)
+		}
+	}
+	if !found {
+		return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("ERROR: no matching service items found")
+	}
+
+	return currentPaymentServiceItem, priorPaymentServiceItems, nil
+}
 
 func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(appCtx, s.MTOShipment)
@@ -25,53 +45,47 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", err
 	}
 
-	// TODO: how we get the request start end end from the payment request???
-	requestedStart := time.Time{}
-	requestedEnd := time.Time{}
-	hasOverlappingDate := hasOverlappingSITDates(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem, requestedStart, requestedEnd)
-	if hasOverlappingDate {
-		return "", errors.New("new requested SIT dates overlap previously requested dates")
-	}
-
-	billableMTOServiceItemSITDays, err := calculateBillableMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
+	_, _, err = fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
 	if err != nil {
 		return "", err
 	}
 
-	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(mtoShipmentSITPaymentServiceItems)
+	currentPaymentServiceItem, priorPaymentServiceItems, err := s.findCurrentPaymentServiceItem(mtoShipmentSITPaymentServiceItems, keyData.PaymentRequestID, keyData.MTOServiceItemID)
+	if err != nil {
+		return "", err
+	}
+
+	start, end, err := fetchSITStartAndEndDateParamValues(currentPaymentServiceItem)
+	if err != nil {
+		return "", fmt.Errorf("ERROR getting start and end")
+	}
+
+	hasOverlappingDate := hasOverlappingSITDates(priorPaymentServiceItems, keyData.MTOServiceItem, start, end)
+	if hasOverlappingDate {
+		return "", errors.New("new requested SIT dates overlap previously requested dates")
+	}
+
+	// TODO need to make sure we're counting the current service item in here and comparing to the right stuff
+	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(priorPaymentServiceItems)
 	if err != nil {
 		return "", err
 	}
 	if remainingMoveTaskOrderSITDays <= 0 {
 		return "", fmt.Errorf("Move Task Order %v has 0 remaining SIT Days", s.MTOShipment.MoveTaskOrderID)
-	} else if notEnoughRemainingMoveTaskOrderSITDays(remainingMoveTaskOrderSITDays, billableMTOServiceItemSITDays) {
+	}
+
+	billableMTOServiceItemSITDays, err := calculateNumberSITAdditionalDays(currentPaymentServiceItem)
+	if err != nil {
+		return "", err
+	}
+
+	if remainingMoveTaskOrderSITDays < billableMTOServiceItemSITDays {
 		return strconv.Itoa(remainingMoveTaskOrderSITDays), nil
 	}
-
-	// this maybe goes away?
-	if billableMTOServiceItemSITDays <= 0 {
-		return "", fmt.Errorf("MTO Service Item %v has 0 billable SIT Days", keyData.MTOServiceItemID)
-	}
-
 	return strconv.Itoa(billableMTOServiceItemSITDays), nil
 }
 
 func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem, sitStart time.Time, sitEnd time.Time) bool {
-	/*
-		TODO:	Was thinking this could be pulled from the mtoServiceItem and not have to pass it in, since the mtoServiceItem is being passed in,
-		TODO:	but I'm not sure where to get this information.
-
-		sitStart, err := ghcrateengine.GetParamTime(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameSITPaymentRequestStart)
-		if err != nil {
-			return false
-		}
-		sitEnd, err := ghcrateengine.GetParamTime(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameSITPaymentRequestEnd)
-		if err != nil {
-			return false
-		}
-
-	*/
-
 	for _, paymentServiceItem := range shipmentSITPaymentServiceItems {
 		// Check for overlapping requested SIT dates with previously billed additional days SIT service items at the same origin or destination
 		if isDDASIT(paymentServiceItem.MTOServiceItem) && isDDASIT(mtoServiceItem) || isDOASIT(paymentServiceItem.MTOServiceItem) && isDOASIT(mtoServiceItem) {
@@ -86,7 +100,7 @@ func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentService
 			}
 			// Check if the start or end date has already be used for billing
 			// dateInRange() checks inclusively, subtract one date from the end date
-			endMinus1 := end.AddDate(0, 0, -1)
+			endMinus1 := end.AddDate(0, 0, -1) // TODO dont know why this is necessary?
 			if dateInRange(sitStart, start, endMinus1) || dateInRange(sitEnd, start, endMinus1) {
 				return true
 			}
@@ -131,6 +145,7 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 	return mtoShipmentSITPaymentServiceItems, nil
 }
 
+// TODO is this supposed to include the most recent request?
 func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
 	remainingMoveTaskOrderSITDays := 90 // TODO replace this with the new cap
 
@@ -151,91 +166,14 @@ func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems 
 
 // TODO rename
 func calculateNumberSITAdditionalDays(paymentServiceItem models.PaymentServiceItem) (int, error) {
-	start, end, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
+	startDate, endDate, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
 	if err != nil {
 		return 0, err
 	}
 
-	startDate, err := time.Parse(ghcrateengine.DateParamFormat, start) // TODO consider reusing a function here
-	if err != nil {
-		return 0, err
-	}
-
-	endDate, err := time.Parse(ghcrateengine.DateParamFormat, end) // TODO consider reusing a function here
-	if err != nil {
-		return 0, err
-	}
-
-	// is this math sensitive to things like DST transitions? should probably round not truncate?
-	// although i guess this depends on locale it is using, which is probably utc, so maybe not an issue?
-	days := endDate.Sub(startDate).Hours() / float64(hoursInADay)
-
-	//remainingMoveTaskOrderSITDays = remainingMoveTaskOrderSITDays - paymentServiceItemSITDays
+	days := 1 + endDate.Sub(startDate).Hours()/hoursInADay
 
 	return int(days), nil
-}
-
-func calculateBillableMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (int, error) {
-	billableMTOServiceItemSITDays := 0
-	originMTOShipmentEntryDate, destinationMTOShipmentEntryDate, err := fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems, mtoServiceItem)
-	if err != nil {
-		return 0, err
-	}
-
-	originSubmittedMTOShipmentSITDays, destinationSubmittedMTOShipmentSITDays, err := calculateSubmittedMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems)
-	if err != nil {
-		return 0, err
-	}
-
-	// submittedMTOShipmentSITDays
-
-	if isDOASIT(mtoServiceItem) {
-		originMTOShipmentDepartureDate := mtoServiceItem.SITDepartureDate
-		isNotFullBillingPeriod, sitDaysAvailableForBilling := isNotFullBillingPeriod(originMTOShipmentEntryDate, originSubmittedMTOShipmentSITDays) // TODO this check might not be relevant anymore
-
-		if originMTOShipmentDepartureDate != nil {
-			mtoShipmentSITDuration := int(originMTOShipmentDepartureDate.Sub(originMTOShipmentEntryDate).Hours() / hoursInADay) // TODO should make a function for this
-			billableMTOServiceItemSITDays = mtoShipmentSITDuration - originSubmittedMTOShipmentSITDays
-			if billableMTOServiceItemSITDays < 0 {
-				billableMTOServiceItemSITDays = 0
-			}
-			return billableMTOServiceItemSITDays, nil
-		} else if originMTOShipmentDepartureDate == nil && isNotFullBillingPeriod {
-			billableMTOServiceItemSITDays = sitDaysAvailableForBilling
-			if billableMTOServiceItemSITDays < 0 {
-				billableMTOServiceItemSITDays = 0
-			}
-			return 0, fmt.Errorf("MTO Shipment %v has no departure date and only %v billable SIT day(s)", mtoServiceItem.MTOShipmentID, billableMTOServiceItemSITDays)
-		} else {
-			return fullBillingPeriod, nil
-		}
-	} else if isDDASIT(mtoServiceItem) {
-		destinationMTOShipmentDepartureDate := mtoServiceItem.SITDepartureDate
-		isNotFullBillingPeriod, sitDaysAvailableForBilling := isNotFullBillingPeriod(destinationMTOShipmentEntryDate, destinationSubmittedMTOShipmentSITDays)
-
-		if destinationMTOShipmentDepartureDate != nil {
-			mtoShipmentSITDuration := int(destinationMTOShipmentDepartureDate.Sub(destinationMTOShipmentEntryDate).Hours() / hoursInADay)
-			billableMTOServiceItemSITDays = mtoShipmentSITDuration - destinationSubmittedMTOShipmentSITDays
-			if billableMTOServiceItemSITDays < 0 {
-				billableMTOServiceItemSITDays = 0
-			}
-			return billableMTOServiceItemSITDays, nil
-		} else if destinationMTOShipmentDepartureDate == nil && isNotFullBillingPeriod {
-			billableMTOServiceItemSITDays = sitDaysAvailableForBilling
-			if billableMTOServiceItemSITDays < 0 {
-				billableMTOServiceItemSITDays = 0
-			}
-			return 0, fmt.Errorf("MTO Shipment %v has no departure date and only %v billable SIT day(s)", mtoServiceItem.MTOShipmentID, billableMTOServiceItemSITDays)
-		} else {
-			return fullBillingPeriod, nil
-		}
-	}
-
-	return billableMTOServiceItemSITDays, nil
-}
-
-func notEnoughRemainingMoveTaskOrderSITDays(remainingMoveTaskOrderSITDays int, mtoServiceItemSITDays int) bool {
-	return remainingMoveTaskOrderSITDays < mtoServiceItemSITDays
 }
 
 func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
@@ -293,84 +231,28 @@ func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.
 	return originSITEntryDate, destinationSITEntryDate, nil
 }
 
-func calculateSubmittedMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems) (int, int, error) {
-	originSubmittedMTOShipmentSITDays := 0
-	destinationSubmittedMTOShipmentSITDays := 0
-
-	for _, mtoShipmentSITPaymentServiceItem := range mtoShipmentSITPaymentServiceItems {
-		if isDomesticOrigin(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-			if isFirstDaySIT(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-				originSubmittedMTOShipmentSITDays++
-			} else if isAdditionalDaysSIT(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-				paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(mtoShipmentSITPaymentServiceItem)
-				if err != nil {
-					return 0, 0, err
-				}
-				originSubmittedMTOShipmentSITDays = originSubmittedMTOShipmentSITDays + paymentServiceItemSITDays
-			}
-		} else if isDomesticDestination(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-			if isFirstDaySIT(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-				destinationSubmittedMTOShipmentSITDays++
-			} else if isAdditionalDaysSIT(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
-				paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(mtoShipmentSITPaymentServiceItem)
-				if err != nil {
-					return 0, 0, err
-				}
-				destinationSubmittedMTOShipmentSITDays = destinationSubmittedMTOShipmentSITDays + paymentServiceItemSITDays
-			}
-		}
-	}
-
-	return originSubmittedMTOShipmentSITDays, destinationSubmittedMTOShipmentSITDays, nil
-}
-
 // TODO change signature and handle errors
-func fetchSITStartAndEndDateParamValues(paymentServiceItem models.PaymentServiceItem) (string, string, error) {
-	start := ""
-	end := ""
+func fetchSITStartAndEndDateParamValues(paymentServiceItem models.PaymentServiceItem) (time.Time, time.Time, error) {
+	start := time.Time{}
+	end := time.Time{}
 
 	for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+		var err error
 		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestStart {
-			start = paymentServiceItemParam.Value
+			start, err = time.Parse(ghcrateengine.DateParamFormat, paymentServiceItemParam.Value)
+			if err != nil {
+				return time.Time{}, time.Time{}, fmt.Errorf("failed to parse SITPaymentRequestStart as a date: %w", err)
+			}
 		}
 		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestEnd {
-			end = paymentServiceItemParam.Value
+			end, err = time.Parse(ghcrateengine.DateParamFormat, paymentServiceItemParam.Value)
+			if err != nil {
+				return time.Time{}, time.Time{}, fmt.Errorf("failed to parse SITPaymentRequestEnd as a date: %w", err)
+			}
 		}
 	}
 
 	return start, end, nil
-}
-
-func fetchNumberDaysSITParamValue(paymentServiceItem models.PaymentServiceItem) (int, error) {
-	for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
-		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameNumberDaysSIT {
-
-			if paymentServiceItemParam.ServiceItemParamKey.Type != models.ServiceItemParamTypeInteger {
-				return 0, fmt.Errorf("trying to convert %s to an int, but param is of type %s", models.ServiceItemParamNameNumberDaysSIT, paymentServiceItemParam.ServiceItemParamKey.Type)
-			}
-
-			numberDaysSITParamValue, err := strconv.Atoi(paymentServiceItemParam.Value)
-			if err != nil {
-				return 0, fmt.Errorf("could not convert value %s to an int: %w", paymentServiceItemParam.Value, err)
-			}
-
-			return numberDaysSITParamValue, err
-		}
-	}
-
-	return 0, nil
-}
-
-func isNotFullBillingPeriod(mtoShipmentEntryDate time.Time, submittedMTOShipmentSITDays int) (bool, int) {
-	todaysDate := time.Now()
-	mtoShipmentSITDuration := int(todaysDate.Sub(mtoShipmentEntryDate).Hours() / hoursInADay)
-	sitDaysAvailableForBilling := mtoShipmentSITDuration - submittedMTOShipmentSITDays
-
-	if sitDaysAvailableForBilling < fullBillingPeriod {
-		return true, sitDaysAvailableForBilling
-	}
-
-	return false, 0
 }
 
 func isDOFSIT(mtoServiceItem models.MTOServiceItem) bool {
