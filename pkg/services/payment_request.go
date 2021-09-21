@@ -90,6 +90,7 @@ type ShipmentPaymentSITBalance struct {
 
 // ShipmentsPaymentSITBalance is the exported interface for returning SIT balances for all shipments of a payment
 // request
+//go:generate mockery --name ShipmentsPaymentSITBalance --disable-version-string
 type ShipmentsPaymentSITBalance interface {
 	ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]ShipmentPaymentSITBalance, error)
 }

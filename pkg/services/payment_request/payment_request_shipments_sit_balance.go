@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -66,6 +68,9 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	// items
 	err := appCtx.DB().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment", "PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").Find(&paymentRequest, paymentRequestID)
 	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(paymentRequestID, "no payment request exists with that id")
+		}
 		return nil, err
 	}
 
@@ -91,7 +96,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 		return nil, err
 	}
 
-	shipmentsSITBalances := make(map[string]services.ShipmentPaymentSITBalance)
+	shipmentsSITBalances := map[string]services.ShipmentPaymentSITBalance{}
 
 	// first go through the previously billed SIT service items
 	for _, paymentServiceItem := range paymentServiceItems {
@@ -109,7 +114,6 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 
 			shipment := paymentServiceItem.MTOServiceItem.MTOShipment
 			if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
-
 				totalPreviouslyBilledDays := daysInSIT + *shipmentSITBalance.PreviouslyBilledDays
 				shipmentSITBalance.PreviouslyBilledDays = &totalPreviouslyBilledDays
 				shipmentSITBalance.TotalSITDaysRemaining -= *shipmentSITBalance.PreviouslyBilledDays
@@ -186,6 +190,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	}
 
 	var sitBalances []services.ShipmentPaymentSITBalance
+
 	for i := range shipmentsSITBalances {
 		sitBalances = append(sitBalances, shipmentsSITBalances[i])
 	}

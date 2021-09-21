@@ -863,11 +863,9 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 	}
 
 	payload := make(ghcmessages.ShipmentsPaymentSITBalance, len(shipmentsSITBalance))
-
-	for _, shipmentSITBalance := range shipmentsSITBalance {
+	for i, shipmentSITBalance := range shipmentsSITBalance {
 		shipmentSITBalanceCopy := shipmentSITBalance
-		item := ShipmentPaymentSITBalance(&shipmentSITBalanceCopy)
-		payload = append(payload, item)
+		payload[i] = ShipmentPaymentSITBalance(&shipmentSITBalanceCopy)
 	}
 
 	return payload
