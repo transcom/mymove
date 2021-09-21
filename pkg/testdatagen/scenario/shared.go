@@ -4731,59 +4731,28 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 
 func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-
-	customerSIT := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
-	ordersSIT := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.Must(uuid.NewV4()),
-			ServiceMemberID: customerSIT.ID,
-			ServiceMember:   customerSIT,
-		},
-		UserUploader: userUploader,
-	})
-
-	moveSIT := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.Must(uuid.NewV4()),
-			Locator:            "SITEXT",
-			OrdersID:           ordersSIT.ID,
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
 
 	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: moveSIT,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
 		},
 	})
 
-	sitContractorRemarks1 := "The customer requested an extension."
-	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
-
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID:     mtoShipmentSIT.ID,
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-		},
-	})
-
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID: mtoShipmentSIT.ID,
-		},
-	})
+	makeSITExtensionForShipment(appCtx, mtoShipmentSIT)
 
 	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
 			ReviewedAt:    swag.Time(time.Now()),
-			MoveTaskOrder: moveSIT,
+			MoveTaskOrder: move,
 		},
-		Move: moveSIT,
+		Move: move,
 	})
 
 	serviceItemASIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
@@ -4895,6 +4864,39 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 		MTOServiceItem: dddsit,
 	})
 
+}
+
+func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := makeMoveForOrders(orders, db, "PENDNG", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
+	makeSITExtensionForShipment(appCtx, shipment)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func makeSITExtensionForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+	db := appCtx.DB()
+	sitContractorRemarks1 := "The customer requested an extension."
+	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID:     shipment.ID,
+			ContractorRemarks: &sitContractorRemarks1,
+			OfficeRemarks:     &sitOfficeRemarks1,
+		},
+	})
+
+	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			MTOShipmentID: shipment.ID,
+		},
+	})
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage

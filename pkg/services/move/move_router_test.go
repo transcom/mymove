@@ -233,39 +233,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
-	moveRouter := NewMoveRouter()
-
-	suite.Run("approves move with no service items in requested status", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
-
-		suite.NoError(approveErr)
-		suite.Equal(models.MoveStatusAPPROVED, approvedMove.Status)
-	})
-
-	suite.Run("leaves move in APPROVALS REQUESTED status if service items are awaiting approval", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		})
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: shipment,
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusSubmitted,
-			},
-		})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
-
-		suite.NoError(approveErr)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, approvedMove.Status)
-	})
-}
-
 func (suite *MoveServiceSuite) TestMoveCancellation() {
 	moveRouter := NewMoveRouter()
 
