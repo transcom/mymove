@@ -516,4 +516,205 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.NoError(err)
 		suite.Nil(sitBalances)
 	})
+
+	suite.T().Run("returns zero authorized days for pending payment request shipment without a set SITDaysAllowance", func(t *testing.T) {
+		availableToPrimeAt := time.Now()
+		db := suite.TestAppContext().DB()
+		move := testdatagen.MakeMove(db, testdatagen.Assertions{
+			Move: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
+		})
+
+		shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusApproved,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			},
+			Move: move,
+		})
+
+		pendingPaymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+			Move: move,
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+		})
+
+		testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+			PaymentRequest: pendingPaymentRequest,
+			MTOShipment:    shipment,
+			Move:           move,
+		})
+
+		year, month, day := time.Now().Date()
+		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
+		doasit := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &originEntryDate,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+			MTOShipment: shipment,
+			Move:        move,
+		})
+
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		doasitParam := testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: originEntryDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
+			PaymentRequest: pendingPaymentRequest,
+			MTOServiceItem: doasit,
+			Move:           move,
+		})
+
+		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: paymentEndDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     pendingPaymentRequest,
+			MTOServiceItem:     doasit,
+		})
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: "30",
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     pendingPaymentRequest,
+			MTOServiceItem:     doasit,
+			Move:               move,
+		})
+
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), pendingPaymentRequest.ID)
+		suite.NoError(err)
+
+		suite.Len(sitBalances, 1)
+		pendingSITBalance := sitBalances[0]
+		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
+		suite.Equal(0, pendingSITBalance.TotalSITDaysAuthorized)
+		suite.Equal(30, pendingSITBalance.PendingSITDaysInvoiced)
+		suite.Equal(0, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
+		suite.Nil(pendingSITBalance.PreviouslyBilledDays)
+	})
+
+	suite.T().Run("returns zero authorized days for reviewed payment request shipment without a set SITDaysAllowance", func(t *testing.T) {
+		availableToPrimeAt := time.Now()
+		db := suite.TestAppContext().DB()
+		move := testdatagen.MakeMove(db, testdatagen.Assertions{
+			Move: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
+		})
+
+		shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusApproved,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			},
+			Move: move,
+		})
+
+		reviewedPaymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+			Move: move,
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusReviewed,
+			},
+		})
+
+		year, month, day := time.Now().Date()
+		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
+		doasit := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &originEntryDate,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+			MTOShipment: shipment,
+			Move:        move,
+		})
+
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		doasitParam := testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: originEntryDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+			PaymentRequest: reviewedPaymentRequest,
+			MTOServiceItem: doasit,
+			Move:           move,
+		})
+
+		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: paymentEndDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     reviewedPaymentRequest,
+			MTOServiceItem:     doasit,
+		})
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(db, testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: "30",
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     reviewedPaymentRequest,
+			MTOServiceItem:     doasit,
+			Move:               move,
+		})
+
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), reviewedPaymentRequest.ID)
+		suite.NoError(err)
+
+		suite.Len(sitBalances, 1)
+		pendingSITBalance := sitBalances[0]
+		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
+		suite.Equal(0, pendingSITBalance.TotalSITDaysAuthorized)
+		suite.Equal(30, pendingSITBalance.PendingSITDaysInvoiced)
+		suite.Equal(0, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
+		suite.Equal(30, *pendingSITBalance.PreviouslyBilledDays)
+	})
 }

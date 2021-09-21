@@ -133,9 +133,8 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 
 				if shipment.SITDaysAllowance != nil {
 					shipmentSITBalance.TotalSITDaysAuthorized = *shipment.SITDaysAllowance
+					shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
 				}
-
-				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
 
 				shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 			}
@@ -143,6 +142,8 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	}
 
 	// review the pending SIT service items on the open payment request
+	// we may need to change how this works once a pending payment request is reviewed by the TIO because the numbers
+	// will look different when looking at the reviewed payment request again.
 	for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
 		shipment := paymentServiceItem.MTOServiceItem.MTOShipment
 
@@ -159,7 +160,9 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 		if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
 			shipmentSITBalance.PendingSITDaysInvoiced = daysInSIT
 
-			shipmentSITBalance.TotalSITDaysRemaining -= shipmentSITBalance.PendingSITDaysInvoiced
+			if shipment.SITDaysAllowance != nil {
+				shipmentSITBalance.TotalSITDaysRemaining -= shipmentSITBalance.PendingSITDaysInvoiced
+			}
 
 			// I think this would be accurate for the scenario there were 2 pending payment requests, they would see
 			// dates reflective of only their SIT items. I think we would need to do something different if we wanted
@@ -175,9 +178,8 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 
 			if shipment.SITDaysAllowance != nil {
 				shipmentSITBalance.TotalSITDaysAuthorized = *shipment.SITDaysAllowance
+				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
 			}
-
-			shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
 
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 		}
