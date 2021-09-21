@@ -32,6 +32,16 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		})
 	})
 
+	suite.Run("checkSITExtensionPending - Success", func() {
+		// Testing: There is no new sit extension
+		//sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+		//err := checkSITExtensionPending().Validate
+	})
+
+	suite.Run("checkSITExtensionPending - Failure", func() {
+
+	})
+
 	suite.Run("checkPrimeAvailability - Failure", func() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, nil)
