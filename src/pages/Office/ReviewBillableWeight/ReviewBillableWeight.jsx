@@ -94,7 +94,7 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const editMTOShipment = (formValues) => {
+  const editEntity = (formValues) => {
     if (sidebarType === 'MAX') {
       const payload = {
         orderID: order.id,
@@ -155,7 +155,7 @@ export default function ReviewBillableWeight() {
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
                 weightAllowance={weightAllowance}
-                editMTOShipment={editMTOShipment}
+                editEntity={editEntity}
                 billableWeightJustification={order.moveTaskOrder.tioRemarks}
               />
             </DocumentViewerSidebar.Content>
@@ -202,7 +202,7 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
-                  editMTOShipment={editMTOShipment}
+                  editEntity={editEntity}
                   billableWeight={selectedShipment.billableWeightCap}
                   billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment.reweigh?.requestedAt}

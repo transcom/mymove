@@ -76,7 +76,7 @@ MaxBillableWeightHintText.defaultProps = {
 export default function EditBillableWeight({
   billableWeight,
   billableWeightJustification,
-  editMTOShipment,
+  editEntity,
   estimatedWeight,
   maxBillableWeight,
   originalWeight,
@@ -146,7 +146,7 @@ export default function EditBillableWeight({
               <div className={styles.btnContainer}>
                 <Button
                   onClick={() => {
-                    editMTOShipment({
+                    editEntity({
                       ...initialValues,
                       ...values,
                     });
@@ -170,7 +170,7 @@ export default function EditBillableWeight({
 EditBillableWeight.propTypes = {
   billableWeight: number,
   billableWeightJustification: string,
-  editMTOShipment: func.isRequired,
+  editEntity: func.isRequired,
   estimatedWeight: number,
   maxBillableWeight: number,
   originalWeight: number,

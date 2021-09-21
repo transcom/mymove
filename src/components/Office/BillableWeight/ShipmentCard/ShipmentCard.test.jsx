@@ -27,7 +27,7 @@ describe('ShipmentCard', () => {
       estimatedWeight: 5000,
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
-      editMTOShipment: () => {},
+      editEntity: () => {},
     };
 
     render(<ShipmentCard {...defaultProps} />);
@@ -56,10 +56,10 @@ describe('ShipmentCard', () => {
     expect(screen.getByText(formatAddressShort(defaultProps.destinationAddress))).toBeInTheDocument();
   });
 
-  it('calls editMTOShipment when the user saves', () => {
+  it('calls editEntity when the user saves', () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const editMTOShipment = jest.fn();
+    const editEntity = jest.fn();
     const defaultProps = {
       billableWeight: 4014,
       maxBillableWeight: 0,
@@ -78,7 +78,7 @@ describe('ShipmentCard', () => {
       estimatedWeight: 5000,
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
-      editMTOShipment,
+      editEntity,
     };
 
     render(<ShipmentCard {...defaultProps} />);
@@ -88,8 +88,8 @@ describe('ShipmentCard', () => {
     fireEvent.change(screen.getByTestId('textInput'), { target: { value: newBillableWeight } });
     fireEvent.change(screen.getByTestId('remarks'), { target: { value: newBillableWeightJustification } });
     fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
-    expect(editMTOShipment.mock.calls.length).toBe(1);
-    expect(editMTOShipment.mock.calls[0][0].billableWeight).toBe(newBillableWeight);
-    expect(editMTOShipment.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
+    expect(editEntity.mock.calls.length).toBe(1);
+    expect(editEntity.mock.calls[0][0].billableWeight).toBe(newBillableWeight);
+    expect(editEntity.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
   });
 });
