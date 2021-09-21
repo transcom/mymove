@@ -23,7 +23,6 @@ import (
 type updatePaymentSubtestData struct {
 	paymentServiceItem models.PaymentServiceItem
 	params             paymentServiceItemOp.UpdatePaymentServiceItemStatusParams
-	input              paymentServiceItemOp.UpdatePaymentServiceItemStatusParams
 }
 
 func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePaymentSubtestData) {
@@ -46,24 +45,6 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 			ID:                       *handlers.FmtUUID(paymentServiceItem.ID),
 			MtoServiceItemID:         *handlers.FmtUUID(paymentServiceItem.MTOServiceItemID),
 			PaymentRequestID:         *handlers.FmtUUID(paymentServiceItem.PaymentRequestID),
-			PaymentServiceItemParams: nil,
-			PriceCents:               nil,
-			RejectionReason:          nil,
-			Status:                   ghcmessages.PaymentServiceItemStatusAPPROVED,
-		},
-	}
-
-	// for 422 and 500 errors
-	psi := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
-	subtestData.input = paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
-		HTTPRequest:          req,
-		IfMatch:              etag.GenerateEtag(psi.UpdatedAt),
-		PaymentServiceItemID: psi.ID.String(),
-		Body: &ghcmessages.PaymentServiceItem{
-			ETag:                     etag.GenerateEtag(psi.UpdatedAt),
-			ID:                       *handlers.FmtUUID(psi.ID),
-			MtoServiceItemID:         *handlers.FmtUUID(psi.MTOServiceItemID),
-			PaymentRequestID:         *handlers.FmtUUID(psi.PaymentRequestID),
 			PaymentServiceItemParams: nil,
 			PriceCents:               nil,
 			RejectionReason:          nil,
@@ -102,20 +83,6 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusNotFound{}, response)
 
-	})
-
-	suite.Run("422 - Integration Test", func() {
-		subtestData := suite.makeUpdatePaymentSubtestData()
-		newParam := subtestData.input
-		newParam.Body.Status = ""
-
-		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
-		}
-
-		response := handler.Handle(newParam)
-		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusUnprocessableEntity{}, response)
 	})
 
 	suite.Run("Successful patch - Rejection - Integration Test", func() {

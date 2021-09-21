@@ -27,7 +27,7 @@ func (p *paymentServiceItemUpdater) UpdatePaymentServiceItemStatus(appCtx appcon
 	status models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
 	// Fetch the existing record
 	var paymentServiceItem models.PaymentServiceItem
-	err := appCtx.DB().Find(&paymentServiceItem, paymentServiceItemID)
+	err := appCtx.DB().EagerPreload("PaymentRequest").Find(&paymentServiceItem, paymentServiceItemID)
 	if err != nil {
 		// If we don't find a record let's return something that will cause a 404
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
