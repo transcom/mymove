@@ -34,7 +34,7 @@ type ClientService interface {
 
 	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
 
-	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionOK, error)
+	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
 	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
@@ -155,7 +155,7 @@ increase in the shipment day allowance for the number of days a shipment is allo
 includes time spent in both origin and destination SIT.
 
 */
-func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionOK, error) {
+func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateSITExtensionParams()
@@ -180,7 +180,7 @@ func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...Cl
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*CreateSITExtensionOK)
+	success, ok := result.(*CreateSITExtensionCreated)
 	if ok {
 		return success, nil
 	}

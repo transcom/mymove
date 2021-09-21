@@ -42,9 +42,9 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		sitextensionservice.NewSitExtensionCreator(),
 	}
 
-	suite.T().Run("Success 200 - Creat sit extension", func(t *testing.T) {
+	suite.T().Run("Success 201 - Creat sit extension", func(t *testing.T) {
 		// Testcase:   sitExtension is created
-		// Expected:   Success response 200
+		// Expected:   Success response 201
 
 		// Create request params
 		req := httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/sit-extensions", mtoShipment1.ID.String()), nil)
@@ -61,10 +61,10 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		response := handler.Handle(params)
 
 		// Check response type
-		suite.IsType(&mtoshipmentops.CreateSITExtensionOK{}, response)
+		suite.IsType(&mtoshipmentops.CreateSITExtensionCreated{}, response)
 
 		// Check values
-		sitExtensionResponse := response.(*mtoshipmentops.CreateSITExtensionOK).Payload
+		sitExtensionResponse := response.(*mtoshipmentops.CreateSITExtensionCreated).Payload
 
 		suite.Equal(daysRequested, sitExtensionResponse.RequestedDays)
 		suite.Equal(models.SITExtensionStatusPending, sitExtensionResponse.Status)

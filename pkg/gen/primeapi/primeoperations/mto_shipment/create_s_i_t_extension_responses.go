@@ -13,14 +13,14 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// CreateSITExtensionOKCode is the HTTP code returned for type CreateSITExtensionOK
-const CreateSITExtensionOKCode int = 200
+// CreateSITExtensionCreatedCode is the HTTP code returned for type CreateSITExtensionCreated
+const CreateSITExtensionCreatedCode int = 201
 
-/*CreateSITExtensionOK Successfully created the sit extension request.
+/*CreateSITExtensionCreated Successfully created the sit extension request.
 
-swagger:response createSITExtensionOK
+swagger:response createSITExtensionCreated
 */
-type CreateSITExtensionOK struct {
+type CreateSITExtensionCreated struct {
 
 	/*
 	  In: Body
@@ -28,27 +28,27 @@ type CreateSITExtensionOK struct {
 	Payload *primemessages.SitExtension `json:"body,omitempty"`
 }
 
-// NewCreateSITExtensionOK creates CreateSITExtensionOK with default headers values
-func NewCreateSITExtensionOK() *CreateSITExtensionOK {
+// NewCreateSITExtensionCreated creates CreateSITExtensionCreated with default headers values
+func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
 
-	return &CreateSITExtensionOK{}
+	return &CreateSITExtensionCreated{}
 }
 
-// WithPayload adds the payload to the create s i t extension o k response
-func (o *CreateSITExtensionOK) WithPayload(payload *primemessages.SitExtension) *CreateSITExtensionOK {
+// WithPayload adds the payload to the create s i t extension created response
+func (o *CreateSITExtensionCreated) WithPayload(payload *primemessages.SitExtension) *CreateSITExtensionCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the create s i t extension o k response
-func (o *CreateSITExtensionOK) SetPayload(payload *primemessages.SitExtension) {
+// SetPayload sets the payload to the create s i t extension created response
+func (o *CreateSITExtensionCreated) SetPayload(payload *primemessages.SitExtension) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *CreateSITExtensionOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateSITExtensionCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

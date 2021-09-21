@@ -63,5 +63,5 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 	}
 	// If no error, create a successful payload to return
 	payload := payloads.SITExtension(createdextension)
-	return mtoshipmentops.NewCreateSITExtensionOK().WithPayload(payload)
+	return mtoshipmentops.NewCreateSITExtensionCreated().WithPayload(payload)
 }

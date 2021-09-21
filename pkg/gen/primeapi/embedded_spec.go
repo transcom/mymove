@@ -767,7 +767,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Successfully created the sit extension request.",
             "schema": {
               "$ref": "#/definitions/SitExtension"
@@ -4142,7 +4142,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Successfully created the sit extension request.",
             "schema": {
               "$ref": "#/definitions/SitExtension"

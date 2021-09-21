@@ -23,8 +23,8 @@ type CreateSITExtensionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CreateSITExtensionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-	case 200:
-		result := NewCreateSITExtensionOK()
+	case 201:
+		result := NewCreateSITExtensionCreated()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -76,27 +76,27 @@ func (o *CreateSITExtensionReader) ReadResponse(response runtime.ClientResponse,
 	}
 }
 
-// NewCreateSITExtensionOK creates a CreateSITExtensionOK with default headers values
-func NewCreateSITExtensionOK() *CreateSITExtensionOK {
-	return &CreateSITExtensionOK{}
+// NewCreateSITExtensionCreated creates a CreateSITExtensionCreated with default headers values
+func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
+	return &CreateSITExtensionCreated{}
 }
 
-/* CreateSITExtensionOK describes a response with status code 200, with default header values.
+/* CreateSITExtensionCreated describes a response with status code 201, with default header values.
 
 Successfully created the sit extension request.
 */
-type CreateSITExtensionOK struct {
+type CreateSITExtensionCreated struct {
 	Payload *primemessages.SitExtension
 }
 
-func (o *CreateSITExtensionOK) Error() string {
-	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionOK  %+v", 200, o.Payload)
+func (o *CreateSITExtensionCreated) Error() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionCreated  %+v", 201, o.Payload)
 }
-func (o *CreateSITExtensionOK) GetPayload() *primemessages.SitExtension {
+func (o *CreateSITExtensionCreated) GetPayload() *primemessages.SitExtension {
 	return o.Payload
 }
 
-func (o *CreateSITExtensionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CreateSITExtensionCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.SitExtension)
 
