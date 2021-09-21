@@ -28,7 +28,7 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 	SITExtension := payloads.SITExtensionModel(params.Body, params.MtoShipmentID)
 
 	// Call the service object
-	createdextension, err := h.SITExtensionCreator.CreateSITExtension(appCtx, SITExtension)
+	createdExtension, err := h.SITExtensionCreator.CreateSITExtension(appCtx, SITExtension)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
@@ -62,6 +62,6 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 
 	}
 	// If no error, create a successful payload to return
-	payload := payloads.SITExtension(createdextension)
+	payload := payloads.SITExtension(createdExtension)
 	return mtoshipmentops.NewCreateSITExtensionCreated().WithPayload(payload)
 }

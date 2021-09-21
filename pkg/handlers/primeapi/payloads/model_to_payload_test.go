@@ -71,7 +71,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 		UpdatedAt:   updatedAt,
 	}
 
-	suite.T().Run("Success - Returns a rewweigh payload without optional fields", func(t *testing.T) {
+	suite.T().Run("Success - Returns a reweigh payload without optional fields", func(t *testing.T) {
 		returnedPayload := Reweigh(&reweigh)
 
 		suite.IsType(&primemessages.Reweigh{}, returnedPayload)

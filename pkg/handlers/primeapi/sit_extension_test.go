@@ -17,12 +17,12 @@ import (
 )
 
 func (suite *HandlerSuite) CreateSITExtensionHandler() {
-	// Make an available MTO
-	mto := testdatagen.MakeAvailableMove(suite.DB())
+	// Make an available move
+	move := testdatagen.MakeAvailableMove(suite.DB())
 
 	// Make a shipment on the available MTO
 	mtoShipment1 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
+		Move: move,
 	})
 
 	// Make sit extension
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		sitextensionservice.NewSitExtensionCreator(),
 	}
 
-	suite.T().Run("Success 201 - Creat sit extension", func(t *testing.T) {
+	suite.T().Run("Success 201 - Creat SIT extension", func(t *testing.T) {
 		// Testcase:   sitExtension is created
 		// Expected:   Success response 201
 
@@ -77,9 +77,9 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		suite.NotNil(sitExtensionResponse.ETag)
 	})
 
-	suite.T().Run("Failure 402 - Shipment not found", func(t *testing.T) {
+	suite.T().Run("Failure 422 - Shipment not found, invalid parameter", func(t *testing.T) {
 		// Testcase:   Shipment ID is not found
-		// Expected:   Success response 402
+		// Expected:   Success response 422
 
 		// Update with verification reason\
 		badID, _ := uuid.NewV4()

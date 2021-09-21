@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
 		reweighPayload := movePayload.MtoShipments[0].SitExtensions[0]
-		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
 	})
 

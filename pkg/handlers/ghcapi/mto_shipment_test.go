@@ -1604,7 +1604,8 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		suite.IsType(&shipmentops.ApproveSITExtensionOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(&officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 }
 
@@ -1688,7 +1689,8 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		suite.Equal(int64(10), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment that already has an allowance when validations pass", func() {
@@ -1732,7 +1734,8 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 }
 
