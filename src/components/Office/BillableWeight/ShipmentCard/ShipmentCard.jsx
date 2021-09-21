@@ -29,7 +29,7 @@ export default function ShipmentCard({
         <section>
           <span>
             <strong>Departed</strong>
-            <span data-testid="departureDate">{formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
+            <span data-testid="departureDate"> {formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
           </span>
           <span>
             <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
