@@ -46,7 +46,7 @@ export default function ReviewBillableWeight() {
   };
 
   const history = useHistory();
-
+  let documentsForViewer = [];
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
   const isLastShipment = selectedShipmentIndex === mtoShipments?.length - 1;
@@ -57,8 +57,6 @@ export default function ReviewBillableWeight() {
 
   const maxBillableWeight = order.entitlement.authorizedWeight;
   const weightAllowance = order.entitlement.totalWeight;
-
-  const documentsForViewer = Object.values(upload);
 
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
@@ -87,6 +85,10 @@ export default function ReviewBillableWeight() {
 
     mutateMTOShipment(payload);
   };
+
+  if (upload) {
+    documentsForViewer = Object.values(upload);
+  }
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
