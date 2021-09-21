@@ -1606,6 +1606,49 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
+      "get": {
+        "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
+        "operationId": "getShipmentsPaymentSITBalance",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved shipments and their SIT days balance from all payment requests on the move",
+            "schema": {
+              "$ref": "#/definitions/ShipmentsPaymentSITBalance"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "move code to identify a move for payment requests",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request by id",
@@ -4810,6 +4853,48 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
+    "ShipmentPaymentSITBalance": {
+      "properties": {
+        "pendingBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pendingSITDaysInvoiced": {
+          "type": "integer"
+        },
+        "previouslyBilledDays": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "previouslyBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "previouslyBilledStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "totalSITDaysAuthorized": {
+          "type": "integer"
+        },
+        "totalSITDaysRemaining": {
+          "type": "integer"
+        }
+      }
+    },
+    "ShipmentsPaymentSITBalance": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ShipmentPaymentSITBalance"
+      }
+    },
     "SitExtension": {
       "properties": {
         "approvedDays": {
@@ -7371,6 +7456,61 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
+      "get": {
+        "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
+        "operationId": "getShipmentsPaymentSITBalance",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved shipments and their SIT days balance from all payment requests on the move",
+            "schema": {
+              "$ref": "#/definitions/ShipmentsPaymentSITBalance"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "move code to identify a move for payment requests",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -10808,6 +10948,48 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "ShipmentPaymentSITBalance": {
+      "properties": {
+        "pendingBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pendingSITDaysInvoiced": {
+          "type": "integer"
+        },
+        "previouslyBilledDays": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "previouslyBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "previouslyBilledStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "totalSITDaysAuthorized": {
+          "type": "integer"
+        },
+        "totalSITDaysRemaining": {
+          "type": "integer"
+        }
+      }
+    },
+    "ShipmentsPaymentSITBalance": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ShipmentPaymentSITBalance"
+      }
     },
     "SitExtension": {
       "properties": {

@@ -835,3 +835,40 @@ func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *
 
 	return payload
 }
+
+// ShipmentPaymentSITBalance payload
+func ShipmentPaymentSITBalance(shipmentSITBalance *services.ShipmentPaymentSITBalance) *ghcmessages.ShipmentPaymentSITBalance {
+	if shipmentSITBalance == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.ShipmentPaymentSITBalance{
+		PendingBilledEndDate:      handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
+		PendingSITDaysInvoiced:    int64(shipmentSITBalance.PendingSITDaysInvoiced),
+		PreviouslyBilledDays:      handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),
+		PreviouslyBilledEndDate:   handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledEndDate),
+		PreviouslyBilledStartDate: handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledStartDate),
+		ShipmentID:                *handlers.FmtUUID(shipmentSITBalance.ShipmentID),
+		TotalSITDaysAuthorized:    int64(shipmentSITBalance.TotalSITDaysAuthorized),
+		TotalSITDaysRemaining:     int64(shipmentSITBalance.TotalSITDaysRemaining),
+	}
+
+	return payload
+}
+
+// ShipmentsPaymentSITBalance payload
+func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSITBalance) ghcmessages.ShipmentsPaymentSITBalance {
+	if len(shipmentsSITBalance) == 0 {
+		return nil
+	}
+
+	payload := make(ghcmessages.ShipmentsPaymentSITBalance, len(shipmentsSITBalance))
+
+	for _, shipmentSITBalance := range shipmentsSITBalance {
+		shipmentSITBalanceCopy := shipmentSITBalance
+		item := ShipmentPaymentSITBalance(&shipmentSITBalanceCopy)
+		payload = append(payload, item)
+	}
+
+	return payload
+}

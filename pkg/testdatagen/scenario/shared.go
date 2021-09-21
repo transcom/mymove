@@ -4897,6 +4897,229 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 
 }
 
+func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader) {
+	// Move available to the prime with 3 shipments (control, 2 w/ SITS)
+	availableToPrimeAt := time.Now()
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Locator:            "PARSIT",
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: &availableToPrimeAt,
+		},
+	})
+
+	oneHundredAndTwentyDays := 120
+	shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:           models.MTOShipmentStatusApproved,
+			SITDaysAllowance: &oneHundredAndTwentyDays,
+		},
+		Move: move,
+	})
+
+	firstPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
+		PrimeUploader: primeUploader,
+		Move:          move,
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewed,
+		},
+	})
+
+	firstPaymentRequest := firstPrimeUpload.ProofOfServiceDoc.PaymentRequest
+
+	secondPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			SequenceNumber: 2,
+		},
+		PrimeUploader: primeUploader,
+		Move:          move,
+	})
+
+	secondPaymentRequest := secondPrimeUpload.ProofOfServiceDoc.PaymentRequest
+
+	year, month, day := time.Now().Date()
+	originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
+	originDepartureDate := originEntryDate.Add(time.Hour * 24 * 30)
+
+	destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+	destinationDepartureDate := destinationEntryDate.Add(time.Hour * 24 * 60)
+
+	// First reviewed payment request with 30 days billed for origin SIT
+	dofsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &originEntryDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		PaymentRequest: firstPaymentRequest,
+		MTOServiceItem: dofsit,
+	})
+
+	doasit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &originEntryDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOASIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+
+	// Creates the approved payment service item for DOASIT w/ SIT start date param
+	doasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: originEntryDate.Format("2006-01-02"),
+		},
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		},
+		PaymentRequest: firstPaymentRequest,
+		MTOServiceItem: doasit,
+		Move:           move,
+	})
+
+	// Creates the SIT end date param for existing DOASIT payment request service item
+	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: originEntryDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		},
+		PaymentServiceItem: doasitParam.PaymentServiceItem,
+		PaymentRequest:     firstPaymentRequest,
+		MTOServiceItem:     doasit,
+	})
+
+	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: "30",
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameNumberDaysSIT,
+		},
+		PaymentServiceItem: doasitParam.PaymentServiceItem,
+		PaymentRequest:     firstPaymentRequest,
+		MTOServiceItem:     doasit,
+	})
+
+	dopsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &originEntryDate,
+			SITDepartureDate: &originDepartureDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		MTOServiceItem: dopsit,
+		PaymentRequest: firstPaymentRequest,
+	})
+
+	// Destination SIT service items for the second payment request
+	ddfsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &destinationEntryDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: ddfsit,
+		PaymentRequest: secondPaymentRequest,
+	})
+
+	ddasit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &destinationEntryDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDASIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+
+	ddasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: destinationEntryDate.Format("2006-01-02"),
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		},
+		PaymentRequest: secondPaymentRequest,
+		MTOServiceItem: ddasit,
+	})
+
+	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: destinationDepartureDate.Format("2006-01-02"),
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		},
+		PaymentServiceItem: ddasitParam.PaymentServiceItem,
+		PaymentRequest:     secondPaymentRequest,
+		MTOServiceItem:     ddasit,
+	})
+
+	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItemParam: models.PaymentServiceItemParam{
+			Value: "60",
+		},
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameNumberDaysSIT,
+		},
+		PaymentServiceItem: ddasitParam.PaymentServiceItem,
+		PaymentRequest:     secondPaymentRequest,
+		MTOServiceItem:     ddasit,
+	})
+
+	// Will leave the departure date blank with 30 days left in SIT Days authorized
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:       models.MTOServiceItemStatusApproved,
+			SITEntryDate: &destinationEntryDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDDSIT,
+		},
+		MTOShipment: shipment,
+		Move:        move,
+	})
+}
+
 // createRandomMove creates a random move with fake data that has been approved for usage
 func createRandomMove(
 	appCtx appcontext.AppContext,

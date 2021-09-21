@@ -1517,6 +1517,42 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
+  '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
+    parameters:
+      - description: move code to identify a move for payment requests
+        name: paymentRequestID
+        type: string
+        format: uuid
+        in: path
+        required: true
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: >-
+            Successfully retrieved shipments and their SIT days balance from all
+            payment requests on the move
+          schema:
+            $ref: '#/definitions/ShipmentsPaymentSITBalance'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: >-
+        Returns all shipment payment request SIT usage to support partial SIT
+        invoicing
+      operationId: getShipmentsPaymentSITBalance
+      summary: >-
+        Returns all shipment payment request SIT usage to support partial SIT
+        invoicing
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -3087,6 +3123,36 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  ShipmentsPaymentSITBalance:
+    items:
+      $ref: '#/definitions/ShipmentPaymentSITBalance'
+    type: array
+  ShipmentPaymentSITBalance:
+    properties:
+      shipmentID:
+        type: string
+        format: uuid
+      totalSITDaysAuthorized:
+        type: integer
+      totalSITDaysRemaining:
+        type: integer
+      pendingSITDaysInvoiced:
+        type: integer
+      pendingBilledEndDate:
+        type: string
+        format: date
+        x-nullable: true
+      previouslyBilledDays:
+        type: integer
+        x-nullable: true
+      previouslyBilledStartDate:
+        type: string
+        format: date
+        x-nullable: true
+      previouslyBilledEndDate:
+        type: string
+        format: date
+        x-nullable: true
   SITStatus:
     properties:
       location:

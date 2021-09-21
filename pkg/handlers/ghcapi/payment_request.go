@@ -198,3 +198,45 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }
+
+// ShipmentsSITBalanceHandler is the handler type for getShipmentsPaymentSITBalance
+type ShipmentsSITBalanceHandler struct {
+	handlers.HandlerContext
+	services.ShipmentsPaymentSITBalance
+}
+
+// Handle handles the getShipmentsPaymentSITBalance request
+func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+
+	handleError := func(err error) middleware.Responder {
+		logger.Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
+		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+		switch err.(type) {
+		case services.NotFoundError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceNotFound().WithPayload(payload)
+		case services.ForbiddenError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceForbidden().WithPayload(payload)
+		case services.QueryError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+		default:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		return handleError(services.NewForbiddenError("user is not authorized with the TIO role"))
+	}
+
+	shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)
+	if err != nil {
+		return handleError(err)
+	}
+
+	payload := payloads.ShipmentsPaymentSITBalance(shipmentSITBalances)
+
+	return paymentrequestop.NewGetShipmentsPaymentSITBalanceOK().WithPayload(payload)
+}

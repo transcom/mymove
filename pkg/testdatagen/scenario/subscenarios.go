@@ -256,5 +256,6 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 
 		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
+		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }
