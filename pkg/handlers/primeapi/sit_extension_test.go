@@ -30,7 +30,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 	remarks := "We need an extension"
 	reason := "AWAITING_COMPLETION_OF_RESIDENCE"
 
-	sitExtension := &primemessages.CreateSitExtension{
+	sitExtension := &primemessages.CreateSITExtension{
 		RequestedDays:     &daysRequested,
 		ContractorRemarks: &remarks,
 		RequestReason:     &reason,

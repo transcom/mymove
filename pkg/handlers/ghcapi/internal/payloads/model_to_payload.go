@@ -287,11 +287,11 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 }
 
 // SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
+func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
-	payload := &ghcmessages.SitExtension{
+	payload := &ghcmessages.SITExtension{
 		ID:                strfmt.UUID(sitExtension.ID.String()),
 		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
 		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
@@ -310,13 +310,13 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 }
 
 // SITExtensions payload
-func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensions {
-	payload := make(ghcmessages.SitExtensions, len(*sitExtensions))
+func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SITExtensions {
+	payload := make(ghcmessages.SITExtensions, len(*sitExtensions))
 
 	if len(*sitExtensions) > 0 {
 		for i, m := range *sitExtensions {
-			copyOfSitExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-			payload[i] = SITExtension(&copyOfSitExtension)
+			copyOfSITExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			payload[i] = SITExtension(&copyOfSITExtension)
 		}
 	}
 	return &payload

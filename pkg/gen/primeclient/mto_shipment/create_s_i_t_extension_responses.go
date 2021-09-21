@@ -86,19 +86,19 @@ func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
 Successfully created the sit extension request.
 */
 type CreateSITExtensionCreated struct {
-	Payload *primemessages.SitExtension
+	Payload *primemessages.SITExtension
 }
 
 func (o *CreateSITExtensionCreated) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionCreated  %+v", 201, o.Payload)
 }
-func (o *CreateSITExtensionCreated) GetPayload() *primemessages.SitExtension {
+func (o *CreateSITExtensionCreated) GetPayload() *primemessages.SITExtension {
 	return o.Payload
 }
 
 func (o *CreateSITExtensionCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.SitExtension)
+	o.Payload = new(primemessages.SITExtension)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

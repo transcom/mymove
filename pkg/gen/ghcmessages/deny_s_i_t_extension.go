@@ -12,28 +12,28 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// DenySitExtension deny sit extension
+// DenySITExtension deny s i t extension
 //
-// swagger:model DenySitExtension
-type DenySitExtension struct {
+// swagger:model DenySITExtension
+type DenySITExtension struct {
 
 	// Remarks from TOO about SIT denial
 	// Example: Denied this extension as it does not match the criteria
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
 }
 
-// Validate validates this deny sit extension
-func (m *DenySitExtension) Validate(formats strfmt.Registry) error {
+// Validate validates this deny s i t extension
+func (m *DenySITExtension) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this deny sit extension based on context it is used
-func (m *DenySitExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this deny s i t extension based on context it is used
+func (m *DenySITExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *DenySitExtension) MarshalBinary() ([]byte, error) {
+func (m *DenySITExtension) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -41,8 +41,8 @@ func (m *DenySitExtension) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *DenySitExtension) UnmarshalBinary(b []byte) error {
-	var res DenySitExtension
+func (m *DenySITExtension) UnmarshalBinary(b []byte) error {
+	var res DenySITExtension
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

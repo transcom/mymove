@@ -659,12 +659,12 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateSitExtension'
+            $ref: '#/definitions/CreateSITExtension'
       responses:
         '201':
           description: Successfully created the sit extension request.
           schema:
-            $ref: '#/definitions/SitExtension'
+            $ref: '#/definitions/SITExtension'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1288,9 +1288,9 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateSitExtension:
+  CreateSITExtension:
     description: >-
-      CreateSitExtension contains the fields required for the prime to create a
+      CreateSITExtension contains the fields required for the prime to create a
       SIT Extension request.
     type: object
     properties:
@@ -2024,7 +2024,7 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: '#/definitions/SITExtensions'
       reweigh:
         $ref: '#/definitions/Reweigh'
       mtoServiceItems:
@@ -2777,7 +2777,7 @@ definitions:
       - filename
       - contentType
       - bytes
-  SitExtension:
+  SITExtension:
     type: object
     description: >-
       A storage in transit (SIT) Extension is a request for an increase in the
@@ -2839,10 +2839,10 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  SitExtensions:
+  SITExtensions:
     type: array
     items:
-      $ref: '#/definitions/SitExtension'
+      $ref: '#/definitions/SITExtension'
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

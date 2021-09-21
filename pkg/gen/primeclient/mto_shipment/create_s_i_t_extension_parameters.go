@@ -62,7 +62,7 @@ func NewCreateSITExtensionParamsWithHTTPClient(client *http.Client) *CreateSITEx
 type CreateSITExtensionParams struct {
 
 	// Body.
-	Body *primemessages.CreateSitExtension
+	Body *primemessages.CreateSITExtension
 
 	/* MtoShipmentID.
 
@@ -126,13 +126,13 @@ func (o *CreateSITExtensionParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create s i t extension params
-func (o *CreateSITExtensionParams) WithBody(body *primemessages.CreateSitExtension) *CreateSITExtensionParams {
+func (o *CreateSITExtensionParams) WithBody(body *primemessages.CreateSITExtension) *CreateSITExtensionParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create s i t extension params
-func (o *CreateSITExtensionParams) SetBody(body *primemessages.CreateSitExtension) {
+func (o *CreateSITExtensionParams) SetBody(body *primemessages.CreateSITExtension) {
 	o.Body = body
 }
 

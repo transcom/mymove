@@ -19,19 +19,19 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// NewDenySitExtensionParams creates a new DenySitExtensionParams object
+// NewDenySITExtensionParams creates a new DenySITExtensionParams object
 //
 // There are no default values defined in the spec.
-func NewDenySitExtensionParams() DenySitExtensionParams {
+func NewDenySITExtensionParams() DenySITExtensionParams {
 
-	return DenySitExtensionParams{}
+	return DenySITExtensionParams{}
 }
 
-// DenySitExtensionParams contains all the bound params for the deny sit extension operation
+// DenySITExtensionParams contains all the bound params for the deny s i t extension operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters denySitExtension
-type DenySitExtensionParams struct {
+// swagger:parameters denySITExtension
+type DenySITExtensionParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -45,7 +45,7 @@ type DenySitExtensionParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.DenySitExtension
+	Body *ghcmessages.DenySITExtension
 	/*ID of the shipment
 	  Required: true
 	  In: path
@@ -61,8 +61,8 @@ type DenySitExtensionParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewDenySitExtensionParams() beforehand.
-func (o *DenySitExtensionParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewDenySITExtensionParams() beforehand.
+func (o *DenySITExtensionParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -73,7 +73,7 @@ func (o *DenySitExtensionParams) BindRequest(r *http.Request, route *middleware.
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.DenySitExtension
+		var body ghcmessages.DenySITExtension
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -115,7 +115,7 @@ func (o *DenySitExtensionParams) BindRequest(r *http.Request, route *middleware.
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *DenySitExtensionParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *DenySITExtensionParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("If-Match", "header", rawData)
 	}
@@ -135,7 +135,7 @@ func (o *DenySitExtensionParams) bindIfMatch(rawData []string, hasKey bool, form
 }
 
 // bindShipmentID binds and validates parameter ShipmentID from path.
-func (o *DenySitExtensionParams) bindShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *DenySITExtensionParams) bindShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -159,7 +159,7 @@ func (o *DenySitExtensionParams) bindShipmentID(rawData []string, hasKey bool, f
 }
 
 // validateShipmentID carries on validations for parameter ShipmentID
-func (o *DenySitExtensionParams) validateShipmentID(formats strfmt.Registry) error {
+func (o *DenySITExtensionParams) validateShipmentID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("shipmentID", "path", "uuid", o.ShipmentID.String(), formats); err != nil {
 		return err
@@ -168,7 +168,7 @@ func (o *DenySitExtensionParams) validateShipmentID(formats strfmt.Registry) err
 }
 
 // bindSitExtensionID binds and validates parameter SitExtensionID from path.
-func (o *DenySitExtensionParams) bindSitExtensionID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *DenySITExtensionParams) bindSitExtensionID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -192,7 +192,7 @@ func (o *DenySitExtensionParams) bindSitExtensionID(rawData []string, hasKey boo
 }
 
 // validateSitExtensionID carries on validations for parameter SitExtensionID
-func (o *DenySitExtensionParams) validateSitExtensionID(formats strfmt.Registry) error {
+func (o *DenySITExtensionParams) validateSitExtensionID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("sitExtensionID", "path", "uuid", o.SitExtensionID.String(), formats); err != nil {
 		return err

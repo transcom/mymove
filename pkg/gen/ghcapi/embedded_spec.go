@@ -2437,7 +2437,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtensionAsTOO",
+        "operationId": "createSITExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -2452,7 +2452,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSitExtensionAsTOO"
+              "$ref": "#/definitions/CreateSITExtensionAsTOO"
             }
           },
           {
@@ -2502,14 +2502,14 @@ func init() {
           "sitExtension"
         ],
         "summary": "Approves a SIT extension",
-        "operationId": "approveSitExtension",
+        "operationId": "approveSITExtension",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ApproveSitExtension"
+              "$ref": "#/definitions/ApproveSITExtension"
             }
           },
           {
@@ -2580,14 +2580,14 @@ func init() {
           "sitExtension"
         ],
         "summary": "Denies a SIT extension",
-        "operationId": "denySitExtension",
+        "operationId": "denySITExtension",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DenySitExtension"
+              "$ref": "#/definitions/DenySITExtension"
             }
           },
           {
@@ -2853,7 +2853,7 @@ func init() {
         }
       }
     },
-    "ApproveSitExtension": {
+    "ApproveSITExtension": {
       "required": [
         "approvedDays"
       ],
@@ -3092,7 +3092,7 @@ func init() {
         }
       }
     },
-    "CreateSitExtensionAsTOO": {
+    "CreateSITExtensionAsTOO": {
       "required": [
         "requestReason",
         "approvedDays"
@@ -3195,7 +3195,7 @@ func init() {
         "SECOND"
       ]
     },
-    "DenySitExtension": {
+    "DenySITExtension": {
       "properties": {
         "officeRemarks": {
           "description": "Remarks from TOO about SIT denial",
@@ -3877,7 +3877,7 @@ func init() {
           "x-nullable": true
         },
         "sitExtensions": {
-          "$ref": "#/definitions/SitExtensions"
+          "$ref": "#/definitions/SITExtensions"
         },
         "sitStatus": {
           "$ref": "#/definitions/SITStatus"
@@ -4690,6 +4690,88 @@ func init() {
         "TOO"
       ]
     },
+    "SITExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITExtension"
+      }
+    },
     "SITStatus": {
       "properties": {
         "daysInSIT": {
@@ -4809,88 +4891,6 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
-    },
-    "SitExtension": {
-      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
-      "type": "object",
-      "properties": {
-        "approvedDays": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 30
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "decisionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "requestReason": {
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ]
-        },
-        "requestedDays": {
-          "type": "integer",
-          "example": 30
-        },
-        "status": {
-          "enum": [
-            "PENDING",
-            "APPROVED",
-            "DENIED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitExtensions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitExtension"
-      }
     },
     "TacValid": {
       "type": "object",
@@ -8380,7 +8380,7 @@ func init() {
           "sitExtension"
         ],
         "summary": "Create an approved SIT extension",
-        "operationId": "createSitExtensionAsTOO",
+        "operationId": "createSITExtensionAsTOO",
         "parameters": [
           {
             "type": "string",
@@ -8395,7 +8395,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSitExtensionAsTOO"
+              "$ref": "#/definitions/CreateSITExtensionAsTOO"
             }
           },
           {
@@ -8460,14 +8460,14 @@ func init() {
           "sitExtension"
         ],
         "summary": "Approves a SIT extension",
-        "operationId": "approveSitExtension",
+        "operationId": "approveSITExtension",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ApproveSitExtension"
+              "$ref": "#/definitions/ApproveSITExtension"
             }
           },
           {
@@ -8556,14 +8556,14 @@ func init() {
           "sitExtension"
         ],
         "summary": "Denies a SIT extension",
-        "operationId": "denySitExtension",
+        "operationId": "denySITExtension",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DenySitExtension"
+              "$ref": "#/definitions/DenySITExtension"
             }
           },
           {
@@ -8862,7 +8862,7 @@ func init() {
         }
       }
     },
-    "ApproveSitExtension": {
+    "ApproveSITExtension": {
       "required": [
         "approvedDays"
       ],
@@ -9104,7 +9104,7 @@ func init() {
         }
       }
     },
-    "CreateSitExtensionAsTOO": {
+    "CreateSITExtensionAsTOO": {
       "required": [
         "requestReason",
         "approvedDays"
@@ -9207,7 +9207,7 @@ func init() {
         "SECOND"
       ]
     },
-    "DenySitExtension": {
+    "DenySITExtension": {
       "properties": {
         "officeRemarks": {
           "description": "Remarks from TOO about SIT denial",
@@ -9889,7 +9889,7 @@ func init() {
           "x-nullable": true
         },
         "sitExtensions": {
-          "$ref": "#/definitions/SitExtensions"
+          "$ref": "#/definitions/SITExtensions"
         },
         "sitStatus": {
           "$ref": "#/definitions/SITStatus"
@@ -10702,6 +10702,88 @@ func init() {
         "TOO"
       ]
     },
+    "SITExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITExtension"
+      }
+    },
     "SITStatus": {
       "properties": {
         "daysInSIT": {
@@ -10824,88 +10906,6 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
-    },
-    "SitExtension": {
-      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
-      "type": "object",
-      "properties": {
-        "approvedDays": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 30
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "decisionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "requestReason": {
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ]
-        },
-        "requestedDays": {
-          "type": "integer",
-          "example": 30
-        },
-        "status": {
-          "enum": [
-            "PENDING",
-            "APPROVED",
-            "DENIED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitExtensions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitExtension"
-      }
     },
     "TacValid": {
       "type": "object",

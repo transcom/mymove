@@ -25,7 +25,7 @@ type CreateSITExtensionCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.SitExtension `json:"body,omitempty"`
+	Payload *primemessages.SITExtension `json:"body,omitempty"`
 }
 
 // NewCreateSITExtensionCreated creates CreateSITExtensionCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
 }
 
 // WithPayload adds the payload to the create s i t extension created response
-func (o *CreateSITExtensionCreated) WithPayload(payload *primemessages.SitExtension) *CreateSITExtensionCreated {
+func (o *CreateSITExtensionCreated) WithPayload(payload *primemessages.SITExtension) *CreateSITExtensionCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create s i t extension created response
-func (o *CreateSITExtensionCreated) SetPayload(payload *primemessages.SitExtension) {
+func (o *CreateSITExtensionCreated) SetPayload(payload *primemessages.SITExtension) {
 	o.Payload = payload
 }
 

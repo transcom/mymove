@@ -15,10 +15,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// SitExtension A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.
+// SITExtension A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.
 //
-// swagger:model SitExtension
-type SitExtension struct {
+// swagger:model SITExtension
+type SITExtension struct {
 
 	// approved days
 	// Example: 30
@@ -72,8 +72,8 @@ type SitExtension struct {
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
-// Validate validates this sit extension
-func (m *SitExtension) Validate(formats strfmt.Registry) error {
+// Validate validates this s i t extension
+func (m *SITExtension) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
@@ -106,7 +106,7 @@ func (m *SitExtension) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitExtension) validateCreatedAt(formats strfmt.Registry) error {
+func (m *SITExtension) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -118,7 +118,7 @@ func (m *SitExtension) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitExtension) validateDecisionDate(formats strfmt.Registry) error {
+func (m *SITExtension) validateDecisionDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.DecisionDate) { // not required
 		return nil
 	}
@@ -130,7 +130,7 @@ func (m *SitExtension) validateDecisionDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitExtension) validateID(formats strfmt.Registry) error {
+func (m *SITExtension) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -142,7 +142,7 @@ func (m *SitExtension) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitExtension) validateMtoShipmentID(formats strfmt.Registry) error {
+func (m *SITExtension) validateMtoShipmentID(formats strfmt.Registry) error {
 	if swag.IsZero(m.MtoShipmentID) { // not required
 		return nil
 	}
@@ -154,7 +154,7 @@ func (m *SitExtension) validateMtoShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
-var sitExtensionTypeRequestReasonPropEnum []interface{}
+var sITExtensionTypeRequestReasonPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -162,43 +162,43 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		sitExtensionTypeRequestReasonPropEnum = append(sitExtensionTypeRequestReasonPropEnum, v)
+		sITExtensionTypeRequestReasonPropEnum = append(sITExtensionTypeRequestReasonPropEnum, v)
 	}
 }
 
 const (
 
-	// SitExtensionRequestReasonSERIOUSILLNESSMEMBER captures enum value "SERIOUS_ILLNESS_MEMBER"
-	SitExtensionRequestReasonSERIOUSILLNESSMEMBER string = "SERIOUS_ILLNESS_MEMBER"
+	// SITExtensionRequestReasonSERIOUSILLNESSMEMBER captures enum value "SERIOUS_ILLNESS_MEMBER"
+	SITExtensionRequestReasonSERIOUSILLNESSMEMBER string = "SERIOUS_ILLNESS_MEMBER"
 
-	// SitExtensionRequestReasonSERIOUSILLNESSDEPENDENT captures enum value "SERIOUS_ILLNESS_DEPENDENT"
-	SitExtensionRequestReasonSERIOUSILLNESSDEPENDENT string = "SERIOUS_ILLNESS_DEPENDENT"
+	// SITExtensionRequestReasonSERIOUSILLNESSDEPENDENT captures enum value "SERIOUS_ILLNESS_DEPENDENT"
+	SITExtensionRequestReasonSERIOUSILLNESSDEPENDENT string = "SERIOUS_ILLNESS_DEPENDENT"
 
-	// SitExtensionRequestReasonIMPENDINGASSIGNEMENT captures enum value "IMPENDING_ASSIGNEMENT"
-	SitExtensionRequestReasonIMPENDINGASSIGNEMENT string = "IMPENDING_ASSIGNEMENT"
+	// SITExtensionRequestReasonIMPENDINGASSIGNEMENT captures enum value "IMPENDING_ASSIGNEMENT"
+	SITExtensionRequestReasonIMPENDINGASSIGNEMENT string = "IMPENDING_ASSIGNEMENT"
 
-	// SitExtensionRequestReasonDIRECTEDTEMPORARYDUTY captures enum value "DIRECTED_TEMPORARY_DUTY"
-	SitExtensionRequestReasonDIRECTEDTEMPORARYDUTY string = "DIRECTED_TEMPORARY_DUTY"
+	// SITExtensionRequestReasonDIRECTEDTEMPORARYDUTY captures enum value "DIRECTED_TEMPORARY_DUTY"
+	SITExtensionRequestReasonDIRECTEDTEMPORARYDUTY string = "DIRECTED_TEMPORARY_DUTY"
 
-	// SitExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING captures enum value "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
-	SitExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING string = "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+	// SITExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING captures enum value "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+	SITExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING string = "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
 
-	// SitExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE captures enum value "AWAITING_COMPLETION_OF_RESIDENCE"
-	SitExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE string = "AWAITING_COMPLETION_OF_RESIDENCE"
+	// SITExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE captures enum value "AWAITING_COMPLETION_OF_RESIDENCE"
+	SITExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE string = "AWAITING_COMPLETION_OF_RESIDENCE"
 
-	// SitExtensionRequestReasonOTHER captures enum value "OTHER"
-	SitExtensionRequestReasonOTHER string = "OTHER"
+	// SITExtensionRequestReasonOTHER captures enum value "OTHER"
+	SITExtensionRequestReasonOTHER string = "OTHER"
 )
 
 // prop value enum
-func (m *SitExtension) validateRequestReasonEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, sitExtensionTypeRequestReasonPropEnum, true); err != nil {
+func (m *SITExtension) validateRequestReasonEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, sITExtensionTypeRequestReasonPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *SitExtension) validateRequestReason(formats strfmt.Registry) error {
+func (m *SITExtension) validateRequestReason(formats strfmt.Registry) error {
 	if swag.IsZero(m.RequestReason) { // not required
 		return nil
 	}
@@ -211,7 +211,7 @@ func (m *SitExtension) validateRequestReason(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitExtension) validateUpdatedAt(formats strfmt.Registry) error {
+func (m *SITExtension) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
@@ -223,8 +223,8 @@ func (m *SitExtension) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this sit extension based on the context it is used
-func (m *SitExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this s i t extension based on the context it is used
+func (m *SITExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
@@ -245,7 +245,7 @@ func (m *SitExtension) ContextValidate(ctx context.Context, formats strfmt.Regis
 	return nil
 }
 
-func (m *SitExtension) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *SITExtension) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
@@ -254,7 +254,7 @@ func (m *SitExtension) contextValidateCreatedAt(ctx context.Context, formats str
 	return nil
 }
 
-func (m *SitExtension) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+func (m *SITExtension) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
@@ -263,7 +263,7 @@ func (m *SitExtension) contextValidateETag(ctx context.Context, formats strfmt.R
 	return nil
 }
 
-func (m *SitExtension) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *SITExtension) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
@@ -273,7 +273,7 @@ func (m *SitExtension) contextValidateUpdatedAt(ctx context.Context, formats str
 }
 
 // MarshalBinary interface implementation
-func (m *SitExtension) MarshalBinary() ([]byte, error) {
+func (m *SITExtension) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -281,8 +281,8 @@ func (m *SitExtension) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *SitExtension) UnmarshalBinary(b []byte) error {
-	var res SitExtension
+func (m *SITExtension) UnmarshalBinary(b []byte) error {
+	var res SITExtension
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

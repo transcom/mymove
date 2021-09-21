@@ -406,7 +406,7 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 }
 
 // SITExtensionModel transform the request data the sitExtension model
-func SITExtensionModel(sitExtension *primemessages.CreateSitExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}

@@ -518,12 +518,12 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateSitExtension'
+            $ref: '#/definitions/CreateSITExtension'
       responses:
         '201':
           description: Successfully created the sit extension request.
           schema:
-            $ref: 'definitions/SitExtension.yaml'
+            $ref: 'definitions/SITExtension.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1088,8 +1088,8 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateSitExtension:
-    description: CreateSitExtension contains the fields required for the prime to create a SIT Extension request.
+  CreateSITExtension:
+    description: CreateSITExtension contains the fields required for the prime to create a SIT Extension request.
     type: object
     properties:
       requestReason:
@@ -1770,7 +1770,7 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:
-        $ref: 'definitions/SitExtensions.yaml'
+        $ref: 'definitions/SITExtensions.yaml'
       reweigh:
         $ref: '#/definitions/Reweigh'
       mtoServiceItems:

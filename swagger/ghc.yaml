@@ -977,7 +977,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSitExtensionAsTOO
+      operationId: createSITExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -991,7 +991,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateSitExtensionAsTOO'
+            $ref: '#/definitions/CreateSITExtensionAsTOO'
           required: true
         - in: header
           description: >-
@@ -1039,7 +1039,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ApproveSitExtension'
+            $ref: '#/definitions/ApproveSITExtension'
         - in: header
           description: >-
             We want the shipment's eTag rather than the SIT extension eTag as
@@ -1068,7 +1068,7 @@ paths:
         - shipment
         - sitExtension
       description: Approves a SIT extension
-      operationId: approveSitExtension
+      operationId: approveSITExtension
       summary: Approves a SIT extension
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
@@ -1094,7 +1094,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/DenySitExtension'
+            $ref: '#/definitions/DenySITExtension'
         - in: header
           name: If-Match
           type: string
@@ -1120,7 +1120,7 @@ paths:
         - shipment
         - sitExtension
       description: Denies a SIT extension
-      operationId: denySitExtension
+      operationId: denySITExtension
       summary: Denies a SIT extension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
@@ -3219,7 +3219,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: '#/definitions/SITExtensions'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3375,7 +3375,7 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
-  ApproveSitExtension:
+  ApproveSITExtension:
     properties:
       approvedDays:
         description: Number of days approved for SIT extension
@@ -3389,14 +3389,14 @@ definitions:
         x-nullable: true
     required:
       - approvedDays
-  DenySitExtension:
+  DenySITExtension:
     properties:
       officeRemarks:
         description: Remarks from TOO about SIT denial
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
-  CreateSitExtensionAsTOO:
+  CreateSITExtensionAsTOO:
     properties:
       requestReason:
         description: Reason from service counselor-provided picklist for SIT extension
@@ -3864,7 +3864,7 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
-  SitExtension:
+  SITExtension:
     type: object
     description: >-
       A storage in transit (SIT) Extension is a request for an increase in the
@@ -3926,10 +3926,10 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  SitExtensions:
+  SITExtensions:
     type: array
     items:
-      $ref: '#/definitions/SitExtension'
+      $ref: '#/definitions/SITExtension'
 responses:
   InvalidRequest:
     description: The request payload is invalid

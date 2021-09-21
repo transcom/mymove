@@ -164,7 +164,7 @@ type MTOShipment struct {
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
 	// sit extensions
-	SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+	SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
 	//
@@ -251,7 +251,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
-		SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 		Status string `json:"status,omitempty"`
 
@@ -431,7 +431,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
-		SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 		Status string `json:"status,omitempty"`
 

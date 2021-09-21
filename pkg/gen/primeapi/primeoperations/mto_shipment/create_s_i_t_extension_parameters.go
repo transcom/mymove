@@ -40,7 +40,7 @@ type CreateSITExtensionParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *primemessages.CreateSitExtension
+	Body *primemessages.CreateSITExtension
 	/*UUID of the shipment associated with the agent
 	  Required: true
 	  In: path
@@ -59,7 +59,7 @@ func (o *CreateSITExtensionParams) BindRequest(r *http.Request, route *middlewar
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.CreateSitExtension
+		var body primemessages.CreateSITExtension
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

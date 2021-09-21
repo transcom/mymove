@@ -562,11 +562,11 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 }
 
 // SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *primemessages.SitExtension {
+func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
-	payload := &primemessages.SitExtension{
+	payload := &primemessages.SITExtension{
 		ID:                strfmt.UUID(sitExtension.ID.String()),
 		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
 		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
@@ -585,12 +585,12 @@ func SITExtension(sitExtension *models.SITExtension) *primemessages.SitExtension
 }
 
 // SITExtensions payload\
-func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SitExtensions {
+func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SITExtensions {
 	if sitExtensions == nil {
 		return nil
 	}
 
-	payload := make(primemessages.SitExtensions, len(*sitExtensions))
+	payload := make(primemessages.SITExtensions, len(*sitExtensions))
 
 	for i, m := range *sitExtensions {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.

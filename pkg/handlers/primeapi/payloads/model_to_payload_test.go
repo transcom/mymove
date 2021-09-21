@@ -137,7 +137,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	suite.T().Run("Success - Returns a sitextension payload without optional fields", func(t *testing.T) {
 		returnedPayload := SITExtension(&sitExtension)
 
-		suite.IsType(&primemessages.SitExtension{}, returnedPayload)
+		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
 		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
 		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
@@ -167,7 +167,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 		// Send model through func
 		returnedPayload := SITExtension(&sitExtension)
 
-		suite.IsType(&primemessages.SitExtension{}, returnedPayload)
+		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
 		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
 		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
