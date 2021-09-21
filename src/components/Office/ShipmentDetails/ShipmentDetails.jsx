@@ -23,7 +23,6 @@ const ShipmentDetails = ({
         handleDivertShipment={handleDivertShipment}
         handleRequestReweighModal={handleRequestReweighModal}
         shipment={shipment}
-        storageInTransit={entitlement.storageInTransit}
         dutyStationAddresses={{
           originDutyStationAddress: originDutyStation?.address,
           destinationDutyStationAddress: destinationDutyStation?.address,

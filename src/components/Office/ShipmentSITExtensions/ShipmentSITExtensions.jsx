@@ -55,10 +55,8 @@ const ShipmentSITExtensions = (props) => {
     );
   });
 
-  const overallTotalDaysUsed = moment().diff(initialSITItem.sitEntryDate, 'days') + 1;
-  const overallTotalDaysRemaining = overallTotalDaysAuthorized - overallTotalDaysUsed;
-  const overallEndDate = moment().add(overallTotalDaysRemaining, 'days').format('DD MMM YYYY');
-
+  // Display overall total days
+  const overallTotalDaysUsed = moment().diff(earliestSITDate, 'days');
   const overallTotalDaysAuthorizedAndUsed = (
     <>
       <p>{overallTotalDaysAuthorized} authorized</p>
@@ -66,6 +64,8 @@ const ShipmentSITExtensions = (props) => {
     </>
   );
 
+  const overallTotalDaysRemaining = overallTotalDaysAuthorized - overallTotalDaysUsed;
+  const overallEndDate = moment().add(overallTotalDaysRemaining, 'days').format('DD MMM YYYY');
   const overallDaysRemainingAndEndDate = (
     <>
       <p>{overallTotalDaysRemaining} remaining</p>
@@ -73,11 +73,13 @@ const ShipmentSITExtensions = (props) => {
     </>
   );
 
+  // Currently active SIT
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{moment(sitStatus.sitEntryDate).format('DD MMM YYYY')}</p>;
 
-  const previousDaysUsed = sitStatus.pastSITServiceItems.map((pastSITItem) => {
+  // Previous SIT calculations and date ranges
+  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
@@ -108,10 +110,10 @@ const ShipmentSITExtensions = (props) => {
       />
       <p>Current location: {currentLocation}</p>
       <DataTable
-        columnHeaders={['Days in destination SIT', 'Date entered SIT']}
+        columnHeaders={[`Days in ${currentLocation} SIT`, 'Date entered SIT']}
         dataRow={[currentDaysInSit, currentDateEnteredSit]}
       />
-      {sitStatus.pastSITServiceItems.length > 0 && (
+      {sitStatus.pastSITServiceItems?.length > 0 && (
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
@@ -130,7 +132,6 @@ ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape).isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   sitStatus: SitStatusShape.isRequired,
-  storageInTransit: PropTypes.number.isRequired,
   shipment: ShipmentShape.isRequired,
 };
 

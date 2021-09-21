@@ -4760,7 +4760,7 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
-func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
@@ -4795,17 +4795,6 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		},
 		MTOShipment: mtoShipment,
 		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: dddsit,
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			Type: models.CustomerContactTypeSecond,
-		},
-		MTOServiceItem: dddsit,
 	})
 
 	sitContractorRemarks1 := "The customer requested an extension."

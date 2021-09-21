@@ -13,7 +13,6 @@ import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 const ShipmentDetailsMain = ({
   className,
   shipment,
-  storageInTransit,
   dutyStationAddresses,
   handleDivertShipment,
   handleRequestReweighModal,
@@ -78,7 +77,6 @@ const ShipmentDetailsMain = ({
 ShipmentDetailsMain.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  storageInTransit: PropTypes.number.isRequired,
   dutyStationAddresses: PropTypes.shape({
     originDutyStationAddress: AddressShape,
     destinationDutyStationAddress: AddressShape,
