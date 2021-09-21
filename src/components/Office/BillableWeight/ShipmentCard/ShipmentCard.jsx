@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, number, shape } from 'prop-types';
+import { func, string, number, shape } from 'prop-types';
 import classnames from 'classnames';
 
 import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
@@ -13,8 +13,10 @@ import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 export default function ShipmentCard({
   billableWeight,
+  billableWeightJustification,
   dateReweighRequested,
   departedDate,
+  editMTOShipment,
   pickupAddress,
   destinationAddress,
   estimatedWeight,
@@ -80,8 +82,10 @@ export default function ShipmentCard({
         <EditBillableWeight
           title="Billable weight"
           billableWeight={billableWeight}
+          billableWeightJustification={billableWeightJustification}
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
+          editMTOShipment={editMTOShipment}
         />
       </footer>
     </ShipmentContainer>
@@ -90,6 +94,7 @@ export default function ShipmentCard({
 
 ShipmentCard.propTypes = {
   billableWeight: number.isRequired,
+  billableWeightJustification: string,
   dateReweighRequested: string.isRequired,
   departedDate: string.isRequired,
   destinationAddress: shape({
@@ -97,6 +102,7 @@ ShipmentCard.propTypes = {
     state: string.isRequired,
     postal_code: string.isRequired,
   }).isRequired,
+  editMTOShipment: func.isRequired,
   estimatedWeight: number.isRequired,
   originalWeight: number.isRequired,
   pickupAddress: shape({
@@ -109,5 +115,6 @@ ShipmentCard.propTypes = {
 };
 
 ShipmentCard.defaultProps = {
+  billableWeightJustification: '',
   reweighWeight: null,
 };

@@ -2,11 +2,14 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
+import { queryCache, useMutation } from 'react-query';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { updateMTOShipment } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -51,8 +54,6 @@ export default function ReviewBillableWeight() {
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(mtoShipments);
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
 
   const maxBillableWeight = order.entitlement.authorizedWeight;
   const weightAllowance = order.entitlement.totalWeight;
@@ -64,6 +65,31 @@ export default function ReviewBillableWeight() {
   };
 
   const selectedShipment = mtoShipments[selectedShipmentIndex];
+
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+  const editMTOShipment = (form) => {
+    const payload = {
+      body: {
+        ...form,
+        billableWeightCap: form.billableWeight,
+      },
+      ifMatchETag: selectedShipment.eTag,
+      moveTaskOrderID: selectedShipment.moveTaskOrderID,
+      shipmentID: selectedShipment.id,
+      normalize: false,
+    };
+
+    mutateMTOShipment(payload);
+  };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <div className={styles.DocumentWrapper}>
@@ -93,6 +119,7 @@ export default function ReviewBillableWeight() {
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
                 weightAllowance={weightAllowance}
+                editMTOShipment={() => {}}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
@@ -138,7 +165,9 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
+                  editMTOShipment={editMTOShipment}
                   billableWeight={selectedShipment.billableWeightCap}
+                  billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment.reweigh?.requestedAt}
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}

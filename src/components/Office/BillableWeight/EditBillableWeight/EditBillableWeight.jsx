@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { number, string } from 'prop-types';
+import { func, number, string } from 'prop-types';
+import { Formik } from 'formik';
 import { Button, TextInput, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditBillableWeight.module.scss';
@@ -72,10 +73,10 @@ MaxBillableWeightHintText.defaultProps = {
   estimatedWeight: null,
   weightAllowance: null,
 };
-
 export default function EditBillableWeight({
   billableWeight,
   billableWeightJustification,
+  editMTOShipment,
   estimatedWeight,
   maxBillableWeight,
   originalWeight,
@@ -106,31 +107,56 @@ export default function EditBillableWeight({
           </Button>
         </>
       ) : (
-        <div className={styles.container}>
-          {billableWeight ? (
-            <BillableWeightHintText
-              billableWeight={billableWeight}
-              estimatedWeight={estimatedWeight}
-              maxBillableWeight={maxBillableWeight}
-              originalWeight={originalWeight}
-              totalBillableWeight={totalBillableWeight}
-            />
-          ) : (
-            <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
+        <Formik initialValues={{ billableWeight, billableWeightJustification }} validateOnChange validateOnBlur>
+          {({ handleChange, values }) => (
+            <div className={styles.container}>
+              {billableWeight ? (
+                <BillableWeightHintText
+                  billableWeight={billableWeight}
+                  estimatedWeight={estimatedWeight}
+                  maxBillableWeight={maxBillableWeight}
+                  originalWeight={originalWeight}
+                  totalBillableWeight={totalBillableWeight}
+                />
+              ) : (
+                <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
+              )}
+              <Fieldset className={styles.fieldset}>
+                <TextInput
+                  className={styles.maxBillableWeight}
+                  defaultValue={maxBillableWeight}
+                  id="billableWeight"
+                  onChange={handleChange}
+                  type="number"
+                  value={values.billableWeight}
+                />{' '}
+                lbs
+                <Label htmlFor="remarks">Remarks</Label>
+                <Textarea
+                  data-testid="remarks"
+                  id="billableWeightJustification"
+                  maxLength={500}
+                  onChange={handleChange}
+                  placeholder=""
+                  value={values.billableWeightJustification}
+                />
+              </Fieldset>
+              <div className={styles.btnContainer}>
+                <Button
+                  onClick={() => {
+                    editMTOShipment(values);
+                    toggleEdit();
+                  }}
+                >
+                  Save changes
+                </Button>
+                <Button onClick={toggleEdit} unstyled>
+                  Cancel
+                </Button>
+              </div>
+            </div>
           )}
-
-          <Fieldset className={styles.fieldset}>
-            <TextInput className={styles.maxBillableWeight} type="number" defaultValue={maxBillableWeight} /> lbs
-            <Label htmlFor="remarks">Remarks</Label>
-            <Textarea data-testid="remarks" name="remarks" placeholder="" id="remarks" maxLength={500} />
-          </Fieldset>
-          <div className={styles.btnContainer}>
-            <Button onClick={toggleEdit}>Save changes</Button>
-            <Button onClick={toggleEdit} unstyled>
-              Cancel
-            </Button>
-          </div>
-        </div>
+        </Formik>
       )}
     </div>
   );
@@ -139,6 +165,7 @@ export default function EditBillableWeight({
 EditBillableWeight.propTypes = {
   billableWeight: number,
   billableWeightJustification: string,
+  editMTOShipment: func.isRequired,
   estimatedWeight: number,
   maxBillableWeight: number,
   originalWeight: number,
