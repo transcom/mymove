@@ -66,6 +66,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
                   if (e.target.value === 'no') {
                     setValues({
                       ...values,
+                      daysApproved: '',
                       acceptExtension: 'no',
                     });
                   }
@@ -114,7 +115,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
                         className={classnames(styles.ApprovedDaysInput, 'usa-input')}
                       />
                     )}
-                    <Label>Office remarks</Label>
+                    <Label htmlFor="officeRemarks">Office remarks</Label>
                     <Field
                       as={Textarea}
                       data-testid="officeRemarks"
@@ -150,6 +151,6 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
 ReviewSITExtensionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  sitExtension: PropTypes.shape(SITExtensionShape).isRequired,
+  sitExtension: SITExtensionShape.isRequired,
 };
 export default ReviewSITExtensionsModal;
