@@ -19,7 +19,7 @@ type PaymentServiceItemStatusUpdater struct {
 }
 
 // UpdatePaymentServiceItemStatus provides a mock function with given fields: appCtx, paymentServiceItemID, status, rejectionReason, eTag
-func (_m *PaymentServiceItemStatusUpdater) UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID, status models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, error, *validate.Errors) {
+func (_m *PaymentServiceItemStatusUpdater) UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID, status models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
 	ret := _m.Called(appCtx, paymentServiceItemID, status, rejectionReason, eTag)
 
 	var r0 models.PaymentServiceItem
@@ -29,20 +29,20 @@ func (_m *PaymentServiceItemStatusUpdater) UpdatePaymentServiceItemStatus(appCtx
 		r0 = ret.Get(0).(models.PaymentServiceItem)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.PaymentServiceItemStatus, *string, string) error); ok {
+	var r1 *validate.Errors
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.PaymentServiceItemStatus, *string, string) *validate.Errors); ok {
 		r1 = rf(appCtx, paymentServiceItemID, status, rejectionReason, eTag)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*validate.Errors)
+		}
 	}
 
-	var r2 *validate.Errors
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, models.PaymentServiceItemStatus, *string, string) *validate.Errors); ok {
+	var r2 error
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, models.PaymentServiceItemStatus, *string, string) error); ok {
 		r2 = rf(appCtx, paymentServiceItemID, status, rejectionReason, eTag)
 	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).(*validate.Errors)
-		}
+		r2 = ret.Error(2)
 	}
 
 	return r0, r1, r2
