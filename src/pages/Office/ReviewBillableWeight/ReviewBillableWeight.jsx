@@ -8,8 +8,8 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { updateMTOShipment } from 'services/ghcApi';
+import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { updateMTOShipment, updateBillableWeightAsTIO } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -17,6 +17,7 @@ import ShipmentCard from 'components/Office/BillableWeight/ShipmentCard/Shipment
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
@@ -70,20 +71,53 @@ export default function ReviewBillableWeight() {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
   });
-  const editMTOShipment = (form) => {
-    const payload = {
-      body: {
-        ...form,
-        billableWeightCap: form.billableWeight,
-      },
-      ifMatchETag: selectedShipment.eTag,
-      moveTaskOrderID: selectedShipment.moveTaskOrderID,
-      shipmentID: selectedShipment.id,
-      normalize: false,
-    };
 
-    mutateMTOShipment(payload);
+  const [mutateOrders] = useMutation(updateBillableWeightAsTIO, {
+    onSuccess: (data, variables) => {
+      queryCache.invalidateQueries([MOVES, moveCode]);
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
+          [`${variables.orderID}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const editMTOShipment = (formValues) => {
+    if (sidebarType === 'MAX') {
+      const payload = {
+        orderID: order.id,
+        ifMatchETag: order.eTag,
+        body: {
+          authorizedWeight: formValues.billableWeight,
+          tioRemarks: formValues.billableWeightJustification,
+        },
+      };
+      mutateOrders(payload);
+    } else {
+      const payload = {
+        body: {
+          ...formValues,
+          billableWeightCap: formValues.billableWeight,
+        },
+        ifMatchETag: selectedShipment.eTag,
+        moveTaskOrderID: selectedShipment.moveTaskOrderID,
+        shipmentID: selectedShipment.id,
+        normalize: false,
+      };
+      mutateMTOShipment(payload);
+    }
   };
 
   if (upload) {
@@ -121,7 +155,8 @@ export default function ReviewBillableWeight() {
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
                 weightAllowance={weightAllowance}
-                editMTOShipment={() => {}}
+                editMTOShipment={editMTOShipment}
+                billableWeightJustification={order.moveTaskOrder.tioRemarks}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>

@@ -90,6 +90,8 @@ export default function EditBillableWeight({
     setShowEditBtn(!showEditBtn);
   };
 
+  const initialValues = { billableWeight, billableWeightJustification };
+
   return (
     <div className={styles.wrapper}>
       <h4 className={styles.header}>{title}</h4>
@@ -107,7 +109,7 @@ export default function EditBillableWeight({
           </Button>
         </>
       ) : (
-        <Formik initialValues={{ billableWeight, billableWeightJustification }} validateOnChange validateOnBlur>
+        <Formik initialValues={initialValues}>
           {({ handleChange, values }) => (
             <div className={styles.container}>
               {billableWeight ? (
@@ -144,7 +146,10 @@ export default function EditBillableWeight({
               <div className={styles.btnContainer}>
                 <Button
                   onClick={() => {
-                    editMTOShipment(values);
+                    editMTOShipment({
+                      ...initialValues,
+                      ...values,
+                    });
                     toggleEdit();
                   }}
                 >

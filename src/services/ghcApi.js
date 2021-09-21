@@ -131,6 +131,11 @@ export async function updateBillableWeight({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateBillableWeightAsTIO({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateMaxBillableWeightAsTIO';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   const operationPath = 'order.acknowledgeExcessWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
