@@ -24,18 +24,47 @@ func NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator services.P
 func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) error {
 
 	// Given a shipmentID find all of the payment requests in PENDING.
+	paymentRequests, err := p.findPendingPaymentRequestsForShipment(appCtx, shipmentID)
+	if err != nil {
+		return err
+	}
+
+	// Note: Payment requests can have MTO Service Items from different shipments. RecalculatePaymentRequest
+	// will reprice the whole payment request if the payment request has a service item that needs to be recalculated.
+
+	// Recalculate all PENDING payment request for shipmentID
+	// var newPR *models.PaymentRequest
+	startNewTx := false /* re-use Tx from ShipmentRecalculatePaymentRequest service */
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, pr := range paymentRequests {
+			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr.ID, startNewTx)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if transactionError != nil {
+		return transactionError
+	}
+	return nil
+}
+
+func (p *paymentRequestShipmentRecalculator) findPendingPaymentRequestsForShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (models.PaymentRequests, error) {
+
+	// Given a shipmentID find all of the payment requests in PENDING.
 	var paymentRequests []models.PaymentRequest
 	/*
 		option 1: filter down to shipment ID and PENDING and write code to
-		   determine if weight param is present.
+		   	determine if weight param is present.
 		----
-			select * from public.payment_requests pr
-			left join mto_shipments ms on ms.move_id = pr.move_id
+		select * from public.payment_requests pr
+		left join mto_shipments ms on ms.move_id = pr.move_id
 	*/
 	/*
 		option 2: filter down to shipment ID, PENDING, and if WeightOriginal is
 			present in the payment request. Don't need Eager because the query has
-		   found the PRs that we need here.
+		   	found the PRs that we need here.
 		---
 		select * from public.payment_requests pr
 		left join mto_shipments ms on ms.move_id = pr.move_id
@@ -57,26 +86,6 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 		Where("payment_requests.status = $2", "PENDING").
 		Where("sipk.key = $3", "WeightOriginal").
 		All(&paymentRequests)
-	if err != nil {
-		return err
-	}
 
-	// Note: Payment requests can have MTO Service Items from different shipments. RecalculatePaymentRequest
-	// will reprice the whole payment request if the payment request has a service item that needs to be recalculated.
-
-	// var newPR *models.PaymentRequest
-	startNewTx := false /* re-use Tx from ShipmentRecalculatePaymentRequest service */
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		for _, pr := range paymentRequests {
-			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr.ID, startNewTx)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if transactionError != nil {
-		return transactionError
-	}
-	return nil
+	return paymentRequests, err
 }
