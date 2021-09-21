@@ -129,8 +129,13 @@ const ShipmentSITExtensions = (props) => {
 ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape).isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
+  sitStatus: SitStatusShape.isRequired,
+  storageInTransit: PropTypes.number.isRequired,
+  shipment: ShipmentShape.isRequired,
 };
 
-ShipmentSITExtensions.defaultProps = {};
+ShipmentSITExtensions.defaultProps = {
+  sitExtensions: [],
+};
 
 export default ShipmentSITExtensions;
