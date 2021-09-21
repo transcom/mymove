@@ -5,15 +5,15 @@ import { formatWeight } from 'shared/formatters';
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 
 const noOverweightShipments = [
-  { id: '0001', shipmentType: 'HHG', billableWeightCap: 6000, primeEstimatedWeight: 6000 },
+  { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6000, primeEstimatedWeight: 6000 },
   {
     id: '0002',
     shipmentType: 'HHG',
-    billableWeightCap: 400,
+    calculatedBillableWeight: 400,
     primeEstimatedWeight: 4000,
     reweigh: { id: '1234' },
   },
-  { id: '0003', shipmentType: 'HHG', billableWeightCap: 3400, primeEstimatedWeight: 3400 },
+  { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3400, primeEstimatedWeight: 3400 },
 ];
 
 const defaultProps = {
@@ -25,15 +25,15 @@ const defaultProps = {
 };
 
 const overweightShipments = [
-  { id: '0001', shipmentType: 'HHG', billableWeightCap: 6161, primeEstimatedWeight: 3000 },
+  { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6161, primeEstimatedWeight: 3000 },
   {
     id: '0002',
     shipmentType: 'HHG',
-    billableWeightCap: 4000,
+    calculatedBillableWeight: 4000,
     primeEstimatedWeight: 4000,
     reweigh: { id: '1234' },
   },
-  { id: '0003', shipmentType: 'HHG', billableWeightCap: 3000, primeEstimatedWeight: 3000 },
+  { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3000, primeEstimatedWeight: 3000 },
 ];
 
 const maxBillableWeightExceeded = {
@@ -60,9 +60,9 @@ describe('WeightSummary', () => {
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
 
     // shipment weights
-    expect(screen.getByText(formatWeight(noOverweightShipments[0].billableWeightCap))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(noOverweightShipments[1].billableWeightCap))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(noOverweightShipments[2].billableWeightCap))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(noOverweightShipments[0].calculatedBillableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(noOverweightShipments[1].calculatedBillableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(noOverweightShipments[2].calculatedBillableWeight))).toBeInTheDocument();
   });
 
   it('does not display flags when not appropriate', async () => {

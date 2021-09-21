@@ -40,7 +40,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
         {shipments.map((shipment) => {
           return (
             <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
-              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
+              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight) ? (
                 <FontAwesomeIcon
                   icon="exclamation-triangle"
                   data-testid="shipmentIsOverweightFlag"
@@ -49,7 +49,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
               ) : (
                 <div className={styles.noEdit} />
               )}
-              {formatWeight(shipment.billableWeightCap)}
+              {formatWeight(shipment.calculatedBillableWeight)}
             </div>
           );
         })}
@@ -65,7 +65,7 @@ WeightSummary.propTypes = {
   totalBillableWeight: number.isRequired,
   shipments: arrayOf(
     shape({
-      billableWeightCap: number.isRequired,
+      calculatedBillableWeight: number.isRequired,
       primeEstimatedWeight: number.isRequired,
     }),
   ).isRequired,
