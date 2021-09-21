@@ -152,14 +152,10 @@ export default function ReviewBillableWeight() {
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer className={reviewBillableWeightStyles.footer}>
               <div className={reviewBillableWeightStyles.flex}>
-                <Button type="button" onClick={handleClickBackButton} secondary>
+                <Button onClick={handleClickBackButton} secondary>
                   Back
                 </Button>
-                {!isLastShipment && (
-                  <Button type="button" onClick={handleClickNextButton}>
-                    Next Shipment
-                  </Button>
-                )}
+                {!isLastShipment && <Button onClick={handleClickNextButton}>Next Shipment</Button>}
               </div>
             </DocumentViewerSidebar.Footer>
           </DocumentViewerSidebar>
