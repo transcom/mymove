@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	paymentServiceItemService "github.com/transcom/mymove/pkg/services/payment_service_item"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/swag"
@@ -13,8 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	paymentServiceItemOp "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
@@ -77,14 +77,10 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("Successful patch - Approval - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		queryBuilder := query.NewQueryBuilder()
-
-		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
 		response := handler.Handle(subtestData.params)
@@ -96,14 +92,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("404 - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		queryBuilder := query.NewQueryBuilder()
-
-		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.PaymentServiceItemID = uuid.Nil.String()
 
@@ -117,12 +109,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		newParam := subtestData.input
 		newParam.Body.Status = ""
 
-		queryBuilder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
 		response := handler.Handle(newParam)
@@ -132,14 +121,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("Successful patch - Rejection - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
-		queryBuilder := query.NewQueryBuilder()
-
-		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		subtestData.params.PaymentServiceItemID = paymentServiceItem.ID.String()
@@ -161,14 +146,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 				Status: models.PaymentServiceItemStatusDenied,
 			},
 		})
-		queryBuilder := query.NewQueryBuilder()
-
-		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(deniedPaymentServiceItem.UpdatedAt)
 		subtestData.params.PaymentServiceItemID = deniedPaymentServiceItem.ID.String()
@@ -202,14 +183,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 				Status:          ghcmessages.PaymentServiceItemStatusAPPROVED,
 			},
 		}
-		queryBuilder := query.NewQueryBuilder()
-
-		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")

@@ -2,12 +2,9 @@ package ghcapi
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/event"
-
-	"github.com/go-openapi/swag"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -27,8 +24,7 @@ import (
 // UpdatePaymentServiceItemStatusHandler updates payment service item status
 type UpdatePaymentServiceItemStatusHandler struct {
 	handlers.HandlerContext
-	services.Fetcher
-	query.Builder
+	services.PaymentServiceItemStatusUpdater
 }
 
 // Handle handles the handling for UpdatePaymentServiceItemStatusHandler
@@ -36,50 +32,15 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	paymentServiceItemID, err := uuid.FromString(params.PaymentServiceItemID)
-	// Create a zero paymentServiceRequest for us to use in FetchRecord
-	var paymentServiceItem models.PaymentServiceItem
+	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error parsing payment service item id: %s", params.PaymentServiceItemID), zap.Error(err))
 	}
 
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentServiceItemID.String())}
-	// Get the existing record
-	err = h.Fetcher.FetchRecord(appCtx, &paymentServiceItem, filters)
+	updatedPaymentServiceItem, verrs, err := h.PaymentServiceItemStatusUpdater.UpdatePaymentServiceItemStatus(appCtx,
+		paymentServiceItemID, newStatus, params.Body.RejectionReason, params.IfMatch)
 
-	if err != nil {
-		logger.Error(fmt.Sprintf("Error finding payment service item for status update with ID: %s", params.PaymentServiceItemID), zap.Error(err))
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-	}
-	// Create a model object to use for the update and set the status
-	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
-	paymentServiceItem.Status = newStatus
-
-	if params.Body.RejectionReason != nil {
-		paymentServiceItem.RejectionReason = params.Body.RejectionReason
-	}
-	// If we're approving this thing then we don't want there to be a rejection reason
-	// We also will want to update the ApprovedAt field and nil out the DeniedAt field.
-	if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
-		paymentServiceItem.RejectionReason = nil
-		paymentServiceItem.ApprovedAt = swag.Time(time.Now())
-		paymentServiceItem.DeniedAt = nil
-	}
-	// If we're denying this thing we want to make sure to update the DeniedAt field and nil out ApprovedAt.
-	if paymentServiceItem.Status == models.PaymentServiceItemStatusDenied {
-		paymentServiceItem.DeniedAt = swag.Time(time.Now())
-		paymentServiceItem.ApprovedAt = nil
-	}
-
-	// Capture update attempt in audit log
-	_, err = audit.Capture(&paymentServiceItem, nil, logger, session, params.HTTPRequest)
-	if err != nil {
-		logger.Error("Auditing service error for payment service item status change.", zap.Error(err))
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()
-	}
-	// Do the update
-	verrs, err := h.UpdateOne(appCtx, &paymentServiceItem, &params.IfMatch)
-	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
 		logger.Error("Error updating payment service item status", zap.Error(err))
 
@@ -97,10 +58,17 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
 
+	// Capture update attempt in audit log
+	_, err = audit.Capture(&updatedPaymentServiceItem, nil, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for payment service item status change.", zap.Error(err))
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()
+	}
+
 	_, err = event.TriggerEvent(event.Event{
 		EventKey:        event.PaymentRequestUpdateEventKey,
-		MtoID:           paymentServiceItem.PaymentRequest.MoveTaskOrderID,
-		UpdatedObjectID: paymentServiceItem.PaymentRequestID,
+		MtoID:           updatedPaymentServiceItem.PaymentRequest.MoveTaskOrderID,
+		UpdatedObjectID: updatedPaymentServiceItem.PaymentRequestID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
 		DBConnection:    h.DB(),
@@ -111,6 +79,6 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	}
 
 	// Make the payload and return it with a 200
-	payload := modelToPayload.PaymentServiceItem(&paymentServiceItem)
+	payload := modelToPayload.PaymentServiceItem(&updatedPaymentServiceItem)
 	return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusOK().WithPayload(payload)
 }
