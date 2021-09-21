@@ -291,32 +291,19 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
 	if sitExtension == nil {
 		return nil
 	}
-
 	payload := &ghcmessages.SitExtension{
-		ID:            strfmt.UUID(sitExtension.ID.String()),
-		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
-		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
-		RequestReason: string(sitExtension.RequestReason),
-		RequestedDays: int64(sitExtension.RequestedDays),
-		Status:        string(sitExtension.Status),
-		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
-		UpdatedAt:     strfmt.DateTime(sitExtension.UpdatedAt),
-	}
-
-	if sitExtension.ApprovedDays != nil && *sitExtension.ApprovedDays > 0 {
-		payload.ApprovedDays = handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays)
-	}
-
-	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
-		payload.ContractorRemarks = sitExtension.ContractorRemarks
-	}
-
-	if sitExtension.DecisionDate != nil && !sitExtension.DecisionDate.IsZero() {
-		payload.DecisionDate = handlers.FmtDateTimePtr(sitExtension.DecisionDate)
-	}
-
-	if sitExtension.OfficeRemarks != nil && len(*sitExtension.OfficeRemarks) > 0 {
-		payload.OfficeRemarks = sitExtension.OfficeRemarks
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		RequestedDays:     int64(sitExtension.RequestedDays),
+		Status:            string(sitExtension.Status),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
 	}
 
 	return payload

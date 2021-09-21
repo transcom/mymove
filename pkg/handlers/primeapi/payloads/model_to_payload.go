@@ -372,6 +372,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
@@ -581,6 +582,22 @@ func SITExtension(sitExtension *models.SITExtension) *primemessages.SitExtension
 	}
 
 	return payload
+}
+
+// SITExtensions payload\
+func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SitExtensions {
+	if sitExtensions == nil {
+		return nil
+	}
+
+	payload := make(primemessages.SitExtensions, len(*sitExtensions))
+
+	for i, m := range *sitExtensions {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = SITExtension(&copyOfM)
+	}
+
+	return &payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

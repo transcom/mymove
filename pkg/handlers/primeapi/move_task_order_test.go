@@ -127,6 +127,28 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(reweigh.ID.String()), reweighPayload.ID)
 	})
 
+	suite.T().Run("Success - returns sit extensions on shipments if they exist", func(t *testing.T) {
+		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+			Move: successMove,
+		})
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		reweighPayload := movePayload.MtoShipments[0].SitExtensions[0]
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
+	})
+
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{

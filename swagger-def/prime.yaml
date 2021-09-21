@@ -1769,6 +1769,8 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      sitExtensions:
+        $ref: 'definitions/SitExtensions.yaml'
       reweigh:
         $ref: '#/definitions/Reweigh'
       mtoServiceItems:

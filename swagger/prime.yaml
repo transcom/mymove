@@ -2023,6 +2023,8 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      sitExtensions:
+        $ref: '#/definitions/SitExtensions'
       reweigh:
         $ref: '#/definitions/Reweigh'
       mtoServiceItems:
@@ -2775,20 +2777,6 @@ definitions:
       - filename
       - contentType
       - bytes
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-        properties:
-          invalidFields:
-            type: object
-            additionalProperties:
-              description: List of errors for the field
-              type: array
-              items:
-                type: string
-        required:
-          - invalidFields
   SitExtension:
     type: object
     description: >-
@@ -2851,6 +2839,24 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  SitExtensions:
+    type: array
+    items:
+      $ref: '#/definitions/SitExtension'
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+        properties:
+          invalidFields:
+            type: object
+            additionalProperties:
+              description: List of errors for the field
+              type: array
+              items:
+                type: string
+        required:
+          - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid.

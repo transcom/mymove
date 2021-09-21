@@ -2114,6 +2114,9 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "sitExtensions": {
+          "$ref": "#/definitions/SitExtensions"
+        },
         "status": {
           "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
@@ -2788,6 +2791,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "SitExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitExtension"
       }
     },
     "UpdateMTOServiceItem": {
@@ -5562,6 +5571,9 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "sitExtensions": {
+          "$ref": "#/definitions/SitExtensions"
+        },
         "status": {
           "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
@@ -6239,6 +6251,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "SitExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitExtension"
       }
     },
     "UpdateMTOServiceItem": {
