@@ -4743,7 +4743,7 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		},
 	})
 
-	makeSITExtensionForShipment(appCtx, mtoShipmentSIT)
+	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
 	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -4873,29 +4873,40 @@ func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUpload
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
 	move := makeMoveForOrders(orders, db, "PENDNG", models.MoveStatusAPPROVALSREQUESTED)
+	now := time.Now()
+	move.ExcessWeightQualifiedAt = &now
+	mustSave(db, &move)
 	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
-	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
-	makeSITExtensionForShipment(appCtx, shipment)
+	makePendingSITExtensionsForShipment(appCtx, shipment)
+	paymentRequestID := uuid.Must(uuid.FromString("70b35add-605a-289d-8dad-056f5d9ef7e1"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
-func makeSITExtensionForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+	db := appCtx.DB()
+
+	for i := 0; i < 2; i++ {
+		testdatagen.MakePendingSITExtension(db, testdatagen.Assertions{
+			MTOShipment: shipment,
+		})
+	}
+}
+
+func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
-			MTOShipmentID:     shipment.ID,
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
 		},
+		MTOShipment: shipment,
 	})
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID: shipment.ID,
-		},
+		MTOShipment: shipment,
 	})
 }
 
