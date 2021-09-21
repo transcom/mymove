@@ -104,14 +104,13 @@ const MovePaymentRequests = ({
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav className={txoStyles.sidebar}>
-          {paymentRequests.length &&
-            sections?.map((s) => {
-              return (
-                <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
-                  {sectionLabels[`${s}`]}
-                </a>
-              );
-            })}
+          {sections?.map((s) => {
+            return (
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                {sectionLabels[`${s}`]}
+              </a>
+            );
+          })}
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
@@ -127,7 +126,7 @@ const MovePaymentRequests = ({
           </div>
           <h2>Payment requests</h2>
           <div className={txoStyles.section} id="payment-requests">
-            {paymentRequests.length ? (
+            {paymentRequests?.length > 0 ? (
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard
                   paymentRequest={paymentRequest}

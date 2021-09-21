@@ -32,12 +32,10 @@ export default function ShipmentCard({
             <span data-testid="departureDate">{formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
           </span>
           <span>
-            <strong>From</strong>
-            <span data-testid="pickupAddress">{formatAddressShort(pickupAddress)}</span>
+            <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
           </span>
           <span>
-            <strong>To</strong>
-            <span data-testid="destinationAddress">{formatAddressShort(destinationAddress)}</span>
+            <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
           </span>
         </section>
       </header>
