@@ -82,7 +82,7 @@ const ShipmentSITExtensions = (props) => {
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
     return (
-      <p>
+      <p key={pastSITItem.id}>
         {sitDaysUsed} days at {location} ({moment(pastSITItem.sitEntryDate).format('DD MMM YYYY')} -{' '}
         {moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY')})
       </p>
@@ -111,7 +111,9 @@ const ShipmentSITExtensions = (props) => {
         columnHeaders={['Days in destination SIT', 'Date entered SIT']}
         dataRow={[currentDaysInSit, currentDateEnteredSit]}
       />
-      <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+      {sitStatus.pastSITServiceItems.length > 0 && (
+        <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+      )}
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
       {showModal && (
         <ReviewSITExtensionsModal
