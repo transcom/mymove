@@ -26,7 +26,7 @@ function BillableWeightHintText({
       </div>
       {showToFit && (
         <div className={styles.hintText}>
-          <strong>{formatWeight(totalBillableWeight - billableWeight)}</strong>{' '}
+          <strong>{formatWeight(maxBillableWeight - totalBillableWeight)}</strong>{' '}
           <span>| to fit within max billable weight</span>
         </div>
       )}
@@ -129,7 +129,6 @@ export default function EditBillableWeight({
               <Fieldset className={styles.fieldset}>
                 <TextInput
                   className={styles.maxBillableWeight}
-                  defaultValue={maxBillableWeight}
                   id="billableWeight"
                   onChange={handleChange}
                   type="number"

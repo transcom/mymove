@@ -68,7 +68,7 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(
-      screen.getByText(formatWeight(defaultProps.totalBillableWeight - defaultProps.billableWeight)),
+      screen.getByText(formatWeight(defaultProps.maxBillableWeight - defaultProps.totalBillableWeight)),
     ).toBeInTheDocument();
     expect(screen.getByText('| original weight')).toBeInTheDocument();
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();

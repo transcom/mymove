@@ -9,7 +9,7 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
-import { updateMTOShipment, updateBillableWeightAsTIO } from 'services/ghcApi';
+import { updateMTOShipment, updateMaxBillableWeightAsTIO } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -77,7 +77,7 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const [mutateOrders] = useMutation(updateBillableWeightAsTIO, {
+  const [mutateOrders] = useMutation(updateMaxBillableWeightAsTIO, {
     onSuccess: (data, variables) => {
       queryCache.invalidateQueries([MOVES, moveCode]);
       const updatedOrder = data.orders[variables.orderID];
