@@ -16,7 +16,7 @@ export default function ShipmentCard({
   billableWeightJustification,
   dateReweighRequested,
   departedDate,
-  editMTOShipment,
+  editEntity,
   pickupAddress,
   destinationAddress,
   estimatedWeight,
@@ -85,7 +85,7 @@ export default function ShipmentCard({
           billableWeightJustification={billableWeightJustification}
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
-          editMTOShipment={editMTOShipment}
+          editEntity={editEntity}
         />
       </footer>
     </ShipmentContainer>
@@ -102,7 +102,7 @@ ShipmentCard.propTypes = {
     state: string.isRequired,
     postal_code: string.isRequired,
   }).isRequired,
-  editMTOShipment: func.isRequired,
+  editEntity: func.isRequired,
   estimatedWeight: number.isRequired,
   originalWeight: number.isRequired,
   pickupAddress: shape({

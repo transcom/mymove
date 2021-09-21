@@ -90,7 +90,10 @@ export default function EditBillableWeight({
     setShowEditBtn(!showEditBtn);
   };
 
-  const initialValues = { billableWeight, billableWeightJustification };
+  const initialValues = {
+    billableWeight: maxBillableWeight || billableWeight,
+    billableWeightJustification,
+  };
 
   return (
     <div className={styles.wrapper}>
