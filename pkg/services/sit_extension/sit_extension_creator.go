@@ -8,8 +8,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+type sitExtensionStatusQueryBuilder {
+	FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
+}
 type sitExtensionCreator struct {
 	checks []sitExtensionValidator
+}
+
+type sitExtensionStatus struct{
+	builder sitExtensionStatusQueryBuilder
 }
 
 // NewSitExtensionCreator creates a new struct with the service dependencies
@@ -20,6 +27,10 @@ func NewSitExtensionCreator() services.SITExtensionCreator {
 			checkRequiredFields(),
 		},
 	}
+}
+
+func NewSITExtensionStatus(builder sitExtensionStatusQueryBuilder) services.sitExtensionStatus {
+	return &sitExtensionCreator{builder}
 }
 
 // CreateSITExtension creates a SIT extension

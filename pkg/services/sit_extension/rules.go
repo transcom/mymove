@@ -2,6 +2,7 @@ package sitextension
 
 import (
 	"github.com/gobuffalo/validate/v3"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,10 +53,36 @@ func checkRequiredFields() sitExtensionValidator {
 	})
 }
 
-func checkSITRequest() sitExtensionValidator {
-	//return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
-	//
-	//}
+func (s *sitExtensionCreator) checkSITRequestPending() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
+		id := sitExtension.ID
+		shipmentID := shipment.ID
+		status := sitExtension.Status
+		// Prevent a new SIT extension request if a sit extension is pending
+		if status == models.SITExtensionStatusPending {
+			var newSITextension models.SITExtension
+			sitExtensionFilter := []services.QueryFilter{
+				query.NewQueryFilter("mto_shipment_id", "=", shipmentID),
+				query.NewQueryFilter("status", "=", models.SITExtensionStatusPending),
+			}
+			error := s.checks.FetchMany(appCtx, newSITextension, sitExtensionFilter, nil, nil, nil)
+
+			if error != nil {
+				return nil, error
+			}
+
+			if len(newSITextension) > 0 {
+				return nil, services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
+			}
+		}
+		var verrs *validate.Errors
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, services.NewInvalidInputError(id, verrs)
+		}
+		return sitExtension, error
+	})
+
 }
 
 //checks that the shipment associated with the reweigh is available to Prime
