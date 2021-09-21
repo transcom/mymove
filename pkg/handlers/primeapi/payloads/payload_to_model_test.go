@@ -137,3 +137,28 @@ func (suite *PayloadsSuite) TestReweighModelFromUpdate() {
 	})
 
 }
+
+func (suite *PayloadsSuite) TestSITExtensionModel() {
+	mtoShipmentIDField, _ := uuid.NewV4()
+	mtoShipmentIDString := handlers.FmtUUID(mtoShipmentIDField)
+
+	daysRequested := int64(30)
+	remarks := "We need an extension"
+	reason := "AWAITING_COMPLETION_OF_RESIDENCE"
+
+	sitExtension := &primemessages.CreateSitExtension{
+		RequestedDays:     &daysRequested,
+		ContractorRemarks: &remarks,
+		RequestReason:     &reason,
+	}
+
+	suite.T().Run("Success - Returns a sit extension model", func(t *testing.T) {
+		returnedModel := SITExtensionModel(sitExtension, *mtoShipmentIDString)
+
+		suite.Equal(mtoShipmentIDField, returnedModel.MTOShipmentID)
+		suite.Equal(int(daysRequested), returnedModel.RequestedDays)
+		suite.Equal(models.SITExtensionRequestReasonAwaitingCompletionOfResidence, returnedModel.RequestReason)
+		suite.Equal(sitExtension.ContractorRemarks, returnedModel.ContractorRemarks)
+	})
+
+}

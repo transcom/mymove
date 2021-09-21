@@ -1,0 +1,103 @@
+package primeapi
+
+import (
+	"fmt"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
+
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	sitextensionservice "github.com/transcom/mymove/pkg/services/sit_extension"
+	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+func (suite *HandlerSuite) CreateSITExtensionHandler() {
+	// Make an available MTO
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+
+	// Make a shipment on the available MTO
+	mtoShipment1 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+
+	// Make sit extension
+	daysRequested := int64(30)
+	remarks := "We need an extension"
+	reason := "AWAITING_COMPLETION_OF_RESIDENCE"
+
+	sitExtension := &primemessages.CreateSitExtension{
+		RequestedDays:     &daysRequested,
+		ContractorRemarks: &remarks,
+		RequestReason:     &reason,
+	}
+
+	// Create handler
+	handler := CreateSITExtensionHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		sitextensionservice.NewSitExtensionCreator(),
+	}
+
+	suite.T().Run("Success 200 - Creat sit extension", func(t *testing.T) {
+		// Testcase:   sitExtension is created
+		// Expected:   Success response 200
+
+		// Create request params
+		req := httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/sit-extensions", mtoShipment1.ID.String()), nil)
+		params := mtoshipmentops.CreateSITExtensionParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment1.ID),
+			Body:          sitExtension,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+
+		// Check response type
+		suite.IsType(&mtoshipmentops.CreateSITExtensionOK{}, response)
+
+		// Check values
+		sitExtensionResponse := response.(*mtoshipmentops.CreateSITExtensionOK).Payload
+
+		suite.Equal(daysRequested, sitExtensionResponse.RequestedDays)
+		suite.Equal(models.SITExtensionStatusPending, sitExtensionResponse.Status)
+		suite.Equal(daysRequested, sitExtensionResponse.RequestedDays)
+		suite.Equal(models.SITExtensionRequestReasonAwaitingCompletionOfResidence, sitExtensionResponse.RequestReason)
+		suite.Equal(remarks, sitExtensionResponse.ContractorRemarks)
+		suite.NotNil(sitExtensionResponse.ID)
+		suite.NotNil(sitExtensionResponse.CreatedAt)
+		suite.NotNil(sitExtensionResponse.UpdatedAt)
+		suite.NotNil(sitExtensionResponse.ETag)
+	})
+
+	suite.T().Run("Failure 402 - Shipment not found", func(t *testing.T) {
+		// Testcase:   Shipment ID is not found
+		// Expected:   Success response 402
+
+		// Update with verification reason\
+		badID, _ := uuid.NewV4()
+		req := httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/sit-extensions", mtoShipment1.ID.String()), nil)
+		params := mtoshipmentops.CreateSITExtensionParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(badID),
+			Body:          sitExtension,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+
+		// Check response type
+		suite.IsType(&mtoshipmentops.CreateSITExtensionUnprocessableEntity{}, response)
+	})
+
+}
