@@ -666,6 +666,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
+		appCtx := suite.TestAppContext()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -680,10 +681,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		)
 
 		var reServiceCode models.ReService
-		if err := suite.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
 			// Something is truncating these when all server tests run, but we need some values for reServices
 			for _, serviceCode := range expectedReServiceCodes {
-				testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
 					ReService: models.ReService{
 						Code:      serviceCode,
 						Name:      "test",
@@ -694,16 +695,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			}
 		}
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
+		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
 
-		err = suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		err = appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
 		suite.NoError(err)
 
 		// Let's make sure the status is approved
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 
-		err = suite.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))
@@ -712,12 +713,30 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		actualApprovedAt := serviceItems[0].ApprovedAt
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
-		for i := range serviceItems {
-			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		missingReServiceCodes := expectedReServiceCodes
+		for _, serviceItem := range serviceItems {
+			suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+
+			// Want to make sure each of the expected service codes is included at some point.
+			codeFound := false
+			for i, reServiceCodeToCheck := range missingReServiceCodes {
+				if reServiceCodeToCheck == serviceItem.ReService.Code {
+					missingReServiceCodes[i] = missingReServiceCodes[len(missingReServiceCodes)-1]
+					missingReServiceCodes = missingReServiceCodes[:len(missingReServiceCodes)-1]
+					codeFound = true
+					break
+				}
+			}
+
+			if !codeFound {
+				suite.Fail("Unexpected service code", "unexpected ReService code: %s", string(serviceItem.ReService.Code))
+			}
+
 			// Test that service item was approved within a few seconds of the current time
 			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
 		}
+
+		suite.Empty(missingReServiceCodes)
 	})
 
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
