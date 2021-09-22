@@ -82,7 +82,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	// We already have the current payment request service items, find all previously reviewed payment requests for this
 	// move with billed SIT days
 	var paymentServiceItems []models.PaymentServiceItem
-	err = appCtx.DB().Q().Eager("MTOServiceItem", "MTOServiceItem.ReService", "MTOServiceItem.MTOShipment", "PaymentRequest", "PaymentServiceItemParams", "PaymentServiceItemParams.ServiceItemParamKey").
+	err = appCtx.DB().Q().EagerPreload("MTOServiceItem", "MTOServiceItem.ReService", "MTOServiceItem.MTOShipment", "PaymentRequest", "PaymentServiceItemParams", "PaymentServiceItemParams.ServiceItemParamKey").
 		InnerJoin("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
 		InnerJoin("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
