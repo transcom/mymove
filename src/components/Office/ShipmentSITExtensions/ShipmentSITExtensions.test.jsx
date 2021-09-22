@@ -2,13 +2,14 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import ShipmentSITExtensions from './ShipmentSITExtensions';
-import { testProps, testPropsWithComments } from './ShipmentSITExtensionsTestParams';
+import { SITExtensions, SITExtensionsWithComments, SITStatus, SITShipment } from './ShipmentSITExtensionsTestParams';
 
 const noOp = () => {};
 
 describe('ShipmentSITExtensions', () => {
   it('renders the Shipment SIT Extensions', async () => {
     render(<ShipmentSITExtensions sitExtensions={testProps} handleReviewSITExtension={noOp} />);
+    render(<ShipmentSITExtensions sitExtensions={SITExtensions} sitStatus={SITStatus} shipment={SITShipment} />);
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
@@ -16,6 +17,9 @@ describe('ShipmentSITExtensions', () => {
 
   it('renders the Shipment SIT Extensions with comments', async () => {
     render(<ShipmentSITExtensions sitExtensions={testPropsWithComments} handleReviewSITExtension={noOp} />);
+    render(
+      <ShipmentSITExtensions sitExtensions={SITExtensionsWithComments} sitStatus={SITStatus} shipment={SITShipment} />,
+    );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
 
     await expect(screen.getByText('Office remarks:')).toBeTruthy();
