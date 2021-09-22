@@ -1789,10 +1789,6 @@ definitions:
               The contractor's explanation for why a shuttle service is
               requested. Used by the TOO while deciding to approve or reject the
               service item.
-          description:
-            type: string
-            example: Things to be moved to the place by shuttle.
-            description: Details about the shuttle service.
           estimatedWeight:
             type: integer
             example: 4200
@@ -1812,7 +1808,6 @@ definitions:
         required:
           - reason
           - reServiceCode
-          - description
   MTOServiceItemStatus:
     description: >-
       The status of a service item, indicating where it is in the TOO's approval
@@ -2646,6 +2641,7 @@ definitions:
       weight:
         description: The total reweighed weight for the shipment in pounds.
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true

@@ -28,10 +28,10 @@ tags:
 x-tagGroups:
   - name: Endpoints
     tags:
-    - moveTaskOrder
-    - mtoShipment
-    - mtoServiceItem
-    - paymentRequest
+      - moveTaskOrder
+      - mtoShipment
+      - mtoServiceItem
+      - paymentRequest
 paths:
   /moves:
     get:
@@ -998,7 +998,7 @@ definitions:
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
@@ -1566,10 +1566,6 @@ definitions:
             description: >
               The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to
               approve or reject the service item.
-          description:
-            type: string
-            example: Things to be moved to the place by shuttle.
-            description: Details about the shuttle service.
           estimatedWeight:
             type: integer
             example: 4200
@@ -1585,7 +1581,6 @@ definitions:
         required:
           - reason
           - reServiceCode
-          - description
   MTOServiceItemStatus:
     description: The status of a service item, indicating where it is in the TOO's approval process.
     type: string
@@ -1721,11 +1716,11 @@ definitions:
           May be blank when entered by the customer, required when entered by the Prime. May not represent the true
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
@@ -2037,8 +2032,7 @@ definitions:
       - NSTH
       - NSTUB
   Reweigh:
-    description:
-      A reweigh  is when a shipment is weighed for a second time due
+    description: A reweigh  is when a shipment is weighed for a second time due
       to the request of a customer, the contractor, system or TOO.
     properties:
       id:
@@ -2347,6 +2341,7 @@ definitions:
       weight:
         description: The total reweighed weight for the shipment in pounds.
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true

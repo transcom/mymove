@@ -38,11 +38,6 @@ type MTOServiceItemShuttle struct {
 	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
-	// Further details about the shuttle service.
-	// Example: Things to be moved to the place by shuttle.
-	// Required: true
-	Description *string `json:"description"`
-
 	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
@@ -145,11 +140,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// Further details about the shuttle service.
-		// Example: Things to be moved to the place by shuttle.
-		// Required: true
-		Description *string `json:"description"`
-
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
@@ -220,7 +210,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.ActualWeight = data.ActualWeight
-	result.Description = data.Description
 	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
@@ -240,11 +229,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// Further details about the shuttle service.
-		// Example: Things to be moved to the place by shuttle.
-		// Required: true
-		Description *string `json:"description"`
-
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
@@ -261,8 +245,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	}{
 
 		ActualWeight: m.ActualWeight,
-
-		Description: m.Description,
 
 		EstimatedWeight: m.EstimatedWeight,
 
@@ -334,10 +316,6 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDescription(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -401,15 +379,6 @@ func (m *MTOServiceItemShuttle) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) error {
-
-	if err := validate.Required("description", "body", m.Description); err != nil {
 		return err
 	}
 

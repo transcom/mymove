@@ -7,15 +7,15 @@ import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 describe('WeightSummary', () => {
   it('renders without crashing', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', billableWeightCap: 6161, estimatedWeight: 5600 },
+      { id: '0001', shipmentType: 'HHG', billableWeightCap: 6161, primeEstimatedWeight: 5600 },
       {
         id: '0002',
         shipmentType: 'HHG',
         billableWeightCap: 3200,
-        estimatedWeight: 5000,
+        primeEstimatedWeight: 5000,
         reweigh: { id: '1234' },
       },
-      { id: '0003', shipmentType: 'HHG', billableWeightCap: 3400, estimatedWeight: 5000 },
+      { id: '0003', shipmentType: 'HHG', billableWeightCap: 3400, primeEstimatedWeight: 5000 },
     ];
 
     const defaultProps = {

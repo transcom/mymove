@@ -99,22 +99,22 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI.OrderCounselingUpdateOrderHandler = CounselingUpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.OrderUpdateAllowanceHandler = UpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 	ghcAPI.OrderCounselingUpdateAllowanceHandler = CounselingUpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 	ghcAPI.OrderUpdateBillableWeightHandler = UpdateBillableWeightHandler{
 		ctx,
@@ -228,13 +228,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionApprover(),
+		mtoshipment.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionDenier(),
+		mtoshipment.NewSITExtensionDenier(moveRouter),
 		shipmentSITStatus,
 	}
 

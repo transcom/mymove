@@ -151,7 +151,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		suite.WithinDuration(time.Now(), *acknowledgedAt, 2*time.Second)
 	})
 
-	suite.T().Run("Updates the BillableWeight but does not approve the move or acknowledge the risk if there is no excess weight risk", func(t *testing.T) {
+	suite.T().Run("Updates the BillableWeight but does not acknowledge the risk if there is no excess weight risk", func(t *testing.T) {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
@@ -172,11 +172,11 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(newAuthorizedWeight, *updatedOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 		suite.Nil(moveInDB.ExcessWeightAcknowledgedAt)
 	})
 
-	suite.T().Run("Updates the BillableWeight but does not approve the move or acknowledge the risk if the risk was already acknowledged", func(t *testing.T) {
+	suite.T().Run("Updates the BillableWeight but does not acknowledge the risk if the risk was already acknowledged", func(t *testing.T) {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
@@ -203,7 +203,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(newAuthorizedWeight, *updatedOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 	})
 }
 
@@ -348,7 +348,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		suite.WithinDuration(time.Now(), *acknowledgedAt, 2*time.Second)
 	})
 
-	suite.T().Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move or acknowledge the risk if there is no excess weight risk", func(t *testing.T) {
+	suite.T().Run("Updates the MaxBillableWeight and TIO remarks but does not acknowledge the risk if there is no excess weight risk", func(t *testing.T) {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
@@ -371,11 +371,11 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		suite.Equal(newAuthorizedWeight, *updatedOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newTIOremarks, *moveInDB.TIORemarks)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 		suite.Nil(moveInDB.ExcessWeightAcknowledgedAt)
 	})
 
-	suite.T().Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move or acknowledge the risk if the risk was already acknowledged", func(t *testing.T) {
+	suite.T().Run("Updates the MaxBillableWeight and TIO remarks but does not acknowledge the risk if the risk was already acknowledged", func(t *testing.T) {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
@@ -404,7 +404,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		suite.Equal(newAuthorizedWeight, *updatedOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newTIOremarks, *moveInDB.TIORemarks)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 	})
 }
 
@@ -537,7 +537,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		suite.NoError(err)
 
 		suite.Equal(move.ID.String(), updatedMove.ID.String())
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 		suite.Nil(moveInDB.ExcessWeightAcknowledgedAt)
 		suite.Nil(updatedMove.ExcessWeightAcknowledgedAt)
 	})
@@ -564,7 +564,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		suite.NoError(err)
 
 		suite.Equal(move.ID.String(), updatedMove.ID.String())
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 		suite.WithinDuration(*move.ExcessWeightAcknowledgedAt, *moveInDB.ExcessWeightAcknowledgedAt, 1*time.Second)
 	})
 }

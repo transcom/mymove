@@ -2,6 +2,10 @@ package move
 
 import (
 	"fmt"
+	"time"
+
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -229,39 +233,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
-	moveRouter := NewMoveRouter()
-
-	suite.Run("approves move with no service items in requested status", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
-
-		suite.NoError(approveErr)
-		suite.Equal(models.MoveStatusAPPROVED, approvedMove.Status)
-	})
-
-	suite.Run("leaves move in APPROVALS REQUESTED status if service items are awaiting approval", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		})
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: shipment,
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusSubmitted,
-			},
-		})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
-
-		suite.NoError(approveErr)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, approvedMove.Status)
-	})
-}
-
 func (suite *MoveServiceSuite) TestMoveCancellation() {
 	moveRouter := NewMoveRouter()
 
@@ -405,4 +376,118 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			})
 		}
 	})
+}
+
+func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
+	moveRouter := NewMoveRouter()
+
+	suite.Run("approves the move if TOO no longer has actions to perform", func() {
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.TestAppContext(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+	})
+
+	suite.Run("does not approve the move if excess weight risk exists and has not been acknowledged", func() {
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
+		})
+
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.TestAppContext(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
+
+	suite.Run("does not approve the move if unreviewed service items exist", func() {
+		_, move := suite.createServiceItem()
+
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.TestAppContext(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
+
+	suite.Run("does not approve the move if unacknowledged amended orders exist", func() {
+		storer := storageTest.NewFakeS3Storage(true)
+		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
+		suite.NoError(err)
+		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &amendedDocument.ID,
+				Document:   amendedDocument,
+				UploaderID: amendedDocument.ServiceMember.UserID,
+			},
+			UserUploader: userUploader,
+		})
+
+		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				UploadedAmendedOrders:   &amendedDocument,
+				UploadedAmendedOrdersID: &amendedDocument.ID,
+				ServiceMember:           amendedDocument.ServiceMember,
+				ServiceMemberID:         amendedDocument.ServiceMemberID,
+			},
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.TestAppContext(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
+
+	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.TestAppContext(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
+}
+
+func (suite *MoveServiceSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	return serviceItem, move
 }
