@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -15,11 +14,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
-	"github.com/transcom/mymove/pkg/services/move"
 )
 
 // GetOrdersHandler fetches the information of a specific order
@@ -52,13 +49,6 @@ type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
 	moveUpdater  services.MoveTaskOrderUpdater
-}
-
-func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrder models.Order) bool {
-	return params.Body.OrdersAcknowledgement != nil &&
-		*params.Body.OrdersAcknowledgement &&
-		updatedOrder.UploadedAmendedOrdersID != nil &&
-		updatedOrder.AmendedOrdersAcknowledgedAt != nil
 }
 
 // Handle ... updates an order from a request payload
@@ -95,23 +85,6 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
-
-	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
-	if amendedOrdersRequiresApproval(params, *updatedOrder) {
-		moveRouter := move.NewMoveRouter()
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(appCtx, moveID, updatedOrder.ID)
-		if approveErr != nil {
-			if errors.Is(approveErr, models.ErrInvalidTransition) {
-				return handleError(services.NewConflictError(moveID, approveErr.Error()))
-			}
-			return handleError(approveErr)
-		}
-
-		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(appCtx, approvedMove)
-		if updateErr != nil {
-			handleError(updateErr)
-		}
-	}
 
 	orderPayload := payloads.Order(updatedOrder)
 

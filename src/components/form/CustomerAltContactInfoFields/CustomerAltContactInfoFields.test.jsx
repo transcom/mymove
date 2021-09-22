@@ -27,7 +27,7 @@ describe('CustomerAltContactInfoFields component', () => {
   });
 
   describe('with pre-filled values', () => {
-    it('renders a legend and all service member contact info inputs', () => {
+    it('renders a legend and all service member contact info inputs', async () => {
       const initialValues = {
         firstName: 'Leo',
         middleName: 'Star',
@@ -37,17 +37,17 @@ describe('CustomerAltContactInfoFields component', () => {
         customerEmail: 'test@sample.com',
       };
 
-      const { getByLabelText } = render(
+      render(
         <Formik initialValues={initialValues}>
           <CustomerAltContactInfoFields legend="Contact info" name="contact" />
         </Formik>,
       );
-      expect(getByLabelText('First name')).toHaveValue(initialValues.firstName);
-      expect(getByLabelText(/Middle name/)).toHaveValue(initialValues.middleName);
-      expect(getByLabelText('Last name')).toHaveValue(initialValues.lastName);
-      expect(getByLabelText(/Suffix/)).toHaveValue(initialValues.suffix);
-      expect(getByLabelText('Phone')).toHaveValue(initialValues.customerTelephone);
-      expect(getByLabelText('Email')).toHaveValue(initialValues.customerEmail);
+      expect(await screen.findByLabelText('First name')).toHaveValue(initialValues.firstName);
+      expect(screen.getByLabelText(/Middle name/)).toHaveValue(initialValues.middleName);
+      expect(screen.getByLabelText('Last name')).toHaveValue(initialValues.lastName);
+      expect(screen.getByLabelText(/Suffix/)).toHaveValue(initialValues.suffix);
+      expect(screen.getByLabelText('Phone')).toHaveValue(initialValues.customerTelephone);
+      expect(screen.getByLabelText('Email')).toHaveValue(initialValues.customerEmail);
     });
   });
 });

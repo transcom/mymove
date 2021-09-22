@@ -20,8 +20,10 @@ describe('reduxHelpers', () => {
       });
     });
   });
+
   describe('given a resource', () => {
     const resourceName = 'RESOURCE';
+
     describe('when generateAsyncActionTypes is called', () => {
       const actions = helpers.generateAsyncActionTypes(resourceName);
       it('should give me a start action', () => {
@@ -34,6 +36,7 @@ describe('reduxHelpers', () => {
         expect(actions).toEqual(expect.objectContaining({ failure: 'RESOURCE_FAILURE' }));
       });
     });
+
     describe('when generateAsyncActionCreator is called', () => {
       describe('when the async call is is successful', () => {
         const mockAsyncAction = jest.fn().mockImplementation(() => Promise.resolve('foo'));
@@ -53,13 +56,17 @@ describe('reduxHelpers', () => {
           expect(dispatch).lastCalledWith(actions.success('foo'));
         });
       });
+
       describe('when async call fails', () => {
         const mockAsyncAction = jest.fn().mockImplementation(() => Promise.reject('something went wrong'));
         const dispatch = jest.fn();
         const actions = helpers.generateAsyncActions(resourceName);
         const actionCreator = helpers.generateAsyncActionCreator(resourceName, mockAsyncAction);
         const func = actionCreator();
-        func(dispatch);
+
+        // Catch the error with a no-op, just so an unrejected promise doesn't show in the client test logs
+        func(dispatch).catch(() => {});
+
         it('it should call the asyncAction', () => {
           expect(mockAsyncAction.mock.calls.length).toBe(1);
         });
@@ -71,6 +78,7 @@ describe('reduxHelpers', () => {
         });
       });
     });
+
     describe('when generateAsyncReducer is called', () => {
       const actions = helpers.generateAsyncActions(resourceName);
       const onSuccessTransform = jest.fn().mockImplementation((foo) => ({ foo }));

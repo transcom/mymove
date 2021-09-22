@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -23,7 +25,8 @@ import (
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{}
@@ -36,7 +39,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Returns an error when origin duty station is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -54,7 +58,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Returns an error when new duty station is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -72,7 +77,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.UpdateOrderPayload{}
@@ -85,7 +91,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -137,7 +144,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		emptyStrSAC := ""
@@ -172,7 +180,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -213,7 +222,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
@@ -226,7 +236,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
@@ -239,7 +250,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.T().Run("Updates the order when it is found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -276,7 +288,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateAllowancePayload{}
@@ -289,7 +302,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.UpdateAllowancePayload{}
@@ -302,7 +316,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		newAuthorizedWeight := int64(10000)
@@ -344,7 +359,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
@@ -357,7 +373,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
@@ -370,7 +387,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -412,7 +430,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Updates the allowance when move needs service counseling and order fields are missing", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -469,7 +488,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Entire update is aborted when ProGearWeight is over max amount", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -504,7 +524,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -542,7 +563,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 			DutyStation: models.DutyStation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
@@ -604,7 +626,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		file := testdatagen.FixtureRuntimeFile("test.pdf")
@@ -630,7 +653,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater()
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 			DutyStation: models.DutyStation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
