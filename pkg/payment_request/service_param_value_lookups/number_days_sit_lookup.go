@@ -52,7 +52,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", err
 	}
 	if remainingMoveTaskOrderSITDays <= 0 {
-		return "", fmt.Errorf("Move Task Order %v has 0 remaining SIT Days", s.MTOShipment.MoveTaskOrderID)
+		return "", fmt.Errorf("MTOShipment %v has 0 remaining SIT Days", s.MTOShipment.ID)
 	}
 
 	billableMTOServiceItemSITDays, err := calculateNumberSITAdditionalDays(currentPaymentServiceItem)
@@ -61,7 +61,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 	}
 
 	if remainingMoveTaskOrderSITDays < billableMTOServiceItemSITDays {
-		return strconv.Itoa(remainingMoveTaskOrderSITDays), nil
+		return "", fmt.Errorf("only %d additional days in SIT can be billed for MTOShipment %v", remainingMoveTaskOrderSITDays, s.MTOShipment.ID)
 	}
 	return strconv.Itoa(billableMTOServiceItemSITDays), nil
 }
