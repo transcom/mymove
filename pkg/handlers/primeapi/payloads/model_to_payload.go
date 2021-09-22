@@ -3,6 +3,10 @@ package payloads
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+
 	"github.com/transcom/mymove/pkg/storage"
 
 	"github.com/go-openapi/strfmt"
@@ -567,7 +571,7 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 
 // ExcessWeightRecord returns the fields on the move related to excess weights,
 // and returns the uploaded document set as the ExcessWeightUpload on the move.
-func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemessages.ExcessWeightRecord {
+func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer, move *models.Move) *primemessages.ExcessWeightRecord {
 	if move == nil || move.ID == uuid.Nil {
 		return nil
 	}
@@ -578,7 +582,7 @@ func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemess
 		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
 	}
 
-	upload := Upload(storer, move.ExcessWeightUpload)
+	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
 	if upload != nil {
 		payload.Upload = *upload
 	}
@@ -587,7 +591,7 @@ func ExcessWeightRecord(storer storage.FileStorer, move *models.Move) *primemess
 }
 
 // Upload returns the data for an uploaded file.
-func Upload(storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
 	if upload == nil || upload.ID == uuid.Nil {
 		return nil
 	}
@@ -604,6 +608,8 @@ func Upload(storer storage.FileStorer, upload *models.Upload) *primemessages.Upl
 	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
 	if err == nil {
 		payload.URL = *handlers.FmtURI(url)
+	} else {
+		appCtx.Logger().Error("primeapi error with getting url for Upload payload", zap.Error(err))
 	}
 
 	tags, err := storer.Tags(upload.StorageKey)

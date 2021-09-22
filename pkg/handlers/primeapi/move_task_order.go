@@ -131,7 +131,7 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 		}
 	}
 
-	payload := payloads.ExcessWeightRecord(h.FileStorer(), excessWeightRecord)
+	payload := payloads.ExcessWeightRecord(appCtx, h.FileStorer(), excessWeightRecord)
 	return movetaskorderops.NewCreateExcessWeightRecordCreated().WithPayload(payload)
 }
 
