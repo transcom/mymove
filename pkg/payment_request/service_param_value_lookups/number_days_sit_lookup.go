@@ -20,25 +20,6 @@ type NumberDaysSITLookup struct {
 
 const hoursInADay float64 = 24
 
-func (s NumberDaysSITLookup) findCurrentPaymentServiceItem(paymentServiceItems models.PaymentServiceItems, paymentRequestID uuid.UUID, mtoServiceItemID uuid.UUID) (models.PaymentServiceItem, models.PaymentServiceItems, error) {
-	currentPaymentServiceItem := models.PaymentServiceItem{}
-	priorPaymentServiceItems := models.PaymentServiceItems{}
-	found := false
-	for _, psi := range paymentServiceItems {
-		if psi.PaymentRequestID == paymentRequestID && psi.MTOServiceItemID == mtoServiceItemID {
-			currentPaymentServiceItem = psi
-			found = true // TODO do i care if this happens twice? what would that mean?
-		} else {
-			priorPaymentServiceItems = append(priorPaymentServiceItems, psi)
-		}
-	}
-	if !found {
-		return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("ERROR: no matching service items found")
-	}
-
-	return currentPaymentServiceItem, priorPaymentServiceItems, nil
-}
-
 func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(appCtx, s.MTOShipment)
 	if err != nil {
@@ -50,7 +31,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", err
 	}
 
-	currentPaymentServiceItem, priorPaymentServiceItems, err := s.findCurrentPaymentServiceItem(mtoShipmentSITPaymentServiceItems, keyData.PaymentRequestID, keyData.MTOServiceItemID)
+	currentPaymentServiceItem, priorPaymentServiceItems, err := findCurrentPaymentServiceItem(mtoShipmentSITPaymentServiceItems, keyData.PaymentRequestID, keyData.MTOServiceItemID)
 	if err != nil {
 		return "", err
 	}
@@ -226,6 +207,25 @@ func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.
 	}
 
 	return originSITEntryDate, destinationSITEntryDate, nil
+}
+
+func findCurrentPaymentServiceItem(paymentServiceItems models.PaymentServiceItems, paymentRequestID uuid.UUID, mtoServiceItemID uuid.UUID) (models.PaymentServiceItem, models.PaymentServiceItems, error) {
+	currentPaymentServiceItem := models.PaymentServiceItem{}
+	priorPaymentServiceItems := models.PaymentServiceItems{}
+	found := false
+	for _, psi := range paymentServiceItems {
+		if psi.PaymentRequestID == paymentRequestID && psi.MTOServiceItemID == mtoServiceItemID {
+			currentPaymentServiceItem = psi
+			found = true // TODO do i care if this happens twice? what would that mean?
+		} else {
+			priorPaymentServiceItems = append(priorPaymentServiceItems, psi)
+		}
+	}
+	if !found {
+		return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("ERROR: no matching service items found")
+	}
+
+	return currentPaymentServiceItem, priorPaymentServiceItems, nil
 }
 
 // TODO change signature and handle errors
