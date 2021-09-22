@@ -48,7 +48,6 @@ type MoveTaskOrderUpdater interface {
 	UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
 	UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
-	UpdateApprovedAmendedOrders(appCtx appcontext.AppContext, move models.Move) error
 }
 
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state

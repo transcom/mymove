@@ -1566,17 +1566,20 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
 			},
+			Move: move,
 		})
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		sitExtensionApprover := mtoshipment.NewSITExtensionApprover()
+		moveRouter := moverouter.NewMoveRouter()
+		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -1611,17 +1614,20 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	suite.Run("Returns 200 when validations pass", func() {
 		sitDaysAllowance := 20
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
 			},
+			Move: move,
 		})
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		sitExtensionDenier := mtoshipment.NewSITExtensionDenier()
+		moveRouter := moverouter.NewMoveRouter()
+		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
