@@ -713,7 +713,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 	})
 
 	suite.T().Run("returns 403 unauthorized when request is not made by TIO office user", func(t *testing.T) {
-		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		paymentRequestID := uuid.Must(uuid.NewV4())
 

@@ -137,7 +137,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 
 	paymentRequests := models.PaymentRequests{}
 
-	fmt.Printf("locator %s\n", locator)
 	// Replaced EagerPreload due to nullable fka on Contractor
 	query := appCtx.DB().Q().Eager(
 		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
