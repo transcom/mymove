@@ -36,12 +36,40 @@ const overweightShipments = [
   { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3000, primeEstimatedWeight: 3000 },
 ];
 
+const missingEstimatedWeightShipments = [{ id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6161 }];
+const missingReweighWeightShipments = [
+  {
+    id: '0001',
+    shipmentType: 'HHG',
+    calculatedBillableWeight: 6161,
+    reweigh: {
+      dateReweighRequested: '2021-09-01',
+    },
+  },
+];
+
 const maxBillableWeightExceeded = {
   maxBillableWeight: 3750,
   totalBillableWeight: 12460,
   weightRequested: 12260,
   weightAllowance: 8000,
   shipments: overweightShipments,
+};
+
+const missingEstimatedWeight = {
+  maxBillableWeight: 13750,
+  totalBillableWeight: 12460,
+  weightRequested: 12260,
+  weightAllowance: 8000,
+  shipments: missingEstimatedWeightShipments,
+};
+
+const missingReweighWeight = {
+  maxBillableWeight: 13750,
+  totalBillableWeight: 12460,
+  weightRequested: 12260,
+  weightAllowance: 8000,
+  shipments: missingReweighWeightShipments,
 };
 
 describe('WeightSummary', () => {
@@ -69,17 +97,33 @@ describe('WeightSummary', () => {
     render(<WeightSummary {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('shipmentIsOverweightFlag')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('shipmentHasFlag')).not.toBeInTheDocument();
     });
     expect(screen.queryByTestId('totalBillableWeightFlag')).not.toBeInTheDocument();
   });
 
-  it('display flags when appropriate', async () => {
+  it('display max billable weight flag when appropriate', async () => {
     render(<WeightSummary {...maxBillableWeightExceeded} />);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('shipmentIsOverweightFlag')).toBeInTheDocument();
+      expect(screen.queryByTestId('shipmentHasFlag')).toBeInTheDocument();
     });
     expect(screen.queryByTestId('totalBillableWeightFlag')).toBeInTheDocument();
+  });
+
+  it('display missing estimated weight flag when appropriate', async () => {
+    render(<WeightSummary {...missingEstimatedWeight} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('shipmentHasFlag')).toBeInTheDocument();
+    });
+  });
+
+  it('display missing reweigh weight flag when appropriate', async () => {
+    render(<WeightSummary {...missingReweighWeight} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('shipmentHasFlag')).toBeInTheDocument();
+    });
   });
 });
