@@ -1505,14 +1505,14 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "is missing SIT Additional Days service item") // TODO
+		suite.Contains(err.Error(), "failed to find a PaymentServiceItem for MTOServiceItem")
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDDFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "is missing SIT Additional Days service item") // TODO
+		suite.Contains(err.Error(), "failed to find a PaymentServiceItem for MTOServiceItem")
 	})
 
 	suite.T().Run("an MTO with one MTO Shipment with one DOFSIT payment service item", func(t *testing.T) {
@@ -1521,7 +1521,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		value, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "is missing SIT Additional Days service item") // TODO
+		suite.Contains(err.Error(), "failed to find a PaymentServiceItem for MTOServiceItem")
 		suite.Equal("", value)
 	})
 
