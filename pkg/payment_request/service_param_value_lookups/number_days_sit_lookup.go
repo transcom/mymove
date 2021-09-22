@@ -90,11 +90,8 @@ func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentService
 		// Check for overlapping requested SIT dates with previously billed additional days SIT service items at the same origin or destination
 		if isDDASIT(paymentServiceItem.MTOServiceItem) && isDDASIT(mtoServiceItem) || isDOASIT(paymentServiceItem.MTOServiceItem) && isDOASIT(mtoServiceItem) {
 			// Get the payment request service item param start and end dates
-			start, err := ghcrateengine.GetParamTime(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameSITPaymentRequestStart)
-			if err != nil {
-				return false
-			}
-			end, err := ghcrateengine.GetParamTime(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameSITPaymentRequestEnd)
+
+			start, end, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
 			if err != nil {
 				return false
 			}
