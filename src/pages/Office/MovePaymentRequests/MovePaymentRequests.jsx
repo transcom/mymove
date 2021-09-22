@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 import paymentRequestStatus from '../../../constants/paymentRequestStatus';
+
+import styles from './MovePaymentRequests.module.scss';
 
 import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
@@ -82,6 +85,7 @@ const MovePaymentRequests = ({
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
+  const maxBillableWeight = order?.entitlement?.authorizedWeight;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -112,6 +116,14 @@ const MovePaymentRequests = ({
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
+                {s === 'billable-weights' && totalBillableWeight > maxBillableWeight && (
+                  <Tag
+                    className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+                    data-testid="maxBillableWeightErrorTag"
+                  >
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
               </a>
             );
           })}
@@ -121,7 +133,7 @@ const MovePaymentRequests = ({
           <div className={txoStyles.section} id="billable-weights">
             {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
-              maxBillableWeight={order?.entitlement?.authorizedWeight}
+              maxBillableWeight={maxBillableWeight}
               totalBillableWeight={totalBillableWeight}
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}

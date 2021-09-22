@@ -91,6 +91,7 @@ const mockOrders = {
     grade: 'E_1',
     id: '1',
     last_name: 'Spacemen',
+    moveTaskOrder: {},
     order_number: 'ORDER3',
     order_type: 'PERMANENT_CHANGE_OF_STATION',
     order_type_detail: 'HHG_PERMITTED',
@@ -155,6 +156,11 @@ const useOrdersDocumentQueriesReturnValue = {
 const useMovePaymentRequestsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoShipments,
+};
+
+const useNonMaxBillableWeightExceededReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: [mockMtoShipments[0]],
 };
 
 const loadingReturnValue = {
@@ -389,5 +395,47 @@ describe('ReviewBillableWeight', () => {
     userEvent.click(screen.getByText('Edit'));
     expect(screen.getByTestId('maxWeight-weightAllowance').textContent).toBe(weightAllowance);
     expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
+  });
+
+  it('renders max billable weight alert in shipment view when billable weight is exceeded', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    userEvent.click(screen.getByText('Edit'));
+    userEvent.click(screen.getByText('Review shipment weights'));
+    expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
+  });
+
+  it('renders max billable weight alert in edit view when billable weight is exceeded', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    userEvent.click(screen.getByText('Edit'));
+    expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
+  });
+
+  it('does not render a max billable weight alert in edit view when billable weight is not exceeded', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    userEvent.click(screen.getByText('Edit'));
+    expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
+  });
+
+  it('does not render a max billable weight alert in shipment view when billable weight is not exceeded', () => {
+    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
+
+    render(<ReviewBillableWeight />);
+
+    userEvent.click(screen.getByText('Edit'));
+    userEvent.click(screen.getByText('Review shipment weights'));
+    expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
   });
 });
