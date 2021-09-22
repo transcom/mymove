@@ -266,5 +266,10 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ctx,
 	}
 
+	ghcAPI.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = ShipmentsSITBalanceHandler{
+		ctx,
+		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+	}
+
 	return ghcAPI
 }
