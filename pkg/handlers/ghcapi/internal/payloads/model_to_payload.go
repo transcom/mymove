@@ -287,52 +287,36 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 }
 
 // SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SitExtension {
+func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
-
-	payload := &ghcmessages.SitExtension{
-		ID:            strfmt.UUID(sitExtension.ID.String()),
-		ETag:          etag.GenerateEtag(sitExtension.UpdatedAt),
-		MtoShipmentID: strfmt.UUID(sitExtension.MTOShipmentID.String()),
-		RequestReason: string(sitExtension.RequestReason),
-		Status:        string(sitExtension.Status),
-		CreatedAt:     strfmt.DateTime(sitExtension.CreatedAt),
-		UpdatedAt:     (*strfmt.DateTime)(&sitExtension.UpdatedAt),
-	}
-
-	if sitExtension.ApprovedDays != nil && *sitExtension.ApprovedDays > 0 {
-		payload.ApprovedDays = int64(*sitExtension.ApprovedDays)
-	}
-
-	if sitExtension.RequestedDays != 0 && sitExtension.RequestedDays > 0 {
-		payload.RequestedDays = int64(sitExtension.RequestedDays)
-	}
-
-	if sitExtension.ContractorRemarks != nil && len(*sitExtension.ContractorRemarks) > 0 {
-		payload.ContractorRemarks = *sitExtension.ContractorRemarks
-	}
-
-	if sitExtension.DecisionDate != nil && !sitExtension.DecisionDate.IsZero() {
-		payload.DecisionDate = strfmt.DateTime(*sitExtension.DecisionDate)
-	}
-
-	if sitExtension.OfficeRemarks != nil && len(*sitExtension.OfficeRemarks) > 0 {
-		payload.OfficeRemarks = *sitExtension.OfficeRemarks
+	payload := &ghcmessages.SITExtension{
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		RequestedDays:     int64(sitExtension.RequestedDays),
+		Status:            string(sitExtension.Status),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
 	}
 
 	return payload
 }
 
 // SITExtensions payload
-func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SitExtensions {
-	payload := make(ghcmessages.SitExtensions, len(*sitExtensions))
+func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SITExtensions {
+	payload := make(ghcmessages.SITExtensions, len(*sitExtensions))
 
 	if len(*sitExtensions) > 0 {
 		for i, m := range *sitExtensions {
-			copyOfSitExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-			payload[i] = SITExtension(&copyOfSitExtension)
+			copyOfSITExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			payload[i] = SITExtension(&copyOfSITExtension)
 		}
 	}
 	return &payload

@@ -59,14 +59,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
+		ShipmentApproveSITExtensionHandler: shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
+		}),
 		ShipmentApproveShipmentHandler: shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
 		}),
 		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
-		}),
-		ShipmentApproveSitExtensionHandler: shipment.ApproveSitExtensionHandlerFunc(func(params shipment.ApproveSitExtensionParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.ApproveSitExtension has not yet been implemented")
 		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -77,14 +77,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
-		ShipmentCreateSitExtensionAsTOOHandler: shipment.CreateSitExtensionAsTOOHandlerFunc(func(params shipment.CreateSitExtensionAsTOOParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.CreateSitExtensionAsTOO has not yet been implemented")
+		ShipmentCreateSITExtensionAsTOOHandler: shipment.CreateSITExtensionAsTOOHandlerFunc(func(params shipment.CreateSITExtensionAsTOOParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
 		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
-		ShipmentDenySitExtensionHandler: shipment.DenySitExtensionHandlerFunc(func(params shipment.DenySitExtensionParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.DenySitExtension has not yet been implemented")
+		ShipmentDenySITExtensionHandler: shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
 		}),
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
@@ -223,24 +223,24 @@ type MymoveAPI struct {
 
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
+	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
+	ShipmentApproveSITExtensionHandler shipment.ApproveSITExtensionHandler
 	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
 	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
 	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
 	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
-	// ShipmentApproveSitExtensionHandler sets the operation handler for the approve sit extension operation
-	ShipmentApproveSitExtensionHandler shipment.ApproveSitExtensionHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
-	// ShipmentCreateSitExtensionAsTOOHandler sets the operation handler for the create sit extension as t o o operation
-	ShipmentCreateSitExtensionAsTOOHandler shipment.CreateSitExtensionAsTOOHandler
+	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
+	ShipmentCreateSITExtensionAsTOOHandler shipment.CreateSITExtensionAsTOOHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
-	// ShipmentDenySitExtensionHandler sets the operation handler for the deny sit extension operation
-	ShipmentDenySitExtensionHandler shipment.DenySitExtensionHandler
+	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
+	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
@@ -387,14 +387,14 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
+	if o.ShipmentApproveSITExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveSITExtensionHandler")
+	}
 	if o.ShipmentApproveShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveShipmentHandler")
 	}
 	if o.ShipmentApproveShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
-	}
-	if o.ShipmentApproveSitExtensionHandler == nil {
-		unregistered = append(unregistered, "shipment.ApproveSitExtensionHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -405,14 +405,14 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
-	if o.ShipmentCreateSitExtensionAsTOOHandler == nil {
-		unregistered = append(unregistered, "shipment.CreateSitExtensionAsTOOHandler")
+	if o.ShipmentCreateSITExtensionAsTOOHandler == nil {
+		unregistered = append(unregistered, "shipment.CreateSITExtensionAsTOOHandler")
 	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
 	}
-	if o.ShipmentDenySitExtensionHandler == nil {
-		unregistered = append(unregistered, "shipment.DenySitExtensionHandler")
+	if o.ShipmentDenySITExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.DenySITExtensionHandler")
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
@@ -605,6 +605,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve"] = shipment.NewApproveSITExtension(o.context, o.ShipmentApproveSITExtensionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -613,10 +617,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve"] = shipment.NewApproveSitExtension(o.context, o.ShipmentApproveSitExtensionHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -632,7 +632,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateSitExtensionAsTOO(o.context, o.ShipmentCreateSitExtensionAsTOOHandler)
+	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateSITExtensionAsTOO(o.context, o.ShipmentCreateSITExtensionAsTOOHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -640,7 +640,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny"] = shipment.NewDenySitExtension(o.context, o.ShipmentDenySitExtensionHandler)
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny"] = shipment.NewDenySITExtension(o.context, o.ShipmentDenySITExtensionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -1591,10 +1591,10 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
-		approveParams := shipmentops.ApproveSitExtensionParams{
+		approveParams := shipmentops.ApproveSITExtensionParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.ApproveSitExtension{
+			Body: &ghcmessages.ApproveSITExtension{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 			},
@@ -1602,12 +1602,13 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
 		}
 		response := handler.Handle(approveParams)
-		okResponse := response.(*shipmentops.ApproveSitExtensionOK)
+		okResponse := response.(*shipmentops.ApproveSITExtensionOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.ApproveSitExtensionOK{}, response)
+		suite.IsType(&shipmentops.ApproveSITExtensionOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 }
 
@@ -1638,19 +1639,19 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		officeRemarks := "new office remarks on denial of extension"
-		denyParams := shipmentops.DenySitExtensionParams{
+		denyParams := shipmentops.DenySITExtensionParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.DenySitExtension{
+			Body: &ghcmessages.DenySITExtension{
 				OfficeRemarks: &officeRemarks,
 			},
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
 		}
 		response := handler.Handle(denyParams)
-		okResponse := response.(*shipmentops.DenySitExtensionOK)
+		okResponse := response.(*shipmentops.DenySITExtensionOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.DenySitExtensionOK{}, response)
+		suite.IsType(&shipmentops.DenySITExtensionOK{}, response)
 		suite.Equal("DENIED", payload.SitExtensions[0].Status)
 	})
 }
@@ -1676,7 +1677,7 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSitExtensionAsTOOParams{
+		createParams := shipmentops.CreateSITExtensionAsTOOParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.CreateSITExtensionAsTOO{
@@ -1689,12 +1690,13 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
+		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
+		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		suite.Equal(int64(10), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment that already has an allowance when validations pass", func() {
@@ -1720,7 +1722,7 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSitExtensionAsTOOParams{
+		createParams := shipmentops.CreateSITExtensionAsTOOParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.CreateSITExtensionAsTOO{
@@ -1733,12 +1735,13 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		okResponse := response.(*shipmentops.CreateSitExtensionAsTOOOK)
+		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSitExtensionAsTOOOK{}, response)
+		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
-		suite.Equal(officeRemarks, payload.SitExtensions[0].OfficeRemarks)
+		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitExtensions[0].OfficeRemarks)
 	})
 }
 
