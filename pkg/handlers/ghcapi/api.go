@@ -226,19 +226,19 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
-	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
+	ghcAPI.ShipmentApproveSITExtensionHandler = ApproveSITExtensionHandler{
 		ctx,
 		mtoshipment.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
+	ghcAPI.ShipmentDenySITExtensionHandler = DenySITExtensionHandler{
 		ctx,
 		mtoshipment.NewSITExtensionDenier(moveRouter),
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentCreateSitExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
+	ghcAPI.ShipmentCreateSITExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
 		ctx,
 		mtoshipment.NewCreateSITExtensionAsTOO(),
 		shipmentSITStatus,

@@ -65,6 +65,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentCreateSITExtensionHandler == nil {
+		api.MtoShipmentCreateSITExtensionHandler = mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
+		})
+	}
 	if api.PaymentRequestCreateUploadHandler == nil {
 		api.PaymentRequestCreateUploadHandler = payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreateUpload has not yet been implemented")
