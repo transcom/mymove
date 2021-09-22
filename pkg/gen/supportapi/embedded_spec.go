@@ -1566,11 +1566,6 @@ func init() {
               "x-omitempty": false,
               "example": 4000
             },
-            "description": {
-              "description": "Further details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
-            },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
@@ -2320,7 +2315,6 @@ func init() {
       }
     },
     "Upload": {
-      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",
@@ -4363,11 +4357,6 @@ func init() {
               "x-omitempty": false,
               "example": 4000
             },
-            "description": {
-              "description": "Further details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
-            },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
@@ -5117,7 +5106,6 @@ func init() {
       }
     },
     "Upload": {
-      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",

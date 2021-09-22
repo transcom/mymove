@@ -1408,10 +1408,6 @@ definitions:
             type: string
             example: Storage items need to be picked up.
             description: Explanation of why a shuttle service is required.
-          description:
-            type: string
-            example: Things to be moved to the place by shuttle.
-            description: Further details about the shuttle service.
           estimatedWeight:
             type: integer
             example: 4200
@@ -2013,7 +2009,6 @@ definitions:
       - FAILING
       - FAILED
   Upload:
-    description: An uploaded file.
     type: object
     properties:
       id:

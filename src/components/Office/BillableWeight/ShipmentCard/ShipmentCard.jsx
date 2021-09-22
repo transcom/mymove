@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, number, shape } from 'prop-types';
+import { func, string, number, shape } from 'prop-types';
 import classnames from 'classnames';
 
 import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
@@ -13,8 +13,10 @@ import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 export default function ShipmentCard({
   billableWeight,
+  billableWeightJustification,
   dateReweighRequested,
   departedDate,
+  editEntity,
   pickupAddress,
   destinationAddress,
   estimatedWeight,
@@ -28,13 +30,14 @@ export default function ShipmentCard({
         <h2>HHG</h2>
         <section>
           <span>
-            <strong>Departed</strong> {formatDateFromIso(departedDate, 'DD MMM YYYY')}
+            <strong>Departed</strong>
+            <span data-testid="departureDate"> {formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
           </span>
           <span>
-            <strong>From</strong> {formatAddressShort(pickupAddress)}
+            <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
           </span>
           <span>
-            <strong>To</strong> {formatAddressShort(destinationAddress)}
+            <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
           </span>
         </section>
       </header>
@@ -45,7 +48,9 @@ export default function ShipmentCard({
           })}
         >
           <strong>Estimated weight</strong>
-          <span>{estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}</span>
+          <span data-testid="estimatedWeight">
+            {estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}
+          </span>
         </div>
         <div
           className={classnames(styles.field, {
@@ -53,7 +58,7 @@ export default function ShipmentCard({
           })}
         >
           <strong>Original weight</strong>
-          <span>{formatWeight(originalWeight)}</span>
+          <span data-testid="originalWeight">{formatWeight(originalWeight)}</span>
         </div>
         {dateReweighRequested && (
           <div>
@@ -63,15 +68,17 @@ export default function ShipmentCard({
               })}
             >
               <strong>Reweigh weight</strong>
-              <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
+              <span data-testid="reweighWeight">
+                {reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}
+              </span>
             </div>
             <div className={styles.field}>
               <strong>Date reweigh requested</strong>
-              <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
+              <span data-testid="dateReweighRequested">{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
             </div>
             <div className={classnames(styles.field, styles.remarks)}>
               <strong>Reweigh remarks</strong>
-              <span>{reweighRemarks}</span>
+              <span data-testid="reweighRemarks">{reweighRemarks}</span>
             </div>
           </div>
         )}
@@ -80,8 +87,10 @@ export default function ShipmentCard({
         <EditBillableWeight
           title="Billable weight"
           billableWeight={billableWeight}
+          billableWeightJustification={billableWeightJustification}
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
+          editEntity={editEntity}
         />
       </footer>
     </ShipmentContainer>
@@ -89,14 +98,16 @@ export default function ShipmentCard({
 }
 
 ShipmentCard.propTypes = {
-  billableWeight: number.isRequired,
-  dateReweighRequested: string.isRequired,
+  billableWeight: number,
+  billableWeightJustification: string,
+  dateReweighRequested: string,
   departedDate: string.isRequired,
   destinationAddress: shape({
     city: string.isRequired,
     state: string.isRequired,
     postal_code: string.isRequired,
   }).isRequired,
+  editEntity: func.isRequired,
   estimatedWeight: number.isRequired,
   originalWeight: number.isRequired,
   pickupAddress: shape({
@@ -104,10 +115,14 @@ ShipmentCard.propTypes = {
     state: string.isRequired,
     postal_code: string.isRequired,
   }).isRequired,
-  reweighRemarks: string.isRequired,
+  reweighRemarks: string,
   reweighWeight: number,
 };
 
 ShipmentCard.defaultProps = {
+  billableWeight: 0,
+  billableWeightJustification: '',
+  dateReweighRequested: '',
   reweighWeight: null,
+  reweighRemarks: '',
 };

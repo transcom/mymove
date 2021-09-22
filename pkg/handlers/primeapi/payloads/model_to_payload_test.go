@@ -84,7 +84,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 		UpdatedAt:   updatedAt,
 	}
 
-	suite.T().Run("Success - Returns a basic rewweigh payload without optional fields", func(t *testing.T) {
+	suite.T().Run("Success - Returns a reweigh payload without optional fields", func(t *testing.T) {
 		returnedPayload := Reweigh(&reweigh)
 
 		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
@@ -101,7 +101,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 
 	})
 
-	suite.T().Run("Success - Returns a basic rewweigh payload with optional fields", func(t *testing.T) {
+	suite.T().Run("Success - Returns a reweigh payload with optional fields", func(t *testing.T) {
 		// Set optional fields
 		weight := int64(2000)
 		reweigh.Weight = handlers.PoundPtrFromInt64Ptr(&weight)
@@ -183,4 +183,68 @@ func (suite *PayloadsSuite) TestUpload() {
 	suite.Equal(upload.Bytes, *uploadPayload.Bytes)
 	suite.Equal(upload.ContentType, *uploadPayload.ContentType)
 	suite.Equal(upload.Filename, *uploadPayload.Filename)
+}
+
+func (suite *PayloadsSuite) TestSitExtension() {
+
+	id, _ := uuid.NewV4()
+	shipmentID, _ := uuid.NewV4()
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	sitExtension := models.SITExtension{
+		ID:            id,
+		MTOShipmentID: shipmentID,
+		CreatedAt:     createdAt,
+		UpdatedAt:     updatedAt,
+		RequestedDays: int(30),
+		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+		Status:        models.SITExtensionStatusPending,
+	}
+
+	suite.T().Run("Success - Returns a sitextension payload without optional fields", func(t *testing.T) {
+		returnedPayload := SITExtension(&sitExtension)
+
+		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
+		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Nil(returnedPayload.ApprovedDays)
+		suite.Nil(returnedPayload.ContractorRemarks)
+		suite.Nil(returnedPayload.OfficeRemarks)
+		suite.Nil(returnedPayload.DecisionDate)
+		suite.NotNil(returnedPayload.ETag)
+
+	})
+
+	suite.T().Run("Success - Returns a sit extension payload with optional fields", func(t *testing.T) {
+		// Set optional fields
+		approvedDays := int(30)
+		sitExtension.ApprovedDays = &approvedDays
+
+		contractorRemarks := "some reason"
+		sitExtension.ContractorRemarks = &contractorRemarks
+
+		officeRemarks := "some other reason"
+		sitExtension.OfficeRemarks = &officeRemarks
+
+		decisionDate := time.Now()
+		sitExtension.DecisionDate = &decisionDate
+
+		// Send model through func
+		returnedPayload := SITExtension(&sitExtension)
+
+		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
+		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays), returnedPayload.ApprovedDays)
+		suite.Equal(sitExtension.ContractorRemarks, returnedPayload.ContractorRemarks)
+		suite.Equal(sitExtension.OfficeRemarks, returnedPayload.OfficeRemarks)
+		suite.Equal((*strfmt.DateTime)(sitExtension.DecisionDate), returnedPayload.DecisionDate)
+		suite.NotNil(returnedPayload.ETag)
+
+	})
 }

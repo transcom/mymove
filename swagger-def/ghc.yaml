@@ -959,7 +959,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSitExtensionAsTOO
+      operationId: createSITExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -1019,7 +1019,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ApproveSitExtension'
+            $ref: '#/definitions/ApproveSITExtension'
         - in: header
           description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
@@ -1046,7 +1046,7 @@ paths:
         - shipment
         - sitExtension
       description: Approves a SIT extension
-      operationId: approveSitExtension
+      operationId: approveSITExtension
       summary: Approves a SIT extension
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
@@ -1072,7 +1072,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/DenySitExtension'
+            $ref: '#/definitions/DenySITExtension'
         - in: header
           name: If-Match
           type: string
@@ -1098,7 +1098,7 @@ paths:
         - shipment
         - sitExtension
       description: Denies a SIT extension
-      operationId: denySitExtension
+      operationId: denySITExtension
       summary: Denies a SIT extension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
@@ -3153,7 +3153,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: 'definitions/SITExtensions.yaml'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3168,54 +3168,6 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
-  SitExtensions:
-    items:
-      $ref: '#/definitions/SitExtension'
-    type: array
-  SitExtension:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestReason:
-        enum:
-          - SERIOUS_ILLNESS_MEMBER
-          - SERIOUS_ILLNESS_DEPENDENT
-          - IMPENDING_ASSIGNEMENT
-          - DIRECTED_TEMPORARY_DUTY
-          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-          - AWAITING_COMPLETION_OF_RESIDENCE
-          - OTHER
-      contractorRemarks:
-        type: string
-      requestedDays:
-        type: integer
-      status:
-        enum:
-          - PENDING
-          - APPROVED
-          - DENIED
-      approvedDays:
-        type: integer
-      decisionDate:
-        format: date-time
-        type: string
-      officeRemarks:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
   UpdateShipment:
     type: object
     properties:
@@ -3351,7 +3303,7 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
-  ApproveSitExtension:
+  ApproveSITExtension:
     properties:
       approvedDays:
         description: Number of days approved for SIT extension
@@ -3365,7 +3317,7 @@ definitions:
         x-nullable: true
     required:
       - approvedDays
-  DenySitExtension:
+  DenySITExtension:
     properties:
       officeRemarks:
         description: Remarks from TOO about SIT denial

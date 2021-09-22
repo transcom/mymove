@@ -63,6 +63,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		}),
+		MtoShipmentCreateSITExtensionHandler: mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
+		}),
 		PaymentRequestCreateUploadHandler: payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreateUpload has not yet been implemented")
 		}),
@@ -146,6 +149,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
+	// MtoShipmentCreateSITExtensionHandler sets the operation handler for the create s i t extension operation
+	MtoShipmentCreateSITExtensionHandler mto_shipment.CreateSITExtensionHandler
 	// PaymentRequestCreateUploadHandler sets the operation handler for the create upload operation
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
@@ -260,6 +265,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
+	}
+	if o.MtoShipmentCreateSITExtensionHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateSITExtensionHandler")
 	}
 	if o.PaymentRequestCreateUploadHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreateUploadHandler")
@@ -401,6 +409,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/payment-requests"] = payment_request.NewCreatePaymentRequest(o.context, o.PaymentRequestCreatePaymentRequestHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/sit-extensions"] = mto_shipment.NewCreateSITExtension(o.context, o.MtoShipmentCreateSITExtensionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

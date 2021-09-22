@@ -41,6 +41,7 @@ describe('EditBillableWeight', () => {
       weightAllowance: 8000,
       estimatedWeight: 13750,
       maxBillableWeight: 10000,
+      editEntity: () => {},
     };
 
     render(<EditBillableWeight {...defaultProps} />);
@@ -59,6 +60,7 @@ describe('EditBillableWeight', () => {
       maxBillableWeight: 6000,
       billableWeight: 7000,
       totalBillableWeight: 11000,
+      editEntity: () => {},
     };
 
     render(<EditBillableWeight {...defaultProps} />);
@@ -66,7 +68,7 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(
-      screen.getByText(formatWeight(defaultProps.totalBillableWeight - defaultProps.billableWeight)),
+      screen.getByText(formatWeight(defaultProps.maxBillableWeight - defaultProps.totalBillableWeight)),
     ).toBeInTheDocument();
     expect(screen.getByText('| original weight')).toBeInTheDocument();
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
@@ -79,6 +81,7 @@ describe('EditBillableWeight', () => {
       weightAllowance: 8000,
       estimatedWeight: 13750,
       maxBillableWeight: 10000,
+      editEntity: () => {},
     };
 
     render(<EditBillableWeight {...defaultProps} />);
@@ -99,6 +102,7 @@ describe('EditBillableWeight', () => {
       weightAllowance: 8000,
       estimatedWeight: 13750,
       maxBillableWeight: 10000,
+      editEntity: () => {},
     };
 
     render(<EditBillableWeight {...defaultProps} />);
@@ -111,5 +115,29 @@ describe('EditBillableWeight', () => {
     expect(screen.queryByText('Edit')).toBeInTheDocument();
     expect(screen.queryByText('Save changes')).toBeNull();
     expect(screen.queryByText('Cancel')).toBeNull();
+  });
+
+  it('should call editEntity with data', () => {
+    const mockEditEntity = jest.fn();
+    const newBillableWeight = 5000;
+    const newBillableWeightJustification = 'some remarks';
+    const defaultProps = {
+      title: 'Max billable weight',
+      weightAllowance: 8000,
+      estimatedWeight: 13750,
+      maxBillableWeight: 10000,
+      editEntity: mockEditEntity,
+    };
+
+    render(<EditBillableWeight {...defaultProps} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.queryByText('Edit')).toBeNull();
+
+    fireEvent.change(screen.getByTestId('textInput'), { target: { value: newBillableWeight } });
+    fireEvent.change(screen.getByTestId('remarks'), { target: { value: newBillableWeightJustification } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(mockEditEntity.mock.calls.length).toBe(1);
+    expect(mockEditEntity.mock.calls[0][0].billableWeight).toBe(newBillableWeight);
+    expect(mockEditEntity.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
   });
 });

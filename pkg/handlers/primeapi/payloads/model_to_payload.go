@@ -377,6 +377,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
@@ -502,7 +503,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		payload = &cratingSI
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemShuttle{
-			Description:     mtoServiceItem.Description,
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
@@ -618,6 +618,45 @@ func Upload(storer storage.FileStorer, upload *models.Upload) *primemessages.Upl
 	}
 
 	return payload
+}
+
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+	payload := &primemessages.SITExtension{
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		RequestedDays:     int64(sitExtension.RequestedDays),
+		Status:            string(sitExtension.Status),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
+	}
+
+	return payload
+}
+
+// SITExtensions payload\
+func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SITExtensions {
+	if sitExtensions == nil {
+		return nil
+	}
+
+	payload := make(primemessages.SITExtensions, len(*sitExtensions))
+
+	for i, m := range *sitExtensions {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = SITExtension(&copyOfM)
+	}
+
+	return &payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

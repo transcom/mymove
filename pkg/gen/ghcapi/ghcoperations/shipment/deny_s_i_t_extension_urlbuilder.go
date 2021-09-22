@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// DenySitExtensionURL generates an URL for the deny sit extension operation
-type DenySitExtensionURL struct {
+// DenySITExtensionURL generates an URL for the deny s i t extension operation
+type DenySITExtensionURL struct {
 	ShipmentID     strfmt.UUID
 	SitExtensionID strfmt.UUID
 
@@ -27,7 +27,7 @@ type DenySitExtensionURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *DenySitExtensionURL) WithBasePath(bp string) *DenySitExtensionURL {
+func (o *DenySITExtensionURL) WithBasePath(bp string) *DenySITExtensionURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -35,12 +35,12 @@ func (o *DenySitExtensionURL) WithBasePath(bp string) *DenySitExtensionURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *DenySitExtensionURL) SetBasePath(bp string) {
+func (o *DenySITExtensionURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *DenySitExtensionURL) Build() (*url.URL, error) {
+func (o *DenySITExtensionURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny"
@@ -49,14 +49,14 @@ func (o *DenySitExtensionURL) Build() (*url.URL, error) {
 	if shipmentID != "" {
 		_path = strings.Replace(_path, "{shipmentID}", shipmentID, -1)
 	} else {
-		return nil, errors.New("shipmentId is required on DenySitExtensionURL")
+		return nil, errors.New("shipmentId is required on DenySITExtensionURL")
 	}
 
 	sitExtensionID := o.SitExtensionID.String()
 	if sitExtensionID != "" {
 		_path = strings.Replace(_path, "{sitExtensionID}", sitExtensionID, -1)
 	} else {
-		return nil, errors.New("sitExtensionId is required on DenySitExtensionURL")
+		return nil, errors.New("sitExtensionId is required on DenySITExtensionURL")
 	}
 
 	_basePath := o._basePath
@@ -69,7 +69,7 @@ func (o *DenySitExtensionURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *DenySitExtensionURL) Must(u *url.URL, err error) *url.URL {
+func (o *DenySITExtensionURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -80,17 +80,17 @@ func (o *DenySitExtensionURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *DenySitExtensionURL) String() string {
+func (o *DenySITExtensionURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *DenySitExtensionURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *DenySITExtensionURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on DenySitExtensionURL")
+		return nil, errors.New("scheme is required for a full url on DenySITExtensionURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on DenySitExtensionURL")
+		return nil, errors.New("host is required for a full url on DenySITExtensionURL")
 	}
 
 	base, err := o.Build()
@@ -104,6 +104,6 @@ func (o *DenySitExtensionURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *DenySitExtensionURL) StringFull(scheme, host string) string {
+func (o *DenySITExtensionURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }
