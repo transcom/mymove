@@ -90,7 +90,7 @@ export default function ShipmentCard({
 
 ShipmentCard.propTypes = {
   billableWeight: number.isRequired,
-  dateReweighRequested: string.isRequired,
+  dateReweighRequested: string,
   departedDate: string.isRequired,
   destinationAddress: shape({
     city: string.isRequired,
@@ -104,10 +104,12 @@ ShipmentCard.propTypes = {
     state: string.isRequired,
     postal_code: string.isRequired,
   }).isRequired,
-  reweighRemarks: string.isRequired,
+  reweighRemarks: string,
   reweighWeight: number,
 };
 
 ShipmentCard.defaultProps = {
   reweighWeight: null,
+  dateReweighRequested: null,
+  reweighRemarks: null,
 };

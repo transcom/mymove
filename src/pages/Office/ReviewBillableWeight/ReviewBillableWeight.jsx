@@ -137,7 +137,7 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
-                  billableWeight={selectedShipment.billableWeightCap}
+                  billableWeight={selectedShipment.calculatedBillableWeight}
                   dateReweighRequested={selectedShipment.reweigh?.requestedAt}
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}
