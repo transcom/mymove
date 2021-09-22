@@ -24,8 +24,34 @@ func NewPaymentServiceItemStatusUpdater() services.PaymentServiceItemStatusUpdat
 }
 
 func (p *paymentServiceItemUpdater) UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID,
-	status models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
+	desiredStatus models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
 	// Fetch the existing record
+	paymentServiceItem, verrs, err := p.fetchPaymentServiceItem(appCtx, paymentServiceItemID)
+	if err != nil || verrs != nil && verrs.HasAny() {
+		return models.PaymentServiceItem{}, verrs, err
+	}
+
+	// Check the etag to make sure we're good to update (not stale)
+	currentEtag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
+	if currentEtag != eTag {
+		return models.PaymentServiceItem{}, nil, services.NewPreconditionFailedError(paymentServiceItem.ID,
+			query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	// Update the record
+	updatedPaymentServiceItem, verrs, err := p.updatePaymentServiceItem(appCtx, paymentServiceItem, desiredStatus,
+		rejectionReason, eTag, checkETag(), rejectionRequiresRejectionReason())
+	if err != nil || verrs != nil && verrs.HasAny() {
+		return models.PaymentServiceItem{}, verrs, err
+	}
+
+	// Return the updated object
+	return updatedPaymentServiceItem, nil, nil
+}
+
+// Fetch the existing service item
+func (p *paymentServiceItemUpdater) fetchPaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID) (models.PaymentServiceItem,
+	*validate.Errors, error) {
 	var paymentServiceItem models.PaymentServiceItem
 	err := appCtx.DB().EagerPreload("PaymentRequest").Find(&paymentServiceItem, paymentServiceItemID)
 	if err != nil {
@@ -37,29 +63,34 @@ func (p *paymentServiceItemUpdater) UpdatePaymentServiceItemStatus(appCtx appcon
 		// If it's something else let's still return the error variable (err)
 		return models.PaymentServiceItem{}, nil, err
 	}
+	return paymentServiceItem, nil, nil
+}
 
-	// Check the etag to make sure we're good to update (not stale)
-	currentEtag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
-	if currentEtag != eTag {
-		return models.PaymentServiceItem{}, nil, services.NewPreconditionFailedError(paymentServiceItem.ID,
-			query.StaleIdentifierError{StaleIdentifier: eTag})
+// Update the service item based on the requested new status
+func (p *paymentServiceItemUpdater) updatePaymentServiceItem(appCtx appcontext.AppContext,
+	paymentServiceItem models.PaymentServiceItem, desiredStatus models.PaymentServiceItemStatus,
+	rejectionReason *string, eTag string, checks ...validator) (models.PaymentServiceItem, *validate.Errors, error) {
+
+	// Validate the change we're trying to make to the payment service item
+	if verr := validatePaymentServiceItem(appCtx, &paymentServiceItem, desiredStatus,
+		rejectionReason, eTag, checks...); verr != nil {
+		return models.PaymentServiceItem{}, nil, verr
 	}
 
-	// Update the record
 	// If we're denying this thing we want to make sure to update the DeniedAt field and nil out ApprovedAt.
-	if status == models.PaymentServiceItemStatusDenied {
+	if desiredStatus == models.PaymentServiceItemStatusDenied {
 		paymentServiceItem.RejectionReason = rejectionReason
 		paymentServiceItem.DeniedAt = swag.Time(time.Now())
 		paymentServiceItem.ApprovedAt = nil
-		paymentServiceItem.Status = status
+		paymentServiceItem.Status = desiredStatus
 	}
 	// If we're approving this thing then we don't want there to be a rejection reason
 	// We also will want to update the ApprovedAt field and nil out the DeniedAt field.
-	if status == models.PaymentServiceItemStatusApproved {
+	if desiredStatus == models.PaymentServiceItemStatusApproved {
 		paymentServiceItem.RejectionReason = nil
 		paymentServiceItem.DeniedAt = nil
 		paymentServiceItem.ApprovedAt = swag.Time(time.Now())
-		paymentServiceItem.Status = status
+		paymentServiceItem.Status = desiredStatus
 	}
 
 	// Save the record
@@ -67,6 +98,6 @@ func (p *paymentServiceItemUpdater) UpdatePaymentServiceItemStatus(appCtx appcon
 	if err != nil || verrs != nil && verrs.HasAny() {
 		return models.PaymentServiceItem{}, verrs, err
 	}
-	// Return the updated object
+
 	return paymentServiceItem, nil, nil
 }

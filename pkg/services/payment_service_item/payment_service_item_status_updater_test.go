@@ -31,7 +31,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 
 	})
 
-	suite.T().Run("Successfully denies a payment service item", func(t *testing.T) {
+	suite.T().Run("Successfully rejects a payment service item", func(t *testing.T) {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
@@ -73,6 +73,18 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Fails if we attempt to reject without a rejection reason", func(t *testing.T) {
+		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
+		updater := NewPaymentServiceItemStatusUpdater()
+
+		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
+			paymentServiceItem.ID, models.PaymentServiceItemStatusDenied, nil, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
 }
