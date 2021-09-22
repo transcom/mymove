@@ -63,7 +63,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, ctx.NotificationSender()),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
@@ -113,7 +113,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, ctx.NotificationSender()),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
 	}

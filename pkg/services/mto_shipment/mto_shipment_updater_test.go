@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 
@@ -31,6 +33,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -38,6 +41,17 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The NewMTOShipmentUpdater needs a NotificationSender for sending notification emails to the customer.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := notificationMocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.ReweighRequested"),
+	).Return(nil)
+
+	return &mockSender
+}
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	oldMTOShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -50,7 +64,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	).Return(500, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	mockSender := setUpMockNotificationSender()
+	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -1012,7 +1027,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	planner := &mocks.Planner{}
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), primeShipment.ID)
@@ -1052,7 +1068,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 	suite.T().Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func(t *testing.T) {
 		now := time.Now()
@@ -1089,7 +1106,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	suite.T().Run("Skips calling check excess weight if estimated weight was not provided in request", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1108,7 +1126,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		actualWeight := unit.Pound(7200)
 		primeShipment.PrimeActualWeight = &actualWeight
 
-		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(nil)
+		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(models.MTOShipments{}, nil)
 
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
@@ -1120,7 +1138,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	suite.T().Run("Skips calling check excess weight if the updated estimated weight matches the db value", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1155,7 +1174,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 	suite.T().Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func(t *testing.T) {
 		now := time.Now()
@@ -1191,7 +1211,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.T().Run("Skips calling check auto reweigh if actual weight was not provided in request", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1220,7 +1241,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.T().Run("Skips calling check auto reweigh if the updated actual weight matches the db value", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
