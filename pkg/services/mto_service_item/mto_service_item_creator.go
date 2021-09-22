@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -267,15 +266,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		// In case other service items have been created at the same time on this
-		// same move, we fetch the move from the DB and check if it has any
-		// submitted service items.
-		err = txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
-		if err != nil {
-			return err
-		}
-
-		if err = ApproveMoveOrRequestApproval(txnAppCtx, o.moveRouter, move.Orders, move); err != nil {
+		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
 
@@ -291,43 +282,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	return &createdServiceItems, nil, nil
-}
-
-// ApproveMoveOrRequestApproval routes the move appropriately based on whether or
-// not the TOO has any tasks requiring their attention.
-func ApproveMoveOrRequestApproval(appCtx appcontext.AppContext, moveRouter services.MoveRouter, order models.Order, move models.Move) error {
-	var err error
-
-	if MoveShouldBeApproved(order, move) {
-		err = moveRouter.Approve(appCtx, &move)
-	} else {
-		err = moveRouter.SendToOfficeUser(appCtx, &move)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-
-	return HandleError(move.ID, verrs, err)
-}
-
-// MoveShouldBeApproved checks if the TOO no longer has any tasks requiring action.
-func MoveShouldBeApproved(order models.Order, move models.Move) bool {
-	return orderservice.MoveHasReviewedServiceItems(move) && orderservice.MoveHasAcknowledgedOrdersAmendment(order)
-}
-
-// HandleError is a helper function for capturing common errors.
-func HandleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
-	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one

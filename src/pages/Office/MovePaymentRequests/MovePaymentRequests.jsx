@@ -19,7 +19,11 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { useCalculatedTotalBillableWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import {
+  includedStatusesForCalculatingWeights,
+  useCalculatedTotalBillableWeight,
+  useCalculatedWeightRequested,
+} from 'hooks/custom';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -104,30 +108,30 @@ const MovePaymentRequests = ({
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav className={txoStyles.sidebar}>
-          {paymentRequests.length &&
-            sections?.map((s) => {
-              return (
-                <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
-                  {sectionLabels[`${s}`]}
-                </a>
-              );
-            })}
+          {sections?.map((s) => {
+            return (
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                {sectionLabels[`${s}`]}
+              </a>
+            );
+          })}
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
           <div className={txoStyles.section} id="billable-weights">
+            {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
               maxBillableWeight={order?.entitlement?.authorizedWeight}
               totalBillableWeight={totalBillableWeight}
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
-              shipments={mtoShipments}
+              shipments={mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status))}
             />
           </div>
           <h2>Payment requests</h2>
           <div className={txoStyles.section} id="payment-requests">
-            {paymentRequests.length ? (
+            {paymentRequests?.length > 0 ? (
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard
                   paymentRequest={paymentRequest}
