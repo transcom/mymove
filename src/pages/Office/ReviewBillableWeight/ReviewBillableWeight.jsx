@@ -15,6 +15,7 @@ import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
 import {
+  includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
   useCalculatedEstimatedWeight,
@@ -46,11 +47,13 @@ export default function ReviewBillableWeight() {
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
-  const isLastShipment = selectedShipmentIndex === mtoShipments?.length - 1;
+  /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
+  const filteredShipments = mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
+  const isLastShipment = selectedShipmentIndex === filteredShipments?.length - 1;
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
-  const weightRequested = useCalculatedWeightRequested(mtoShipments);
-  const totalEstimatedWeight = useCalculatedEstimatedWeight(mtoShipments);
+  const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
+  const weightRequested = useCalculatedWeightRequested(filteredShipments);
+  const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -63,7 +66,7 @@ export default function ReviewBillableWeight() {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
 
-  const selectedShipment = mtoShipments[selectedShipmentIndex];
+  const selectedShipment = filteredShipments[selectedShipmentIndex];
 
   return (
     <div className={styles.DocumentWrapper}>
@@ -85,8 +88,8 @@ export default function ReviewBillableWeight() {
                   totalBillableWeight={totalBillableWeight}
                   weightRequested={weightRequested}
                   weightAllowance={weightAllowance}
-                  shipments={mtoShipments}
                   totalBillableWeightFlag={totalBillableWeight > maxBillableWeight}
+                  shipments={filteredShipments}
                 />
               </div>
               <EditBillableWeight
@@ -110,7 +113,7 @@ export default function ReviewBillableWeight() {
           <DocumentViewerSidebar
             title="Review weights"
             subtitle="Shipment weights"
-            description={`Shipment ${selectedShipmentIndex + 1} of ${mtoShipments?.length}`}
+            description={`Shipment ${selectedShipmentIndex + 1} of ${filteredShipments?.length}`}
             onClose={handleClose}
           >
             <DocumentViewerSidebar.Content>
@@ -138,7 +141,7 @@ export default function ReviewBillableWeight() {
                     weightRequested={weightRequested}
                     weightAllowance={weightAllowance}
                     totalBillableWeightFlag={totalBillableWeight > maxBillableWeight}
-                    shipments={mtoShipments}
+                    shipments={filteredShipments}
                   />
                 </div>
               </div>
@@ -158,14 +161,10 @@ export default function ReviewBillableWeight() {
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer className={reviewBillableWeightStyles.footer}>
               <div className={reviewBillableWeightStyles.flex}>
-                <Button type="button" onClick={handleClickBackButton} secondary>
+                <Button onClick={handleClickBackButton} secondary>
                   Back
                 </Button>
-                {!isLastShipment && (
-                  <Button type="button" onClick={handleClickNextButton}>
-                    Next Shipment
-                  </Button>
-                )}
+                {!isLastShipment && <Button onClick={handleClickNextButton}>Next Shipment</Button>}
               </div>
             </DocumentViewerSidebar.Footer>
           </DocumentViewerSidebar>

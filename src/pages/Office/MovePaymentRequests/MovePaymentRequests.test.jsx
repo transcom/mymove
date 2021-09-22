@@ -453,14 +453,14 @@ describe('MovePaymentRequests', () => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
     });
 
-    it('does not render side navigation for payment request section', () => {
+    it('renders side navigation for payment request section', () => {
       renderMovePaymentRequests(testProps);
       const leftNav = screen.getByRole('navigation');
       expect(leftNav).toBeInTheDocument();
 
       const paymentRequstNavLink = within(leftNav).queryByText('Payment requests');
 
-      expect(paymentRequstNavLink).toBeNull();
+      expect(paymentRequstNavLink).toBeInTheDocument();
     });
 
     it('renders with empty message when no payment requests exist', async () => {

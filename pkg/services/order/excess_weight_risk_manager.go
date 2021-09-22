@@ -73,7 +73,7 @@ func (f *excessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.
 
 func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := appCtx.DB().Q().EagerPreload("Moves.MTOServiceItems", "ServiceMember", "Entitlement", "OriginDutyStation").Find(&order, orderID)
+	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "OriginDutyStation").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -85,7 +85,7 @@ func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderI
 
 func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontext.AppContext, order models.Order) (*models.Move, error) {
 	move := order.Moves[0]
-	var returnedMove models.Move
+	var returnedMove *models.Move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move)
@@ -93,12 +93,10 @@ func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontex
 			return err
 		}
 
-		updatedMove, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		returnedMove, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, *updatedMove)
 		if err != nil {
 			return err
 		}
-
-		returnedMove = *updatedMove
 
 		return nil
 	})
@@ -107,7 +105,7 @@ func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontex
 		return nil, transactionError
 	}
 
-	return &returnedMove, nil
+	return returnedMove, nil
 }
 
 func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppContext, order models.Order, weight *int, checks ...Validator) (*models.Order, uuid.UUID, error) {
@@ -127,7 +125,7 @@ func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppCont
 			return err
 		}
 
-		_, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, *updatedMove)
 		if err != nil {
 			return err
 		}
@@ -164,7 +162,7 @@ func (f *excessWeightRiskManager) updateMaxBillableWeightWithTIORemarks(appCtx a
 			return err
 		}
 
-		_, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, *updatedMove)
 		if err != nil {
 			return err
 		}
@@ -216,32 +214,6 @@ func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppC
 	return &move, nil
 }
 
-func (f *excessWeightRiskManager) approveMove(appCtx appcontext.AppContext, order models.Order, move models.Move) (*models.Move, error) {
-	if !f.moveShouldBeApproved(order) {
-		return &move, nil
-	}
-
-	err := f.moveRouter.Approve(appCtx, &move)
-	if err != nil {
-		return nil, err
-	}
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-	if e := f.handleError(move.ID, verrs, err); e != nil {
-		return nil, e
-	}
-
-	return &move, nil
-}
-
-func (f *excessWeightRiskManager) moveShouldBeApproved(order models.Order) bool {
-	move := order.Moves[0]
-
-	return excessWeightRiskShouldBeAcknowledged(move) &&
-		MoveHasAcknowledgedOrdersAmendment(order) &&
-		MoveHasReviewedServiceItems(move)
-}
-
 func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(modelID, nil, verrs, "")
@@ -251,26 +223,6 @@ func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate
 	}
 
 	return nil
-}
-
-// MoveHasAcknowledgedOrdersAmendment checks if the TOO has acknowledged amended orders
-func MoveHasAcknowledgedOrdersAmendment(order models.Order) bool {
-	if order.UploadedAmendedOrdersID != nil && order.AmendedOrdersAcknowledgedAt == nil {
-		return false
-	}
-	return true
-}
-
-// MoveHasReviewedServiceItems checks if the TOO still needs to accept or reject
-// service items
-func MoveHasReviewedServiceItems(move models.Move) bool {
-	for _, mtoServiceItem := range move.MTOServiceItems {
-		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
-			return false
-		}
-	}
-
-	return true
 }
 
 func excessWeightRiskShouldBeAcknowledged(move models.Move) bool {

@@ -8,8 +8,10 @@ package primemessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateReweigh Contains the fields available to the Prime when updating a reweigh record.
@@ -23,11 +25,33 @@ type UpdateReweigh struct {
 
 	// The total reweighed weight for the shipment in pounds.
 	// Example: 2000
+	// Minimum: 1
 	Weight *int64 `json:"weight"`
 }
 
 // Validate validates this update reweigh
 func (m *UpdateReweigh) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateReweigh) validateWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.Weight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("weight", "body", *m.Weight, 1, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
