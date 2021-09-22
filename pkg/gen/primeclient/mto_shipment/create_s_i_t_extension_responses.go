@@ -275,7 +275,7 @@ func NewCreateSITExtensionUnprocessableEntity() *CreateSITExtensionUnprocessable
 
 /* CreateSITExtensionUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type CreateSITExtensionUnprocessableEntity struct {
 	Payload *primemessages.ValidationError

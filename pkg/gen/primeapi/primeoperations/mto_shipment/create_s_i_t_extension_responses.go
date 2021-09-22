@@ -280,7 +280,7 @@ func (o *CreateSITExtensionConflict) WriteResponse(rw http.ResponseWriter, produ
 // CreateSITExtensionUnprocessableEntityCode is the HTTP code returned for type CreateSITExtensionUnprocessableEntity
 const CreateSITExtensionUnprocessableEntityCode int = 422
 
-/*CreateSITExtensionUnprocessableEntity The payload was unprocessable.
+/*CreateSITExtensionUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createSITExtensionUnprocessableEntity
 */
