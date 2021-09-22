@@ -26,7 +26,6 @@ const ShipmentSITExtensions = (props) => {
   const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
   const mappedSITExtensionList = sitExtensions.map((sitExt) => {
-    overallTotalDaysAuthorized += sitExt.approvedDays;
     return (
       <dl key={sitExt.id}>
         {sitExt.approvedDays > 0 && (
@@ -55,33 +54,30 @@ const ShipmentSITExtensions = (props) => {
     );
   });
 
-  // Display overall total days
-  const overallTotalDaysUsed = moment().diff(earliestSITDate, 'days');
-  const overallTotalDaysAuthorizedAndUsed = (
+  const totalDaysAuthorizedAndUsed = (
     <>
-      <p>{overallTotalDaysAuthorized} authorized</p>
-      <p>{overallTotalDaysUsed} used</p>
+      <p>{shipment.sitDaysAllowance} authorized</p>
+      <p>{totalSITDaysUsed} used</p>
     </>
   );
 
-  const overallTotalDaysRemaining = overallTotalDaysAuthorized - overallTotalDaysUsed;
-  const overallEndDate = moment().add(overallTotalDaysRemaining, 'days').format('DD MMM YYYY');
-  const overallDaysRemainingAndEndDate = (
+  const taysRemainingAndEndDate = (
     <>
-      <p>{overallTotalDaysRemaining} remaining</p>
-      <p>Ends {overallEndDate}</p>
+      <p>{totalDaysRemaining} remaining</p>
+      <p>Ends {sitEndDate}</p>
     </>
   );
 
   // Currently active SIT
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
+
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{moment(sitStatus.sitEntryDate).format('DD MMM YYYY')}</p>;
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
+    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ? 'origin' : 'destination';
 
     return (
       <p key={pastSITItem.id}>
@@ -106,7 +102,7 @@ const ShipmentSITExtensions = (props) => {
 
       <DataTable
         columnHeaders={['Total days of SIT', 'Total days remaining']}
-        dataRow={[overallTotalDaysAuthorizedAndUsed, overallDaysRemainingAndEndDate]}
+        dataRow={[totalDaysAuthorizedAndUsed, taysRemainingAndEndDate]}
       />
       <p>Current location: {currentLocation}</p>
       <DataTable

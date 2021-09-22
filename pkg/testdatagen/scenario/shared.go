@@ -4767,17 +4767,113 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
 
+	// manually calculated SIT days including SIT extension approved days
+	sitDaysAllowance := 270
 	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+			Status:           models.MTOShipmentStatusApproved,
+			SITDaysAllowance: &sitDaysAllowance,
 		},
-		Move: move,
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	// oneMonthAgo := twoMonthsAgo.Add(time.Hour * 24 * 30)
+	// oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	// This will in practice not exist without DOFSIT and DOASIT
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &threeMonthsAgo,
+			SITDepartureDate: &twoMonthsAgo,
+			SITPostalCode:    &postalCode,
+			Reason:           &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
 	})
 
 	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
-	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
@@ -4785,33 +4881,6 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			MoveTaskOrder: move,
 		},
 		Move: move,
-	})
-
-	serviceItemASIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequestSIT,
-		ReService: models.ReService{
-			Code: "DDDSIT",
-		},
-		MTOShipment: mtoShipment,
-		Move:        move,
-	})
-
-	sitContractorRemarks1 := "The customer requested an extension."
-	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
-
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID:     mtoShipment.ID,
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-		},
-	})
-
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID: mtoShipment.ID,
-		},
 	})
 
 }
@@ -5147,16 +5216,21 @@ func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+	approvedDays := 90
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
+			ApprovedDays:      &approvedDays,
 		},
 		MTOShipment: shipment,
 	})
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			ApprovedDays: &approvedDays,
+		},
 		MTOShipment: shipment,
 	})
 }
