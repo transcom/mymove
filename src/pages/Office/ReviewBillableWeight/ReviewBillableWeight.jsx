@@ -2,11 +2,14 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
+import { queryCache, useMutation } from 'react-query';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
+import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { updateMTOShipment, updateMaxBillableWeightAsTIO } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -14,6 +17,7 @@ import ShipmentCard from 'components/Office/BillableWeight/ShipmentCard/Shipment
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import {
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
@@ -44,7 +48,7 @@ export default function ReviewBillableWeight() {
   };
 
   const history = useHistory();
-
+  let documentsForViewer = [];
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
@@ -54,19 +58,77 @@ export default function ReviewBillableWeight() {
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
   const weightRequested = useCalculatedWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
 
   const maxBillableWeight = order.entitlement.authorizedWeight;
   const weightAllowance = order.entitlement.totalWeight;
-
-  const documentsForViewer = Object.values(upload);
 
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
 
   const selectedShipment = filteredShipments[selectedShipmentIndex];
+
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateOrders] = useMutation(updateMaxBillableWeightAsTIO, {
+    onSuccess: (data, variables) => {
+      queryCache.invalidateQueries([MOVES, moveCode]);
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
+          [`${variables.orderID}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const editEntity = (formValues) => {
+    if (sidebarType === 'MAX') {
+      const payload = {
+        orderID: order.id,
+        ifMatchETag: order.eTag,
+        body: {
+          authorizedWeight: formValues.billableWeight,
+          tioRemarks: formValues.billableWeightJustification,
+        },
+      };
+      mutateOrders(payload);
+    } else {
+      const payload = {
+        body: {
+          ...formValues,
+          billableWeightCap: formValues.billableWeight,
+        },
+        ifMatchETag: selectedShipment.eTag,
+        moveTaskOrderID: selectedShipment.moveTaskOrderID,
+        shipmentID: selectedShipment.id,
+        normalize: false,
+      };
+      mutateMTOShipment(payload);
+    }
+  };
+
+  if (upload) {
+    documentsForViewer = Object.values(upload);
+  }
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <div className={styles.DocumentWrapper}>
@@ -96,6 +158,8 @@ export default function ReviewBillableWeight() {
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
                 weightAllowance={weightAllowance}
+                editEntity={editEntity}
+                billableWeightJustification={order.moveTaskOrder.tioRemarks}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
@@ -141,7 +205,9 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
+                  editEntity={editEntity}
                   billableWeight={selectedShipment.billableWeightCap}
+                  billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment.reweigh?.requestedAt}
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}

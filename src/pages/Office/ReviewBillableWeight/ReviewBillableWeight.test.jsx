@@ -91,6 +91,7 @@ const mockOrders = {
     grade: 'E_1',
     id: '1',
     last_name: 'Spacemen',
+    moveTaskOrder: {},
     order_number: 'ORDER3',
     order_type: 'PERMANENT_CHANGE_OF_STATION',
     order_type_detail: 'HHG_PERMITTED',
