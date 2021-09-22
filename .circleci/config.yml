@@ -24,6 +24,13 @@ references:
   # ignore tests for demo deploys. See the branch settings below.
   demo-branch: &demo-branch placeholder_branch_name
 
+  # set loadtest-branch to the branch you want to deploy to loadtest, or
+  # `placeholder_branch_name` if you don't want to deploy to loadtest
+  #
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for loadtest deploys. See the branch settings below.
+  loadtest-branch: &loadtest-branch placeholder_branch_name
+
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
   #
@@ -240,6 +247,25 @@ commands:
             echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_loadtest:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for loadtest env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$loadtest_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$loadtest_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$loadtest_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$loadtest_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  tls_vars_loadtest:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for loadtest env'
+          command: |
+            echo "export TLS_CERT=$loadtest_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$loadtest_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$loadtest_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
 
   announce_failure:
@@ -925,6 +951,23 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: exp
+      - aws_vars_demo
+      - run:
+          name: Prepare certificates
+          command: |
+            sudo cp /home/circleci/transcom/mymove/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run:
+          name: Run Demo acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: demo
+            ENVIRONMENT: demo
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: demo
       - aws_vars_stg
       - run:
           name: Run Staging acceptance tests
@@ -1203,6 +1246,20 @@ jobs:
           repo: app
       - announce_failure
 
+  # `push_app_loadtest` pushes the app container to the milmove-loadtest container repository
+  push_app_loadtest:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_loadtest
+      - push_image:
+          ecr_env: loadtest
+          image_name: app
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `push_app_exp` pushes the app container to the milmove-exp container repository
   push_app_exp:
     executor: mymove_small
@@ -1326,6 +1383,20 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `push_migrations_loadtest` pushes the migrations container to the milmove-loadtest container repository
+  push_migrations_loadtest:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_loadtest
+      - push_image:
+          ecr_env: loadtest
+          image_name: app-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
     executor: mymove_small
@@ -1440,6 +1511,20 @@ jobs:
           repo: app-tasks
       - announce_failure
 
+  # `push_tasks_loadtest` pushes the tasks containers to the milmove-loadtest container repository
+  push_tasks_loadtest:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_loadtest
+      - push_image:
+          ecr_env: loadtest
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
+      - announce_failure
+
   # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
   push_tasks_exp:
     executor: mymove_small
@@ -1513,6 +1598,7 @@ jobs:
           tag: dev
           working_dir: ~/transcom/mymove
       - announce_failure
+
   # `push_webhook_client_demo` pushes the webhook client container to the demo container repository
   push_webhook_client_demo:
     executor: mymove_small
@@ -1522,6 +1608,20 @@ jobs:
       - aws_vars_demo
       - push_image:
           ecr_env: demo
+          image_name: webhook_client
+          tag: dev
+          repo: app-webhook-client
+      - announce_failure
+
+  # `push_webhook_client_loadtest` pushes the webhook client container to the loadtest container repository
+  push_webhook_client_loadtest:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_loadtest
+      - push_image:
+          ecr_env: loadtest
           image_name: webhook_client
           tag: dev
           repo: app-webhook-client
@@ -1601,6 +1701,70 @@ jobs:
           ecr_env: demo
 
   # `deploy_demo_webhook_client` deploys the webhook client to demo
+  deploy_demo_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_webhook_client_steps:
+          ecr_env: demo
+
+  # `deploy_loadtest_migrations` deploys migrations to the loadtest environment
+  deploy_loadtest_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'loadtest'
+    steps:
+      - aws_vars_loadtest
+      - deploy_migrations_steps:
+          ecr_env: loadtest
+
+  # `deploy_loadtest_tasks` deploys scheduled tasks to the loadtest environment
+  deploy_loadtest_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'loadtest'
+    steps:
+      - aws_vars_loadtest
+      - deploy_dp3_tasks_steps:
+          ecr_env: loadtest
+
+  # `deploy_loadtest_app` updates the server-TLS app service in the loadtest environment
+  deploy_loadtest_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'loadtest'
+    steps:
+      - aws_vars_loadtest
+      - deploy_app_steps:
+          compare_host: '' # leave blank since we want loadtest to be able to roll back
+          health_check_hosts: my.loadtest.dp3.us,office.loadtest.dp3.us,admin.loadtest.dp3.us
+          ecr_env: loadtest
+
+  # `deploy_loadtest_app_client_tls` updates the mutual-TLS service in the loadtest environment
+  deploy_loadtest_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'loadtest'
+    steps:
+      - aws_vars_loadtest
+      - tls_vars_loadtest
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want loadtest to be able to roll back
+          health_check_hosts: api.loadtest.dp3.us
+          ecr_env: loadtest
+  # `deploy_loadtest_webhook_client` deploys the webhook client to loadtest
+  deploy_loadtest_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'loadtest'
+    steps:
+      - aws_vars_loadtest
+      - deploy_webhook_client_steps:
+          ecr_env: loadtest
+
+  # `deploy_loadtest_webhook_client` deploys the webhook client to loadtest
   deploy_demo_webhook_client:
     executor: mymove_small
     environment:
@@ -2014,6 +2178,101 @@ workflows:
           filters:
             branches:
               only: *demo-branch
+
+      - build_dp3_app:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+            - pre_deps_yarn
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - push_app_loadtest:
+          requires:
+            - build_dp3_app
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - push_migrations_loadtest:
+          requires:
+            - build_migrations
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - build_dp3_tasks:
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - push_tasks_loadtest:
+          requires:
+            - build_dp3_tasks
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - build_dp3_webhook_client:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - push_webhook_client_loadtest:
+          requires:
+            - build_dp3_webhook_client
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - deploy_loadtest_migrations:
+          requires:
+            - pre_deps_golang
+            - pre_test
+            - client_test
+            - server_test
+            - push_app_loadtest
+            - build_tools
+            - push_tasks_loadtest
+            - push_migrations_loadtest
+            - push_webhook_client_loadtest
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - deploy_loadtest_tasks:
+          requires:
+            - deploy_loadtest_migrations
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - deploy_loadtest_app:
+          requires:
+            - deploy_loadtest_migrations
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - deploy_loadtest_app_client_tls:
+          requires:
+            - deploy_loadtest_migrations
+          filters:
+            branches:
+              only: *loadtest-branch
+
+      - deploy_loadtest_webhook_client:
+          requires:
+            - deploy_loadtest_migrations
+          filters:
+            branches:
+              only: *loadtest-branch
 
       - push_app_exp:
           requires:
