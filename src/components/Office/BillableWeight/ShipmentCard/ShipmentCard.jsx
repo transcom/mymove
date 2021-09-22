@@ -54,7 +54,7 @@ export default function ShipmentCard({
         </div>
         <div
           className={classnames(styles.field, {
-            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight),
+            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight) && estimatedWeight,
           })}
         >
           <strong>Original weight</strong>
