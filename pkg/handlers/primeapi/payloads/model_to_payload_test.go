@@ -4,6 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -19,25 +22,31 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	hhgMoveType := models.SelectedMoveTypeHHG
+	excessWeightQualifiedAt := time.Now()
+	excessWeightAcknowledgedAt := time.Now()
+	excessWeightUploadID := uuid.Must(uuid.NewV4())
 
 	basicMove := models.Move{
-		ID:                      moveTaskOrderID,
-		Locator:                 "TESTTEST",
-		CreatedAt:               time.Now(),
-		AvailableToPrimeAt:      &primeTime,
-		OrdersID:                ordersID,
-		Orders:                  models.Order{},
-		ReferenceID:             &referenceID,
-		PaymentRequests:         models.PaymentRequests{},
-		SubmittedAt:             &submittedAt,
-		UpdatedAt:               time.Now(),
-		SelectedMoveType:        &hhgMoveType,
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{},
-		MoveDocuments:           models.MoveDocuments{},
-		Status:                  models.MoveStatusAPPROVED,
-		SignedCertifications:    models.SignedCertifications{},
-		MTOServiceItems:         models.MTOServiceItems{},
-		MTOShipments:            models.MTOShipments{},
+		ID:                         moveTaskOrderID,
+		Locator:                    "TESTTEST",
+		CreatedAt:                  time.Now(),
+		AvailableToPrimeAt:         &primeTime,
+		OrdersID:                   ordersID,
+		Orders:                     models.Order{},
+		ReferenceID:                &referenceID,
+		PaymentRequests:            models.PaymentRequests{},
+		SubmittedAt:                &submittedAt,
+		UpdatedAt:                  time.Now(),
+		SelectedMoveType:           &hhgMoveType,
+		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
+		MoveDocuments:              models.MoveDocuments{},
+		Status:                     models.MoveStatusAPPROVED,
+		SignedCertifications:       models.SignedCertifications{},
+		MTOServiceItems:            models.MTOServiceItems{},
+		MTOShipments:               models.MTOShipments{},
+		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
+		ExcessWeightUploadID:       &excessWeightUploadID,
 	}
 
 	suite.T().Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func(t *testing.T) {
@@ -51,7 +60,11 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
-		suite.NotNil(returnedModel.ETag)
+		suite.NotEmpty(returnedModel.ETag)
+		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
+		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 	})
 }
 
@@ -84,7 +97,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 		suite.Nil(returnedPayload.Weight)
 		suite.Nil(returnedPayload.VerificationReason)
 		suite.Nil(returnedPayload.VerificationProvidedAt)
-		suite.NotNil(returnedPayload.ETag)
+		suite.NotEmpty(returnedPayload.ETag)
 
 	})
 
@@ -112,9 +125,64 @@ func (suite *PayloadsSuite) TestReweigh() {
 		suite.Equal(handlers.FmtPoundPtr(reweigh.Weight), returnedPayload.Weight)
 		suite.Equal(handlers.FmtStringPtr(reweigh.VerificationReason), returnedPayload.VerificationReason)
 		suite.Equal(handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt), returnedPayload.VerificationProvidedAt)
-		suite.NotNil(returnedPayload.ETag)
-
+		suite.NotEmpty(returnedPayload.ETag)
 	})
+}
+
+func (suite *PayloadsSuite) TestExcessWeightRecord() {
+	id, err := uuid.NewV4()
+	suite.Require().NoError(err, "Unexpected error when generating new UUID")
+
+	now := time.Now()
+	fakeFileStorer := test.NewFakeS3Storage(true)
+	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
+
+	suite.T().Run("Success - all data populated", func(t *testing.T) {
+		move := models.Move{
+			ID:                         id,
+			ExcessWeightQualifiedAt:    &now,
+			ExcessWeightAcknowledgedAt: &now,
+			ExcessWeightUploadID:       &upload.ID,
+			ExcessWeightUpload:         &upload,
+		}
+
+		excessWeightRecord := ExcessWeightRecord(suite.TestAppContext(), fakeFileStorer, &move)
+		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt).String(), excessWeightRecord.MoveExcessWeightQualifiedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessWeightAcknowledgedAt.String())
+
+		suite.Equal(move.ExcessWeightUploadID.String(), excessWeightRecord.ID.String())
+		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
+	})
+
+	suite.T().Run("Success - some nil data, but no errors", func(t *testing.T) {
+		move := models.Move{ID: id}
+
+		excessWeightRecord := ExcessWeightRecord(suite.TestAppContext(), fakeFileStorer, &move)
+		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
+		suite.Nil(excessWeightRecord.MoveExcessWeightQualifiedAt)
+		suite.Nil(excessWeightRecord.MoveExcessWeightAcknowledgedAt)
+	})
+}
+
+func (suite *PayloadsSuite) TestUpload() {
+	fakeFileStorer := test.NewFakeS3Storage(true)
+	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
+
+	uploadPayload := Upload(suite.TestAppContext(), fakeFileStorer, &upload)
+	suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+	suite.Equal(strfmt.DateTime(upload.CreatedAt), uploadPayload.CreatedAt)
+	suite.Equal(strfmt.DateTime(upload.UpdatedAt), uploadPayload.UpdatedAt)
+
+	suite.NotEmpty(uploadPayload.URL)
+	suite.NotEmpty(uploadPayload.Status)
+
+	suite.Require().NotNil(uploadPayload.Bytes)
+	suite.Require().NotNil(uploadPayload.ContentType)
+	suite.Require().NotNil(uploadPayload.Filename)
+	suite.Equal(upload.Bytes, *uploadPayload.Bytes)
+	suite.Equal(upload.ContentType, *uploadPayload.ContentType)
+	suite.Equal(upload.Filename, *uploadPayload.Filename)
 }
 
 func (suite *PayloadsSuite) TestSitExtension() {

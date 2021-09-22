@@ -43,8 +43,15 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// move_task_order.CreateExcessWeightRecordMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
+	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
+		api.MoveTaskOrderCreateExcessWeightRecordHandler = move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateMTOAgentHandler == nil {
 		api.MtoShipmentCreateMTOAgentHandler = mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOAgent has not yet been implemented")

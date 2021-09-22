@@ -2009,6 +2009,7 @@ definitions:
       - FAILING
       - FAILED
   Upload:
+    description: An uploaded file.
     type: object
     properties:
       id:

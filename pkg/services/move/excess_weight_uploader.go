@@ -3,7 +3,6 @@ package move
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -50,22 +49,20 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 	// Open transaction to create upload and update the move
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		excessWeightUpload, err := u.uploadCreator.CreateUpload(
-			txnAppCtx, file, fmt.Sprintf("/move/%s/%s", move.ID, uploadFilename), uploadType)
+			txnAppCtx, file, fmt.Sprintf("move/%s/%s", move.ID, uploadFilename), uploadType)
 		if err != nil {
 			return err
 		}
 
-		now := time.Now()
-		move.ExcessWeightQualifiedAt = &now
 		move.ExcessWeightUploadID = &excessWeightUpload.ID
 		move.ExcessWeightUpload = excessWeightUpload
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(move)
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidCreateInputError(
-				verrs, "Validation errors found while updating excess weight info on move")
+			return services.NewInvalidInputError(
+				move.ID, err, verrs, "Validation errors found while updating excess weight info on move")
 		} else if err != nil {
-			return fmt.Errorf("Failure to update excess weight info on move: %v", err)
+			return services.NewQueryError("Move", err, "Failed to update excess weight info on move")
 		}
 
 		return nil

@@ -236,7 +236,7 @@ func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateUploadUnprocessableEntityCode is the HTTP code returned for type CreateUploadUnprocessableEntity
 const CreateUploadUnprocessableEntityCode int = 422
 
-/*CreateUploadUnprocessableEntity The payload was unprocessable.
+/*CreateUploadUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createUploadUnprocessableEntity
 */

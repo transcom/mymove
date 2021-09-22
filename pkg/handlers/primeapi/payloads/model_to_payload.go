@@ -3,6 +3,12 @@ package payloads
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+
+	"github.com/transcom/mymove/pkg/storage"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -24,17 +30,20 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 
 	payload := &primemessages.MoveTaskOrder{
-		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveCode:           moveTaskOrder.Locator,
-		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:              Order(&moveTaskOrder.Orders),
-		ReferenceID:        *moveTaskOrder.ReferenceID,
-		PaymentRequests:    *paymentRequests,
-		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveCode:                   moveTaskOrder.Locator,
+		CreatedAt:                  strfmt.DateTime(moveTaskOrder.CreatedAt),
+		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
+		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                      Order(&moveTaskOrder.Orders),
+		ReferenceID:                *moveTaskOrder.ReferenceID,
+		PaymentRequests:            *paymentRequests,
+		MtoShipments:               *mtoShipments,
+		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {
@@ -555,6 +564,63 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
 		VerificationReason:     handlers.FmtStringPtr(reweigh.VerificationReason),
 		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+	}
+
+	return payload
+}
+
+// ExcessWeightRecord returns the fields on the move related to excess weights,
+// and returns the uploaded document set as the ExcessWeightUpload on the move.
+func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer, move *models.Move) *primemessages.ExcessWeightRecord {
+	if move == nil || move.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.ExcessWeightRecord{
+		MoveID:                         handlers.FmtUUIDPtr(&move.ID),
+		MoveExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+	}
+
+	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
+	if upload != nil {
+		payload.Upload = *upload
+	}
+
+	return payload
+}
+
+// Upload returns the data for an uploaded file.
+func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+	if upload == nil || upload.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.Upload{
+		ID:          strfmt.UUID(upload.ID.String()),
+		Bytes:       &upload.Bytes,
+		ContentType: &upload.ContentType,
+		Filename:    &upload.Filename,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	if err == nil {
+		payload.URL = *handlers.FmtURI(url)
+	} else {
+		appCtx.Logger().Error("primeapi error with getting url for Upload payload", zap.Error(err))
+	}
+
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || tags == nil {
+		payload.Status = "PROCESSING"
+	} else {
+		status, ok := tags["av-status"]
+		if !ok {
+			status = "PROCESSING"
+		}
+		payload.Status = status
 	}
 
 	return payload

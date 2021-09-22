@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/upload"
+
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
 	"github.com/go-openapi/loads"
@@ -37,6 +39,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	uploadCreator := upload.NewUploadCreator(ctx.FileStorer())
 
 	primeAPI.ServeError = handlers.ServeCustomError
 
@@ -45,9 +48,14 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
-	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(),
+	}
+
+	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{
+		ctx,
+		move.NewPrimeMoveExcessWeightUploader(uploadCreator),
 	}
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
