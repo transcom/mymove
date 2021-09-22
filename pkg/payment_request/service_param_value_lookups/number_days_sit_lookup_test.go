@@ -290,7 +290,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookupNew() {
 		suite.FatalNoError(err)
 	})
 
-	suite.T().Run("days get capped", func(t *testing.T) {
+	suite.T().Run("Requests for SIT additional days past the allowance for the shipment should be rejected", func(t *testing.T) {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -326,10 +326,8 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookupNew() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
-		numberDays, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
-		suite.FatalNoError(err)
-		// TODO this will change from the hardcoded max of 90
-		suite.Equal("90", numberDays)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		suite.Error(err)
 	})
 }
 

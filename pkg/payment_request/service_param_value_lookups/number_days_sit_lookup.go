@@ -46,11 +46,15 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", errors.New("new requested SIT dates overlap previously requested dates")
 	}
 
-	// TODO need to make sure we're counting the current service item in here and comparing to the right stuff
-	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(priorPaymentServiceItems)
+	if s.MTOShipment.SITDaysAllowance == nil {
+		return "", fmt.Errorf("MTOShipment %v is missing SITDaysAllowance", s.MTOShipment.ID)
+	}
+
+	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(priorPaymentServiceItems, *s.MTOShipment.SITDaysAllowance)
 	if err != nil {
 		return "", err
 	}
+
 	if remainingMoveTaskOrderSITDays <= 0 {
 		return "", fmt.Errorf("MTOShipment %v has 0 remaining SIT Days", s.MTOShipment.ID)
 	}
@@ -123,9 +127,8 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 	return mtoShipmentSITPaymentServiceItems, nil
 }
 
-// TODO is this supposed to include the most recent request?
-func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
-	remainingMoveTaskOrderSITDays := 90 // TODO replace this with the new cap
+func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems, sitDaysAllowance int) (int, error) {
+	remainingMoveTaskOrderSITDays := sitDaysAllowance
 
 	for _, moveTaskOrderSITPaymentServiceItem := range moveTaskOrderSITPaymentServiceItems {
 		if isFirstDaySIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
