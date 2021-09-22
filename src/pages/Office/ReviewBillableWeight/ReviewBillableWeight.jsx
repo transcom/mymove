@@ -139,8 +139,8 @@ export default function ReviewBillableWeight() {
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
-              {maxBillableWeight > weightAllowance && (
-                <Alert slim type="error">
+              {totalBillableWeight > maxBillableWeight && (
+                <Alert slim type="error" data-testid="maxBillableWeightAlert">
                   {`Max billable weight exceeded. \nPlease resolve.`}
                 </Alert>
               )}
@@ -150,6 +150,7 @@ export default function ReviewBillableWeight() {
                   totalBillableWeight={totalBillableWeight}
                   weightRequested={weightRequested}
                   weightAllowance={weightAllowance}
+                  totalBillableWeightFlag={totalBillableWeight > maxBillableWeight}
                   shipments={filteredShipments}
                 />
               </div>
@@ -181,6 +182,11 @@ export default function ReviewBillableWeight() {
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
+                {totalBillableWeight > maxBillableWeight && (
+                  <Alert slim type="error" data-testid="maxBillableWeightAlert">
+                    {`Max billable weight exceeded. \nPlease resolve.`}
+                  </Alert>
+                )}
                 {((!selectedShipment.reweigh?.weight && selectedShipment.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
                   <Alert slim type="warning">
@@ -198,7 +204,7 @@ export default function ReviewBillableWeight() {
                     totalBillableWeight={totalBillableWeight}
                     weightRequested={weightRequested}
                     weightAllowance={weightAllowance}
-                    totalBillableWeightFlag
+                    totalBillableWeightFlag={totalBillableWeight > maxBillableWeight}
                     shipments={filteredShipments}
                   />
                 </div>
