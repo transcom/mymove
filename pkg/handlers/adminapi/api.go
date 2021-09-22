@@ -188,6 +188,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 	}
 
+	adminAPI.ClientCertsIndexClientCertsHandler = IndexClientCertsHandler{
+		handlerConfig,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
 	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),

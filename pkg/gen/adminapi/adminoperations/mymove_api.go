@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
@@ -89,6 +90,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
+		}),
+		ClientCertsIndexClientCertsHandler: client_certs.IndexClientCertsHandlerFunc(func(params client_certs.IndexClientCertsParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.IndexClientCerts has not yet been implemented")
 		}),
 		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
@@ -196,6 +200,8 @@ type MymoveAPI struct {
 	WebhookSubscriptionsGetWebhookSubscriptionHandler webhook_subscriptions.GetWebhookSubscriptionHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
 	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
+	// ClientCertsIndexClientCertsHandler sets the operation handler for the index client certs operation
+	ClientCertsIndexClientCertsHandler client_certs.IndexClientCertsHandler
 	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
 	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
 	// MoveIndexMovesHandler sets the operation handler for the index moves operation
@@ -336,6 +342,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AdminUsersIndexAdminUsersHandler == nil {
 		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
+	}
+	if o.ClientCertsIndexClientCertsHandler == nil {
+		unregistered = append(unregistered, "client_certs.IndexClientCertsHandler")
 	}
 	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
 		unregistered = append(unregistered, "electronic_order.IndexElectronicOrdersHandler")
@@ -515,6 +524,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/client_certs"] = client_certs.NewIndexClientCerts(o.context, o.ClientCertsIndexClientCertsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -205,6 +205,55 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/User'
+  ClientCert:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      sha256Digest:
+        type: string
+        example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      subject:
+        type: string
+        example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      allowDpsAuthAPI:
+        type: boolean
+      allowOrdersAPI:
+        type: boolean
+      allowAirForceOrdersRead:
+        type: boolean
+      allowAirForceOrdersWrite:
+        type: boolean
+      allowArmyOrdersRead:
+        type: boolean
+      allowArmyOrdersWrite:
+        type: boolean
+      allowCoastGuardOrdersRead:
+        type: boolean
+      allowCoastGuardOrdersWrite:
+        type: boolean
+      allowMarineCorpsOrdersRead:
+        type: boolean
+      allowMarineCorpsOrdersWrite:
+        type: boolean
+      allowNavyOrdersRead:
+        type: boolean
+      allowNavyOrdersWrite:
+        type: boolean
+      allowPrime:
+        type: boolean
+  ClientCerts:
+    type: array
+    items:
+      $ref: '#/definitions/ClientCert'
   TransportationOffice:
     type: object
     properties:
@@ -1065,6 +1114,46 @@ paths:
           description: Not authorized to update an office user
         '500':
           description: Server error
+  /client_certs:
+    get:
+      summary: List client certs
+      description: Returns a list of client certs
+      operationId: indexClientCerts
+      tags:
+        - client_certs
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/ClientCerts'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: office not found
+        '500':
+          description: server error
   /transportation_service_provider_performances:
     get:
       summary: List transportation service provider performances (TSPPs)

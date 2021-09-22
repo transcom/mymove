@@ -224,6 +224,69 @@ func init() {
         }
       }
     },
+    "/client_certs": {
+      "get": {
+        "description": "Returns a list of client certs",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "List client certs",
+        "operationId": "indexClientCerts",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCerts"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -1623,6 +1686,77 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientCert": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ClientCerts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ClientCert"
       }
     },
     "ClientError": {
@@ -2758,6 +2892,69 @@ func init() {
         }
       }
     },
+    "/client_certs": {
+      "get": {
+        "description": "Returns a list of client certs",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "List client certs",
+        "operationId": "indexClientCerts",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCerts"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -4157,6 +4354,77 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientCert": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ClientCerts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ClientCert"
       }
     },
     "ClientError": {

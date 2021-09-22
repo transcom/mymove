@@ -6,6 +6,7 @@ import React from 'react';
 import Menu from './shared/Menu';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import UploadShow from './Uploads/UploadShow';
+import ClientCertList from 'pages/Admin/ClientCerts/ClientCertList';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
 import OfficeUserCreate from 'pages/Admin/OfficeUsers/OfficeUserCreate';
@@ -96,6 +97,7 @@ const Home = () => (
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
+      <Resource name="client_certs" options={{ label: 'Client Certs' }} list={ClientCertList} />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
         name="webhook_subscriptions"
