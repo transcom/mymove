@@ -38,7 +38,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 
 	start, end, err := fetchSITStartAndEndDateParamValues(currentPaymentServiceItem)
 	if err != nil {
-		return "", fmt.Errorf("ERROR getting start and end")
+		return "", fmt.Errorf("failed to parse params for PaymentServiceItem %v: %w", currentPaymentServiceItem.ID, err)
 	}
 
 	hasOverlappingDate := hasOverlappingSITDates(priorPaymentServiceItems, keyData.MTOServiceItem, start, end)
@@ -225,13 +225,12 @@ func findCurrentPaymentServiceItem(paymentServiceItems models.PaymentServiceItem
 		}
 	}
 	if !found {
-		return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("ERROR: no matching service items found")
+		return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("failed to find a PaymentServiceItem for MTOServiceItem %v in PaymentRequest %v", mtoServiceItemID, paymentRequestID)
 	}
 
 	return currentPaymentServiceItem, priorPaymentServiceItems, nil
 }
 
-// TODO change signature and handle errors
 func fetchSITStartAndEndDateParamValues(paymentServiceItem models.PaymentServiceItem) (time.Time, time.Time, error) {
 	start := time.Time{}
 	end := time.Time{}
