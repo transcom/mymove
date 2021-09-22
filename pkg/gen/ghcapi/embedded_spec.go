@@ -1642,7 +1642,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "move code to identify a move for payment requests",
+          "description": "payment request ID of the payment request with SIT service items being reviewed",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -7510,7 +7510,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "move code to identify a move for payment requests",
+          "description": "payment request ID of the payment request with SIT service items being reviewed",
           "name": "paymentRequestID",
           "in": "path",
           "required": true

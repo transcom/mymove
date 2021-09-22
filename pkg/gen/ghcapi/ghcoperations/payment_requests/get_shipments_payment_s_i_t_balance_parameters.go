@@ -31,7 +31,7 @@ type GetShipmentsPaymentSITBalanceParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*move code to identify a move for payment requests
+	/*payment request ID of the payment request with SIT service items being reviewed
 	  Required: true
 	  In: path
 	*/
