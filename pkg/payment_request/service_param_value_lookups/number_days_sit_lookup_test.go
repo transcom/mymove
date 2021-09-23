@@ -1232,7 +1232,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	//})
 
 	suite.T().Run("simple date calculation", func(t *testing.T) {
-		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
@@ -1242,7 +1242,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Equal("10", days)
 	})
 	suite.T().Run("invalid start date", func(t *testing.T) {
-		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "not a date", "2020-07-30")
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "not a date", "2020-07-30")
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
@@ -1251,7 +1251,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Contains(err.Error(), "failed to parse SITPaymentRequestStart as a date")
 	})
 	suite.T().Run("invalid end date", func(t *testing.T) {
-		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "2020-07-01", "not a date")
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-01", "not a date")
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
@@ -1260,7 +1260,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Contains(err.Error(), "failed to parse SITPaymentRequestEnd as a date")
 	})
 	suite.T().Run("overlapping dates should error", func(t *testing.T) {
-		move, serviceItemDOASIT, _ := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
+		move, serviceItemDOASIT, _ := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				IsFinal:         false,
@@ -1278,7 +1278,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Error(err)
 	})
 	suite.T().Run("it shouldn't matter if dates from rejected payment requests overlap with current payment request", func(t *testing.T) {
-		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 
 		paymentRequestRejected := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -1300,7 +1300,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 	suite.T().Run("Requests for SIT additional days past the allowance for the shipment should be rejected", func(t *testing.T) {
 		// End date is a year in the future in order to exceed allowance
-		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
@@ -1343,7 +1343,7 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 
 // setupMoveWithAddlDaysSITAndPaymentRequest creates a move with a single shipment, a Domestic Additional Days
 // SIT service item, and a payment request for that service item.
-func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitEntryDate time.Time, reService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
+func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1356,6 +1356,15 @@ func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRe
 	move.MTOShipments = models.MTOShipments{
 		shipment,
 	}
+	serviceItemFirstDaySIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate: &sitEntryDate,
+			Status:       models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: shipment,
+		ReService:   sitFirstDayReService,
+	})
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			SITEntryDate: &sitEntryDate,
@@ -1363,7 +1372,7 @@ func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRe
 		},
 		Move:        move,
 		MTOShipment: shipment,
-		ReService:   reService,
+		ReService:   sitAdditionalDaysReService,
 	})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -1374,6 +1383,15 @@ func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRe
 			SequenceNumber:  1,
 		},
 		Move: move,
+	})
+	cost := unit.Cents(20000)
+	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+			Status:     models.PaymentServiceItemStatusPaid,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemFirstDaySIT,
 	})
 	suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequest, serviceItem, sitAdditionalDaysStartDate, sitAdditionalDaysEndDate)
 	return move, serviceItem, paymentRequest
