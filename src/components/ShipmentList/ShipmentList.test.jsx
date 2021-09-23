@@ -84,4 +84,30 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText(formatWeight(shipments[1].calculatedBillableWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(shipments[2].calculatedBillableWeight))).toBeInTheDocument();
   });
+
+  it('does not display weight flags when not appropriate', () => {
+    const shipments = [
+      { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 5666, estimatedWeight: 5600 },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3200,
+        estimatedWeight: 3000,
+        reweigh: { id: '1234', weight: 3400 },
+      },
+      { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 5400, estimatedWeight: 5000 },
+    ];
+
+    const defaultProps = {
+      shipments,
+      moveSubmitted: false,
+      showShipmentWeight: true,
+    };
+
+    render(<ShipmentList {...defaultProps} />);
+
+    // flags
+    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
+    expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
+  });
 });
