@@ -1235,16 +1235,6 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Equal("10", value)
 	})
 
-	// TODO not sure exactly what this one is testing
-	//suite.T().Run("an MTO with an MTO Shipment that has more SIT days than the MTO has remaining", func(t *testing.T) {
-	//	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDDASITTwelve.ID, paymentRequestNineteen.ID, moveTaskOrderFive.ID, nil)
-	//	suite.FatalNoError(err)
-	//
-	//	value, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
-	//	suite.NoError(err)
-	//	suite.Equal("27", value)
-	//})
-
 	suite.T().Run("simple date calculation", func(t *testing.T) {
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
