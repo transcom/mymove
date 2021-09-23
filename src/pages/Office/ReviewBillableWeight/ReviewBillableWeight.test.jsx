@@ -141,6 +141,44 @@ const mockMtoShipments = [
   },
 ];
 
+const mockHasAllInformationShipment = {
+  id: 1,
+  status: shipmentStatuses.DIVERSION_REQUESTED,
+  calculatedBillableWeight: 3000,
+  billableWeightCap: 3000,
+  primeEstimatedWeight: 7000,
+  primeActualWeight: 300,
+  reweigh: { weight: 200, verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+  pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+  destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+  actualPickupDate: '2021-08-31',
+};
+
+const mockNoReweighWeightShipment = {
+  id: 2,
+  status: shipmentStatuses.DIVERSION_REQUESTED,
+  calculatedBillableWeight: 3000,
+  billableWeightCap: 3000,
+  primeEstimatedWeight: 7000,
+  primeActualWeight: 300,
+  reweigh: { verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+  pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+  destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+  actualPickupDate: '2021-08-31',
+};
+
+const mockNoPrimeEstimatedWeightShipment = {
+  id: 3,
+  status: shipmentStatuses.DIVERSION_REQUESTED,
+  calculatedBillableWeight: 3000,
+  billableWeightCap: 3000,
+  primeActualWeight: 300,
+  reweigh: { weight: 200, verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+  pickupAddress: { city: 'Las Vegas', state: 'NV', postal_code: '90210' },
+  destinationAddress: { city: 'Miami', state: 'FL', postal_code: '33607' },
+  actualPickupDate: '2021-08-31',
+};
+
 const useOrdersDocumentQueriesReturnValue = {
   orders: mockOrders,
   upload: {
@@ -161,6 +199,21 @@ const useMovePaymentRequestsReturnValue = {
 const useNonMaxBillableWeightExceededReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockMtoShipments[0]],
+};
+
+const useMissingShipmentWeightNoReweighReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: [mockHasAllInformationShipment, mockNoReweighWeightShipment],
+};
+
+const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: [mockHasAllInformationShipment, mockNoPrimeEstimatedWeightShipment],
+};
+
+const noAlertsReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: [mockHasAllInformationShipment],
 };
 
 const loadingReturnValue = {
@@ -433,6 +486,33 @@ describe('ReviewBillableWeight', () => {
 
       userEvent.click(screen.getByText('Edit'));
       expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
+    });
+
+    it('renders missing shipment weights may impact max billable weight when a shipment is missing a reweigh weight', () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
+
+      render(<ReviewBillableWeight />);
+
+      expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
+    });
+
+    it('renders missing shipment weights may impact max billable weight when a shipment is missing a prime estimated weight', () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
+
+      render(<ReviewBillableWeight />);
+
+      expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
+    });
+
+    it('does not render a missing shipment weights may impact max billable weight when none of the shipments are missing reweigh or prime estimated weight information', () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
+
+      render(<ReviewBillableWeight />);
+
+      expect(screen.queryByTestId('maxBillableWeightMissingShipmentWeightAlert')).not.toBeInTheDocument();
     });
 
     it('does not render a max billable weight alert in edit view when billable weight is not exceeded', () => {

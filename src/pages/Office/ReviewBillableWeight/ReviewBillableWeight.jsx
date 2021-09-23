@@ -59,11 +59,11 @@ export default function ReviewBillableWeight() {
   const weightRequested = useCalculatedWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
-  const maxBillableWeight = order.entitlement?.authorizedWeight;
-  const weightAllowance = order.entitlement?.totalWeight;
+  const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const weightAllowance = order?.entitlement?.totalWeight;
 
-  const shipmentsMissingInformation = filteredShipments.filter((shipment) => {
-    return !shipment.primeEstimatedWeight || !(shipment.reweigh?.dateReweighRequested && !shipment.reweigh?.weight);
+  const shipmentsMissingInformation = filteredShipments?.filter((shipment) => {
+    return !shipment.primeEstimatedWeight || (shipment.reweigh?.requestedAt && !shipment.reweigh?.weight);
   });
 
   const handleClose = () => {
