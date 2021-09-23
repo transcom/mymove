@@ -11,6 +11,7 @@ import (
 
 func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	key := models.ServiceItemParamNameNumberDaysSIT
+	defaultSITDaysAllowance := 90
 
 	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -49,112 +50,128 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentTwo := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentThree := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentFour := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentFive := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentSix := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentSeven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentEight := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentNine := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentTen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentEleven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderTwo,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentTwelve := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderThree,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentThirteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderThree,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentFourteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderFour,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentFifteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderFive,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
 	mtoShipmentSixteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrderFive,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance: &defaultSITDaysAllowance,
 		},
 	})
 
