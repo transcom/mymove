@@ -2102,7 +2102,7 @@ workflows:
             - build_tools
           filters:
             branches:
-              only: *demo-branch
+              only: [*demo-branch, *loadtest-branch]
 
       - push_tasks_demo:
           requires:
@@ -2117,7 +2117,7 @@ workflows:
             - pre_deps_golang
           filters:
             branches:
-              only: *demo-branch
+              only: [*demo-branch, *loadtest-branch]
 
       - push_webhook_client_demo:
           requires:
@@ -2183,24 +2183,9 @@ workflows:
             branches:
               only: *loadtest-branch
 
-      - build_dp3_tasks:
-          requires:
-            - build_tools
-          filters:
-            branches:
-              only: *loadtest-branch
-
       - push_tasks_loadtest:
           requires:
             - build_dp3_tasks
-          filters:
-            branches:
-              only: *loadtest-branch
-
-      - build_dp3_webhook_client:
-          requires:
-            - anti_virus
-            - pre_deps_golang
           filters:
             branches:
               only: *loadtest-branch
