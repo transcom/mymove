@@ -8,7 +8,7 @@ info:
   contact:
     email: dp3@truss.works
   description:
-    $ref: 'info/prime_description.md'
+    $ref: 'info/prime.md'
 basePath: /prime/v1
 schemes:
   - http
