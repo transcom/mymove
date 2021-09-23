@@ -9,10 +9,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type paymentServiceItemUpdater struct {
@@ -25,17 +23,11 @@ func NewPaymentServiceItemStatusUpdater() services.PaymentServiceItemStatusUpdat
 
 func (p *paymentServiceItemUpdater) UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID,
 	desiredStatus models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
+
 	// Fetch the existing record
 	paymentServiceItem, verrs, err := p.fetchPaymentServiceItem(appCtx, paymentServiceItemID)
 	if err != nil || verrs != nil && verrs.HasAny() {
 		return models.PaymentServiceItem{}, verrs, err
-	}
-
-	// Check the etag to make sure we're good to update (not stale)
-	currentEtag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
-	if currentEtag != eTag {
-		return models.PaymentServiceItem{}, nil, services.NewPreconditionFailedError(paymentServiceItem.ID,
-			query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	// Update the record
