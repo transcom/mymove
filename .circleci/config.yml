@@ -1765,14 +1765,14 @@ jobs:
           ecr_env: loadtest
 
   # `deploy_loadtest_webhook_client` deploys the webhook client to loadtest
-  deploy_demo_webhook_client:
+  deploy_loadtest_webhook_client:
     executor: mymove_small
     environment:
-      APP_ENVIRONMENT: 'demo'
+      APP_ENVIRONMENT: 'loadtest'
     steps:
-      - aws_vars_demo
+      - aws_vars_loadtest
       - deploy_webhook_client_steps:
-          ecr_env: demo
+          ecr_env: loadtest
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
