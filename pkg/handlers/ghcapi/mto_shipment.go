@@ -685,7 +685,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	h.triggerRequestShipmentReweighEvent(shipmentID, moveID, params)
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewReweighRequested(h.DB(), logger, session, moveID),
+		notifications.NewReweighRequested(appCtx.DB(), logger, session, moveID, reweigh.Shipment),
 	)
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
@@ -727,23 +727,23 @@ type ApproveSITExtensionHandler struct {
 }
 
 // Handle ... approves the SIT extension
-func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensionParams) middleware.Responder {
+func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error approving SIT extension", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return shipmentops.NewApproveSitExtensionNotFound()
+			return shipmentops.NewApproveSITExtensionNotFound()
 		case services.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
-			return shipmentops.NewApproveSitExtensionUnprocessableEntity().WithPayload(payload)
+			return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return shipmentops.NewApproveSitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewApproveSITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ForbiddenError:
-			return shipmentops.NewApproveSitExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewApproveSITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return shipmentops.NewApproveSitExtensionInternalServerError()
+			return shipmentops.NewApproveSITExtensionInternalServerError()
 		}
 	}
 
@@ -765,7 +765,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSitExtensio
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	return shipmentops.NewApproveSitExtensionOK().WithPayload(shipmentPayload)
+	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
 }
 
 // DenySITExtensionHandler denies a SIT extension
@@ -776,23 +776,23 @@ type DenySITExtensionHandler struct {
 }
 
 // Handle ... denies the SIT extension
-func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParams) middleware.Responder {
+func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error denying SIT extension", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return shipmentops.NewDenySitExtensionNotFound()
+			return shipmentops.NewDenySITExtensionNotFound()
 		case services.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
-			return shipmentops.NewDenySitExtensionUnprocessableEntity().WithPayload(payload)
+			return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ForbiddenError:
-			return shipmentops.NewDenySitExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewDenySITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return shipmentops.NewDenySitExtensionInternalServerError()
+			return shipmentops.NewDenySITExtensionInternalServerError()
 		}
 	}
 
@@ -813,7 +813,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySitExtensionParam
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	return shipmentops.NewDenySitExtensionOK().WithPayload(shipmentPayload)
+	return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
 }
 
 // CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
@@ -824,7 +824,7 @@ type CreateSITExtensionAsTOOHandler struct {
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExtensionAsTOOParams) middleware.Responder {
+func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
@@ -837,22 +837,22 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 			payload := ghcmessages.Error{
 				Message: handlers.FmtString(err.Error()),
 			}
-			return shipmentops.NewCreateSitExtensionAsTOONotFound().WithPayload(&payload)
+			return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload)
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceID(), e.ValidationErrors)
-			return shipmentops.NewCreateSitExtensionAsTOOUnprocessableEntity().WithPayload(payload)
+			return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return shipmentops.NewDenySitExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 			}
-			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
+			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
 		case services.ForbiddenError:
-			return shipmentops.NewCreateSitExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return shipmentops.NewCreateSITExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return shipmentops.NewCreateSitExtensionAsTOOInternalServerError()
+			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
 		}
 	}
 
@@ -870,5 +870,5 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSitExten
 
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	returnPayload := payloads.MTOShipment(shipment, sitStatusPayload)
-	return shipmentops.NewCreateSitExtensionAsTOOOK().WithPayload(returnPayload)
+	return shipmentops.NewCreateSITExtensionAsTOOOK().WithPayload(returnPayload)
 }

@@ -15,11 +15,12 @@ import (
 )
 
 type sitExtensionApprover struct {
+	moveRouter services.MoveRouter
 }
 
 // NewSITExtensionApprover creates a new struct with the service dependencies
-func NewSITExtensionApprover() services.SITExtensionApprover {
-	return &sitExtensionApprover{}
+func NewSITExtensionApprover(moveRouter services.MoveRouter) services.SITExtensionApprover {
+	return &sitExtensionApprover{moveRouter}
 }
 
 // ApproveSITExtension approves the SIT Extension and also updates the shipment's SIT days allowance
@@ -48,7 +49,7 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 
 func (f *sitExtensionApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
@@ -82,6 +83,10 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 
 		updatedShipment, err := f.updateSitDaysAllowance(txnAppCtx, shipment, approvedDays)
 		if err != nil {
+			return err
+		}
+
+		if _, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder); err != nil {
 			return err
 		}
 

@@ -19,19 +19,19 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// NewApproveSitExtensionParams creates a new ApproveSitExtensionParams object
+// NewCreateSITExtensionAsTOOParams creates a new CreateSITExtensionAsTOOParams object
 //
 // There are no default values defined in the spec.
-func NewApproveSitExtensionParams() ApproveSitExtensionParams {
+func NewCreateSITExtensionAsTOOParams() CreateSITExtensionAsTOOParams {
 
-	return ApproveSitExtensionParams{}
+	return CreateSITExtensionAsTOOParams{}
 }
 
-// ApproveSitExtensionParams contains all the bound params for the approve sit extension operation
+// CreateSITExtensionAsTOOParams contains all the bound params for the create s i t extension as t o o operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters approveSitExtension
-type ApproveSitExtensionParams struct {
+// swagger:parameters createSITExtensionAsTOO
+type CreateSITExtensionAsTOOParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -45,24 +45,19 @@ type ApproveSitExtensionParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.ApproveSitExtension
+	Body *ghcmessages.CreateSITExtensionAsTOO
 	/*ID of the shipment
 	  Required: true
 	  In: path
 	*/
 	ShipmentID strfmt.UUID
-	/*ID of the SIT extension
-	  Required: true
-	  In: path
-	*/
-	SitExtensionID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewApproveSitExtensionParams() beforehand.
-func (o *ApproveSitExtensionParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewCreateSITExtensionAsTOOParams() beforehand.
+func (o *CreateSITExtensionAsTOOParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -73,7 +68,7 @@ func (o *ApproveSitExtensionParams) BindRequest(r *http.Request, route *middlewa
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.ApproveSitExtension
+		var body ghcmessages.CreateSITExtensionAsTOO
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -103,11 +98,6 @@ func (o *ApproveSitExtensionParams) BindRequest(r *http.Request, route *middlewa
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
-	rSitExtensionID, rhkSitExtensionID, _ := route.Params.GetOK("sitExtensionID")
-	if err := o.bindSitExtensionID(rSitExtensionID, rhkSitExtensionID, route.Formats); err != nil {
-		res = append(res, err)
-	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -115,7 +105,7 @@ func (o *ApproveSitExtensionParams) BindRequest(r *http.Request, route *middlewa
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *ApproveSitExtensionParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *CreateSITExtensionAsTOOParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("If-Match", "header", rawData)
 	}
@@ -135,7 +125,7 @@ func (o *ApproveSitExtensionParams) bindIfMatch(rawData []string, hasKey bool, f
 }
 
 // bindShipmentID binds and validates parameter ShipmentID from path.
-func (o *ApproveSitExtensionParams) bindShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *CreateSITExtensionAsTOOParams) bindShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -159,42 +149,9 @@ func (o *ApproveSitExtensionParams) bindShipmentID(rawData []string, hasKey bool
 }
 
 // validateShipmentID carries on validations for parameter ShipmentID
-func (o *ApproveSitExtensionParams) validateShipmentID(formats strfmt.Registry) error {
+func (o *CreateSITExtensionAsTOOParams) validateShipmentID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("shipmentID", "path", "uuid", o.ShipmentID.String(), formats); err != nil {
-		return err
-	}
-	return nil
-}
-
-// bindSitExtensionID binds and validates parameter SitExtensionID from path.
-func (o *ApproveSitExtensionParams) bindSitExtensionID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// Parameter is provided by construction from the route
-
-	// Format: uuid
-	value, err := formats.Parse("uuid", raw)
-	if err != nil {
-		return errors.InvalidType("sitExtensionID", "path", "strfmt.UUID", raw)
-	}
-	o.SitExtensionID = *(value.(*strfmt.UUID))
-
-	if err := o.validateSitExtensionID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateSitExtensionID carries on validations for parameter SitExtensionID
-func (o *ApproveSitExtensionParams) validateSitExtensionID(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("sitExtensionID", "path", "uuid", o.SitExtensionID.String(), formats); err != nil {
 		return err
 	}
 	return nil

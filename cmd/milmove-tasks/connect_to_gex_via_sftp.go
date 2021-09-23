@@ -43,7 +43,7 @@ func initConnectToGEXViaSFTPFlags(flag *pflag.FlagSet) {
 func connectToGEXViaSFTP(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

@@ -27,6 +27,7 @@ describe('ShipmentCard', () => {
       estimatedWeight: 5000,
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
+      editEntity: () => {},
     };
 
     render(<ShipmentCard {...defaultProps} />);

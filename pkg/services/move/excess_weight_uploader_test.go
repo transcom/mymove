@@ -37,9 +37,8 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Require().NotNil(updatedMove)
 
 			suite.NotNil(updatedMove.ExcessWeightUploadID)
-			suite.NotNil(updatedMove.ExcessWeightQualifiedAt)
-			suite.False(updatedMove.ExcessWeightQualifiedAt.IsZero())
 			suite.Require().NotNil(updatedMove.ExcessWeightUpload)
+			suite.Equal(updatedMove.ExcessWeightUpload.ID, *updatedMove.ExcessWeightUploadID)
 
 			suite.Equal(models.UploadTypeUSER, updatedMove.ExcessWeightUpload.UploadType)
 			suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileName)
@@ -118,9 +117,8 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Require().NotNil(updatedMove)
 
 			suite.NotNil(updatedMove.ExcessWeightUploadID)
-			suite.NotNil(updatedMove.ExcessWeightQualifiedAt)
-			suite.False(updatedMove.ExcessWeightQualifiedAt.IsZero())
 			suite.Require().NotNil(updatedMove.ExcessWeightUpload)
+			suite.Equal(updatedMove.ExcessWeightUpload.ID, *updatedMove.ExcessWeightUploadID)
 
 			suite.Equal(models.UploadTypePRIME, updatedMove.ExcessWeightUpload.UploadType)
 			suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileName)

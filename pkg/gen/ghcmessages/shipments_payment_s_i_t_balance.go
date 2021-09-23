@@ -14,13 +14,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// SitExtensions sit extensions
+// ShipmentsPaymentSITBalance shipments payment s i t balance
 //
-// swagger:model SitExtensions
-type SitExtensions []*SitExtension
+// swagger:model ShipmentsPaymentSITBalance
+type ShipmentsPaymentSITBalance []*ShipmentPaymentSITBalance
 
-// Validate validates this sit extensions
-func (m SitExtensions) Validate(formats strfmt.Registry) error {
+// Validate validates this shipments payment s i t balance
+func (m ShipmentsPaymentSITBalance) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
@@ -45,8 +45,8 @@ func (m SitExtensions) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this sit extensions based on the context it is used
-func (m SitExtensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this shipments payment s i t balance based on the context it is used
+func (m ShipmentsPaymentSITBalance) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

@@ -1,9 +1,11 @@
 package upload
 
 import (
-	"fmt"
 	"io"
+	"strings"
 	"time"
+
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -11,10 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 )
-
-// filenameTimeFormat is the format for the timestamp we use in the filename of the upload.
-// Go needs an example string when reformatting time.Time objects.
-const filenameTimeFormat string = "20060102150405"
 
 type uploadCreator struct {
 	fileStorer   storage.FileStorer
@@ -39,13 +37,15 @@ func (u *uploadCreator) CreateUpload(
 		newUploader, err := uploader.NewUploader(u.fileStorer, uploader.MaxFileSizeLimit, uploadType)
 		if err != nil {
 			if err == uploader.ErrFileSizeLimitExceedsMax {
-				return services.NewBadDataError(err.Error()) // preserves the error message from the uploader err
+				verrs := validate.NewErrors()
+				verrs.Add("file", err.Error())
+				return services.NewInvalidCreateInputError(verrs, "File cannot be uploaded.")
 			}
 			return err
 		}
 
-		// Suffix the filename with a timestamp for uniqueness
-		fileName := uploadFilename + "-" + time.Now().Format(filenameTimeFormat)
+		// Prefix the filename with a timestamp for uniqueness
+		fileName := assembleUploadFilePathName(uploadFilename)
 		aFile, err := newUploader.PrepareFileForUpload(txnAppCtx, file, fileName)
 		if err != nil {
 			return err
@@ -57,7 +57,7 @@ func (u *uploadCreator) CreateUpload(
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
 		} else if err != nil {
-			return fmt.Errorf("Failure to upload file: %v", err)
+			return services.NewQueryError("Upload", err, "Failed to upload file")
 		}
 
 		upload = newUpload
@@ -68,4 +68,22 @@ func (u *uploadCreator) CreateUpload(
 	}
 
 	return upload, nil
+}
+
+// filenameTimeFormat is the format for the timestamp we use in the filename of the upload.
+// Go needs an example string when reformatting time.Time objects.
+const filenameTimeFormat string = "20060102150405"
+
+// assembleUploadFilePathName puts a timestamp prefix on the file name while preserving the rest of the path
+func assembleUploadFilePathName(filePathName string) string {
+	splitPath := strings.Split(filePathName, "/")
+
+	// The last element in the slice will be the actual file name
+	fileName := splitPath[len(splitPath)-1]
+
+	// Replace the actual file name with a timestamped version, to ensure uniqueness
+	splitPath[len(splitPath)-1] = time.Now().Format(filenameTimeFormat) + "-" + fileName
+
+	// Reconnect the file path name and return the whole string
+	return strings.Join(splitPath, "/")
 }

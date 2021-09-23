@@ -3,6 +3,12 @@ package payloads
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+
+	"github.com/transcom/mymove/pkg/storage"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -24,17 +30,20 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 
 	payload := &primemessages.MoveTaskOrder{
-		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveCode:           moveTaskOrder.Locator,
-		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:              Order(&moveTaskOrder.Orders),
-		ReferenceID:        *moveTaskOrder.ReferenceID,
-		PaymentRequests:    *paymentRequests,
-		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveCode:                   moveTaskOrder.Locator,
+		CreatedAt:                  strfmt.DateTime(moveTaskOrder.CreatedAt),
+		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
+		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                      Order(&moveTaskOrder.Orders),
+		ReferenceID:                *moveTaskOrder.ReferenceID,
+		PaymentRequests:            *paymentRequests,
+		MtoShipments:               *mtoShipments,
+		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {
@@ -372,6 +381,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
@@ -497,7 +507,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		payload = &cratingSI
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemShuttle{
-			Description:     mtoServiceItem.Description,
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
@@ -558,6 +567,102 @@ func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
 	}
 
 	return payload
+}
+
+// ExcessWeightRecord returns the fields on the move related to excess weights,
+// and returns the uploaded document set as the ExcessWeightUpload on the move.
+func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer, move *models.Move) *primemessages.ExcessWeightRecord {
+	if move == nil || move.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.ExcessWeightRecord{
+		MoveID:                         handlers.FmtUUIDPtr(&move.ID),
+		MoveExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+	}
+
+	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
+	if upload != nil {
+		payload.Upload = *upload
+	}
+
+	return payload
+}
+
+// Upload returns the data for an uploaded file.
+func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+	if upload == nil || upload.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.Upload{
+		ID:          strfmt.UUID(upload.ID.String()),
+		Bytes:       &upload.Bytes,
+		ContentType: &upload.ContentType,
+		Filename:    &upload.Filename,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	if err == nil {
+		payload.URL = *handlers.FmtURI(url)
+	} else {
+		appCtx.Logger().Error("primeapi error with getting url for Upload payload", zap.Error(err))
+	}
+
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || tags == nil {
+		payload.Status = "PROCESSING"
+	} else {
+		status, ok := tags["av-status"]
+		if !ok {
+			status = "PROCESSING"
+		}
+		payload.Status = status
+	}
+
+	return payload
+}
+
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+	payload := &primemessages.SITExtension{
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		RequestedDays:     int64(sitExtension.RequestedDays),
+		Status:            string(sitExtension.Status),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
+	}
+
+	return payload
+}
+
+// SITExtensions payload\
+func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SITExtensions {
+	if sitExtensions == nil {
+		return nil
+	}
+
+	payload := make(primemessages.SITExtensions, len(*sitExtensions))
+
+	for i, m := range *sitExtensions {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = SITExtension(&copyOfM)
+	}
+
+	return &payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

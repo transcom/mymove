@@ -22,11 +22,12 @@ import (
 )
 
 type orderUpdater struct {
+	moveRouter services.MoveRouter
 }
 
 // NewOrderUpdater creates a new struct with the service dependencies
-func NewOrderUpdater() services.OrderUpdater {
-	return &orderUpdater{}
+func NewOrderUpdater(moveRouter services.MoveRouter) services.OrderUpdater {
+	return &orderUpdater{moveRouter}
 }
 
 // UpdateOrderAsTOO updates an order as permitted by a TOO
@@ -43,7 +44,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 
 	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
 
-	return f.updateOrder(appCtx, orderToUpdate, CheckRequiredFields())
+	return f.updateOrderAsTOO(appCtx, orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
@@ -359,22 +360,11 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext,
 		docID = doc.ID
 	}
 
-	handleError := func(verrs *validate.Errors, err error) error {
-		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(docID, nil, verrs, "")
-		}
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var verrs *validate.Errors
 		var err error
 		verrs, err = txnAppCtx.DB().ValidateAndSave(doc)
-		if e := handleError(verrs, err); e != nil {
+		if e := handleError(docID, verrs, err); e != nil {
 			return e
 		}
 
@@ -389,78 +379,13 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext,
 }
 
 func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
-	handleError := func(verrs *validate.Errors, err error) error {
-		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(order.ID, nil, verrs, "")
-		}
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
+	var returnedOrder *models.Order
+	var err error
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		var verrs *validate.Errors
-		var err error
-
-		if verr := ValidateOrder(&order, checks...); verr != nil {
-			return verr
-		}
-
-		// update service member
-		if order.Grade != nil {
-			// keep grade and rank in sync
-			order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
-		}
-
-		if order.OriginDutyStationID != nil {
-			// TODO refactor to use service objects to fetch duty station
-			var originDutyStation models.DutyStation
-			originDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), *order.OriginDutyStationID)
-			if e := handleError(verrs, err); e != nil {
-				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-					return services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
-				}
-			}
-			order.OriginDutyStationID = &originDutyStation.ID
-			order.OriginDutyStation = &originDutyStation
-
-			order.ServiceMember.DutyStationID = &originDutyStation.ID
-			order.ServiceMember.DutyStation = originDutyStation
-		}
-
-		if order.Grade != nil || order.OriginDutyStationID != nil {
-			verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order.ServiceMember)
-			if e := handleError(verrs, err); e != nil {
-				return e
-			}
-		}
-
-		// update entitlement
-		if order.Entitlement != nil {
-			verrs, err = txnAppCtx.DB().ValidateAndUpdate(order.Entitlement)
-			if e := handleError(verrs, err); e != nil {
-				return e
-			}
-		}
-
-		if order.NewDutyStationID != uuid.Nil {
-			// TODO refactor to use service objects to fetch duty station
-			var newDutyStation models.DutyStation
-			newDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), order.NewDutyStationID)
-			if e := handleError(verrs, err); e != nil {
-				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-					return services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
-				}
-			}
-			order.NewDutyStationID = newDutyStation.ID
-			order.NewDutyStation = newDutyStation
-		}
-
-		verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order)
-		if e := handleError(verrs, err); e != nil {
-			return e
+		returnedOrder, err = updateOrderInTx(txnAppCtx, order, checks...)
+		if err != nil {
+			return err
 		}
 
 		return nil
@@ -474,5 +399,100 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 	if len(order.Moves) > 0 {
 		moveID = order.Moves[0].ID
 	}
-	return &order, moveID, nil
+	return returnedOrder, moveID, nil
+}
+
+func (f *orderUpdater) updateOrderAsTOO(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
+	move := order.Moves[0]
+	var returnedOrder *models.Order
+	var err error
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		returnedOrder, err = updateOrderInTx(txnAppCtx, order, checks...)
+		if err != nil {
+			return err
+		}
+
+		return f.updateMoveInTx(txnAppCtx, move)
+	})
+
+	if transactionError != nil {
+		return nil, uuid.Nil, transactionError
+	}
+
+	return returnedOrder, move.ID, nil
+}
+
+func (f *orderUpdater) updateMoveInTx(appCtx appcontext.AppContext, move models.Move) error {
+	if _, err := f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, error) {
+	var verrs *validate.Errors
+	var err error
+
+	if verr := ValidateOrder(&order, checks...); verr != nil {
+		return nil, verr
+	}
+
+	// update service member
+	if order.Grade != nil {
+		// keep grade and rank in sync
+		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
+	}
+
+	if order.OriginDutyStationID != nil {
+		// TODO refactor to use service objects to fetch duty station
+		var originDutyStation models.DutyStation
+		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+			}
+		}
+		order.OriginDutyStationID = &originDutyStation.ID
+		order.OriginDutyStation = &originDutyStation
+
+		order.ServiceMember.DutyStationID = &originDutyStation.ID
+		order.ServiceMember.DutyStation = originDutyStation
+	}
+
+	if order.Grade != nil || order.OriginDutyStationID != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(&order.ServiceMember)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
+	}
+
+	// update entitlement
+	if order.Entitlement != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
+	}
+
+	if order.NewDutyStationID != uuid.Nil {
+		// TODO refactor to use service objects to fetch duty station
+		var newDutyStation models.DutyStation
+		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+			}
+		}
+		order.NewDutyStationID = newDutyStation.ID
+		order.NewDutyStation = newDutyStation
+	}
+
+	verrs, err = appCtx.DB().ValidateAndUpdate(&order)
+	if e := handleError(order.ID, verrs, err); e != nil {
+		return nil, e
+	}
+
+	return &order, nil
 }

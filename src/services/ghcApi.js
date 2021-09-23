@@ -131,6 +131,11 @@ export async function updateBillableWeight({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateMaxBillableWeightAsTIO({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateMaxBillableWeightAsTIO';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   const operationPath = 'order.acknowledgeExcessWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
@@ -219,6 +224,48 @@ export function updateMTOShipment({
     {
       moveTaskOrderID,
       shipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function approveSITExtension({
+  shipmentID,
+  sitExtensionID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'shipment.approveSitExtension';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      sitExtensionID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function denySITExtension({
+  shipmentID,
+  sitExtensionID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'shipment.denySitExtension';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      sitExtensionID,
       'If-Match': ifMatchETag,
       body,
     },
