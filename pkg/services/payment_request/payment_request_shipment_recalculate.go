@@ -24,7 +24,7 @@ func NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator services.P
 func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) error {
 
 	// Given a shipmentID find all of the payment requests in PENDING.
-	paymentRequests, err := p.findPendingPaymentRequestsForShipment(appCtx, shipmentID)
+	paymentRequestIDs, err := p.findPendingPaymentRequestsForShipment(appCtx, shipmentID)
 	if err != nil {
 		return err
 	}
@@ -32,12 +32,13 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	// Note: Payment requests can have MTO Service Items from different shipments. RecalculatePaymentRequest
 	// will reprice the whole payment request if the payment request has a service item that needs to be recalculated.
 
-	// Recalculate all PENDING payment request for shipmentID
+	// Recalculate all PENDING payment request for shipmentID if the payment request has any service items that
+	// allow for reweigh
 	// var newPR *models.PaymentRequest
 	startNewTx := false /* re-use Tx from ShipmentRecalculatePaymentRequest service */
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		for _, pr := range paymentRequests {
-			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr.ID, startNewTx)
+		for _, pr := range paymentRequestIDs {
+			_ /*newPR*/, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr, startNewTx)
 			if err != nil {
 				return err
 			}
@@ -50,16 +51,16 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	return nil
 }
 
-func (p *paymentRequestShipmentRecalculator) findPendingPaymentRequestsForShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (models.PaymentRequests, error) {
+func (p *paymentRequestShipmentRecalculator) findPendingPaymentRequestsForShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) ([]uuid.UUID, error) {
 
 	// Given a shipmentID find all of the payment requests in PENDING.
-	var paymentRequests []models.PaymentRequest
+	// var paymentRequests []models.PaymentRequest
 	/*
 		option 1: filter down to shipment ID and PENDING and write code to
 		   	determine if weight param is present.
 		----
 		select * from public.payment_requests pr
-		left join mto_shipments ms on ms.move_id = pr.move_id
+		LEFT JOIN mto_shipments ms on ms.move_id = pr.move_id
 	*/
 	/*
 		option 2: filter down to shipment ID, PENDING, and if WeightOriginal is
@@ -67,25 +68,57 @@ func (p *paymentRequestShipmentRecalculator) findPendingPaymentRequestsForShipme
 		   	found the PRs that we need here.
 		---
 		select * from public.payment_requests pr
-		left join mto_shipments ms on ms.move_id = pr.move_id
-		left join payment_service_items psi on pr.id = psi.payment_request_id
-		left join payment_service_item_params psip on psi.id = psip.payment_service_item_id
-		left join service_item_param_keys sipk on psip.service_item_param_key_id = sipk.id
+		LEFT JOIN mto_shipments ms on ms.move_id = pr.move_id
+		LEFT JOIN payment_service_items psi on pr.id = psi.payment_request_id
+		LEFT JOIN payment_service_item_params psip on psi.id = psip.payment_service_item_id
+		LEFT JOIN service_item_param_keys sipk on psip.service_item_param_key_id = sipk.id
 		where pr.status = 'PENDING' and sipk.key = 'WeightOriginal';
 	*/
-	err := appCtx.DB(). /*EagerPreload(
-		"PaymentServiceItems.MTOServiceItem.MTOShipment",
-		"PaymentServiceItems.MTOServiceItem.ReService",
-		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-		"ProofOfServiceDocs").*/Q().
-		Join("mto_shipments ms", "ms.move_id = payment_requests.move_id").
-		Join("payment_service_items psi", "payment_requests.id = psi.payment_request_id").
-		Join("payment_service_item_params psip", "psi.id = psip.payment_service_item_id").
-		Join("service_item_param_keys sipk", "psip.service_item_param_key_id = sipk.id").
-		Where("ms.id = $1", shipmentID).
-		Where("payment_requests.status = $2", "PENDING").
-		Where("sipk.key = $3", "WeightOriginal").
-		All(&paymentRequests)
+	//
+	//err := appCtx.DB(). /*EagerPreload(
+	//	"PaymentServiceItems.MTOServiceItem.MTOShipment",
+	//	"PaymentServiceItems.MTOServiceItem.ReService",
+	//	"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+	//		"ProofOfServiceDocs").*/Q().
+	//		Join("mto_shipments ms", "ms.move_id = payment_requests.move_id").
+	//		Join("payment_service_items psi", "payment_requests.id = psi.payment_request_id").
+	//		Join("payment_service_item_params psip", "psi.id = psip.payment_service_item_id").
+	//		Join("service_item_param_keys sipk", "psip.service_item_param_key_id = sipk.id").
+	//		Where("ms.id = $1", shipmentID).
+	//		Where("payment_requests.status = $2", "PENDING").
+	//		Where("sipk.key = $3", "WeightOriginal").
+	//		All(&paymentRequests)
+	//
 
-	return paymentRequests, err
+	/*
+		    var uuids []uuid.UUID
+			query  := `SELECT DISTINCT pr.id
+				FROM public.payment_requests pr
+				LEFT JOIN mto_shipments ms ON ms.move_id = pr.move_id
+				LEFT JOIN payment_service_items psi ON pr.id = psi.payment_request_id
+				LEFT JOIN payment_service_item_params psip ON psi.id = psip.payment_service_item_id
+				LEFT JOIN service_item_param_keys sipk ON psip.service_item_param_key_id = sipk.id
+				WHERE pr.status = $1 AND sipk.key = $2;`
+			err := appCtx.DB().RawQuery(query, "PENDING", "WeightReweigh").All(&uuids);
+
+	*/
+
+	var uuids []uuid.UUID
+	query := `SELECT DISTINCT pr.id
+		FROM public.payment_requests pr
+		LEFT JOIN mto_shipments ms ON ms.move_id = pr.move_id
+		LEFT JOIN payment_service_items psi ON pr.id = psi.payment_request_id
+		LEFT JOIN public.mto_service_items msi ON ms.id = msi.mto_shipment_id AND psi.mto_service_item_id = msi.id
+		LEFT JOIN public.re_services rs ON msi.re_service_id = rs.id
+		LEFT JOIN public.service_params sp ON rs.id = sp.service_id
+		LEFT JOIN service_item_param_keys sipk ON sp.service_item_param_key_id = sipk.id
+		WHERE pr.status = $1 AND sipk.key in ($2, $3);`
+	err := appCtx.DB().RawQuery(query, models.ServiceItemParamNameWeightReweigh, models.ServiceItemParamNameWeightAdjusted).All(&uuids)
+
+	/*
+		fmt.Printf("---- Find UUIDs %v ----\n\n", uuids)
+
+	*/
+
+	return uuids, err
 }

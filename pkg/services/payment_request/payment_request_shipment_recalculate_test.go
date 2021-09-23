@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -128,29 +129,29 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	})
 
 	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
-		/*
-			paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					Status: models.PaymentRequestStatusPaid,
-				},
-			})
 
-			suite.DB().Load(paidPaymentRequest,"PaymentServiceItems.MTOServiceItem.MTOShipment",
-				"PaymentServiceItems.MTOServiceItem")
+		paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPaid,
+			},
+		})
 
-			err := shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *paidPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
-			suite.NoError(err)
-			if suite.Error(err) {
-				suite.IsType(services.ConflictError{}, err)
-				suite.Contains(err.Error(), paidPaymentRequest.ID.String())
-				suite.Contains(err.Error(), models.PaymentRequestStatusPaid)
-			}
-		*/
+		err := suite.DB().Load(&paidPaymentRequest, "PaymentServiceItems.MTOServiceItem.MTOShipment",
+			"PaymentServiceItems.MTOServiceItem")
+		suite.NoError(err)
+
+		err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *paidPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
+		suite.NoError(err)
+		if suite.Error(err) {
+			suite.IsType(services.ConflictError{}, err)
+			suite.Contains(err.Error(), paidPaymentRequest.ID.String())
+			suite.Contains(err.Error(), models.PaymentRequestStatusPaid)
+		}
+
 	})
 
-	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
-
-		/*
+	/*
+		suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
 			errString := "mock payment request recalculate test error"
 			mockRecalculator := &mocks.PaymentRequestRecalculator{}
 			mockRecalculator.On("RecalculatePaymentRequest",
@@ -170,6 +171,54 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 			if suite.Error(err) {
 				suite.Equal(err.Error(), errString)
 			}
-		*/
-	})
+
+		})
+
+	*/
 }
+
+/*
+func (suite *PaymentRequestServiceSuite) Test_findPendingPaymentRequestsForShipment() {
+
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("Zip3TransitDistance",
+		recalculateTestPickupZip,
+		recalculateTestDestinationZip,
+	).Return(recalculateTestZip3Distance, nil)
+
+	// Mock out payment request recalculate
+	mockRecalculator := &mocks.PaymentRequestRecalculator{}
+	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(mockRecalculator)
+
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+	_ = testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			Move: mtoServiceItem.MoveTaskOrder,
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusEDIError,
+			},
+		})
+
+	_ = testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			Move: mtoServiceItem.MoveTaskOrder,
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusReviewed,
+			},
+		})
+
+	suite.T().Run("No available payment request to recalculate", func(t *testing.T) {
+		shipmentRecalculator.findPendingPaymentRequestsForShipment
+	})
+
+	_ = testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			Move: mtoServiceItem.MoveTaskOrder,
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+		})
+}
+*/
