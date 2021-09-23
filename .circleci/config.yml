@@ -2081,7 +2081,7 @@ workflows:
             - pre_deps_yarn
           filters:
             branches:
-              only: *demo-branch
+              only: [*demo-branch, *loadtest-branch]
 
       - push_app_demo:
           requires:
@@ -2168,15 +2168,6 @@ workflows:
           filters:
             branches:
               only: *demo-branch
-
-      - build_dp3_app:
-          requires:
-            - anti_virus
-            - pre_deps_golang
-            - pre_deps_yarn
-          filters:
-            branches:
-              only: *loadtest-branch
 
       - push_app_loadtest:
           requires:
