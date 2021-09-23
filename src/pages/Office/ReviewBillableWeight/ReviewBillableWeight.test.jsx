@@ -118,7 +118,7 @@ const mockMtoShipments = [
   {
     id: 2,
     status: shipmentStatuses.APPROVED,
-    calculatedBillableWeightCap: 2000,
+    calculatedBillableWeight: 2000,
     billableWeightCap: 2000,
     primeEstimatedWeight: 2000,
     primeActualWeight: 400,
@@ -382,7 +382,7 @@ describe('ReviewBillableWeight', () => {
       formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
     );
     expect(screen.getByTestId('weightRequested').textContent).toBe('900 lbs');
-    expect(screen.getByTestId('totalBillableWeight').textContent).toBe('6,000 lbs');
+    expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
   });
 
   it('renders max billable weight and edit view', () => {

@@ -52,15 +52,15 @@ export default function ReviewBillableWeight() {
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
-  const filteredShipments = mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
+  const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
   const isLastShipment = selectedShipmentIndex === filteredShipments?.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
   const weightRequested = useCalculatedWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
-  const maxBillableWeight = order.entitlement.authorizedWeight;
-  const weightAllowance = order.entitlement.totalWeight;
+  const maxBillableWeight = order.entitlement?.authorizedWeight;
+  const weightAllowance = order.entitlement?.totalWeight;
 
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
@@ -204,15 +204,14 @@ export default function ReviewBillableWeight() {
                     totalBillableWeight={totalBillableWeight}
                     weightRequested={weightRequested}
                     weightAllowance={weightAllowance}
-                    totalBillableWeightFlag={totalBillableWeight > maxBillableWeight}
                     shipments={filteredShipments}
                   />
                 </div>
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
+                  billableWeight={selectedShipment.calculatedBillableWeight}
                   editEntity={editEntity}
-                  billableWeight={selectedShipment.billableWeightCap}
                   billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment.reweigh?.requestedAt}
                   departedDate={selectedShipment.actualPickupDate}
