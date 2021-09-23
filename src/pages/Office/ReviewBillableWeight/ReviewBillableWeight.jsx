@@ -62,6 +62,10 @@ export default function ReviewBillableWeight() {
   const maxBillableWeight = order.entitlement?.authorizedWeight;
   const weightAllowance = order.entitlement?.totalWeight;
 
+  const shipmentsMissingInformation = filteredShipments.filter((shipment) => {
+    return !shipment.primeEstimatedWeight || !(shipment.reweigh?.dateReweighRequested && !shipment.reweigh?.weight);
+  });
+
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
@@ -142,6 +146,11 @@ export default function ReviewBillableWeight() {
               {totalBillableWeight > maxBillableWeight && (
                 <Alert slim type="error" data-testid="maxBillableWeightAlert">
                   {`Max billable weight exceeded. \nPlease resolve.`}
+                </Alert>
+              )}
+              {shipmentsMissingInformation.length > 0 && (
+                <Alert slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
+                  Missing shipment weights may impact max billable weight
                 </Alert>
               )}
               <div className={reviewBillableWeightStyles.weightSummary}>
