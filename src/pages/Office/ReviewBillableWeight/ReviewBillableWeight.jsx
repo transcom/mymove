@@ -70,7 +70,7 @@ export default function ReviewBillableWeight() {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
 
-  const selectedShipment = filteredShipments[selectedShipmentIndex];
+  const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
 
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
@@ -148,7 +148,7 @@ export default function ReviewBillableWeight() {
                   {`Max billable weight exceeded. \nPlease resolve.`}
                 </Alert>
               )}
-              {shipmentsMissingInformation.length > 0 && (
+              {shipmentsMissingInformation?.length > 0 && (
                 <Alert slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
                   Missing shipment weights may impact max billable weight
                 </Alert>
