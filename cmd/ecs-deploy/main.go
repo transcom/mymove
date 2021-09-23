@@ -15,7 +15,7 @@ const (
 	environmentFlag  string = "environment"
 )
 
-var environments = []string{"exp", "stg", "prd", "demo"}
+var environments = []string{"exp", "stg", "prd", "demo", "loadtest"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
