@@ -84,8 +84,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Recalculate the payment request created above.
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
-	startNewTx := true
-	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID, startNewTx)
+	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
 	// Fetch the old payment request again -- status should have changed and it should also
@@ -277,8 +276,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
-		startNewTx := true
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID, startNewTx)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(services.NotFoundError{}, err)
@@ -292,8 +290,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 				Status: models.PaymentRequestStatusPaid,
 			},
 		})
-		startNewTx := true
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID, startNewTx)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(services.ConflictError{}, err)
@@ -314,8 +311,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		startNewTx := true
-		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID, startNewTx)
+		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)
@@ -335,8 +331,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockStatusUpdater := NewPaymentRequestRecalculator(creator, mockStatusUpdater)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		startNewTx := true
-		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID, startNewTx)
+		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)

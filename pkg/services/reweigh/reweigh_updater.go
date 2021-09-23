@@ -39,6 +39,23 @@ func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweig
 
 // UpdateReweigh updates the Reweigh table
 func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
+	var updatedReweigh *models.Reweigh
+
+	// Make sure we do this whole process in a transaction so partial changes do not get made committed
+	// in the event of an error.
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var err error
+		updatedReweigh, err = f.doUpdateReweigh(txnAppCtx, reweigh, eTag, checks...)
+		return err
+	})
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return updatedReweigh, nil
+}
+
+func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
@@ -102,21 +119,10 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, err
 	}
 
-	/*
-			TODO: The plan is to have function that's callable from the MTOShipment to determine the current billable weight
-		 	TODO: this function will compare original vs reweigh weight and return the weight to use for billable. As well as apply any caps.
-			TODO: for now, going to just do a simple check, this should be deleted when the
-			TODO: real function is in place.
-	*/
-	// if the reweigh weight is less than the MTOShipment's original weight, then recalculate
-	// applicable payment requests
-	if reweigh != nil && reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
-		if *reweigh.Weight < *shipment.PrimeActualWeight {
-			err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
-			if err != nil {
-				return nil, err
-			}
-		}
+	// Recalculate payment request for the shipment
+	_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
+	if err != nil {
+		return nil, err
 	}
 
 	return &updatedReweigh, nil

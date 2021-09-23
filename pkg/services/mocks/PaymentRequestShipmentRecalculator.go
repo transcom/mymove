@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
+	models "github.com/transcom/mymove/pkg/models"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -15,15 +17,24 @@ type PaymentRequestShipmentRecalculator struct {
 }
 
 // ShipmentRecalculatePaymentRequest provides a mock function with given fields: appCtx, shipmentID
-func (_m *PaymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) error {
+func (_m *PaymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.PaymentRequests, error) {
 	ret := _m.Called(appCtx, shipmentID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
+	var r0 *models.PaymentRequests
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PaymentRequests); ok {
 		r0 = rf(appCtx, shipmentID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.PaymentRequests)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, shipmentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

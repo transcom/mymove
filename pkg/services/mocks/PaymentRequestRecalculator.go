@@ -16,13 +16,13 @@ type PaymentRequestRecalculator struct {
 	mock.Mock
 }
 
-// RecalculatePaymentRequest provides a mock function with given fields: appCtx, paymentRequestID, startNewTx
-func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, startNewTx bool) (*models.PaymentRequest, error) {
-	ret := _m.Called(appCtx, paymentRequestID, startNewTx)
+// RecalculatePaymentRequest provides a mock function with given fields: appCtx, paymentRequestID
+func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+	ret := _m.Called(appCtx, paymentRequestID)
 
 	var r0 *models.PaymentRequest
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) *models.PaymentRequest); ok {
-		r0 = rf(appCtx, paymentRequestID, startNewTx)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PaymentRequest); ok {
+		r0 = rf(appCtx, paymentRequestID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequest)
@@ -30,8 +30,8 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
-		r1 = rf(appCtx, paymentRequestID, startNewTx)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, paymentRequestID)
 	} else {
 		r1 = ret.Error(1)
 	}
