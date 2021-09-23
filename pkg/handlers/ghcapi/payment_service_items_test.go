@@ -25,7 +25,6 @@ import (
 type updatePaymentSubtestData struct {
 	paymentServiceItem models.PaymentServiceItem
 	params             paymentServiceItemOp.UpdatePaymentServiceItemStatusParams
-	rejectWithNoReason paymentServiceItemOp.UpdatePaymentServiceItemStatusParams
 }
 
 func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePaymentSubtestData) {
@@ -52,22 +51,6 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 			PriceCents:               nil,
 			RejectionReason:          nil,
 			Status:                   ghcmessages.PaymentServiceItemStatusAPPROVED,
-		},
-	}
-
-	subtestData.rejectWithNoReason = paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
-		HTTPRequest:          req,
-		IfMatch:              etag.GenerateEtag(paymentServiceItem.UpdatedAt),
-		PaymentServiceItemID: paymentServiceItem.ID.String(),
-		Body: &ghcmessages.PaymentServiceItem{
-			ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
-			ID:                       *handlers.FmtUUID(paymentServiceItem.ID),
-			MtoServiceItemID:         *handlers.FmtUUID(paymentServiceItem.MTOServiceItemID),
-			PaymentRequestID:         *handlers.FmtUUID(paymentServiceItem.PaymentRequestID),
-			PaymentServiceItemParams: nil,
-			PriceCents:               nil,
-			RejectionReason:          nil,
-			Status:                   ghcmessages.PaymentServiceItemStatusDENIED,
 		},
 	}
 
@@ -113,8 +96,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
+		subtestData.params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
+		subtestData.params.Body.RejectionReason = nil
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
-		response := handler.Handle(subtestData.rejectWithNoReason)
+		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusUnprocessableEntity{}, response)
 
 	})
