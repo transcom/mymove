@@ -9,38 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItem(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string) {
-	suite.makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest, serviceItem, startDate, endDate, models.PaymentServiceItemStatusPaid)
-}
-
-func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
-	cost := unit.Cents(20000)
-	paymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameSITPaymentRequestStart,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   startDate,
-		},
-		{
-			Key:     models.ServiceItemParamNameSITPaymentRequestEnd,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   endDate,
-		},
-	}
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		serviceItem.ReService.Code,
-		paymentServiceItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     status,
-			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: serviceItem,
-		})
-}
-
 func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	key := models.ServiceItemParamNameNumberDaysSIT
 
@@ -1339,6 +1307,38 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
+	cost := unit.Cents(20000)
+	paymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameSITPaymentRequestStart,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   startDate,
+		},
+		{
+			Key:     models.ServiceItemParamNameSITPaymentRequestEnd,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   endDate,
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		serviceItem.ReService.Code,
+		paymentServiceItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &cost,
+				Status:     status,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: serviceItem,
+		})
+}
+
+func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItem(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string) {
+	suite.makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest, serviceItem, startDate, endDate, models.PaymentServiceItemStatusPaid)
 }
 
 // setupMoveWithAddlDaysSITAndPaymentRequest creates a move with a single shipment, a Domestic Additional Days
