@@ -34,12 +34,39 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkSITExtensionPending - Success", func() {
 		// Testing: There is no new sit extension
-		//sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
-		//err := checkSITExtensionPending().Validate
+		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+		})
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, &shipment)
+
+		suite.NoError(err)
 	})
 
 	suite.Run("checkSITExtensionPending - Failure", func() {
+		// Testing: There is a SIT extension and trying to be created
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+		})
 
+		// Create SIT Extension #1 in DB
+		// Change default status to Pending:
+		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: shipment,
+			SITExtension: models.SITExtension{
+				MTOShipmentID: shipment.ID,
+				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+				Status:        models.SITExtensionStatusPending,
+				RequestedDays: 90,
+			},
+		})
+		// Object we are trying to add to DB
+		newSIT := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
+
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), newSIT, &shipment)
+
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
 	})
 
 	suite.Run("checkPrimeAvailability - Failure", func() {

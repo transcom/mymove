@@ -2,6 +2,7 @@ package sitextension
 
 import (
 	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -51,28 +52,23 @@ func checkRequiredFields() sitExtensionValidator {
 	})
 }
 
-func checkSITExtensionPending(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment models.MTOShipment) (*models.SITExtension, error) {
-	id := sitExtension.ID
-	shipmentID := shipment.ID
-	//status := sitExtension.Status
-	var emptySITExtensionArray []models.SITExtension
-	err := appCtx.DB().Where("status = ?", models.SITExtensionStatusPending).Where("mto_shipment_id = ?", shipmentID).All(&emptySITExtensionArray)
-	// Prevent a new SIT extension request if a sit extension is pending
-	if err != nil {
-		return nil, err
-	}
-
-	if len(emptySITExtensionArray) > 0 {
-		return nil, services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
-	}
-
-	var verrs *validate.Errors
-
-	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(id, err, verrs, "")
-	}
-	return &sitExtension, err
-
+func checkSITExtensionPending() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
+		id := sitExtension.ID
+		shipmentID := shipment.ID
+		//status := sitExtension.Status
+		var emptySITExtensionArray []models.SITExtension
+		err := appCtx.DB().Where("status = ?", models.SITExtensionStatusPending).Where("mto_shipment_id = ?", shipmentID).All(&emptySITExtensionArray)
+		// Prevent a new SIT extension request if a sit extension is pending
+		if err != nil {
+			return err
+		}
+		// Do we need a validation error here instead? What error type should be here?
+		if len(emptySITExtensionArray) > 0 {
+			return services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
+		}
+		return err
+	})
 }
 
 //checks that the shipment associated with the reweigh is available to Prime
