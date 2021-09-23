@@ -941,6 +941,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Mux for prime simulator API that enforces auth
 		primeSimulatorAPIMux := primeSimulatorMux.PathPrefix("/").Subrouter()
 		primeSimulatorAPIMux.Use(userAuthMiddleware)
+		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
 		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
 		primeSimulatorAPIMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
 	}
