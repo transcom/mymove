@@ -239,7 +239,7 @@ export function approveSITExtension({
   schemaKey = 'mtoShipment',
   body,
 }) {
-  const operationPath = 'shipment.approveSitExtension';
+  const operationPath = 'shipment.approveSITExtension';
   return makeGHCRequest(
     operationPath,
     {
@@ -260,7 +260,7 @@ export function denySITExtension({
   schemaKey = 'mtoShipment',
   body,
 }) {
-  const operationPath = 'shipment.denySitExtension';
+  const operationPath = 'shipment.denySITExtension';
   return makeGHCRequest(
     operationPath,
     {
