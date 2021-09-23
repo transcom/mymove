@@ -253,19 +253,19 @@ commands:
       - run:
           name: 'Setting up AWS environment variables for loadtest env'
           command: |
-            echo "export AWS_DEFAULT_REGION=$loadtest_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$loadtest_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$loadtest_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$loadtest_SECRET_ACCESS_KEY" >> $BASH_ENV
+            echo "export AWS_DEFAULT_REGION=$LOADTEST_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$LOADTEST_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$LOADTEST_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$LOADTEST_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_loadtest:
     steps:
       - run:
           name: 'Setting up TLS environment variables for loadtest env'
           command: |
-            echo "export TLS_CERT=$loadtest_DP3_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$loadtest_DP3_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$loadtest_DP3_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$LOADTEST_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$LOADTEST_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$LOADTEST_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
 
   announce_failure:
