@@ -119,31 +119,32 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// Verify that required delivery date is not calculated when it does not need to be
 		planner.AssertNumberOfCalls(t, "TransitDistance", 0)
 
+		preApprovalTime := time.Now()
 		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
 
 		suite.NoError(approverErr)
 		suite.Equal(move.ID, shipment.MoveTaskOrderID)
 
-		err := suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		err := appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
 		suite.NoError(err)
 
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 
-		err = suite.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))
 
 		// All ApprovedAt times for service items should be the same, so just get the first one
-		actualApprovedAt := serviceItems[0].ApprovedAt
+		// Test that service item was approved within a few seconds of the current time
+		suite.Assertions.WithinDuration(preApprovalTime, *serviceItems[0].ApprovedAt, 2*time.Second)
+
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			// Test that service item was approved within a few seconds of the current time
-			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
 		}
 	})
 

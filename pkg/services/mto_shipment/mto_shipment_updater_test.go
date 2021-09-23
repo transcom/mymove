@@ -710,6 +710,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			}
 		}
 
+		preApprovalTime := time.Now()
 		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
 
@@ -725,7 +726,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(6, len(serviceItems))
 
 		// All ApprovedAt times for service items should be the same, so just get the first one
-		actualApprovedAt := serviceItems[0].ApprovedAt
+		// Test that service item was approved within a few seconds of the current time
+		suite.Assertions.WithinDuration(preApprovalTime, *serviceItems[0].ApprovedAt, 2*time.Second)
+
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		missingReServiceCodes := expectedReServiceCodes
@@ -746,9 +749,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			if !codeFound {
 				suite.Fail("Unexpected service code", "unexpected ReService code: %s", string(serviceItem.ReService.Code))
 			}
-
-			// Test that service item was approved within a few seconds of the current time
-			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
 		}
 
 		suite.Empty(missingReServiceCodes)
