@@ -2042,6 +2042,9 @@ workflows:
             - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: [*demo-branch, *loadtest-branch]
 
       - push_app_gov_dev:
           requires:
@@ -2064,11 +2067,17 @@ workflows:
       - build_tasks:
           requires:
             - build_tools
+          filters:
+            branches:
+              ignore: [*demo-branch, *loadtest-branch]
 
       - build_webhook_client:
           requires:
             - anti_virus
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: [*demo-branch, *loadtest-branch]
 
       - push_tasks_gov_dev:
           requires:
