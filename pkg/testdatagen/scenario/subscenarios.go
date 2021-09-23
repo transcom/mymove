@@ -206,6 +206,11 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 		createReweighWithShipmentMaxBillableWeightExceeded(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentNoEstimatedWeight(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithMixedShipmentStatuses(appCtx, userUploader)
+		movesWithNoIssuesReweighRequestedAndConducted(appCtx, userUploader, primeUploader, moveRouter)
+		movesWithNoIssuesNoReweighRequested(appCtx, userUploader, primeUploader, moveRouter)
+		movesWithMissingWeightsReweighRequestedNotConducted(appCtx, userUploader, primeUploader, moveRouter)
+		movesWithMissingWeightNoEstWeightProvidedMaxExceeded(appCtx, userUploader, primeUploader, moveRouter)
+		exceeds110OfEstimated(appCtx, userUploader, primeUploader, moveRouter)
 	}
 }
 

@@ -3633,6 +3633,592 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
 }
 
+// MINI MOB SMOKE TEST DATA START
+//
+//
+//
+//
+//
+//
+
+func movesWithNoIssuesReweighRequestedAndConducted(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "moveWithNoIssues1@hhg.hhg"
+	uuidStr := "048d175e-1ca8-11ec-9621-0242ac130002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "16b779e2-1ca8-11ec-9621-0242ac130002"
+	grade := models.ServiceMemberRankE6
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("NoIssuesReqweighRequestedAndConducted"),
+			LastName:      models.StringPointer("Reweighs"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+			Rank:          &grade,
+		},
+	})
+
+	dependentsAuthorized := false
+	maxBillableWeight := 9000
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+			DBAuthorizedWeight:   swag.Int(int(maxBillableWeight)),
+		},
+	})
+
+	orderGrade := "E_6"
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+			Grade:           &orderGrade,
+		},
+		Entitlement:  entitlements,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("29b659fa-1ca8-11ec-9621-0242ac130002"),
+			Locator:          "MMNOIS",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(4000)
+	actualHHGWeight := unit.Pound(4368)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	shipmentReweighWeight := unit.Pound(4089)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		Reweigh: models.Reweigh{
+			Weight: &shipmentReweighWeight,
+		},
+	})
+
+	estimatedHHGWeight2 := unit.Pound(5000)
+	actualHHGWeight2 := unit.Pound(4890)
+	shipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight2,
+			PrimeActualWeight:    &actualHHGWeight2,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	shipment2ReweighWeight := unit.Pound(4874)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment2,
+		Reweigh: models.Reweigh{
+			Weight: &shipment2ReweighWeight,
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("9175c1fa-1caa-11ec-9621-0242ac130002"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func movesWithNoIssuesNoReweighRequested(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "moveWithNoIssues2@hhg.hhg"
+	uuidStr := "14ca313a-1cab-11ec-9621-0242ac130002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "211a99a2-1cab-11ec-9621-0242ac130002"
+	grade := models.ServiceMemberRankE6
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("NoIssues2NoReweighRequested"),
+			LastName:      models.StringPointer("Reweighs"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+			Rank:          &grade,
+		},
+	})
+
+	dependentsAuthorized := false
+	maxBillableWeight := 8000
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+			DBAuthorizedWeight:   swag.Int(int(maxBillableWeight)),
+		},
+	})
+
+	orderGrade := "E_6"
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+			Grade:           &orderGrade,
+		},
+		Entitlement:  entitlements,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("286f56a2-1cab-11ec-9621-0242ac130002"),
+			Locator:          "MMNOI2",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(4500)
+	actualHHGWeight := unit.Pound(4059)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	/*
+		shipmentReweighWeight := unit.Pound(4089)
+		testdatagen.MakeReweigh(db, testdatagen.Assertions{
+			MTOShipment: shipment,
+			Reweigh: models.Reweigh{
+				Weight: &shipmentReweighWeight,
+			},
+		})
+	*/
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("756685bc-1cb9-11ec-9621-0242ac130002"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func movesWithMissingWeightsReweighRequestedNotConducted(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "moveWithMissingWeight@hhg.hhg"
+	uuidStr := "d6e5d142-1cb1-11ec-9621-0242ac130002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "dcde7752-1cb1-11ec-9621-0242ac130002"
+	grade := models.ServiceMemberRankE8
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("MissingWeightsReweighRequestedNotConducted"),
+			LastName:      models.StringPointer("Reweighs"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+			Rank:          &grade,
+		},
+	})
+
+	dependentsAuthorized := false
+	maxBillableWeight := 13000
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+			DBAuthorizedWeight:   swag.Int(int(maxBillableWeight)),
+		},
+	})
+
+	orderGrade := "E_8"
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+			Grade:           &orderGrade,
+		},
+		Entitlement:  entitlements,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("eabb20dc-1cb1-11ec-9621-0242ac130002"),
+			Locator:          "MMMISW",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(6000)
+	actualHHGWeight := unit.Pound(6231)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	verificationReason := "Did not reweigh"
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		Reweigh: models.Reweigh{
+			VerificationReason: &verificationReason,
+		},
+	})
+
+	estimatedHHGWeight2 := unit.Pound(7000)
+	actualHHGWeight2 := unit.Pound(6897)
+	shipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight2,
+			PrimeActualWeight:    &actualHHGWeight2,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment2,
+		Reweigh: models.Reweigh{
+			VerificationReason: &verificationReason,
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("7be784c4-1cb2-11ec-9621-0242ac130002"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func movesWithMissingWeightNoEstWeightProvidedMaxExceeded(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "moveWithMissingWeightNoEstWeightProvidedMaxExceeded@hhg.hhg"
+	uuidStr := "ae53f018-1cb8-11ec-9621-0242ac130002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "c22ab806-1cb8-11ec-9621-0242ac130002"
+	grade := models.ServiceMemberRankE6
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("MissingWeightNoEstWeightMaxExceeded"),
+			LastName:      models.StringPointer("Reweighs"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+			Rank:          &grade,
+		},
+	})
+
+	dependentsAuthorized := false
+	maxBillableWeight := 8000
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+			DBAuthorizedWeight:   swag.Int(int(maxBillableWeight)),
+		},
+	})
+
+	orderGrade := "E_6"
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+			Grade:           &orderGrade,
+		},
+		Entitlement:  entitlements,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("df80f924-1cb8-11ec-9621-0242ac130002"),
+			Locator:          "MMNEME",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	actualHHGWeight := unit.Pound(10293)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeActualWeight: &actualHHGWeight,
+			ShipmentType:      models.MTOShipmentTypeHHG,
+			ApprovedDate:      &now,
+			Status:            models.MTOShipmentStatusApproved,
+			MoveTaskOrder:     move,
+			MoveTaskOrderID:   move.ID,
+		},
+	})
+
+	shipmentReweighWeight := unit.Pound(10029)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		Reweigh: models.Reweigh{
+			Weight: &shipmentReweighWeight,
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("6b6135b2-1cb9-11ec-9621-0242ac130002"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func exceeds110OfEstimated(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "exceeds110OfWeightEstimated@hhg.hhg"
+	uuidStr := "832b4eb2-1cb9-11ec-9621-0242ac130002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "86ad58d2-1cb9-11ec-9621-0242ac130002"
+	grade := models.ServiceMemberRankE6
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("ShipmentWeightExceeds110OfEstWeight"),
+			LastName:      models.StringPointer("Reweighs"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+			Rank:          &grade,
+		},
+	})
+
+	dependentsAuthorized := false
+	maxBillableWeight := 8000
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+			DBAuthorizedWeight:   swag.Int(int(maxBillableWeight)),
+		},
+	})
+
+	orderGrade := "E_6"
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+			Grade:           &orderGrade,
+		},
+		Entitlement:  entitlements,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("8ac675c0-1cb9-11ec-9621-0242ac130002"),
+			Locator:          "MMOEST",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(3000)
+	actualHHGWeight := unit.Pound(5874)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	shipmentReweighWeight := unit.Pound(5684)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		Reweigh: models.Reweigh{
+			Weight: &shipmentReweighWeight,
+		},
+	})
+
+	estimatedHHGWeight2 := unit.Pound(4000)
+	actualHHGWeight2 := unit.Pound(3869)
+	shipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight2,
+			PrimeActualWeight:    &actualHHGWeight2,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	shipmentReweighWeight2 := unit.Pound(3865)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipment2,
+		Reweigh: models.Reweigh{
+			Weight: &shipmentReweighWeight2,
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("6ebc91b0-1cab-11ec-9621-0242ac130002"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+// MINI MOB SMOKE TEST DATA END
+//
+//
+//
+//
+//
+//
+
 func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
