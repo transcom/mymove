@@ -313,11 +313,18 @@ func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, ma
 	return nil
 }
 
-func createLogger(env string, level string) (*zap.Logger, error) {
+func createLogger(env string, level string) (*zap.Logger, func(), error) {
+	// No sync of the logger is necessary when logging to stderr as is
+	// the default. This logging package does not provide an option to
+	// override the logging destination, so this is always correct
+	//
+	// If an option is added in the future, this will need to be updated
+	noopLoggerSync := func() {}
+
 	loglevel := zapcore.Level(uint8(0))
 	err := (&loglevel).UnmarshalText([]byte(level))
 	if err != nil {
-		return nil, err
+		return nil, noopLoggerSync, err
 	}
 	atomicLevel := zap.NewAtomicLevel()
 	atomicLevel.SetLevel(loglevel)
@@ -330,7 +337,8 @@ func createLogger(env string, level string) (*zap.Logger, error) {
 	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	loggerConfig.Level = atomicLevel
 	loggerConfig.DisableStacktrace = true
-	return loggerConfig.Build(zap.AddStacktrace(zap.ErrorLevel))
+	logger, err := loggerConfig.Build(zap.AddStacktrace(zap.ErrorLevel))
+	return logger, noopLoggerSync, err
 }
 
 func main() {
@@ -377,16 +385,12 @@ func main() {
 		}
 	}()
 
-	logger, err := createLogger(v.GetString("log-env"), v.GetString("log-level"))
+	logger, loggerSync, err := createLogger(v.GetString("log-env"), v.GetString("log-level"))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	defer func() {
-		if loggerSyncErr := logger.Sync(); loggerSyncErr != nil {
-			logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-		}
-	}()
+	defer loggerSync()
 
 	err = checkConfig(v)
 	if err != nil {

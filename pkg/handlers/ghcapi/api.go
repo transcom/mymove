@@ -99,22 +99,22 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI.OrderCounselingUpdateOrderHandler = CounselingUpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.OrderUpdateAllowanceHandler = UpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 	ghcAPI.OrderCounselingUpdateAllowanceHandler = CounselingUpdateAllowanceHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 	ghcAPI.OrderUpdateBillableWeightHandler = UpdateBillableWeightHandler{
 		ctx,
@@ -217,6 +217,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			ctx.Planner(),
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			ctx.NotificationSender(),
 		),
 		shipmentSITStatus,
 	}
@@ -226,19 +227,19 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
-	ghcAPI.ShipmentApproveSitExtensionHandler = ApproveSITExtensionHandler{
+	ghcAPI.ShipmentApproveSITExtensionHandler = ApproveSITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionApprover(),
+		mtoshipment.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentDenySitExtensionHandler = DenySITExtensionHandler{
+	ghcAPI.ShipmentDenySITExtensionHandler = DenySITExtensionHandler{
 		ctx,
-		mtoshipment.NewSITExtensionDenier(),
+		mtoshipment.NewSITExtensionDenier(moveRouter),
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentCreateSitExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
+	ghcAPI.ShipmentCreateSITExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
 		ctx,
 		mtoshipment.NewCreateSITExtensionAsTOO(),
 		shipmentSITStatus,
@@ -263,6 +264,11 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{
 		ctx,
+	}
+
+	ghcAPI.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = ShipmentsSITBalanceHandler{
+		ctx,
+		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 	}
 
 	return ghcAPI

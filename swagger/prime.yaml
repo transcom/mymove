@@ -153,6 +153,49 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/excess-weight-record':
+    post:
+      summary: createExcessWeightRecord
+      description: >
+        Uploads an excess weight record, which is a document that proves that
+        the movers or contractors have counseled the customer about their excess
+        weight. Excess weight counseling should occur after the sum of the
+        shipments for the customer's move crosses the excess weight alert
+        threshold.
+      operationId: createExcessWeightRecord
+      tags:
+        - moveTaskOrder
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          description: UUID of the move being updated.
+          required: true
+          format: uuid
+          type: string
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: Successfully uploaded the excess weight record file.
+          schema:
+            $ref: '#/definitions/ExcessWeightRecord'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use.
@@ -628,6 +671,57 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/sit-extensions':
+    post:
+      summary: createSITExtension
+      description: >
+        ### Functionality
+
+        This endpoint creates a storage in transit (SIT) extension request for a
+        shipment. A SIT extension request is a request an
+
+        increase in the shipment day allowance for the number of days a shipment
+        is allowed to be in SIT. The total SIT day allowance
+
+        includes time spent in both origin and destination SIT.
+      operationId: createSITExtension
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the agent
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateSITExtension'
+      responses:
+        '201':
+          description: Successfully created the sit extension request.
+          schema:
+            $ref: '#/definitions/SITExtension'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/status':
     patch:
       summary: updateMTOShipmentStatus
@@ -917,9 +1011,7 @@ paths:
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found.
-          schema:
-            $ref: '#/definitions/ClientError'
+          $ref: '#/responses/NotFound'
         '409':
           $ref: '#/responses/Conflict'
         '422':
@@ -1237,6 +1329,32 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
+  CreateSITExtension:
+    description: >-
+      CreateSITExtension contains the fields required for the prime to create a
+      SIT Extension request.
+    type: object
+    properties:
+      requestReason:
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      contractorRemarks:
+        type: string
+        example: We need SIT additional days. The customer has not found a house yet.
+      requestedDays:
+        type: integer
+        example: 30
+    required:
+      - requestReason
+      - contractorRemarks
+      - requestedDays
   Customer:
     type: object
     properties:
@@ -1457,6 +1575,24 @@ definitions:
           - PARTIAL
       ppmEstimatedWeight:
         type: integer
+      excessWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightUploadId:
+        type: string
+        format: uuid
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       eTag:
         type: string
         readOnly: true
@@ -1941,6 +2077,8 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      sitExtensions:
+        $ref: '#/definitions/SITExtensions'
       reweigh:
         $ref: '#/definitions/Reweigh'
       mtoServiceItems:
@@ -2657,6 +2795,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
   Upload:
+    description: An uploaded file.
     type: object
     properties:
       id:
@@ -2694,6 +2833,108 @@ definitions:
       - filename
       - contentType
       - bytes
+  SITExtension:
+    type: object
+    description: >-
+      A storage in transit (SIT) Extension is a request for an increase in the
+      billable number of days a shipment is allowed to be in SIT.
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestReason:
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      contractorRemarks:
+        example: We need SIT additional days. The customer has not found a house yet.
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      requestedDays:
+        type: integer
+        example: 30
+      status:
+        enum:
+          - PENDING
+          - APPROVED
+          - DENIED
+      approvedDays:
+        type: integer
+        example: 30
+        x-nullable: true
+        x-omitempty: false
+      decisionDate:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+  SITExtensions:
+    type: array
+    items:
+      $ref: '#/definitions/SITExtension'
+  ExcessWeightRecord:
+    description: >-
+      A document uploaded by the movers proving that the customer has been
+      counseled about excess weight.
+    allOf:
+      - $ref: '#/definitions/Upload'
+      - type: object
+        properties:
+          moveId:
+            description: The UUID of the move this excess weight record belongs to.
+            type: string
+            format: uuid
+            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+          moveExcessWeightQualifiedAt:
+            description: >
+              The date and time when the sum of all the move's shipments met the
+              excess weight qualification threshold. The system monitors these
+              weights and will update this field automatically.
+            type: string
+            format: date-time
+            readOnly: true
+            x-nullable: true
+            x-omitempty: false
+          moveExcessWeightAcknowledgedAt:
+            description: >
+              The date and time when the TOO acknowledged the excess weight
+              alert, either by dismissing the risk or updating the max billable
+              weight. This will occur after the excess weight record has been
+              uploaded.
+            type: string
+            format: date-time
+            readOnly: true
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - moveId
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
@@ -2713,14 +2954,6 @@ responses:
     description: The request payload is invalid.
     schema:
       $ref: '#/definitions/ClientError'
-  NotFound:
-    description: The requested resource wasn't found.
-    schema:
-      $ref: '#/definitions/ClientError'
-  PermissionDenied:
-    description: The request was denied.
-    schema:
-      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -2735,8 +2968,16 @@ responses:
       request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'
+  NotFound:
+    description: The requested resource wasn't found.
+    schema:
+      $ref: '#/definitions/ClientError'
   UnprocessableEntity:
-    description: The payload was unprocessable.
+    description: 'The request was unprocessable, likely due to bad input from the requester.'
     schema:
       $ref: '#/definitions/ValidationError'
   Conflict:

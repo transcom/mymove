@@ -324,7 +324,7 @@ func (o *UpdateMTOShipmentStatusPreconditionFailed) WriteResponse(rw http.Respon
 // UpdateMTOShipmentStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMTOShipmentStatusUnprocessableEntity
 const UpdateMTOShipmentStatusUnprocessableEntityCode int = 422
 
-/*UpdateMTOShipmentStatusUnprocessableEntity The payload was unprocessable.
+/*UpdateMTOShipmentStatusUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOShipmentStatusUnprocessableEntity
 */

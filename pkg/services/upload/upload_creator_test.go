@@ -1,7 +1,9 @@
 package upload
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -36,4 +38,15 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 
 	err := testFile.Close()
 	suite.NoError(err, "Error occurred while closing the test file.")
+}
+
+// Test_assembleUploadFilePathName tests assembling the file path for saving in storage
+func (suite *UploadServiceSuite) Test_assembleUploadFilePathName() {
+	filePathName := "move/4b7b7c9b-8023-4843-9c4f-a8185bfb7b11/proof.pdf"
+	resultPattern, err := regexp.Compile(fmt.Sprintf(
+		"move/4b7b7c9b-8023-4843-9c4f-a8185bfb7b11/([\\d]{%d})-proof\\.pdf", len(filenameTimeFormat)))
+	suite.Require().NoError(err, "Error compiling regex for test")
+
+	result := assembleUploadFilePathName(filePathName)
+	suite.True(resultPattern.MatchString(result))
 }

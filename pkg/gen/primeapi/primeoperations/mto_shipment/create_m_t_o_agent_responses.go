@@ -280,7 +280,7 @@ func (o *CreateMTOAgentConflict) WriteResponse(rw http.ResponseWriter, producer 
 // CreateMTOAgentUnprocessableEntityCode is the HTTP code returned for type CreateMTOAgentUnprocessableEntity
 const CreateMTOAgentUnprocessableEntityCode int = 422
 
-/*CreateMTOAgentUnprocessableEntity The payload was unprocessable.
+/*CreateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createMTOAgentUnprocessableEntity
 */

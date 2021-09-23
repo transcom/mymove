@@ -209,13 +209,14 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 	}
 }
 
-func subScenarioSITExtentions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) func() {
 	return func() {
 		createTOO(appCtx)
 		createTIO(appCtx)
 		createTXO(appCtx)
 
 		createMoveWithSITExtensions(appCtx, userUploader)
+		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
 	}
 }
 
@@ -256,5 +257,6 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 
 		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
+		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }

@@ -14,10 +14,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ApproveSitExtension approve sit extension
+// ApproveSITExtension approve s i t extension
 //
-// swagger:model ApproveSitExtension
-type ApproveSitExtension struct {
+// swagger:model ApproveSITExtension
+type ApproveSITExtension struct {
 
 	// Number of days approved for SIT extension
 	// Example: 21
@@ -30,8 +30,8 @@ type ApproveSitExtension struct {
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
 }
 
-// Validate validates this approve sit extension
-func (m *ApproveSitExtension) Validate(formats strfmt.Registry) error {
+// Validate validates this approve s i t extension
+func (m *ApproveSITExtension) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateApprovedDays(formats); err != nil {
@@ -44,7 +44,7 @@ func (m *ApproveSitExtension) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ApproveSitExtension) validateApprovedDays(formats strfmt.Registry) error {
+func (m *ApproveSITExtension) validateApprovedDays(formats strfmt.Registry) error {
 
 	if err := validate.Required("approvedDays", "body", m.ApprovedDays); err != nil {
 		return err
@@ -57,13 +57,13 @@ func (m *ApproveSitExtension) validateApprovedDays(formats strfmt.Registry) erro
 	return nil
 }
 
-// ContextValidate validates this approve sit extension based on context it is used
-func (m *ApproveSitExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this approve s i t extension based on context it is used
+func (m *ApproveSITExtension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *ApproveSitExtension) MarshalBinary() ([]byte, error) {
+func (m *ApproveSITExtension) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -71,8 +71,8 @@ func (m *ApproveSitExtension) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ApproveSitExtension) UnmarshalBinary(b []byte) error {
-	var res ApproveSitExtension
+func (m *ApproveSITExtension) UnmarshalBinary(b []byte) error {
+	var res ApproveSITExtension
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -155,4 +156,19 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // TableName overrides the table name used by Pop.
 func (m MTOShipment) TableName() string {
 	return "mto_shipments"
+}
+
+// GetCustomerFromShipment gets the service member given a shipment id
+func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Q().
+		InnerJoin("orders", "orders.service_member_id = service_members.id").
+		InnerJoin("moves", "moves.orders_id = orders.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		Where("mto_shipments.id = ?", shipmentID).
+		First(&serviceMember)
+	if err != nil {
+		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
+	}
+	return &serviceMember, nil
 }

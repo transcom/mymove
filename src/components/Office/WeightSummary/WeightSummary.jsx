@@ -1,5 +1,5 @@
 import React from 'react';
-import { number, arrayOf, shape, bool } from 'prop-types';
+import { number, arrayOf, shape } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WeightSummary.module.scss';
@@ -7,14 +7,7 @@ import styles from './WeightSummary.module.scss';
 import { formatWeight } from 'shared/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
-const WeightSummary = ({
-  maxBillableWeight,
-  weightRequested,
-  weightAllowance,
-  totalBillableWeight,
-  shipments,
-  totalBillableWeightFlag,
-}) => {
+const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, totalBillableWeight, shipments }) => {
   return (
     <div className={styles.weightSummaryContainer}>
       <div>
@@ -32,8 +25,12 @@ const WeightSummary = ({
       <div>
         <h4 className={styles.weightSummaryHeading}>Total billable weight</h4>
         <div data-testid="totalBillableWeight" className={styles.weight}>
-          {totalBillableWeightFlag ? (
-            <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
+          {totalBillableWeight > maxBillableWeight ? (
+            <FontAwesomeIcon
+              icon="exclamation-circle"
+              data-testid="totalBillableWeightFlag"
+              className={styles.errorFlag}
+            />
           ) : (
             <div className={styles.noEdit} />
           )}
@@ -43,12 +40,18 @@ const WeightSummary = ({
         {shipments.map((shipment) => {
           return (
             <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
-              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
-                <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
+              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight) ||
+              !shipment.primeEstimatedWeight ||
+              (shipment.reweigh?.dateReweighRequested && !shipment.reweigh?.weight) ? (
+                <FontAwesomeIcon
+                  icon="exclamation-triangle"
+                  data-testid="shipmentHasFlag"
+                  className={styles.warningFlag}
+                />
               ) : (
                 <div className={styles.noEdit} />
               )}
-              {formatWeight(shipment.billableWeightCap)}
+              {formatWeight(shipment.calculatedBillableWeight)}
             </div>
           );
         })}
@@ -62,17 +65,12 @@ WeightSummary.propTypes = {
   weightRequested: number.isRequired,
   weightAllowance: number.isRequired,
   totalBillableWeight: number.isRequired,
-  totalBillableWeightFlag: bool,
   shipments: arrayOf(
     shape({
-      billableWeightCap: number.isRequired,
+      calculatedBillableWeight: number.isRequired,
       primeEstimatedWeight: number.isRequired,
     }),
   ).isRequired,
-};
-
-WeightSummary.defaultProps = {
-  totalBillableWeightFlag: false,
 };
 
 export default WeightSummary;

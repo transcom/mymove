@@ -54,7 +54,7 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 
 func TestCLISuite(t *testing.T) {
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment("development"),
 		logging.WithLoggingLevel("debug"),
 		logging.WithStacktraceLength(10),
