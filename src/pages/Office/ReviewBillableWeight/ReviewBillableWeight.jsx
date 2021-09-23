@@ -150,7 +150,7 @@ export default function ReviewBillableWeight() {
               )}
               {shipmentsMissingInformation?.length > 0 && (
                 <Alert slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
-                  Missing shipment weights may impact max billable weight
+                  Missing shipment weights may impact max billable weight.
                 </Alert>
               )}
               <div className={reviewBillableWeightStyles.weightSummary}>
