@@ -26,7 +26,16 @@ export const ShipmentListWithWeights = () => (
   <div className="grid-container">
     <h3>Single Shipment</h3>
     <ShipmentList
-      shipments={[{ id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 4600 }]}
+      shipments={[
+        {
+          id: '0001',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          calculatedBillableWeight: 4600,
+          estimatedWeight: 5000,
+          primeEstimatedWeight: 300,
+          reweigh: { id: '1236', weight: 200 },
+        },
+      ]}
       showShipmentWeight
     />
     <br />
