@@ -12,6 +12,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 
 	"github.com/go-openapi/loads"
 
@@ -75,9 +76,8 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
-		HandlerContext: ctx,
-		Fetcher:        fetch.NewFetcher(queryBuilder),
-		Builder:        *queryBuilder,
+		HandlerContext:                  ctx,
+		PaymentServiceItemStatusUpdater: paymentserviceitem.NewPaymentServiceItemStatusUpdater(),
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
