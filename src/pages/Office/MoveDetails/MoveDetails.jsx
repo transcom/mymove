@@ -24,6 +24,7 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -131,7 +132,7 @@ const MoveDetails = ({
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions) {
+      if (mtoShipment.sitExtensions.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
         unapprovedSITExtensionCount += 1;
       }
     });

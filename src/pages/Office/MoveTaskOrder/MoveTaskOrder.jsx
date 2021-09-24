@@ -47,6 +47,7 @@ import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -405,7 +406,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions) {
+      if (mtoShipment.sitExtensions.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
         unapprovedSITExtensionCount += 1;
         unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
         setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
