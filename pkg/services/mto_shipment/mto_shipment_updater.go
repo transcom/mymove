@@ -33,19 +33,21 @@ type UpdateMTOShipmentQueryBuilder interface {
 type mtoShipmentUpdater struct {
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner     route.Planner
-	moveRouter  services.MoveRouter
-	moveWeights services.MoveWeights
+	planner      route.Planner
+	moveRouter   services.MoveRouter
+	moveWeights  services.MoveWeights
+	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
 		moveRouter,
 		moveWeights,
+		recalculator,
 	}
 }
 
@@ -447,6 +449,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
+		// this shipment
+		runShipmentRecalculate := false
+		if newShipment.BillableWeightCap != nil {
+			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
+				runShipmentRecalculate = true
+			}
+		}
+
 		// A diverted shipment gets set to the SUBMITTED status automatically:
 		if !dbShipment.Diversion && newShipment.Diversion {
 			newShipment.Status = models.MTOShipmentStatusSubmitted
@@ -484,6 +495,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// if err := tx.Update(newShipment); err != nil {
 		// 	return err
 		// }
+
+		// Perform shipment recalculate payment request
+		if runShipmentRecalculate {
+			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 

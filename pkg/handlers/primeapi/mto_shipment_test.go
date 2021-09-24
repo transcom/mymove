@@ -7,8 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -351,7 +353,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -774,8 +781,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -929,8 +940,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
@@ -1380,10 +1395,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	context.SetPlanner(planner)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	handler := UpdateMTOShipmentStatusHandler{
 		context,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator),
 		mtoshipment.NewMTOShipmentStatusUpdater(builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),
 	}

@@ -5,9 +5,11 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -2041,10 +2043,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
 	suite.Run("Successful PATCH - Integration Test", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -2087,7 +2095,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	suite.Run("PATCH failure - 400 -- nil body", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -2111,7 +2119,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	suite.Run("PATCH failure - 404 -- not found", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -2139,7 +2147,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -2166,7 +2174,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	suite.Run("PATCH failure - 412 -- shipment shouldn't be updatable", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

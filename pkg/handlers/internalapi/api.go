@@ -4,8 +4,10 @@ import (
 	"io"
 	"log"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -143,9 +145,25 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
 	}
 
+	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
+		paymentrequest.NewPaymentRequestCreator(
+			ctx.GHCPlanner(),
+			ghcrateengine.NewServiceItemPricer(),
+		),
+		paymentrequest.NewPaymentRequestStatusUpdater(builder),
+	)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
+
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())),
+		mtoshipment.NewMTOShipmentUpdater(
+			builder,
+			fetcher,
+			ctx.Planner(),
+			moveRouter,
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			paymentRequestShipmentRecalculator,
+		),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

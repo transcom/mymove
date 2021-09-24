@@ -37,6 +37,15 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	moveRouter := move.NewMoveRouter()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
+	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
+		paymentrequest.NewPaymentRequestCreator(
+			ctx.GHCPlanner(),
+			ghcrateengine.NewServiceItemPricer(),
+		),
+		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+	)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
+
 	primeAPI.ServeError = handlers.ServeCustomError
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
@@ -62,7 +71,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, paymentRequestShipmentRecalculator),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
@@ -112,19 +121,10 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, paymentRequestShipmentRecalculator),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
 	}
-
-	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
-		paymentrequest.NewPaymentRequestCreator(
-			ctx.GHCPlanner(),
-			ghcrateengine.NewServiceItemPricer(),
-		),
-		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-	)
-	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
 	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{
 		ctx,
