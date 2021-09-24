@@ -45,12 +45,12 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch transcom-gov-milmove-loadtest
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch transcom-gov-milmove-loadtest
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
