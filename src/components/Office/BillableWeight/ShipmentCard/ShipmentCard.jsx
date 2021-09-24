@@ -108,7 +108,7 @@ ShipmentCard.propTypes = {
     postal_code: string.isRequired,
   }).isRequired,
   editEntity: func.isRequired,
-  estimatedWeight: number.isRequired,
+  estimatedWeight: number,
   originalWeight: number.isRequired,
   pickupAddress: shape({
     city: string.isRequired,
@@ -123,6 +123,7 @@ ShipmentCard.defaultProps = {
   billableWeight: 0,
   billableWeightJustification: '',
   dateReweighRequested: '',
+  estimatedWeight: 0,
   reweighWeight: null,
   reweighRemarks: '',
 };

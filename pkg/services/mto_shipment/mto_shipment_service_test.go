@@ -21,15 +21,14 @@ func (suite *MTOShipmentServiceSuite) TestAppContext() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
-func (suite *MTOShipmentServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
 func TestMTOShipmentServiceSuite(t *testing.T) {
 
 	ts := &MTOShipmentServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite: testingsuite.NewPopTestSuite(
+			testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction(),
+		),
+		logger: zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

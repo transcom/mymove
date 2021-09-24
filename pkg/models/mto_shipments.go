@@ -46,6 +46,14 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
+// These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
+// creating a shipment and setting the initial value. Other values will likely be added to this once we deal with
+// different types of customers.
+const (
+	// DefaultServiceMemberSITDaysAllowance is the default number of SIT days a service member is allowed
+	DefaultServiceMemberSITDaysAllowance = 90
+)
+
 // MTOShipmentStatus represents the possible statuses for a mto shipment
 type MTOShipmentStatus string
 

@@ -68,7 +68,7 @@ WeightSummary.propTypes = {
   shipments: arrayOf(
     shape({
       calculatedBillableWeight: number.isRequired,
-      primeEstimatedWeight: number.isRequired,
+      primeEstimatedWeight: number,
     }),
   ).isRequired,
 };
