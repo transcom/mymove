@@ -1,11 +1,15 @@
 package paymentrequest
 
 import (
+	"errors"
+	"fmt"
 	"testing"
-	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -27,14 +31,16 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
+
+	// Payment Request 1
+	paymentRequest1, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	// Add a couple of proof of service docs and prime uploads.
 	for i := 0; i < 2; i++ {
 		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
 			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest.ID,
+				PaymentRequestID: paymentRequest1.ID,
 			},
 		})
 		contractor := testdatagen.MakeDefaultContractor(suite.DB())
@@ -44,14 +50,30 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 				ContractorID:        contractor.ID,
 			},
 		})
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: proofOfServiceDoc.ID,
-				ContractorID:        contractor.ID,
-				DeletedAt:           swag.Time(time.Now()),
-			},
-		})
 	}
+
+	// Payment Request 2
+	/*
+		var paymentRequest2 *models.PaymentRequest
+		paymentRequest2, err = creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
+		suite.FatalNoError(err)
+
+		// Add a couple of proof of service docs and prime uploads.
+		for i := 0; i < 2; i++ {
+			proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
+				ProofOfServiceDoc: models.ProofOfServiceDoc{
+					PaymentRequestID: paymentRequest2.ID,
+				},
+			})
+			contractor := testdatagen.MakeDefaultContractor(suite.DB())
+			testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
+				PrimeUpload: models.PrimeUpload{
+					ProofOfServiceDocID: proofOfServiceDoc.ID,
+					ContractorID:        contractor.ID,
+				},
+			})
+		}
+	*/
 
 	// Adjust shipment's original weight to force different pricing on a recalculation.
 	mtoShipment := move.MTOShipments[0]
@@ -79,7 +101,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 			"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 			"ProofOfServiceDocs.PrimeUploads",
 		).
-		Find(&oldPaymentRequest, paymentRequest.ID)
+		Find(&oldPaymentRequest, paymentRequest1.ID)
 	suite.FatalNoError(err)
 
 	var newPaymentRequest models.PaymentRequest
@@ -89,7 +111,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 			"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 			"ProofOfServiceDocs.PrimeUploads",
 		).
-		Where("recalculation_of_payment_request_id=?", paymentRequest.ID).
+		Where("recalculation_of_payment_request_id=?", paymentRequest1.ID).
 		First(&newPaymentRequest)
 	suite.FatalNoError(err)
 
@@ -120,86 +142,74 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(recalculator)
 
+	// Setup baseline move/shipment/service items data along with needed rate data.
+	_ /*move*/, paymentRequestArg := suite.setupRecalculateData()
+
+	paidPaymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
+	suite.FatalNoError(err)
+
 	suite.T().Run("Fail to find shipment ID", func(t *testing.T) {
 		bogusShipmentID := uuid.Must(uuid.NewV4())
 
-		_, err := shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), bogusShipmentID)
-		suite.NoError(err) // Not find a shipment ID doesn't not produce an error. Simply no payment requests are found
-		// and nil is returned.
-		//var nilPaymentReqeusts *models.PaymentRequests
-		//suite.Equal(&models.PaymentRequests{}, newPaymentRequests)
-		//suite.Nil(newPaymentRequests)
+		var returnPaymentRequests *models.PaymentRequests
+		returnPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), bogusShipmentID)
+		suite.NoError(err) // Not finding a shipment ID doesn't produce an error. Simply no payment requests are found
+		suite.Nil((*models.PaymentRequests)(nil), returnPaymentRequests)
 	})
 
-	/*
-		suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
-			paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					Status: models.PaymentRequestStatusPaid,
-				},
-			})
+	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
 
-			paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
-			suite.FatalNoError(err)
-		    // Update to PAID
+		paidPaymentRequest.Status = models.PaymentRequestStatusPaid
+		suite.MustSave(paidPaymentRequest)
+		// Update to PAID
 
-			//newPR, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr)
-			mockPlanner := &mocks.PaymentRequestRecalculator{}
-			mockPlanner.On("RecalculatePaymentRequest",
-				suite.TestAppContext(),
-				paidPaymentRequest,
-			).Return(nil, services.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
+		mockPlanner := &mocks.PaymentRequestRecalculator{}
+		mockPlanner.On("RecalculatePaymentRequest",
+			suite.TestAppContext(),
+			paidPaymentRequest,
+		).Return(nil, services.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 
-			//err := suite.DB().Load(&paidPaymentRequest, "PaymentServiceItems.MTOServiceItem.MTOShipment",
-			//	"PaymentServiceItems.MTOServiceItem")
-			//suite.NoError(err)
+		var oldPaymentRequest models.PaymentRequest
+		err = suite.DB().
+			EagerPreload(
+				"PaymentServiceItems.MTOServiceItem.MTOShipment",
+			).
+			Find(&oldPaymentRequest, paidPaymentRequest.ID)
+		suite.FatalNoError(err)
 
-			var oldPaymentRequest models.PaymentRequest
-			err := suite.DB().
-				EagerPreload(
-					"PaymentServiceItems.MTOServiceItem.MTOShipment",
-				).
-				Find(&oldPaymentRequest, paidPaymentRequest.ID)
-			suite.FatalNoError(err)
+		var newPaymentRequests *models.PaymentRequests
+		newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *oldPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
+		suite.NoError(err)
+		suite.Nil((*models.PaymentRequests)(nil), newPaymentRequests)
+	})
 
-			var newPaymentRequests *models.PaymentRequests
-			newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *oldPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
-			suite.NoError(err)
-			if suite.Error(err) {
-				suite.IsType(services.ConflictError{}, err)
-				suite.Contains(err.Error(), paidPaymentRequest.ID.String())
-				suite.Contains(err.Error(), models.PaymentRequestStatusPaid)
-			}
-			suite.Nil(newPaymentRequests)
+	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
+		errString := "mock payment request recalculate test error"
+		mockRecalculator := &mocks.PaymentRequestRecalculator{}
+		mockRecalculator.On("RecalculatePaymentRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, errors.New(errString))
 
-		})
-	*/
+		shipmentRecalculatorWithMockRecalculate := NewPaymentRequestShipmentRecalculator(mockRecalculator)
 
-	/*
-		suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
-			errString := "mock payment request recalculate test error"
-			mockRecalculator := &mocks.PaymentRequestRecalculator{}
-			mockRecalculator.On("RecalculatePaymentRequest",
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.PaymentRequest"),
-				mock.AnythingOfType("bool"),
-			).Return(nil, errors.New(errString))
+		suite.FatalNoError(err)
+		pendingPaymentRequest := paidPaymentRequest
+		pendingPaymentRequest.Status = models.PaymentRequestStatusPending
+		suite.MustSave(pendingPaymentRequest)
+		// Update to PENDING
 
-			shipmentRecalculatorWithMockRecalculate := NewPaymentRequestShipmentRecalculator(mockRecalculator)
+		err = suite.DB().Load(pendingPaymentRequest, "PaymentServiceItems.MTOServiceItem.MTOShipment",
+			"PaymentServiceItems.MTOServiceItem")
+		suite.NoError(err)
 
-			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		returnPaymentRequests, err := shipmentRecalculatorWithMockRecalculate.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *pendingPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
+		if suite.Error(err) {
+			suite.Equal(err.Error(), errString)
+		}
+		suite.Nil((*models.PaymentRequests)(nil), returnPaymentRequests)
 
-			suite.DB().Load(paymentRequest,"PaymentServiceItems.MTOServiceItem.MTOShipment",
-				"PaymentServiceItems.MTOServiceItem")
-
-			err := shipmentRecalculatorWithMockRecalculate.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *paymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
-			if suite.Error(err) {
-				suite.Equal(err.Error(), errString)
-			}
-
-		})
-
-	*/
+	})
 }
 
 /*
