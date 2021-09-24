@@ -406,7 +406,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
+      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
         unapprovedSITExtensionCount += 1;
         unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
         setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
