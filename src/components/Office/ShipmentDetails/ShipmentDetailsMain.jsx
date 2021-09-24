@@ -17,6 +17,7 @@ const ShipmentDetailsMain = ({
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
+  handleSubmitSITExtension,
 }) => {
   const {
     requestedPickupDate,
@@ -34,7 +35,11 @@ const ShipmentDetailsMain = ({
   return (
     <div className={className}>
       {sitExtensions && (
-        <ShipmentSITExtensions sitExtensions={sitExtensions} handleReviewSITExtension={handleReviewSITExtension} />
+        <ShipmentSITExtensions
+          sitExtensions={sitExtensions}
+          handleReviewSITExtension={handleReviewSITExtension}
+          handleSubmitSITExtension={handleSubmitSITExtension}
+        />
       )}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
@@ -75,6 +80,7 @@ ShipmentDetailsMain.propTypes = {
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
+  handleSubmitSITExtension: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {

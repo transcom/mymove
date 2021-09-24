@@ -120,7 +120,7 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtension
 	if sitExtension == nil {
 		return nil
 	}
-
+	now := time.Now()
 	ad := int(*sitExtension.ApprovedDays)
 	model := &models.SITExtension{
 		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
@@ -129,6 +129,7 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtension
 		Status:        models.SITExtensionStatusApproved,
 		ApprovedDays:  &ad,
 		OfficeRemarks: sitExtension.OfficeRemarks,
+		DecisionDate:  &now,
 	}
 
 	return model
