@@ -484,9 +484,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		//
+		// Save all of the updated values from newShipment (MTOShipment) in raw query call to the database
+		//
+
+		// Generate query to update all mto_shipments columns
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		// Generate slice of column values to be used for the update from the MTOShipment model
 		params := generateMTOShipmentParams(*newShipment)
 
+		// Execute query to update all mto_shipments columns with values from MTOShipment
 		if err := txnAppCtx.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
@@ -496,13 +503,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// 	return err
 		// }
 
+		//
 		// Perform shipment recalculate payment request
+		//
 		if runShipmentRecalculate {
 			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
 			if err != nil {
 				return err
 			}
 		}
+
+		//
+		// Done with updates to shipment
+		//
 		return nil
 	})
 
