@@ -1,4 +1,10 @@
+@import 'shared/styles/colors';
+
 .errorTag {
     height: 20px;
     width: 20px;
+}
+
+.warning {
+    color: $warning;
 }

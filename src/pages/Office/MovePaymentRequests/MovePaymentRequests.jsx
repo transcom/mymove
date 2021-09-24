@@ -11,6 +11,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
@@ -108,6 +109,20 @@ const MovePaymentRequests = ({
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
   };
 
+  const anyShipmentOverweight = (shipments) => {
+    return shipments.some((shipment) => {
+      return shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight);
+    });
+  };
+
+  const anyShipmentMissingWeight = (shipments) => {
+    return shipments.some((shipment) => {
+      return !shipment.primeEstimatedWeight || (shipment.reweigh?.id && !shipment.reweigh?.weight);
+    });
+  };
+
+  const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
+
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -116,7 +131,7 @@ const MovePaymentRequests = ({
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
-                {s === 'billable-weights' && totalBillableWeight > maxBillableWeight && (
+                {s === 'billable-weights' && maxBillableWeightExceeded && (
                   <Tag
                     className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
                     data-testid="maxBillableWeightErrorTag"
@@ -124,6 +139,15 @@ const MovePaymentRequests = ({
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
+                {s === 'billable-weights' &&
+                  !maxBillableWeightExceeded &&
+                  (anyShipmentOverweight(mtoShipments) || anyShipmentMissingWeight(mtoShipments)) && (
+                    <FontAwesomeIcon
+                      icon="exclamation-triangle"
+                      data-testid="maxBillableWeightWarningTag"
+                      className={classnames(styles.warning, styles.errorTag)}
+                    />
+                  )}
               </a>
             );
           })}
