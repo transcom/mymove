@@ -20,7 +20,8 @@ readonly image=$1
 readonly environment=$2
 
 readonly RESERVATION_CPU=256
-readonly RESERVATION_MEM=512
+# readonly RESERVATION_MEM=512
+readonly RESERVATION_MEM=1024
 
 readonly log_prefix="${name}"
 readonly container_name="${name}-${environment}"
