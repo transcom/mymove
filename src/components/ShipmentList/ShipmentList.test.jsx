@@ -53,18 +53,33 @@ describe('ShipmentList component', () => {
   });
 });
 
-describe('BillableWeightCard', () => {
-  it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
+describe('Shipment List being used for billable weight', () => {
+  it('renders maximum billable weight, total billable weight, weight requested and weight allowance with no flags', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6161, estimatedWeight: 5600 },
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 1161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 50 },
+      },
       {
         id: '0002',
         shipmentType: 'HHG',
         calculatedBillableWeight: 3200,
         estimatedWeight: 5000,
-        reweigh: { id: '1234' },
+        primeEstimatedWeight: 1000,
+        reweigh: { id: '1234', weight: 20 },
       },
-      { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3400, estimatedWeight: 5000 },
+      {
+        id: '0003',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
     ];
 
     const defaultProps = {
@@ -75,9 +90,8 @@ describe('BillableWeightCard', () => {
 
     render(<ShipmentList {...defaultProps} />);
 
-    // flags
-    expect(screen.getByText('Over weight')).toBeInTheDocument();
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
+    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
+    expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
 
     // weights
     expect(screen.getByText(formatWeight(shipments[0].calculatedBillableWeight))).toBeInTheDocument();
