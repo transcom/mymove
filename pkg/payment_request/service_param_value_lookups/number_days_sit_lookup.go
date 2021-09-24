@@ -77,12 +77,11 @@ func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentService
 			// Get the payment request service item param start and end dates
 			start, end, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
 			if err != nil {
-				return false
+				return false // TODO do we want to say non overlapping if we can't parse?
 			}
-			// Check if the start or end date has already be used for billing
-			// dateInRange() checks inclusively, subtract one date from the end date
-			endMinus1 := end.AddDate(0, 0, -1) // TODO dont know why this is necessary?
-			if dateInRange(sitStart, start, endMinus1) || dateInRange(sitEnd, start, endMinus1) {
+			// Check if the start or end date has already be used for billing.
+			// dateInRange() checks inclusively.
+			if dateInRange(sitStart, start, end) || dateInRange(sitEnd, start, end) {
 				return true
 			}
 		}

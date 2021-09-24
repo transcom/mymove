@@ -1322,6 +1322,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 	})
+
+	suite.T().Run("SIT Additional Days cannot start on the same day as the end of a previously billed date range", func(t *testing.T) {
+		move, serviceItemDOASIT, _ := suite.setupMoveWithAddlDaysSITAndPaymentRequest(
+			reServiceDOFSIT,
+			originSITEntryDateOne,
+			reServiceDOASIT,
+			"2020-07-21", "2020-07-30")
+
+		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+			},
+			Move: move,
+		})
+		// Previously billed DOASIT ends on 2020-07-30. This one starts on that same date, so the lookup should fail.
+		suite.makeAdditionalDaysSITPaymentServiceItem(
+			paymentRequestOverlapping,
+			serviceItemDOASIT,
+			"2020-07-30", "2020-08-15")
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequestOverlapping.ID, move.ID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		suite.Error(err)
+	})
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
