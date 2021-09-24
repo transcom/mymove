@@ -1311,6 +1311,17 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 	})
+
+	suite.T().Run("SIT days remaining calculation should account for first day in SIT", func(t *testing.T) {
+		// The Additional Days SIT service item should be for exactly the allowed amount,
+		// So the first day in SIT will put it over the limit.
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-10-18")
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		suite.Error(err)
+	})
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
