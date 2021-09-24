@@ -48,7 +48,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 					RequestedDays: 90,
 				},
 			})
-			//sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+
 			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sitExtension, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
