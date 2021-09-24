@@ -63,7 +63,7 @@ func checkSITExtensionPending() sitExtensionValidator {
 		if err != nil {
 			return err
 		}
-		// Do we need a validation error here instead? What error type should be here?
+
 		if len(emptySITExtensionArray) > 0 {
 			return services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
 		}
