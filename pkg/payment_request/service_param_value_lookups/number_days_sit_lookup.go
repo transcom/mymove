@@ -73,9 +73,8 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem, sitStart time.Time, sitEnd time.Time) bool {
 	for _, paymentServiceItem := range shipmentSITPaymentServiceItems {
 		// Check for overlapping requested SIT dates with previously billed additional days SIT service items at the same origin or destination
-		if isDDASIT(paymentServiceItem.MTOServiceItem) && isDDASIT(mtoServiceItem) || isDOASIT(paymentServiceItem.MTOServiceItem) && isDOASIT(mtoServiceItem) {
+		if isAdditionalDaysSIT(paymentServiceItem.MTOServiceItem) && paymentServiceItem.MTOServiceItem.ReService.Code == mtoServiceItem.ReService.Code {
 			// Get the payment request service item param start and end dates
-
 			start, end, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
 			if err != nil {
 				return false
