@@ -131,6 +131,11 @@ const MovePaymentRequests = ({
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
+                {s === 'payment-requests' && paymentRequests?.length > 0 && (
+                  <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
+                    {paymentRequests.length}
+                  </Tag>
+                )}
                 {s === 'billable-weights' && maxBillableWeightExceeded && (
                   <Tag
                     className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
