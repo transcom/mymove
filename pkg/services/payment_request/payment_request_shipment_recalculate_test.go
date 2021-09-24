@@ -52,29 +52,6 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 		})
 	}
 
-	// Payment Request 2
-	/*
-		var paymentRequest2 *models.PaymentRequest
-		paymentRequest2, err = creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
-		suite.FatalNoError(err)
-
-		// Add a couple of proof of service docs and prime uploads.
-		for i := 0; i < 2; i++ {
-			proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-				ProofOfServiceDoc: models.ProofOfServiceDoc{
-					PaymentRequestID: paymentRequest2.ID,
-				},
-			})
-			contractor := testdatagen.MakeDefaultContractor(suite.DB())
-			testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-				PrimeUpload: models.PrimeUpload{
-					ProofOfServiceDocID: proofOfServiceDoc.ID,
-					ContractorID:        contractor.ID,
-				},
-			})
-		}
-	*/
-
 	// Adjust shipment's original weight to force different pricing on a recalculation.
 	mtoShipment := move.MTOShipments[0]
 	newWeight := recalculateTestNewOriginalWeight
@@ -211,49 +188,3 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 
 	})
 }
-
-/*
-func (suite *PaymentRequestServiceSuite) Test_findPendingPaymentRequestsForShipment() {
-
-	// Mock out a planner.
-	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
-		recalculateTestPickupZip,
-		recalculateTestDestinationZip,
-	).Return(recalculateTestZip3Distance, nil)
-
-	// Mock out payment request recalculate
-	mockRecalculator := &mocks.PaymentRequestRecalculator{}
-	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(mockRecalculator)
-
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
-
-	_ = testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusEDIError,
-			},
-		})
-
-	_ = testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
-			},
-		})
-
-	suite.T().Run("No available payment request to recalculate", func(t *testing.T) {
-		shipmentRecalculator.findPendingPaymentRequestsForShipment
-	})
-
-	_ = testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
-			},
-		})
-}
-*/
