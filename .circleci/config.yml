@@ -1970,6 +1970,9 @@ workflows:
       - check_generated_code:
           requires:
             - pre_deps_golang
+          filters:
+              branches:
+                ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - anti_virus:
           filters:
