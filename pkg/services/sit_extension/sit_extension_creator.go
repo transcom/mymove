@@ -9,16 +9,18 @@ import (
 )
 
 type sitExtensionCreator struct {
-	checks []sitExtensionValidator
+	checks     []sitExtensionValidator
+	moveRouter services.MoveRouter
 }
 
 // NewSitExtensionCreator creates a new struct with the service dependencies
-func NewSitExtensionCreator() services.SITExtensionCreator {
+func NewSitExtensionCreator(moveRouter services.MoveRouter) services.SITExtensionCreator {
 	return &sitExtensionCreator{
-		checks: []sitExtensionValidator{
+		[]sitExtensionValidator{
 			checkShipmentID(),
 			checkRequiredFields(),
 		},
+		moveRouter,
 	}
 }
 
@@ -49,6 +51,31 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the SIT extension.")
 	} else if err != nil {
 		return nil, services.NewQueryError("SITExtension", err, "")
+	}
+
+	// If the status is set to pending, then the TOO needs to review the sit extensions
+	// Which means the move status needs to be set to approvals requested
+	if sitExtension.Status == models.SITExtensionStatusPending {
+		// Get the move
+		var move models.Move
+		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
+		if err != nil {
+			return nil, err
+		}
+
+		existingMoveStatus := move.Status
+		err = f.moveRouter.SendToOfficeUser(appCtx, &move)
+		if err != nil {
+			return nil, err
+		}
+
+		// only update if the move status has actually changed
+		if existingMoveStatus != move.Status {
+			err = appCtx.DB().Update(&move)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return sitExtension, nil
