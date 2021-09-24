@@ -1343,6 +1343,7 @@ const lowerActualsMTOQuery = {
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
+const setUnapprovedSITExtensionCount = jest.fn();
 
 const moveCode = 'WE31AZ';
 const requiredProps = {
@@ -1373,6 +1374,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1395,6 +1397,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1413,6 +1416,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1431,6 +1435,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1449,6 +1454,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1467,6 +1473,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1485,6 +1492,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1503,6 +1511,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1521,6 +1530,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1539,6 +1549,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1557,6 +1568,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1575,6 +1587,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1595,6 +1608,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1613,6 +1627,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1631,6 +1646,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1649,6 +1665,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1669,6 +1686,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1687,6 +1705,7 @@ describe('MoveTaskOrder', () => {
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
         </MockProviders>,
       );
@@ -1705,6 +1724,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
       </MockProviders>,
     );
@@ -1740,6 +1760,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
       </MockProviders>,
     );
@@ -1807,6 +1828,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
       </MockProviders>,
     );
@@ -1886,6 +1908,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
       </MockProviders>,
     );
@@ -1911,7 +1934,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
-      expect(wrapper.find('span[data-testid="tag"]').at(0).text()).toEqual('cancelled');
+      expect(wrapper.find('span[data-testid="tag"]').at(1).text()).toEqual('cancelled');
     });
 
     it('renders the ImportantShipmentDates', () => {
@@ -1924,7 +1947,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the ShipmentWeightDetails', () => {
       expect(wrapper.find('ShipmentWeightDetails').exists()).toBe(true);
-      expect(wrapper.find('span[data-testid="tag"]').at(1).text()).toEqual('reweigh requested');
+      expect(wrapper.find('span[data-testid="tag"]').at(2).text()).toEqual('reweigh requested');
     });
 
     it('renders the RequestedServiceItemsTable for SUBMITTED service item', () => {

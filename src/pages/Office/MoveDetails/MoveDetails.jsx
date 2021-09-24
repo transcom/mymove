@@ -33,7 +33,12 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount }) => {
+const MoveDetails = ({
+  setUnapprovedShipmentCount,
+  setUnapprovedServiceItemCount,
+  setExcessWeightRiskCount,
+  setUnapprovedSITExtensionCount,
+}) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -122,6 +127,16 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
       setExcessWeightRiskCount(0);
     }
   }, [mtoShipments, setExcessWeightRiskCount, order, move]);
+
+  useEffect(() => {
+    let unapprovedSITExtensionCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.sitExtensions) {
+        unapprovedSITExtensionCount += 1;
+      }
+    });
+    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+  }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -282,6 +297,7 @@ MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
+  setUnapprovedSITExtensionCount: func.isRequired,
 };
 
 export default MoveDetails;

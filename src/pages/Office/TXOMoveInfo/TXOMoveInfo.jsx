@@ -25,6 +25,7 @@ const TXOMoveInfo = () => {
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
+  const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode } = useParams();
@@ -70,6 +71,7 @@ const TXOMoveInfo = () => {
           unapprovedServiceItemCount={unapprovedServiceItemCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
+          unapprovedSITExtensionCount={unapprovedSITExtensionCount}
           moveCode={moveCode}
           order={order}
         />
@@ -82,6 +84,7 @@ const TXOMoveInfo = () => {
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
+              setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
             />
           </Route>
 
@@ -94,6 +97,7 @@ const TXOMoveInfo = () => {
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
+              setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
             />
           </Route>
 
