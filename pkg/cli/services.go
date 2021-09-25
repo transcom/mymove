@@ -60,7 +60,8 @@ func CheckServices(v *viper.Viper) error {
 		(!dpsEnabled) &&
 		(!internalAPIEnabled) &&
 		(!ghcAPIEnabled) &&
-		(!primeAPIEnabled) {
+		(!primeAPIEnabled) &&
+		(!primeSimulatorEnabled) {
 		return errors.New("no service was enabled")
 	}
 
