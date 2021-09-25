@@ -178,15 +178,23 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		return nil
 	}
 
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+	var requestedPickupDate *time.Time
+	if mtoShipment.RequestedPickupDate != nil {
+		rpd := time.Time(*mtoShipment.RequestedPickupDate)
+		requestedPickupDate = &rpd
+	}
+	var requestedDeliveryDate *time.Time
+	if mtoShipment.RequestedDeliveryDate != nil {
+		rdd := time.Time(*mtoShipment.RequestedDeliveryDate)
+		requestedDeliveryDate = &rdd
+	}
 	billableWeightCap := unit.Pound(*mtoShipment.BillableWeightCap)
 	model := &models.MTOShipment{
 		BillableWeightCap:           &billableWeightCap,
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:         &requestedPickupDate,
-		RequestedDeliveryDate:       &requestedDeliveryDate,
+		RequestedPickupDate:         requestedPickupDate,
+		RequestedDeliveryDate:       requestedDeliveryDate,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 	}

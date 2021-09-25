@@ -3236,9 +3236,11 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care
