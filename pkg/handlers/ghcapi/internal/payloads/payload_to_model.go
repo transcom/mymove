@@ -188,9 +188,13 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		rdd := time.Time(*mtoShipment.RequestedDeliveryDate)
 		requestedDeliveryDate = &rdd
 	}
-	billableWeightCap := unit.Pound(*mtoShipment.BillableWeightCap)
+	var billableWeightCap *unit.Pound
+	if mtoShipment.BillableWeightCap != nil {
+		bwc := unit.Pound(*mtoShipment.BillableWeightCap)
+		billableWeightCap = &bwc
+	}
 	model := &models.MTOShipment{
-		BillableWeightCap:           &billableWeightCap,
+		BillableWeightCap:           billableWeightCap,
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:         requestedPickupDate,
