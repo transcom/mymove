@@ -76,6 +76,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+  const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -253,6 +254,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const [mutateSubmitSITExtension] = useMutation(submitSITExtension, {
     onSuccess: (data, variables) => {
+      setIsSuccessAlertVisible(true);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -499,6 +501,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               </span>
             </Alert>
           )}
+          {isSuccessAlertVisible && (
+            <Alert slim type="success">
+              Your changes were saved
+            </Alert>
+          )}
+
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
