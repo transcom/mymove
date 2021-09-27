@@ -13,9 +13,14 @@ import styles from './ShipmentSITExtensions.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso } from 'shared/formatters';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { ShipmentShape } from 'types/shipment';
+import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 
 const ShipmentSITExtensions = (props) => {
-  const { sitExtensions, handleReviewSITExtension } = props;
+  const { sitExtensions, sitStatus, shipment, handleReviewSITExtension } = props;
+  const { totalSITDaysUsed, totalDaysRemaining } = sitStatus;
+
   const [isReviewSITExtensionModalVisible, setisReviewSITExtensionModalVisible] = useState(false);
   const reviewSITExtensionSubmit = (sitExtensionID, formValues) => {
     setisReviewSITExtensionModalVisible(false);
@@ -25,15 +30,15 @@ const ShipmentSITExtensions = (props) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
+  const sitEndDate = moment().add(totalDaysRemaining, 'days').format('DD MMM YYYY');
+
   const mappedSITExtensionList = sitExtensions.map((sitExt) => {
     return (
       <dl key={sitExt.id}>
-        {sitExt.approvedDays > 0 && (
-          <div>
-            <dt>{sitExt.approvedDays} days added</dt>
-            <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
-          </div>
-        )}
+        <div>
+          <dt>{sitExt.approvedDays} days added</dt>
+          <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
+        </div>
         <div>
           <dt>Reason:</dt>
           <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
@@ -61,7 +66,7 @@ const ShipmentSITExtensions = (props) => {
     </>
   );
 
-  const taysRemainingAndEndDate = (
+  const daysRemainingAndEndDate = (
     <>
       <p>{totalDaysRemaining} remaining</p>
       <p>Ends {sitEndDate}</p>
@@ -77,7 +82,12 @@ const ShipmentSITExtensions = (props) => {
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ? 'origin' : 'destination';
+    const location =
+      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOASIT ||
+      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ||
+      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT
+        ? 'origin'
+        : 'destination';
 
     return (
       <p key={pastSITItem.id}>
@@ -102,7 +112,7 @@ const ShipmentSITExtensions = (props) => {
 
       <DataTable
         columnHeaders={['Total days of SIT', 'Total days remaining']}
-        dataRow={[totalDaysAuthorizedAndUsed, taysRemainingAndEndDate]}
+        dataRow={[totalDaysAuthorizedAndUsed, daysRemainingAndEndDate]}
       />
       <p>Current location: {currentLocation}</p>
       <DataTable
@@ -112,7 +122,7 @@ const ShipmentSITExtensions = (props) => {
       {sitStatus.pastSITServiceItems?.length > 0 && (
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
-      <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
+      {sitExtensions.length > 0 && <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />}
       {showModal && (
         <ReviewSITExtensionsModal
           onClose={() => setisReviewSITExtensionModalVisible(false)}
@@ -125,7 +135,7 @@ const ShipmentSITExtensions = (props) => {
 };
 
 ShipmentSITExtensions.propTypes = {
-  sitExtensions: PropTypes.arrayOf(SITExtensionShape).isRequired,
+  sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   handleReviewSITExtension: PropTypes.func.isRequired,
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
