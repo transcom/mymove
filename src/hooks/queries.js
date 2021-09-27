@@ -15,6 +15,7 @@ import {
   getCustomer,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
+import { getPrimeSimulatorAvailableMoves } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -29,6 +30,7 @@ import {
   USER,
   CUSTOMER,
   SERVICES_COUNSELING_QUEUE,
+  PRIME_SIMULATOR_AVAILABLE_MOVES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -361,6 +363,20 @@ export const useMoveDetailsQueries = (moveCode) => {
     order,
     mtoShipments,
     mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePrimeSimulatorAvailableMovesQueries = () => {
+  const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
+    [PRIME_SIMULATOR_AVAILABLE_MOVES],
+    getPrimeSimulatorAvailableMoves,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
+  return {
+    listMoves: data,
     isLoading,
     isError,
     isSuccess,
