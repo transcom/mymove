@@ -17,29 +17,31 @@ const DaysInSITAllowance = ({
   totalSITEndDate,
 }) => {
   return (
-    <dl className={classNames(className, styles.DaysInSITAllowance)}>
-      <dt>Prev. billed & accepted</dt>
-      <dd>
-        {formatDaysInTransit(previouslyBilledDays)}
-        {!!previouslyBilledDays && (
-          <>
-            {', through '}
-            {formatDate(previouslyBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
-          </>
-        )}
-      </dd>
-      <dt>Invoiced & pending</dt>
-      <dd>
-        {formatDaysInTransit(pendingSITDaysInvoiced)}, through{' '}
-        {formatDate(pendingBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
-      </dd>
-      <dt>Total authorized</dt>
-      <dd>{formatDaysInTransit(totalSITDaysAuthorized)}</dd>
-      <dt>Authorized remaining</dt>
-      <dd>
-        {formatDaysInTransit(totalSITDaysRemaining)}, ends {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
-      </dd>
-    </dl>
+    <div className={classNames(className, styles.DaysInSITAllowance)}>
+      <dl className={styles.daysInSITList}>
+        <dt>Prev. billed & accepted</dt>
+        <dd>
+          {formatDaysInTransit(previouslyBilledDays)}
+          {!!previouslyBilledDays && (
+            <>
+              {', through '}
+              {formatDate(previouslyBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
+            </>
+          )}
+        </dd>
+        <dt>Invoiced & pending</dt>
+        <dd>
+          {formatDaysInTransit(pendingSITDaysInvoiced)}, through{' '}
+          {formatDate(pendingBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
+        </dd>
+        <dt>Total authorized</dt>
+        <dd>{formatDaysInTransit(totalSITDaysAuthorized)}</dd>
+        <dt>Authorized remaining</dt>
+        <dd>
+          {formatDaysInTransit(totalSITDaysRemaining)}, ends {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
+        </dd>
+      </dl>
+    </div>
   );
 };
 
