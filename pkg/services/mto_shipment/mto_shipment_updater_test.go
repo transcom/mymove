@@ -206,6 +206,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				suite.Equal(item.Height, s.Height)
 			}
 		}
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
 	servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
@@ -241,6 +244,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 			suite.Equal(tt.updatable, updatable,
 				"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+
+			// Verify that shipment recalculate was handled correctly
+			mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 		})
 	}
 
@@ -249,6 +255,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &mtoShipment, eTag)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
@@ -265,6 +273,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
 		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
 	oldMTOShipment2 := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -281,6 +292,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
 		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
 	suite.T().Run("Successful update to all address fields", func(t *testing.T) {
@@ -313,6 +326,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(secondaryPickupAddress.StreetAddress1, updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(secondaryDeliveryAddress.ID, *updatedShipment.SecondaryDeliveryAddressID)
 		suite.Equal(secondaryDeliveryAddress.StreetAddress1, updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 
 	})
 
@@ -369,6 +384,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Updating a shipment does not nullify ApprovedDate", func(t *testing.T) {
@@ -408,6 +426,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
@@ -459,6 +480,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newFirstName, *updatedMTOShipment.MTOAgents[0].FirstName)
 		suite.Equal(email, *updatedMTOShipment.MTOAgents[1].Email)
 		suite.Equal(newLastName, *updatedMTOShipment.MTOAgents[1].LastName)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Successfully add new MTO Agent and edit another", func(t *testing.T) {
@@ -503,6 +527,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[1].FirstName)
 		suite.Equal(*mtoAgentToCreate.LastName, *updatedMTOShipment.MTOAgents[1].LastName)
 		suite.Equal(*mtoAgentToCreate.Email, *updatedMTOShipment.MTOAgents[1].Email)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Successfully divert a shipment and transition statuses", func(t *testing.T) {
@@ -541,6 +568,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		err = suite.DB().Find(&updatedMove, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
 	// Test UpdateMTOShipmentPrime
@@ -598,6 +628,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }
 
@@ -1070,6 +1103,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), primeShipment.ID)
 		suite.True(isAvailable)
 		suite.NoError(err)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Shipment exists but is not available to Prime - failure", func(t *testing.T) {
@@ -1078,6 +1114,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		suite.Error(err)
 		suite.IsType(err, services.NotFoundError{})
 		suite.Contains(err.Error(), nonPrimeShipment.ID.String())
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Shipment exists, is available, but move is disabled - failure", func(t *testing.T) {
@@ -1086,6 +1125,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		suite.Error(err)
 		suite.IsType(err, services.NotFoundError{})
 		suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Shipment does not exist - failure", func(t *testing.T) {
@@ -1095,6 +1137,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		suite.Error(err)
 		suite.IsType(err, services.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }
 
@@ -1148,6 +1193,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 		suite.NotNil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, primeShipment.MoveTaskOrder.Status)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Skips calling check excess weight if estimated weight was not provided in request", func(t *testing.T) {
@@ -1180,6 +1228,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Skips calling check excess weight if the updated estimated weight matches the db value", func(t *testing.T) {
@@ -1211,6 +1262,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }
 
@@ -1263,6 +1317,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		suite.Equal(primeShipment.ID.String(), primeShipment.Reweigh.ShipmentID.String())
 		suite.NotNil(primeShipment.Reweigh.RequestedAt)
 		suite.Equal(models.ReweighRequesterSystem, primeShipment.Reweigh.RequestedBy)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Skips calling check auto reweigh if actual weight was not provided in request", func(t *testing.T) {
@@ -1293,6 +1350,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
 	suite.T().Run("Skips calling check auto reweigh if the updated actual weight matches the db value", func(t *testing.T) {
@@ -1322,5 +1382,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }
