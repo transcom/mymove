@@ -66,7 +66,7 @@ func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem
 	for _, paymentServiceItem := range paymentServiceItems {
 		// Ignoring potentially rejected SIT service items here
 		if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
-			start, end, err := getStartAndEndParams(paymentServiceItem.PaymentServiceItemParams)
+			_, end, err := getStartAndEndParams(paymentServiceItem.PaymentServiceItemParams)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,6 @@ func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem
 
 				// try to use most recent SIT billed end date
 				if shipmentSITBalance.PreviouslyBilledEndDate.Before(end) {
-					shipmentSITBalance.PreviouslyBilledStartDate = &start
 					// If the DaysInSIT is different than the start and end rage should we change this to be the cutoff
 					// date?
 					shipmentSITBalance.PreviouslyBilledEndDate = &end
@@ -93,10 +92,9 @@ func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem
 				shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 			} else {
 				shipmentSITBalance := services.ShipmentPaymentSITBalance{
-					ShipmentID:                shipment.ID,
-					PreviouslyBilledDays:      &daysInSIT,
-					PreviouslyBilledStartDate: &start,
-					PreviouslyBilledEndDate:   &end,
+					ShipmentID:              shipment.ID,
+					PreviouslyBilledDays:    &daysInSIT,
+					PreviouslyBilledEndDate: &end,
 				}
 
 				if shipment.SITDaysAllowance != nil {
@@ -131,6 +129,8 @@ func calculatePendingSITBalance(paymentServiceItems []models.PaymentServiceItem,
 
 			if shipment.SITDaysAllowance != nil {
 				shipmentSITBalance.TotalSITDaysRemaining -= shipmentSITBalance.PendingSITDaysInvoiced
+				// start counting from the day after the last day in the SIT payment range
+				shipmentSITBalance.TotalSITEndDate = end.AddDate(0, 0, shipmentSITBalance.TotalSITDaysRemaining+1)
 			}
 
 			// I think this would be accurate for the scenario there were 2 pending payment requests, they would see
@@ -148,6 +148,8 @@ func calculatePendingSITBalance(paymentServiceItems []models.PaymentServiceItem,
 			if shipment.SITDaysAllowance != nil {
 				shipmentSITBalance.TotalSITDaysAuthorized = *shipment.SITDaysAllowance
 				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
+				// start counting from the day after the last day in the SIT payment range
+				shipmentSITBalance.TotalSITEndDate = end.AddDate(0, 0, shipmentSITBalance.TotalSITDaysRemaining+1)
 			}
 
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance

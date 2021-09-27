@@ -4911,7 +4911,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
 	originDepartureDate := originEntryDate.Add(time.Hour * 24 * 30)
 
-	destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+	destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
 	destinationDepartureDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 
 	// First reviewed payment request with 30 days billed for origin SIT
@@ -4966,7 +4966,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	// Creates the SIT end date param for existing DOASIT payment request service item
 	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originEntryDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+			Value: originDepartureDate.Format("2006-01-02"),
 		},
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
