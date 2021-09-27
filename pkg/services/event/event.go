@@ -76,6 +76,9 @@ const ShipmentRequestCancellationEventKey KeyType = "Shipment.RequestCancellatio
 // ShipmentRequestReweighEventKey is a key containing Shipment.RequestReweigh
 const ShipmentRequestReweighEventKey KeyType = "Shipment.RequestReweigh"
 
+// ApproveSITExtensionEventKey is a key containing Shipment.ApproveSIT
+const ApproveSITExtensionEventKey KeyType = "Shipment.ApproveSIT"
+
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 
@@ -110,6 +113,7 @@ var eventModels = map[KeyType]eventModel{
 	ShipmentRejectEventKey:              {ShipmentRejectEventKey, models.MTOShipment{}},
 	ShipmentRequestCancellationEventKey: {ShipmentRequestCancellationEventKey, models.MTOShipment{}},
 	ShipmentRequestReweighEventKey:      {ShipmentRequestReweighEventKey, models.MTOShipment{}},
+	ApproveSITExtensionEventKey: {ApproveSITExtensionEventKey, models.MTOShipment{}},
 	MTOServiceItemCreateEventKey:        {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
 	MTOServiceItemUpdateEventKey:        {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey:        {PaymentRequestCreateEventKey, models.PaymentRequest{}},

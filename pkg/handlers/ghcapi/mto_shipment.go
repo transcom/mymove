@@ -765,7 +765,28 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
+	h.triggerSITExtensionApprovalEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
 	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
+}
+
+func (h ApproveSITExtensionHandler) triggerSITExtensionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcApproveSITExtensionEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ApproveSITExtensionEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
+		MtoID:           moveID,                               // ID of the associated Move
+		Request:         params.HTTPRequest,                   // Pass on the http.Request
+		DBConnection:    h.DB(),                               // Pass on the pop.Connection
+		HandlerContext:  h,                                    // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.ApproveSITExtensionHandler could not generate the event", zap.Error(err))
+	}
 }
 
 // DenySITExtensionHandler denies a SIT extension
