@@ -47,6 +47,9 @@ const MovePaymentRequests = ({
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
+  const filteredShipments = mtoShipments?.filter((shipment) => {
+    return includedStatusesForCalculatingWeights(shipment.status);
+  });
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -136,7 +139,7 @@ const MovePaymentRequests = ({
                     {paymentRequests.length}
                   </Tag>
                 )}
-                {s === 'billable-weights' && maxBillableWeightExceeded && (
+                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
                   <Tag
                     className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
                     data-testid="maxBillableWeightErrorTag"
@@ -146,7 +149,8 @@ const MovePaymentRequests = ({
                 )}
                 {s === 'billable-weights' &&
                   !maxBillableWeightExceeded &&
-                  (anyShipmentOverweight(mtoShipments) || anyShipmentMissingWeight(mtoShipments)) && (
+                  filteredShipments?.length > 0 &&
+                  (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
                     <FontAwesomeIcon
                       icon="exclamation-triangle"
                       data-testid="maxBillableWeightWarningTag"
@@ -167,7 +171,7 @@ const MovePaymentRequests = ({
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
-              shipments={mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status))}
+              shipments={filteredShipments}
             />
           </div>
           <h2>Payment requests</h2>
