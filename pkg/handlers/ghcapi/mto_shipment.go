@@ -765,11 +765,11 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	h.triggerSITExtensionApprovalEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
+	h.triggerApproveSITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
 	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
 }
 
-func (h ApproveSITExtensionHandler) triggerSITExtensionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
+func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
