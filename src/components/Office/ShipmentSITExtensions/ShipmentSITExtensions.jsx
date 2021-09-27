@@ -70,9 +70,11 @@ const ShipmentSITExtensions = (props) => {
             </Button>
           </p>
         )}
-        <Button type="button" onClick={() => setisSubmitITExtensionModalVisible(true)} unstyled>
-          Edit
-        </Button>
+        {!pendingSITExtension && (
+          <Button type="button" onClick={() => setisSubmitITExtensionModalVisible(true)} unstyled>
+            Edit
+          </Button>
+        )}
       </div>
 
       <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
