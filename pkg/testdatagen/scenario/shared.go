@@ -3692,7 +3692,6 @@ func movesWithNoIssuesReweighRequestedAndConducted(appCtx appcontext.AppContext,
 			ID:               uuid.FromStringOrNil("29b659fa-1ca8-11ec-9621-0242ac130002"),
 			Locator:          "MMNOIS",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3815,7 +3814,6 @@ func movesWithNoIssuesNoReweighRequested(appCtx appcontext.AppContext, userUploa
 			ID:               uuid.FromStringOrNil("286f56a2-1cab-11ec-9621-0242ac130002"),
 			Locator:          "MMNOI2",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3897,7 +3895,7 @@ func movesWithMissingWeightsReweighRequestedNotConducted(appCtx appcontext.AppCo
 	})
 
 	dependentsAuthorized := false
-	maxBillableWeight := 13000
+	maxBillableWeight := 14300
 	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
 		Entitlement: models.Entitlement{
 			DependentsAuthorized: &dependentsAuthorized,
@@ -3918,7 +3916,6 @@ func movesWithMissingWeightsReweighRequestedNotConducted(appCtx appcontext.AppCo
 			ID:               uuid.FromStringOrNil("eabb20dc-1cb1-11ec-9621-0242ac130002"),
 			Locator:          "MMMISW",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3946,7 +3943,7 @@ func movesWithMissingWeightsReweighRequestedNotConducted(appCtx appcontext.AppCo
 	})
 
 	estimatedHHGWeight2 := unit.Pound(7000)
-	actualHHGWeight2 := unit.Pound(6897)
+	actualHHGWeight2 := unit.Pound(6697)
 	shipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight2,
@@ -4040,7 +4037,6 @@ func movesWithMissingWeightNoEstWeightProvidedMaxExceeded(appCtx appcontext.AppC
 			ID:               uuid.FromStringOrNil("df80f924-1cb8-11ec-9621-0242ac130002"),
 			Locator:          "MMNEME",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -4118,7 +4114,7 @@ func exceeds110OfEstimated(appCtx appcontext.AppContext, userUploader *uploader.
 	})
 
 	dependentsAuthorized := false
-	maxBillableWeight := 8000
+	maxBillableWeight := 11000
 	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
 		Entitlement: models.Entitlement{
 			DependentsAuthorized: &dependentsAuthorized,
@@ -4126,7 +4122,7 @@ func exceeds110OfEstimated(appCtx appcontext.AppContext, userUploader *uploader.
 		},
 	})
 
-	orderGrade := "E_6"
+	orderGrade := "E_7"
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smID),
@@ -4139,7 +4135,6 @@ func exceeds110OfEstimated(appCtx appcontext.AppContext, userUploader *uploader.
 			ID:               uuid.FromStringOrNil("8ac675c0-1cb9-11ec-9621-0242ac130002"),
 			Locator:          "MMOEST",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -4262,7 +4257,6 @@ func moveWithDiversion(appCtx appcontext.AppContext, userUploader *uploader.User
 			ID:               uuid.FromStringOrNil("b7a5ffd0-1fc4-11ec-9621-0242ac130002"),
 			Locator:          "MMDIVE",
 			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
 		},
 	})
 
