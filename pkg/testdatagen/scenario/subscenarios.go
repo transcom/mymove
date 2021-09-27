@@ -211,6 +211,7 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 		movesWithMissingWeightsReweighRequestedNotConducted(appCtx, userUploader, primeUploader, moveRouter)
 		movesWithMissingWeightNoEstWeightProvidedMaxExceeded(appCtx, userUploader, primeUploader, moveRouter)
 		exceeds110OfEstimated(appCtx, userUploader, primeUploader, moveRouter)
+		moveWithDiversion(appCtx, userUploader, primeUploader, moveRouter)
 	}
 }
 
