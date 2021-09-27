@@ -7,7 +7,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField';
 import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
-import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+import { formatWeight } from 'shared/formatters';
 import Hint from 'components/Hint';
 
 const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, editableAuthorizedWeight }) => {
@@ -107,8 +107,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         )}
         <dt>Weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
-        <dt>Storage in-transit</dt>
-        <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField id="dependentsAuthorizedInput" name="dependentsAuthorized" label="Dependents authorized" />
