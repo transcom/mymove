@@ -834,7 +834,29 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
+	h.triggerDenySITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
+
 	return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
+}
+
+func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcDenySITExtensionEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.DenySITExtensionEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
+		MtoID:           moveID,                               // ID of the associated Move
+		Request:         params.HTTPRequest,                   // Pass on the http.Request
+		DBConnection:    h.DB(),                               // Pass on the pop.Connection
+		HandlerContext:  h,                                    // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.DenySITExtensionHandler could not generate the event", zap.Error(err))
+	}
 }
 
 // CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state

@@ -79,6 +79,9 @@ const ShipmentRequestReweighEventKey KeyType = "Shipment.RequestReweigh"
 // ApproveSITExtensionEventKey is a key containing Shipment.ApproveSIT
 const ApproveSITExtensionEventKey KeyType = "Shipment.ApproveSIT"
 
+// DenySITExtensionEventKey is a key containing Shipment.DenySIT
+const DenySITExtensionEventKey KeyType = "Shipment.DenySIT"
+
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 

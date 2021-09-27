@@ -61,6 +61,9 @@ const GhcRequestShipmentReweighEndpointKey = "Ghc.RequestShipmentReweigh"
 // GhcApproveSITExtensionEndpointKey is the key for the approveSITExtension endpoint in ghc
 const GhcApproveSITExtensionEndpointKey = "Ghc.ApproveSITExtension"
 
+// GhcDenySITExtensionEndpointKey is the key for the denySITExtension endpoint in ghc
+const GhcDenySITExtensionEndpointKey = "Ghc.DenySITExtension"
+
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
 
