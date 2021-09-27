@@ -89,12 +89,11 @@ const ShipmentSITExtensions = (props) => {
         ? 'origin'
         : 'destination';
 
-    return (
-      <p key={pastSITItem.id}>
-        {sitDaysUsed} days at {location} ({moment(pastSITItem.sitEntryDate).format('DD MMM YYYY')} -{' '}
-        {moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY')})
-      </p>
-    );
+    const start = moment(pastSITItem.sitEntryDate).format('DD MMM YYYY');
+    const end = moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY');
+
+    const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
+    return <p key={pastSITItem.id}>{text}</p>;
   });
 
   return (
