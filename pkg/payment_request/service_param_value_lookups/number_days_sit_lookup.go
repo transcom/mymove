@@ -143,7 +143,6 @@ func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems 
 	return remainingMoveTaskOrderSITDays, nil
 }
 
-// TODO rename
 func calculateNumberSITAdditionalDays(paymentServiceItem models.PaymentServiceItem) (int, error) {
 	startDate, endDate, err := fetchSITStartAndEndDateParamValues(paymentServiceItem)
 	if err != nil {
