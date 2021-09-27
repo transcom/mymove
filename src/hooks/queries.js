@@ -13,6 +13,7 @@ import {
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
+  getShipmentsPaymentSITBalance,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -29,6 +30,7 @@ import {
   USER,
   CUSTOMER,
   SERVICES_COUNSELING_QUEUE,
+  SHIPMENTS_PAYMENT_SIT_BALANCE,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -86,13 +88,25 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
     enabled: !!mtoID,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery, mtoShipmentQuery]);
+  const { data: paymentSITBalances, ...shipmentsPaymentSITBalanceQuery } = useQuery(
+    [SHIPMENTS_PAYMENT_SIT_BALANCE, paymentRequestId],
+    getShipmentsPaymentSITBalance,
+  );
+
+  const shipmentsPaymentSITBalance = paymentSITBalances?.shipmentsPaymentSITBalance;
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    paymentRequestQuery,
+    mtoShipmentQuery,
+    shipmentsPaymentSITBalanceQuery,
+  ]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
     mtoShipments,
+    shipmentsPaymentSITBalance,
     isLoading,
     isError,
     isSuccess,

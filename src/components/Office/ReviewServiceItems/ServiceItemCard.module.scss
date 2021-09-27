@@ -31,9 +31,18 @@
     @include u-color('gray-90');
   }
 
+  dt.daysInSIT {
+    @include u-margin-bottom(1);
+  }
+
   dd {
     margin-left: 0;
-    @include u-margin-y(1);
+    @include u-margin-top(1);
+    @include u-margin-bottom(3);
+  }
+
+  .daysInSITDetails {
+    @include u-margin-bottom(3)
   }
 
   .toggleCalculations {

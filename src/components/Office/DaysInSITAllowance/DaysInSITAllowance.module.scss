@@ -1,0 +1,35 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/_basics.scss';
+
+.DaysInSITAllowance {
+  @include u-padding(2);
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  background-color: $bg-gray;
+
+  dl {
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+  }
+
+  dt {
+    @include u-font-size('body', '3xs');
+    color: $base-dark;
+    font-weight: normal;
+  }
+
+  dd {
+    @include u-font-size('body', 'xs');
+    @include u-margin-left(0);
+    @include u-margin-top(0);
+    color: $base-darkest;
+  }
+
+  dd:not(:last-of-type) {
+    @include u-margin-bottom(1);
+  }
+
+  dd:last-of-type {
+    @include u-margin-bottom(0);
+  }
+}

@@ -15,7 +15,12 @@ import { toDollarString, formatDateFromIso } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
-import { allowedServiceItemCalculations } from 'constants/serviceItems';
+import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import DaysInSITAllowance from 'components/Office/DaysInSITAllowance/DaysInSITAllowance';
+
+const isAdditionalDaySIT = (mtoServiceItemCode) => {
+  return mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT || mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT;
+};
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
@@ -34,6 +39,7 @@ const ServiceItemCard = ({
   requestComplete,
   paymentServiceItemParams,
   additionalServiceItemData,
+  shipmentSITBalance,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
   const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
@@ -214,7 +220,15 @@ const ServiceItemCard = ({
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
-
+                  {isAdditionalDaySIT(mtoServiceItemCode) && (
+                    <>
+                      <dt className={styles.daysInSIT}>Days in SIT</dt>
+                      <dd>
+                        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                        <DaysInSITAllowance className={styles.daysInSITDetails} {...shipmentSITBalance} />
+                      </dd>
+                    </>
+                  )}
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
@@ -340,6 +354,16 @@ ServiceItemCard.propTypes = {
   requestComplete: PropTypes.bool,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   additionalServiceItemData: MTOServiceItemShape,
+  shipmentSITBalance: PropTypes.shape({
+    shipmentID: PropTypes.string,
+    previouslyBilledDays: PropTypes.number,
+    previouslyBilledEndDate: PropTypes.string,
+    pendingSITDaysInvoiced: PropTypes.number,
+    pendingBilledEndDate: PropTypes.string,
+    totalSITDaysAuthorized: PropTypes.number,
+    totalSITDaysRemaining: PropTypes.number,
+    totalSITEndDate: PropTypes.string,
+  }),
 };
 
 ServiceItemCard.defaultProps = {
@@ -355,6 +379,7 @@ ServiceItemCard.defaultProps = {
   requestComplete: false,
   paymentServiceItemParams: [],
   additionalServiceItemData: {},
+  shipmentSITBalance: undefined,
 };
 
 export default ServiceItemCard;
