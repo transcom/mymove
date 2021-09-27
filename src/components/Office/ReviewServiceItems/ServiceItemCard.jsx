@@ -355,7 +355,6 @@ ServiceItemCard.propTypes = {
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   additionalServiceItemData: MTOServiceItemShape,
   shipmentSITBalance: PropTypes.shape({
-    shipmentID: PropTypes.string,
     previouslyBilledDays: PropTypes.number,
     previouslyBilledEndDate: PropTypes.string,
     pendingSITDaysInvoiced: PropTypes.number,

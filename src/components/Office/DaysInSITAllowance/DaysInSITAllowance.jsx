@@ -17,10 +17,10 @@ const DaysInSITAllowance = ({
   totalSITEndDate,
 }) => {
   return (
-    <div className={classNames(className, styles.DaysInSITAllowance)}>
+    <div className={classNames(className, styles.DaysInSITAllowance)} data-testid="DaysInSITAllowance">
       <dl className={styles.daysInSITList}>
         <dt>Prev. billed & accepted</dt>
-        <dd>
+        <dd data-testid="previouslyBilled">
           {formatDaysInTransit(previouslyBilledDays)}
           {!!previouslyBilledDays && (
             <>
@@ -30,14 +30,14 @@ const DaysInSITAllowance = ({
           )}
         </dd>
         <dt>Invoiced & pending</dt>
-        <dd>
+        <dd data-testid="pendingInvoiced">
           {formatDaysInTransit(pendingSITDaysInvoiced)}, through{' '}
           {formatDate(pendingBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
         </dd>
         <dt>Total authorized</dt>
         <dd>{formatDaysInTransit(totalSITDaysAuthorized)}</dd>
         <dt>Authorized remaining</dt>
-        <dd>
+        <dd data-testid="totalRemaining">
           {formatDaysInTransit(totalSITDaysRemaining)}, ends {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
         </dd>
       </dl>
