@@ -1,0 +1,30 @@
+description: A document uploaded by the movers proving that the customer has been counseled about excess weight.
+allOf:
+  - $ref: 'Upload.yaml'
+  - type: object
+    properties:
+      moveId:
+        description: The UUID of the move this excess weight record belongs to.
+        type: string
+        format: uuid
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      moveExcessWeightQualifiedAt:
+        description: >
+          The date and time when the sum of all the move's shipments met the excess weight qualification threshold.
+          The system monitors these weights and will update this field automatically.
+        type: string
+        format: date-time
+        readOnly: true
+        x-nullable: true
+        x-omitempty: false
+      moveExcessWeightAcknowledgedAt:
+        description: >
+          The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating
+          the max billable weight. This will occur after the excess weight record has been uploaded.
+        type: string
+        format: date-time
+        readOnly: true
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - moveId

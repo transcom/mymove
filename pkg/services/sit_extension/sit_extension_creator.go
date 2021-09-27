@@ -33,6 +33,11 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 		return nil, services.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
 	}
 
+	// Set status to pending if none is provided
+	if sitExtension.Status == "" {
+		sitExtension.Status = models.SITExtensionStatusPending
+	}
+
 	err = validateSITExtension(appCtx, *sitExtension, shipment, f.checks...)
 	if err != nil {
 		return nil, err

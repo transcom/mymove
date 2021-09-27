@@ -414,7 +414,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("Successful PATCH - Integration Test", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -450,7 +450,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("Successful PATCH - Can update shipment status", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -474,7 +474,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 400 -- nil body", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -492,7 +492,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -510,7 +510,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -532,7 +532,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(
+			builder,
+			fetcher,
+			planner,
+			moveRouter,
+			moveWeights,
+			suite.TestNotificationSender(),
+			paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -554,7 +561,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 404 -- not found", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -573,7 +580,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,

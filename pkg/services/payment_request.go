@@ -80,3 +80,23 @@ type FetchPaymentRequestListParams struct {
 	Sort                   *string
 	Order                  *string
 }
+
+// ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment
+// request
+type ShipmentPaymentSITBalance struct {
+	ShipmentID                uuid.UUID
+	TotalSITDaysAuthorized    int
+	TotalSITDaysRemaining     int
+	PendingSITDaysInvoiced    int
+	PendingBilledEndDate      time.Time
+	PreviouslyBilledDays      *int
+	PreviouslyBilledStartDate *time.Time
+	PreviouslyBilledEndDate   *time.Time
+}
+
+// ShipmentsPaymentSITBalance is the exported interface for returning SIT balances for all shipments of a payment
+// request
+//go:generate mockery --name ShipmentsPaymentSITBalance --disable-version-string
+type ShipmentsPaymentSITBalance interface {
+	ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]ShipmentPaymentSITBalance, error)
+}

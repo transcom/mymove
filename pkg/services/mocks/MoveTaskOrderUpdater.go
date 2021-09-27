@@ -64,20 +64,6 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	return r0, r1
 }
 
-// UpdateApprovedAmendedOrders provides a mock function with given fields: appCtx, move
-func (_m *MoveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCtx appcontext.AppContext, move models.Move) error {
-	ret := _m.Called(appCtx, move)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Move) error); ok {
-		r0 = rf(appCtx, move)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, body, eTag
 func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, body, eTag)

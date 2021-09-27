@@ -324,7 +324,7 @@ func (o *UpdateReweighPreconditionFailed) WriteResponse(rw http.ResponseWriter, 
 // UpdateReweighUnprocessableEntityCode is the HTTP code returned for type UpdateReweighUnprocessableEntity
 const UpdateReweighUnprocessableEntityCode int = 422
 
-/*UpdateReweighUnprocessableEntity The payload was unprocessable.
+/*UpdateReweighUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateReweighUnprocessableEntity
 */

@@ -310,7 +310,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
-		model.Description = shuttleService.Description
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
@@ -403,6 +402,22 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	}
 
 	return model, nil
+}
+
+// SITExtensionModel transform the request data the sitExtension model
+func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	model := &models.SITExtension{
+		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
+		RequestedDays:     int(*sitExtension.RequestedDays),
+		ContractorRemarks: sitExtension.ContractorRemarks,
+		RequestReason:     models.SITExtensionRequestReason(*sitExtension.RequestReason),
+	}
+
+	return model
 }
 
 // validateDomesticCrating validates this mto service item domestic crating

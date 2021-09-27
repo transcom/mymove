@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -36,17 +37,19 @@ type mtoShipmentUpdater struct {
 	planner      route.Planner
 	moveRouter   services.MoveRouter
 	moveWeights  services.MoveWeights
+	sender       notifications.NotificationSender
 	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
 		moveRouter,
 		moveWeights,
+		sender,
 		recalculator,
 	}
 }
@@ -219,6 +222,7 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
 		"MTOAgents",
+		"SITExtensions",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
@@ -309,7 +313,7 @@ func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mto
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
-
+	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
@@ -442,7 +446,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		if newShipment.PrimeActualWeight != nil {
 			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				var err error
+				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
 				if err != nil {
 					return err
 				}
@@ -526,6 +531,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 		return services.NewQueryError("mtoShipment", transactionError, "")
 	}
+
+	if len(autoReweighShipments) > 0 {
+		for _, shipment := range autoReweighShipments {
+			err := f.sender.SendNotification(
+				notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), shipment.MoveTaskOrderID, shipment),
+			)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 
 }

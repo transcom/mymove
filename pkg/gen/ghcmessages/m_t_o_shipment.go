@@ -133,7 +133,7 @@ type MTOShipment struct {
 	SitDaysAllowance *int64 `json:"sitDaysAllowance,omitempty"`
 
 	// sit extensions
-	SitExtensions SitExtensions `json:"sitExtensions,omitempty"`
+	SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 	// sit status
 	SitStatus *SITStatus `json:"sitStatus,omitempty"`

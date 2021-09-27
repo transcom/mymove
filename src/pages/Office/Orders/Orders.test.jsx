@@ -1,8 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
-import { IMaskInput } from 'react-imask';
 
 import Orders from './Orders';
 
@@ -128,29 +126,15 @@ describe('Orders page', () => {
   });
 
   describe('Basic rendering', () => {
-    useOrdersDocumentQueries.mockReturnValueOnce(useOrdersDocumentQueriesReturnValue);
+    it('renders the sidebar orders detail form', async () => {
+      useOrdersDocumentQueries.mockReturnValueOnce(useOrdersDocumentQueriesReturnValue);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={['moves/FP24I2/orders']}>
-        <Orders />
-      </MockProviders>,
-    );
-
-    it('renders the sidebar orders detail form', () => {
-      expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
-    });
-
-    it('populates initial field values', () => {
-      expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
-      expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
-      expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');
-      expect(wrapper.find('input[name="reportByDate"]').prop('value')).toBe('01 Aug 2018');
-      expect(wrapper.find('select[name="departmentIndicator"]').prop('value')).toBe('AIR_FORCE');
-      expect(wrapper.find('input[name="ordersNumber"]').prop('value')).toBe('ORDER3');
-      expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
-      expect(wrapper.find('select[name="ordersTypeDetail"]').prop('value')).toBe('HHG_PERMITTED');
-      expect(wrapper.find(IMaskInput).getDOMNode().value).toBe('F8E1');
-      expect(wrapper.find('input[name="sac"]').prop('value')).toBe('E2P3');
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+      expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
     });
   });
 });

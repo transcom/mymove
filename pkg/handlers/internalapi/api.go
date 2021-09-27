@@ -69,7 +69,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{ctx}
 	internalAPI.OrdersUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
 		ctx,
-		order.NewOrderUpdater(),
+		order.NewOrderUpdater(moveRouter),
 	}
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{ctx}
@@ -162,6 +162,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 			ctx.Planner(),
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			ctx.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 		),
 	}

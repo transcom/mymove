@@ -1,0 +1,3 @@
+description: The request was unprocessable, likely due to bad input from the requester.
+schema:
+  $ref: '../definitions/ValidationError.yaml'

@@ -14,32 +14,41 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	moveservices "github.com/transcom/mymove/pkg/services/move"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
-	"github.com/transcom/mymove/pkg/auth"
-
 	"github.com/go-openapi/swag"
-
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/route/mocks"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
+	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
+
+	//"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
+	//paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The NewMTOShipmentUpdater needs a NotificationSender for sending notification emails to the customer.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := notificationMocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.ReweighRequested"),
+	).Return(nil)
+
+	return &mockSender
+}
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	oldMTOShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -50,15 +59,23 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 
-	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+	/*
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	*/
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+	mockSender := setUpMockNotificationSender()
+	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -125,12 +142,19 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.T().Run("Can retrieve existing shipment", func(t *testing.T) {
 
 		existingShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
-		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: "DCRT",
-				Name: "Dom. Crating",
-			},
-		})
+
+		var reServiceDomCrating models.ReService
+		if err := suite.DB().Where("code = $1", models.ReServiceCodeDCRT).First(&reServiceDomCrating); err != nil {
+			// Something is truncating this when all server tests run, but we need this ReService value to exist
+			reServiceDomCrating = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code:      models.ReServiceCodeDCRT,
+					Name:      "test",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			})
+		}
 
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -636,31 +660,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	shipment.Status = models.MTOShipmentStatusSubmitted
 	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
-	//Need some values for reServices
-	reServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeDSH,
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-		models.ReServiceCodeDNPKF,
-		models.ReServiceCodeDMHF,
-		models.ReServiceCodeDBHF,
-		models.ReServiceCodeDBTF,
-	}
-
-	for _, serviceCode := range reServiceCodes {
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code:      serviceCode,
-				Name:      "test",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
-		})
-	}
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -682,7 +681,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
@@ -692,6 +691,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
+		appCtx := suite.TestAppContext()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -705,30 +705,63 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			models.ReServiceCodeDUPK,
 		)
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
+		var reServiceCode models.ReService
+		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+			// Something is truncating these when all server tests run, but we need some values for reServices
+			for _, serviceCode := range expectedReServiceCodes {
+				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
+					ReService: models.ReService{
+						Code:      serviceCode,
+						Name:      "test",
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
+				})
+			}
+		}
+
+		preApprovalTime := time.Now()
+		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
 
-		err = suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		err = appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
 		suite.NoError(err)
 
 		// Let's make sure the status is approved
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 
-		err = suite.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))
 
 		// All ApprovedAt times for service items should be the same, so just get the first one
-		actualApprovedAt := serviceItems[0].ApprovedAt
+		// Test that service item was approved within a few seconds of the current time
+		suite.Assertions.WithinDuration(preApprovalTime, *serviceItems[0].ApprovedAt, 2*time.Second)
+
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
-		for i := range serviceItems {
-			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			// Test that service item was approved within a few seconds of the current time
-			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
+		missingReServiceCodes := expectedReServiceCodes
+		for _, serviceItem := range serviceItems {
+			suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+
+			// Want to make sure each of the expected service codes is included at some point.
+			codeFound := false
+			for i, reServiceCodeToCheck := range missingReServiceCodes {
+				if reServiceCodeToCheck == serviceItem.ReService.Code {
+					missingReServiceCodes[i] = missingReServiceCodes[len(missingReServiceCodes)-1]
+					missingReServiceCodes = missingReServiceCodes[:len(missingReServiceCodes)-1]
+					codeFound = true
+					break
+				}
+			}
+
+			if !codeFound {
+				suite.Fail("Unexpected service code", "unexpected ReService code: %s", string(serviceItem.ReService.Code))
+			}
 		}
+
+		suite.Empty(missingReServiceCodes)
 	})
 
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
@@ -1018,14 +1051,20 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), primeShipment.ID)
@@ -1066,11 +1105,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 	suite.T().Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func(t *testing.T) {
 		now := time.Now()
@@ -1107,7 +1152,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	suite.T().Run("Skips calling check excess weight if estimated weight was not provided in request", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1126,7 +1172,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		actualWeight := unit.Pound(7200)
 		primeShipment.PrimeActualWeight = &actualWeight
 
-		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(nil)
+		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("*models.MTOShipment")).Return(models.MTOShipments{}, nil)
 
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
@@ -1138,7 +1184,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	suite.T().Run("Skips calling check excess weight if the updated estimated weight matches the db value", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1174,11 +1221,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+	mockSender := setUpMockNotificationSender()
+	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 	suite.T().Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func(t *testing.T) {
 		now := time.Now()
@@ -1214,7 +1267,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.T().Run("Skips calling check auto reweigh if actual weight was not provided in request", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -1243,7 +1297,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.T().Run("Skips calling check auto reweigh if the updated actual weight matches the db value", func(t *testing.T) {
 		moveWeights := &mockservices.MoveWeights{}
-		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, paymentRequestShipmentRecalculator)
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
