@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/swag"
@@ -149,7 +151,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	context.SetFileStorer(fakeS3)
 	uploadAmendedHandler := UploadAmendedOrdersHandler{
 		HandlerContext: context,
-		OrderUpdater:   orderservice.NewOrderUpdater(),
+		OrderUpdater:   orderservice.NewOrderUpdater(move.NewMoveRouter()),
 	}
 	response := uploadAmendedHandler.Handle(params)
 

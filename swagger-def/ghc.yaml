@@ -959,7 +959,7 @@ paths:
         - application/json
       produces:
         - application/json
-      operationId: createSitExtensionAsTOO
+      operationId: createSITExtensionAsTOO
       tags:
         - shipment
         - sitExtension
@@ -1019,7 +1019,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ApproveSitExtension'
+            $ref: '#/definitions/ApproveSITExtension'
         - in: header
           description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
@@ -1046,7 +1046,7 @@ paths:
         - shipment
         - sitExtension
       description: Approves a SIT extension
-      operationId: approveSitExtension
+      operationId: approveSITExtension
       summary: Approves a SIT extension
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
@@ -1072,7 +1072,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/DenySitExtension'
+            $ref: '#/definitions/DenySITExtension'
         - in: header
           name: If-Match
           type: string
@@ -1098,7 +1098,7 @@ paths:
         - shipment
         - sitExtension
       description: Denies a SIT extension
-      operationId: denySitExtension
+      operationId: denySITExtension
       summary: Denies a SIT extension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
@@ -1495,6 +1495,36 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
+  '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
+    parameters:
+      - description: payment request ID of the payment request with SIT service items being reviewed
+        name: paymentRequestID
+        type: string
+        format: uuid
+        in: path
+        required: true
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved shipments and their SIT days balance from all payment requests on the move
+          schema:
+            $ref: '#/definitions/ShipmentsPaymentSITBalance'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Returns all shipment payment request SIT usage to support partial SIT invoicing
+      operationId: getShipmentsPaymentSITBalance
+      summary: Returns all shipment payment request SIT usage to support partial SIT invoicing
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -3024,6 +3054,36 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  ShipmentsPaymentSITBalance:
+    items:
+      $ref: '#/definitions/ShipmentPaymentSITBalance'
+    type: array
+  ShipmentPaymentSITBalance:
+    properties:
+      shipmentID:
+        type: string
+        format: uuid
+      totalSITDaysAuthorized:
+        type: integer
+      totalSITDaysRemaining:
+        type: integer
+      pendingSITDaysInvoiced:
+        type: integer
+      pendingBilledEndDate:
+        type: string
+        format: date
+        x-nullable: true
+      previouslyBilledDays:
+        type: integer
+        x-nullable: true
+      previouslyBilledStartDate:
+        type: string
+        format: date
+        x-nullable: true
+      previouslyBilledEndDate:
+        type: string
+        format: date
+        x-nullable: true
   SITStatus:
     properties:
       location:
@@ -3153,7 +3213,7 @@ definitions:
         type: integer
         x-nullable: true
       sitExtensions:
-        $ref: '#/definitions/SitExtensions'
+        $ref: 'definitions/SITExtensions.yaml'
       sitStatus:
         $ref: '#/definitions/SITStatus'
       eTag:
@@ -3168,54 +3228,6 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
-  SitExtensions:
-    items:
-      $ref: '#/definitions/SitExtension'
-    type: array
-  SitExtension:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestReason:
-        enum:
-          - SERIOUS_ILLNESS_MEMBER
-          - SERIOUS_ILLNESS_DEPENDENT
-          - IMPENDING_ASSIGNEMENT
-          - DIRECTED_TEMPORARY_DUTY
-          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-          - AWAITING_COMPLETION_OF_RESIDENCE
-          - OTHER
-      contractorRemarks:
-        type: string
-      requestedDays:
-        type: integer
-      status:
-        enum:
-          - PENDING
-          - APPROVED
-          - DENIED
-      approvedDays:
-        type: integer
-      decisionDate:
-        format: date-time
-        type: string
-      officeRemarks:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
   UpdateShipment:
     type: object
     properties:
@@ -3351,7 +3363,7 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
-  ApproveSitExtension:
+  ApproveSITExtension:
     properties:
       approvedDays:
         description: Number of days approved for SIT extension
@@ -3365,7 +3377,7 @@ definitions:
         x-nullable: true
     required:
       - approvedDays
-  DenySitExtension:
+  DenySITExtension:
     properties:
       officeRemarks:
         description: Remarks from TOO about SIT denial

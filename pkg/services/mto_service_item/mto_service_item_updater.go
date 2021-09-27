@@ -74,12 +74,8 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.App
 			return err
 		}
 		move := serviceItem.MoveTaskOrder
-		err = txnAppCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders").Find(&move, move.ID)
-		if err != nil {
-			return err
-		}
 
-		if err = ApproveMoveOrRequestApproval(txnAppCtx, p.moveRouter, move.Orders, move); err != nil {
+		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
 
@@ -118,7 +114,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
-	if e := HandleError(serviceItem.ID, verrs, err); e != nil {
+	if e := handleError(serviceItem.ID, verrs, err); e != nil {
 		return nil, e
 	}
 

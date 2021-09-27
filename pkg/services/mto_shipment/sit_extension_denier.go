@@ -15,11 +15,12 @@ import (
 )
 
 type sitExtensionDenier struct {
+	moveRouter services.MoveRouter
 }
 
 // NewSITExtensionDenier creates a new struct with the service dependencies
-func NewSITExtensionDenier() services.SITExtensionDenier {
-	return &sitExtensionDenier{}
+func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtensionDenier {
+	return &sitExtensionDenier{moveRouter}
 }
 
 // DenySITExtension denies the SIT Extension
@@ -52,7 +53,7 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 
 func (f *sitExtensionDenier) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
@@ -81,6 +82,10 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks); err != nil {
+			return err
+		}
+
+		if _, err := f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder); err != nil {
 			return err
 		}
 

@@ -236,7 +236,7 @@ func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WriteResponse(rw 
 // UpdateMTOPostCounselingInformationUnprocessableEntityCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnprocessableEntity
 const UpdateMTOPostCounselingInformationUnprocessableEntityCode int = 422
 
-/*UpdateMTOPostCounselingInformationUnprocessableEntity The payload was unprocessable.
+/*UpdateMTOPostCounselingInformationUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOPostCounselingInformationUnprocessableEntity
 */

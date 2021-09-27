@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -35,20 +34,17 @@ func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.S
 
 // MakeSITExtension creates a single SIT Extension and associated set relationships
 func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
-
-	var MTOShipmentID uuid.UUID
-	var MTOShipment models.MTOShipment
+	shipment := assertions.MTOShipment
 	if isZeroUUID(assertions.MTOShipment.ID) {
-		MTOShipment = MakeMTOShipment(db, assertions)
-		MTOShipmentID = MTOShipment.ID
+		shipment = MakeMTOShipment(db, assertions)
 	}
 
 	approvedDays := 100
 	decisionDate := time.Now()
 
 	SITExtension := models.SITExtension{
-		MTOShipmentID: MTOShipmentID,
-		MTOShipment:   MTOShipment,
+		MTOShipmentID: shipment.ID,
+		MTOShipment:   shipment,
 		RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 		Status:        models.SITExtensionStatusApproved,
 		ApprovedDays:  &approvedDays,

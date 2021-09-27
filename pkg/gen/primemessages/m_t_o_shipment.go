@@ -163,6 +163,9 @@ type MTOShipment struct {
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
+	// sit extensions
+	SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
+
 	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
 	//
 	// Read Only: true
@@ -247,6 +250,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 		Status string `json:"status,omitempty"`
 
@@ -349,6 +354,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// shipmentType
 	result.ShipmentType = data.ShipmentType
 
+	// sitExtensions
+	result.SitExtensions = data.SitExtensions
+
 	// status
 	result.Status = data.Status
 
@@ -423,6 +431,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
+
 		Status string `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -477,6 +487,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		SecondaryPickupAddress: m.SecondaryPickupAddress,
 
 		ShipmentType: m.ShipmentType,
+
+		SitExtensions: m.SitExtensions,
 
 		Status: m.Status,
 
@@ -571,6 +583,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitExtensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -806,6 +822,21 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitExtensions) { // not required
+		return nil
+	}
+
+	if err := m.SitExtensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
 var mTOShipmentTypeStatusPropEnum []interface{}
 
 func init() {
@@ -949,6 +980,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitExtensions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1136,6 +1171,18 @@ func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats s
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
 		}
 		return err
 	}

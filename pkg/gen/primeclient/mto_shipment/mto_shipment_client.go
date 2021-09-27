@@ -34,6 +34,8 @@ type ClientService interface {
 
 	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
 
+	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
+
 	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
 	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error)
@@ -141,6 +143,50 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...Clie
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  CreateSITExtension creates s i t extension
+
+  ### Functionality
+This endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an
+increase in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance
+includes time spent in both origin and destination SIT.
+
+*/
+func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateSITExtensionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "createSITExtension",
+		Method:             "POST",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/sit-extensions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateSITExtensionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateSITExtensionCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createSITExtension: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

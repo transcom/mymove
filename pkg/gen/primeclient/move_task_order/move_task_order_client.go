@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CreateExcessWeightRecord(params *CreateExcessWeightRecordParams, opts ...ClientOption) (*CreateExcessWeightRecordCreated, error)
+
 	GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error)
 
 	ListMoves(params *ListMovesParams, opts ...ClientOption) (*ListMovesOK, error)
@@ -37,6 +39,47 @@ type ClientService interface {
 	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateExcessWeightRecord creates excess weight record
+
+  Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.
+
+*/
+func (a *Client) CreateExcessWeightRecord(params *CreateExcessWeightRecordParams, opts ...ClientOption) (*CreateExcessWeightRecordCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateExcessWeightRecordParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "createExcessWeightRecord",
+		Method:             "POST",
+		PathPattern:        "/move-task-orders/{moveTaskOrderID}/excess-weight-record",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"multipart/form-data"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateExcessWeightRecordReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateExcessWeightRecordCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createExcessWeightRecord: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*

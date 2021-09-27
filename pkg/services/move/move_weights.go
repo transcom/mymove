@@ -131,25 +131,25 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	return &move, nil, nil
 }
 
-func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error {
+func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	db := appCtx.DB()
 	var move models.Move
 	err := db.Eager("MTOShipments", "MTOShipments.Reweigh", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if move.Orders.Grade == nil {
-		return errors.New("could not determine excess weight entitlement without grade")
+		return nil, errors.New("could not determine excess weight entitlement without grade")
 	}
 
 	if move.Orders.Entitlement.DependentsAuthorized == nil {
-		return errors.New("could not determine excess weight entitlement without dependents authorization value")
+		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
 	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade), *move.Orders.Entitlement.DependentsAuthorized)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	moveWeightTotal := 0
@@ -167,6 +167,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		}
 	}
 
+	autoReweighShipments := models.MTOShipments{}
 	// may need to take into account floating point precision here but should be dealing with whole numbers
 	if int(float32(totalWeightAllowance)*AutoReweighRequestThreshold) <= moveWeightTotal {
 		for _, shipment := range move.MTOShipments {
@@ -175,8 +176,9 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 			if availableShipmentStatus(shipment.Status) && (shipment.Reweigh == nil || shipment.Reweigh.ID == uuid.Nil) {
 				reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 				if err != nil {
-					return err
+					return nil, err
 				}
+				autoReweighShipments = append(autoReweighShipments, shipment)
 				// this may not be necessary depending on how the shipment is being updated/refetched elsewhere
 				if shipment.ID == updatedShipment.ID {
 					updatedShipment.Reweigh = reweigh
@@ -185,5 +187,5 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		}
 	}
 
-	return nil
+	return autoReweighShipments, nil
 }

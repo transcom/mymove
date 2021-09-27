@@ -3,6 +3,10 @@ package primeapi
 import (
 	"fmt"
 
+	"github.com/go-openapi/runtime"
+
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,13 +19,13 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
+// ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
-// Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
+// Handle fetches all moves with the option to filter since a particular date. Optimized version.
 func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
@@ -44,22 +48,14 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return movetaskorderops.NewListMovesOK().WithPayload(payload)
 }
 
-// UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
-type UpdateMTOPostCounselingInformationHandler struct {
-	handlers.HandlerContext
-	services.Fetcher
-	services.MoveTaskOrderUpdater
-	mtoAvailabilityChecker services.MoveTaskOrderChecker
-}
-
-// GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
-type GetMoveTaskOrderHandlerFunc struct {
+// GetMoveTaskOrderHandler returns the details for a particular move
+type GetMoveTaskOrderHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle fetches an MTO from the database using its UUID or move code
-func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
+// Handle fetches a move from the database using its UUID or move code
+func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	searchParams := services.MoveTaskOrderFetcherParams{
@@ -90,7 +86,64 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
-// Handle updates to move task order post-counseling
+// CreateExcessWeightRecordHandler uploads an excess weight record file
+type CreateExcessWeightRecordHandler struct {
+	handlers.HandlerContext
+	uploader services.MoveExcessWeightUploader
+}
+
+// Handle uploads the file passed into the request and updates the move
+func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateExcessWeightRecordParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+			payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	excessWeightRecord, err := h.uploader.CreateExcessWeightUpload(
+		appCtx, moveID, file.Data, file.Header.Filename, models.UploadTypePRIME)
+	if err != nil {
+		logger.Error("primeapi.CreateExcessWeightRecord error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewCreateExcessWeightRecordNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.InvalidCreateInputError:
+			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				logger.Error("primeapi.CreateExcessWeightRecord QueryError", zap.Error(e.Unwrap()))
+			}
+			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		default:
+			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+	}
+
+	payload := payloads.ExcessWeightRecord(appCtx, h.FileStorer(), excessWeightRecord)
+	return movetaskorderops.NewCreateExcessWeightRecordCreated().WithPayload(payload)
+}
+
+// UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
+type UpdateMTOPostCounselingInformationHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MoveTaskOrderUpdater
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
+}
+
+// Handle updates to move post-counseling
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)

@@ -55,6 +55,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		})
 	}
+	if api.ShipmentApproveSITExtensionHandler == nil {
+		api.ShipmentApproveSITExtensionHandler = shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
+		})
+	}
 	if api.ShipmentApproveShipmentHandler == nil {
 		api.ShipmentApproveShipmentHandler = shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
@@ -63,11 +68,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentApproveShipmentDiversionHandler == nil {
 		api.ShipmentApproveShipmentDiversionHandler = shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
-		})
-	}
-	if api.ShipmentApproveSitExtensionHandler == nil {
-		api.ShipmentApproveSitExtensionHandler = shipment.ApproveSitExtensionHandlerFunc(func(params shipment.ApproveSitExtensionParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.ApproveSitExtension has not yet been implemented")
 		})
 	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {
@@ -85,9 +85,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
-	if api.ShipmentCreateSitExtensionAsTOOHandler == nil {
-		api.ShipmentCreateSitExtensionAsTOOHandler = shipment.CreateSitExtensionAsTOOHandlerFunc(func(params shipment.CreateSitExtensionAsTOOParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.CreateSitExtensionAsTOO has not yet been implemented")
+	if api.ShipmentCreateSITExtensionAsTOOHandler == nil {
+		api.ShipmentCreateSITExtensionAsTOOHandler = shipment.CreateSITExtensionAsTOOHandlerFunc(func(params shipment.CreateSITExtensionAsTOOParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
 		})
 	}
 	if api.ShipmentDeleteShipmentHandler == nil {
@@ -95,9 +95,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		})
 	}
-	if api.ShipmentDenySitExtensionHandler == nil {
-		api.ShipmentDenySitExtensionHandler = shipment.DenySitExtensionHandlerFunc(func(params shipment.DenySitExtensionParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.DenySitExtension has not yet been implemented")
+	if api.ShipmentDenySITExtensionHandler == nil {
+		api.ShipmentDenySITExtensionHandler = shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
 		})
 	}
 	if api.MtoAgentFetchMTOAgentListHandler == nil {
@@ -163,6 +163,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.QueuesGetServicesCounselingQueueHandler == nil {
 		api.QueuesGetServicesCounselingQueueHandler = queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestsGetShipmentsPaymentSITBalanceHandler == nil {
+		api.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = payment_requests.GetShipmentsPaymentSITBalanceHandlerFunc(func(params payment_requests.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemListMTOServiceItemsHandler == nil {
