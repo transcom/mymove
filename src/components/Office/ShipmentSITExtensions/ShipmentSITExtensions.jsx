@@ -71,7 +71,12 @@ const ShipmentSITExtensions = (props) => {
           </p>
         )}
         {!pendingSITExtension && (
-          <Button type="button" onClick={() => setisSubmitITExtensionModalVisible(true)} unstyled>
+          <Button
+            type="button"
+            onClick={() => setisSubmitITExtensionModalVisible(true)}
+            unstyled
+            className={styles.submitSITEXtensionLink}
+          >
             Edit
           </Button>
         )}

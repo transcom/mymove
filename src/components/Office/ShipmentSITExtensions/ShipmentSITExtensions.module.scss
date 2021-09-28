@@ -13,6 +13,9 @@
     span {
       margin-left: 0.5rem !important;
     }
+    .submitSITEXtensionLink {
+      @include u-margin-right(2);
+    }
   }
 
   p {
