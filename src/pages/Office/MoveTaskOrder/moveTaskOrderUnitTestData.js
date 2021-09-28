@@ -2,8 +2,8 @@
 import MOVE_STATUSES from 'constants/moves';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export const unapprovedMTOQuery = {
   orders: {
@@ -778,35 +778,45 @@ export const sitExtensionPresent = {
         },
       ],
     },
-    {
-      id: '4',
-      moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.NTS,
-      scheduledPickupDate: '2020-03-16',
-      requestedPickupDate: '2020-03-15',
-      pickupAddress: {
-        street_address_1: '932 Baltic Avenue',
-        city: 'Chicago',
-        state: 'IL',
-        postal_code: '60601',
+  ],
+};
+// SIT extension present on the shipment that's been approved
+export const sitExtensionApproved = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
       },
-      destinationAddress: {
-        street_address_1: '10 Park Place',
-        city: 'Atlantic City',
-        state: 'NJ',
-        postal_code: '08401',
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
       },
-      status: 'APPROVED',
-      eTag: '1234',
-      reweigh: {
-        id: '00000000-0000-0000-0000-000000000000',
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
       },
-      sitExtensions: [],
     },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
     {
-      id: '5',
+      id: '3',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -823,12 +833,16 @@ export const sitExtensionPresent = {
       },
       status: 'APPROVED',
       eTag: '1234',
-      primeActualWeight: 1,
-      primeEstimatedWeight: 1,
-      reweigh: {
-        id: '00000000-0000-0000-0000-000000000000',
-      },
-      sitExtensions: [],
+      primeActualWeight: 100,
+      primeEstimatedWeight: 100,
+      sitExtensions: [
+        {
+          mtoShipmentID: '3',
+          requestReason: 'reason',
+          status: SIT_EXTENSION_STATUS.APPROVED,
+          requestedDays: 42,
+        },
+      ],
     },
   ],
 };

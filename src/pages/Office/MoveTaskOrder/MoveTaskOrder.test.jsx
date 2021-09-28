@@ -15,6 +15,7 @@ import {
   noWeightQuery,
   riskOfExcessWeightQuery,
   lowerActualsMTOQuery,
+  sitExtensionApproved,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -674,6 +675,31 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
+    });
+  });
+  describe('SIT extension approved', () => {
+    useMoveTaskOrderQueries.mockReturnValue(sitExtensionApproved);
+    const wrapper = mount(
+      <MockProviders>
+        <MoveTaskOrder
+          {...requiredProps}
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+        />
+      </MockProviders>,
+    );
+
+    it('updates the unapproved SIT extension count state (with a zero count)', () => {
+      expect(setUnapprovedSITExtensionCount).toHaveBeenCalledWith(0);
+    });
+
+    it('renders the left nav with tag for SIT extension request without a number tag', () => {
+      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      const navLinks = wrapper.find('LeftNav a');
+      // We should get just the shipment text in the nav link
+      expect(navLinks.at(0).text()).toEqual('HHG shipment ');
     });
   });
 });

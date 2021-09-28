@@ -478,12 +478,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             return (
               <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
-                {(unapprovedServiceItemsForShipment[`${s.id}`] > 0 ||
-                  unapprovedSITExtensionForShipment[`${s.id}`] > 0) && (
+                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
                   <Tag>
-                    {(unapprovedServiceItemsForShipment[`${s.id}`] > 0
-                      ? unapprovedServiceItemsForShipment[`${s.id}`]
-                      : 0) + (unapprovedSITExtensionForShipment[`${s.id}`] > 0 ? 1 : 0)}
+                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
                   </Tag>
                 )}
               </a>
