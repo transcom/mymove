@@ -11,6 +11,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
@@ -43,9 +44,13 @@ const MovePaymentRequests = ({
 
   const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
+  const [reviewBillableWeightBtnClicked, setReviewBillableWeightBtnClicked] = useState(false);
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
+  const filteredShipments = mtoShipments?.filter((shipment) => {
+    return includedStatusesForCalculatingWeights(shipment.status);
+  });
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -106,7 +111,22 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+    setReviewBillableWeightBtnClicked(true);
   };
+
+  const anyShipmentOverweight = (shipments) => {
+    return shipments.some((shipment) => {
+      return shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight);
+    });
+  };
+
+  const anyShipmentMissingWeight = (shipments) => {
+    return shipments.some((shipment) => {
+      return !shipment.primeEstimatedWeight || (shipment.reweigh?.id && !shipment.reweigh?.weight);
+    });
+  };
+
+  const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
 
   return (
     <div className={txoStyles.tabContent}>
@@ -116,7 +136,12 @@ const MovePaymentRequests = ({
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
-                {s === 'billable-weights' && totalBillableWeight > maxBillableWeight && (
+                {s === 'payment-requests' && paymentRequests?.length > 0 && (
+                  <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
+                    {paymentRequests.length}
+                  </Tag>
+                )}
+                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
                   <Tag
                     className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
                     data-testid="maxBillableWeightErrorTag"
@@ -124,6 +149,16 @@ const MovePaymentRequests = ({
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
+                {s === 'billable-weights' &&
+                  !maxBillableWeightExceeded &&
+                  filteredShipments?.length > 0 &&
+                  (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
+                    <FontAwesomeIcon
+                      icon="exclamation-triangle"
+                      data-testid="maxBillableWeightWarningTag"
+                      className={classnames(styles.warning, styles.errorTag)}
+                    />
+                  )}
               </a>
             );
           })}
@@ -138,7 +173,13 @@ const MovePaymentRequests = ({
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
-              shipments={mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status))}
+              shipments={filteredShipments}
+              secondayReviewWeightsBtn={
+                reviewBillableWeightBtnClicked ||
+                (!maxBillableWeightExceeded &&
+                  !anyShipmentOverweight(filteredShipments) &&
+                  !anyShipmentMissingWeight(filteredShipments))
+              }
             />
           </div>
           <h2>Payment requests</h2>
