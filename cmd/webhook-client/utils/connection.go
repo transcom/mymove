@@ -17,9 +17,9 @@ import (
 
 const (
 	// RecipientMTLSCert is the client cert to connect to the subscriber
-	RecipientMTLSCert string = "move-mil-integrations-dod-tls-cert"
+	RecipientMTLSCert string = "move-mil-dod-tls-cert"
 	// RecipientMTLSKey is the client key to connect to the subscriber
-	RecipientMTLSKey string = "move-mil-integrations-dod-tls-key"
+	RecipientMTLSKey string = "move-mil-dod-tls-key"
 )
 
 // WebhookClientPoster is an interface that WebhookRuntime implements
