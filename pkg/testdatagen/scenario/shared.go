@@ -1170,6 +1170,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			DestinationAddress:   &shorthaulDestinationAddress,
 			DestinationAddressID: &shorthaulDestinationAddress.ID,
+			SITDaysAllowance:     &SITAllowance,
 		},
 		Move: move,
 	})
