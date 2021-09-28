@@ -70,3 +70,22 @@ func mergeReweigh(newReweigh models.Reweigh, oldReweigh *models.Reweigh) *models
 
 	return &reweigh
 }
+
+// reweighChanged returns true if the reweigh weight has changed, otherwise, returns false
+func reweighChanged(newReweigh models.Reweigh, oldReweigh models.Reweigh) bool {
+	changed := false
+
+	// Compare updated weight to previous weight to see if anything changed
+	if newReweigh.Weight != nil && oldReweigh.Weight != nil {
+		if *newReweigh.Weight != *oldReweigh.Weight {
+			// change in value
+			changed = true
+		}
+	} else if newReweigh.Weight != nil || oldReweigh.Weight != nil {
+		// changing from nil to some value (not nil) or
+		// changing from some value (not nil) to nil
+		changed = true
+	}
+
+	return changed
+}

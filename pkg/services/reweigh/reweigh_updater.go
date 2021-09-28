@@ -119,10 +119,12 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 		return nil, err
 	}
 
-	// Recalculate payment request for the shipment
-	_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
-	if err != nil {
-		return nil, err
+	// Recalculate payment request for the shipment, if the reweigh weight changed
+	if reweighChanged(oldReweigh, updatedReweigh) {
+		_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &updatedReweigh, nil
