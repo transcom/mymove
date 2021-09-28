@@ -67,7 +67,9 @@ export default function ReviewBillableWeight() {
   });
 
   const handleClose = () => {
-    history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
+    history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }), {
+      from: 'review-billable-weights',
+    });
   };
 
   const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};

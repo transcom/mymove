@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -44,7 +44,6 @@ const MovePaymentRequests = ({
 
   const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
-  const [reviewBillableWeightBtnClicked, setReviewBillableWeightBtnClicked] = useState(false);
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
@@ -91,6 +90,7 @@ const MovePaymentRequests = ({
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const billableWeightsReviewed = useLocation().state?.from === 'review-billable-weights';
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -111,7 +111,6 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
-    setReviewBillableWeightBtnClicked(true);
   };
 
   const anyShipmentOverweight = (shipments) => {
@@ -175,7 +174,7 @@ const MovePaymentRequests = ({
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
               secondayReviewWeightsBtn={
-                reviewBillableWeightBtnClicked ||
+                billableWeightsReviewed ||
                 (!maxBillableWeightExceeded &&
                   !anyShipmentOverweight(filteredShipments) &&
                   !anyShipmentMissingWeight(filteredShipments))

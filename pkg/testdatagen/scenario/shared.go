@@ -3615,8 +3615,10 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	move := testdatagen.MakeAvailableMove(db)
-	move.Locator = "REWAYD"
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "REWAYD", models.MoveStatusAPPROVALSREQUESTED)
 	move.TIORemarks = &tioRemarks
 	mustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
@@ -3649,15 +3651,10 @@ func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader
 // creates a mix of shipments statuses with estimated, actual, and reweigh weights for testing the MTO page
 func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	now := time.Now()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:            "WTSTAT",
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &now,
-		},
-		UserUploader: userUploader,
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "WTSTAT", models.MoveStatusAPPROVALSREQUESTED)
 
 	// shipment is not yet approved so will be excluded from MTO weight calculations
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
@@ -3777,44 +3774,14 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 
 func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "multShipments@hhg.hhg"
-	uuidStr := "db5d94fe-ffb9-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "a9c5719e-ffc5-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MultipleShipments"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("5c89c1f8-ffae-11eb-9a03-0242ac130003"),
-			Locator:          "MULTRW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	serviceMember.FirstName = models.StringPointer("MultipleShipments")
+	serviceMember.LastName = models.StringPointer("Reweighs")
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MULTRW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(3000)
@@ -3876,7 +3843,6 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
@@ -3884,44 +3850,12 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 
 func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "missingShipmentReweighWeight@hhg.hhg"
-	uuidStr := "39b0a762-ffe7-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "3fa53fd4-ffe7-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MissingShipmentReweigh"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("44961144-ffe7-11eb-9a03-0242ac130003"),
-			Locator:          "MISHRW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MISHRW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
@@ -3956,7 +3890,6 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("4a1b0048-ffe7-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
@@ -3964,44 +3897,12 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 
 func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "shipmentMaxBillableWeightExceeded@hhg.hhg"
-	uuidStr := "f938fc7c-ffe9-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "fde54596-ffe9-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MaxBillableWeightExceeded"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("02c32c36-ffea-11eb-9a03-0242ac130003"),
-			Locator:          "MAXCED",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MAXCED", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(8900)
@@ -4036,7 +3937,6 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("096496b0-ffea-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
@@ -4044,44 +3944,12 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 
 func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "shipmentHasNoEsimatedWeight@hhg.hhg"
-	uuidStr := "9e4600c6-0147-11ec-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "a9efb304-0147-11ec-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("NoEstimatedWeight"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("c01706b4-0147-11ec-9a03-0242ac130003"),
-			Locator:          "NOESTW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "NOESTW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
@@ -4114,7 +3982,6 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("c5c32296-0147-11ec-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
