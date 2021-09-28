@@ -4,6 +4,7 @@ import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SITStatusOrigin } from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
 
 export const unapprovedMTOQuery = {
   orders: {
@@ -60,6 +61,7 @@ export const unapprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -85,6 +87,7 @@ export const unapprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: undefined,
@@ -149,6 +152,7 @@ export const someShipmentsApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -174,6 +178,7 @@ export const someShipmentsApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: [
@@ -268,6 +273,7 @@ export const allApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -295,6 +301,7 @@ export const allApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -322,6 +329,7 @@ export const allApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '6',
@@ -349,6 +357,7 @@ export const allApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '7',
@@ -376,6 +385,7 @@ export const allApprovedMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: [
@@ -429,6 +439,7 @@ export const missingWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -456,6 +467,7 @@ export const missingWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -483,6 +495,7 @@ export const missingWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -517,6 +530,7 @@ export const missingSomeWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -544,6 +558,7 @@ export const missingSomeWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -571,6 +586,7 @@ export const missingSomeWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -603,6 +619,7 @@ export const noWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -628,6 +645,7 @@ export const noWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -653,6 +671,7 @@ export const noWeightQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -687,6 +706,7 @@ export const someWeightNotReturned = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -712,6 +732,7 @@ export const someWeightNotReturned = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -739,6 +760,7 @@ export const someWeightNotReturned = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -898,6 +920,7 @@ export const riskOfExcessWeightQuery = {
       primeEstimatedWeight: 50,
       primeActualWeight: 50,
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -922,6 +945,7 @@ export const riskOfExcessWeightQuery = {
       primeEstimatedWeight: 40,
       primeActualWeight: 40,
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -982,6 +1006,7 @@ export const approvedMTOWithCancelledShipmentQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: [
@@ -1056,6 +1081,7 @@ export const lowerReweighsMTOQuery = {
         weight: 99,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -1083,6 +1109,7 @@ export const lowerReweighsMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -1110,6 +1137,7 @@ export const lowerReweighsMTOQuery = {
         weight: 99,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '6',
@@ -1137,6 +1165,7 @@ export const lowerReweighsMTOQuery = {
         weight: 49,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '7',
@@ -1165,6 +1194,7 @@ export const lowerReweighsMTOQuery = {
         weight: 99,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '7',
@@ -1193,6 +1223,7 @@ export const lowerReweighsMTOQuery = {
         weight: 99,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: [
@@ -1274,6 +1305,7 @@ export const lowerActualsMTOQuery = {
         weight: 101,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '4',
@@ -1301,6 +1333,7 @@ export const lowerActualsMTOQuery = {
         id: '00000000-0000-0000-0000-000000000000',
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '5',
@@ -1328,6 +1361,7 @@ export const lowerActualsMTOQuery = {
         weight: 101,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '6',
@@ -1355,6 +1389,7 @@ export const lowerActualsMTOQuery = {
         weight: 51,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '7',
@@ -1383,6 +1418,7 @@ export const lowerActualsMTOQuery = {
         weight: 101,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
     {
       id: '7',
@@ -1411,6 +1447,7 @@ export const lowerActualsMTOQuery = {
         weight: 101,
       },
       sitExtensions: [],
+      sitStatus: SITStatusOrigin,
     },
   ],
   mtoServiceItems: [
