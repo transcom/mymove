@@ -26,7 +26,7 @@ describe('ConnectedCustomerApp tests', () => {
       });
     });
 
-    it('renders the Access Code route', async () => {
+    it.skip('renders the Access Code route', async () => {
       const { queryByText } = renderRoute('/access-code', {
         entities: {
           user: {
