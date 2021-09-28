@@ -43,12 +43,18 @@
   .maxBillableWeight {
     display: inline-block;
     width: 96px;
+    border: 1px solid #1b1b1b;
     appearance: none; // removes up and down arrow for number inputs on firefox
 
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
       appearance: none; // removes up and down arrow for number inputs on all other browsers
     }
+  }
+
+  .errorMessage {
+    margin-top: 0;
+    color: #b50909;
   }
 
   .fieldset {
@@ -62,9 +68,18 @@
     :global(.usa-textarea) {
       height: 96px;
     }
+
+    .label {
+      margin: 0;
+    }
   }
   .btnContainer {
     display: flex;
     @include u-margin-top(2);
+  }
+
+  :global(.usa-form-group--error),
+  :global(.usa-label--error) {
+    margin-top: 0;
   }
 }

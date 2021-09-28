@@ -107,7 +107,7 @@ export default function ReviewBillableWeight() {
         orderID: order.id,
         ifMatchETag: order.eTag,
         body: {
-          authorizedWeight: formValues.billableWeight,
+          authorizedWeight: Number(formValues.billableWeight),
           tioRemarks: formValues.billableWeightJustification,
         },
       };
@@ -116,7 +116,7 @@ export default function ReviewBillableWeight() {
       const payload = {
         body: {
           ...formValues,
-          billableWeightCap: formValues.billableWeight,
+          billableWeightCap: Number(formValues.billableWeight),
         },
         ifMatchETag: selectedShipment.eTag,
         moveTaskOrderID: selectedShipment.moveTaskOrderID,

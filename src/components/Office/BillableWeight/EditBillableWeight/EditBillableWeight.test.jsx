@@ -23,6 +23,8 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(formatWeight(defaultProps.maxBillableWeight))).toBeInTheDocument();
   });
 
+  it('should show fields are required when empty', () => {});
+
   it('renders billable weight justification', () => {
     const defaultProps = {
       title: 'Max billable weight',
