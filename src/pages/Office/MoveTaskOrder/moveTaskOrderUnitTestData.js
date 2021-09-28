@@ -799,6 +799,7 @@ export const sitExtensionPresent = {
           requestedDays: 42,
         },
       ],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
@@ -865,6 +866,7 @@ export const sitExtensionApproved = {
           requestedDays: 42,
         },
       ],
+      sitStatus: SITStatusOrigin,
     },
   ],
 };
