@@ -16358,10 +16358,10 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-ra-core@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.18.0.tgz#0741f3f5b8f7a8e65333881ed22800b4e85b309c"
-  integrity sha512-h4Pb4aosaG4ME/z8foVl40fAWrg+UiijWhSVPqjRSiaX/8eP0o8HfS0r6jviFOXfhB/ecXDUmPXCcSfp4fsjsQ==
+ra-core@^3.18.0, ra-core@^3.18.2:
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.18.2.tgz#bdc15248d29ebaac579b0e2729c83c330c272602"
+  integrity sha512-vSjtYAoyNSTpziUSIGi4+4TZnmZzUJgYLte/rTLCSHLyYuoTpkxKXMIEtvQvC/euCvXf1lkz2ebSegJNVL67Lg==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -16387,12 +16387,12 @@ ra-i18n-polyglot@^3.18.0:
     node-polyglot "^2.2.2"
     ra-core "^3.18.0"
 
-ra-language-english@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.18.0.tgz#3750b6150be9779d15965b375985cbc0deeafbd8"
-  integrity sha512-DEFsa/XDF3khkHO1VBd14oyKwsL44aZa1h2yWhslSZy1V3bJ6ePLs+YpamC2uAleWeHgOzmRvbQxdo4sqMuxUw==
+ra-language-english@^3.18.0, ra-language-english@^3.18.2:
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.18.2.tgz#5aaaff7556da4de7950bfc0e0fd2549b8b13a787"
+  integrity sha512-IKMbDqPOyMSzNFVQaFpW+8/moqAbsTAOgkC3Jl1/Mi26fFxgvFudlmskSWSsyzCOByj+vp53wrzMxdq11dkdQQ==
   dependencies:
-    ra-core "^3.18.0"
+    ra-core "^3.18.2"
 
 ra-ui-materialui@^3.18.1:
   version "3.18.1"
