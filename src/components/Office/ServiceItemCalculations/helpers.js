@@ -62,6 +62,17 @@ const getPriceRateOrFactor = (params) => {
 };
 
 // billable weight calculation
+const formatWeightFromParams = (params, key) => {
+  return formatWeight(parseInt(getParamValue(key, params), 10));
+};
+
+const formatWeightDetail = (params, key) => {
+  const value = getParamValue(key, params);
+  const paramValue = value ? formatWeightFromParams(params, key) : '';
+  const detailText = `${SERVICE_ITEM_CALCULATION_LABELS[key]}: ${paramValue}`;
+  return paramValue ? detailText : '';
+};
+
 const billableWeight = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
@@ -70,11 +81,24 @@ const billableWeight = (params) => {
     parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params), 10),
   )}`;
 
-  const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
-  const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
-    weightEstimated ? formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10)) : ''
-  }`;
-  return calculation(value, label, weightBilledDetail, weightEstimatedDetail);
+  const details = [];
+
+  const weightAdjusted = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
+  if (weightAdjusted) {
+    details.push(weightAdjusted);
+  }
+
+  const weightReweighDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
+  if (weightReweighDetail) {
+    details.push(weightAdjusted);
+  }
+
+  const weightEstimatedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
+  if (weightEstimatedDetail) {
+    details.push(weightEstimatedDetail);
+  }
+
+  return calculation(value, label, weightBilledDetail, ...details);
 };
 
 const shuttleBillableWeight = (params) => {
