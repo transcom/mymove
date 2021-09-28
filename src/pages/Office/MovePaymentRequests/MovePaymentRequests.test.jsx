@@ -323,6 +323,61 @@ const emptyPaymentRequests = {
   order,
 };
 
+const moveShipmentOverweight = {
+  paymentRequests: [],
+  mtoShipments: [
+    {
+      shipmentType: 'HHG',
+      id: '2',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 5000,
+      primeActualWeight: 7000,
+      primeEstimatedWeight: 3000,
+      mtoServiceItems: [
+        {
+          id: '3',
+          mtoShipmentID: '2',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+      ],
+    },
+  ],
+  order,
+};
+
+const moveShipmentMissingReweighWeight = {
+  paymentRequests: [],
+  mtoShipments: [
+    {
+      shipmentType: 'HHG',
+      id: '2',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 8000,
+      primeEstimatedWeight: 3000,
+      reweigh: {
+        id: '123',
+      },
+      mtoServiceItems: [
+        {
+          id: '3',
+          mtoShipmentID: '2',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+      ],
+    },
+  ],
+  order,
+};
+
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -403,6 +458,13 @@ describe('MovePaymentRequests', () => {
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
       });
     });
+
+    it('displays the number of payment request on leftnav sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByTestId('numOfPaymentRequestsTag').textContent).toEqual('2');
+      });
+    });
   });
 
   describe('renders side navigation for each section', () => {
@@ -421,7 +483,14 @@ describe('MovePaymentRequests', () => {
       const paymentRequstNavLink = within(leftNav).getByText(name);
 
       expect(paymentRequstNavLink.href).toContain(tag);
-      expect(paymentRequstNavLink.text).toBe(name);
+      expect(paymentRequstNavLink.text).toContain(name);
+    });
+
+    it('displays the number of payment request on leftnav sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByTestId('numOfPaymentRequestsTag').textContent).toEqual('1');
+      });
     });
   });
 
@@ -540,6 +609,32 @@ describe('MovePaymentRequests', () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(screen.getByText('Move exceeds max billable weight')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('a move that has an overweight shipment displays a warning tag', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(moveShipmentOverweight);
+    });
+
+    it('shows the max billable weight warning tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByTestId('maxBillableWeightWarningTag')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('a move that has a missing shipment reweigh weight displays a warning tag', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(moveShipmentMissingReweighWeight);
+    });
+
+    it('shows the max billable weight warning tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(screen.getByTestId('maxBillableWeightWarningTag')).toBeInTheDocument();
       });
     });
   });

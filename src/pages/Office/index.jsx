@@ -57,6 +57,10 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
+const PrimeSimulatorAvailableMoves = lazy(() =>
+  import('pages/Office/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
+);
+
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -246,6 +250,8 @@ export class OfficeApp extends Component {
                             return <MoveQueue {...routeProps} />;
                           case roleTypes.SERVICES_COUNSELOR:
                             return <ServicesCounselingQueue {...routeProps} />;
+                          case roleTypes.PRIME_SIMULATOR:
+                            return <PrimeSimulatorAvailableMoves {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;

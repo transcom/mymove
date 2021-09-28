@@ -64,9 +64,9 @@ export default function BillableWeightCard({
 
 BillableWeightCard.propTypes = {
   maxBillableWeight: number.isRequired,
-  weightRequested: number.isRequired,
+  weightRequested: number,
   weightAllowance: number.isRequired,
-  totalBillableWeight: number.isRequired,
+  totalBillableWeight: number,
   onReviewWeights: func.isRequired,
   secondayReviewWeightsBtn: bool.isRequired,
   shipments: arrayOf(
@@ -76,4 +76,9 @@ BillableWeightCard.propTypes = {
       reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
+};
+
+BillableWeightCard.defaultProps = {
+  weightRequested: null,
+  totalBillableWeight: null,
 };

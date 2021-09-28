@@ -51,7 +51,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	err := appCtx.DB().
 		EagerPreload(
 			"PaymentServiceItems.MTOServiceItem.ReService",
-			"ProofOfServiceDocs.PrimeUploads",
+			"ProofOfServiceDocs",
 		).
 		Find(&oldPaymentRequest, paymentRequestID)
 	if err != nil {
@@ -83,8 +83,8 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
 	}
 
-	// Duplicate the proof-of-service upload associations to the new payment request.
-	err = associateProofOfServiceDocs(appCtx, oldPaymentRequest.ProofOfServiceDocs, newPaymentRequest)
+	// Remap the proof-of-service upload associations to the new payment request.
+	err = remapProofOfServiceDocs(appCtx, oldPaymentRequest.ProofOfServiceDocs, newPaymentRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -124,39 +124,20 @@ func buildPaymentRequestForRecalculating(oldPaymentRequest models.PaymentRequest
 	return newPaymentRequest
 }
 
-// associateProofOfServiceDocs duplicates/associates a set of proof of service doc relationships to a payment request.
-func associateProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDocs models.ProofOfServiceDocs, newPaymentRequest *models.PaymentRequest) error {
+// remapProofOfServiceDocs remaps a set of proof of service doc relationships to a new payment request.
+func remapProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDocs models.ProofOfServiceDocs, newPaymentRequest *models.PaymentRequest) error {
 	for _, proofOfServiceDoc := range proofOfServiceDocs {
-		newProofOfServiceDoc := models.ProofOfServiceDoc{
-			PaymentRequestID: newPaymentRequest.ID,
-		}
-		verrs, err := appCtx.DB().ValidateAndCreate(&newProofOfServiceDoc)
+		copyOfProofOfServiceDoc := proofOfServiceDoc // Make copy to avoid implicit memory aliasing of items from a range statement.
+		copyOfProofOfServiceDoc.PaymentRequestID = newPaymentRequest.ID
+		verrs, err := appCtx.DB().ValidateAndUpdate(&copyOfProofOfServiceDoc)
 		if err != nil {
-			return services.NewQueryError("ProofOfServiceDoc", err, fmt.Sprintf("failed to create proof of service doc for new payment request ID %s", newPaymentRequest.ID))
+			return services.NewQueryError("ProofOfServiceDoc", err, fmt.Sprintf("failed to update proof of service doc for new payment request ID %s", newPaymentRequest.ID))
 		}
 		if verrs.HasAny() {
 			return services.NewInvalidInputError(newPaymentRequest.ID, err, verrs, "failed to validate proof of service doc")
 		}
 
-		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
-			newPrimeUpload := models.PrimeUpload{
-				ProofOfServiceDocID: newProofOfServiceDoc.ID,
-				ContractorID:        primeUpload.ContractorID,
-				UploadID:            primeUpload.UploadID,
-				DeletedAt:           primeUpload.DeletedAt,
-			}
-			verrs, err := appCtx.DB().ValidateAndCreate(&newPrimeUpload)
-			if err != nil {
-				return services.NewQueryError("PrimeUpload", err, fmt.Sprintf("failed to create prime upload for new payment request ID %s and new proof of service doc ID %s", newPaymentRequest.ID, newProofOfServiceDoc.ID))
-			}
-			if verrs.HasAny() {
-				return services.NewInvalidInputError(newProofOfServiceDoc.ID, err, verrs, "failed to validate prime upload")
-			}
-
-			newProofOfServiceDoc.PrimeUploads = append(newProofOfServiceDoc.PrimeUploads, newPrimeUpload)
-		}
-
-		newPaymentRequest.ProofOfServiceDocs = append(newPaymentRequest.ProofOfServiceDocs, newProofOfServiceDoc)
+		newPaymentRequest.ProofOfServiceDocs = append(newPaymentRequest.ProofOfServiceDocs, copyOfProofOfServiceDoc)
 	}
 
 	return nil
