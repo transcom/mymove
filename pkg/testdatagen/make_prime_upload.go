@@ -52,6 +52,9 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))
 		}
+
+		primeUpload.ProofOfServiceDocID = posDoc.ID
+		primeUpload.ProofOfServiceDoc = posDoc
 	} else {
 		// If no PrimeUploader is being stored, use asserted fields
 

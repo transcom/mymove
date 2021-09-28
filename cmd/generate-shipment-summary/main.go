@@ -94,7 +94,7 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(dbEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

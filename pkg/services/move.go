@@ -33,7 +33,7 @@ type MoveFetcherParams struct {
 //go:generate mockery --name MoveRouter --disable-version-string
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
-	ApproveAmendedOrders(appCtx appcontext.AppContext, moveID uuid.UUID, orderID uuid.UUID) (models.Move, error)
+	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
 	Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error
@@ -44,7 +44,7 @@ type MoveRouter interface {
 //go:generate mockery --name MoveWeights --disable-version-string
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
-	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error
+	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error)
 }
 
 // MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move

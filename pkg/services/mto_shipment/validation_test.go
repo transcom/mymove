@@ -40,15 +40,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkAvailToPrime", func() {
+		appCtx := suite.TestAppContext()
+
 		now := time.Now()
 		hide := false
-		primeShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		primeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &now,
 			},
 		})
 		nonPrimeShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-		hiddenPrimeShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		hiddenPrimeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &now,
 				Show:               &hide,
@@ -95,7 +97,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for name, tc := range testCases {
 			suite.Run(name, func() {
 				checker := checkAvailToPrime()
-				err := checker.Validate(suite.TestAppContext(), &models.MTOShipment{ID: tc.id}, nil)
+				err := checker.Validate(appCtx, &models.MTOShipment{ID: tc.id}, nil)
 				tc.verf(err)
 			})
 		}

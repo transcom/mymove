@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -43,6 +44,14 @@ const (
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
+)
+
+// These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
+// creating a shipment and setting the initial value. Other values will likely be added to this once we deal with
+// different types of customers.
+const (
+	// DefaultServiceMemberSITDaysAllowance is the default number of SIT days a service member is allowed
+	DefaultServiceMemberSITDaysAllowance = 90
 )
 
 // MTOShipmentStatus represents the possible statuses for a mto shipment
@@ -147,4 +156,19 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // TableName overrides the table name used by Pop.
 func (m MTOShipment) TableName() string {
 	return "mto_shipments"
+}
+
+// GetCustomerFromShipment gets the service member given a shipment id
+func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Q().
+		InnerJoin("orders", "orders.service_member_id = service_members.id").
+		InnerJoin("moves", "moves.orders_id = orders.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		Where("mto_shipments.id = ?", shipmentID).
+		First(&serviceMember)
+	if err != nil {
+		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
+	}
+	return &serviceMember, nil
 }

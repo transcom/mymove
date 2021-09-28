@@ -27,7 +27,14 @@ export const Card = (argTypes) => (
           estimatedWeight: 5000,
           reweigh: { id: '1234' },
         },
-        { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3400, estimatedWeight: 5000 },
+        {
+          id: '0003',
+          shipmentType: 'HHG',
+          calculatedBillableWeight: 3400,
+          estimatedWeight: 5000,
+          primeEstimatedWeight: 200,
+          reweigh: { id: '1236', weight: 200 },
+        },
       ]}
     />
   </div>

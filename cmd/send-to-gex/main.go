@@ -116,7 +116,7 @@ func main() {
 
 	logger.Println(ediString)
 
-	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	certLogger, _, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -140,9 +140,13 @@ func main() {
 		log.Fatalf("Gex Sender encountered an error: %v", err)
 	}
 
+	statusCode := 0
+
 	if resp == nil {
 		log.Fatal("Gex Sender had no response")
+	} else {
+		statusCode = resp.StatusCode
 	}
 
-	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
+	fmt.Printf("status code: %v, error: %v \n", statusCode, err)
 }

@@ -54,6 +54,6 @@ func (r *Reweigh) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: r.ShipmentID, Name: "ShipmentID"},
 		&OptionalTimeIsPresent{Field: r.VerificationProvidedAt, Name: "VerificationProvidedAt"},
 		&StringIsNilOrNotBlank{Field: r.VerificationReason, Name: "VerificationReason"},
-		&OptionalPoundIsNonNegative{Field: r.Weight, Name: "Weight"},
+		&OptionalPoundIsPositive{Field: r.Weight, Name: "Weight"},
 	), nil
 }

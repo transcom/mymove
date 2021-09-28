@@ -38,6 +38,21 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
+	// excess weight acknowledged at
+	// Read Only: true
+	// Format: date-time
+	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
+
+	// excess weight qualified at
+	// Read Only: true
+	// Format: date-time
+	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excessWeightQualifiedAt"`
+
+	// excess weight upload Id
+	// Read Only: true
+	// Format: uuid
+	ExcessWeightUploadID *strfmt.UUID `json:"excessWeightUploadId"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -102,6 +117,12 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ETag string `json:"eTag,omitempty"`
 
+		ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
+
+		ExcessWeightQualifiedAt *strfmt.DateTime `json:"excessWeightQualifiedAt"`
+
+		ExcessWeightUploadID *strfmt.UUID `json:"excessWeightUploadId"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		MoveCode string `json:"moveCode,omitempty"`
@@ -147,6 +168,15 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// eTag
 	result.ETag = data.ETag
+
+	// excessWeightAcknowledgedAt
+	result.ExcessWeightAcknowledgedAt = data.ExcessWeightAcknowledgedAt
+
+	// excessWeightQualifiedAt
+	result.ExcessWeightQualifiedAt = data.ExcessWeightQualifiedAt
+
+	// excessWeightUploadId
+	result.ExcessWeightUploadID = data.ExcessWeightUploadID
 
 	// id
 	result.ID = data.ID
@@ -197,6 +227,12 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ETag string `json:"eTag,omitempty"`
 
+		ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
+
+		ExcessWeightQualifiedAt *strfmt.DateTime `json:"excessWeightQualifiedAt"`
+
+		ExcessWeightUploadID *strfmt.UUID `json:"excessWeightUploadId"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		MoveCode string `json:"moveCode,omitempty"`
@@ -223,6 +259,12 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		CreatedAt: m.CreatedAt,
 
 		ETag: m.ETag,
+
+		ExcessWeightAcknowledgedAt: m.ExcessWeightAcknowledgedAt,
+
+		ExcessWeightQualifiedAt: m.ExcessWeightQualifiedAt,
+
+		ExcessWeightUploadID: m.ExcessWeightUploadID,
 
 		ID: m.ID,
 
@@ -269,6 +311,18 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightQualifiedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightUploadID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -328,6 +382,42 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateExcessWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessWeightAcknowledgedAt", "body", "date-time", m.ExcessWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateExcessWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessWeightQualifiedAt", "body", "date-time", m.ExcessWeightQualifiedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateExcessWeightUploadID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightUploadID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessWeightUploadId", "body", "uuid", m.ExcessWeightUploadID.String(), formats); err != nil {
 		return err
 	}
 
@@ -497,6 +587,18 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateExcessWeightAcknowledgedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateExcessWeightQualifiedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateExcessWeightUploadID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMoveCode(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -548,6 +650,33 @@ func (m *MoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats st
 func (m *MoveTaskOrder) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateExcessWeightAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "excessWeightAcknowledgedAt", "body", m.ExcessWeightAcknowledgedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateExcessWeightQualifiedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "excessWeightQualifiedAt", "body", m.ExcessWeightQualifiedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateExcessWeightUploadID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "excessWeightUploadId", "body", m.ExcessWeightUploadID); err != nil {
 		return err
 	}
 

@@ -78,6 +78,62 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/excess-weight-record": {
+      "post": {
+        "description": "Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.\n",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "createExcessWeightRecord",
+        "operationId": "createExcessWeightRecord",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move being updated.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully uploaded the excess weight record file.",
+            "schema": {
+              "$ref": "#/definitions/ExcessWeightRecord"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
@@ -734,6 +790,69 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/sit-extensions": {
+      "post": {
+        "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createSITExtension",
+        "operationId": "createSITExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtension"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the sit extension request.",
+            "schema": {
+              "$ref": "#/definitions/SITExtension"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
@@ -846,10 +965,7 @@ func init() {
             "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
             "$ref": "#/responses/Conflict"
@@ -1210,6 +1326,37 @@ func init() {
         }
       }
     },
+    "CreateSITExtension": {
+      "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
+      "type": "object",
+      "required": [
+        "requestReason",
+        "contractorRemarks",
+        "requestedDays"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -1368,6 +1515,44 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "ExcessWeightRecord": {
+      "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Upload"
+        },
+        {
+          "type": "object",
+          "required": [
+            "moveId"
+          ],
+          "properties": {
+            "moveExcessWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveId": {
+              "description": "The UUID of the move this excess weight record belongs to.",
+              "type": "string",
+              "format": "uuid",
+              "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+            }
+          }
+        }
+      ]
     },
     "ListMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
@@ -1803,8 +1988,7 @@ func init() {
           "type": "object",
           "required": [
             "reason",
-            "reServiceCode",
-            "description"
+            "reServiceCode"
           ],
           "properties": {
             "actualWeight": {
@@ -1813,11 +1997,6 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
-            },
-            "description": {
-              "description": "Details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
@@ -2020,6 +2199,9 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "sitExtensions": {
+          "$ref": "#/definitions/SITExtensions"
+        },
         "status": {
           "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
@@ -2093,6 +2275,27 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightUploadId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "id": {
@@ -2499,6 +2702,88 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITExtension"
+      }
     },
     "ServiceItem": {
       "type": "object",
@@ -2815,6 +3100,7 @@ func init() {
         "weight": {
           "description": "The total reweighed weight for the shipment in pounds.",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "x-omitempty": false,
@@ -2823,6 +3109,7 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",
@@ -2951,7 +3238,7 @@ func init() {
       }
     },
     "UnprocessableEntity": {
-      "description": "The payload was unprocessable.",
+      "description": "The request was unprocessable, likely due to bad input from the requester.",
       "schema": {
         "$ref": "#/definitions/ValidationError"
       }
@@ -3059,6 +3346,77 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/excess-weight-record": {
+      "post": {
+        "description": "Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.\n",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "createExcessWeightRecord",
+        "operationId": "createExcessWeightRecord",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move being updated.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully uploaded the excess weight record file.",
+            "schema": {
+              "$ref": "#/definitions/ExcessWeightRecord"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
@@ -3144,7 +3502,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3279,7 +3637,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3375,7 +3733,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3432,7 +3790,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3523,7 +3881,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3628,7 +3986,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3712,7 +4070,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3811,7 +4169,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -3916,7 +4274,91 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/sit-extensions": {
+      "post": {
+        "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createSITExtension",
+        "operationId": "createSITExtension",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITExtension"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the sit extension request.",
+            "schema": {
+              "$ref": "#/definitions/SITExtension"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4013,7 +4455,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4088,7 +4530,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4164,7 +4606,7 @@ func init() {
             }
           },
           "422": {
-            "description": "The payload was unprocessable.",
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4467,6 +4909,37 @@ func init() {
         }
       }
     },
+    "CreateSITExtension": {
+      "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
+      "type": "object",
+      "required": [
+        "requestReason",
+        "contractorRemarks",
+        "requestedDays"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -4625,6 +5098,44 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "ExcessWeightRecord": {
+      "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Upload"
+        },
+        {
+          "type": "object",
+          "required": [
+            "moveId"
+          ],
+          "properties": {
+            "moveExcessWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveId": {
+              "description": "The UUID of the move this excess weight record belongs to.",
+              "type": "string",
+              "format": "uuid",
+              "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+            }
+          }
+        }
+      ]
     },
     "ListMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
@@ -5060,8 +5571,7 @@ func init() {
           "type": "object",
           "required": [
             "reason",
-            "reServiceCode",
-            "description"
+            "reServiceCode"
           ],
           "properties": {
             "actualWeight": {
@@ -5070,11 +5580,6 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
-            },
-            "description": {
-              "description": "Details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
@@ -5277,6 +5782,9 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "sitExtensions": {
+          "$ref": "#/definitions/SITExtensions"
+        },
         "status": {
           "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
@@ -5350,6 +5858,27 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightUploadId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "id": {
@@ -5756,6 +6285,88 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITExtension": {
+      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
+      "type": "object",
+      "properties": {
+        "approvedDays": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 30
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "We need SIT additional days. The customer has not found a house yet."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "decisionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "requestReason": {
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "example": 30
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "DENIED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITExtensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITExtension"
+      }
     },
     "ServiceItem": {
       "type": "object",
@@ -6075,6 +6686,7 @@ func init() {
         "weight": {
           "description": "The total reweighed weight for the shipment in pounds.",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "x-omitempty": false,
@@ -6083,6 +6695,7 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "filename",
@@ -6211,7 +6824,7 @@ func init() {
       }
     },
     "UnprocessableEntity": {
-      "description": "The payload was unprocessable.",
+      "description": "The request was unprocessable, likely due to bad input from the requester.",
       "schema": {
         "$ref": "#/definitions/ValidationError"
       }

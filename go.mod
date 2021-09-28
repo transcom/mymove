@@ -41,6 +41,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
+	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.12
 	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jessevdk/go-flags v1.5.0
@@ -51,7 +52,7 @@ require (
 	github.com/lib/pq v1.10.3
 	github.com/markbates/goth v1.68.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.4.1
+	github.com/mitchellh/mapstructure v1.4.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
@@ -61,21 +62,20 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.1
+	github.com/spf13/viper v1.9.0
 	github.com/stretchr/objx v0.3.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.3
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.9.3
+	github.com/vektra/mockery/v2 v2.9.4
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.19.1
-	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
-	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
+	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.5
+	golang.org/x/tools v0.1.6
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect

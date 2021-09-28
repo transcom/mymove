@@ -1,0 +1,51 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.ReviewSITExtensionModal {
+  min-width: 45rem !important;
+
+  .ApprovedDaysInput {
+    max-width: 3rem;
+  }
+
+  .ModalPanel {
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-radius('05');
+    @include u-padding(3);
+  }
+
+  .SITSummary {
+    @include u-border('base-lighter');
+    border-width: 0px;
+    border-bottom-width: 1px;
+    @include u-padding-bottom(3);
+    div {
+      display: flex;
+    }
+
+    dl {
+      margin-top: 0;
+    }
+
+    dt,
+    dd {
+      @include u-font-size('body', '3xs');
+      @include u-line-height('body', 2);
+      color: $base-darker;
+    }
+
+    dt {
+      @include u-font-weight('bold');
+      white-space: nowrap;
+    }
+
+    dd {
+      margin-left: 5px;
+    }
+  }
+
+  .CancelButton {
+    @include u-bg('transparent');
+  }
+}

@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import { Orders } from './Orders';
 
@@ -192,29 +191,32 @@ describe('Orders page', () => {
 
       createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByRole, getByLabelText, getByRole } = render(<Orders {...testProps} />);
+      render(<Orders {...testProps} />);
 
       await waitFor(() => {
-        userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+        userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       });
 
-      userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-      userEvent.click(getByLabelText('No'));
+      userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction
-      fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-      await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+      await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+      const selectedOption = await screen.findByText(/Luke/);
+      userEvent.click(selectedOption);
 
-      expect(getByRole('form')).toHaveFormValues({
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '08 Nov 2020',
-        report_by_date: '26 Nov 2020',
-        has_dependents: 'no',
-        new_duty_station: 'Luke AFB',
+      await waitFor(() => {
+        expect(screen.getByRole('form')).toHaveFormValues({
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          issue_date: '08 Nov 2020',
+          report_by_date: '26 Nov 2020',
+          has_dependents: 'no',
+          new_duty_station: 'Luke AFB',
+        });
       });
 
-      const submitButton = queryByRole('button', { name: 'Next' });
+      const submitButton = screen.getByRole('button', { name: 'Next' });
       expect(submitButton).toBeEnabled();
 
       expect(submitButton).toBeInTheDocument();

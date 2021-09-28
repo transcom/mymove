@@ -99,7 +99,7 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 func processEDIs(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
@@ -196,7 +196,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// TODO I don't know why we need a separate logger for cert stuff
-	certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}

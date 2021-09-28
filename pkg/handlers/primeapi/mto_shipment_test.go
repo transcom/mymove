@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender())
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -775,7 +775,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender())
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -930,7 +930,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender())
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
@@ -1383,7 +1383,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	handler := UpdateMTOShipmentStatusHandler{
 		context,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender()),
 		mtoshipment.NewMTOShipmentStatusUpdater(builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),
 	}

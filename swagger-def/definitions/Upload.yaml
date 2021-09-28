@@ -1,3 +1,4 @@
+description: An uploaded file.
 type: object
 properties:
   id:

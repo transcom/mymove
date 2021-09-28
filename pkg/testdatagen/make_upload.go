@@ -3,6 +3,9 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"time"
+
+	"github.com/gofrs/uuid"
 
 	"go.uber.org/zap"
 
@@ -81,4 +84,13 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 // MakeDefaultUpload makes an Upload with default values
 func MakeDefaultUpload(db *pop.Connection) models.Upload {
 	return MakeUpload(db, Assertions{})
+}
+
+// MakeStubbedUpload makes a fake Upload that is not saved to the DB
+func MakeStubbedUpload(db *pop.Connection, assertions Assertions) models.Upload {
+	assertions.Stub = true
+	assertions.Upload.ID = uuid.Must(uuid.NewV4())
+	assertions.Upload.CreatedAt = time.Now()
+	assertions.Upload.UpdatedAt = time.Now()
+	return MakeUpload(db, assertions)
 }

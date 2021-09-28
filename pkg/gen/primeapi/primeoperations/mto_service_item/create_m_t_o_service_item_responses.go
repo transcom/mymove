@@ -283,7 +283,7 @@ func (o *CreateMTOServiceItemConflict) WriteResponse(rw http.ResponseWriter, pro
 // CreateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type CreateMTOServiceItemUnprocessableEntity
 const CreateMTOServiceItemUnprocessableEntityCode int = 422
 
-/*CreateMTOServiceItemUnprocessableEntity The payload was unprocessable.
+/*CreateMTOServiceItemUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createMTOServiceItemUnprocessableEntity
 */

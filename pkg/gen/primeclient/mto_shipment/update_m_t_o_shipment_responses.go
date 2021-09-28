@@ -275,7 +275,7 @@ func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEn
 
 /* UpdateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type UpdateMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	html "html/template"
+	"strings"
 	text "text/template"
 
 	"github.com/gobuffalo/pop/v5"
@@ -27,18 +28,20 @@ type ReweighRequested struct {
 	db           *pop.Connection
 	logger       Logger
 	moveID       uuid.UUID
+	shipment     models.MTOShipment
 	session      *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
 // NewReweighRequested returns a new move submitted notification
-func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *ReweighRequested {
+func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID, shipment models.MTOShipment) *ReweighRequested {
 
 	return &ReweighRequested{
 		db:           db,
 		logger:       logger,
 		moveID:       moveID,
+		shipment:     shipment,
 		session:      session,
 		htmlTemplate: reweighRequestedHTMLTemplate,
 		textTemplate: reweighRequestedTextTemplate,
@@ -47,21 +50,12 @@ func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Sessio
 
 func (m ReweighRequested) emails() ([]emailContent, error) {
 	var emails []emailContent
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
-	if err != nil {
-		return emails, err
-	}
 
-	orders, err := models.FetchOrderForUser(m.db, m.session, move.OrdersID)
+	serviceMember, err := models.GetCustomerFromShipment(m.db, m.shipment.ID)
 	if err != nil {
-		return emails, err
+		m.logger.Error("error retrieving service member associated with this shipment", zap.Error(err))
 	}
-
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
-	if err != nil {
-		return emails, err
-	}
-	if serviceMember.PersonalEmail == nil {
+	if len(*serviceMember.PersonalEmail) == 0 {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
@@ -71,15 +65,17 @@ func (m ReweighRequested) emails() ([]emailContent, error) {
 		m.logger.Error("error rendering template", zap.Error(err))
 	}
 
+	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
+
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "FYI: Your HHG should be reweighed before it is delivered",
+		subject:        fmt.Sprintf("FYI: Your %v should be reweighed before it is delivered", shipmentType),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
 
 	m.logger.Info("Generated reweigh requested email",
-		zap.String("moveLocator", move.Locator))
+		zap.String("moveLocator", m.shipment.MoveTaskOrder.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
