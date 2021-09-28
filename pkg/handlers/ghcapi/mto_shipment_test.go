@@ -1827,6 +1827,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.Require().Equal(ghcmessages.MTOShipmentStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, ghcmessages.MTOShipmentTypeHHG, "MTO Shipment should be an HHG")
+		suite.Equal(int64(models.DefaultServiceMemberSITDaysAllowance), *createMTOShipmentPayload.SitDaysAllowance)
 		suite.Equal(string("customer remark"), *createMTOShipmentPayload.CustomerRemarks)
 		suite.Equal(string("counselor remark"), *createMTOShipmentPayload.CounselorRemarks)
 	})

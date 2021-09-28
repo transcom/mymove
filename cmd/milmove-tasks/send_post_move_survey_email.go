@@ -78,7 +78,7 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	offsetDays := v.GetInt(offsetFlag)
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(dbEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

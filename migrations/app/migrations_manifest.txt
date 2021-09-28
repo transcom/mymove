@@ -667,3 +667,6 @@
 20210831214156_add_sit_pr_start_and_end_dates.up.sql
 20210903211741_recalculation_payment_request.up.sql
 20210909171753_add_demo_tls_cert.up.sql
+20210917011433_add_default_sit_days_allowance_to_existing_hhg_shipments.up.sql
+20210923180711_fix_shuttle_params.up.sql
+20210925020348_add_prime_simulator_role.up.sql

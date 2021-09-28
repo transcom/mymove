@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import EditOrdersForm from './EditOrdersForm';
 
@@ -260,8 +259,10 @@ describe('EditOrdersForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
-    await selectEvent.select(await screen.findByLabelText('New duty station'), /Luke/);
+    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    const selectedOption = await screen.findByText(/Luke/);
+    userEvent.click(selectedOption);
+
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_station: 'Luke AFB',
@@ -320,11 +321,15 @@ describe('EditOrdersForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
-    await selectEvent.select(await screen.findByLabelText('New duty station'), /Luke/);
-    expect(screen.getByRole('form')).toHaveFormValues({
-      new_duty_station: 'Luke AFB',
-    });
+    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    const selectedOption = await screen.findByText(/Luke/);
+    userEvent.click(selectedOption);
+
+    await waitFor(() =>
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_station: 'Luke AFB',
+      }),
+    );
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     expect(submitBtn).not.toBeDisabled();
