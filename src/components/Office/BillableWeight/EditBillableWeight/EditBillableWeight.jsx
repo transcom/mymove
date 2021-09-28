@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as Yup from 'yup';
-import { func, number, string, node } from 'prop-types';
+import { func, number, string } from 'prop-types';
 import { Formik } from 'formik';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
@@ -190,18 +190,6 @@ export default function EditBillableWeight({
     </div>
   );
 }
-
-function ErrorWrapper({ children }) {
-  return <div style={styles.errorWrapper}>sds</div>;
-}
-
-ErrorWrapper.propTypes = {
-  children: node,
-};
-
-ErrorWrapper.defaultProps = {
-  children: null,
-};
 
 EditBillableWeight.propTypes = {
   billableWeight: number,
