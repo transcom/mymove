@@ -188,6 +188,14 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "requestShipmentReweigh",
 	},
+	GhcApproveSITExtensionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveSITExtension",
+	},
+	GhcDenySITExtensionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "denySITExtension",
+	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "fetchMTOAgentList",
