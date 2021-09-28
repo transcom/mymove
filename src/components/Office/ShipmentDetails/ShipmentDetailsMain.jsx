@@ -35,7 +35,7 @@ const ShipmentDetailsMain = ({
 
   return (
     <div className={className}>
-      {sitExtensions && (
+      {sitStatus && (
         <ShipmentSITExtensions
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
