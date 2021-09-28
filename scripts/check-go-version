@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER=1.16
+VERSION_NUMBER=1.17
 
 VERSION="go${VERSION_NUMBER}"
 
