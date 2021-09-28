@@ -1465,11 +1465,36 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		log.Panic(err)
 	}
 
+	doasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       originEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       originDepartureDate.Format("2006-01-02"),
+		}}
+
+	ddasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       destEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       destDepartureDate.Format("2006-01-02"),
+		}}
+
 	paymentServiceItems := []models.PaymentServiceItem{}
 	for _, serviceItem := range serviceItems {
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+			paymentItem.PaymentServiceItemParams = doasitPaymentParams
+		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
