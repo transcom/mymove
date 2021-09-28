@@ -43,7 +43,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
 });
 
 export const ShipmentPaymentSITBalanceShape = PropTypes.shape({
-  previouslyBilledDays: PropTypes.number.isRequired,
+  previouslyBilledDays: PropTypes.number,
   previouslyBilledEndDate: PropTypes.string,
   pendingSITDaysInvoiced: PropTypes.number.isRequired,
   pendingBilledEndDate: PropTypes.string.isRequired,

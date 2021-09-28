@@ -9,6 +9,7 @@ export default {
     previouslyBilledDays: {
       type: 'number',
       defaultValue: 30,
+      required: false,
     },
     previouslyBilledEndDate: {
       type: 'string',
