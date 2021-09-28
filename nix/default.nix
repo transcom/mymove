@@ -55,10 +55,10 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "pre-commit-2.13.0";
+      name = "pre-commit-2.14.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "f62847d5655a6954fc946e5d9c81424171cc281e";
+      rev = "229ff549e611d33d6b8ef2c6a2ce8879e9e75545";
     }) {}).pre-commit
 
     (import (builtins.fetchGit {
