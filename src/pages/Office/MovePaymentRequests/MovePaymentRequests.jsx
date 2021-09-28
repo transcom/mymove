@@ -126,7 +126,11 @@ const MovePaymentRequests = ({
   };
 
   const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
-
+  const noBillableWeightIssues =
+    billableWeightsReviewed ||
+    (!maxBillableWeightExceeded &&
+      !anyShipmentOverweight(filteredShipments) &&
+      !anyShipmentMissingWeight(filteredShipments));
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -173,12 +177,7 @@ const MovePaymentRequests = ({
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
-              secondayReviewWeightsBtn={
-                billableWeightsReviewed ||
-                (!maxBillableWeightExceeded &&
-                  !anyShipmentOverweight(filteredShipments) &&
-                  !anyShipmentMissingWeight(filteredShipments))
-              }
+              secondayReviewWeightsBtn={noBillableWeightIssues}
             />
           </div>
           <h2>Payment requests</h2>
@@ -187,6 +186,7 @@ const MovePaymentRequests = ({
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard
                   paymentRequest={paymentRequest}
+                  hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
                 />
