@@ -8,7 +8,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '210',
@@ -39,7 +39,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '32210',
@@ -70,7 +70,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
@@ -96,7 +96,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
@@ -122,7 +122,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
@@ -148,7 +148,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
@@ -172,7 +172,7 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DOASIT', 99999, testParams.DomesticOriginAdditionalSIT);
     expect(result).toEqual([
       {
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
         label: 'Billable weight (cwt)',
         value: '85 cwt',
       },
@@ -203,7 +203,7 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DDASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
     expect(result).toEqual([
       {
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
         label: 'Billable weight (cwt)',
         value: '85 cwt',
       },
@@ -236,7 +236,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '29',
@@ -266,7 +266,7 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryLonghaul);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
@@ -297,7 +297,7 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMachingZip3);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
@@ -328,7 +328,7 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDelivery);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
@@ -357,7 +357,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
@@ -383,7 +383,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',

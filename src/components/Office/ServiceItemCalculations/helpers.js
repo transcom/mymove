@@ -78,6 +78,12 @@ const billableWeight = (params) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
 
   const details = [];
+
+  const weightBilledDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
+  if (weightBilledDetail) {
+    details.push(weightBilledDetail);
+  }
+
   const weightAdjustedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
   if (weightAdjustedDetail) {
     // The weight adjusted detail should always be bolded
@@ -85,7 +91,7 @@ const billableWeight = (params) => {
   }
 
   const weightReweighDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
-  const weightBilledDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
+  const weightOriginalDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightOriginal);
 
   // If the reweigh weight exists, figure out if the reweigh or the original weight should be bolded.
   if (weightReweighDetail) {
@@ -96,7 +102,9 @@ const billableWeight = (params) => {
     // Otherwise, always have the original weight as bolded.
   }
 
-  details.push(weightBilledDetail);
+  if (weightOriginalDetail) {
+    details.push(weightOriginalDetail);
+  }
 
   const weightEstimatedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
   if (weightEstimatedDetail) {

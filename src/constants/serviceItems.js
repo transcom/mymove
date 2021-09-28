@@ -62,7 +62,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]: 'Destination SIT schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
   [SERVICE_ITEM_PARAM_KEYS.WeightAdjusted]: 'Adjusted',
-  [SERVICE_ITEM_PARAM_KEYS.WeightOriginal]: 'Shipment weight',
+  [SERVICE_ITEM_PARAM_KEYS.WeightOriginal]: 'Original',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilled]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
   [SERVICE_ITEM_PARAM_KEYS.WeightReweigh]: 'Reweigh',
