@@ -365,18 +365,6 @@ export const formatAgeToDays = (age) => {
   return `${Math.floor(age)} days`;
 };
 
-export const formatDaysInTransit = (days) => {
-  if (days) {
-    if (days === 1) {
-      return '1 day';
-    } else {
-      return `${days} days`;
-    }
-  } else {
-    return '0 days';
-  }
-};
-
 export const formatAddressShort = (address) => {
   const { city, state, postal_code } = address;
   return `${city}, ${state} ${postal_code}`;

@@ -84,6 +84,16 @@ describe('Move task order tag rendering', () => {
     const moveTaskOrderTab = screen.getByTestId('MoveTaskOrder-Tab');
     expect(within(moveTaskOrderTab).getByTestId('tag')).toHaveTextContent('1');
   });
+  it('should render the move task order tab container with a tag that shows the count of shipments with SIT extensions needing review', () => {
+    const moveTaskOrderWithUnapprovedServiceItem = {
+      ...basicNavProps,
+      unapprovedSITExtensionCount: 1,
+    };
+    render(<TXOTabNav {...moveTaskOrderWithUnapprovedServiceItem} />, { wrapper: MemoryRouter });
+
+    const moveTaskOrderTab = screen.getByTestId('MoveTaskOrder-Tab');
+    expect(within(moveTaskOrderTab).getByTestId('tag')).toHaveTextContent('1');
+  });
   it('should render the move task order tab container with a tag that shows the count of items that need attention when there are unapproved ServiceItems and an excessive weight risk', () => {
     const moveTaskOrderWithUnapprovedServiceItemAndExcessWeight = {
       ...basicNavProps,

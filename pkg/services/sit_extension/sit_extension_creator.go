@@ -18,6 +18,7 @@ func NewSitExtensionCreator() services.SITExtensionCreator {
 		checks: []sitExtensionValidator{
 			checkShipmentID(),
 			checkRequiredFields(),
+			checkSITExtensionPending(),
 		},
 	}
 }
