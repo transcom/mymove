@@ -41,6 +41,10 @@
     @include u-margin-bottom(3);
   }
 
+  dd:last-child{
+    @include u-margin-bottom(1);
+  }
+
   .daysInSITDetails {
     @include u-margin-bottom(3)
   }
