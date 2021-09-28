@@ -28,7 +28,7 @@ then
 elif [[ $2 = "demo" ]]
 then
   accountid="447641181206"
-elif [[ $2 = "loadtest"]]
+elif [[ $2 = "loadtest" ]]
 then
   accountid="469892416004"
 elif [[ $2 = "stg" ]]
