@@ -60,7 +60,6 @@ describe('Shipment List being used for billable weight', () => {
         id: '0001',
         shipmentType: 'HHG',
         calculatedBillableWeight: 1161,
-        estimatedWeight: 5600,
         primeEstimatedWeight: 200,
         reweigh: { id: '1234', weight: 50 },
       },
@@ -68,16 +67,14 @@ describe('Shipment List being used for billable weight', () => {
         id: '0002',
         shipmentType: 'HHG',
         calculatedBillableWeight: 3200,
-        estimatedWeight: 5000,
-        primeEstimatedWeight: 1000,
-        reweigh: { id: '1234', weight: 20 },
+        primeEstimatedWeight: 3000,
+        reweigh: { id: '1234' },
       },
       {
         id: '0003',
         shipmentType: 'HHG',
-        calculatedBillableWeight: 3400,
-        estimatedWeight: 5000,
-        primeEstimatedWeight: 100,
+        calculatedBillableWeight: 3000,
+        primeEstimatedWeight: 3000,
         reweigh: { id: '1234', weight: 40 },
       },
     ];
@@ -90,8 +87,9 @@ describe('Shipment List being used for billable weight', () => {
 
     render(<ShipmentList {...defaultProps} />);
 
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
-    expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
+    // flags
+    expect(screen.queryByText('Over weight')).toBeInTheDocument();
+    expect(screen.queryByText('Missing weight')).toBeInTheDocument();
 
     // weights
     expect(screen.getByText(formatWeight(shipments[0].calculatedBillableWeight))).toBeInTheDocument();
@@ -99,16 +97,17 @@ describe('Shipment List being used for billable weight', () => {
     expect(screen.getByText(formatWeight(shipments[2].calculatedBillableWeight))).toBeInTheDocument();
   });
 
-  it('renders shipment is over weight flag if a shipment is over weight', () => {
+  it('does not display weight flags when not appropriate', () => {
     const shipments = [
+      { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 5666, primeEstimatedWeight: 5600 },
       {
         id: '0002',
         shipmentType: 'HHG',
         calculatedBillableWeight: 3200,
-        estimatedWeight: 1000,
-        primeEstimatedWeight: 1000,
-        reweigh: { id: '1234', weight: 20 },
+        primeEstimatedWeight: 3000,
+        reweigh: { id: '1234', weight: 3400 },
       },
+      { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 5400, primeEstimatedWeight: 5000 },
     ];
 
     const defaultProps = {
@@ -119,54 +118,8 @@ describe('Shipment List being used for billable weight', () => {
 
     render(<ShipmentList {...defaultProps} />);
 
-    expect(screen.getByText('Over weight')).toBeInTheDocument();
+    // flags
+    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
     expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
-  });
-
-  it('renders shipment is missing weight flag if a shipment does not have a reweigh weight', () => {
-    const shipments = [
-      {
-        id: '0001',
-        shipmentType: 'HHG',
-        calculatedBillableWeight: 3200,
-        estimatedWeight: 5000,
-        primeEstimatedWeight: 1000,
-        reweigh: { id: '1234' },
-      },
-    ];
-
-    const defaultProps = {
-      shipments,
-      moveSubmitted: false,
-      showShipmentWeight: true,
-    };
-
-    render(<ShipmentList {...defaultProps} />);
-
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
-  });
-
-  it('renders shipment is missing weight if a shipment does not have a prime estimated weight', () => {
-    const shipments = [
-      {
-        id: '0001',
-        shipmentType: 'HHG',
-        calculatedBillableWeight: 3200,
-        estimatedWeight: 5000,
-        reweigh: { id: '1234', weight: 20 },
-      },
-    ];
-
-    const defaultProps = {
-      shipments,
-      moveSubmitted: false,
-      showShipmentWeight: true,
-    };
-
-    render(<ShipmentList {...defaultProps} />);
-
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
   });
 });
