@@ -16,14 +16,14 @@ export default function BillableWeightCard({
   totalBillableWeight,
   shipments,
   onReviewWeights,
-  secondayReviewWeightsBtn,
+  secondaryReviewWeightsBtn,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
         <div>
           <h2>Billable weights</h2>
-          {totalBillableWeight > maxBillableWeight && (
+          {totalBillableWeight > maxBillableWeight && !secondaryReviewWeightsBtn && (
             <div>
               <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
               <span
@@ -35,7 +35,7 @@ export default function BillableWeightCard({
             </div>
           )}
         </div>
-        <Button onClick={onReviewWeights} secondary={secondayReviewWeightsBtn}>
+        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn}>
           Review weights
         </Button>
       </div>
@@ -68,7 +68,7 @@ BillableWeightCard.propTypes = {
   weightAllowance: number.isRequired,
   totalBillableWeight: number,
   onReviewWeights: func.isRequired,
-  secondayReviewWeightsBtn: bool.isRequired,
+  secondaryReviewWeightsBtn: bool.isRequired,
   shipments: arrayOf(
     shape({
       id: string.isRequired,

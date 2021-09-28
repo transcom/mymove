@@ -13,6 +13,7 @@ describe('BillableWeightCard', () => {
     weightRequested: 12260,
     weightAllowance: 8000,
     onReviewWeights: jest.fn(),
+    secondaryReviewWeightsBtn: false,
   };
 
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
@@ -96,7 +97,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 40 },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} secondayReviewWeightsBtn />);
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} secondaryReviewWeightsBtn />);
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).toHaveClass('usa-button--secondary');
@@ -157,6 +158,7 @@ describe('BillableWeightCard', () => {
       weightRequested: 12260,
       weightAllowance: 8000,
       onReviewWeights: jest.fn(),
+      secondaryReviewWeightsBtn: false,
     };
 
     const shipments = [

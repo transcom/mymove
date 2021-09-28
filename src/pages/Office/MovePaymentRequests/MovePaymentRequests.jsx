@@ -181,7 +181,7 @@ const MovePaymentRequests = ({
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
-              secondayReviewWeightsBtn={noBillableWeightIssues}
+              secondaryReviewWeightsBtn={noBillableWeightIssues}
             />
           </div>
           <h2>Payment requests</h2>
