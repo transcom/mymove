@@ -120,7 +120,7 @@ export default function EditBillableWeight({
           </Button>
         </>
       ) : (
-        <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur>
+        <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur validateOnChange>
           {({ handleChange, values, isValid, errors }) => (
             <div className={styles.container}>
               {billableWeight ? (
@@ -138,6 +138,7 @@ export default function EditBillableWeight({
                 <MaskedTextField
                   defaultValue="0"
                   inputClassName={styles.maxBillableWeight}
+                  inputTestId="textInput"
                   errorClassName={styles.errorMessage}
                   labelClassName={styles.label}
                   id="billableWeight"

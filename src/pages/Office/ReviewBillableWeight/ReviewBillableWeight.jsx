@@ -228,8 +228,8 @@ export default function ReviewBillableWeight() {
                   destinationAddress={selectedShipment.destinationAddress}
                   estimatedWeight={selectedShipment.primeEstimatedWeight}
                   originalWeight={selectedShipment.primeActualWeight}
-                  reweighRemarks={selectedShipment.reweigh?.verificationReason}
-                  reweighWeight={selectedShipment.reweigh?.weight}
+                  reweighRemarks={selectedShipment?.reweigh?.verificationReason}
+                  reweighWeight={selectedShipment?.reweigh?.weight}
                 />
               </div>
             </DocumentViewerSidebar.Content>

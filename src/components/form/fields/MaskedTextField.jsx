@@ -24,6 +24,7 @@ const MaskedTextField = ({
   validate,
   children,
   type,
+  inputTestId,
   ...props
 }) => {
   const [field, meta, helpers] = useField({ id, name, validate, ...props });
@@ -45,6 +46,7 @@ const MaskedTextField = ({
       {/* eslint-disable react/jsx-props-no-spreading */}
       <IMaskInput
         className={classnames('usa-input', inputClassName)}
+        data-testid={inputTestId}
         type={type}
         id={id}
         name={name}
@@ -82,6 +84,7 @@ MaskedTextField.propTypes = {
   type: PropTypes.string,
   validate: PropTypes.func,
   warning: PropTypes.string,
+  inputTestId: PropTypes.string,
 };
 
 MaskedTextField.defaultProps = {
@@ -99,6 +102,7 @@ MaskedTextField.defaultProps = {
   type: 'text',
   validate: undefined,
   warning: '',
+  inputTestId: '',
 };
 
 export default MaskedTextField;

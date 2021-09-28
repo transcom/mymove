@@ -1,9 +1,14 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import EditBillableWeight from './EditBillableWeight';
 
 import { formatWeight } from 'shared/formatters';
+
+jest.mock('formik', () => ({
+  ...jest.requireActual('formik'),
+}));
 
 describe('EditBillableWeight', () => {
   it('renders weight and edit button intially', () => {
@@ -136,12 +141,34 @@ describe('EditBillableWeight', () => {
     render(<EditBillableWeight {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
-
-    fireEvent.change(screen.getByTestId('textInput'), { target: { value: newBillableWeight } });
+    userEvent.clear(screen.getByTestId('textInput'));
+    userEvent.type(screen.getByTestId('textInput'), '5000');
     fireEvent.change(screen.getByTestId('remarks'), { target: { value: newBillableWeightJustification } });
     fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
     expect(mockEditEntity.mock.calls.length).toBe(1);
-    expect(mockEditEntity.mock.calls[0][0].billableWeight).toBe(newBillableWeight);
+    expect(mockEditEntity.mock.calls[0][0].billableWeight).toBe(String(newBillableWeight));
     expect(mockEditEntity.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
+  });
+
+  it('should disable save button if remarks or billable weight fields are empty', async () => {
+    const defaultProps = {
+      title: 'Max billable weight',
+      weightAllowance: 8000,
+      estimatedWeight: 13750,
+      maxBillableWeight: 10000,
+      billableWeightJustification: 'some remarks',
+      editEntity: () => {},
+    };
+
+    render(<EditBillableWeight {...defaultProps} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.queryByText('Edit')).toBeNull();
+    userEvent.clear(screen.getByTestId('textInput'));
+    userEvent.clear(screen.getByTestId('remarks'));
+    await waitFor(() => {
+      expect(screen.queryAllByText('Required').length).toBe(2);
+    });
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 });
