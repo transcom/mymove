@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import moment from 'moment';
 
 import ShipmentSITExtensions from './ShipmentSITExtensions';
 import {
@@ -12,7 +13,12 @@ import {
   SITExtensionsWithComments,
 } from './ShipmentSITExtensionsTestParams';
 
-const noOp = () => {};
+const startDate = moment().subtract(46, 'days').format('DD MMM YYYY');
+const endDate = moment().add(60, 'days').format('DD MMM YYYY');
+const prevStartOrigin = moment().subtract(66, 'days').format('DD MMM YYYY');
+const prevEndOrigin = moment().subtract(36, 'days').format('DD MMM YYYY');
+const prevStartDest = moment().subtract(25, 'days').format('DD MMM YYYY');
+const prevEndDest = moment().subtract(4, 'days').format('DD MMM YYYY');
 
 describe('ShipmentSITExtensions', () => {
   it('renders the Shipment SIT Extensions', async () => {
@@ -23,13 +29,13 @@ describe('ShipmentSITExtensions', () => {
     expect(screen.getByText('270 authorized')).toBeInTheDocument();
     expect(screen.getByText('45 used')).toBeInTheDocument();
     expect(screen.getByText('60 remaining')).toBeInTheDocument();
-    expect(screen.getByText('Ends 26 Nov 2021')).toBeInTheDocument();
+    expect(screen.getByText(`Ends ${endDate}`)).toBeInTheDocument();
 
     expect(screen.getByText('Current location: origin')).toBeInTheDocument();
 
     expect(screen.getByText('Days in origin SIT')).toBeInTheDocument();
     expect(screen.getByText('45')).toBeInTheDocument();
-    expect(screen.getByText('13 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText(`${startDate}`)).toBeInTheDocument();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
   });
@@ -57,7 +63,7 @@ describe('ShipmentSITExtensions', () => {
     );
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(await screen.getByText('30 days at origin (24 Jul 2021 - 23 Aug 2021)')).toBeInTheDocument();
+    expect(await screen.getByText(`30 days at origin (${prevStartOrigin} - ${prevEndOrigin})`)).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, multiple previous SIT', async () => {
@@ -69,8 +75,8 @@ describe('ShipmentSITExtensions', () => {
       />,
     );
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(await screen.getByText('30 days at origin (24 Jul 2021 - 23 Aug 2021)')).toBeInTheDocument();
-    expect(await screen.getByText('21 days at destination (03 Sep 2021 - 24 Sep 2021)')).toBeInTheDocument();
+    expect(await screen.getByText(`30 days at origin (${prevStartOrigin} - ${prevEndOrigin})`)).toBeInTheDocument();
+    expect(await screen.getByText(`21 days at destination (${prevStartDest} - ${prevEndDest})`)).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT Extensions', async () => {

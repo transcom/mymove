@@ -30,7 +30,7 @@ const ShipmentSITExtensions = (props) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
-  const sitEndDate = moment().add(totalDaysRemaining, 'days').format('DD MMM YYYY');
+  const sitEndDate = `Ends ${moment().add(totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
 
   const mappedSITExtensionList = sitExtensions.map((sitExt) => {
     return (
@@ -69,7 +69,7 @@ const ShipmentSITExtensions = (props) => {
   const daysRemainingAndEndDate = (
     <>
       <p>{totalDaysRemaining} remaining</p>
-      <p>Ends {sitEndDate}</p>
+      <p>{sitEndDate}</p>
     </>
   );
 
@@ -91,8 +91,8 @@ const ShipmentSITExtensions = (props) => {
 
     const start = moment(pastSITItem.sitEntryDate).format('DD MMM YYYY');
     const end = moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY');
-
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
+
     return <p key={pastSITItem.id}>{text}</p>;
   });
 

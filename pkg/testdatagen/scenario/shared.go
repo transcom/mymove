@@ -4780,8 +4780,6 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	// oneMonthAgo := twoMonthsAgo.Add(time.Hour * 24 * 30)
-	// oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 
