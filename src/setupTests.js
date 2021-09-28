@@ -1,3 +1,5 @@
+import { format } from 'util';
+
 import Enzyme from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import 'jest-canvas-mock';
@@ -15,4 +17,9 @@ global.performance = {
   now: () => {
     return Date.now();
   },
+};
+
+global.console.error = (message, ...args) => {
+  global.console.log("Jest tests can't emit console.error\n");
+  throw format(message, ...args);
 };

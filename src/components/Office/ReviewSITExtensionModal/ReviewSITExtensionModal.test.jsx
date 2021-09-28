@@ -12,12 +12,12 @@ describe('ReviewSITExtensionModal', () => {
     id: '123',
   };
 
-  it('renders requested days, reason, and contractor remarks', () => {
-    const { getByText } = render(
+  it('renders requested days, reason, and contractor remarks', async () => {
+    const { getByText, findByText } = render(
       <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={() => {}} onClose={() => {}} />,
     );
 
-    expect(getByText('45')).toBeInTheDocument();
+    expect(await findByText('45')).toBeInTheDocument();
     expect(getByText('Awaiting completion of residence under construction')).toBeInTheDocument();
     expect(getByText('The customer requested an extension')).toBeInTheDocument();
   });
