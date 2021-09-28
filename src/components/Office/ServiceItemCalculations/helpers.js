@@ -77,28 +77,33 @@ const billableWeight = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
 
-  const weightBilledDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightBilled]}: ${formatWeight(
-    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params), 10),
-  )}`;
-
   const details = [];
-
-  const weightAdjusted = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
-  if (weightAdjusted) {
-    details.push(weightAdjusted);
+  const weightAdjustedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
+  if (weightAdjustedDetail) {
+    // The weight adjusted detail should always be bolded
+    details.push(weightAdjustedDetail);
   }
 
   const weightReweighDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
+  const weightBilledDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
+
+  // If the reweigh weight exists, figure out if the reweigh or the original weight should be bolded.
   if (weightReweighDetail) {
-    details.push(weightAdjusted);
+    // const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
+    // const weightBilledValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
+    details.push(weightReweighDetail);
+  } else {
+    // Otherwise, always have the original weight as bolded.
   }
+
+  details.push(weightBilledDetail);
 
   const weightEstimatedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
   if (weightEstimatedDetail) {
     details.push(weightEstimatedDetail);
   }
 
-  return calculation(value, label, weightBilledDetail, ...details);
+  return calculation(value, label, ...details);
 };
 
 const shuttleBillableWeight = (params) => {
