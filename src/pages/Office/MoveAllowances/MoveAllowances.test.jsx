@@ -156,7 +156,6 @@ describe('MoveAllowances page', () => {
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
-      expect(screen.getByTestId('storageInTransit')).toHaveTextContent('2 days');
     });
   });
 });
