@@ -78,8 +78,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Migrations](#migrations)
   * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
-  * [Spellcheck](#spellcheck)
-    * [Tips for staying sane](#tips-for-staying-sane)
   * [GoLand](#goland)
     * [Goland: Nix](#goland-nix)
   * [Storybook](#storybook)
@@ -87,7 +85,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
-    * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
   * [Manual Redeploys and Other Helpful Information in an Emergency](#manual-redeploys-and-other-helpful-information-in-an-emergency)
   * [PII Best Practices](#pii-best-practices)
     * [More about content dispositions](#more-about-content-dispositions)
@@ -1080,18 +1077,6 @@ $ godoc -http=:6060
 
 Then visit <http://localhost:6060/pkg/github.com/transcom/mymove/>
 
-### Spellcheck
-
-We use [markdown-spellcheck](https://github.com/lukeapage/node-markdown-spellcheck) as a pre-commit hook to catch spelling errors in Markdown files. To make fixing caught errors easier, there's a handy make target that runs the spellchecker in interactive mode:
-
-* `make spellcheck`
-
-This will let you walk through the caught spelling errors one-by-one and choose whether to fix it, add it to the dictionary, or have it be permanently ignored for that file.
-
-#### Tips for staying sane
-
-* If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
-
 ### GoLand
 
 GoLand supports
@@ -1165,32 +1150,6 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 #### Linters & Pre-commit Hooks
 
 We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://github.com/transcom/mymove/wiki/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
-
-#### Yarn install markdown-spell (aka mdspell)
-
-We use `mdspell` for spell checking markdown files during pre-commit hooks. You may run into an issue such as below during the installation command `yarn global add markdown-spellcheck` suggested by the Makefile.
-
-Example error:
-
-```sh
->$ yarn global add markdown-spellcheck
-
-yarn global v1.19.0
-[1/4] :mag:  Resolving packages...
-[2/4] :truck:  Fetching packages...
-error An unexpected error occurred: "https://registry.yarnpkg.com/har-validator/-/har-validator-5.1.2.tgz: Request failed \"404 Not Found\"".
-info If you think this is a bug, please open a bug report with the information provided in "/Users/john/.config/yarn/global/yarn-error.log".
-info Visit https://yarnpkg.com/en/docs/cli/global for documentation about this command.
-```
-
-If you do, following these steps may resolve it.
-
-```sh
-rm ~/.config/yarn/global/yarn.lock
-cd ~/.config/yarn/global
-yarn cache clean
-yarn global add markdown-spellcheck
-```
 
 ### Manual Redeploys and Other Helpful Information in an Emergency
 

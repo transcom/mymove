@@ -7,29 +7,43 @@ import BillableWeightCard from './BillableWeightCard';
 import { formatWeight } from 'shared/formatters';
 
 describe('BillableWeightCard', () => {
-  const shipments = [
-    { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 6161, estimatedWeight: 5600 },
-    {
-      id: '0002',
-      shipmentType: 'HHG',
-      calculatedBillableWeight: 3200,
-      estimatedWeight: 5000,
-      reweigh: { id: '1234' },
-    },
-    { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 3400, estimatedWeight: 5000 },
-  ];
-
   const defaultProps = {
     maxBillableWeight: 13750,
     totalBillableWeight: 12460,
     weightRequested: 12260,
     weightAllowance: 8000,
-    shipments,
     onReviewWeights: jest.fn(),
   };
 
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
-    render(<BillableWeightCard {...defaultProps} />);
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 2161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3200,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 1000,
+        reweigh: { id: '1234', weight: 300 },
+      },
+      {
+        id: '0003',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+      },
+    ];
+
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
 
     // labels
     expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
@@ -43,10 +57,6 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText(formatWeight(defaultProps.weightRequested))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
 
-    // flags
-    expect(screen.getByText('Over weight')).toBeInTheDocument();
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
-
     // shipment weights
     expect(screen.getByText(formatWeight(shipments[0].calculatedBillableWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(shipments[1].calculatedBillableWeight))).toBeInTheDocument();
@@ -54,7 +64,17 @@ describe('BillableWeightCard', () => {
   });
 
   it('implements the review weights handler when the review weights button is clicked', async () => {
-    render(<BillableWeightCard {...defaultProps} />);
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
 

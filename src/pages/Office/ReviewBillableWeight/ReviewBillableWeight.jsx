@@ -59,19 +59,24 @@ export default function ReviewBillableWeight() {
   const weightRequested = useCalculatedWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
-  const maxBillableWeight = order.entitlement?.authorizedWeight;
-  const weightAllowance = order.entitlement?.totalWeight;
+  const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const weightAllowance = order?.entitlement?.totalWeight;
+
+  const shipmentsMissingInformation = filteredShipments?.filter((shipment) => {
+    return !shipment.primeEstimatedWeight || (shipment.reweigh?.requestedAt && !shipment.reweigh?.weight);
+  });
 
   const handleClose = () => {
     history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }));
   };
 
-  const selectedShipment = filteredShipments[selectedShipmentIndex];
+  const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
 
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      filteredShipments[filteredShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
+        updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], filteredShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
     onError: (error) => {
@@ -142,6 +147,11 @@ export default function ReviewBillableWeight() {
               {totalBillableWeight > maxBillableWeight && (
                 <Alert slim type="error" data-testid="maxBillableWeightAlert">
                   {`Max billable weight exceeded. \nPlease resolve.`}
+                </Alert>
+              )}
+              {shipmentsMissingInformation?.length > 0 && (
+                <Alert slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
+                  Missing shipment weights may impact max billable weight.
                 </Alert>
               )}
               <div className={reviewBillableWeightStyles.weightSummary}>
