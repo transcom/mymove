@@ -96,14 +96,14 @@ readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_nam
 cat > "${local_test_migration_name}" << EOM
 -- Local test migration.
 -- This will be run on development environments.
--- It should mirror what you intend to apply on prd/stg/exp/demo
+-- It should mirror what you intend to apply on prd/stg/exp/demo/loadtest
 -- DO NOT include any sensitive data.
 EOM
 
 # Create empty file for real secure migration
 cat > "${prod_migration_name}" << EOM
 -- Production Migration!
--- This will be distributed to all deployed environments (e.g. demo,exp,stg,prd)
+-- This will be distributed to all deployed environments (e.g. loadtest,demo,exp,stg,prd)
 EOM
 
 # replace pg_dump with production migration

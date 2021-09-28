@@ -16,7 +16,7 @@ set -eu -o pipefail
 # Note: Each date must be specified, not a date range!
 #
 
-[[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prd|stg|exp|demo> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
+[[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prd|stg|exp|demo|loadtest> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
 
 readonly dest=$1
 readonly environment=$2
@@ -28,6 +28,9 @@ then
 elif [[ $2 = "demo" ]]
 then
   accountid="447641181206"
+elif [[ $2 = "loadtest"]]
+then
+  accountid="469892416004"
 elif [[ $2 = "stg" ]]
 then
   accountid="015932076428"
@@ -35,7 +38,7 @@ elif [[ $2 = "prd" ]]
 then
   accountid="015533997236"
 else
-  echo "I need, 'demo', 'exp', 'stg' or 'prd'."
+  echo "I need, 'loadtest' 'demo', 'exp', 'stg' or 'prd'."
   exit 1
 fi
 
