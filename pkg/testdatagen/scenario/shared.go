@@ -1172,6 +1172,96 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		Move: move,
 	})
 
+	shipmentWithOriginalWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	shipmentWithOriginalAndReweighWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	reweighWeight := unit.Pound(100000)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalAndReweighWeight,
+		Reweigh: models.Reweigh{
+			Weight: &reweighWeight,
+		},
+	})
+
+	shipmentWithOriginalAndReweighWeightReweihBolded := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	// Make the reweigh weight and the estimated weight (original weight) be the same to create devseed
+	// data where we can check that the reweigh weight is bolded.
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalAndReweighWeightReweihBolded,
+		Reweigh: models.Reweigh{
+			Weight: &estimatedWeight,
+		},
+	})
+
+	billableWeightCap := unit.Pound(2000)
+	billableWeightJustification := "Capped shipment"
+	shipmentWithOriginalReweighAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                      models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight:        &estimatedWeight,
+			PrimeActualWeight:           &actualWeight,
+			ShipmentType:                models.MTOShipmentTypeHHG,
+			DestinationAddress:          &shorthaulDestinationAddress,
+			DestinationAddressID:        &shorthaulDestinationAddress.ID,
+			BillableWeightCap:           &billableWeightCap,
+			BillableWeightJustification: &billableWeightJustification,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalReweighAndAdjustedWeight,
+		Reweigh: models.Reweigh{
+			Weight: &reweighWeight,
+		},
+	})
+
+	shipmentWithOriginalAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                      models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight:        &estimatedWeight,
+			PrimeActualWeight:           &actualWeight,
+			ShipmentType:                models.MTOShipmentTypeHHG,
+			DestinationAddress:          &shorthaulDestinationAddress,
+			DestinationAddressID:        &shorthaulDestinationAddress.ID,
+			BillableWeightCap:           &billableWeightCap,
+			BillableWeightJustification: &billableWeightJustification,
+		},
+		Move: move,
+	})
+
 	submissionErr := moveRouter.Submit(appCtx, &move)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -1195,10 +1285,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Once()
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Once()
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
@@ -1207,7 +1297,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
+	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Times(7)
+
+	// called for domestic shorthaul service item
+	planner.On("Zip3TransitDistance", "90210", "90211").Return(348, nil).Times(5)
 
 	// called for domestic origin SIT pickup service item
 	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
@@ -1215,7 +1308,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	// called for domestic destination SIT delivery service item
 	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
 
-	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
+	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
