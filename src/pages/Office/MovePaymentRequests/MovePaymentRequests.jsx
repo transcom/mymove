@@ -144,17 +144,21 @@ const MovePaymentRequests = ({
                     {paymentRequests.length}
                   </Tag>
                 )}
-                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
-                  <Tag
-                    className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
-                    data-testid="maxBillableWeightErrorTag"
-                  >
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
+                {s === 'billable-weights' &&
+                  maxBillableWeightExceeded &&
+                  filteredShipments?.length > 0 &&
+                  !billableWeightsReviewed && (
+                    <Tag
+                      className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+                      data-testid="maxBillableWeightErrorTag"
+                    >
+                      <FontAwesomeIcon icon="exclamation" />
+                    </Tag>
+                  )}
                 {s === 'billable-weights' &&
                   !maxBillableWeightExceeded &&
                   filteredShipments?.length > 0 &&
+                  !billableWeightsReviewed &&
                   (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
                     <FontAwesomeIcon
                       icon="exclamation-triangle"

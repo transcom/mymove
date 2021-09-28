@@ -126,9 +126,11 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
                 <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                 Review service items
               </Button>
-              <span className={styles.errorText} test-dataid="errorTxt">
-                Resolve billable weight before reviewing service items.
-              </span>
+              {hasBillableWeightIssues && (
+                <span className={styles.errorText} test-dataid="errorTxt">
+                  Resolve billable weight before reviewing service items.
+                </span>
+              )}
             </div>
           )}
         </div>
