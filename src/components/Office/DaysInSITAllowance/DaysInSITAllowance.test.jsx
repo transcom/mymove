@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import DaysInSITAllowance from './DaysInSITAllowance';
 
 describe('DaysInSITAllowance Component', () => {
-  const shipmentSITBalance = {
+  const shipmentPaymentSITBalance = {
     previouslyBilledDays: 30,
     previouslyBilledEndDate: '2021-06-08',
     pendingSITDaysInvoiced: 60,
@@ -24,7 +24,7 @@ describe('DaysInSITAllowance Component', () => {
   };
 
   it('renders the billed, pending, and total SIT balances', () => {
-    render(<DaysInSITAllowance {...shipmentSITBalance} />);
+    render(<DaysInSITAllowance shipmentPaymentSITBalance={shipmentPaymentSITBalance} />);
 
     expect(screen.getByText('Prev. billed & accepted')).toBeInTheDocument();
     // due to the fragments using getByText here doesn't work, another option would be create a function that renders a
@@ -42,7 +42,7 @@ describe('DaysInSITAllowance Component', () => {
   });
 
   it('renders zero when no SIT days were previously billed', () => {
-    render(<DaysInSITAllowance {...pendingShipmentSITBalance} />);
+    render(<DaysInSITAllowance shipmentPaymentSITBalance={pendingShipmentSITBalance} />);
 
     expect(screen.getByText('Prev. billed & accepted')).toBeInTheDocument();
     expect(screen.getByTestId('previouslyBilled')).toHaveTextContent('0 days');

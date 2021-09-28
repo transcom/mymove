@@ -38,7 +38,7 @@ export default {
   },
 };
 
-const Template = (args) => <DaysInSITAllowance {...args} />;
+const Template = (args) => <DaysInSITAllowance shipmentPaymentSITBalance={{ ...args }} />;
 
 export const PastPendingRemaining = Template.bind({});
 

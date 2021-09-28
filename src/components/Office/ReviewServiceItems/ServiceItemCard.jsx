@@ -5,6 +5,8 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
+
 import styles from './ServiceItemCard.module.scss';
 
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
@@ -224,8 +226,10 @@ const ServiceItemCard = ({
                     <>
                       <dt className={styles.daysInSIT}>Days in SIT</dt>
                       <dd>
-                        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-                        <DaysInSITAllowance className={styles.daysInSITDetails} {...shipmentSITBalance} />
+                        <DaysInSITAllowance
+                          className={styles.daysInSITDetails}
+                          shipmentPaymentSITBalance={shipmentSITBalance}
+                        />
                       </dd>
                     </>
                   )}
@@ -354,15 +358,7 @@ ServiceItemCard.propTypes = {
   requestComplete: PropTypes.bool,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   additionalServiceItemData: MTOServiceItemShape,
-  shipmentSITBalance: PropTypes.shape({
-    previouslyBilledDays: PropTypes.number,
-    previouslyBilledEndDate: PropTypes.string,
-    pendingSITDaysInvoiced: PropTypes.number,
-    pendingBilledEndDate: PropTypes.string,
-    totalSITDaysAuthorized: PropTypes.number,
-    totalSITDaysRemaining: PropTypes.number,
-    totalSITEndDate: PropTypes.string,
-  }),
+  shipmentSITBalance: ShipmentPaymentSITBalanceShape,
 };
 
 ServiceItemCard.defaultProps = {

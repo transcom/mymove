@@ -2,20 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
+
 import styles from './DaysInSITAllowance.module.scss';
 
 import { formatDaysInTransit, formatDate } from 'shared/formatters';
 
-const DaysInSITAllowance = ({
-  className,
-  previouslyBilledDays,
-  previouslyBilledEndDate,
-  pendingSITDaysInvoiced,
-  pendingBilledEndDate,
-  totalSITDaysAuthorized,
-  totalSITDaysRemaining,
-  totalSITEndDate,
-}) => {
+const DaysInSITAllowance = ({ className, shipmentPaymentSITBalance }) => {
+  const {
+    previouslyBilledDays,
+    previouslyBilledEndDate,
+    pendingSITDaysInvoiced,
+    pendingBilledEndDate,
+    totalSITDaysAuthorized,
+    totalSITDaysRemaining,
+    totalSITEndDate,
+  } = shipmentPaymentSITBalance;
   return (
     <div className={classNames(className, styles.DaysInSITAllowance)} data-testid="DaysInSITAllowance">
       <dl className={styles.daysInSITList}>
@@ -47,18 +49,11 @@ const DaysInSITAllowance = ({
 
 DaysInSITAllowance.propTypes = {
   className: PropTypes.string,
-  previouslyBilledDays: PropTypes.number.isRequired,
-  previouslyBilledEndDate: PropTypes.string,
-  pendingSITDaysInvoiced: PropTypes.number.isRequired,
-  pendingBilledEndDate: PropTypes.string.isRequired,
-  totalSITDaysAuthorized: PropTypes.number.isRequired,
-  totalSITDaysRemaining: PropTypes.number.isRequired,
-  totalSITEndDate: PropTypes.string.isRequired,
+  shipmentPaymentSITBalance: ShipmentPaymentSITBalanceShape.isRequired,
 };
 
 DaysInSITAllowance.defaultProps = {
   className: undefined,
-  previouslyBilledEndDate: undefined,
 };
 
 export default DaysInSITAllowance;

@@ -49,14 +49,15 @@
     @include u-margin-bottom(3)
   }
 
-  .toggleCalculations {
-    @include u-padding-x(0);
-    @include u-margin-bottom(1);
-    @include u-font-size(body, '3xs');
+  :global(.usa-button.usa-button--unstyled).toggleCalculations {
+      @include u-padding-x(0);
+      @include u-margin-bottom(1);
+      @include u-font-size(body, '3xs');
   }
 
   .calculationsContainer {
     @include u-margin-top(2);
+    @include u-margin-bottom(1);
   }
 
   .form {
