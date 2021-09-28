@@ -458,9 +458,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// this shipment
 		runShipmentRecalculate := false
 		if newShipment.BillableWeightCap != nil {
+			// new billable cap has a value and it is not the same as the previous value
 			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
 				runShipmentRecalculate = true
 			}
+		} else if dbShipment.BillableWeightCap != nil {
+			// setting the billable cap back to nil (where previously it wasn't)
+			runShipmentRecalculate = true
 		}
 
 		// A diverted shipment gets set to the SUBMITTED status automatically:
