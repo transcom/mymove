@@ -215,8 +215,11 @@ func findCurrentPaymentServiceItem(paymentServiceItems models.PaymentServiceItem
 	found := false
 	for _, psi := range paymentServiceItems {
 		if psi.PaymentRequestID == paymentRequestID && psi.MTOServiceItemID == mtoServiceItemID {
+			if found {
+				return models.PaymentServiceItem{}, models.PaymentServiceItems{}, fmt.Errorf("multiple PaymentServiceItems for MTOServiceItem %v found within the same PaymentRequest", mtoServiceItemID)
+			}
 			currentPaymentServiceItem = psi
-			found = true // TODO do i care if this happens twice? what would that mean?
+			found = true
 		} else {
 			priorPaymentServiceItems = append(priorPaymentServiceItems, psi)
 		}
