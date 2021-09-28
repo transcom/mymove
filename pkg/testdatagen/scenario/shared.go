@@ -1136,6 +1136,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
+	SITAllowance := 90
 	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1143,6 +1144,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ActualPickupDate:     &actualPickupDate,
+			SITDaysAllowance:     &SITAllowance,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
@@ -1465,6 +1467,8 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		log.Panic(err)
 	}
 
+	// An origin and destination SIT would normally not be on the same payment request so the TIO totals will appear
+	// off.  Refer to the PARSIT move to see a reviewed and pending payment request with origin and destination SIT.
 	doasitPaymentParams := []models.PaymentServiceItemParam{
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
