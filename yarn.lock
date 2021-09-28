@@ -16379,13 +16379,13 @@ ra-data-simple-rest@^3.18.0:
   dependencies:
     query-string "^5.1.1"
 
-ra-i18n-polyglot@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.18.0.tgz#d941d4d8ed2c852942eba89360fc2bf742b5fb25"
-  integrity sha512-siKcAP92+Najag/q222EUpr28NCRJihjTVm+XbvIPYxbjGVNBnZbQ+2GIzolQ8ruGTZ+M30AMIx/Agph3nf1hQ==
+ra-i18n-polyglot@^3.18.2:
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.18.2.tgz#5533d033728b6865c5819b3ebf44d238ce96fc52"
+  integrity sha512-xMxSEY6O81Pi1WbRlY0clBoPIqaBk4wYoJUajEkDATQe9/eazbP61tsHQgoHIR8B4bdbysHyyPO/bX51L9IUJw==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.18.0"
+    ra-core "^3.18.2"
 
 ra-language-english@^3.18.0, ra-language-english@^3.18.2:
   version "3.18.2"
@@ -16394,10 +16394,10 @@ ra-language-english@^3.18.0, ra-language-english@^3.18.2:
   dependencies:
     ra-core "^3.18.2"
 
-ra-ui-materialui@^3.18.1:
-  version "3.18.1"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.18.1.tgz#cdb2008e584249a60a5ed46298780be261e85f9d"
-  integrity sha512-GbvF9VAoscCfEbHQfhQj5BxVOGBwfDBTgjFa3/jazRojDniKsfZRs3mOb+YzzsdaV8ST/chEj/9UQjUzErrHCA==
+ra-ui-materialui@^3.18.2:
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.18.2.tgz#e00ee69acfb2d70fc3543aca07c421c0be026bde"
+  integrity sha512-UjUjbP1iHxX/sq55Mb3eMuKPCNHNDgvxLa4lYeDiB4TPldltJYTRIQJc/nl+U8lyW3jc2KMGVsw52jjItR93ig==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -16519,10 +16519,10 @@ react-admin-import-csv@^1.0.23:
     papaparse "5.x"
     ramda "^0.27.0"
 
-react-admin@^3.18.0:
-  version "3.18.1"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.18.1.tgz#ec94b2cbb4eeb047e1eb8a33177e39337bba5bb4"
-  integrity sha512-/4J7MdK/d9lnOp/CKGBSN46TITuXhlhD+wMQHnfjL9z/pkGTDrwJxoWM4+q9n6ZrFiBwUCpqMU6k84IhnEoZ7w==
+react-admin@^3.18.2:
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.18.2.tgz#cb48884d111997131df1c442bd1b2e5a81a8ad93"
+  integrity sha512-a+EBWJLRA19qpwkTiXbhv5ilvCHKecV5LDpoNEtcInFDMuwxK4nXLnL+sfyVW/mLyaHSPh6F/nz/ElJYeI6JVg==
   dependencies:
     "@material-ui/core" "^4.11.2"
     "@material-ui/icons" "^4.11.2"
@@ -16530,10 +16530,10 @@ react-admin@^3.18.0:
     connected-react-router "^6.5.2"
     final-form "^4.20.2"
     final-form-arrays "^3.0.2"
-    ra-core "^3.18.0"
-    ra-i18n-polyglot "^3.18.0"
-    ra-language-english "^3.18.0"
-    ra-ui-materialui "^3.18.1"
+    ra-core "^3.18.2"
+    ra-i18n-polyglot "^3.18.2"
+    ra-language-english "^3.18.2"
+    ra-ui-materialui "^3.18.2"
     react-final-form "^6.5.2"
     react-final-form-arrays "^3.1.3"
     react-redux "^7.1.0"
