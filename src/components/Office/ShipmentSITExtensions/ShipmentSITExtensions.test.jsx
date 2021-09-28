@@ -22,8 +22,14 @@ const prevEndDest = moment().subtract(4, 'days').format('DD MMM YYYY');
 
 describe('ShipmentSITExtensions', () => {
   it('renders the Shipment SIT Extensions', async () => {
-    render(<ShipmentSITExtensions sitExtensions={testProps} handleReviewSITExtension={noOp} />);
-    render(<ShipmentSITExtensions sitExtensions={SITExtensions} sitStatus={SITStatus} shipment={SITShipment} />);
+    render(
+      <ShipmentSITExtensions
+        sitExtensions={SITExtensions}
+        sitStatus={SITStatusOrigin}
+        shipment={SITShipment}
+        handleReviewSITExtension={jest.fn()}
+      />,
+    );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
 
     expect(screen.getByText('270 authorized')).toBeInTheDocument();
@@ -95,7 +101,6 @@ describe('ShipmentSITExtensions', () => {
   });
 
   it('renders the Shipment SIT Extensions with comments', async () => {
-    render(<ShipmentSITExtensions sitExtensions={testPropsWithComments} handleReviewSITExtension={noOp} />);
     render(
       <ShipmentSITExtensions
         sitExtensions={SITExtensionsWithComments}
