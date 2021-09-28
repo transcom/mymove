@@ -68,7 +68,10 @@ func (p *Pipelines) Fetch(pageToken string) {
 		panic(err)
 	}
 
-	json.Unmarshal(bodyBytes, &p)
+	err = json.Unmarshal(bodyBytes, &p)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Workflow gets the workflow information associated with a CircleCI Pipeline
@@ -91,7 +94,10 @@ func (p *Pipeline) Workflow() *Workflow {
 	}
 
 	workflow := &Workflow{PipelineID: p.ID}
-	json.Unmarshal(bodyBytes, workflow)
+	err = json.Unmarshal(bodyBytes, workflow)
+	if err != nil {
+		panic(err)
+	}
 	return workflow
 }
 

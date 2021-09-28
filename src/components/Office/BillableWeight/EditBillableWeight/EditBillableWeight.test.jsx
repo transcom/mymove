@@ -12,6 +12,7 @@ describe('EditBillableWeight', () => {
       weightAllowance: 8000,
       estimatedWeight: 13750,
       maxBillableWeight: 10000,
+      editEntity: () => {},
     };
 
     render(<EditBillableWeight {...defaultProps} />);
@@ -28,6 +29,7 @@ describe('EditBillableWeight', () => {
       weightAllowance: 8000,
       estimatedWeight: 13750,
       maxBillableWeight: 10000,
+      editEntity: () => {},
       billableWeightJustification: 'Reduced billable weight to cap at 110% of estimated.',
     };
 

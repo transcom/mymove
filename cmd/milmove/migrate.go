@@ -119,7 +119,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, errLogging := logging.Config(
+	logger, _, errLogging := logging.Config(
 		logging.WithEnvironment(loggingEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

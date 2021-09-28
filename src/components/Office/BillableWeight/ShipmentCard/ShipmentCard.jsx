@@ -54,7 +54,7 @@ export default function ShipmentCard({
         </div>
         <div
           className={classnames(styles.field, {
-            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight),
+            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight) && estimatedWeight,
           })}
         >
           <strong>Original weight</strong>
@@ -108,7 +108,7 @@ ShipmentCard.propTypes = {
     postal_code: string.isRequired,
   }).isRequired,
   editEntity: func.isRequired,
-  estimatedWeight: number.isRequired,
+  estimatedWeight: number,
   originalWeight: number.isRequired,
   pickupAddress: shape({
     city: string.isRequired,
@@ -123,6 +123,7 @@ ShipmentCard.defaultProps = {
   billableWeight: 0,
   billableWeightJustification: '',
   dateReweighRequested: '',
+  estimatedWeight: 0,
   reweighWeight: null,
   reweighRemarks: '',
 };

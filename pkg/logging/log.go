@@ -48,7 +48,7 @@ func WithStacktraceLength(length int) ZapConfigOption {
 }
 
 // Config configures a Zap logger based on the environment string and debugLevel
-func Config(opts ...ZapConfigOption) (*zap.Logger, error) {
+func Config(opts ...ZapConfigOption) (*zap.Logger, func(), error) {
 	config := &ZapConfig{}
 
 	for _, opt := range opts {
@@ -87,7 +87,15 @@ func Config(opts ...ZapConfigOption) (*zap.Logger, error) {
 		loggerConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 
-	return loggerConfig.Build()
+	// No sync of the logger is necessary when logging to stderr as is
+	// the default. This logging package does not provide an option to
+	// override the logging destination, so this is always correct
+	//
+	// If an option is added in the future, this will need to be updated
+	noopLoggerSync := func() {}
+
+	logger, err := loggerConfig.Build()
+	return logger, noopLoggerSync, err
 }
 
 type filteredConsoleEncoder struct {

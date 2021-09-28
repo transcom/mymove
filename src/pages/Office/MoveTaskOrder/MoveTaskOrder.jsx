@@ -37,6 +37,8 @@ import {
   updateBillableWeight,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
+  approveSITExtension,
+  denySITExtension,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -221,6 +223,50 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
+
+  const [mutateSITExtensionApproval] = useMutation(approveSITExtension, {
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateSITExtensionDenial] = useMutation(denySITExtension, {
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
+    if (formValues.acceptExtension === 'yes') {
+      mutateSITExtensionApproval({
+        shipmentID: shipment.id,
+        sitExtensionID,
+        ifMatchETag: shipment.eTag,
+        body: { officeRemarks: formValues.officeRemarks, approvedDays: parseInt(formValues.daysApproved, 10) },
+      });
+    } else if (formValues.acceptExtension === 'no') {
+      mutateSITExtensionDenial({
+        shipmentID: shipment.id,
+        sitExtensionID,
+        ifMatchETag: shipment.eTag,
+        body: { officeRemarks: formValues.officeRemarks },
+      });
+    }
+  };
 
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
@@ -528,6 +574,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   order={order}
                   handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
+                  handleReviewSITExtension={(sitExtensionID, formValues) => {
+                    handleReviewSITExtension(sitExtensionID, formValues, mtoShipment);
+                  }}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable

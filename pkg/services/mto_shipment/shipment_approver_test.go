@@ -4,52 +4,35 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
-
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+type approveShipmentSubtestData struct {
+	appCtx                 appcontext.AppContext
+	move                   models.Move
+	planner                *mocks.Planner
+	shipmentApprover       services.ShipmentApprover
+	mockedShipmentApprover services.ShipmentApprover
+	mockedShipmentRouter   *shipmentmocks.ShipmentRouter
+}
 
-	// Need some values for reServices
-	reServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeDSH,
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-		models.ReServiceCodeDNPKF,
-		models.ReServiceCodeDMHF,
-		models.ReServiceCodeDBHF,
-		models.ReServiceCodeDBTF,
-	}
+func (suite *MTOShipmentServiceSuite) createApproveShimpentSubtestData() (subtestData *approveShipmentSubtestData) {
+	subtestData = &approveShipmentSubtestData{}
 
-	for _, serviceCode := range reServiceCodes {
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code:      serviceCode,
-				Name:      "test",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
-		})
-	}
+	subtestData.move = testdatagen.MakeAvailableMove(suite.DB())
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -74,15 +57,56 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	suite.False(verrs.HasAny())
 	suite.FatalNoError(err)
 
+	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}
+
 	router := NewShipmentRouter()
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-	planner := &mocks.Planner{}
-	approver := NewShipmentApprover(router, siCreator, planner)
+	subtestData.planner = &mocks.Planner{}
 
+	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
+	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
+
+	subtestData.appCtx = suite.TestAppContext()
+
+	return subtestData
+}
+
+func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
-		shipmentForAutoApprove := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+		planner := subtestData.planner
+
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+
+		var reServiceCode models.ReService
+		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+			// Something is truncating these when all server tests run, but we need some values for reServices
+			for _, serviceCode := range expectedReServiceCodes {
+				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
+					ReService: models.ReService{
+						Code:      serviceCode,
+						Name:      "test",
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
+				})
+			}
+		}
+
+		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
@@ -91,48 +115,46 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
-		var expectedReServiceCodes []models.ReServiceCode
-		expectedReServiceCodes = append(expectedReServiceCodes,
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		)
 
 		// Verify that required delivery date is not calculated when it does not need to be
-		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
+		planner.AssertNumberOfCalls(t, "TransitDistance", 0)
 
-		shipment, approverErr := approver.ApproveShipment(suite.TestAppContext(), shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
+		preApprovalTime := time.Now()
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
 
 		suite.NoError(approverErr)
 		suite.Equal(move.ID, shipment.MoveTaskOrderID)
 
-		err = suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		err := appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
 		suite.NoError(err)
 
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 
-		err = suite.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))
 
 		// All ApprovedAt times for service items should be the same, so just get the first one
-		actualApprovedAt := serviceItems[0].ApprovedAt
+		// Test that service item was approved within a few seconds of the current time
+		suite.Assertions.WithinDuration(preApprovalTime, *serviceItems[0].ApprovedAt, 2*time.Second)
+
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			// Test that service item was approved within a few seconds of the current time
-			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
 		}
 	})
 
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+		planner := subtestData.planner
+
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
 		// 1. The shipment is moving to the APPROVED status
@@ -160,7 +182,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		})
 
 		createdShipment := models.MTOShipment{}
-		err = suite.DB().Find(&createdShipment, shipmentHeavy.ID)
+		err := suite.DB().Find(&createdShipment, shipmentHeavy.ID)
 		suite.FatalNoError(err)
 		err = suite.DB().Load(&createdShipment)
 		suite.FatalNoError(err)
@@ -171,7 +193,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
-		_, err = approver.ApproveShipment(suite.TestAppContext(), shipmentHeavy.ID, shipmentHeavyEtag)
+		_, err = approver.ApproveShipment(appCtx, shipmentHeavy.ID, shipmentHeavyEtag)
 		suite.NoError(err)
 
 		fetchedShipment := models.MTOShipment{}
@@ -182,6 +204,11 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+
 		rejectionReason := "a reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -192,13 +219,18 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err = approver.ApproveShipment(suite.TestAppContext(), rejectedShipment.ID, eTag)
+		_, err := approver.ApproveShipment(appCtx, rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
 	})
 
 	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -207,25 +239,33 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		})
 
-		_, err = approver.ApproveShipment(suite.TestAppContext(), staleShipment.ID, staleETag)
+		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		approver := subtestData.shipmentApprover
+
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err = approver.ApproveShipment(suite.TestAppContext(), badShipmentID, eTag)
+		_, err := approver.ApproveShipment(appCtx, badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("It calls Approve on the ShipmentRouter", func(t *testing.T) {
-		shipmentRouter := &shipmentmocks.ShipmentRouter{}
-		approver := NewShipmentApprover(shipmentRouter, siCreator, planner)
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.mockedShipmentApprover
+		shipmentRouter := subtestData.mockedShipmentRouter
+
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -235,14 +275,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}
-		err = suite.DB().Find(&createdShipment, shipment.ID)
+		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 		err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress", "DestinationAddress")
 		suite.FatalNoError(err)
 
 		shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err := approver.ApproveShipment(suite.TestAppContext(), shipment.ID, eTag)
+		_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "Approve", 1)
