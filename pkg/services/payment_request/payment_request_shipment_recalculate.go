@@ -25,7 +25,7 @@ func NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator services.P
 func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.PaymentRequests, error) {
 	var recalculatedPaymentRequests models.PaymentRequests
 	// Find all applicable payment request for the shipment
-	paymentRequestIDs, err := p.findPendingPaymentRequestsForShipment(appCtx, shipmentID)
+	paymentRequestIDs, err := findPendingPaymentRequestsForShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,19 +54,19 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	return &recalculatedPaymentRequests, nil
 }
 
-func (p *paymentRequestShipmentRecalculator) findPendingPaymentRequestsForShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) ([]uuid.UUID, error) {
+func findPendingPaymentRequestsForShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) ([]uuid.UUID, error) {
 
 	// Given a shipmentID find all of the payment requests in PENDING
 	// that have service items that can have WeightReweigh or WeightAdjusted params.
 	var uuids []uuid.UUID
 	query := `SELECT DISTINCT pr.id
 		FROM public.payment_requests pr
-		LEFT JOIN mto_shipments ms ON ms.move_id = pr.move_id
-		LEFT JOIN payment_service_items psi ON pr.id = psi.payment_request_id
-		LEFT JOIN public.mto_service_items msi ON ms.id = msi.mto_shipment_id AND psi.mto_service_item_id = msi.id
-		LEFT JOIN public.re_services rs ON msi.re_service_id = rs.id
-		LEFT JOIN public.service_params sp ON rs.id = sp.service_id
-		LEFT JOIN service_item_param_keys sipk ON sp.service_item_param_key_id = sipk.id
+		INNER JOIN mto_shipments ms ON ms.move_id = pr.move_id
+		INNER JOIN payment_service_items psi ON pr.id = psi.payment_request_id
+		INNER JOIN public.mto_service_items msi ON ms.id = msi.mto_shipment_id AND psi.mto_service_item_id = msi.id
+		INNER JOIN public.re_services rs ON msi.re_service_id = rs.id
+		INNER JOIN public.service_params sp ON rs.id = sp.service_id
+		INNER JOIN service_item_param_keys sipk ON sp.service_item_param_key_id = sipk.id
 		WHERE pr.status = $1 AND ms.id = $2 AND sipk.key in ($3, $4);`
 	err := appCtx.DB().RawQuery(query,
 		models.PaymentRequestStatusPending,

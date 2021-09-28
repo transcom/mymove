@@ -20,7 +20,8 @@ import (
 
 func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
-	move, paymentRequestArg := suite.setupRecalculateData()
+	move, paymentRequestArg := suite.setupRecalculateData1()
+	_, paymentRequestArg2 := suite.setupRecalculateData2(move, paymentRequestArg.PaymentServiceItems[0].MTOServiceItem.MTOShipment)
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
@@ -58,6 +59,28 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	mtoShipment.PrimeActualWeight = &newWeight
 	suite.MustSave(&mtoShipment)
 
+	// Create additional payment request for same shipment
+	// Payment Request 2
+	var paymentRequest2 *models.PaymentRequest
+	paymentRequest2, err = creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg2)
+	suite.FatalNoError(err)
+
+	// Add a couple of proof of service docs and prime uploads.
+	for i := 0; i < 2; i++ {
+		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
+			ProofOfServiceDoc: models.ProofOfServiceDoc{
+				PaymentRequestID: paymentRequest2.ID,
+			},
+		})
+		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
+			PrimeUpload: models.PrimeUpload{
+				ProofOfServiceDocID: proofOfServiceDoc.ID,
+				ContractorID:        contractor.ID,
+			},
+		})
+	}
+
 	// Recalculate the payment request for shipment
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
@@ -66,7 +89,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	var newPaymentRequests *models.PaymentRequests
 	newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), mtoShipment.ID)
 	suite.NoError(err, "successfully recalculated shipment's payment request")
-	suite.Equal(1, len(*newPaymentRequests))
+	suite.Equal(2, len(*newPaymentRequests))
 
 	// Fetch the old payment request again -- status should have changed and it should also
 	// have proof of service docs now.  Need to eager fetch some related data to use in test
@@ -120,7 +143,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(recalculator)
 
 	// Setup baseline move/shipment/service items data along with needed rate data.
-	_ /*move*/, paymentRequestArg := suite.setupRecalculateData()
+	_ /*move*/, paymentRequestArg := suite.setupRecalculateData1()
 
 	paidPaymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
@@ -135,7 +158,6 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	})
 
 	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
-
 		paidPaymentRequest.Status = models.PaymentRequestStatusPaid
 		suite.MustSave(paidPaymentRequest)
 		// Update to PAID
@@ -185,6 +207,5 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 			suite.Equal(err.Error(), errString)
 		}
 		suite.Nil((*models.PaymentRequests)(nil), returnPaymentRequests)
-
 	})
 }
