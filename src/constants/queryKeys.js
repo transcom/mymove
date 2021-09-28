@@ -10,3 +10,4 @@ export const SERVICES_COUNSELING_QUEUE = 'servicesCounselingQueue';
 export const USER = 'user';
 export const MOVES = 'moves';
 export const CUSTOMER = 'customer';
+export const PRIME_SIMULATOR_AVAILABLE_MOVES = 'listMoves';
