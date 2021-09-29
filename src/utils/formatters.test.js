@@ -62,4 +62,22 @@ describe('formatters', () => {
       expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');
     });
   });
+
+  describe('formatDaysInTransit', () => {
+    it('returns 0 days when value is null', () => {
+      expect(formatters.formatDaysInTransit()).toEqual('0 days');
+    });
+
+    it('returns 0 days when value is zero', () => {
+      expect(formatters.formatDaysInTransit(0)).toEqual('0 days');
+    });
+
+    it('returns 1 day when value is one', () => {
+      expect(formatters.formatDaysInTransit(1)).toEqual('1 day');
+    });
+
+    it('returns plural when greater than 1', () => {
+      expect(formatters.formatDaysInTransit(2)).toEqual('2 days');
+    });
+  });
 });

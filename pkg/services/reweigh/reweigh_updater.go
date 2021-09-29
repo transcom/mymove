@@ -15,11 +15,12 @@ import (
 
 // reweighUpdater needs to be updates to have checks for validation
 type reweighUpdater struct {
-	checks []reweighValidator
+	checks       []reweighValidator
+	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) services.ReweighUpdater {
+func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker, recalculator services.PaymentRequestShipmentRecalculator) services.ReweighUpdater {
 	return &reweighUpdater{
 		checks: []reweighValidator{
 			checkShipmentID(),
@@ -27,6 +28,7 @@ func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker) se
 			checkRequiredFields(),
 			checkPrimeAvailability(moveAvailabilityChecker),
 		},
+		recalculator: recalculator,
 	}
 }
 
@@ -37,6 +39,23 @@ func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweig
 
 // UpdateReweigh updates the Reweigh table
 func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
+	var updatedReweigh *models.Reweigh
+
+	// Make sure we do this whole process in a transaction so partial changes do not get made committed
+	// in the event of an error.
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var err error
+		updatedReweigh, err = f.doUpdateReweigh(txnAppCtx, reweigh, eTag, checks...)
+		return err
+	})
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return updatedReweigh, nil
+}
+
+func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
@@ -98,6 +117,14 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
+	}
+
+	// Recalculate payment request for the shipment, if the reweigh weight changed
+	if reweighChanged(oldReweigh, updatedReweigh) {
+		_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &updatedReweigh, nil

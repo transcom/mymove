@@ -36,7 +36,6 @@ func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext
 		newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID)
 		return err
 	})
-
 	if transactionError != nil {
 		return nil, transactionError
 	}
@@ -64,7 +63,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 
 	// Only pending payment requests can be recalculated.
 	if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
-		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only pending payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
+		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only PENDING payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
 	}
 
 	// Set the (now) old payment request's status.  Doing this before we recalculate in case the create

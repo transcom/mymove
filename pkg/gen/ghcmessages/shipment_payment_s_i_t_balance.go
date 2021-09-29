@@ -46,6 +46,10 @@ type ShipmentPaymentSITBalance struct {
 
 	// total s i t days remaining
 	TotalSITDaysRemaining int64 `json:"totalSITDaysRemaining,omitempty"`
+
+	// total s i t end date
+	// Format: date
+	TotalSITEndDate *strfmt.Date `json:"totalSITEndDate,omitempty"`
 }
 
 // Validate validates this shipment payment s i t balance
@@ -65,6 +69,10 @@ func (m *ShipmentPaymentSITBalance) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTotalSITEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,6 +124,18 @@ func (m *ShipmentPaymentSITBalance) validateShipmentID(formats strfmt.Registry) 
 	}
 
 	if err := validate.FormatOf("shipmentID", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentPaymentSITBalance) validateTotalSITEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.TotalSITEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("totalSITEndDate", "body", "date", m.TotalSITEndDate.String(), formats); err != nil {
 		return err
 	}
 
