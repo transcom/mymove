@@ -1136,6 +1136,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
+	SITAllowance := 90
 	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1143,6 +1144,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ActualPickupDate:     &actualPickupDate,
+			SITDaysAllowance:     &SITAllowance,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
@@ -1168,6 +1170,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			DestinationAddress:   &shorthaulDestinationAddress,
 			DestinationAddressID: &shorthaulDestinationAddress.ID,
+			SITDaysAllowance:     &SITAllowance,
 		},
 		Move: move,
 	})
@@ -1465,11 +1468,38 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		log.Panic(err)
 	}
 
+	// An origin and destination SIT would normally not be on the same payment request so the TIO totals will appear
+	// off.  Refer to the PARSIT move to see a reviewed and pending payment request with origin and destination SIT.
+	doasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       originEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       originDepartureDate.Format("2006-01-02"),
+		}}
+
+	ddasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       destEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       destDepartureDate.Format("2006-01-02"),
+		}}
+
 	paymentServiceItems := []models.PaymentServiceItem{}
 	for _, serviceItem := range serviceItems {
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+			paymentItem.PaymentServiceItemParams = doasitPaymentParams
+		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
@@ -4911,7 +4941,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
 	originDepartureDate := originEntryDate.Add(time.Hour * 24 * 30)
 
-	destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+	destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
 	destinationDepartureDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 
 	// First reviewed payment request with 30 days billed for origin SIT
@@ -4966,7 +4996,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	// Creates the SIT end date param for existing DOASIT payment request service item
 	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originEntryDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+			Value: originDepartureDate.Format("2006-01-02"),
 		},
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key: models.ServiceItemParamNameSITPaymentRequestEnd,

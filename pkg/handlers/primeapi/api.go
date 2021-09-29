@@ -133,7 +133,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentCreateSITExtensionHandler = CreateSITExtensionHandler{
 		ctx,
-		sitextension.NewSitExtensionCreator(),
+		sitextension.NewSitExtensionCreator(moveRouter),
 	}
 
 	return primeAPI.Serve(nil)
