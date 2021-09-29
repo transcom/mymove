@@ -16236,7 +16236,7 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-ra-core@^3.18.0, ra-core@^3.18.2:
+ra-core@^3.18.2:
   version "3.18.2"
   resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.18.2.tgz#bdc15248d29ebaac579b0e2729c83c330c272602"
   integrity sha512-vSjtYAoyNSTpziUSIGi4+4TZnmZzUJgYLte/rTLCSHLyYuoTpkxKXMIEtvQvC/euCvXf1lkz2ebSegJNVL67Lg==
@@ -16265,7 +16265,7 @@ ra-i18n-polyglot@^3.18.2:
     node-polyglot "^2.2.2"
     ra-core "^3.18.2"
 
-ra-language-english@^3.18.0, ra-language-english@^3.18.2:
+ra-language-english@^3.18.2:
   version "3.18.2"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.18.2.tgz#5aaaff7556da4de7950bfc0e0fd2549b8b13a787"
   integrity sha512-IKMbDqPOyMSzNFVQaFpW+8/moqAbsTAOgkC3Jl1/Mi26fFxgvFudlmskSWSsyzCOByj+vp53wrzMxdq11dkdQQ==
@@ -16389,10 +16389,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin-import-csv@^1.0.23:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.23.tgz#821075b7c582d9517e2f550b0e89fad5d0e38e31"
-  integrity sha512-09n+IRN5cuZoES3Ja8nZp558+7yeVWYel5LVoU6MnZ2qi8OiBgnSotN1IbYMZGZ9E5f4ZnJrz8lY5Ragj6GRxA==
+react-admin-import-csv@^1.0.24:
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.24.tgz#7a8f4778e5ddc7a13a8dd4ef86d4f0e14b8804ea"
+  integrity sha512-yFcu44dy7I51JS3ig0G1Izm7FEWom+/qb4D4vOe6bc6rF55rgqJ7YzRD9/07dpF0uP5UfZbgZD+d7feTuUM55Q==
   dependencies:
     papaparse "5.x"
     ramda "^0.27.0"
