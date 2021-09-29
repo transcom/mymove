@@ -14,16 +14,7 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
-	// Create new mtoShipment
 	move := testdatagen.MakeAvailableMove(suite.DB())
-	shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
-
-	// Create a valid SIT Extension for the move
-	sit := &models.SITExtension{
-		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-		MTOShipmentID: shipment.ID,
-		RequestedDays: 10,
-	}
 
 	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
 
@@ -35,7 +26,17 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	suite.T().Run("Success - CreateSITExtension with no status passed in", func(t *testing.T) {
 		// Under test:	CreateSITExtension
 		// Set up:		Established valid shipment and valid SIT extension
-		// Expected:	New reweigh successfully created
+		// Expected:	New sit successfully created
+		// Create new mtoShipment
+		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+
+		// Create a valid SIT Extension for the move
+		sit := &models.SITExtension{
+			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+			MTOShipmentID: shipment.ID,
+			RequestedDays: 10,
+		}
+
 		createdSITExtension, sitErr := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		// Retrieve updated move
@@ -58,28 +59,34 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// InvalidInputError
 	suite.T().Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func(t *testing.T) {
-		badRequestReason := models.SITExtensionRequestReason("none")
-		sit.RequestReason = badRequestReason
+		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+
+		// Create a SIT Extension for the move
+		sit := &models.SITExtension{
+			RequestReason: models.SITExtensionRequestReason("none"),
+			MTOShipmentID: shipment.ID,
+			RequestedDays: 10,
+		}
+
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Error(err)
 		suite.Nil(createdSITExtension)
 		suite.IsType(services.InvalidInputError{}, err)
-
-		// Reset request reason to correct reason
-		sit.RequestReason = models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 	})
 
 	suite.T().Run("Failure - Not Found Error", func(t *testing.T) {
-		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		sit.MTOShipmentID = notFoundUUID
+		// Create a SIT Extension for the move
+		sit := &models.SITExtension{
+			RequestReason: models.SITExtensionRequestReason("none"),
+			MTOShipmentID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
+			RequestedDays: 10,
+		}
+
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Nil(createdSITExtension)
 		suite.IsType(services.NotFoundError{}, err)
-
-		// Reset shipment id to correct id
-		sit.MTOShipmentID = shipment.ID
 	})
 
 	suite.T().Run("Success - CreateSITExtension with status passed in ", func(t *testing.T) {
