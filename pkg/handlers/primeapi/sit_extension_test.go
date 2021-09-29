@@ -12,6 +12,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	sitextensionservice "github.com/transcom/mymove/pkg/services/sit_extension"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -36,10 +38,13 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		RequestReason:     &reason,
 	}
 
+	// Create move router for SitExtension Createor
+	moveRouter := moverouter.NewMoveRouter()
+
 	// Create handler
 	handler := CreateSITExtensionHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		sitextensionservice.NewSitExtensionCreator(),
+		sitextensionservice.NewSitExtensionCreator(moveRouter),
 	}
 
 	suite.T().Run("Success 201 - Creat SIT extension", func(t *testing.T) {

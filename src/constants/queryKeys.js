@@ -1,4 +1,5 @@
 export const PAYMENT_REQUESTS = 'paymentRequests';
+export const SHIPMENTS_PAYMENT_SIT_BALANCE = 'shipmentsPaymentSITBalance';
 export const MTO_SHIPMENTS = 'mtoShipments';
 export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
 export const ORDERS = 'orders';

@@ -212,10 +212,7 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) func() {
 	return func() {
 		createTOO(appCtx)
-		createTIO(appCtx)
-		createTXO(appCtx)
-
-		createMoveWithSITExtensions(appCtx, userUploader)
+		createMoveWithSITExtensionHistory(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
 	}
 }

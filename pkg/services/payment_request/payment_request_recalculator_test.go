@@ -30,6 +30,8 @@ const (
 	recalculateTestCSFee                = unit.Cents(22399)
 	recalculateTestDLHPrice             = unit.Millicents(6000)
 	recalculateTestFSCPrice             = unit.Millicents(277600)
+	recalculateTestDomOtherPrice        = unit.Cents(2159)
+	recalculateTestDomServiceAreaPrice  = unit.Cents(2359)
 	recalculateTestEstimatedWeight      = unit.Pound(3500)
 	recalculateTestOriginalWeight       = unit.Pound(3652)
 	recalculateTestNewOriginalWeight    = unit.Pound(3412)
@@ -40,7 +42,7 @@ const (
 
 func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
-	move, paymentRequestArg := suite.setupRecalculateData()
+	move, paymentRequestArg := suite.setupRecalculateData1()
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
@@ -333,7 +335,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	})
 }
 
-func (suite *PaymentRequestServiceSuite) setupRecalculateData() (models.Move, models.PaymentRequest) {
+func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, models.PaymentRequest) {
 	// Pickup/destination addresses
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -431,6 +433,68 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData() (models.Move, mo
 		FuelPriceInMillicents: recalculateTestFSCPrice,
 	}
 	suite.MustSave(&ghcDieselFuelPrice)
+
+	//  Domestic Origin Price Service
+	domOriginPriceService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+	})
+
+	domServiceAreaPrice := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractYear.Contract.ID,
+		ServiceID:             domOriginPriceService.ID,
+		IsPeakPeriod:          false,
+		Contract:              contractYear.Contract,
+		DomesticServiceAreaID: serviceArea.ID,
+		DomesticServiceArea:   serviceArea,
+		PriceCents:            recalculateTestDomServiceAreaPrice,
+		Service:               domOriginPriceService,
+	}
+	suite.MustSave(&domServiceAreaPrice)
+
+	// Domestic Pack
+	dpkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+	})
+
+	// Domestic Other Price
+	domOtherPriceDPK := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		ServiceID:    dpkService.ID,
+		IsPeakPeriod: false,
+		Schedule:     2,
+		PriceCents:   recalculateTestDomOtherPrice,
+		Contract:     contractYear.Contract,
+		Service:      dpkService,
+	}
+	suite.MustSave(&domOtherPriceDPK)
+
+	// Build up a payment request with service item references for creating a payment request.
+	paymentRequestArg := models.PaymentRequest{
+		MoveTaskOrderID:     moveTaskOrder.ID,
+		IsFinal:             false,
+		PaymentServiceItems: models.PaymentServiceItems{},
+	}
+	for _, mtoServiceItem := range mtoServiceItems {
+		newPaymentServiceItem := models.PaymentServiceItem{
+			MTOServiceItemID: mtoServiceItem.ID,
+			MTOServiceItem:   mtoServiceItem,
+		}
+		paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, newPaymentServiceItem)
+	}
+
+	return moveTaskOrder, paymentRequestArg
+}
+
+func (suite *PaymentRequestServiceSuite) setupRecalculateData2(move models.Move, shipment models.MTOShipment) (models.Move, models.PaymentRequest) {
+
+	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullOriginMTOServiceItems(suite.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+	})
 
 	// Build up a payment request with service item references for creating a payment request.
 	paymentRequestArg := models.PaymentRequest{

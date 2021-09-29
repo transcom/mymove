@@ -74,7 +74,7 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/mto`);
     // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (12 items)');
 
     // Navigate back to Move Details
     cy.get('[data-testid="MoveDetails-Tab"]').click();
@@ -102,7 +102,7 @@ describe('TOO user', () => {
     const shipments = cy.get('[data-testid="ShipmentContainer"]');
     shipments.should('have.length', 1);
 
-    cy.contains('Approved service items (6 items)');
+    cy.contains('Approved service items (12 items)');
     cy.contains('Rejected service items').should('not.exist');
 
     cy.get('[data-testid="modal"]').should('not.exist');
@@ -112,8 +112,8 @@ describe('TOO user', () => {
       cy.get('tbody tr').should('have.length', 2);
       cy.get('.acceptButton').first().click();
     });
-    cy.contains('Approved service items (7 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
+    cy.contains('Approved service items (12 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
 
     // Reject a requested service item
     cy.contains('Requested service items (1 item)');
@@ -137,8 +137,8 @@ describe('TOO user', () => {
     // Accept a previously rejected service item
     cy.get('[data-testid="RejectedServiceItemsTable"] button').click();
 
-    cy.contains('Approved service items (8 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 8);
+    cy.contains('Approved service items (13 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
     cy.contains('Rejected service items (1 item)').should('not.exist');
 
     // Reject a previously accpeted service item
@@ -157,8 +157,8 @@ describe('TOO user', () => {
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
 
     cy.contains('Requested service items').should('not.exist');
-    cy.contains('Approved service items (7 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
+    cy.contains('Approved service items (13 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
   });
 
   it('is able to edit orders', () => {
@@ -336,7 +336,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="alert"]').should('not.exist');
   });
 
-  it('is able to create and edit SIT extensions', () => {
+  it('is able to view SIT and create and edit SIT extensions', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
@@ -347,9 +347,30 @@ describe('TOO user', () => {
     cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
-    // View SIT extension display
+    // View SIT display
     cy.get('[data-testid="sitExtensions"]');
-    cy.contains('30 days added');
+
+    // Total SIT
+    cy.contains('270 authorized');
+    // cy.contains('60 used');
+    // cy.contains('210 remaining');
+    // cy.contains('Ends 26 Apr 2022');
+
+    // Current SIT
+    cy.contains('Current location: destination');
+    cy.contains('60');
+    // cy.contains('29 Aug 2021');
+    // cy.contains('Ends 26 Apr 2022');
+
+    // Previous SIT
+    // cy.contains('30 days at origin (30 Jul 2021 - 29 Aug 2021)');
+    cy.contains('30 days at origin');
+
+    // SIT extensions
+    cy.contains('90 days added');
+    // cy.contains('on 28 Sep 2021');
+    cy.contains('Serious illness of the member');
     cy.contains('The customer requested an extension.');
+    cy.contains('The service member is unable to move into their new home at the expected time');
   });
 });

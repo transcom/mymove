@@ -827,14 +827,14 @@ func ShipmentPaymentSITBalance(shipmentSITBalance *services.ShipmentPaymentSITBa
 	}
 
 	payload := &ghcmessages.ShipmentPaymentSITBalance{
-		PendingBilledEndDate:      handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
-		PendingSITDaysInvoiced:    int64(shipmentSITBalance.PendingSITDaysInvoiced),
-		PreviouslyBilledDays:      handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),
-		PreviouslyBilledEndDate:   handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledEndDate),
-		PreviouslyBilledStartDate: handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledStartDate),
-		ShipmentID:                *handlers.FmtUUID(shipmentSITBalance.ShipmentID),
-		TotalSITDaysAuthorized:    int64(shipmentSITBalance.TotalSITDaysAuthorized),
-		TotalSITDaysRemaining:     int64(shipmentSITBalance.TotalSITDaysRemaining),
+		PendingBilledEndDate:    handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
+		PendingSITDaysInvoiced:  int64(shipmentSITBalance.PendingSITDaysInvoiced),
+		PreviouslyBilledDays:    handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),
+		PreviouslyBilledEndDate: handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledEndDate),
+		ShipmentID:              *handlers.FmtUUID(shipmentSITBalance.ShipmentID),
+		TotalSITDaysAuthorized:  int64(shipmentSITBalance.TotalSITDaysAuthorized),
+		TotalSITDaysRemaining:   int64(shipmentSITBalance.TotalSITDaysRemaining),
+		TotalSITEndDate:         handlers.FmtDate(shipmentSITBalance.TotalSITEndDate),
 	}
 
 	return payload
