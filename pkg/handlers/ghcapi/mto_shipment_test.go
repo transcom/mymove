@@ -2004,11 +2004,12 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
+	now := strfmt.Date(time.Now())
 	payload := ghcmessages.UpdateShipment{
 		BillableWeightJustification: &billableWeightJustification,
 		BillableWeightCap:           &billableWeightCap,
-		RequestedPickupDate:         strfmt.Date(time.Now()),
-		RequestedDeliveryDate:       strfmt.Date(time.Now()),
+		RequestedPickupDate:         &now,
+		RequestedDeliveryDate:       &now,
 		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
 		CustomerRemarks:             &customerRemarks,
 		CounselorRemarks:            &counselorRemarks,
