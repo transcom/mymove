@@ -41,7 +41,6 @@ const entitlement = {
   proGearWeightSpouse: 500,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
-  storageInTransit: 90,
   totalWeight: 12875,
   totalDependents: 2,
 };
