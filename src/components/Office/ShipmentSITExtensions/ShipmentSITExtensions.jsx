@@ -12,7 +12,8 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 import styles from './ShipmentSITExtensions.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso, formatDate } from 'shared/formatters';
+import { utcDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
@@ -30,7 +31,7 @@ const ShipmentSITExtensions = (props) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
-  const sitEndDate = `Ends ${moment().add(totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
+  const sitEndDate = `Ends ${moment().utc().add(totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
 
   const mappedSITExtensionList = sitExtensions.map((sitExt) => {
     return (
@@ -77,20 +78,15 @@ const ShipmentSITExtensions = (props) => {
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
-  const currentDateEnteredSit = <p>{moment(sitStatus.sitEntryDate).format('DD MMM YYYY')}</p>;
+  const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location =
-      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOASIT ||
-      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ||
-      pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT
-        ? 'origin'
-        : 'destination';
+    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).utc().diff(pastSITItem.sitEntryDate, 'days');
+    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
-    const start = moment(pastSITItem.sitEntryDate).format('DD MMM YYYY');
-    const end = moment(pastSITItem.sitDepartureDate).format('DD MMM YYYY');
+    const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');
+    const end = formatDate(pastSITItem.sitDepartureDate, utcDateFormat, 'DD MMM YYYY');
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
 
     return <p key={pastSITItem.id}>{text}</p>;
