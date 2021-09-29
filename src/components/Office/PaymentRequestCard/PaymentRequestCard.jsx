@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import PropTypes, { arrayOf, shape } from 'prop-types';
+import PropTypes, { arrayOf, shape, bool } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -31,7 +31,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
+const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillableWeightIssues }) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -122,10 +122,15 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
           )}
           {paymentRequest.status === 'PENDING' && (
             <div className={styles.reviewButton}>
-              <Button onClick={handleClick}>
+              <Button onClick={handleClick} disabled={hasBillableWeightIssues} test-dataid="reviewBtn">
                 <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                 Review service items
               </Button>
+              {hasBillableWeightIssues && (
+                <span className={styles.errorText} test-dataid="errorTxt">
+                  Resolve billable weight before reviewing service items.
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -191,6 +196,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
+  hasBillableWeightIssues: bool.isRequired,
   shipmentsInfo: arrayOf(
     shape({
       mtoShipmentID: PropTypes.string,

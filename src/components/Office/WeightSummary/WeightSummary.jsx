@@ -37,7 +37,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
           {formatWeight(totalBillableWeight)}
         </div>
         <hr />
-        {shipments.map((shipment) => {
+        {shipments?.map((shipment) => {
           return (
             <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
               {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight) ||
