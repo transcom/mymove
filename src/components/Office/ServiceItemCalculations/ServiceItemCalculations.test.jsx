@@ -106,7 +106,7 @@ describe('ServiceItemCalculations DLH', () => {
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
-      details: ['Shipment weight: 8,500 lbs', 'Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      details: ['Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
     },
     {
       value: '210',

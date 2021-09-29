@@ -9,7 +9,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -53,7 +52,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Reweigh: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Original: 8,500 lbs', styles: {} },
           { text: 'Estimated: 8,000 lbs', styles: {} },
@@ -98,7 +96,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Reweigh: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: {} },
@@ -144,7 +141,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Original: 8,500 lbs', styles: {} },
           { text: 'Estimated: 8,000 lbs', styles: {} },
@@ -184,7 +180,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -223,7 +218,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -257,7 +251,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -291,7 +284,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -325,7 +317,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -357,7 +348,6 @@ describe('makeCalculations', () => {
     expect(result).toEqual([
       {
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -396,7 +386,6 @@ describe('makeCalculations', () => {
     expect(result).toEqual([
       {
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -437,7 +426,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -475,7 +463,6 @@ describe('makeCalculations', () => {
       expect(result).toEqual([
         {
           details: [
-            { text: 'Shipment weight: 8,500 lbs', styles: {} },
             { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
@@ -514,7 +501,6 @@ describe('makeCalculations', () => {
       expect(result).toEqual([
         {
           details: [
-            { text: 'Shipment weight: 8,500 lbs', styles: {} },
             { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
@@ -553,7 +539,6 @@ describe('makeCalculations', () => {
       expect(result).toEqual([
         {
           details: [
-            { text: 'Shipment weight: 8,500 lbs', styles: {} },
             { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
@@ -591,7 +576,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -625,7 +609,6 @@ describe('makeCalculations', () => {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
         details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
           { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -800,10 +783,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: [
-          { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Estimated: 8,000 lbs', styles: {} },
-        ],
+        details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
       },
       {
         value: '210',

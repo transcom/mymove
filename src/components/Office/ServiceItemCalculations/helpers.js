@@ -87,11 +87,6 @@ const billableWeight = (params) => {
   const details = [];
   const boldStyles = { fontWeight: 'bold' };
 
-  const weightBilledDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
-  if (weightBilledDetail) {
-    details.push(formatDetail(weightBilledDetail));
-  }
-
   const weightAdjustedDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
   if (weightAdjustedDetail) {
     // The weight adjusted detail should always be bolded
