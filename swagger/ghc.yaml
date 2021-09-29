@@ -3138,6 +3138,10 @@ definitions:
         type: integer
       totalSITDaysRemaining:
         type: integer
+      totalSITEndDate:
+        type: string
+        format: date
+        x-nullable: true
       pendingSITDaysInvoiced:
         type: integer
       pendingBilledEndDate:
@@ -3310,9 +3314,11 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care

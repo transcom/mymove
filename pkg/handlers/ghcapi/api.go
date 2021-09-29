@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	order "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -12,6 +13,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 
 	"github.com/go-openapi/loads"
 
@@ -75,9 +77,8 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
-		HandlerContext: ctx,
-		Fetcher:        fetch.NewFetcher(queryBuilder),
-		Builder:        *queryBuilder,
+		HandlerContext:                  ctx,
+		PaymentServiceItemStatusUpdater: paymentserviceitem.NewPaymentServiceItemStatusUpdater(),
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
@@ -208,6 +209,15 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
+	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
+		paymentrequest.NewPaymentRequestCreator(
+			ctx.GHCPlanner(),
+			ghcrateengine.NewServiceItemPricer(),
+		),
+		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+	)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
+
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		ctx,
 		fetch.NewFetcher(queryBuilder),
@@ -218,6 +228,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			ctx.NotificationSender(),
+			paymentRequestShipmentRecalculator,
 		),
 		shipmentSITStatus,
 	}

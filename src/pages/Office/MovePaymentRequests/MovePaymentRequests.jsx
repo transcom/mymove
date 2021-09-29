@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -11,6 +11,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
@@ -46,6 +47,9 @@ const MovePaymentRequests = ({
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
+  const filteredShipments = mtoShipments?.filter((shipment) => {
+    return includedStatusesForCalculatingWeights(shipment.status);
+  });
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -86,6 +90,7 @@ const MovePaymentRequests = ({
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const billableWeightsReviewed = useLocation().state?.from === 'review-billable-weights';
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -108,6 +113,22 @@ const MovePaymentRequests = ({
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
   };
 
+  const anyShipmentOverweight = (shipments) => {
+    return shipments.some((shipment) => {
+      return shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight);
+    });
+  };
+
+  const anyShipmentMissingWeight = (shipments) => {
+    return shipments.some((shipment) => {
+      return !shipment.primeEstimatedWeight || (shipment.reweigh?.id && !shipment.reweigh?.weight);
+    });
+  };
+
+  const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
+  const noBillableWeightIssues =
+    (billableWeightsReviewed && !maxBillableWeightExceeded) ||
+    (!anyShipmentOverweight(filteredShipments) && !anyShipmentMissingWeight(filteredShipments));
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -116,7 +137,12 @@ const MovePaymentRequests = ({
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
-                {s === 'billable-weights' && totalBillableWeight > maxBillableWeight && (
+                {s === 'payment-requests' && paymentRequests?.length > 0 && (
+                  <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
+                    {paymentRequests.length}
+                  </Tag>
+                )}
+                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
                   <Tag
                     className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
                     data-testid="maxBillableWeightErrorTag"
@@ -124,6 +150,17 @@ const MovePaymentRequests = ({
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
+                {s === 'billable-weights' &&
+                  !maxBillableWeightExceeded &&
+                  filteredShipments?.length > 0 &&
+                  !billableWeightsReviewed &&
+                  (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
+                    <FontAwesomeIcon
+                      icon="exclamation-triangle"
+                      data-testid="maxBillableWeightWarningTag"
+                      className={classnames(styles.warning, styles.errorTag)}
+                    />
+                  )}
               </a>
             );
           })}
@@ -138,7 +175,8 @@ const MovePaymentRequests = ({
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
-              shipments={mtoShipments.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status))}
+              shipments={filteredShipments}
+              secondaryReviewWeightsBtn={noBillableWeightIssues}
             />
           </div>
           <h2>Payment requests</h2>
@@ -147,6 +185,7 @@ const MovePaymentRequests = ({
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard
                   paymentRequest={paymentRequest}
+                  hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
                 />

@@ -299,7 +299,9 @@ describe('ReviewBillableWeight', () => {
       userEvent.click(xButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests');
+        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests', {
+          from: 'review-billable-weights',
+        });
       });
     });
 

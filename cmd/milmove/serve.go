@@ -927,6 +927,25 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.PathPrefix("/").Handler(adminapi.NewAdminAPIHandler(handlerContext))
 	}
 
+	if v.GetBool(cli.ServePrimeSimulatorFlag) {
+		// attach prime simulator API to root so cookies are handled
+		primeSimulatorMux := root.Host(appnames.OfficeServername).PathPrefix("/prime/v1/").Subrouter()
+		primeSimulatorMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.PrimeSwaggerFlag))).Methods("GET")
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime Simulator API Swagger UI serving is enabled")
+			primeSimulatorMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "prime.html"))).Methods("GET")
+		} else {
+			primeSimulatorMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
+		}
+
+		// Mux for prime simulator API that enforces auth
+		primeSimulatorAPIMux := primeSimulatorMux.PathPrefix("/").Subrouter()
+		primeSimulatorAPIMux.Use(userAuthMiddleware)
+		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
+		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
+		primeSimulatorAPIMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
+	}
+
 	if v.GetBool(cli.ServeGHCFlag) {
 		ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
 		ghcMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.GHCSwaggerFlag))).Methods("GET")

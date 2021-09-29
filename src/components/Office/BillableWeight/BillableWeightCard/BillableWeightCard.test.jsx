@@ -13,6 +13,7 @@ describe('BillableWeightCard', () => {
     weightRequested: 12260,
     weightAllowance: 8000,
     onReviewWeights: jest.fn(),
+    secondaryReviewWeightsBtn: false,
   };
 
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
@@ -57,67 +58,10 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText(formatWeight(defaultProps.weightRequested))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
 
-    // flags
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
-    expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
-
     // shipment weights
     expect(screen.getByText(formatWeight(shipments[0].calculatedBillableWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(shipments[1].calculatedBillableWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(shipments[2].calculatedBillableWeight))).toBeInTheDocument();
-  });
-
-  it('shows an over weight flag if a shipment is over weight', () => {
-    const shipments = [
-      {
-        id: '0001',
-        shipmentType: 'HHG',
-        calculatedBillableWeight: 6161,
-        estimatedWeight: 5600,
-        primeEstimatedWeight: 100,
-        reweigh: { id: '1234', weight: 40 },
-      },
-    ];
-
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
-
-    expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
-    expect(screen.getByText('Over weight')).toBeInTheDocument();
-  });
-
-  it('shows a missing weight flag if a shipment is missing the reweigh weight', () => {
-    const shipments = [
-      {
-        id: '0001',
-        shipmentType: 'HHG',
-        calculatedBillableWeight: 1161,
-        estimatedWeight: 5600,
-        primeEstimatedWeight: 100,
-        reweigh: { id: '1234' },
-      },
-    ];
-
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
-
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
-  });
-
-  it('shows a missing weight flag if a shipment is missing a prime estimated weight', () => {
-    const shipments = [
-      {
-        id: '0001',
-        shipmentType: 'HHG',
-        calculatedBillableWeight: 4161,
-        estimatedWeight: 5600,
-        reweigh: { id: '1234', weight: 40 },
-      },
-    ];
-
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
-
-    expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
   });
 
   it('implements the review weights handler when the review weights button is clicked', async () => {
@@ -140,5 +84,95 @@ describe('BillableWeightCard', () => {
     await waitFor(() => {
       expect(defaultProps.onReviewWeights).toHaveBeenCalled();
     });
+  });
+
+  it('displays secondary styling button when flag is set', async () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} secondaryReviewWeightsBtn />);
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).toHaveClass('usa-button--secondary');
+  });
+
+  it('displays primary styling button when shipment has missing estimated weight', async () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        reweigh: { id: '1234', weight: 40 },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).not.toHaveClass('usa-button--secondary');
+  });
+
+  it('displays primary styling button when shipment has missing reweigh weight', async () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        primeEstimatedWeight: 5800,
+        reweigh: { id: '1234' },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).not.toHaveClass('usa-button--secondary');
+  });
+
+  it('displays primary styling button when shipment has an overweight weight', async () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 60161,
+        primeEstimatedWeight: 5800,
+        reweigh: { id: '1234', weight: 2344 },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).not.toHaveClass('usa-button--secondary');
+  });
+
+  it('displays primary styling button when the moves total weight exceeds the max billable weight', async () => {
+    const props = {
+      maxBillableWeight: 3750,
+      totalBillableWeight: 12460,
+      weightRequested: 12260,
+      weightAllowance: 8000,
+      onReviewWeights: jest.fn(),
+      secondaryReviewWeightsBtn: false,
+    };
+
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        primeEstimatedWeight: 5800,
+        reweigh: { id: '1234', weight: 2344 },
+      },
+    ];
+    render(<BillableWeightCard {...props} shipments={shipments} />);
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 });
