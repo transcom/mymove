@@ -28,8 +28,6 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(formatWeight(defaultProps.maxBillableWeight))).toBeInTheDocument();
   });
 
-  it('should show fields are required when empty', () => {});
-
   it('renders billable weight justification', () => {
     const defaultProps = {
       title: 'Max billable weight',
@@ -44,7 +42,7 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(defaultProps.billableWeightJustification)).toBeInTheDocument();
   });
 
-  it('renders max billable weight view', () => {
+  it('renders max billable weight view', async () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -55,13 +53,14 @@ describe('EditBillableWeight', () => {
 
     render(<EditBillableWeight {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+
+    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(screen.getByText('| weight allowance')).toBeInTheDocument();
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
   });
 
-  it('renders edit billable weight view', () => {
+  it('renders edit billable weight view', async () => {
     const defaultProps = {
       title: 'Billable weight',
       originalWeight: 10000,
@@ -74,7 +73,8 @@ describe('EditBillableWeight', () => {
 
     render(<EditBillableWeight {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(screen.getByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
+
+    expect(await screen.findByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(
       screen.getByText(formatWeight(defaultProps.maxBillableWeight - defaultProps.totalBillableWeight)),
@@ -84,7 +84,7 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText('| to fit within max billable weight')).toBeInTheDocument();
   });
 
-  it('clicking edit button shows different view', () => {
+  it('clicking edit button shows different view', async () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -96,9 +96,10 @@ describe('EditBillableWeight', () => {
     render(<EditBillableWeight {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
     expect(screen.queryByText('Edit')).toBeNull();
     // weights
-    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     // buttons
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
