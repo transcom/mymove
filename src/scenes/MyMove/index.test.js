@@ -26,6 +26,9 @@ describe('ConnectedCustomerApp tests', () => {
       });
     });
 
+    // Skipping this test temporarily, because the underlying componenent for the rendered route
+    // is throwing ECONNREFUSED errors when this test is run on CircleCI. The proper solution is to
+    // migrate and refactor the component, fix those errors, and then re-enable this test.
     it.skip('renders the Access Code route', async () => {
       const { queryByText } = renderRoute('/access-code', {
         entities: {
