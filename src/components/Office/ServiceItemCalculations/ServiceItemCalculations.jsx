@@ -73,9 +73,9 @@ const ServiceItemCalculations = ({
                   {calc.details &&
                     calc.details.map((detail) => {
                       return (
-                        <li key={detail}>
+                        <li key={detail.text}>
                           <p>
-                            <small>{detail}</small>
+                            <small style={detail.styles}>{detail.text}</small>
                           </p>
                         </li>
                       );
