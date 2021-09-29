@@ -121,8 +121,8 @@ export default function EditBillableWeight({
           </Button>
         </>
       ) : (
-        <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur validateOnChange>
-          {({ handleChange, values, isValid, errors }) => (
+        <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema}>
+          {({ handleChange, values, isValid, errors, touched, setTouched }) => (
             <div className={styles.container}>
               {billableWeight ? (
                 <BillableWeightHintText
@@ -154,16 +154,26 @@ export default function EditBillableWeight({
                   lbs
                 </MaskedTextField>
                 <Label htmlFor="remarks">Remarks</Label>
-                <ErrorMessage className={styles.errorMessage} display={!!errors.billableWeightJustification}>
+                <ErrorMessage
+                  className={styles.errorMessage}
+                  display={!!touched.billableWeightJustification && !!errors.billableWeightJustification}
+                >
                   {errors.billableWeightJustification}
                 </ErrorMessage>
-                <div className={errors.billableWeightJustification ? 'usa-form-group--error' : ''}>
+                <div
+                  className={
+                    !!touched.billableWeightJustification && !!errors.billableWeightJustification
+                      ? 'usa-form-group--error'
+                      : ''
+                  }
+                >
                   <Textarea
                     data-testid="remarks"
                     id="billableWeightJustification"
                     maxLength={500}
                     onChange={handleChange}
                     placeholder=""
+                    onBlur={() => setTouched({ billableWeightJustification: true }, false)}
                     value={values.billableWeightJustification}
                   />
                 </div>

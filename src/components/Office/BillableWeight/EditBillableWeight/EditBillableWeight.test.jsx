@@ -166,8 +166,9 @@ describe('EditBillableWeight', () => {
     expect(screen.queryByText('Edit')).toBeNull();
     userEvent.clear(screen.getByTestId('textInput'));
     userEvent.clear(screen.getByTestId('remarks'));
+    screen.getByTestId('remarks').blur();
     await waitFor(() => {
-      expect(screen.queryAllByText('Required').length).toBe(2);
+      expect(screen.getByText('Required')).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });

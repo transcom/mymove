@@ -37,7 +37,7 @@ MaxBillableWeight.args = {
 
 export const EmptyMaxBillableWeight = ToggledTemplate.bind({});
 
-MaxBillableWeight.args = {
+EmptyMaxBillableWeight.args = {
   billableWeightJustification: '',
   estimatedWeight: 13750,
   title: 'Max billable weight',
