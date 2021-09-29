@@ -28,12 +28,10 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 
-	//"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	//paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -62,13 +60,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 
-	/*
-		// Get shipment payment request recalculator service
-		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	*/
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("appcontext.AppContext"),
@@ -1086,11 +1077,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	// Get shipment payment request recalculator service
-	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("appcontext.AppContext"),
@@ -1149,11 +1135,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	// Get shipment payment request recalculator service
-	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("appcontext.AppContext"),
@@ -1274,11 +1255,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
-	// Get shipment payment request recalculator service
-	/*	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
-		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)*/
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("appcontext.AppContext"),
