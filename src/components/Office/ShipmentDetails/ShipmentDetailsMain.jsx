@@ -29,14 +29,18 @@ const ShipmentDetailsMain = ({
     counselorRemarks,
     customerRemarks,
     sitExtensions,
+    sitStatus,
+    storageInTransit,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
   return (
     <div className={className}>
-      {sitExtensions && (
+      {sitStatus && (
         <ShipmentSITExtensions
           sitExtensions={sitExtensions}
+          sitStatus={sitStatus}
+          storageInTransit={storageInTransit}
           shipment={shipment}
           handleReviewSITExtension={handleReviewSITExtension}
           handleSubmitSITExtension={handleSubmitSITExtension}

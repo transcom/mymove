@@ -8,27 +8,167 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '210',
         label: 'Mileage',
-        details: ['ZIP 322 to ZIP 919'],
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
       {
         value: '1.71',
         label: 'Baseline linehaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul with reweigh weight', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWithReweigh,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Reweigh: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul weigh reweigh and adjusted weight', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWeightWithAdjustedAndReweigh,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Reweigh: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul with no reweigh but billable weight adjusted', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWithAdjusted,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -39,27 +179,34 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '32210',
         label: 'Mileage',
-        details: ['ZIP 32210 to ZIP 91910'],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
         label: 'Baseline shorthaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -70,22 +217,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Origin price',
-        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.98',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -96,22 +250,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Destination service area: 080', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -122,22 +283,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Origin price',
-        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -148,22 +316,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Destination service area: 080', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -172,7 +347,10 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DOASIT', 99999, testParams.DomesticOriginAdditionalSIT);
     expect(result).toEqual([
       {
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
         label: 'Billable weight (cwt)',
         value: '85 cwt',
       },
@@ -182,19 +360,23 @@ describe('makeCalculations', () => {
         value: '2',
       },
       {
-        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
         label: 'Additional day SIT price',
         value: '1.71',
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -203,7 +385,10 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DDASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
     expect(result).toEqual([
       {
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
         label: 'Billable weight (cwt)',
         value: '85 cwt',
       },
@@ -213,19 +398,23 @@ describe('makeCalculations', () => {
         value: '2',
       },
       {
-        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Destination service area: 080', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
         label: 'Additional day SIT price',
         value: '1.71',
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -236,27 +425,34 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '29',
         label: 'Mileage',
-        details: ['ZIP 90210 to ZIP 90211'],
+        details: [{ text: 'ZIP 90210 to ZIP 90211', styles: {} }],
       },
       {
         value: '1.71',
         label: 'SIT pickup price',
-        details: ['Origin SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Origin SIT schedule: 3', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -266,29 +462,36 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryLonghaul);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: [
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+            { text: 'Estimated: 8,000 lbs', styles: {} },
+          ],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
         {
           value: '51',
           label: 'Mileage',
-          details: ['ZIP 91910 to ZIP 94535'],
+          details: [{ text: 'ZIP 91910 to ZIP 94535', styles: {} }],
         },
         {
-          details: ['Destination SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+          details: [
+            { text: 'Destination SIT schedule: 3', styles: {} },
+            { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+            { text: 'Domestic non-peak', styles: {} },
+          ],
           label: 'SIT delivery price',
           value: '1.71',
         },
         {
           value: '1.033',
           label: 'Price escalation factor',
-          details: ['Base year: 2'],
+          details: [{ text: 'Base year: 2', styles: {} }],
         },
         {
           value: '$999.99',
           label: 'Total amount requested',
-          details: [''],
+          details: [{ text: '', styles: {} }],
         },
       ]);
     });
@@ -297,29 +500,36 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMachingZip3);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: [
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+            { text: 'Estimated: 8,000 lbs', styles: {} },
+          ],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
         {
           value: '3',
           label: 'Mileage',
-          details: ['ZIP 91910 to ZIP 91920'],
+          details: [{ text: 'ZIP 91910 to ZIP 91920', styles: {} }],
         },
         {
-          details: ['Destination SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+          details: [
+            { text: 'Destination SIT schedule: 3', styles: {} },
+            { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+            { text: 'Domestic non-peak', styles: {} },
+          ],
           label: 'SIT delivery price',
           value: '1.71',
         },
         {
           value: '1.033',
           label: 'Price escalation factor',
-          details: ['Base year: 2'],
+          details: [{ text: 'Base year: 2', styles: {} }],
         },
         {
           value: '$999.99',
           label: 'Total amount requested',
-          details: [''],
+          details: [{ text: '', styles: {} }],
         },
       ]);
     });
@@ -328,24 +538,32 @@ describe('makeCalculations', () => {
       const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDelivery);
       expect(result).toEqual([
         {
-          details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+          details: [
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+            { text: 'Estimated: 8,000 lbs', styles: {} },
+          ],
           label: 'Billable weight (cwt)',
           value: '85 cwt',
         },
         {
-          details: ['Destination SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak', '<=50 miles'],
+          details: [
+            { text: 'Destination SIT schedule: 3', styles: {} },
+            { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+            { text: 'Domestic non-peak', styles: {} },
+            { text: '<=50 miles', styles: {} },
+          ],
           label: 'SIT delivery price',
           value: '1.71',
         },
         {
           value: '1.033',
           label: 'Price escalation factor',
-          details: ['Base year: 2'],
+          details: [{ text: 'Base year: 2', styles: {} }],
         },
         {
           value: '$999.99',
           label: 'Total amount requested',
-          details: [''],
+          details: [{ text: '', styles: {} }],
         },
       ]);
     });
@@ -357,22 +575,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Pack price',
-        details: ['Origin service schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Origin service schedule: 3', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -383,22 +608,29 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Unpack price',
-        details: ['Destination service schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: [
+          { text: 'Destination service schedule: 3', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [{ text: 'Base year: 2', styles: {} }],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -409,12 +641,19 @@ describe('makeCalculations', () => {
       {
         value: '4.00',
         label: 'Crating size (cu ft)',
-        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
+        details: [
+          { text: 'Description: Grand piano', styles: {} },
+          { text: 'Dimensions: 3x10x6 in', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Crating price (per cu ft)',
-        details: ['Service schedule: 3', 'Crating date: 09 Mar 2020', 'Domestic'],
+        details: [
+          { text: 'Service schedule: 3', styles: {} },
+          { text: 'Crating date: 09 Mar 2020', styles: {} },
+          { text: 'Domestic', styles: {} },
+        ],
       },
       {
         value: '1.033',
@@ -424,7 +663,7 @@ describe('makeCalculations', () => {
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -433,12 +672,19 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DUCRT', 99999, testParams.DomesticUncrating, testParams.additionalCratingDataDCRT);
     expect(result).toEqual([
       {
-        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
+        details: [
+          { text: 'Description: Grand piano', styles: {} },
+          { text: 'Dimensions: 3x10x6 in', styles: {} },
+        ],
         label: 'Crating size (cu ft)',
         value: '4.00',
       },
       {
-        details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],
+        details: [
+          { text: 'Service schedule: 3', styles: {} },
+          { text: 'Uncrating date: 09 Mar 2020', styles: {} },
+          { text: 'Domestic', styles: {} },
+        ],
         label: 'Uncrating price (per cu ft)',
         value: '1.71',
       },
@@ -448,7 +694,7 @@ describe('makeCalculations', () => {
         value: '1.033',
       },
       {
-        details: [''],
+        details: [{ text: '', styles: {} }],
         label: 'Total amount requested',
         value: '$999.99',
       },
@@ -459,12 +705,19 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DOSHUT', 99999, testParams.DomesticOriginShuttleService);
     expect(result).toEqual([
       {
-        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Shuttle weight: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
         label: 'Billable weight (cwt)',
         value: '85 cwt',
       },
       {
-        details: ['Service schedule: 3', 'Pickup date: 09 Mar 2020', 'Domestic'],
+        details: [
+          { text: 'Service schedule: 3', styles: {} },
+          { text: 'Pickup date: 09 Mar 2020', styles: {} },
+          { text: 'Domestic', styles: {} },
+        ],
         label: 'Origin price',
         value: '1.71',
       },
@@ -474,7 +727,7 @@ describe('makeCalculations', () => {
         value: '1.033',
       },
       {
-        details: [''],
+        details: [{ text: '', styles: {} }],
         label: 'Total amount requested',
         value: '$999.99',
       },
@@ -487,12 +740,19 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [
+          { text: 'Shuttle weight: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
       },
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Service schedule: 3', 'Delivery date: 09 Mar 2020', 'Domestic'],
+        details: [
+          { text: 'Service schedule: 3', styles: {} },
+          { text: 'Delivery date: 09 Mar 2020', styles: {} },
+          { text: 'Domestic', styles: {} },
+        ],
       },
       {
         value: '1.033',
@@ -502,7 +762,7 @@ describe('makeCalculations', () => {
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
@@ -523,22 +783,26 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
       },
       {
         value: '210',
         label: 'Mileage',
-        details: ['ZIP 322 to ZIP 919'],
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
       {
         value: '0.09',
         label: 'Fuel surcharge price (per mi)',
-        details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
+        details: [
+          { text: 'EIA diesel: $2.73', styles: {} },
+          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
+          { text: 'Pickup date: 11 Mar 2020', styles: {} },
+        ],
       },
       {
         value: '$999.99',
         label: 'Total amount requested',
-        details: [''],
+        details: [{ text: '', styles: {} }],
       },
     ]);
   });
