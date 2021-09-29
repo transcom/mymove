@@ -220,6 +220,21 @@ jest.mock('services/ghcApi', () => ({
     Promise.resolve({
       data: {},
     }),
+  getShipmentsPaymentSITBalance: () => {
+    Promise.resolve({
+      shipmentsPaymentSITBalance: {
+        a1: {
+          pendingBilledEndDate: '2021-08-29',
+          pendingSITDaysInvoiced: 30,
+          previouslyBilledDays: 0,
+          shipmentID: 'a1',
+          totalSITDaysAuthorized: 90,
+          totalSITDaysRemaining: 60,
+          totalSITEndDate: '2021-10-29',
+        },
+      },
+    });
+  },
 }));
 
 jest.mock('services/internalApi', () => ({

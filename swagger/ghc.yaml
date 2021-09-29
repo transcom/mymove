@@ -3138,6 +3138,10 @@ definitions:
         type: integer
       totalSITDaysRemaining:
         type: integer
+      totalSITEndDate:
+        type: string
+        format: date
+        x-nullable: true
       pendingSITDaysInvoiced:
         type: integer
       pendingBilledEndDate:
