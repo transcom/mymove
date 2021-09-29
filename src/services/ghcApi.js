@@ -328,3 +328,7 @@ export async function getPaymentRequestsQueue(
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }
+
+export async function getShipmentsPaymentSITBalance(key, paymentRequestID) {
+  return makeGHCRequest('paymentRequests.getShipmentsPaymentSITBalance', { paymentRequestID });
+}

@@ -20,6 +20,8 @@ import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/cons
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
+const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
+
 const ReviewServiceItems = ({
   header,
   paymentRequest,
@@ -37,8 +39,6 @@ const ReviewServiceItems = ({
   const totalCards = sortedCards.length;
 
   const [curCardIndex, setCardIndex] = useState(requestReviewed ? totalCards : 0);
-
-  const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleServiceItemNavBtnClick = (index) => {
     setCardIndex(index);

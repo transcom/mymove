@@ -7,6 +7,7 @@ import ServiceItemCard from './ServiceItemCard';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentModificationTypes } from 'constants/shipments';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 export default {
   title: 'Office Components/ReviewServiceItems/ServiceItemCards',
@@ -176,5 +177,27 @@ export const RejectedRequestComplete = () => (
     rejectionReason="Services were provided by the government"
     amount={999.99}
     requestComplete
+  />
+);
+
+export const DaysInSITAllowance = () => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="2021-05-08"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
+    mtoServiceItemCode={SERVICE_ITEM_CODES.DOASIT}
+    mtoServiceItemName={serviceItemCodes.DOASIT}
+    paymentServiceItemParams={testParams.DomesticOriginAdditionalSIT} // DaysInSIT would be 60
+    amount={999.99}
+    shipmentSITBalance={{
+      previouslyBilledDays: 30,
+      previouslyBilledEndDate: '2021-06-08',
+      pendingSITDaysInvoiced: 60,
+      pendingBilledEndDate: '2021-08-08',
+      totalSITDaysAuthorized: 120,
+      totalSITDaysRemaining: 30,
+      totalSITEndDate: '2021-09-08',
+    }}
   />
 );

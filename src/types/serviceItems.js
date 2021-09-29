@@ -41,3 +41,13 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     estimatedWeight: PropTypes.number,
   }),
 });
+
+export const ShipmentPaymentSITBalanceShape = PropTypes.shape({
+  previouslyBilledDays: PropTypes.number,
+  previouslyBilledEndDate: PropTypes.string,
+  pendingSITDaysInvoiced: PropTypes.number.isRequired,
+  pendingBilledEndDate: PropTypes.string.isRequired,
+  totalSITDaysAuthorized: PropTypes.number.isRequired,
+  totalSITDaysRemaining: PropTypes.number.isRequired,
+  totalSITEndDate: PropTypes.string.isRequired,
+});

@@ -84,14 +84,14 @@ type FetchPaymentRequestListParams struct {
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment
 // request
 type ShipmentPaymentSITBalance struct {
-	ShipmentID                uuid.UUID
-	TotalSITDaysAuthorized    int
-	TotalSITDaysRemaining     int
-	PendingSITDaysInvoiced    int
-	PendingBilledEndDate      time.Time
-	PreviouslyBilledDays      *int
-	PreviouslyBilledStartDate *time.Time
-	PreviouslyBilledEndDate   *time.Time
+	ShipmentID              uuid.UUID
+	TotalSITDaysAuthorized  int
+	TotalSITDaysRemaining   int
+	TotalSITEndDate         time.Time
+	PendingSITDaysInvoiced  int
+	PendingBilledEndDate    time.Time
+	PreviouslyBilledDays    *int
+	PreviouslyBilledEndDate *time.Time
 }
 
 // ShipmentsPaymentSITBalance is the exported interface for returning SIT balances for all shipments of a payment

@@ -4968,6 +4968,11 @@ func init() {
         },
         "totalSITDaysRemaining": {
           "type": "integer"
+        },
+        "totalSITEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         }
       }
     },
@@ -11080,6 +11085,11 @@ func init() {
         },
         "totalSITDaysRemaining": {
           "type": "integer"
+        },
+        "totalSITEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         }
       }
     },
