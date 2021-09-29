@@ -61,12 +61,19 @@ const getPriceRateOrFactor = (params) => {
   return getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params) || '';
 };
 
+const formatDetail = (detail, styles = {}) => {
+  return {
+    text: detail,
+    styles,
+  };
+};
+
 // billable weight calculation
 const formatWeightFromParams = (params, key) => {
   return formatWeight(parseInt(getParamValue(key, params), 10));
 };
 
-const formatWeightDetail = (params, key) => {
+const formatWeightDetailText = (params, key) => {
   const value = getParamValue(key, params);
   const paramValue = value ? formatWeightFromParams(params, key) : '';
   const detailText = `${SERVICE_ITEM_CALCULATION_LABELS[key]}: ${paramValue}`;
@@ -79,36 +86,34 @@ const billableWeight = (params) => {
 
   const details = [];
 
-  const weightBilledDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
+  const weightBilledDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
   if (weightBilledDetail) {
-    details.push(weightBilledDetail);
+    details.push(formatDetail(weightBilledDetail));
   }
 
-  const weightAdjustedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
+  const weightAdjustedDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
   if (weightAdjustedDetail) {
     // The weight adjusted detail should always be bolded
-    details.push(weightAdjustedDetail);
+    details.push(formatDetail(weightAdjustedDetail, { fontWeight: 'bold' }));
   }
 
-  const weightReweighDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
-  const weightOriginalDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightOriginal);
+  const weightReweighDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
+  const weightOriginalDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightOriginal);
 
   // If the reweigh weight exists, figure out if the reweigh or the original weight should be bolded.
-  if (weightReweighDetail) {
+  if (weightReweighDetail && weightOriginalDetail) {
     // const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
     // const weightBilledValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
-    details.push(weightReweighDetail);
-  } else {
+    details.push(formatDetail(weightReweighDetail));
+    details.push(formatDetail(weightOriginalDetail));
+  } else if (weightOriginalDetail) {
     // Otherwise, always have the original weight as bolded.
+    details.push(formatDetail(weightOriginalDetail));
   }
 
-  if (weightOriginalDetail) {
-    details.push(weightOriginalDetail);
-  }
-
-  const weightEstimatedDetail = formatWeightDetail(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
+  const weightEstimatedDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
   if (weightEstimatedDetail) {
-    details.push(weightEstimatedDetail);
+    details.push(formatDetail(weightEstimatedDetail));
   }
 
   return calculation(value, label, ...details);
@@ -126,7 +131,7 @@ const shuttleBillableWeight = (params) => {
   const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
     weightEstimated ? formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10)) : ''
   }`;
-  return calculation(value, label, weightBilledDetail, weightEstimatedDetail);
+  return calculation(value, label, formatDetail(weightBilledDetail), formatDetail(weightEstimatedDetail));
 };
 
 // display the first 3 digits of the ZIP code
@@ -141,7 +146,7 @@ const mileageFirstThreeZip = (params) => {
     params,
   )?.slice(0, 3)}`;
 
-  return calculation(value, label, detail);
+  return calculation(value, label, formatDetail(detail));
 };
 
 const mileageZip5 = (params) => {
@@ -155,7 +160,7 @@ const mileageZip5 = (params) => {
     params,
   )}`;
 
-  return calculation(value, label, detail);
+  return calculation(value, label, formatDetail(detail));
 };
 
 const mileageZipSITOrigin = (params) => {
@@ -169,21 +174,33 @@ const mileageZipSITOrigin = (params) => {
     SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
     params,
   )}`;
-  return calculation(value, label, detail);
+  return calculation(value, label, formatDetail(detail));
 };
 
 const baselineLinehaulPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
 
-  return calculation(value, label, peak(params), serviceAreaOrigin(params), requestedPickupDate(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(peak(params)),
+    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(requestedPickupDate(params)),
+  );
 };
 
 const baselineShorthaulPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineShorthaulPrice;
 
-  return calculation(value, label, peak(params), serviceAreaOrigin(params), requestedPickupDate(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(peak(params)),
+    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(requestedPickupDate(params)),
+  );
 };
 
 const dddSITmileageZip5 = (params) => {
@@ -197,7 +214,7 @@ const dddSITmileageZip5 = (params) => {
     params,
   )}`;
 
-  return calculation(value, label, detail);
+  return calculation(value, label, formatDetail(detail));
 };
 
 // There is no param representing the orgin price as available in the re_domestic_service_area_prices table
@@ -206,7 +223,13 @@ const originPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
 
-  return calculation(value, label, serviceAreaOrigin(params), requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const shuttleOriginPriceDomestic = (params) => {
@@ -223,7 +246,13 @@ const shuttleOriginPriceDomestic = (params) => {
     'DD MMM YYYY',
   )}`;
 
-  return calculation(value, label, serviceSchedule, pickupDate, SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceSchedule),
+    formatDetail(pickupDate),
+    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.Domestic),
+  );
 };
 
 // There is no param representing the destination price as available in the re_domestic_service_area_prices table
@@ -232,7 +261,13 @@ const destinationPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
 
-  return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceAreaDest(params)),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const shuttleDestinationPriceDomestic = (params) => {
@@ -249,7 +284,13 @@ const shuttleDestinationPriceDomestic = (params) => {
     'DD MMM YYYY',
   )}`;
 
-  return calculation(value, label, serviceSchedule, deliveryDate, SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceSchedule),
+    formatDetail(deliveryDate),
+    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.Domestic),
+  );
 };
 
 const priceEscalationFactor = (params) => {
@@ -262,7 +303,7 @@ const priceEscalationFactor = (params) => {
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ContractYearName, params) || ''
   }`;
 
-  return calculation(value, label, contractYearName);
+  return calculation(value, label, formatDetail(contractYearName));
 };
 
 const priceEscalationFactorWithoutContractYear = (params) => {
@@ -298,7 +339,13 @@ const fuelSurchargePrice = (params) => {
     'DD MMM YYYY',
   )}`;
 
-  return calculation(value, label, eiaFuelPrice, fscWeightBasedDistanceMultiplier, actualPickupDate);
+  return calculation(
+    value,
+    label,
+    formatDetail(eiaFuelPrice),
+    formatDetail(fscWeightBasedDistanceMultiplier),
+    formatDetail(actualPickupDate),
+  );
 };
 
 const packPrice = (params) => {
@@ -308,7 +355,13 @@ const packPrice = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin, params)}`;
 
-  return calculation(value, label, originServiceSchedule, requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(originServiceSchedule),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const unpackPrice = (params) => {
@@ -318,21 +371,39 @@ const unpackPrice = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest, params)}`;
 
-  return calculation(value, label, destServiceSchedule, requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(destServiceSchedule),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const additionalDayOriginSITPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
 
-  return calculation(value, label, serviceAreaOrigin(params), requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const additionalDayDestinationSITPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
 
-  return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceAreaDest(params)),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const sitDeliveryPrice = (params) => {
@@ -343,7 +414,13 @@ const sitDeliveryPrice = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
 
-  return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(sitScheduleDestination),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const sitDeliveryPriceShorthaulDifferentZIP3 = (params) => {
@@ -354,7 +431,14 @@ const sitDeliveryPriceShorthaulDifferentZIP3 = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
 
-  return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params), '<=50 miles');
+  return calculation(
+    value,
+    label,
+    formatDetail(sitScheduleDestination),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+    formatDetail('<=50 miles'),
+  );
 };
 
 const daysInSIT = (params) => {
@@ -372,7 +456,13 @@ const pickupSITPrice = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin, params)}`;
 
-  return calculation(value, label, originSITSchedule, requestedPickupDate(params), peak(params));
+  return calculation(
+    value,
+    label,
+    formatDetail(originSITSchedule),
+    formatDetail(requestedPickupDate(params)),
+    formatDetail(peak(params)),
+  );
 };
 
 const cratingPrice = (params) => {
@@ -384,7 +474,13 @@ const cratingPrice = (params) => {
     params,
   )}`;
 
-  return calculation(value, label, serviceSchedule, cratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceSchedule),
+    formatDetail(cratingDate(params)),
+    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.Domestic),
+  );
 };
 
 const unCratingPrice = (params) => {
@@ -396,7 +492,13 @@ const unCratingPrice = (params) => {
     params,
   )}`;
 
-  return calculation(value, label, serviceSchedule, unCratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+  return calculation(
+    value,
+    label,
+    formatDetail(serviceSchedule),
+    formatDetail(unCratingDate(params)),
+    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.Domestic),
+  );
 };
 
 const cratingSize = (params, mtoParams) => {
@@ -410,7 +512,7 @@ const cratingSize = (params, mtoParams) => {
 
   const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${length}x${width}x${height} in`;
 
-  return calculation(value, label, description, formattedDimensions);
+  return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
 // totalAmountRequested is not a service item param
@@ -419,7 +521,7 @@ const totalAmountRequested = (totalAmount) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.TotalAmountRequested;
   const detail = '';
 
-  return calculation(value, label, detail);
+  return calculation(value, label, formatDetail(detail));
 };
 
 const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
