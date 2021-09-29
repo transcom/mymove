@@ -170,6 +170,52 @@ func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (model
 	return moveTaskOrder, mtoServiceItems
 }
 
+// MakeFullOriginMTOServiceItems (follow-on to  MakeFullDLHMTOServiceItem) makes a DLH type service item along with all its expected parameters returns the created move and all service items
+func MakeFullOriginMTOServiceItems(db *pop.Connection, assertions Assertions) (models.Move, models.MTOServiceItems) {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	moveTaskOrder := models.Move{
+		SelectedMoveType: &hhgMoveType,
+	}
+
+	mergeModels(&moveTaskOrder, assertions.Move)
+
+	var move models.Move
+	if isZeroUUID(assertions.Move.ID) {
+		move = MakeMove(db, Assertions{
+			Move: moveTaskOrder,
+		})
+	} else {
+		move = moveTaskOrder
+	}
+
+	mtoShipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+	mergeModels(&mtoShipment, assertions.MTOShipment)
+
+	var shipment models.MTOShipment
+	if isZeroUUID(assertions.MTOShipment.ID) {
+		shipment = MakeMTOShipment(db, Assertions{
+			Move:        move,
+			MTOShipment: mtoShipment,
+		})
+	} else {
+		shipment = assertions.MTOShipment
+	}
+
+	move.MTOShipments = models.MTOShipments{shipment}
+
+	var mtoServiceItems models.MTOServiceItems
+	// Service Item DPK
+	mtoServiceItemDPK := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDPK, move, shipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDPK)
+	// Service Item DOP
+	mtoServiceItemDOP := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOP, move, shipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDOP)
+
+	return moveTaskOrder, mtoServiceItems
+}
+
 // MakeStubbedPaymentRequest returns a payment request without hitting the DB
 func MakeStubbedPaymentRequest(db *pop.Connection) models.PaymentRequest {
 	return MakePaymentRequest(db, Assertions{

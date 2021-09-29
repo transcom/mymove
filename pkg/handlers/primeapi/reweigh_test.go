@@ -6,7 +6,11 @@ import (
 	"testing"
 	"time"
 
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/gofrs/uuid"
 
@@ -18,6 +22,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	reweighservice "github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+const (
+	recalculateTestPickupZip      = "30907"
+	recalculateTestDestinationZip = "78234"
+	recalculateTestZip3Distance   = 1234
 )
 
 func (suite *HandlerSuite) TestUpdateReweighHandler() {
@@ -36,10 +46,23 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		mtoShipment1,
 	)
 
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("Zip3TransitDistance",
+		recalculateTestPickupZip,
+		recalculateTestDestinationZip,
+	).Return(recalculateTestZip3Distance, nil)
+
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
 	// Create handler
 	handler := UpdateReweighHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker()),
+		reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
 	}
 
 	var updatedETag string

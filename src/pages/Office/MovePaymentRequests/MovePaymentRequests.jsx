@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -90,6 +90,7 @@ const MovePaymentRequests = ({
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const billableWeightsReviewed = useLocation().state?.from === 'review-billable-weights';
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -125,7 +126,9 @@ const MovePaymentRequests = ({
   };
 
   const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
-
+  const noBillableWeightIssues =
+    (billableWeightsReviewed && !maxBillableWeightExceeded) ||
+    (!anyShipmentOverweight(filteredShipments) && !anyShipmentMissingWeight(filteredShipments));
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -150,6 +153,7 @@ const MovePaymentRequests = ({
                 {s === 'billable-weights' &&
                   !maxBillableWeightExceeded &&
                   filteredShipments?.length > 0 &&
+                  !billableWeightsReviewed &&
                   (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
                     <FontAwesomeIcon
                       icon="exclamation-triangle"
@@ -172,6 +176,7 @@ const MovePaymentRequests = ({
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
+              secondaryReviewWeightsBtn={noBillableWeightIssues}
             />
           </div>
           <h2>Payment requests</h2>
@@ -180,6 +185,7 @@ const MovePaymentRequests = ({
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard
                   paymentRequest={paymentRequest}
+                  hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
                 />

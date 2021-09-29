@@ -5256,11 +5256,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -11376,11 +11378,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
