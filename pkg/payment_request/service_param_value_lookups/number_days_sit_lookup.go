@@ -50,24 +50,24 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", fmt.Errorf("MTOShipment %v is missing SITDaysAllowance", s.MTOShipment.ID)
 	}
 
-	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(priorPaymentServiceItems, *s.MTOShipment.SITDaysAllowance)
+	remainingShipmentSITDays, err := calculateRemainingSITDays(priorPaymentServiceItems, *s.MTOShipment.SITDaysAllowance)
 	if err != nil {
 		return "", err
 	}
 
-	if remainingMoveTaskOrderSITDays <= 0 {
+	if remainingShipmentSITDays <= 0 {
 		return "", fmt.Errorf("MTOShipment %v has 0 remaining SIT Days", s.MTOShipment.ID)
 	}
 
-	billableMTOServiceItemSITDays, err := calculateNumberSITAdditionalDays(currentPaymentServiceItem)
+	billableShipmentSITDays, err := calculateNumberSITAdditionalDays(currentPaymentServiceItem)
 	if err != nil {
 		return "", err
 	}
 
-	if remainingMoveTaskOrderSITDays < billableMTOServiceItemSITDays {
-		return "", fmt.Errorf("only %d additional days in SIT can be billed for MTOShipment %v", remainingMoveTaskOrderSITDays, s.MTOShipment.ID)
+	if remainingShipmentSITDays < billableShipmentSITDays {
+		return "", fmt.Errorf("only %d additional days in SIT can be billed for MTOShipment %v", remainingShipmentSITDays, s.MTOShipment.ID)
 	}
-	return strconv.Itoa(billableMTOServiceItemSITDays), nil
+	return strconv.Itoa(billableShipmentSITDays), nil
 }
 
 func hasOverlappingSITDates(shipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem, sitStart time.Time, sitEnd time.Time) bool {
@@ -125,22 +125,22 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 	return mtoShipmentSITPaymentServiceItems, nil
 }
 
-func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems, sitDaysAllowance int) (int, error) {
-	remainingMoveTaskOrderSITDays := sitDaysAllowance
+func calculateRemainingSITDays(sitPaymentServiceItems models.PaymentServiceItems, sitDaysAllowance int) (int, error) {
+	remainingSITDays := sitDaysAllowance
 
-	for _, moveTaskOrderSITPaymentServiceItem := range moveTaskOrderSITPaymentServiceItems {
-		if isFirstDaySIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
-			remainingMoveTaskOrderSITDays--
-		} else if isAdditionalDaysSIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
-			paymentServiceItemSITDays, err := calculateNumberSITAdditionalDays(moveTaskOrderSITPaymentServiceItem)
+	for _, sitPaymentServiceItem := range sitPaymentServiceItems {
+		if isFirstDaySIT(sitPaymentServiceItem.MTOServiceItem) {
+			remainingSITDays--
+		} else if isAdditionalDaysSIT(sitPaymentServiceItem.MTOServiceItem) {
+			paymentServiceItemSITDays, err := calculateNumberSITAdditionalDays(sitPaymentServiceItem)
 			if err != nil {
 				return 0, err
 			}
-			remainingMoveTaskOrderSITDays = remainingMoveTaskOrderSITDays - paymentServiceItemSITDays
+			remainingSITDays -= paymentServiceItemSITDays
 		}
 	}
 
-	return remainingMoveTaskOrderSITDays, nil
+	return remainingSITDays, nil
 }
 
 func calculateNumberSITAdditionalDays(paymentServiceItem models.PaymentServiceItem) (int, error) {
