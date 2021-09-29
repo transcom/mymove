@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { SITStatusOrigin } from '../ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
+
 import ShipmentDetails from './ShipmentDetails';
 
 export default {
@@ -67,10 +69,13 @@ const shipment = {
       officeRemarks: 'The service member is unable to move into their new home at the expected time.',
       requestReason: 'SERIOUS_ILLNESS_MEMBER',
       requestedDays: 30,
+      approvedDays: 30,
       status: 'APPROVED',
       updatedAt: '2021-09-13T15:41:59.373Z',
     },
   ],
+  sitStatus: SITStatusOrigin,
+  sitDaysAllowance: 270,
 };
 
 const order = {
