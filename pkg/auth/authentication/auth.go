@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/alexedwards/scs/v2"
@@ -248,6 +249,24 @@ func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handl
 			next.ServeHTTP(w, r)
 		}
 
+		return http.HandlerFunc(mw)
+	}
+}
+
+// PrimeSimulatorAuthorizationMiddleware ensures only users with the
+// prime simulator role can access the simulator
+func PrimeSimulatorAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
+			session := auth.SessionFromRequestContext(r)
+			if session == nil || !session.Roles.HasRole(roles.RoleTypePrimeSimulator) {
+				logger.Error("forbidden user for prime simulator")
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		}
 		return http.HandlerFunc(mw)
 	}
 }

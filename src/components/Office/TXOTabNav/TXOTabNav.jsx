@@ -12,6 +12,7 @@ const TXOTabNav = ({
   unapprovedServiceItemCount,
   excessWeightRiskCount,
   pendingPaymentRequestCount,
+  unapprovedSITExtensionCount,
   order,
   moveCode,
 }) => {
@@ -29,6 +30,9 @@ const TXOTabNav = ({
   }
   if (excessWeightRiskCount > 0) {
     moveTaskOrderTagCount += 1;
+  }
+  if (unapprovedSITExtensionCount > 0) {
+    moveTaskOrderTagCount += unapprovedSITExtensionCount;
   }
 
   return (
@@ -68,6 +72,7 @@ TXOTabNav.defaultProps = {
   unapprovedServiceItemCount: 0,
   excessWeightRiskCount: 0,
   pendingPaymentRequestCount: 0,
+  unapprovedSITExtensionCount: 0,
 };
 
 TXOTabNav.propTypes = {
@@ -76,6 +81,7 @@ TXOTabNav.propTypes = {
   unapprovedServiceItemCount: PropTypes.number,
   excessWeightRiskCount: PropTypes.number,
   pendingPaymentRequestCount: PropTypes.number,
+  unapprovedSITExtensionCount: PropTypes.number,
   moveCode: PropTypes.string.isRequired,
 };
 

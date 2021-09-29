@@ -52,6 +52,25 @@ func checkRequiredFields() sitExtensionValidator {
 	})
 }
 
+func checkSITExtensionPending() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
+		id := sitExtension.ID
+		shipmentID := shipment.ID
+		//status := sitExtension.Status
+		var emptySITExtensionArray []models.SITExtension
+		err := appCtx.DB().Where("status = ?", models.SITExtensionStatusPending).Where("mto_shipment_id = ?", shipmentID).All(&emptySITExtensionArray)
+		// Prevent a new SIT extension request if a sit extension is pending
+		if err != nil {
+			return err
+		}
+
+		if len(emptySITExtensionArray) > 0 {
+			return services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
+		}
+		return err
+	})
+}
+
 //checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {

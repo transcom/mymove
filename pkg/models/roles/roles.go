@@ -28,6 +28,8 @@ const (
 	RoleTypePPMOfficeUsers RoleType = "ppm_office_users"
 	// RoleTypeServicesCounselor is the Services Counselor Role
 	RoleTypeServicesCounselor RoleType = "services_counselor"
+	// RoleTypePrimeSimulator is the PrimeSimulator Role
+	RoleTypePrimeSimulator RoleType = "prime_simulator"
 )
 
 // Role represents a Role for users
