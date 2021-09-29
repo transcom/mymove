@@ -2470,6 +2470,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 		},
 	})
 
+	sitDaysAllowance := 270
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff2b5"),
@@ -2478,20 +2479,9 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
+			SITDaysAllowance:     &sitDaysAllowance,
 		},
 		Move: mto,
-	})
-
-	sitContractorRemarks1 := "The customer requested an extension."
-	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
-	sitApprovedDays := 30
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
-			MTOShipmentID:     MTOShipment.ID,
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-			ApprovedDays:      &sitApprovedDays,
-		},
 	})
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
@@ -2515,6 +2505,100 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 		},
 		Move: mto,
 	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOFSIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOASIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &threeMonthsAgo,
+			SITDepartureDate: &twoMonthsAgo,
+			SITPostalCode:    &postalCode,
+			Reason:           &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDASIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+		MTOShipment: MTOShipment,
+		Move:        mto,
+	})
+
+	makeSITExtensionsForShipment(appCtx, MTOShipment)
+
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{

@@ -4720,23 +4720,118 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
-func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
 
+	// manually calculated SIT days including SIT extension approved days
+	sitDaysAllowance := 270
 	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+			Status:           models.MTOShipmentStatusApproved,
+			SITDaysAllowance: &sitDaysAllowance,
 		},
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	// This will in practice not exist without DOFSIT and DOASIT
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &threeMonthsAgo,
+			SITDepartureDate: &twoMonthsAgo,
+			SITPostalCode:    &postalCode,
+			Reason:           &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
 	})
 
 	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
-	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
@@ -4746,37 +4841,6 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		Move: move,
 	})
 
-	serviceItemASIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequestSIT,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
-		},
-	})
-
-	serviceItemBSIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequestSIT,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
-		},
-		MTOServiceItem: serviceItemASIT,
-		PaymentRequest: paymentRequestSIT,
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusDenied,
-		},
-		MTOServiceItem: serviceItemBSIT,
-		PaymentRequest: paymentRequestSIT,
-	})
 }
 
 func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -5110,16 +5174,21 @@ func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+	approvedDays := 90
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
+			ApprovedDays:      &approvedDays,
 		},
 		MTOShipment: shipment,
 	})
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			ApprovedDays: &approvedDays,
+		},
 		MTOShipment: shipment,
 	})
 }
