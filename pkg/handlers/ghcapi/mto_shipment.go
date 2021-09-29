@@ -776,11 +776,11 @@ func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID u
 		EndpointKey: event.GhcApproveSITExtensionEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.ApproveSITExtensionEventKey, // Event that you want to trigger
-		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
-		MtoID:           moveID,                               // ID of the associated Move
-		Request:         params.HTTPRequest,                   // Pass on the http.Request
-		DBConnection:    h.DB(),                               // Pass on the pop.Connection
-		HandlerContext:  h,                                    // Pass on the handlerContext
+		UpdatedObjectID: shipmentID,                        // ID of the updated logical object
+		MtoID:           moveID,                            // ID of the associated Move
+		Request:         params.HTTPRequest,                // Pass on the http.Request
+		DBConnection:    h.DB(),                            // Pass on the pop.Connection
+		HandlerContext:  h,                                 // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
@@ -846,11 +846,11 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UU
 		EndpointKey: event.GhcDenySITExtensionEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.DenySITExtensionEventKey, // Event that you want to trigger
-		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
-		MtoID:           moveID,                               // ID of the associated Move
-		Request:         params.HTTPRequest,                   // Pass on the http.Request
-		DBConnection:    h.DB(),                               // Pass on the pop.Connection
-		HandlerContext:  h,                                    // Pass on the handlerContext
+		UpdatedObjectID: shipmentID,                     // ID of the updated logical object
+		MtoID:           moveID,                         // ID of the associated Move
+		Request:         params.HTTPRequest,             // Pass on the http.Request
+		DBConnection:    h.DB(),                         // Pass on the pop.Connection
+		HandlerContext:  h,                              // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
