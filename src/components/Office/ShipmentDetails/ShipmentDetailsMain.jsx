@@ -37,6 +37,7 @@ const ShipmentDetailsMain = ({
       {sitExtensions && (
         <ShipmentSITExtensions
           sitExtensions={sitExtensions}
+          shipment={shipment}
           handleReviewSITExtension={handleReviewSITExtension}
           handleSubmitSITExtension={handleSubmitSITExtension}
         />

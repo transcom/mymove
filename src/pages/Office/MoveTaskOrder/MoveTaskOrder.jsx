@@ -608,12 +608,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   order={order}
                   handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
-                  handleReviewSITExtension={(sitExtensionID, formValues) => {
-                    handleReviewSITExtension(sitExtensionID, formValues, mtoShipment);
-                  }}
-                  handleSubmitSITExtension={(formValues) => {
-                    handleSubmitSITExtension(formValues, mtoShipment);
-                  }}
+                  handleReviewSITExtension={handleReviewSITExtension}
+                  handleSubmitSITExtension={handleSubmitSITExtension}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable

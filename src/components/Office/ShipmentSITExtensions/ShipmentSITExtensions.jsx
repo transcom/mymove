@@ -12,19 +12,20 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 import styles from './ShipmentSITExtensions.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { ShipmentShape } from 'types/shipment';
 import { formatDateFromIso } from 'shared/formatters';
 
 const ShipmentSITExtensions = (props) => {
-  const { sitExtensions, handleReviewSITExtension, handleSubmitSITExtension } = props;
+  const { sitExtensions, handleReviewSITExtension, handleSubmitSITExtension, shipment } = props;
   const [isReviewSITExtensionModalVisible, setisReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setisSubmitITExtensionModalVisible] = useState(false);
   const reviewSITExtensionSubmit = (sitExtensionID, formValues) => {
     setisReviewSITExtensionModalVisible(false);
-    handleReviewSITExtension(sitExtensionID, formValues);
+    handleReviewSITExtension(sitExtensionID, formValues, shipment);
   };
   const submitSITExtension = (formValues) => {
     setisSubmitITExtensionModalVisible(false);
-    handleSubmitSITExtension(formValues);
+    handleSubmitSITExtension(formValues, shipment);
   };
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
@@ -104,6 +105,7 @@ ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape).isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
+  shipment: ShipmentShape.isRequired,
 };
 
 ShipmentSITExtensions.defaultProps = {};
