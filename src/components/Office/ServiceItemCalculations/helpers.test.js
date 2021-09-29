@@ -10,6 +10,142 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul with reweigh weight', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWithReweigh,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Shipment weight: 8,500 lbs', styles: {} },
+          { text: 'Reweigh: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul weigh reweigh and adjusted weight', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWeightWithAdjustedAndReweigh,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Shipment weight: 8,500 lbs', styles: {} },
+          { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Reweigh: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul with no reweigh but billable weight adjusted', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaulWithAdjusted,
+      testParams.additionalCratingDataDCRT,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Shipment weight: 8,500 lbs', styles: {} },
+          { text: 'Adjusted: 500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Original: 8,500 lbs', styles: {} },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
@@ -49,7 +185,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -88,7 +224,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -122,7 +258,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -156,7 +292,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -190,7 +326,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -222,7 +358,7 @@ describe('makeCalculations', () => {
       {
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
         label: 'Billable weight (cwt)',
@@ -261,7 +397,7 @@ describe('makeCalculations', () => {
       {
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
         label: 'Billable weight (cwt)',
@@ -302,7 +438,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -340,7 +476,7 @@ describe('makeCalculations', () => {
         {
           details: [
             { text: 'Shipment weight: 8,500 lbs', styles: {} },
-            { text: 'Original: 8,500 lbs', styles: {} },
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
           label: 'Billable weight (cwt)',
@@ -379,7 +515,7 @@ describe('makeCalculations', () => {
         {
           details: [
             { text: 'Shipment weight: 8,500 lbs', styles: {} },
-            { text: 'Original: 8,500 lbs', styles: {} },
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
           label: 'Billable weight (cwt)',
@@ -418,7 +554,7 @@ describe('makeCalculations', () => {
         {
           details: [
             { text: 'Shipment weight: 8,500 lbs', styles: {} },
-            { text: 'Original: 8,500 lbs', styles: {} },
+            { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
             { text: 'Estimated: 8,000 lbs', styles: {} },
           ],
           label: 'Billable weight (cwt)',
@@ -456,7 +592,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },
@@ -490,7 +626,7 @@ describe('makeCalculations', () => {
         label: 'Billable weight (cwt)',
         details: [
           { text: 'Shipment weight: 8,500 lbs', styles: {} },
-          { text: 'Original: 8,500 lbs', styles: {} },
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
           { text: 'Estimated: 8,000 lbs', styles: {} },
         ],
       },

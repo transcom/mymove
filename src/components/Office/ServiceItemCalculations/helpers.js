@@ -85,6 +85,7 @@ const billableWeight = (params) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
 
   const details = [];
+  const boldStyles = { fontWeight: 'bold' };
 
   const weightBilledDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightBilled);
   if (weightBilledDetail) {
@@ -94,7 +95,7 @@ const billableWeight = (params) => {
   const weightAdjustedDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightAdjusted);
   if (weightAdjustedDetail) {
     // The weight adjusted detail should always be bolded
-    details.push(formatDetail(weightAdjustedDetail, { fontWeight: 'bold' }));
+    details.push(formatDetail(weightAdjustedDetail, boldStyles));
   }
 
   const weightReweighDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightReweigh);
@@ -102,13 +103,31 @@ const billableWeight = (params) => {
 
   // If the reweigh weight exists, figure out if the reweigh or the original weight should be bolded.
   if (weightReweighDetail && weightOriginalDetail) {
-    // const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
-    // const weightBilledValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
-    details.push(formatDetail(weightReweighDetail));
-    details.push(formatDetail(weightOriginalDetail));
+    const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
+    const weightOriginalValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightOriginal, params), 10);
+
+    let reweighStyles = {};
+    let originalStyles = {};
+
+    // Only bold the weights if there is no adjusted weight
+    if (!weightAdjustedDetail) {
+      // if the reweigh weight matches the original weight, bold the reweigh weight
+      if (weightReweighValue <= weightOriginalValue) {
+        reweighStyles = boldStyles;
+      } else {
+        originalStyles = boldStyles;
+      }
+    }
+
+    details.push(formatDetail(weightReweighDetail, reweighStyles));
+    details.push(formatDetail(weightOriginalDetail, originalStyles));
   } else if (weightOriginalDetail) {
-    // Otherwise, always have the original weight as bolded.
-    details.push(formatDetail(weightOriginalDetail));
+    // Otherwise, always have the original weight as bolded if there is no weight adjusted.
+    let originalStyles = {};
+    if (!weightAdjustedDetail) {
+      originalStyles = boldStyles;
+    }
+    details.push(formatDetail(weightOriginalDetail, originalStyles));
   }
 
   const weightEstimatedDetail = formatWeightDetailText(params, SERVICE_ITEM_PARAM_KEYS.WeightEstimated);
