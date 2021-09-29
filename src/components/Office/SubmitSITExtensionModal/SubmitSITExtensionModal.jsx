@@ -15,15 +15,15 @@ import { DropdownInput } from 'components/form/fields';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { dropdownInputOptions } from 'shared/formatters';
 
-const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
-  const reviewSITExtensionSchema = Yup.object().shape({
-    requestReason: Yup.string().required('Required'),
-    daysApproved: Yup.number()
-      .min(1, 'Additional days approved must be greater than or equal to 1.')
-      .required('Required'),
-    officeRemarks: Yup.string().nullable(),
-  });
+const reviewSITExtensionSchema = Yup.object().shape({
+  requestReason: Yup.string().required('Required'),
+  daysApproved: Yup.number()
+    .min(1, 'Additional days approved must be greater than or equal to 1.')
+    .required('Required'),
+  officeRemarks: Yup.string().nullable(),
+});
 
+const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
   return (
     <div>
       <Overlay />
