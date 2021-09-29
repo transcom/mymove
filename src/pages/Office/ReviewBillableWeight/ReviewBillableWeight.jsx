@@ -196,7 +196,7 @@ export default function ReviewBillableWeight() {
                     {`Max billable weight exceeded. \nPlease resolve.`}
                   </Alert>
                 )}
-                {((!selectedShipment.reweigh?.weight && selectedShipment.reweigh?.requestedAt) ||
+                {((!selectedShipment?.reweigh?.weight && selectedShipment?.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
                   <Alert slim type="warning">
                     Shipment missing information
@@ -222,7 +222,7 @@ export default function ReviewBillableWeight() {
                   billableWeight={selectedShipment.calculatedBillableWeight}
                   editEntity={editEntity}
                   billableWeightJustification={selectedShipment.billableWeightJustification}
-                  dateReweighRequested={selectedShipment.reweigh?.requestedAt}
+                  dateReweighRequested={selectedShipment?.reweigh?.requestedAt}
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}
                   destinationAddress={selectedShipment.destinationAddress}

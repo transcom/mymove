@@ -19,12 +19,27 @@ const Template = (args) => (
   </Container>
 );
 
+const ToggledTemplate = (args) => (
+  <Container>
+    <EditBillableWeight {...args} showFieldsInitial />
+  </Container>
+);
+
 export const MaxBillableWeight = Template.bind({});
 
 MaxBillableWeight.args = {
   billableWeightJustification: 'Reduced billable weight to cap at 110% of estimated.',
   estimatedWeight: 13750,
   maxBillableWeight: 13000,
+  title: 'Max billable weight',
+  weightAllowance: 8000,
+};
+
+export const EmptyMaxBillableWeight = ToggledTemplate.bind({});
+
+MaxBillableWeight.args = {
+  billableWeightJustification: '',
+  estimatedWeight: 13750,
   title: 'Max billable weight',
   weightAllowance: 8000,
 };

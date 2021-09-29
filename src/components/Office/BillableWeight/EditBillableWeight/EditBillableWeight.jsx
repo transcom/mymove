@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as Yup from 'yup';
-import { func, number, string } from 'prop-types';
+import { func, number, string, bool } from 'prop-types';
 import { Formik } from 'formik';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
@@ -88,14 +88,15 @@ export default function EditBillableWeight({
   estimatedWeight,
   maxBillableWeight,
   originalWeight,
+  showFieldsInitial,
   title,
   totalBillableWeight,
   weightAllowance,
 }) {
-  const [showEditBtn, setShowEditBtn] = useState(true);
+  const [showFields, setShowFields] = useState(showFieldsInitial);
 
   const toggleEdit = () => {
-    setShowEditBtn(!showEditBtn);
+    setShowFields((show) => !show);
   };
 
   const initialValues = {
@@ -106,7 +107,7 @@ export default function EditBillableWeight({
   return (
     <div className={styles.wrapper}>
       <h4 className={styles.header}>{title}</h4>
-      {showEditBtn ? (
+      {!showFields ? (
         <>
           <span>{billableWeight ? formatWeight(billableWeight) : formatWeight(maxBillableWeight)}</span>
           {billableWeightJustification && (
@@ -199,6 +200,7 @@ EditBillableWeight.propTypes = {
   estimatedWeight: number,
   maxBillableWeight: number,
   originalWeight: number,
+  showFieldsInitial: bool,
   title: string.isRequired,
   totalBillableWeight: number,
   weightAllowance: number,
@@ -206,10 +208,11 @@ EditBillableWeight.propTypes = {
 
 EditBillableWeight.defaultProps = {
   billableWeight: null,
+  billableWeightJustification: '',
   estimatedWeight: null,
+  maxBillableWeight: null,
   originalWeight: null,
+  showFieldsInitial: false,
   totalBillableWeight: null,
   weightAllowance: null,
-  maxBillableWeight: null,
-  billableWeightJustification: '',
 };
