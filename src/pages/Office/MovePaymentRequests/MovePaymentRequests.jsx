@@ -127,10 +127,8 @@ const MovePaymentRequests = ({
 
   const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
   const noBillableWeightIssues =
-    billableWeightsReviewed ||
-    (!maxBillableWeightExceeded &&
-      !anyShipmentOverweight(filteredShipments) &&
-      !anyShipmentMissingWeight(filteredShipments));
+    (billableWeightsReviewed && !maxBillableWeightExceeded) ||
+    (!anyShipmentOverweight(filteredShipments) && !anyShipmentMissingWeight(filteredShipments));
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -144,17 +142,14 @@ const MovePaymentRequests = ({
                     {paymentRequests.length}
                   </Tag>
                 )}
-                {s === 'billable-weights' &&
-                  maxBillableWeightExceeded &&
-                  filteredShipments?.length > 0 &&
-                  !billableWeightsReviewed && (
-                    <Tag
-                      className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
-                      data-testid="maxBillableWeightErrorTag"
-                    >
-                      <FontAwesomeIcon icon="exclamation" />
-                    </Tag>
-                  )}
+                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
+                  <Tag
+                    className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+                    data-testid="maxBillableWeightErrorTag"
+                  >
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
                 {s === 'billable-weights' &&
                   !maxBillableWeightExceeded &&
                   filteredShipments?.length > 0 &&

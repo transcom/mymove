@@ -23,7 +23,7 @@ export default function BillableWeightCard({
       <div className={styles.cardHeader}>
         <div>
           <h2>Billable weights</h2>
-          {totalBillableWeight > maxBillableWeight && !secondaryReviewWeightsBtn && (
+          {totalBillableWeight > maxBillableWeight && (
             <div>
               <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
               <span
