@@ -92,16 +92,6 @@ describe('AllowancesDetailForm', () => {
     expect(screen.getByTestId('proGearWeightSpouseHint')).toHaveTextContent('Max. 500 lbs');
   });
 
-  it('formats days in transit', async () => {
-    render(
-      <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
-      </Formik>,
-    );
-
-    expect(await screen.findByTestId('storageInTransit')).toHaveTextContent('90 days');
-  });
-
   it('renders the pro-gear hints', async () => {
     render(
       <Formik initialValues={initialValues}>

@@ -99,11 +99,12 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Len(sitBalances, 1)
 		pendingSITBalance := sitBalances[0]
 		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
-		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
-		suite.Equal(30, pendingSITBalance.PendingSITDaysInvoiced)
-		suite.Equal(90, pendingSITBalance.TotalSITDaysRemaining)
-		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 		suite.Nil(pendingSITBalance.PreviouslyBilledDays)
+		suite.Equal(30, pendingSITBalance.PendingSITDaysInvoiced)
+		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
+		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
+		suite.Equal(90, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(paymentEndDate.AddDate(0, 0, 91).String(), pendingSITBalance.TotalSITEndDate.String())
 	})
 
 	suite.T().Run("calculates pending destination SIT balance when origin was invoiced previously", func(t *testing.T) {
@@ -199,7 +200,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		})
 
-		destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+		destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
 		ddasit := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				Status:       models.MTOServiceItemStatusApproved,
@@ -260,11 +261,13 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Len(sitBalances, 1)
 		pendingSITBalance := sitBalances[0]
 		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
-		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
-		suite.Equal(60, pendingSITBalance.PendingSITDaysInvoiced)
-		suite.Equal(30, pendingSITBalance.TotalSITDaysRemaining)
-		suite.Equal(destinationPaymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 		suite.Equal(30, *pendingSITBalance.PreviouslyBilledDays)
+		suite.Equal(paymentEndDate.String(), pendingSITBalance.PreviouslyBilledEndDate.String())
+		suite.Equal(60, pendingSITBalance.PendingSITDaysInvoiced)
+		suite.Equal(destinationPaymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
+		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
+		suite.Equal(30, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(destinationPaymentEndDate.AddDate(0, 0, 31).String(), pendingSITBalance.TotalSITEndDate.String())
 	})
 
 	suite.T().Run("ignores including previously denied service items in SIT balance", func(t *testing.T) {

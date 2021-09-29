@@ -4968,6 +4968,11 @@ func init() {
         },
         "totalSITDaysRemaining": {
           "type": "integer"
+        },
+        "totalSITEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         }
       }
     },
@@ -5251,11 +5256,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -11080,6 +11087,11 @@ func init() {
         },
         "totalSITDaysRemaining": {
           "type": "integer"
+        },
+        "totalSITEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         }
       }
     },
@@ -11366,11 +11378,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"

@@ -86,5 +86,5 @@ export function getShipmentModificationType(shipment) {
     return shipmentModificationTypes.DIVERSION;
   }
 
-  return '';
+  return undefined;
 }

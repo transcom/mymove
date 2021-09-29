@@ -24,6 +24,7 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -33,7 +34,12 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount }) => {
+const MoveDetails = ({
+  setUnapprovedShipmentCount,
+  setUnapprovedServiceItemCount,
+  setExcessWeightRiskCount,
+  setUnapprovedSITExtensionCount,
+}) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -122,6 +128,16 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
       setExcessWeightRiskCount(0);
     }
   }, [mtoShipments, setExcessWeightRiskCount, order, move]);
+
+  useEffect(() => {
+    let unapprovedSITExtensionCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
+        unapprovedSITExtensionCount += 1;
+      }
+    });
+    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+  }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -282,6 +298,7 @@ MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
+  setUnapprovedSITExtensionCount: func.isRequired,
 };
 
 export default MoveDetails;

@@ -22,6 +22,12 @@ type PaymentRequestRecalculator interface {
 	RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
 }
 
+// PaymentRequestShipmentRecalculator is the exported interface for recalculating payment requests for a shipment
+//go:generate mockery --name PaymentRequestShipmentRecalculator --disable-version-string
+type PaymentRequestShipmentRecalculator interface {
+	ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.PaymentRequests, error)
+}
+
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery --name PaymentRequestListFetcher --disable-version-string
 type PaymentRequestListFetcher interface {
@@ -78,14 +84,14 @@ type FetchPaymentRequestListParams struct {
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment
 // request
 type ShipmentPaymentSITBalance struct {
-	ShipmentID                uuid.UUID
-	TotalSITDaysAuthorized    int
-	TotalSITDaysRemaining     int
-	PendingSITDaysInvoiced    int
-	PendingBilledEndDate      time.Time
-	PreviouslyBilledDays      *int
-	PreviouslyBilledStartDate *time.Time
-	PreviouslyBilledEndDate   *time.Time
+	ShipmentID              uuid.UUID
+	TotalSITDaysAuthorized  int
+	TotalSITDaysRemaining   int
+	TotalSITEndDate         time.Time
+	PendingSITDaysInvoiced  int
+	PendingBilledEndDate    time.Time
+	PreviouslyBilledDays    *int
+	PreviouslyBilledEndDate *time.Time
 }
 
 // ShipmentsPaymentSITBalance is the exported interface for returning SIT balances for all shipments of a payment

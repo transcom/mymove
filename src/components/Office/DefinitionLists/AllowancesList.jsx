@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+import { formatWeight } from 'shared/formatters';
 import friendlyBranchRank from 'utils/branchRankFormatters';
 
 const AllowancesList = ({ info, showVisualCues }) => {
@@ -27,12 +27,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
         <div className={descriptionListStyles.row}>
           <dt>Authorized weight</dt>
           <dd data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</dd>
-        </div>
-        <div className={descriptionListStyles.row}>
-          <dt>Storage in transit</dt>
-          <dd data-testid="storageInTransit">
-            {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
-          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Dependents</dt>

@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"testing"
 	"time"
@@ -29,16 +30,19 @@ const (
 	recalculateTestCSFee                = unit.Cents(22399)
 	recalculateTestDLHPrice             = unit.Millicents(6000)
 	recalculateTestFSCPrice             = unit.Millicents(277600)
+	recalculateTestDomOtherPrice        = unit.Cents(2159)
+	recalculateTestDomServiceAreaPrice  = unit.Cents(2359)
 	recalculateTestEstimatedWeight      = unit.Pound(3500)
 	recalculateTestOriginalWeight       = unit.Pound(3652)
 	recalculateTestNewOriginalWeight    = unit.Pound(3412)
 	recalculateTestEscalationCompounded = 1.04071
 	recalculateTestZip3Distance         = 1234
+	recalculateNumProofOfServiceDocs    = 2
 )
 
 func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
-	move, paymentRequestArg := suite.setupRecalculateData()
+	move, paymentRequestArg := suite.setupRecalculateData1()
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
@@ -52,13 +56,15 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
-	// Add a couple of proof of service docs and prime uploads.
-	for i := 0; i < 2; i++ {
+	// Add a few proof of service docs and prime uploads.
+	var oldProofOfServiceDocIDs []string
+	for i := 0; i < recalculateNumProofOfServiceDocs; i++ {
 		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
 			ProofOfServiceDoc: models.ProofOfServiceDoc{
 				PaymentRequestID: paymentRequest.ID,
 			},
 		})
+		oldProofOfServiceDocIDs = append(oldProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
 		contractor := testdatagen.MakeDefaultContractor(suite.DB())
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
@@ -74,6 +80,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			},
 		})
 	}
+	sort.Strings(oldProofOfServiceDocIDs)
 
 	// Adjust shipment's original weight to force different pricing on a recalculation.
 	mtoShipment := move.MTOShipments[0]
@@ -87,7 +94,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
-	// Fetch the old payment request again -- status should have changed and it should also
+	// Fetch the old payment request again -- status should have changed and it should no longer
 	// have proof of service docs now.  Need to eager fetch some related data to use in test
 	// assertions below.
 	var oldPaymentRequest models.PaymentRequest
@@ -95,7 +102,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		EagerPreload(
 			"PaymentServiceItems.MTOServiceItem.ReService",
 			"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-			"ProofOfServiceDocs.PrimeUploads",
+			"ProofOfServiceDocs",
 		).
 		Find(&oldPaymentRequest, paymentRequest.ID)
 	suite.FatalNoError(err)
@@ -230,29 +237,18 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		suite.Truef(foundService, "Could not find service code %s (%s)", servicePriceParam.serviceCode, label)
 	}
 
-	// Check the proof of service docs to make sure they have the same core data
-	suite.Len(oldPaymentRequest.ProofOfServiceDocs, 2)
-	if suite.Equal(len(oldPaymentRequest.ProofOfServiceDocs), len(newPaymentRequest.ProofOfServiceDocs), "Both payment requests should have same number of proof of service docs") {
-		for i := 0; i < len(oldPaymentRequest.ProofOfServiceDocs); i++ {
-			suite.Equal(newPaymentRequest.ID, newPaymentRequest.ProofOfServiceDocs[i].PaymentRequestID, "Proof of service doc should point to the new payment request ID")
+	// Check the proof of service docs; old payment request should have no proof of service docs now; new payment
+	// request should have all the old payment request's proof of service docs.
+	suite.Len(oldPaymentRequest.ProofOfServiceDocs, 0)
+	var newProofOfServiceDocIDs []string
+	if suite.Len(newPaymentRequest.ProofOfServiceDocs, recalculateNumProofOfServiceDocs) {
+		for _, proofOfServiceDoc := range newPaymentRequest.ProofOfServiceDocs {
+			suite.Equal(newPaymentRequest.ID, proofOfServiceDoc.PaymentRequestID, "Proof of service doc should point to the new payment request ID")
+			newProofOfServiceDocIDs = append(newProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
 		}
 	}
-	oldUploadIDs := make(map[uuid.UUID]int)
-	for _, proofOfServiceDoc := range oldPaymentRequest.ProofOfServiceDocs {
-		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
-			count := oldUploadIDs[primeUpload.UploadID]
-			oldUploadIDs[primeUpload.UploadID] = count + 1
-		}
-	}
-	newUploadIDs := make(map[uuid.UUID]int)
-	for _, proofOfServiceDoc := range newPaymentRequest.ProofOfServiceDocs {
-		for _, primeUpload := range proofOfServiceDoc.PrimeUploads {
-			count := newUploadIDs[primeUpload.UploadID]
-			newUploadIDs[primeUpload.UploadID] = count + 1
-		}
-	}
-	suite.Len(oldUploadIDs, 4)
-	suite.Equal(oldUploadIDs, newUploadIDs, "Referenced UploadIDs are not the same")
+	sort.Strings(newProofOfServiceDocIDs)
+	suite.Equal(oldProofOfServiceDocIDs, newProofOfServiceDocIDs, "Proof of service doc IDs differ, but should be the same")
 
 	// Make sure the links between payment requests are set up properly.
 	suite.Nil(oldPaymentRequest.RecalculationOfPaymentRequestID, "Old payment request should have nil link")
@@ -339,7 +335,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	})
 }
 
-func (suite *PaymentRequestServiceSuite) setupRecalculateData() (models.Move, models.PaymentRequest) {
+func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, models.PaymentRequest) {
 	// Pickup/destination addresses
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -437,6 +433,68 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData() (models.Move, mo
 		FuelPriceInMillicents: recalculateTestFSCPrice,
 	}
 	suite.MustSave(&ghcDieselFuelPrice)
+
+	//  Domestic Origin Price Service
+	domOriginPriceService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+	})
+
+	domServiceAreaPrice := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractYear.Contract.ID,
+		ServiceID:             domOriginPriceService.ID,
+		IsPeakPeriod:          false,
+		Contract:              contractYear.Contract,
+		DomesticServiceAreaID: serviceArea.ID,
+		DomesticServiceArea:   serviceArea,
+		PriceCents:            recalculateTestDomServiceAreaPrice,
+		Service:               domOriginPriceService,
+	}
+	suite.MustSave(&domServiceAreaPrice)
+
+	// Domestic Pack
+	dpkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+	})
+
+	// Domestic Other Price
+	domOtherPriceDPK := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		ServiceID:    dpkService.ID,
+		IsPeakPeriod: false,
+		Schedule:     2,
+		PriceCents:   recalculateTestDomOtherPrice,
+		Contract:     contractYear.Contract,
+		Service:      dpkService,
+	}
+	suite.MustSave(&domOtherPriceDPK)
+
+	// Build up a payment request with service item references for creating a payment request.
+	paymentRequestArg := models.PaymentRequest{
+		MoveTaskOrderID:     moveTaskOrder.ID,
+		IsFinal:             false,
+		PaymentServiceItems: models.PaymentServiceItems{},
+	}
+	for _, mtoServiceItem := range mtoServiceItems {
+		newPaymentServiceItem := models.PaymentServiceItem{
+			MTOServiceItemID: mtoServiceItem.ID,
+			MTOServiceItem:   mtoServiceItem,
+		}
+		paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, newPaymentServiceItem)
+	}
+
+	return moveTaskOrder, paymentRequestArg
+}
+
+func (suite *PaymentRequestServiceSuite) setupRecalculateData2(move models.Move, shipment models.MTOShipment) (models.Move, models.PaymentRequest) {
+
+	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullOriginMTOServiceItems(suite.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+	})
 
 	// Build up a payment request with service item references for creating a payment request.
 	paymentRequestArg := models.PaymentRequest{

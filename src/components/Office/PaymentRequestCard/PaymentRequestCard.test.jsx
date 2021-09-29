@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -166,6 +167,34 @@ describe('PaymentRequestCard', () => {
 
       expect(showRequestDetailsButton.length).toBe(0);
       expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
+    });
+
+    it('renders review payment request button disabled when shipment and/or move has billable weight issues', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+      const reviewButton = screen.getByRole('button', { name: 'Review service items' });
+      expect(reviewButton).toHaveAttribute('disabled', '');
+    });
+
+    it('does not render the review payment request button disabled when shipment and/or move has no billable weight issues', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues={false}
+          />
+        </MockProviders>,
+      );
+      const reviewButton = screen.getByRole('button', { name: 'Review service items' });
+      expect(reviewButton).not.toHaveAttribute('disabled', '');
     });
   });
 

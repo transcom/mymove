@@ -47,6 +47,7 @@ import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -81,10 +82,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
+  const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount, setMessage } = props;
+  const {
+    setUnapprovedShipmentCount,
+    setUnapprovedServiceItemCount,
+    setExcessWeightRiskCount,
+    setMessage,
+    setUnapprovedSITExtensionCount,
+  } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
@@ -395,6 +403,23 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     };
   }, [sections, activeSection]);
 
+  useEffect(() => {
+    let unapprovedSITExtensionCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
+        unapprovedSITExtensionCount += 1;
+        unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
+        setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
+      }
+    });
+    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+  }, [
+    mtoShipments,
+    setUnapprovedSITExtensionCount,
+    setUnApprovedSITExtensionForShipment,
+    unapprovedSITExtensionForShipment,
+  ]);
+
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
@@ -453,8 +478,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             return (
               <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
-                {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
-                  <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
+                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
+                  <Tag>
+                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                  </Tag>
                 )}
               </a>
             );
@@ -617,6 +645,7 @@ MoveTaskOrder.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
+  setUnapprovedSITExtensionCount: func.isRequired,
 };
 
 const mapDispatchToProps = {
