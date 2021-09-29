@@ -11,6 +11,8 @@ const MaskedTextField = ({
   label,
   labelClassName,
   formGroupClassName,
+  inputClassName,
+  errorClassName,
   id,
   name,
   labelHint,
@@ -20,6 +22,9 @@ const MaskedTextField = ({
   lazy,
   warning,
   validate,
+  children,
+  type,
+  inputTestId,
   ...props
 }) => {
   const [field, meta, helpers] = useField({ id, name, validate, ...props });
@@ -30,17 +35,19 @@ const MaskedTextField = ({
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
-      <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
+      <ErrorMessage display={hasError} className={errorClassName}>
+        {meta.error}
+      </ErrorMessage>
       {!!warning && !hasError && (
         <p className="usa-hint" data-testid="textInputWarning">
           {warning}
         </p>
       )}
-
       {/* eslint-disable react/jsx-props-no-spreading */}
       <IMaskInput
-        className="usa-input"
-        type="text"
+        className={classnames('usa-input', inputClassName)}
+        data-testid={inputTestId}
+        type={type}
         id={id}
         name={name}
         value={value ?? defaultValue}
@@ -54,36 +61,48 @@ const MaskedTextField = ({
         }}
         {...props}
       />
+      {children}
       {/* eslint-enable react/jsx-props-no-spreading */}
     </FormGroup>
   );
 };
 
 MaskedTextField.propTypes = {
+  blocks: PropTypes.oneOfType([PropTypes.object]),
+  children: PropTypes.node,
+  defaultValue: PropTypes.string,
+  errorClassName: PropTypes.string,
   formGroupClassName: PropTypes.string,
+  id: PropTypes.string.isRequired,
+  inputClassName: PropTypes.string,
+  label: PropTypes.string,
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  defaultValue: PropTypes.string,
-  mask: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
-  warning: PropTypes.string,
+  mask: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
   validate: PropTypes.func,
+  warning: PropTypes.string,
+  inputTestId: PropTypes.string,
 };
 
 MaskedTextField.defaultProps = {
-  labelHint: '',
-  labelClassName: '',
-  formGroupClassName: '',
-  defaultValue: '',
-  mask: '',
   blocks: {},
+  children: null,
+  defaultValue: '',
+  errorClassName: '',
+  formGroupClassName: '',
+  inputClassName: '',
+  label: '',
+  labelClassName: '',
+  labelHint: '',
   lazy: true, // make placeholder not visible
-  warning: '',
+  mask: '',
+  type: 'text',
   validate: undefined,
+  warning: '',
+  inputTestId: '',
 };
 
 export default MaskedTextField;

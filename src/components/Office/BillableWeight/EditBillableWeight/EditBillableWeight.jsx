@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { func, number, string } from 'prop-types';
+import * as Yup from 'yup';
+import { func, number, string, bool } from 'prop-types';
 import { Formik } from 'formik';
-import { Button, TextInput, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditBillableWeight.module.scss';
 
+import { ErrorMessage } from 'components/form/ErrorMessage';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 import { formatWeight } from 'shared/formatters';
 
 function BillableWeightHintText({
@@ -73,6 +76,11 @@ MaxBillableWeightHintText.defaultProps = {
   estimatedWeight: null,
   weightAllowance: null,
 };
+
+const validationSchema = Yup.object({
+  billableWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+  billableWeightJustification: Yup.string().required('Required'),
+});
 export default function EditBillableWeight({
   billableWeight,
   billableWeightJustification,
@@ -80,25 +88,26 @@ export default function EditBillableWeight({
   estimatedWeight,
   maxBillableWeight,
   originalWeight,
+  showFieldsInitial,
   title,
   totalBillableWeight,
   weightAllowance,
 }) {
-  const [showEditBtn, setShowEditBtn] = useState(true);
+  const [showFields, setShowFields] = useState(showFieldsInitial);
 
   const toggleEdit = () => {
-    setShowEditBtn(!showEditBtn);
+    setShowFields((show) => !show);
   };
 
   const initialValues = {
-    billableWeight: maxBillableWeight || billableWeight,
+    billableWeight: (maxBillableWeight && String(maxBillableWeight)) || (billableWeight && String(billableWeight)), // Formik is expecting these weights as a string
     billableWeightJustification,
   };
 
   return (
     <div className={styles.wrapper}>
       <h4 className={styles.header}>{title}</h4>
-      {showEditBtn ? (
+      {!showFields ? (
         <>
           <span>{billableWeight ? formatWeight(billableWeight) : formatWeight(maxBillableWeight)}</span>
           {billableWeightJustification && (
@@ -112,8 +121,8 @@ export default function EditBillableWeight({
           </Button>
         </>
       ) : (
-        <Formik initialValues={initialValues}>
-          {({ handleChange, values }) => (
+        <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema}>
+          {({ handleChange, values, isValid, errors, touched, setTouched }) => (
             <div className={styles.container}>
               {billableWeight ? (
                 <BillableWeightHintText
@@ -127,26 +136,51 @@ export default function EditBillableWeight({
                 <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
               )}
               <Fieldset className={styles.fieldset}>
-                <TextInput
-                  className={styles.maxBillableWeight}
+                <MaskedTextField
+                  defaultValue="0"
+                  inputClassName={styles.maxBillableWeight}
+                  inputTestId="textInput"
+                  errorClassName={styles.errorMessage}
+                  labelClassName={styles.label}
                   id="billableWeight"
-                  onChange={handleChange}
-                  type="number"
-                  value={values.billableWeight}
-                />{' '}
-                lbs
+                  lazy={false} // immediate masking evaluation
+                  mask={Number}
+                  name="billableWeight"
+                  scale={0} // digits after point, 0 for integers
+                  signed={false} // disallow negative
+                  thousandsSeparator=","
+                >
+                  {' '}
+                  lbs
+                </MaskedTextField>
                 <Label htmlFor="remarks">Remarks</Label>
-                <Textarea
-                  data-testid="remarks"
-                  id="billableWeightJustification"
-                  maxLength={500}
-                  onChange={handleChange}
-                  placeholder=""
-                  value={values.billableWeightJustification}
-                />
+                <ErrorMessage
+                  className={styles.errorMessage}
+                  display={!!touched.billableWeightJustification && !!errors.billableWeightJustification}
+                >
+                  {errors.billableWeightJustification}
+                </ErrorMessage>
+                <div
+                  className={
+                    !!touched.billableWeightJustification && !!errors.billableWeightJustification
+                      ? 'usa-form-group--error'
+                      : ''
+                  }
+                >
+                  <Textarea
+                    data-testid="remarks"
+                    id="billableWeightJustification"
+                    maxLength={500}
+                    onChange={handleChange}
+                    placeholder=""
+                    onBlur={() => setTouched({ billableWeightJustification: true }, false)}
+                    value={values.billableWeightJustification}
+                  />
+                </div>
               </Fieldset>
               <div className={styles.btnContainer}>
                 <Button
+                  disabled={!isValid}
                   onClick={() => {
                     editEntity({
                       ...initialValues,
@@ -176,6 +210,7 @@ EditBillableWeight.propTypes = {
   estimatedWeight: number,
   maxBillableWeight: number,
   originalWeight: number,
+  showFieldsInitial: bool,
   title: string.isRequired,
   totalBillableWeight: number,
   weightAllowance: number,
@@ -183,10 +218,11 @@ EditBillableWeight.propTypes = {
 
 EditBillableWeight.defaultProps = {
   billableWeight: null,
+  billableWeightJustification: '',
   estimatedWeight: null,
+  maxBillableWeight: null,
   originalWeight: null,
+  showFieldsInitial: false,
   totalBillableWeight: null,
   weightAllowance: null,
-  maxBillableWeight: null,
-  billableWeightJustification: '',
 };
