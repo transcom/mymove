@@ -39,6 +39,7 @@ import {
   updateMTOShipmentStatus,
   approveSITExtension,
   denySITExtension,
+  submitSITExtension,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -76,6 +77,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+  const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -258,6 +260,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateSubmitSITExtension] = useMutation(submitSITExtension, {
+    onSuccess: (data, variables) => {
+      setIsSuccessAlertVisible(true);
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
@@ -274,6 +290,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         body: { officeRemarks: formValues.officeRemarks },
       });
     }
+  };
+
+  const handleSubmitSITExtension = (formValues, shipment) => {
+    mutateSubmitSITExtension({
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body: {
+        requestReason: formValues.requestReason,
+        officeRemarks: formValues.officeRemarks,
+        approvedDays: parseInt(formValues.daysApproved, 10),
+      },
+    });
   };
 
   const handleDivertShipment = (mtoShipmentID, eTag) => {
@@ -501,6 +529,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               </span>
             </Alert>
           )}
+          {isSuccessAlertVisible && (
+            <Alert slim type="success">
+              Your changes were saved
+            </Alert>
+          )}
+
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
@@ -602,9 +636,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   order={order}
                   handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
-                  handleReviewSITExtension={(sitExtensionID, formValues) => {
-                    handleReviewSITExtension(sitExtensionID, formValues, mtoShipment);
-                  }}
+                  handleReviewSITExtension={handleReviewSITExtension}
+                  handleSubmitSITExtension={handleSubmitSITExtension}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable

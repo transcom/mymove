@@ -14,6 +14,7 @@ const ShipmentDetails = ({
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
+  handleSubmitSITExtension,
 }) => {
   const { originDutyStation, destinationDutyStation, entitlement } = order;
   return (
@@ -29,6 +30,7 @@ const ShipmentDetails = ({
           destinationDutyStationAddress: destinationDutyStation?.address,
         }}
         handleReviewSITExtension={handleReviewSITExtension}
+        handleSubmitSITExtension={handleSubmitSITExtension}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -45,6 +47,7 @@ ShipmentDetails.propTypes = {
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
+  handleSubmitSITExtension: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

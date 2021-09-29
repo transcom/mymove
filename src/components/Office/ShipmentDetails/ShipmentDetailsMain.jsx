@@ -17,6 +17,7 @@ const ShipmentDetailsMain = ({
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
+  handleSubmitSITExtension,
 }) => {
   const {
     requestedPickupDate,
@@ -42,6 +43,7 @@ const ShipmentDetailsMain = ({
           storageInTransit={storageInTransit}
           shipment={shipment}
           handleReviewSITExtension={handleReviewSITExtension}
+          handleSubmitSITExtension={handleSubmitSITExtension}
         />
       )}
       <ImportantShipmentDates
@@ -83,6 +85,7 @@ ShipmentDetailsMain.propTypes = {
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
+  handleSubmitSITExtension: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {
