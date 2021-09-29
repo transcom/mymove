@@ -59,7 +59,7 @@ function MaxBillableWeightHintText({ weightAllowance, estimatedWeight }) {
         <strong data-testid="maxWeight-weightAllowance">{formatWeight(weightAllowance)}</strong>{' '}
         <span>| weight allowance</span>
       </div>
-      {!Number.isNaN(estimatedWeight) && (
+      {!Number.isNaN(estimatedWeight) && estimatedWeight && (
         <div className={styles.hintText}>
           <strong data-testid="maxWeight-estimatedWeight">{formatWeight(estimatedWeight * 1.1)}</strong>{' '}
           <span>| 110% of total estimated weight</span>

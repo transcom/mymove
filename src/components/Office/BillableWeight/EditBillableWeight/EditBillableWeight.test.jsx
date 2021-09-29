@@ -61,6 +61,21 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
   });
 
+  it('should not show the 110% of total estimated weight hint text if the estimated weight is missing', () => {
+    const defaultProps = {
+      title: 'Max billable weight',
+      weightAllowance: 8000,
+      maxBillableWeight: 10000,
+      editEntity: () => {},
+    };
+
+    render(<EditBillableWeight {...defaultProps} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+    expect(screen.getByText('| weight allowance')).toBeInTheDocument();
+    expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
+  });
+
   it('renders edit billable weight view', () => {
     const defaultProps = {
       title: 'Billable weight',
