@@ -224,7 +224,7 @@ const ServiceItemCard = ({
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
                   {isAdditionalDaySIT(mtoServiceItemCode) && (
                     <>
-                      <dt className={styles.daysInSIT}>Days in SIT</dt>
+                      <dt className={styles.daysInSIT}>SIT days invoiced</dt>
                       <dd>
                         <DaysInSITAllowance
                           className={styles.daysInSITDetails}
