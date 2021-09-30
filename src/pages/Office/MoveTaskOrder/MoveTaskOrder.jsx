@@ -50,6 +50,10 @@ import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
+const nonShipmentSectionLabels = {
+  'move-weights': 'Move weights',
+};
+
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
     return '';
@@ -82,6 +86,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
+  const [nonShipmentSections, setNonShipmentSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
@@ -379,6 +384,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
+    setNonShipmentSections(['move-weights'] || []);
+  }, []);
+
+  useEffect(() => {
     const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
       if (showShipmentFilter(shipment)) {
         previous.push({
@@ -501,6 +510,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
+          {nonShipmentSections.map((s) => {
+            return (
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                {nonShipmentSectionLabels[`${s}`]}
+              </a>
+            );
+          })}
           {sections.map((s) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
@@ -571,7 +587,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>
-          <div className={moveTaskOrderStyles.weightHeader}>
+          <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
