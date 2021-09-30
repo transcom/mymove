@@ -42,9 +42,7 @@ const (
 // Valid services names
 var services = []string{
 	"app",
-	"app-niprnet",
 	"app-client-tls",
-	"app-client-tls-niprnet",
 	"app-migrations",
 	"app-tasks",
 	"app-webhook-client",
@@ -55,11 +53,9 @@ var services = []string{
 // Services mapped to Entry Points
 // This prevents using an illegal entry point against a service
 var servicesToEntryPoints = map[string][]string{
-	"app":                    {fmt.Sprintf("%s serve", binMilMove)},
-	"app-client-tls":         {fmt.Sprintf("%s serve", binMilMove)},
-	"app-niprnet":            {fmt.Sprintf("%s serve", binMilMove)},
-	"app-client-tls-niprnet": {fmt.Sprintf("%s serve", binMilMove)},
-	"app-migrations":         {fmt.Sprintf("%s migrate", binMilMove)},
+	"app":            {fmt.Sprintf("%s serve", binMilMove)},
+	"app-client-tls": {fmt.Sprintf("%s serve", binMilMove)},
+	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
 	"app-tasks": {
 		fmt.Sprintf("%s connect-to-gex-via-sftp", binMilMoveTasks),
 		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),
@@ -78,11 +74,9 @@ var servicesToEntryPoints = map[string][]string{
 // Services mapped to App Ports
 // This ensures app ports are correct for a service that requires port mappings
 var servicesToAppPorts = map[string]int64{
-	"app":                    int64(8443),
-	"app-niprnet":            int64(8443),
-	"app-client-tls":         int64(9443),
-	"app-client-tls-niprnet": int64(9443),
-	"orders":                 int64(9443),
+	"app":            int64(8443),
+	"app-client-tls": int64(9443),
+	"orders":         int64(9443),
 }
 
 type errInvalidService struct {
