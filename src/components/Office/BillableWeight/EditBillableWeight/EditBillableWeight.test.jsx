@@ -61,21 +61,6 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
   });
 
-  it('should not show the 110% of total estimated weight hint text if the estimated weight is missing', () => {
-    const defaultProps = {
-      title: 'Max billable weight',
-      weightAllowance: 8000,
-      maxBillableWeight: 10000,
-      editEntity: () => {},
-    };
-
-    render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
-    expect(screen.getByText('| weight allowance')).toBeInTheDocument();
-    expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
-  });
-
   it('renders edit billable weight view', () => {
     const defaultProps = {
       title: 'Billable weight',
@@ -101,6 +86,62 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText('| to fit within max billable weight')).toBeInTheDocument();
   });
 
+  describe('hint text for max billable weight', () => {
+    it('should not show the 110% of total estimated weight hint text if the estimated weight is missing', () => {
+      const defaultProps = {
+        title: 'Max billable weight',
+        weightAllowance: 8000,
+        maxBillableWeight: 10000,
+        editEntity: () => {},
+      };
+
+      render(<EditBillableWeight {...defaultProps} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+      expect(screen.getByText('| weight allowance')).toBeInTheDocument();
+      expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('hint text for billable weight', () => {
+    it('should not render the 110% of total estimated weight hint text if the billable weight is less than the estimated weight * 110%', () => {
+      const defaultProps = {
+        title: 'Billable weight',
+        originalWeight: 10000,
+        estimatedWeight: 13000,
+        maxBillableWeight: 6000,
+        billableWeight: 14000,
+        totalBillableWeight: 11000,
+        editEntity: () => {},
+      };
+
+      render(<EditBillableWeight {...defaultProps} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      expect(screen.queryByText(formatWeight(defaultProps.estimatedWeight * 1.1))).not.toBeInTheDocument();
+      expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
+    });
+
+    it('should not render the to fit within max billable weight hint text if the billable weight is less than the max billable weight and less than the estimated weight * 110%', () => {
+      const defaultProps = {
+        title: 'Billable weight',
+        originalWeight: 10000,
+        estimatedWeight: 13000,
+        maxBillableWeight: 6000,
+        billableWeight: 12000,
+        totalBillableWeight: 11000,
+        editEntity: () => {},
+      };
+
+      render(<EditBillableWeight {...defaultProps} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      expect(
+        screen.queryByText(
+          formatWeight(defaultProps.maxBillableWeight - defaultProps.totalBillableWeight + defaultProps.billableWeight),
+        ),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('| to fit within max billable weight')).not.toBeInTheDocument();
+    });
+  });
   it('clicking edit button shows different view', () => {
     const defaultProps = {
       title: 'Max billable weight',
