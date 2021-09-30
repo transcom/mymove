@@ -18,6 +18,8 @@ function BillableWeightHintText({
   totalBillableWeight,
 }) {
   const showToFit = billableWeight > maxBillableWeight && billableWeight < estimatedWeight * 1.1;
+  // the to fit value is the max billable weight minus the total billable weight, excludes the shipment currently in view
+  const toFitValue = maxBillableWeight - totalBillableWeight + billableWeight;
 
   return (
     <>
@@ -29,8 +31,7 @@ function BillableWeightHintText({
       </div>
       {showToFit && (
         <div className={styles.hintText}>
-          <strong>{formatWeight(maxBillableWeight - totalBillableWeight)}</strong>{' '}
-          <span>| to fit within max billable weight</span>
+          <strong>{formatWeight(toFitValue)}</strong> <span>| to fit within max billable weight</span>
         </div>
       )}
     </>
