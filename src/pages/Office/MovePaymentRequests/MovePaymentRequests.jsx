@@ -19,7 +19,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
@@ -43,6 +43,7 @@ const MovePaymentRequests = ({
   const history = useHistory();
 
   const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const { move } = useMoveDetailsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
@@ -90,7 +91,7 @@ const MovePaymentRequests = ({
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
-  const billableWeightsReviewed = useLocation().state?.from === 'review-billable-weights';
+  const billableWeightsReviewed = move.billableWeightsReviewedAt;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
