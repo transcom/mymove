@@ -69,6 +69,10 @@ const customStyles = {
   placeholder: () => ({
     color: uswdsBlack,
   }),
+  valueContainer: (provided) => ({
+    ...provided,
+    display: 'flex',
+  }),
 };
 
 export const DutyStationSearchBoxComponent = (props) => {
