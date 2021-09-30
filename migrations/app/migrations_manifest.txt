@@ -670,3 +670,4 @@
 20210917011433_add_default_sit_days_allowance_to_existing_hhg_shipments.up.sql
 20210923180711_fix_shuttle_params.up.sql
 20210925020348_add_prime_simulator_role.up.sql
+20210930202639_remove_sandy_and_lynzt_cac_access.up.sql
