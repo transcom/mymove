@@ -7,22 +7,34 @@
     justify-content: space-between;
     // for now, to counteract top margin on table below it. When more content gets added below here, this might need to be changed
     margin-bottom: -1rem;
+    @include u-margin-left(1);
+
     button {
       padding-right: 0px;
     }
     span {
       margin-left: 0.5rem !important;
     }
+    .submitSITEXtensionLink {
+      @include u-margin-right(2);
+    }
   }
 
-  p {
+  > p {
     @include u-margin-left(1);
+    @include u-font-weight('bold');
   }
+
   td {
     vertical-align: top;
 
     div {
       display: flex;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 0;
     }
 
     dl {

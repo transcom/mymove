@@ -42,6 +42,22 @@ const needsReviewServiceItemCard = {
   patchPaymentServiceItem: jest.fn(),
 };
 
+const additionalDaySITServiceItemCard = {
+  ...needsReviewServiceItemCard,
+  mtoServiceItemName: serviceItemCodes.DOASIT,
+  mtoServiceItemCode: 'DOASIT',
+  paymentServiceItemParams: testParams.DomesticOriginAdditionalSIT,
+  shipmentSITBalance: {
+    previouslyBilledDays: 30,
+    previouslyBilledEndDate: '2021-06-08',
+    pendingSITDaysInvoiced: 60,
+    pendingBilledEndDate: '2021-08-08',
+    totalSITDaysAuthorized: 120,
+    totalSITDaysRemaining: 30,
+    totalSITEndDate: '2021-09-08',
+  },
+};
+
 const reviewedServiceItemCard = {
   ...needsReviewServiceItemCard,
   requestComplete: true,
@@ -152,6 +168,12 @@ describe('ServiceItemCard component', () => {
         expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
       });
     });
+
+    it('displays the Days In SIT information for additional day service items', () => {
+      render(<ServiceItemCard {...additionalDaySITServiceItemCard} />);
+      expect(screen.getByText('SIT days invoiced')).toBeInTheDocument();
+      expect(screen.getByTestId('DaysInSITAllowance')).toBeInTheDocument();
+    });
   });
 
   describe('when payment request has been reviewed', () => {
@@ -180,6 +202,14 @@ describe('ServiceItemCard component', () => {
     it('does not render calculations toggle when the service item calculations are not implemented', () => {
       const component = mount(<ServiceItemCard {...reviewedBasicServiceItemCard} />);
       expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
+    });
+
+    it('does not display days in SIT info for additional day service items', () => {
+      const reviewedDOASIT = { ...additionalDaySITServiceItemCard, requestComplete: true };
+
+      render(<ServiceItemCard {...reviewedDOASIT} />);
+      expect(screen.queryByText('SIT days invoiced')).not.toBeInTheDocument();
+      expect(screen.queryByText('DaysInSITAllowance')).not.toBeInTheDocument();
     });
   });
 

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/notifications"
-
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -17,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -35,14 +34,15 @@ type UpdateMTOShipmentQueryBuilder interface {
 type mtoShipmentUpdater struct {
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner     route.Planner
-	moveRouter  services.MoveRouter
-	moveWeights services.MoveWeights
-	sender      notifications.NotificationSender
+	planner      route.Planner
+	moveRouter   services.MoveRouter
+	moveWeights  services.MoveWeights
+	sender       notifications.NotificationSender
+	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -50,6 +50,7 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher servic
 		moveRouter,
 		moveWeights,
 		sender,
+		recalculator,
 	}
 }
 
@@ -453,6 +454,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
+		// this shipment
+		runShipmentRecalculate := false
+		if newShipment.BillableWeightCap != nil {
+			// new billable cap has a value and it is not the same as the previous value
+			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
+				runShipmentRecalculate = true
+			}
+		} else if dbShipment.BillableWeightCap != nil {
+			// setting the billable cap back to nil (where previously it wasn't)
+			runShipmentRecalculate = true
+		}
+
 		// A diverted shipment gets set to the SUBMITTED status automatically:
 		if !dbShipment.Diversion && newShipment.Diversion {
 			newShipment.Status = models.MTOShipmentStatusSubmitted
@@ -479,9 +493,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		//
+		// Save all of the updated values from newShipment (MTOShipment) in raw query call to the database
+		//
+
+		// Generate query to update all mto_shipments columns
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		// Generate slice of column values to be used for the update from the MTOShipment model
 		params := generateMTOShipmentParams(*newShipment)
 
+		// Execute query to update all mto_shipments columns with values from MTOShipment
 		if err := txnAppCtx.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
@@ -490,6 +511,20 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// if err := tx.Update(newShipment); err != nil {
 		// 	return err
 		// }
+
+		//
+		// Perform shipment recalculate payment request
+		//
+		if runShipmentRecalculate {
+			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
+			if err != nil {
+				return err
+			}
+		}
+
+		//
+		// Done with updates to shipment
+		//
 		return nil
 	})
 

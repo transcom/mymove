@@ -14,8 +14,9 @@ const ShipmentDetails = ({
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
+  handleSubmitSITExtension,
 }) => {
-  const { originDutyStation, destinationDutyStation } = order;
+  const { originDutyStation, destinationDutyStation, entitlement } = order;
   return (
     <div className={styles.ShipmentDetails}>
       <ShipmentDetailsMain
@@ -23,11 +24,13 @@ const ShipmentDetails = ({
         handleDivertShipment={handleDivertShipment}
         handleRequestReweighModal={handleRequestReweighModal}
         shipment={shipment}
+        entitilement={entitlement}
         dutyStationAddresses={{
           originDutyStationAddress: originDutyStation?.address,
           destinationDutyStationAddress: destinationDutyStation?.address,
         }}
         handleReviewSITExtension={handleReviewSITExtension}
+        handleSubmitSITExtension={handleSubmitSITExtension}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -44,6 +47,7 @@ ShipmentDetails.propTypes = {
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
+  handleSubmitSITExtension: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

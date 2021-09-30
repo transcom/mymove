@@ -39,6 +39,7 @@ import {
   updateMTOShipmentStatus,
   approveSITExtension,
   denySITExtension,
+  submitSITExtension,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -47,6 +48,7 @@ import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -75,16 +77,24 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+  const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
+  const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount, setMessage } = props;
+  const {
+    setUnapprovedShipmentCount,
+    setUnapprovedServiceItemCount,
+    setExcessWeightRiskCount,
+    setMessage,
+    setUnapprovedSITExtensionCount,
+  } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
@@ -250,6 +260,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateSubmitSITExtension] = useMutation(submitSITExtension, {
+    onSuccess: (data, variables) => {
+      setIsSuccessAlertVisible(true);
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
@@ -266,6 +290,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         body: { officeRemarks: formValues.officeRemarks },
       });
     }
+  };
+
+  const handleSubmitSITExtension = (formValues, shipment) => {
+    mutateSubmitSITExtension({
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body: {
+        requestReason: formValues.requestReason,
+        officeRemarks: formValues.officeRemarks,
+        approvedDays: parseInt(formValues.daysApproved, 10),
+      },
+    });
   };
 
   const handleDivertShipment = (mtoShipmentID, eTag) => {
@@ -395,6 +431,23 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     };
   }, [sections, activeSection]);
 
+  useEffect(() => {
+    let unapprovedSITExtensionCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
+        unapprovedSITExtensionCount += 1;
+        unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
+        setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
+      }
+    });
+    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+  }, [
+    mtoShipments,
+    setUnapprovedSITExtensionCount,
+    setUnApprovedSITExtensionForShipment,
+    unapprovedSITExtensionForShipment,
+  ]);
+
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
@@ -453,8 +506,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             return (
               <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
-                {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
-                  <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
+                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
+                  <Tag>
+                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                  </Tag>
                 )}
               </a>
             );
@@ -473,6 +529,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               </span>
             </Alert>
           )}
+          {isSuccessAlertVisible && (
+            <Alert slim type="success">
+              Your changes were saved
+            </Alert>
+          )}
+
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
@@ -574,9 +636,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   order={order}
                   handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
-                  handleReviewSITExtension={(sitExtensionID, formValues) => {
-                    handleReviewSITExtension(sitExtensionID, formValues, mtoShipment);
-                  }}
+                  handleReviewSITExtension={handleReviewSITExtension}
+                  handleSubmitSITExtension={handleSubmitSITExtension}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
@@ -617,6 +678,7 @@ MoveTaskOrder.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
+  setUnapprovedSITExtensionCount: func.isRequired,
 };
 
 const mapDispatchToProps = {

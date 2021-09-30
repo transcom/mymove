@@ -1136,6 +1136,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
+	SITAllowance := 90
 	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1143,6 +1144,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ActualPickupDate:     &actualPickupDate,
+			SITDaysAllowance:     &SITAllowance,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
@@ -1168,6 +1170,97 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			DestinationAddress:   &shorthaulDestinationAddress,
 			DestinationAddressID: &shorthaulDestinationAddress.ID,
+			SITDaysAllowance:     &SITAllowance,
+		},
+		Move: move,
+	})
+
+	shipmentWithOriginalWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	shipmentWithOriginalAndReweighWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	reweighWeight := unit.Pound(100000)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalAndReweighWeight,
+		Reweigh: models.Reweigh{
+			Weight: &reweighWeight,
+		},
+	})
+
+	shipmentWithOriginalAndReweighWeightReweihBolded := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	// Make the reweigh weight and the estimated weight (original weight) be the same to create devseed
+	// data where we can check that the reweigh weight is bolded.
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalAndReweighWeightReweihBolded,
+		Reweigh: models.Reweigh{
+			Weight: &estimatedWeight,
+		},
+	})
+
+	billableWeightCap := unit.Pound(2000)
+	billableWeightJustification := "Capped shipment"
+	shipmentWithOriginalReweighAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                      models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight:        &estimatedWeight,
+			PrimeActualWeight:           &actualWeight,
+			ShipmentType:                models.MTOShipmentTypeHHG,
+			DestinationAddress:          &shorthaulDestinationAddress,
+			DestinationAddressID:        &shorthaulDestinationAddress.ID,
+			BillableWeightCap:           &billableWeightCap,
+			BillableWeightJustification: &billableWeightJustification,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: shipmentWithOriginalReweighAndAdjustedWeight,
+		Reweigh: models.Reweigh{
+			Weight: &reweighWeight,
+		},
+	})
+
+	shipmentWithOriginalAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                      models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight:        &estimatedWeight,
+			PrimeActualWeight:           &actualWeight,
+			ShipmentType:                models.MTOShipmentTypeHHG,
+			DestinationAddress:          &shorthaulDestinationAddress,
+			DestinationAddressID:        &shorthaulDestinationAddress.ID,
+			BillableWeightCap:           &billableWeightCap,
+			BillableWeightJustification: &billableWeightJustification,
 		},
 		Move: move,
 	})
@@ -1195,10 +1288,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Once()
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Once()
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
@@ -1207,7 +1300,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
+	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Times(7)
+
+	// called for domestic shorthaul service item
+	planner.On("Zip3TransitDistance", "90210", "90211").Return(348, nil).Times(5)
 
 	// called for domestic origin SIT pickup service item
 	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
@@ -1215,7 +1311,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	// called for domestic destination SIT delivery service item
 	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
 
-	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
+	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
@@ -1465,11 +1561,38 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		log.Panic(err)
 	}
 
+	// An origin and destination SIT would normally not be on the same payment request so the TIO totals will appear
+	// off.  Refer to the PARSIT move to see a reviewed and pending payment request with origin and destination SIT.
+	doasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       originEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       originDepartureDate.Format("2006-01-02"),
+		}}
+
+	ddasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       destEntryDate.Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       destDepartureDate.Format("2006-01-02"),
+		}}
+
 	paymentServiceItems := []models.PaymentServiceItem{}
 	for _, serviceItem := range serviceItems {
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+			paymentItem.PaymentServiceItemParams = doasitPaymentParams
+		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
@@ -3615,8 +3738,10 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	move := testdatagen.MakeAvailableMove(db)
-	move.Locator = "REWAYD"
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "REWAYD", models.MoveStatusAPPROVALSREQUESTED)
 	move.TIORemarks = &tioRemarks
 	mustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
@@ -3649,15 +3774,10 @@ func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader
 // creates a mix of shipments statuses with estimated, actual, and reweigh weights for testing the MTO page
 func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	now := time.Now()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:            "WTSTAT",
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &now,
-		},
-		UserUploader: userUploader,
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "WTSTAT", models.MoveStatusAPPROVALSREQUESTED)
 
 	// shipment is not yet approved so will be excluded from MTO weight calculations
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
@@ -3777,44 +3897,14 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 
 func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "multShipments@hhg.hhg"
-	uuidStr := "db5d94fe-ffb9-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "a9c5719e-ffc5-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MultipleShipments"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("5c89c1f8-ffae-11eb-9a03-0242ac130003"),
-			Locator:          "MULTRW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	serviceMember.FirstName = models.StringPointer("MultipleShipments")
+	serviceMember.LastName = models.StringPointer("Reweighs")
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MULTRW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(3000)
@@ -3876,7 +3966,6 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
@@ -3884,44 +3973,12 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 
 func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "missingShipmentReweighWeight@hhg.hhg"
-	uuidStr := "39b0a762-ffe7-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "3fa53fd4-ffe7-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MissingShipmentReweigh"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("44961144-ffe7-11eb-9a03-0242ac130003"),
-			Locator:          "MISHRW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MISHRW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
@@ -3956,7 +4013,6 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("4a1b0048-ffe7-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
@@ -3964,44 +4020,12 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 
 func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "shipmentMaxBillableWeightExceeded@hhg.hhg"
-	uuidStr := "f938fc7c-ffe9-11eb-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "fde54596-ffe9-11eb-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("MaxBillableWeightExceeded"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("02c32c36-ffea-11eb-9a03-0242ac130003"),
-			Locator:          "MAXCED",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MAXCED", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(8900)
@@ -4036,7 +4060,6 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("096496b0-ffea-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
@@ -4044,44 +4067,12 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 
 func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	email := "shipmentHasNoEsimatedWeight@hhg.hhg"
-	uuidStr := "9e4600c6-0147-11ec-9a03-0242ac130003"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smID := "a9efb304-0147-11ec-9a03-0242ac130003"
-	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("NoEstimatedWeight"),
-			LastName:      models.StringPointer("Reweighs"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("c01706b4-0147-11ec-9a03-0242ac130003"),
-			Locator:          "NOESTW",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "NOESTW", models.MoveStatusDRAFT)
+	move.TIORemarks = &tioRemarks
+	move.SelectedMoveType = &hhgMoveType
 
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
@@ -4114,7 +4105,6 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 		log.Panic(err)
 	}
 
-	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("c5c32296-0147-11ec-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
@@ -4730,23 +4720,118 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
-func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
 
+	// manually calculated SIT days including SIT extension approved days
+	sitDaysAllowance := 270
 	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+			Status:           models.MTOShipmentStatusApproved,
+			SITDaysAllowance: &sitDaysAllowance,
 		},
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	// This will in practice not exist without DOFSIT and DOASIT
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &threeMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &threeMonthsAgo,
+			SITDepartureDate: &twoMonthsAgo,
+			SITPostalCode:    &postalCode,
+			Reason:           &reason,
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDASIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status:        models.MTOServiceItemStatusApproved,
+			SITEntryDate:  &twoMonthsAgo,
+			SITPostalCode: &postalCode,
+			Reason:        &reason,
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+		MTOShipment: mtoShipmentSIT,
+		Move:        move,
 	})
 
 	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
-	paymentRequestSIT := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
@@ -4756,37 +4841,6 @@ func createMoveWithSITExtensions(appCtx appcontext.AppContext, userUploader *upl
 		Move: move,
 	})
 
-	serviceItemASIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequestSIT,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
-		},
-	})
-
-	serviceItemBSIT := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequestSIT,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
-		},
-		MTOServiceItem: serviceItemASIT,
-		PaymentRequest: paymentRequestSIT,
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusDenied,
-		},
-		MTOServiceItem: serviceItemBSIT,
-		PaymentRequest: paymentRequestSIT,
-	})
 }
 
 func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4911,7 +4965,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
 	originDepartureDate := originEntryDate.Add(time.Hour * 24 * 30)
 
-	destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+	destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
 	destinationDepartureDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 
 	// First reviewed payment request with 30 days billed for origin SIT
@@ -4966,7 +5020,7 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	// Creates the SIT end date param for existing DOASIT payment request service item
 	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originEntryDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+			Value: originDepartureDate.Format("2006-01-02"),
 		},
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
@@ -5120,16 +5174,21 @@ func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
+	approvedDays := 90
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
 		SITExtension: models.SITExtension{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
+			ApprovedDays:      &approvedDays,
 		},
 		MTOShipment: shipment,
 	})
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
+		SITExtension: models.SITExtension{
+			ApprovedDays: &approvedDays,
+		},
 		MTOShipment: shipment,
 	})
 }

@@ -273,6 +273,19 @@ export function denySITExtension({
   );
 }
 
+export function submitSITExtension({ shipmentID, ifMatchETag, normalize = true, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'shipment.createSITExtensionAsTOO';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
   const operationPath = 'shipment.deleteShipment';
   return makeGHCRequest(
@@ -327,4 +340,8 @@ export async function getPaymentRequestsQueue(
     { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
+}
+
+export async function getShipmentsPaymentSITBalance(key, paymentRequestID) {
+  return makeGHCRequest('paymentRequests.getShipmentsPaymentSITBalance', { paymentRequestID });
 }

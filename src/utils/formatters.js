@@ -45,3 +45,14 @@ export const formatWeightCWTFromLbs = (value) => {
 export const formatDollarFromMillicents = (value) => {
   return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
 };
+
+// Takes an whole number of day value and pluralizes with unit label
+export const formatDaysInTransit = (days) => {
+  if (days) {
+    if (days === 1) {
+      return '1 day';
+    }
+    return `${days} days`;
+  }
+  return '0 days';
+};
