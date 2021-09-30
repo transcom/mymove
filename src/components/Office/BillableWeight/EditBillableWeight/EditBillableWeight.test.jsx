@@ -82,7 +82,7 @@ describe('EditBillableWeight', () => {
       originalWeight: 10000,
       estimatedWeight: 13000,
       maxBillableWeight: 6000,
-      billableWeight: 7000,
+      billableWeight: 14400,
       totalBillableWeight: 11000,
       editEntity: () => {},
     };
