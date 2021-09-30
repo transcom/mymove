@@ -765,12 +765,11 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	h.triggerApproveSITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
+	h.triggerApproveSITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params, logger)
 	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
 }
 
-func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams, logger *zap.Logger) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveSITExtensionEndpointKey,
@@ -834,13 +833,12 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	h.triggerDenySITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params)
+	h.triggerDenySITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params, logger)
 
 	return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
 }
 
-func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams, logger *zap.Logger) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcDenySITExtensionEndpointKey,
