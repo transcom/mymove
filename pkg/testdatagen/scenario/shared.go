@@ -3948,6 +3948,19 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	})
 
+	shipmentForReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         &now,
+			Status:               models.MTOShipmentStatusApproved,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentForReweigh, unit.Pound(1541))
+
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
@@ -3967,8 +3980,8 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
 func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
