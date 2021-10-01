@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Radio, FormGroup, Label, Textarea, Fieldset } from '@trussworks/react-uswds';
 
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
@@ -75,8 +75,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
                 return (
                   <Form>
                     <FormGroup>
-                      <Label>Accept request for extension?</Label>
-                      <div>
+                      <Fieldset legend="Accept request for extension?">
                         <Field
                           as={Radio}
                           label="Yes"
@@ -96,7 +95,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
                           type="radio"
                           onChange={handleNoSelection}
                         />
-                      </div>
+                      </Fieldset>
                     </FormGroup>
                     {values.acceptExtension === 'yes' && (
                       <MaskedTextField

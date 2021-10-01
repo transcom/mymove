@@ -8,6 +8,23 @@
     max-width: 3rem;
   }
 
+  :global .usa-fieldset {
+    @include u-padding-top(0);
+
+    :global(.usa-radio__label:first-of-type) {
+      @include u-margin-top(1);
+    }
+  }
+
+  :global .usa-legend {
+    @include u-font-size('body', '3xs');
+    @include u-font-weight(700);
+  }
+
+  :global(.usa-label), :global(.usa-legend) {
+    color: $base-darker;
+  }
+
   .ModalPanel {
     @include u-border('base-lighter');
     @include u-border('1px');
