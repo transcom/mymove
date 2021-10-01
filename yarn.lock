@@ -8856,6 +8856,14 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
+fakerest@^3.0.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/fakerest/-/fakerest-3.3.0.tgz#81f41d096fd7145825b058ee3d4b9d518f4ed92b"
+  integrity sha512-D1y6a13dh34n738YMztecCX36JRKI5kxPaNVQukXUXvUyK7eANWyB5zczy0SMoMUDXC/ceKfjkgwbc1AYqYYOQ==
+  dependencies:
+    babel-runtime "^6.26.0"
+    lodash "^4.17.21"
+
 fast-deep-equal@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.1.0.tgz#c053477817c86b51daa853c81e059b733d023614"
@@ -16249,6 +16257,13 @@ ra-core@^3.18.2:
     prop-types "^15.6.1"
     query-string "^5.1.1"
     reselect "~3.0.0"
+
+ra-data-fakerest@^3.18.3:
+  version "3.18.3"
+  resolved "https://registry.yarnpkg.com/ra-data-fakerest/-/ra-data-fakerest-3.18.3.tgz#5a22b7348e84d753b38b98d291328dfcc47822b7"
+  integrity sha512-FksclN6vZ6o6BfqoLdH/mwXU/gbvf7CWS/dZ/S68Ga8N/3CAWTpIvXRfquTGZjWd5HowKpbQ0tL8qcqMKXBLug==
+  dependencies:
+    fakerest "^3.0.0"
 
 ra-data-simple-rest@^3.18.2:
   version "3.18.2"

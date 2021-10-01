@@ -78,7 +78,7 @@ ListActions.propTypes = {
     // This will have to be updated if we have any filters besides search added to this page
     search: PropTypes.string,
   }),
-  exporter: PropTypes.func.isRequired,
+  exporter: PropTypes.func,
 };
 
 ListActions.defaultProps = {
@@ -90,6 +90,7 @@ ListActions.defaultProps = {
   basePath: undefined,
   total: null,
   filterValues: {},
+  exporter: () => {},
 };
 
 export default OfficeUserList;

@@ -25,7 +25,7 @@ const MyMove = lazy(() => import('scenes/MyMove'));
 // });
 //
 
-const SystemAdmin = lazy(() => import('scenes/SystemAdmin'));
+const SystemAdmin = lazy(() => import('pages/Admin'));
 
 const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
