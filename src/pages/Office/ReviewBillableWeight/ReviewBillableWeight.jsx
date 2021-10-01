@@ -201,7 +201,7 @@ export default function ReviewBillableWeight() {
                 )}
                 {((!selectedShipment?.reweigh?.weight && selectedShipment?.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
-                  <Alert slim type="warning">
+                  <Alert slim type="warning" data-testid="shipmentMissingInformation">
                     Shipment missing information
                   </Alert>
                 )}

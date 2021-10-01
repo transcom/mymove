@@ -203,12 +203,12 @@ const useNonMaxBillableWeightExceededReturnValue = {
 
 const useMissingShipmentWeightNoReweighReturnValue = {
   order: mockOrders['1'],
-  mtoShipments: [mockHasAllInformationShipment, mockNoReweighWeightShipment],
+  mtoShipments: [mockNoReweighWeightShipment, mockHasAllInformationShipment],
 };
 
 const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
   order: mockOrders['1'],
-  mtoShipments: [mockHasAllInformationShipment, mockNoPrimeEstimatedWeightShipment],
+  mtoShipments: [mockNoPrimeEstimatedWeightShipment, mockHasAllInformationShipment],
 };
 
 const noAlertsReturnValue = {
@@ -544,6 +544,44 @@ describe('ReviewBillableWeight', () => {
       });
     });
 
+    describe('shipment missing information', () => {
+      it('renders the alert when the shipment is missing a reweigh weight', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
+
+        expect(screen.getByTestId('shipmentMissingInformation')).toBeInTheDocument();
+      });
+
+      it('renders the alert when the shipment is missing a prime estimated weight', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
+
+        expect(screen.getByTestId('shipmentMissingInformation')).toBeInTheDocument();
+      });
+
+      it('does not render when the shipment is not missing a reweigh or a prime estimated ewight', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
+
+        expect(screen.queryByTestId('shipmentMissingInformation')).not.toBeInTheDocument();
+      });
+    });
+
     describe('shipment exceeds 110% of estimated weight', () => {
       it('renders the alert when the shipment is overweight - the billable weight is greater than the estimated weight * 110%', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
@@ -551,7 +589,10 @@ describe('ReviewBillableWeight', () => {
 
         render(<ReviewBillableWeight />);
 
-        expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
+
+        expect(screen.getByTestId('shipmentBillableWeightExceeds110OfEstimated')).toBeInTheDocument();
       });
 
       it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', () => {
@@ -559,6 +600,9 @@ describe('ReviewBillableWeight', () => {
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         render(<ReviewBillableWeight />);
+
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
 
         expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
       });
