@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import * as PropTypes from 'prop-types';
+
+import ReviewSITExtensionsModal from '../ReviewSITExtensionModal/ReviewSITExtensionModal';
+import SubmitSITExtensionModal from '../SubmitSITExtensionModal/SubmitSITExtensionModal';
+import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
 
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
@@ -34,16 +38,67 @@ const ShipmentDetailsMain = ({
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
+  const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
+  const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+
+  const reviewSITExtension = (sitExtensionID, formValues) => {
+    setIsReviewSITExtensionModalVisible(false);
+    handleReviewSITExtension(sitExtensionID, formValues, shipment);
+  };
+  const submitSITExtension = (formValues) => {
+    setIsSubmitITExtensionModalVisible(false);
+    handleSubmitSITExtension(formValues, shipment);
+  };
+
+  const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
+
+  const summarySITComponent = useMemo(
+    () => (
+      <ShipmentSITExtensions
+        sitExtensions={sitExtensions}
+        sitStatus={sitStatus}
+        storageInTransit={storageInTransit}
+        shipment={shipment}
+        showReviewSITExtension={setIsReviewSITExtensionModalVisible}
+        showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
+        hideSITExtensionAction
+      />
+    ),
+    [
+      sitExtensions,
+      sitStatus,
+      storageInTransit,
+      shipment,
+      setIsReviewSITExtensionModalVisible,
+      setIsSubmitITExtensionModalVisible,
+    ],
+  );
+
   return (
     <div className={className}>
+      {isReviewSITExtensionModalVisible && (
+        <ReviewSITExtensionsModal
+          onClose={() => setIsReviewSITExtensionModalVisible(false)}
+          onSubmit={reviewSITExtension}
+          sitExtension={pendingSITExtension}
+          summarySITComponent={summarySITComponent}
+        />
+      )}
+      {isSubmitITExtensionModalVisible && (
+        <SubmitSITExtensionModal
+          onClose={() => setIsSubmitITExtensionModalVisible(false)}
+          onSubmit={submitSITExtension}
+          summarySITComponent={summarySITComponent}
+        />
+      )}
       {sitStatus && (
         <ShipmentSITExtensions
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
           storageInTransit={storageInTransit}
           shipment={shipment}
-          handleReviewSITExtension={handleReviewSITExtension}
-          handleSubmitSITExtension={handleSubmitSITExtension}
+          showReviewSITExtension={setIsReviewSITExtensionModalVisible}
+          showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
         />
       )}
       <ImportantShipmentDates

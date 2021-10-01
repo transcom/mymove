@@ -15,7 +15,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 
-const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
+const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITComponent }) => {
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     daysApproved: Yup.number().when('acceptExtension', {
@@ -37,6 +37,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
           <ModalTitle>
             <h2>Review request for extension</h2>
           </ModalTitle>
+          <div>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
             <div className={styles.SITSummary}>
               <div>
@@ -152,5 +153,6 @@ ReviewSITExtensionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   sitExtension: SITExtensionShape.isRequired,
+  summarySITComponent: PropTypes.node.isRequired,
 };
 export default ReviewSITExtensionsModal;
