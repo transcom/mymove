@@ -209,7 +209,7 @@ export default function ReviewBillableWeight() {
                   selectedShipment.primeEstimatedWeight,
                   selectedShipment.calculatedBillableWeight,
                 ) && (
-                  <Alert slim type="warning">
+                  <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
                     Shipment exceeds 110% of estimated weight.
                   </Alert>
                 )}

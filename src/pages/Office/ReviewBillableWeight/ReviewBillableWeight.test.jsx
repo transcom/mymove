@@ -543,5 +543,25 @@ describe('ReviewBillableWeight', () => {
         expect(screen.queryByTestId('maxBillableWeightMissingShipmentWeightAlert')).not.toBeInTheDocument();
       });
     });
+
+    describe('shipment exceeds 110% of estimated weight', () => {
+      it('renders the alert when the shipment is overweight - the billable weight is greater than the estimated weight * 110%', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
+      });
+
+      it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
+      });
+    });
   });
 });
