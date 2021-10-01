@@ -14,7 +14,6 @@ import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
-import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -422,16 +421,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
 
   useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
-
-  useEffect(() => {
     let unapprovedSITExtensionCount = 0;
     mtoShipments?.forEach((mtoShipment) => {
       if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
@@ -502,9 +491,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s.id === activeSection });
+            const classes = classnames({ active: `#s-${s.id}` === activeSection });
             return (
-              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
+              <a
+                key={`sidenav_${s.id}`}
+                href={`#s-${s.id}`}
+                className={classes}
+                onClick={() => setActiveSection(`#s-${s.id}`)}
+              >
                 {s.label}{' '}
                 {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
                   <Tag>
