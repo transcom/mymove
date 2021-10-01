@@ -469,75 +469,79 @@ describe('ReviewBillableWeight', () => {
   });
 
   describe('check that the various alerts show up when expected', () => {
-    it('renders max billable weight alert in shipment view when billable weight is exceeded', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+    describe('max billable weight alert', () => {
+      it('renders in shipment view when billable weight is exceeded', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(<ReviewBillableWeight />);
+        render(<ReviewBillableWeight />);
 
-      userEvent.click(screen.getByText('Edit'));
-      userEvent.click(screen.getByText('Review shipment weights'));
-      expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-    });
+        userEvent.click(screen.getByText('Edit'));
+        userEvent.click(screen.getByText('Review shipment weights'));
+        expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
+      });
 
-    it('renders max billable weight alert in edit view when billable weight is exceeded', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+      it('renders in edit view when billable weight is exceeded', async () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(<ReviewBillableWeight />);
+        render(<ReviewBillableWeight />);
 
-      userEvent.click(screen.getByText('Edit'));
-      expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-    });
+        userEvent.click(screen.getByText('Edit'));
+        expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
+      });
 
-    it('renders missing shipment weights may impact max billable weight when a shipment is missing a reweigh weight', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
+      it('does not render in edit view when billable weight is not exceeded', async () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
-      render(<ReviewBillableWeight />);
+        render(<ReviewBillableWeight />);
 
-      expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
-    });
+        userEvent.click(screen.getByText('Edit'));
+        await waitFor(() => {
+          expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
+        });
+      });
 
-    it('renders missing shipment weights may impact max billable weight when a shipment is missing a prime estimated weight', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
+      it('does not render in shipment view when billable weight is not exceeded', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
-      render(<ReviewBillableWeight />);
+        render(<ReviewBillableWeight />);
 
-      expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
-    });
-
-    it('does not render a missing shipment weights may impact max billable weight when none of the shipments are missing reweigh or prime estimated weight information', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
-
-      render(<ReviewBillableWeight />);
-
-      expect(screen.queryByTestId('maxBillableWeightMissingShipmentWeightAlert')).not.toBeInTheDocument();
-    });
-
-    it('does not render a max billable weight alert in edit view when billable weight is not exceeded', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
-
-      render(<ReviewBillableWeight />);
-
-      userEvent.click(screen.getByText('Edit'));
-      await waitFor(() => {
+        userEvent.click(screen.getByText('Edit'));
+        userEvent.click(screen.getByText('Review shipment weights'));
         expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
       });
     });
 
-    it('does not render a max billable weight alert in shipment view when billable weight is not exceeded', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
+    describe('missing shipment weights may impact max billable weight', () => {
+      it('renders when a shipment is missing a reweigh weight', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
-      render(<ReviewBillableWeight />);
+        render(<ReviewBillableWeight />);
 
-      userEvent.click(screen.getByText('Edit'));
-      userEvent.click(screen.getByText('Review shipment weights'));
-      expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
+        expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
+      });
+
+      it('renders when a shipment is missing a prime estimated weight', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
+      });
+
+      it('does not render when none of the shipments are missing reweigh or prime estimated weight information', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        expect(screen.queryByTestId('maxBillableWeightMissingShipmentWeightAlert')).not.toBeInTheDocument();
+      });
     });
   });
 });
