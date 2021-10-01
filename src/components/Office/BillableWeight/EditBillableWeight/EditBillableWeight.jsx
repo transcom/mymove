@@ -27,7 +27,7 @@ function BillableWeightHintText({
 
   return (
     <>
-      <div>
+      <div className={styles.hintText}>
         <strong>{formatWeight(originalWeight)}</strong> <span>| original weight</span>
       </div>
       {show110OfTotalEstimatedWeight && (
