@@ -7,6 +7,7 @@ import { Button, Tag } from '@trussworks/react-uswds';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 import ReviewSITExtensionsModal from '../ReviewSITExtensionModal/ReviewSITExtensionModal';
+import SubmitSITExtensionModal from '../SubmitSITExtensionModal/SubmitSITExtensionModal';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ShipmentSITExtensions.module.scss';
@@ -19,17 +20,22 @@ import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 
 const ShipmentSITExtensions = (props) => {
-  const { sitExtensions, sitStatus, shipment, handleReviewSITExtension } = props;
+  const { sitExtensions, sitStatus, shipment, handleReviewSITExtension, handleSubmitSITExtension } = props;
   const { totalSITDaysUsed, totalDaysRemaining } = sitStatus;
 
   const [isReviewSITExtensionModalVisible, setisReviewSITExtensionModalVisible] = useState(false);
+  const [isSubmitITExtensionModalVisible, setisSubmitITExtensionModalVisible] = useState(false);
   const reviewSITExtensionSubmit = (sitExtensionID, formValues) => {
     setisReviewSITExtensionModalVisible(false);
-    handleReviewSITExtension(sitExtensionID, formValues);
+    handleReviewSITExtension(sitExtensionID, formValues, shipment);
+  };
+  const submitSITExtension = (formValues) => {
+    setisSubmitITExtensionModalVisible(false);
+    handleSubmitSITExtension(formValues, shipment);
   };
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-  const showModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
+  const showReviewModal = isReviewSITExtensionModalVisible && pendingSITExtension !== undefined;
 
   const sitEndDate = `Ends ${moment().utc().add(totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
 
@@ -103,6 +109,16 @@ const ShipmentSITExtensions = (props) => {
             </Button>
           </p>
         )}
+        {!pendingSITExtension && (
+          <Button
+            type="button"
+            onClick={() => setisSubmitITExtensionModalVisible(true)}
+            unstyled
+            className={styles.submitSITEXtensionLink}
+          >
+            Edit
+          </Button>
+        )}
       </div>
 
       <DataTable
@@ -118,11 +134,17 @@ const ShipmentSITExtensions = (props) => {
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
       {sitExtensions.length > 0 && <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />}
-      {showModal && (
+      {showReviewModal && (
         <ReviewSITExtensionsModal
           onClose={() => setisReviewSITExtensionModalVisible(false)}
           onSubmit={reviewSITExtensionSubmit}
           sitExtension={pendingSITExtension}
+        />
+      )}
+      {isSubmitITExtensionModalVisible && (
+        <SubmitSITExtensionModal
+          onClose={() => setisSubmitITExtensionModalVisible(false)}
+          onSubmit={submitSITExtension}
         />
       )}
     </DataTableWrapper>
@@ -132,6 +154,7 @@ const ShipmentSITExtensions = (props) => {
 ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   handleReviewSITExtension: PropTypes.func.isRequired,
+  handleSubmitSITExtension: PropTypes.func.isRequired,
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
 };

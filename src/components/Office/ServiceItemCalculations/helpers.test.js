@@ -356,7 +356,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [],
-        label: 'Days in SIT',
+        label: 'SIT days invoiced',
         value: '2',
       },
       {
@@ -394,7 +394,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [],
-        label: 'Days in SIT',
+        label: 'SIT days invoiced',
         value: '2',
       },
       {

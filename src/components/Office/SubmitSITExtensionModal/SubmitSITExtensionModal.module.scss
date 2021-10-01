@@ -1,0 +1,21 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.SubmitSITExtensionModal {
+  min-width: 45rem !important;
+
+  .ApprovedDaysInput {
+    max-width: 3rem;
+  }
+
+  .ModalPanel {
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-radius('05');
+    @include u-padding(3);
+  }
+
+  .CancelButton {
+    @include u-bg('transparent');
+  }
+}

@@ -27,7 +27,6 @@ describe('ShipmentSITExtensions', () => {
     expect(screen.getByText('270 authorized')).toBeInTheDocument();
     expect(screen.getByText('45 used')).toBeInTheDocument();
     expect(screen.getByText('60 remaining')).toBeInTheDocument();
-    expect(screen.getByText(`Ends 28 Nov 2021`)).toBeInTheDocument();
 
     expect(screen.getByText('Current location: origin')).toBeInTheDocument();
 
