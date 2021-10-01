@@ -205,7 +205,10 @@ export default function ReviewBillableWeight() {
                     Shipment missing information
                   </Alert>
                 )}
-                {shipmentIsOverweight(selectedShipment.primeEstimatedWeight, selectedShipment.primeActualWeight) && (
+                {shipmentIsOverweight(
+                  selectedShipment.primeEstimatedWeight,
+                  selectedShipment.calculatedBillableWeight,
+                ) && (
                   <Alert slim type="warning">
                     Shipment exceeds 110% of estimated weight.
                   </Alert>
