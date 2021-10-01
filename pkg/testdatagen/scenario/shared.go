@@ -3922,7 +3922,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	})
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	shipmentWithMisingReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("6192766e-ffad-11eb-9a03-0242ac130003"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -3935,6 +3935,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			MoveTaskOrderID:      move.ID,
 		},
 	})
+	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentWithMisingReweigh)
 
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -3947,6 +3948,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			MoveTaskOrderID:      move.ID,
 		},
 	})
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 
 	shipmentForReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -3980,7 +3982,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
-	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
