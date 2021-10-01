@@ -23,7 +23,7 @@ function BillableWeightHintText({
   // the to fit value is the max billable weight minus the total billable weight, excludes the shipment currently in view
   const toFitValue = maxBillableWeight - totalBillableWeight + billableWeight;
 
-  const show110OfTotalEstimatedWeight = billableWeight > estimatedWeightTimes110;
+  const show110OfTotalEstimatedWeight = estimatedWeight > 0 && billableWeight > estimatedWeightTimes110;
 
   return (
     <>
