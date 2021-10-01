@@ -3095,6 +3095,7 @@ definitions:
       - PRIME
       - SYSTEM
       - PRICER
+      - PAYMENT_REQUEST
   ServiceItemParamType:
     type: string
     enum:

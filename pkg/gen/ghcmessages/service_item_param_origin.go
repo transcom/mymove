@@ -34,6 +34,9 @@ const (
 
 	// ServiceItemParamOriginPRICER captures enum value "PRICER"
 	ServiceItemParamOriginPRICER ServiceItemParamOrigin = "PRICER"
+
+	// ServiceItemParamOriginPAYMENTREQUEST captures enum value "PAYMENT_REQUEST"
+	ServiceItemParamOriginPAYMENTREQUEST ServiceItemParamOrigin = "PAYMENT_REQUEST"
 )
 
 // for schema
@@ -41,7 +44,7 @@ var serviceItemParamOriginEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamOrigin
-	if err := json.Unmarshal([]byte(`["PRIME","SYSTEM","PRICER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PRIME","SYSTEM","PRICER","PAYMENT_REQUEST"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

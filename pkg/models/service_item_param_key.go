@@ -192,6 +192,8 @@ const (
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 	// ServiceItemParamOriginPricer is the Pricer origin
 	ServiceItemParamOriginPricer ServiceItemParamOrigin = "PRICER"
+	// ServiceItemParamOriginPaymentRequest is the PaymentRequest origin
+	ServiceItemParamOriginPaymentRequest ServiceItemParamOrigin = "PAYMENT_REQUEST"
 )
 
 // ValidServiceItemParamNames lists all valid service item param key names
@@ -350,6 +352,7 @@ var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
 	string(ServiceItemParamOriginPricer),
+	string(ServiceItemParamOriginPaymentRequest),
 }
 
 // ServiceItemParamKey is a key for a Service Item Param

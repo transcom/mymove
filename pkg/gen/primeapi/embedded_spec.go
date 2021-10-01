@@ -2891,7 +2891,8 @@ func init() {
       "enum": [
         "PRIME",
         "SYSTEM",
-        "PRICER"
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
@@ -6465,7 +6466,8 @@ func init() {
       "enum": [
         "PRIME",
         "SYSTEM",
-        "PRICER"
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
