@@ -2592,6 +2592,7 @@ definitions:
       - DECIMAL
       - TIMESTAMP
       - PaymentServiceItemUUID
+      - BOOLEAN
   UpdateMTOServiceItem:
     description: >-
       UpdateMTOServiceItem describes a base type of a service item. Polymorphic

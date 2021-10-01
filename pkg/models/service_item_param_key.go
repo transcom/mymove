@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//ServiceItemParamName is the name of service item parameter
+// ServiceItemParamName is the name of service item parameter
 type ServiceItemParamName string
 
 func (s ServiceItemParamName) String() string {
@@ -173,7 +173,7 @@ const (
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
 	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
 	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
-	//ServiceItemParamTypeBoolean is a boolean
+	// ServiceItemParamTypeBoolean is a boolean
 	ServiceItemParamTypeBoolean ServiceItemParamType = "BOOLEAN"
 )
 

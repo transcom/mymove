@@ -2902,7 +2902,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "UpdateMTOServiceItem": {
@@ -6475,7 +6476,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ServiceItemParamsItems0": {

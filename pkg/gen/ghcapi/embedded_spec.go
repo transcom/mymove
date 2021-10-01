@@ -4921,7 +4921,8 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
@@ -4932,7 +4933,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ShipmentPaymentSITBalance": {
@@ -11040,7 +11042,8 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
@@ -11051,7 +11054,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ShipmentPaymentSITBalance": {

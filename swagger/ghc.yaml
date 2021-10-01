@@ -3094,6 +3094,7 @@ definitions:
     enum:
       - PRIME
       - SYSTEM
+      - PRICER
   ServiceItemParamType:
     type: string
     enum:
@@ -3103,6 +3104,7 @@ definitions:
       - DECIMAL
       - TIMESTAMP
       - PaymentServiceItemUUID
+      - BOOLEAN
   PaymentRequestStatus:
     enum:
       - PENDING
