@@ -14,7 +14,6 @@ import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
-import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -86,11 +85,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
-  const [nonShipmentSections, setNonShipmentSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+
+  const nonShipmentSections = useMemo(() => {
+    return ['move-weights'];
+  }, []);
 
   const { moveCode } = match.params;
   const {
@@ -384,10 +386,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    setNonShipmentSections(['move-weights'] || []);
-  }, []);
-
-  useEffect(() => {
     const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
       if (showShipmentFilter(shipment)) {
         previous.push({
@@ -429,16 +427,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
-
-  useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
 
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
@@ -512,15 +500,25 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         <LeftNav className={styles.sidebar}>
           {nonShipmentSections.map((s) => {
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: `#${s}` === activeSection })}
+                onClick={() => setActiveSection(`#${s}`)}
+              >
                 {nonShipmentSectionLabels[`${s}`]}
               </a>
             );
           })}
           {sections.map((s) => {
-            const classes = classnames({ active: s.id === activeSection });
+            const classes = classnames({ active: `#s-${s.id}` === activeSection });
             return (
-              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
+              <a
+                key={`sidenav_${s.id}`}
+                href={`#s-${s.id}`}
+                className={classes}
+                onClick={() => setActiveSection(`#s-${s.id}`)}
+              >
                 {s.label}{' '}
                 {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
                   <Tag>
