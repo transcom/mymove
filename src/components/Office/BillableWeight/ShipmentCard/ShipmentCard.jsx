@@ -66,6 +66,7 @@ export default function ShipmentCard({
       </header>
       <div className={styles.weights}>
         <div
+          data-testid="estimatedWeightContainer"
           className={classnames(styles.field, {
             [styles.missing]: !estimatedWeight,
           })}
