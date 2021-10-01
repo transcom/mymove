@@ -13,6 +13,87 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 	key := models.ServiceItemParamNameCubicFeetBilled
 
+	suite.T().Run("multiple crates", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+			},
+		})
+		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem.ID,
+				Type:             models.DimensionTypeCrate,
+				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+				// when converted to cubic feet.
+				Length:    16*12*1000 + 1000,
+				Height:    8 * 12 * 1000,
+				Width:     8 * 12 * 1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+		})
+		itemDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem.ID,
+				Type:             models.DimensionTypeItem,
+				Length:           12000,
+				Height:           12000,
+				Width:            12000,
+				CreatedAt:        time.Time{},
+				UpdatedAt:        time.Time{},
+			},
+		})
+		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
+		suite.MustSave(&mtoServiceItem)
+
+		mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: mtoServiceItem.ReService,
+			Move:      mtoServiceItem.MoveTaskOrder,
+		})
+		cratingDimension2 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem2.ID,
+				Type:             models.DimensionTypeCrate,
+				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+				// when converted to cubic feet.
+				Length:    16*12*1000 + 1000,
+				Height:    4 * 12 * 1000,
+				Width:     8 * 12 * 1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+		})
+		itemDimension2 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem2.ID,
+				Type:             models.DimensionTypeItem,
+				Length:           12000,
+				Height:           12000,
+				Width:            12000,
+				CreatedAt:        time.Time{},
+				UpdatedAt:        time.Time{},
+			},
+		})
+		mtoServiceItem2.Dimensions = []models.MTOServiceItemDimension{itemDimension2, cratingDimension2}
+		suite.MustSave(&mtoServiceItem2)
+
+		serviceParamCache := NewServiceParamsCache()
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &serviceParamCache)
+		suite.FatalNoError(err)
+
+		stringValue, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		suite.FatalNoError(err)
+
+		suite.Equal("1029.33", stringValue)
+
+		paramLookup2, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem2.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &serviceParamCache)
+		suite.FatalNoError(err)
+
+		stringValue2, err := paramLookup2.ServiceParamValue(suite.TestAppContext(), key)
+		suite.FatalNoError(err)
+
+		suite.Equal("1029.33", stringValue2)
+	})
 	suite.T().Run("successful CubicFeetBilled lookup, above minimum", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -45,7 +126,8 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 		})
 		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
 		suite.MustSave(&mtoServiceItem)
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		serviceParamCache := NewServiceParamsCache()
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, &serviceParamCache)
 		suite.FatalNoError(err)
 
 		stringValue, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
