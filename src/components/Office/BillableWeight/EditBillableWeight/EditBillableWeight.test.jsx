@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EditBillableWeight from './EditBillableWeight';
@@ -44,7 +44,7 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(defaultProps.billableWeightJustification)).toBeInTheDocument();
   });
 
-  it('renders max billable weight view', () => {
+  it('renders max billable weight view', async () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -54,14 +54,14 @@ describe('EditBillableWeight', () => {
     };
 
     render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+    userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(screen.getByText('| weight allowance')).toBeInTheDocument();
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
   });
 
-  it('renders edit billable weight view', () => {
+  it('renders edit billable weight view', async () => {
     const defaultProps = {
       title: 'Billable weight',
       originalWeight: 10000,
@@ -73,8 +73,8 @@ describe('EditBillableWeight', () => {
     };
 
     render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(screen.getByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
+    userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    expect(await screen.findByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -87,7 +87,7 @@ describe('EditBillableWeight', () => {
   });
 
   describe('hint text for max billable weight', () => {
-    it('should not show the 110% of total estimated weight hint text if the estimated weight is missing', () => {
+    it('should not show the 110% of total estimated weight hint text if the estimated weight is missing', async () => {
       const defaultProps = {
         title: 'Max billable weight',
         weightAllowance: 8000,
@@ -96,15 +96,17 @@ describe('EditBillableWeight', () => {
       };
 
       render(<EditBillableWeight {...defaultProps} />);
-      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-      expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+      userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      await waitFor(() => {
+        expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+      });
       expect(screen.getByText('| weight allowance')).toBeInTheDocument();
       expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
     });
   });
 
   describe('hint text for billable weight', () => {
-    it('should not render the 110% of total estimated weight hint text if the billable weight is less than the estimated weight * 110%', () => {
+    it('should not render the 110% of total estimated weight hint text if the billable weight is less than the estimated weight * 110%', async () => {
       const defaultProps = {
         title: 'Billable weight',
         originalWeight: 10000,
@@ -116,12 +118,14 @@ describe('EditBillableWeight', () => {
       };
 
       render(<EditBillableWeight {...defaultProps} />);
-      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-      expect(screen.queryByText(formatWeight(defaultProps.estimatedWeight * 1.1))).not.toBeInTheDocument();
+      userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      await waitFor(() => {
+        expect(screen.queryByText(formatWeight(defaultProps.estimatedWeight * 1.1))).not.toBeInTheDocument();
+      });
       expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
     });
 
-    it('should not render the to fit within max billable weight hint text if the billable weight is less than the max billable weight and less than the estimated weight * 110%', () => {
+    it('should not render the to fit within max billable weight hint text if the billable weight is less than the max billable weight and less than the estimated weight * 110%', async () => {
       const defaultProps = {
         title: 'Billable weight',
         originalWeight: 10000,
@@ -132,17 +136,20 @@ describe('EditBillableWeight', () => {
         editEntity: () => {},
       };
 
+      const fitWithinValue = formatWeight(
+        defaultProps.maxBillableWeight - defaultProps.totalBillableWeight + defaultProps.billableWeight,
+      );
+
       render(<EditBillableWeight {...defaultProps} />);
-      fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-      expect(
-        screen.queryByText(
-          formatWeight(defaultProps.maxBillableWeight - defaultProps.totalBillableWeight + defaultProps.billableWeight),
-        ),
-      ).not.toBeInTheDocument();
+      userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      await waitFor(() => {
+        expect(screen.queryByText(fitWithinValue)).not.toBeInTheDocument();
+      });
       expect(screen.queryByText('| to fit within max billable weight')).not.toBeInTheDocument();
     });
   });
-  it('clicking edit button shows different view', () => {
+
+  it('clicking edit button shows different view', async () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -153,10 +160,10 @@ describe('EditBillableWeight', () => {
 
     render(<EditBillableWeight {...defaultProps} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     // weights
-    expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
+    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     // buttons
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
@@ -173,18 +180,18 @@ describe('EditBillableWeight', () => {
     };
 
     render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByText('Edit')).toBeInTheDocument();
     expect(screen.queryByText('Save changes')).toBeNull();
     expect(screen.queryByText('Cancel')).toBeNull();
   });
 
-  it('should call editEntity with data', () => {
+  it('should call editEntity with data', async () => {
     const mockEditEntity = jest.fn();
     const newBillableWeight = 5000;
     const newBillableWeightJustification = 'some remarks';
@@ -197,14 +204,20 @@ describe('EditBillableWeight', () => {
     };
 
     render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
-    userEvent.clear(screen.getByTestId('textInput'));
-    userEvent.type(screen.getByTestId('textInput'), '5000');
-    fireEvent.change(screen.getByTestId('remarks'), { target: { value: newBillableWeightJustification } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
 
-    expect(mockEditEntity.mock.calls.length).toBe(1);
+    const textInput = await screen.findByTestId('textInput');
+    userEvent.clear(textInput);
+    userEvent.type(textInput, '5000');
+
+    const remarksInput = await screen.findByTestId('remarks');
+    userEvent.type(remarksInput, newBillableWeightJustification);
+    userEvent.click(await screen.findByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(mockEditEntity.mock.calls.length).toBe(1);
+    });
     expect(mockEditEntity.mock.calls[0][0].billableWeight).toBe(String(newBillableWeight));
     expect(mockEditEntity.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
   });
@@ -220,14 +233,12 @@ describe('EditBillableWeight', () => {
     };
 
     render(<EditBillableWeight {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     userEvent.clear(screen.getByTestId('textInput'));
     userEvent.clear(screen.getByTestId('remarks'));
-    screen.getByTestId('remarks').blur();
-    await waitFor(() => {
-      expect(screen.getByText('Required')).toBeInTheDocument();
-    });
+    (await screen.findByTestId('remarks')).blur();
+    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 });
