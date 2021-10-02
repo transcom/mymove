@@ -5,8 +5,7 @@ import { GridContainer } from '@trussworks/react-uswds';
 
 import styles from './PrimeSimulatorAvailableMoves.module.scss';
 
-import PrimeSimulatorListMoveCard from 'components/PrimeUI/PrimeSimulatorListMoveCard/PrimeSimulatorListMoveCard';
-// import DateSelectFilter from 'components / Table / Filters / DateSelectFilter';
+// import PrimeSimulatorListMoveCard from 'components/PrimeUI/PrimeSimulatorListMoveCard/PrimeSimulatorListMoveCard';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -20,9 +19,7 @@ const PrimeSimulatorAvailableMoves = () => {
     <GridContainer className={styles.gridContainer} data-testid="tio-payment-request-details">
       <h1>Available Moves</h1>
       <div className={styles.section} id="available-moves">
-        {listMoves.map((listMove) => (
-          <PrimeSimulatorListMoveCard listMove={listMove} key={listMove.id} />
-        ))}
+        {listMoves.map((listMove) => {})}
       </div>
     </GridContainer>
   );
