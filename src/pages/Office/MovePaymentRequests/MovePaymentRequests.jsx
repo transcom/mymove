@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useHistory, useLocation } from 'react-router-dom';
+import { queryCache, useMutation } from 'react-query';
+import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -11,6 +12,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import { MOVES } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
@@ -28,6 +30,8 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
+import { updateMoveTaskOrder } from 'services/ghcApi';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -50,6 +54,22 @@ const MovePaymentRequests = ({
   }, []);
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
+  });
+
+  const [mutateMoves] = useMutation(updateMoveTaskOrder, {
+    onSuccess: (data, variables) => {
+      const updatedMove = data.moves[variables.moveTaskOrderID];
+      queryCache.setQueryData([MOVES, variables.moveTaskOrderID], {
+        moves: {
+          [`${variables.moveTaskOrderID}`]: updatedMove,
+        },
+      });
+      queryCache.invalidateQueries([MOVES, variables.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
   });
 
   useEffect(() => {
@@ -112,6 +132,14 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+    const payload = {
+      moveTaskOrderID: move.id,
+      ifMatchETag: move.eTag,
+      body: {
+        billableWeightsReviewedAt: Date.now(),
+      },
+    };
+    mutateMoves(payload);
   };
 
   const anyShipmentOverweight = (shipments) => {
