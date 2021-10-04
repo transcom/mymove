@@ -499,6 +499,108 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 			},
 		},
 	}
+	// DOASIT
+	serviceParams[models.ReServiceCodeDOASIT] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeDOASIT,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractYearName,
+				Description: "contract year name",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameEscalationCompounded,
+				Description: "escalation compounded",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameIsPeak,
+				Description: "is peak",
+				Type:        models.ServiceItemParamTypeBoolean,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameNumberDaysSIT,
+				Description: "number days SIT",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNamePriceRateOrFactor,
+				Description: "price, rate, or factor",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
+			{
+				Key:         models.ServiceItemParamNameRequestedPickupDate,
+				Description: "requested pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameServiceAreaOrigin,
+				Description: "service area origin",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameSITPaymentRequestEnd,
+				Description: "SIT payment request end",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPaymentRequest,
+			},
+			{
+				Key:         models.ServiceItemParamNameSITPaymentRequestStart,
+				Description: "SIT payment request start",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPaymentRequest,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightAdjusted,
+				Description: "adjusted weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilled,
+				Description: "billed weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightOriginal,
+				Description: "original weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightReweigh,
+				Description: "reweigh weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameZipPickupAddress,
+				Description: "zip pickup address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+		},
+	}
 	return serviceParams
 }
 
