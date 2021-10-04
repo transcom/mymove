@@ -42,13 +42,12 @@
     @include u-border('base-lighter');
     border-width: 0px;
     border-bottom-width: 1px;
-    @include u-padding-bottom(3);
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+    @include u-padding-bottom(2);
+
     div {
       display: flex;
-    }
-
-    dl {
-      margin-top: 0;
     }
 
     dt,

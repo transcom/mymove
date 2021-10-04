@@ -47,11 +47,13 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => 
               {({ isValid }) => {
                 return (
                   <Form>
-                    <DropdownInput
-                      label="Reason for edit"
-                      name="requestReason"
-                      options={dropdownInputOptions(sitExtensionReasons)}
-                    />
+                    <div className={styles.reasonDropdown}>
+                      <DropdownInput
+                        label="Reason for edit"
+                        name="requestReason"
+                        options={dropdownInputOptions(sitExtensionReasons)}
+                      />
+                    </div>
                     <MaskedTextField
                       name="daysApproved"
                       id="daysApproved"

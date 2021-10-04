@@ -13,6 +13,10 @@
     @include u-border('1px');
     @include u-radius('05');
     @include u-padding(3);
+
+    .reasonDropdown label {
+      @include u-margin-top(0);
+    }
   }
 
   .CancelButton {
