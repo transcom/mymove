@@ -33,7 +33,7 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => 
           <ModalTitle>
             <h2>Edit SIT authorization</h2>
           </ModalTitle>
-          <div>{summarySITComponent}</div>
+          <div className={styles.summarySITComponent}>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
             <Formik
               validationSchema={reviewSITExtensionSchema}

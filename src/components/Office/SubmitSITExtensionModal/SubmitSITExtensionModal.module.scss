@@ -4,6 +4,10 @@
 .SubmitSITExtensionModal {
   min-width: 45rem !important;
 
+  .summarySITComponent {
+    @include u-margin-bottom(3);
+  }
+
   .ApprovedDaysInput {
     max-width: 3rem;
   }
