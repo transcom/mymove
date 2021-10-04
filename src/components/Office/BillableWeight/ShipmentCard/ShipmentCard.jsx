@@ -68,7 +68,7 @@ export default function ShipmentCard({
         <div
           data-testid="estimatedWeightContainer"
           className={classnames(styles.field, {
-            [styles.missing]: !estimatedWeight,
+            [styles.warning]: !estimatedWeight,
           })}
         >
           <strong>Estimated weight</strong>
@@ -79,7 +79,7 @@ export default function ShipmentCard({
         <div
           data-testid="originalWeightContainer"
           className={classnames(styles.field, {
-            [styles.missing]: showOriginalWeightHighlight,
+            [styles.warning]: showOriginalWeightHighlight,
           })}
         >
           <strong>Original weight</strong>
@@ -90,7 +90,7 @@ export default function ShipmentCard({
             <div
               data-testid="reweighWeightContainer"
               className={classnames(styles.field, {
-                [styles.missing]: showReweighWeightHighlight,
+                [styles.warning]: showReweighWeightHighlight,
               })}
             >
               <strong>Reweigh weight</strong>

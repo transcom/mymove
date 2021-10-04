@@ -91,8 +91,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('missing');
+      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -108,8 +108,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('missing');
+      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -125,8 +125,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('missing');
+      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -142,8 +142,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('missing');
+      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
     });
   });
 
@@ -159,8 +159,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('missing');
+      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
     });
   });
 
@@ -176,9 +176,9 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('missing');
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('missing');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('missing');
+      expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
+      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 });
