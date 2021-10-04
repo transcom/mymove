@@ -91,8 +91,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -108,8 +108,8 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -126,7 +126,7 @@ describe('ShipmentCard', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 
@@ -159,7 +159,7 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
       expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
     });
   });
@@ -177,8 +177,8 @@ describe('ShipmentCard', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
-      expect(screen.getByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 });
