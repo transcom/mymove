@@ -80,105 +80,107 @@ describe('ShipmentCard', () => {
     expect(screen.getByText(formatAddressShort(defaultProps.destinationAddress))).toBeInTheDocument();
   });
 
-  it('renders no yellow highlight for original and reweigh weights if weights do not exceeds 110% estimated weight', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      originalWeight: 4999,
-      reweighWeight: 4999,
-      adjustedWeight: null,
-    };
+  describe('warning indicator', () => {
+    it('renders no yellow highlight for original and reweigh weights if weights do not exceeds 110% estimated weight', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        originalWeight: 4999,
+        reweighWeight: 4999,
+        adjustedWeight: null,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      });
     });
-  });
 
-  it('renders no yellow highlight for original and reweigh weights if adjusted weight is set', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      estimatedWeight: 5000,
-      originalWeight: 3000,
-      reweighWeight: 2000,
-      adjustedWeight: 1000,
-    };
+    it('renders no yellow highlight for original and reweigh weights if adjusted weight is set', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        estimatedWeight: 5000,
+        originalWeight: 3000,
+        reweighWeight: 2000,
+        adjustedWeight: 1000,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      });
     });
-  });
 
-  it('renders yellow highlight for original weight that exceeds 110% estimated weight', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      estimatedWeight: 5000,
-      originalWeight: 5510,
-      reweighWeight: 6000,
-      adjustedWeight: null,
-    };
+    it('renders yellow highlight for original weight that exceeds 110% estimated weight', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        estimatedWeight: 5000,
+        originalWeight: 5510,
+        reweighWeight: 6000,
+        adjustedWeight: null,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
-      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      });
     });
-  });
 
-  it('renders yellow highlight for original weight that exceeds 110% estimated weight and reweigh weight missing', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      estimatedWeight: 5000,
-      originalWeight: 6000,
-      reweighWeight: null,
-      adjustedWeight: null,
-    };
+    it('renders yellow highlight for original weight that exceeds 110% estimated weight and reweigh weight missing', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        estimatedWeight: 5000,
+        originalWeight: 6000,
+        reweighWeight: null,
+        adjustedWeight: null,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+        expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
+      });
     });
-  });
 
-  it('renders yellow highlight for reweigh weight that exceeds 110% estimated weight', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      estimatedWeight: 5000,
-      originalWeight: 6000,
-      reweighWeight: 5510,
-      adjustedWeight: null,
-    };
+    it('renders yellow highlight for reweigh weight that exceeds 110% estimated weight', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        estimatedWeight: 5000,
+        originalWeight: 6000,
+        reweighWeight: 5510,
+        adjustedWeight: null,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+        expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
+      });
     });
-  });
 
-  it('renders yellow highlight for missing estimated weight', async () => {
-    const defaultProps = {
-      ...defaultShipmentCardProps,
-      estimatedWeight: null,
-      originalWeight: 6000,
-      reweighWeight: 5510,
-      adjustedWeight: null,
-    };
+    it('renders yellow highlight for missing estimated weight', async () => {
+      const defaultProps = {
+        ...defaultShipmentCardProps,
+        estimatedWeight: null,
+        originalWeight: 6000,
+        reweighWeight: 5510,
+        adjustedWeight: null,
+      };
 
-    render(<ShipmentCard {...defaultProps} />);
+      render(<ShipmentCard {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
-      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      await waitFor(() => {
+        expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
+        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
+      });
     });
   });
 });
