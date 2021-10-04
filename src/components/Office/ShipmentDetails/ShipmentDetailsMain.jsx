@@ -50,7 +50,7 @@ const ShipmentDetailsMain = ({
     handleSubmitSITExtension(formValues, shipment);
   };
 
-  const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
+  const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
   const summarySITComponent = useMemo(
     () => (
