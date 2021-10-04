@@ -29,32 +29,41 @@ const ShipmentSITExtensions = ({
 
   const sitEndDate = `Ends ${moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
 
-  const mappedSITExtensionList = sitExtensions.map((sitExt) => {
-    return (
-      <dl key={sitExt.id}>
-        <div>
-          <dt>{sitExt.approvedDays} days added</dt>
-          <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
-        </div>
-        <div>
-          <dt>Reason:</dt>
-          <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
-        </div>
-        {sitExt.contractorRemarks && (
+  const mappedSITExtensionList = sitExtensions
+    .filter((sitExt) => sitExt.status !== SIT_EXTENSION_STATUS.PENDING)
+    .map((sitExt) => {
+      return (
+        <dl key={sitExt.id}>
+          {sitExt.status === SIT_EXTENSION_STATUS.APPROVED ? (
+            <div>
+              <dt>{sitExt.approvedDays} days added</dt>
+              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
+            </div>
+          ) : (
+            <div>
+              <dt>0 days added</dt>
+              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')} — request rejected</dd>
+            </div>
+          )}
           <div>
-            <dt>Contractor remarks:</dt>
-            <dd>{sitExt.contractorRemarks}</dd>
+            <dt>Reason:</dt>
+            <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
           </div>
-        )}
-        {sitExt.officeRemarks && (
-          <div>
-            <dt>Office remarks:</dt>
-            <dd>{sitExt.officeRemarks}</dd>
-          </div>
-        )}
-      </dl>
-    );
-  });
+          {sitExt.contractorRemarks && (
+            <div>
+              <dt>Contractor remarks:</dt>
+              <dd>{sitExt.contractorRemarks}</dd>
+            </div>
+          )}
+          {sitExt.officeRemarks && (
+            <div>
+              <dt>Office remarks:</dt>
+              <dd>{sitExt.officeRemarks}</dd>
+            </div>
+          )}
+        </dl>
+      );
+    });
 
   const totalDaysAuthorizedAndUsed = (
     <>
@@ -123,7 +132,9 @@ const ShipmentSITExtensions = ({
       {sitStatus.pastSITServiceItems && (
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
-      {sitExtensions && <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />}
+      {sitExtensions && mappedSITExtensionList.length > 0 && (
+        <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
+      )}
     </DataTableWrapper>
   );
 };

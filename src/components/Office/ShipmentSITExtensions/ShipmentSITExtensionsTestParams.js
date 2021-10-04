@@ -1,6 +1,5 @@
 import SERVICE_ITEM_STATUSES, { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { SIT_EXTENSION_REASON } from 'constants/sitExtensions';
-// import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const LOCATION_VALUES = {
   ORIGIN: 'ORIGIN',
@@ -42,6 +41,17 @@ export const SITExtensionPending = [
     mtoShipmentID: '8afd043a-8304-4e36-a695-7728e415990d',
     requestReason: SIT_EXTENSION_REASON.SERIOUS_ILLNESS_MEMBER,
     status: 'PENDING',
+    contractorRemarks: 'The customer requested an extension.',
+  },
+];
+
+export const SITExtensionDenied = [
+  {
+    id: '7af5d51a-789c-4f5e-83dd-d905daed0785',
+    decisionDate: '2021-09-13T15:41:59.373Z',
+    mtoShipmentID: '8afd043a-8304-4e36-a695-7728e415990d',
+    requestReason: SIT_EXTENSION_REASON.SERIOUS_ILLNESS_MEMBER,
+    status: 'DENIED',
     contractorRemarks: 'The customer requested an extension.',
   },
 ];

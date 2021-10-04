@@ -34,6 +34,10 @@
     @include u-padding(3);
   }
 
+  .summarySITComponent {
+    @include u-margin-bottom(3);
+  }
+
   .SITSummary {
     @include u-border('base-lighter');
     border-width: 0px;

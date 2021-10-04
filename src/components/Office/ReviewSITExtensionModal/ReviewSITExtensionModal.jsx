@@ -37,9 +37,9 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
           <ModalTitle>
             <h2>Review request for extension</h2>
           </ModalTitle>
-          <div>{summarySITComponent}</div>
+          <div className={styles.summarySITComponent}>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
-            <div className={styles.SITSummary}>
+            <dl className={styles.SITSummary}>
               <div>
                 <dt>Additional days requested:</dt>
                 <dd>{sitExtension.requestedDays}</dd>
@@ -52,7 +52,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
                 <dt>Contractor remarks:</dt>
                 <dd>{sitExtension.contractorRemarks}</dd>
               </div>
-            </div>
+            </dl>
             <Formik
               validationSchema={reviewSITExtensionSchema}
               onSubmit={(e) => onSubmit(sitExtension.id, e)}
