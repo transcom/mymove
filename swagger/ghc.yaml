@@ -1463,8 +1463,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
-      operationId: UpdateMTOReviewedBillableWeights
+      description: >-
+        Changes move (move task order) billableWeightsReviewedAt field to a
+        timestamp
+      operationId: UpdateMTOReviewedBillableWeightsAt
       summary: Changes move (move task order) status to service counseling completed
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
@@ -2413,6 +2415,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      billableWeightsReviewedAt:
         format: date-time
         type: string
         x-nullable: true

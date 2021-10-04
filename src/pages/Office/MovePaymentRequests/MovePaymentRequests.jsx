@@ -30,7 +30,7 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateMoveTaskOrder } from 'services/ghcApi';
+import { updateMTOReviewedBillableWeights } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const sectionLabels = {
@@ -56,7 +56,7 @@ const MovePaymentRequests = ({
     return includedStatusesForCalculatingWeights(shipment.status);
   });
 
-  const [mutateMoves] = useMutation(updateMoveTaskOrder, {
+  const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
       queryCache.setQueryData([MOVES, variables.moveTaskOrderID], {
@@ -135,9 +135,6 @@ const MovePaymentRequests = ({
     const payload = {
       moveTaskOrderID: move.id,
       ifMatchETag: move.eTag,
-      body: {
-        billableWeightsReviewedAt: Date.now(),
-      },
     };
     mutateMoves(payload);
   };
