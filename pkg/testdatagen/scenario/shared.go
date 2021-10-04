@@ -3922,7 +3922,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	})
 
-	shipmentWithMisingReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	shipmentWithMissingReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("6192766e-ffad-11eb-9a03-0242ac130003"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -3935,7 +3935,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			MoveTaskOrderID:      move.ID,
 		},
 	})
-	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentWithMisingReweigh)
+	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentWithMissingReweigh)
 
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
