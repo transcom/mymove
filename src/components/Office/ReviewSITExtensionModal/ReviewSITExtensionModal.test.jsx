@@ -1,6 +1,8 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
@@ -12,24 +14,40 @@ describe('ReviewSITExtensionModal', () => {
     id: '123',
   };
 
-  it('renders requested days, reason, and contractor remarks', () => {
-    const { getByText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={() => {}} onClose={() => {}} />,
+  const summarySITExtension = (
+    <ShipmentSITExtensions {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
+  );
+
+  it('renders requested days, reason, and contractor remarks', async () => {
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={() => {}}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
 
-    expect(getByText('45')).toBeInTheDocument();
-    expect(getByText('Awaiting completion of residence under construction')).toBeInTheDocument();
-    expect(getByText('The customer requested an extension')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('45')).toBeInTheDocument();
+      expect(screen.getByText('Awaiting completion of residence under construction')).toBeInTheDocument();
+      expect(screen.getByText('The customer requested an extension')).toBeInTheDocument();
+    });
   });
 
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
-    const { getByRole, getByLabelText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={mockOnSubmit} onClose={() => {}} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={mockOnSubmit}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const daysApprovedInput = getByLabelText('Days approved');
-    const officeRemarksInput = getByLabelText('Office remarks');
-    const submitBtn = getByRole('button', { name: 'Save' });
+    const daysApprovedInput = screen.getByLabelText('Days approved');
+    const officeRemarksInput = screen.getByLabelText('Office remarks');
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.type(daysApprovedInput, '{backspace}{backspace}20');
     userEvent.type(officeRemarksInput, 'Approved!');
@@ -47,12 +65,17 @@ describe('ReviewSITExtensionModal', () => {
 
   it('calls onSubmit prop on denial with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
-    const { getByRole, getByLabelText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={mockOnSubmit} onClose={() => {}} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={mockOnSubmit}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const denyExtenstionField = getByLabelText('No');
-    const officeRemarksInput = getByLabelText('Office remarks');
-    const submitBtn = getByRole('button', { name: 'Save' });
+    const denyExtenstionField = screen.getByLabelText('No');
+    const officeRemarksInput = screen.getByLabelText('Office remarks');
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.click(denyExtenstionField);
     userEvent.type(officeRemarksInput, 'Denied!');
@@ -70,11 +93,16 @@ describe('ReviewSITExtensionModal', () => {
 
   it('hides days approved input when no is selected', async () => {
     const mockOnSubmit = jest.fn();
-    const { getByLabelText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={mockOnSubmit} onClose={() => {}} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={mockOnSubmit}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const daysApprovedInput = getByLabelText('Days approved');
-    const denyExtenstionField = getByLabelText('No');
+    const daysApprovedInput = screen.getByLabelText('Days approved');
+    const denyExtenstionField = screen.getByLabelText('No');
     await waitFor(() => {
       expect(daysApprovedInput).toBeInTheDocument();
     });
@@ -86,11 +114,16 @@ describe('ReviewSITExtensionModal', () => {
 
   it('does not allow submission of more days approved than are requested', async () => {
     const mockOnSubmit = jest.fn();
-    const { getByRole, getByLabelText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={mockOnSubmit} onClose={() => {}} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={mockOnSubmit}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const daysApprovedInput = getByLabelText('Days approved');
-    const submitBtn = getByRole('button', { name: 'Save' });
+    const daysApprovedInput = screen.getByLabelText('Days approved');
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.type(daysApprovedInput, '{backspace}{backspace}46');
 
@@ -101,11 +134,16 @@ describe('ReviewSITExtensionModal', () => {
 
   it('does not allow submission of 0 approved days', async () => {
     const mockOnSubmit = jest.fn();
-    const { getByRole, getByLabelText } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={mockOnSubmit} onClose={() => {}} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={mockOnSubmit}
+        onClose={() => {}}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const daysApprovedInput = getByLabelText('Days approved');
-    const submitBtn = getByRole('button', { name: 'Save' });
+    const daysApprovedInput = screen.getByLabelText('Days approved');
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.type(daysApprovedInput, '{backspace}{backspace}0');
 
@@ -116,15 +154,35 @@ describe('ReviewSITExtensionModal', () => {
 
   it('calls onclose prop on modal close', async () => {
     const mockClose = jest.fn();
-    const { getByRole } = render(
-      <ReviewSITExtensionModal sitExtension={sitExt} onSubmit={() => {}} onClose={mockClose} />,
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={() => {}}
+        onClose={mockClose}
+        summarySITComponent={summarySITExtension}
+      />,
     );
-    const closeBtn = getByRole('button', { name: 'Cancel' });
+    const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
     userEvent.click(closeBtn);
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();
+    });
+  });
+
+  it('renders the summary SIT component', async () => {
+    render(
+      <ReviewSITExtensionModal
+        sitExtension={sitExt}
+        onSubmit={jest.fn()}
+        onClose={jest.fn()}
+        summarySITComponent={summarySITExtension}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
   });
 });

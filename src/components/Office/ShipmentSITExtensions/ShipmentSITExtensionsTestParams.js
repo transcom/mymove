@@ -36,6 +36,16 @@ export const SITExtensionsWithComments = [
   },
 ];
 
+export const SITExtensionPending = [
+  {
+    id: '7af5d51a-789c-4f5e-83dd-d905daed0785',
+    mtoShipmentID: '8afd043a-8304-4e36-a695-7728e415990d',
+    requestReason: SIT_EXTENSION_REASON.SERIOUS_ILLNESS_MEMBER,
+    status: 'PENDING',
+    contractorRemarks: 'The customer requested an extension.',
+  },
+];
+
 export const SITStatusOrigin = {
   location: LOCATION_VALUES.ORIGIN,
   totalSITDaysUsed: 45,

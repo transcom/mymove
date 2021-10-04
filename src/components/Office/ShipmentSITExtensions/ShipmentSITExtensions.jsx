@@ -132,13 +132,15 @@ ShipmentSITExtensions.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
-  showReviewSITExtension: PropTypes.func.isRequired,
-  showSubmitSITExtension: PropTypes.func.isRequired,
+  showReviewSITExtension: PropTypes.func,
+  showSubmitSITExtension: PropTypes.func,
   hideSITExtensionAction: PropTypes.bool,
 };
 
 ShipmentSITExtensions.defaultProps = {
   sitExtensions: [],
+  showReviewSITExtension: undefined,
+  showSubmitSITExtension: undefined,
   hideSITExtensionAction: false,
 };
 
