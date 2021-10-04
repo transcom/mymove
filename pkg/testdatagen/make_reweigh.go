@@ -52,14 +52,11 @@ func MakeReweighForShipment(db *pop.Connection, assertions Assertions, shipment 
 
 // MakeReweighWithNoWeightForShipment creates a reweigh request for a given shipment. It leaves the weight field empty to simulate that no reweigh was done.
 func MakeReweighWithNoWeightForShipment(db *pop.Connection, assertions Assertions, shipment models.MTOShipment) models.Reweigh {
-	verificationReason := "Unable to perform reweigh because shipment was already unloaded"
-
 	reweigh := models.Reweigh{
-		RequestedAt:        time.Now(),
-		RequestedBy:        models.ReweighRequesterPrime,
-		VerificationReason: &verificationReason,
-		Shipment:           shipment,
-		ShipmentID:         shipment.ID,
+		RequestedAt: time.Now(),
+		RequestedBy: models.ReweighRequesterPrime,
+		Shipment:    shipment,
+		ShipmentID:  shipment.ID,
 	}
 
 	mergeModels(&reweigh, assertions.Reweigh)
