@@ -14,7 +14,6 @@ import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
-import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -49,6 +48,10 @@ import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+
+const nonShipmentSectionLabels = {
+  'move-weights': 'Move weights',
+};
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -86,6 +89,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+
+  const nonShipmentSections = useMemo(() => {
+    return ['move-weights'];
+  }, []);
 
   const { moveCode } = match.params;
   const {
@@ -422,16 +429,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
 
   useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
-
-  useEffect(() => {
     let unapprovedSITExtensionCount = 0;
     mtoShipments?.forEach((mtoShipment) => {
       if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
@@ -501,10 +498,27 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
-          {sections.map((s) => {
-            const classes = classnames({ active: s.id === activeSection });
+          {nonShipmentSections.map((s) => {
             return (
-              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: `#${s}` === activeSection })}
+                onClick={() => setActiveSection(`#${s}`)}
+              >
+                {nonShipmentSectionLabels[`${s}`]}
+              </a>
+            );
+          })}
+          {sections.map((s) => {
+            const classes = classnames({ active: `#s-${s.id}` === activeSection });
+            return (
+              <a
+                key={`sidenav_${s.id}`}
+                href={`#s-${s.id}`}
+                className={classes}
+                onClick={() => setActiveSection(`#s-${s.id}`)}
+              >
                 {s.label}{' '}
                 {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
                   <Tag>
@@ -571,7 +585,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>
-          <div className={moveTaskOrderStyles.weightHeader}>
+          <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}

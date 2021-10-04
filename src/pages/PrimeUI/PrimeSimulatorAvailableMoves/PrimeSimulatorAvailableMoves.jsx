@@ -5,7 +5,7 @@ import { GridContainer } from '@trussworks/react-uswds';
 
 import styles from './PrimeSimulatorAvailableMoves.module.scss';
 
-import PrimeSimulatorListMoveCard from 'components/Office/PrimeSimulatorListMoveCard/PrimeSimulatorListMoveCard';
+import PrimeSimulatorListMoveCard from 'components/PrimeUI/PrimeSimulatorListMoveCard/PrimeSimulatorListMoveCard';
 // import DateSelectFilter from 'components / Table / Filters / DateSelectFilter';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';

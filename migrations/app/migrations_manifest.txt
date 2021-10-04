@@ -672,3 +672,4 @@
 20210924165014_loadtesting_cert_migration.up.sql
 20210924172305_loadtesting_cert_migration.up.sql
 20210925020348_add_prime_simulator_role.up.sql
+20210930202639_remove_sandy_and_lynzt_cac_access.up.sql

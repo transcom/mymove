@@ -15,11 +15,28 @@
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
 /migrations/ @transcom/truss-db
 
-# Require design / frontend reviews on Storybook & CSS changes
+# Require design / frontend reviews on Storybook
 /src/stories/ @transcom/truss-design
 *.stories.jsx @transcom/truss-design
+
+# Require design / frontend reviews CSS changes
 *.css @transcom/truss-design
 *.scss @transcom/truss-design
+
+# README: Because the Prime UI Simulator work is outside the scope of design /
+# frontend reviewing CSS changes, we set the following directories to have an
+# "empty owner". This revokes the ownership of .css and .scss files in the
+# directive above across the whole repository for any directories below for
+# src/*/PrimeUI/
+# See an example in the official GitHub CODEOWNERS documentation about directoy
+# exceptions in the syntax example here:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax
+# Read more about the caveat around negating patterns in the official GitHub
+# CODEOWNERS documentation here:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#syntax-exceptions
+src/components/PrimeUI/
+src/pages/PrimeUI/
+
 
 # Require security group to review changes to configs that may affect cATO static analysis compliancy
 .golangci.yaml @transcom/Truss-IS3
