@@ -58,6 +58,12 @@ const GhcRequestShipmentCancellationEndpointKey = "Ghc.RequestShipmentCancellati
 // GhcRequestShipmentReweighEndpointKey is the key for the requestShipmentReweigh endpoint in ghc
 const GhcRequestShipmentReweighEndpointKey = "Ghc.RequestShipmentReweigh"
 
+// GhcApproveSITExtensionEndpointKey is the key for the approveSITExtension endpoint in ghc
+const GhcApproveSITExtensionEndpointKey = "Ghc.ApproveSITExtension"
+
+// GhcDenySITExtensionEndpointKey is the key for the denySITExtension endpoint in ghc
+const GhcDenySITExtensionEndpointKey = "Ghc.DenySITExtension"
+
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
 
@@ -184,6 +190,14 @@ var ghcEndpoints = EndpointMapType{
 	GhcRequestShipmentReweighEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "requestShipmentReweigh",
+	},
+	GhcApproveSITExtensionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveSITExtension",
+	},
+	GhcDenySITExtensionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "denySITExtension",
 	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,

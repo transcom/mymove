@@ -171,7 +171,7 @@ describe('ServiceItemCard component', () => {
 
     it('displays the Days In SIT information for additional day service items', () => {
       render(<ServiceItemCard {...additionalDaySITServiceItemCard} />);
-      expect(screen.getByText('Days in SIT')).toBeInTheDocument();
+      expect(screen.getByText('SIT days invoiced')).toBeInTheDocument();
       expect(screen.getByTestId('DaysInSITAllowance')).toBeInTheDocument();
     });
   });
@@ -208,7 +208,7 @@ describe('ServiceItemCard component', () => {
       const reviewedDOASIT = { ...additionalDaySITServiceItemCard, requestComplete: true };
 
       render(<ServiceItemCard {...reviewedDOASIT} />);
-      expect(screen.queryByText('Days in SIT')).not.toBeInTheDocument();
+      expect(screen.queryByText('SIT days invoiced')).not.toBeInTheDocument();
       expect(screen.queryByText('DaysInSITAllowance')).not.toBeInTheDocument();
     });
   });

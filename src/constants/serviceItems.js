@@ -76,7 +76,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   CratingDate: 'Crating date',
   CratingPrice: 'Crating price (per cu ft)',
   CubicFeetBilled: 'Crating size (cu ft)',
-  DaysInSIT: 'Days in SIT',
+  DaysInSIT: 'SIT days invoiced',
   DeliveryDate: 'Delivery date',
   Description: 'Description',
   DestinationSchedule: 'Destination schedule',
