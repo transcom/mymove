@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import ShipmentCard from './ShipmentCard';
 
@@ -81,7 +81,7 @@ describe('ShipmentCard', () => {
   });
 
   describe('warning indicator', () => {
-    it('renders no yellow highlight for original and reweigh weights if weights do not exceeds 110% estimated weight', async () => {
+    it('renders no yellow highlight for original and reweigh weights if weights do not exceeds 110% estimated weight', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         originalWeight: 4999,
@@ -91,13 +91,11 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
-      });
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
 
-    it('renders no yellow highlight for original and reweigh weights if adjusted weight is set', async () => {
+    it('renders no yellow highlight for original and reweigh weights if adjusted weight is set', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         estimatedWeight: 5000,
@@ -108,13 +106,11 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
-      });
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
 
-    it('renders yellow highlight for original weight that exceeds 110% estimated weight', async () => {
+    it('renders yellow highlight for original weight that exceeds 110% estimated weight', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         estimatedWeight: 5000,
@@ -125,13 +121,11 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
-        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
-      });
+      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
 
-    it('renders yellow highlight for original weight that exceeds 110% estimated weight and reweigh weight missing', async () => {
+    it('renders yellow highlight for original weight that exceeds 110% estimated weight and reweigh weight missing', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         estimatedWeight: 5000,
@@ -142,13 +136,11 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
-        expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
-      });
+      expect(screen.getByTestId('originalWeightContainer')).toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
     });
 
-    it('renders yellow highlight for reweigh weight that exceeds 110% estimated weight', async () => {
+    it('renders yellow highlight for reweigh weight that exceeds 110% estimated weight', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         estimatedWeight: 5000,
@@ -159,13 +151,11 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-        expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
-      });
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.getByTestId('reweighWeightContainer')).toHaveClass('warning');
     });
 
-    it('renders yellow highlight for missing estimated weight', async () => {
+    it('renders yellow highlight for missing estimated weight', () => {
       const defaultProps = {
         ...defaultShipmentCardProps,
         estimatedWeight: null,
@@ -176,11 +166,9 @@ describe('ShipmentCard', () => {
 
       render(<ShipmentCard {...defaultProps} />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
-        expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
-        expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
-      });
+      expect(screen.getByTestId('estimatedWeightContainer')).toHaveClass('warning');
+      expect(screen.queryByTestId('originalWeightContainer')).not.toHaveClass('warning');
+      expect(screen.queryByTestId('reweighWeightContainer')).not.toHaveClass('warning');
     });
   });
 });
