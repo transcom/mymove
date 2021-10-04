@@ -111,7 +111,7 @@ const MovePaymentRequests = ({
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
-  const billableWeightsReviewed = move.billableWeightsReviewedAt;
+  const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -133,8 +133,8 @@ const MovePaymentRequests = ({
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
     const payload = {
-      moveTaskOrderID: move.id,
-      ifMatchETag: move.eTag,
+      moveTaskOrderID: move?.id,
+      ifMatchETag: move?.eTag,
     };
     mutateMoves(payload);
   };
