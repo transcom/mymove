@@ -175,8 +175,10 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string,
 func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
 	estimatedWeight := unit.Pound(7200)
 	actualWeight := unit.Pound(7400)
+	daysOfSIT := 90
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
+			SITDaysAllowance:     &daysOfSIT,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,

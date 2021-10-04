@@ -5163,6 +5163,19 @@ func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUpload
 func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
 	db := appCtx.DB()
 
+	year, month, day := time.Now().Date()
+	thirtyDaysAgo := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate: &thirtyDaysAgo,
+			Status:       models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		},
+	})
+
 	for i := 0; i < 2; i++ {
 		testdatagen.MakePendingSITExtension(db, testdatagen.Assertions{
 			MTOShipment: shipment,
