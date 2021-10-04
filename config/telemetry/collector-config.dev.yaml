@@ -10,6 +10,10 @@ receivers:
       memory:
 
 processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 50
+    spike_limit_percentage: 30
   batch:
     timeout: 1s
     send_batch_size: 1024
