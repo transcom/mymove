@@ -461,9 +461,18 @@ describe('MoveTaskOrder', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
 
       const navLinks = wrapper.find('LeftNav a');
-      expect(navLinks.length).toBe(1);
-      expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).prop('href')).toBe('#s-3');
+      expect(navLinks.length).toBe(2);
+      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#s-3');
+    });
+
+    it('renders the left nav with move weights', () => {
+      expect(wrapper.find('LeftNav').exists()).toBe(true);
+
+      const navLinks = wrapper.find('LeftNav a');
+      expect(navLinks.length).toBe(2);
+      expect(navLinks.at(0).contains('Move weights')).toBe(true);
+      expect(navLinks.at(0).prop('href')).toBe('#move-weights');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -529,22 +538,22 @@ describe('MoveTaskOrder', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
 
       const navLinks = wrapper.find('LeftNav a');
-      expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#s-3');
-
-      expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
+      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
-      expect(navLinks.at(1).prop('href')).toBe('#s-4');
+      expect(navLinks.at(1).prop('href')).toBe('#s-3');
 
-      expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#s-5');
+      expect(navLinks.at(2).contains('NTS shipment')).toBe(true);
+      expect(navLinks.at(2).contains('1'));
+      expect(navLinks.at(2).prop('href')).toBe('#s-4');
 
-      expect(navLinks.at(3).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#s-6');
+      expect(navLinks.at(3).contains('NTS-R shipment')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#s-5');
 
       expect(navLinks.at(4).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#s-7');
+      expect(navLinks.at(4).prop('href')).toBe('#s-6');
+
+      expect(navLinks.at(5).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(5).prop('href')).toBe('#s-7');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -609,9 +618,9 @@ describe('MoveTaskOrder', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
 
       const navLinks = wrapper.find('LeftNav a');
-      expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#s-3');
+      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(1).contains('1'));
+      expect(navLinks.at(1).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -673,8 +682,8 @@ describe('MoveTaskOrder', () => {
     it('renders the left nav with tag for SIT extension request', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
       const navLinks = wrapper.find('LeftNav a');
-      expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).contains('1'));
+      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(1).contains('1'));
     });
   });
   describe('SIT extension approved', () => {
@@ -699,7 +708,7 @@ describe('MoveTaskOrder', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
       const navLinks = wrapper.find('LeftNav a');
       // We should get just the shipment text in the nav link
-      expect(navLinks.at(0).text()).toEqual('HHG shipment ');
+      expect(navLinks.at(1).text()).toEqual('HHG shipment ');
     });
   });
 });
