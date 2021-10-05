@@ -1,7 +1,7 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/basics';
 
-div.ReviewSITExtensionModal {
+.ReviewSITExtensionModal {
   min-width: 45rem !important;
   overflow-y: auto;
   max-height: 90vh;
