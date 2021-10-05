@@ -1635,7 +1635,8 @@ jobs:
   deploy_exp_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'exp'
+      APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
       - deploy_app_steps:
@@ -1646,7 +1647,8 @@ jobs:
   deploy_exp_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'exp'
+      APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
       - tls_vars_exp
@@ -1660,6 +1662,7 @@ jobs:
     executor: mymove_small
     environment:
       APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
       - deploy_webhook_client_steps:

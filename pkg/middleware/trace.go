@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
+	"go.opentelemetry.io/otel/attribute"
+	sdktrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/pkg/errors"
@@ -26,11 +28,16 @@ func Trace(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 				return
 			}
 
+			strID := id.String()
+
+			// decorate the span with the id
+			sdktrace.SpanFromContext(r.Context()).SetAttributes(attribute.String(traceHeader, strID))
+
 			// Let a caller see what the traceID is
-			w.Header().Add(traceHeader, id.String())
+			w.Header().Add(traceHeader, strID)
 
 			// Also insert as a key, value pair in the http request context
-			next.ServeHTTP(w, r.WithContext(trace.NewContext(r.Context(), id.String())))
+			next.ServeHTTP(w, r.WithContext(trace.NewContext(r.Context(), strID)))
 		})
 	}
 }
