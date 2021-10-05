@@ -9,7 +9,7 @@
 .ShipmentDetailsMain {
   @include u-margin-right(4);
 
-  :global .table--data-point-group {
+  :global(.table--data-point-group), .shipmentSITSummary {
     @include u-margin-bottom(3);
   }
 

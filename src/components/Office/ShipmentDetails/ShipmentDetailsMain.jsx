@@ -5,6 +5,8 @@ import ReviewSITExtensionsModal from '../ReviewSITExtensionModal/ReviewSITExtens
 import SubmitSITExtensionModal from '../SubmitSITExtensionModal/SubmitSITExtensionModal';
 import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
 
+import styles from './ShipmentDetails.module.scss';
+
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
@@ -99,6 +101,7 @@ const ShipmentDetailsMain = ({
           shipment={shipment}
           showReviewSITExtension={setIsReviewSITExtensionModalVisible}
           showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
+          className={styles.shipmentSITSummary}
         />
       )}
       <ImportantShipmentDates

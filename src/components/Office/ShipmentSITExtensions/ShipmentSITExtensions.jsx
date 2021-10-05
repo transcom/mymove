@@ -24,6 +24,7 @@ const ShipmentSITExtensions = ({
   showReviewSITExtension,
   showSubmitSITExtension,
   hideSITExtensionAction,
+  className,
 }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
@@ -98,7 +99,10 @@ const ShipmentSITExtensions = ({
   });
 
   return (
-    <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions)} testID="sitExtensions">
+    <DataTableWrapper
+      className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions, className)}
+      testID="sitExtensions"
+    >
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
         {!hideSITExtensionAction &&
@@ -146,6 +150,7 @@ ShipmentSITExtensions.propTypes = {
   showReviewSITExtension: PropTypes.func,
   showSubmitSITExtension: PropTypes.func,
   hideSITExtensionAction: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 ShipmentSITExtensions.defaultProps = {
@@ -153,6 +158,7 @@ ShipmentSITExtensions.defaultProps = {
   showReviewSITExtension: undefined,
   showSubmitSITExtension: undefined,
   hideSITExtensionAction: false,
+  className: '',
 };
 
 export default ShipmentSITExtensions;
