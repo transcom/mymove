@@ -8,7 +8,7 @@ import styles from '../ShipmentDetails/ShipmentDetails.module.scss';
 
 const ShipmentRemarks = ({ title, remarks }) => {
   return (
-    <DataTableWrapper className={classnames('maxw-tablet', styles.ShipmentRemarks)}>
+    <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.ShipmentRemarks)}>
       <DataTable columnHeaders={[title]} dataRow={[remarks]} />
     </DataTableWrapper>
   );

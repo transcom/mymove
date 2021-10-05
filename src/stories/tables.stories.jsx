@@ -245,7 +245,7 @@ export const TableElements = () => (
       </div>
       <div className="sb-table-wrapper">
         <code>data-pair</code>
-        <DataTableWrapper>
+        <DataTableWrapper className="table--data-point-group">
           <DataTable
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
@@ -279,14 +279,14 @@ export const StandardTables = () => (
       <div style={{ width: '40px' }} />
       <div>
         <h3>Data point group</h3>
-        <DataTableWrapper>
+        <DataTableWrapper className="table--data-point-group">
           <DataTable
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
           />
         </DataTableWrapper>
         <div style={{ 'margin-bottom': '1em' }} />
-        <DataTableWrapper>
+        <DataTableWrapper className="table--data-point-group">
           <DataTable
             columnHeaders={['Authorized addresses', '']}
             dataRow={['San Antonio, TX 78234', 'Tacoma, WA 98421']}

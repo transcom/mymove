@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Radio, FormGroup, Label, Textarea, Fieldset } from '@trussworks/react-uswds';
 
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
@@ -15,7 +15,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 
-const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
+const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITComponent }) => {
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     daysApproved: Yup.number().when('acceptExtension', {
@@ -37,8 +37,9 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
           <ModalTitle>
             <h2>Review request for extension</h2>
           </ModalTitle>
+          <div className={styles.summarySITComponent}>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
-            <div className={styles.SITSummary}>
+            <dl className={styles.SITSummary}>
               <div>
                 <dt>Additional days requested:</dt>
                 <dd>{sitExtension.requestedDays}</dd>
@@ -51,7 +52,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
                 <dt>Contractor remarks:</dt>
                 <dd>{sitExtension.contractorRemarks}</dd>
               </div>
-            </div>
+            </dl>
             <Formik
               validationSchema={reviewSITExtensionSchema}
               onSubmit={(e) => onSubmit(sitExtension.id, e)}
@@ -74,8 +75,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
                 return (
                   <Form>
                     <FormGroup>
-                      <Label>Accept request for extension?</Label>
-                      <div>
+                      <Fieldset legend="Accept request for extension?">
                         <Field
                           as={Radio}
                           label="Yes"
@@ -95,7 +95,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension }) => {
                           type="radio"
                           onChange={handleNoSelection}
                         />
-                      </div>
+                      </Fieldset>
                     </FormGroup>
                     {values.acceptExtension === 'yes' && (
                       <MaskedTextField
@@ -152,5 +152,6 @@ ReviewSITExtensionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   sitExtension: SITExtensionShape.isRequired,
+  summarySITComponent: PropTypes.node.isRequired,
 };
 export default ReviewSITExtensionsModal;
