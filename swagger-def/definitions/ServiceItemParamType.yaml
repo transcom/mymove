@@ -1,0 +1,9 @@
+type: string
+enum:
+  - STRING
+  - DATE
+  - INTEGER
+  - DECIMAL
+  - TIMESTAMP
+  - PaymentServiceItemUUID
+  - BOOLEAN
