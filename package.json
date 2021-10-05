@@ -123,7 +123,7 @@
     "@storybook/addon-knobs": "^6.3.1",
     "@storybook/addon-links": "^6.3.8",
     "@storybook/addons": "^6.3.6",
-    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/preset-create-react-app": "^4.0.0",
     "@storybook/react": "^6.3.9",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
