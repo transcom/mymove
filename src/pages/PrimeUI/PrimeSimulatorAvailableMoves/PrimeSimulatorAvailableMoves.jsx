@@ -27,7 +27,7 @@ const PrimeSimulatorAvailableMoves = () => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer className={styles.gridContainer}>
+    <GridContainer containerSize="widescreen" className={styles.gridContainer}>
       <TableQueue
         title="Moves available to Prime"
         columns={columnHeaders()}
@@ -35,7 +35,7 @@ const PrimeSimulatorAvailableMoves = () => {
         handleClick={() => {
           return null;
         }}
-        defaultSortedColumns={[{ id: 'col1', desc: false }]}
+        defaultSortedColumns={[{ id: 'id', desc: false }]}
       />
     </GridContainer>
   );
