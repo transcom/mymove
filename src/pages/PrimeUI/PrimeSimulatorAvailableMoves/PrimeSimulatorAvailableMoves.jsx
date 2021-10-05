@@ -1,26 +1,42 @@
 import React from 'react';
-// import { generatePath } from 'react-router';
-// import { useHistory } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import styles from './PrimeSimulatorAvailableMoves.module.scss';
 
-// import PrimeSimulatorListMoveCard from 'components/PrimeUI/PrimeSimulatorListMoveCard/PrimeSimulatorListMoveCard';
+import { createHeader } from 'components/Table/utils';
+import TableQueue from 'components/Table/TableQueue';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
+const columnHeaders = () => [
+  createHeader('ID', 'id'),
+  createHeader('Move code', 'moveCode'),
+  createHeader('Created at', 'createdAt'),
+  createHeader('Updated at', 'updatedAt'),
+  createHeader('e-Tag', 'eTag'),
+  createHeader('Order ID', 'orderID'),
+  createHeader('Type', 'ppmType'),
+  createHeader('Reference ID', 'referenceId'),
+  createHeader('Available to Prime at', 'availableToPrimeAt'),
+];
+
 const PrimeSimulatorAvailableMoves = () => {
-  const { listMoves, isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
+  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer className={styles.gridContainer} data-testid="tio-payment-request-details">
-      <h1>Available Moves</h1>
-      <div className={styles.section} id="available-moves">
-        {listMoves.map((listMove) => {})}
-      </div>
+    <GridContainer className={styles.gridContainer}>
+      <TableQueue
+        title="Moves available to Prime"
+        columns={columnHeaders()}
+        useQueries={usePrimeSimulatorAvailableMovesQueries}
+        handleClick={() => {
+          return null;
+        }}
+        defaultSortedColumns={[{ id: 'col1', desc: false }]}
+      />
     </GridContainer>
   );
 };

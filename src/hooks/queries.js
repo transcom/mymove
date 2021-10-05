@@ -384,14 +384,33 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-export const usePrimeSimulatorAvailableMovesQueries = () => {
+export const usePrimeSimulatorAvailableMovesQueries = (
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+) => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES],
+    [
+      PRIME_SIMULATOR_AVAILABLE_MOVES,
+      {
+        sort,
+        order,
+        filters,
+        currentPage,
+        currentPageSize,
+      },
+    ],
     getPrimeSimulatorAvailableMoves,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
+  const { ...dataProps } = data;
+
+  console.info(data, 'usePrimeSimulatorAvailableMovesQueries');
+
   return {
-    listMoves: data,
+    queueResult: { data, ...dataProps },
     isLoading,
     isError,
     isSuccess,

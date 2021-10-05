@@ -21,7 +21,24 @@ export async function makePrimeSimulatorRequest(operationPath, params = {}, opti
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPrimeSimulatorAvailableMoves() {
+export async function getPrimeSimulatorAvailableMoves(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+) {
   const operationPath = 'moveTaskOrder.listMoves';
-  return makePrimeSimulatorRequest(operationPath, {}, { schemaKey: 'listMoves', normalize: false });
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      ...paramFilters,
+    },
+    { schemaKey: 'listMoves', normalize: false },
+  );
 }
