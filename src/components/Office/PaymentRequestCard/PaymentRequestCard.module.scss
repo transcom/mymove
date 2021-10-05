@@ -110,9 +110,10 @@
   @include u-display(flex);
   @include u-margin-top(2);
   align-items: center;
+  justify-content: space-between;
 
   dl {
-    @include u-margin-right(2);
+    @include u-margin-right(1);
     @include u-margin-y(0);
   }
 
@@ -140,9 +141,9 @@
 }
 
 .toggleDrawer {
-  @include u-display(flex);
+ /* @include u-display(flex);
   flex: 1;
-  justify-content: flex-end;
+  justify-content: flex-end; */
 
   svg {
     margin-right: 0.25em;
