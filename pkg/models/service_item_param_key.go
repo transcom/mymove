@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//ServiceItemParamName is the name of service item parameter
+// ServiceItemParamName is the name of service item parameter
 type ServiceItemParamName string
 
 func (s ServiceItemParamName) String() string {
@@ -173,7 +173,7 @@ const (
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
 	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
 	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
-	//ServiceItemParamTypeBoolean is a boolean
+	// ServiceItemParamTypeBoolean is a boolean
 	ServiceItemParamTypeBoolean ServiceItemParamType = "BOOLEAN"
 )
 
@@ -192,6 +192,8 @@ const (
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 	// ServiceItemParamOriginPricer is the Pricer origin
 	ServiceItemParamOriginPricer ServiceItemParamOrigin = "PRICER"
+	// ServiceItemParamOriginPaymentRequest is the PaymentRequest origin
+	ServiceItemParamOriginPaymentRequest ServiceItemParamOrigin = "PAYMENT_REQUEST"
 )
 
 // ValidServiceItemParamNames lists all valid service item param key names
@@ -350,6 +352,7 @@ var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
 	string(ServiceItemParamOriginPricer),
+	string(ServiceItemParamOriginPaymentRequest),
 }
 
 // ServiceItemParamKey is a key for a Service Item Param

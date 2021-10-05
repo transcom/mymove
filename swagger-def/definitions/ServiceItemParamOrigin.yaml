@@ -1,0 +1,6 @@
+type: string
+enum:
+  - PRIME
+  - SYSTEM
+  - PRICER
+  - PAYMENT_REQUEST
