@@ -23,7 +23,7 @@ const ShipmentAddresses = ({
   shipmentInfo,
 }) => {
   return (
-    <DataTableWrapper className={classnames('maxw-tablet', styles.mtoShipmentAddresses)}>
+    <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.mtoShipmentAddresses)}>
       <DataTable
         columnHeaders={[
           'Authorized addresses',

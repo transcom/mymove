@@ -29,13 +29,13 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
   );
   return (
     <div className={classnames('maxw-tablet', styles.ShipmentWeightDetails)}>
-      <DataTableWrapper className="maxw-mobile">
+      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
         <DataTable
           columnHeaders={['Estimated weight']}
           dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
         />
       </DataTableWrapper>
-      <DataTableWrapper className="maxw-mobile">
+      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
         <DataTable columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
       </DataTableWrapper>
     </div>
