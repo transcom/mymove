@@ -21,7 +21,7 @@ const ExpandableServiceItemRow = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
-    return canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED;
+    return canShowExpandableContent && (paymentIsDeprecated || item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED);
   };
   const canShowExpandableContent =
     !disableExpansion && allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
