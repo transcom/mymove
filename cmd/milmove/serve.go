@@ -29,7 +29,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/golang-jwt/jwt"
-
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
@@ -37,6 +36,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -64,6 +65,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 // initServeFlags - Order matters!
@@ -426,6 +428,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+	telemetryConfig, err := cli.CheckTelemetry(v)
+	if err != nil {
+		logger.Fatal("invalid trace config", zap.Error(err))
+	}
+
+	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
+	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
@@ -500,6 +509,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Warn("DB is not ready for connections", zap.Error(errDbConnection))
 		}
 	}
+
+	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
+	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
@@ -744,11 +756,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(logger))
 	staticMux.Use(middleware.RequestLogger(logger))
+	if telemetryConfig.Enabled {
+		staticMux.Use(otelmux.Middleware("static"))
+	}
 	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	downloadMux := site.PathPrefix("/downloads/").Subrouter()
 	downloadMux.Use(middleware.ValidMethodsStatic(logger))
 	downloadMux.Use(middleware.RequestLogger(logger))
+	if telemetryConfig.Enabled {
+		downloadMux.Use(otelmux.Middleware("download"))
+	}
 	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	site.Handle("/favicon.ico", clientHandler)
@@ -776,7 +794,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		ordersMux.PathPrefix("/").Handler(ordersapi.NewOrdersAPIHandler(handlerContext))
+		api := ordersapi.NewOrdersAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 	if v.GetBool(cli.ServeDPSFlag) {
 		dpsMux := site.Host(appnames.DpsServername).PathPrefix("/dps/v0/").Subrouter()
@@ -792,7 +812,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			dpsMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		dpsMux.PathPrefix("/").Handler(dpsapi.NewDPSAPIHandler(handlerContext))
+		api := dpsapi.NewDPSAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		dpsMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSDDCFlag) {
@@ -802,6 +824,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		sddcDPSMux.Use(sddcDetectionMiddleware)
 		sddcDPSMux.Use(middleware.NoCache(logger))
 		sddcDPSMux.Use(middleware.RequestLogger(logger))
+		if telemetryConfig.Enabled {
+			sddcDPSMux.Use(otelmux.Middleware("sddc"))
+		}
 		sddcDPSMux.Handle("/set_cookie",
 			dpsauth.NewSetCookieHandler(logger,
 				dpsAuthSecretKey,
@@ -831,7 +856,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		primeMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSupportFlag) {
@@ -905,7 +932,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
-		internalAPIMux.PathPrefix("/").Handler(api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -924,7 +952,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
-		adminAPIMux.PathPrefix("/").Handler(adminapi.NewAdminAPIHandler(handlerContext))
+		api := adminapi.NewAdminAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		adminAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServePrimeSimulatorFlag) {
@@ -943,7 +973,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeSimulatorAPIMux.Use(userAuthMiddleware)
 		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
 		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
-		primeSimulatorAPIMux.PathPrefix("/").Handler(primeapi.NewPrimeAPIHandler(handlerContext))
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeSimulatorAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeGHCFlag) {
@@ -961,7 +993,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
-		ghcAPIMux.PathPrefix("/").Handler(api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
@@ -972,6 +1005,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		},
 	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
+	authMux.Use(otelmux.Middleware("auth"))
 	authMux.Handle("/login-gov", authentication.RedirectHandler{Context: authContext}).Methods("GET")
 	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, dbConnection, notificationSender)).Methods("GET")
 	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, dbConnection)).Methods("POST")
@@ -979,6 +1013,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
+		localAuthMux.Use(otelmux.Middleware("devlocal"))
 		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, dbConnection)).Methods("GET")
 		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, dbConnection, appnames)).Methods("POST")
 		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames)).Methods("POST")
@@ -999,6 +1034,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.PathPrefix("/").Handler(indexHandler(build, logger)).Methods("GET", "HEAD")
 
+	otelHTTPOptions := []otelhttp.Option{}
+	if telemetryConfig.ReadEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
+	}
+	if telemetryConfig.WriteEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
+	}
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
@@ -1009,7 +1051,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls", otelHTTPOptions...),
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -1025,7 +1067,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -1043,7 +1085,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,
