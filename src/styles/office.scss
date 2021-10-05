@@ -5,3 +5,10 @@
 .site--fullscreen {
   height: 100vh;
 }
+
+//TODO: move into a stylesheet specific to min-width for the office app
+//sets grid continer to have a set width so desktop-only components don't look broken when screen resizes to be small
+.grid-container {
+  min-width: 960px;
+  width: 68.26667rem; //sets min-dwidth to be the same as max width so the main content cloumn does'nt have anarrow range of resizing that causes fe bugs
+}
