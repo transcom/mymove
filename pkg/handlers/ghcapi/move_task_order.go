@@ -212,12 +212,14 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 	}
 
 	moveTaskOrderPayload := payloads.Move(mto)
+
 	// Audit
 	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
 	if err != nil {
-		logger.Error("Auditing service error for transitioning Move status to Service Counseling Completed.", zap.Error(err))
-		return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
+		logger.Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
+		return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
 	}
+
 	_, err = event.TriggerEvent(event.Event{
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,

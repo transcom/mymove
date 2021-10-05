@@ -1443,7 +1443,6 @@ paths:
         - moveTaskOrder
       description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
       operationId: UpdateMTOReviewedBillableWeightsAt
-      summary: Changes move (move task order) status to service counseling completed
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use

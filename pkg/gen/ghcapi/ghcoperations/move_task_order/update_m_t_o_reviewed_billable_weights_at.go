@@ -31,8 +31,6 @@ func NewUpdateMTOReviewedBillableWeightsAt(ctx *middleware.Context, handler Upda
 
 /* UpdateMTOReviewedBillableWeightsAt swagger:route PATCH /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at moveTaskOrder updateMTOReviewedBillableWeightsAt
 
-Changes move (move task order) status to service counseling completed
-
 Changes move (move task order) billableWeightsReviewedAt field to a timestamp
 
 */

@@ -21,7 +21,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
@@ -46,8 +46,7 @@ const MovePaymentRequests = ({
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
-  const { move } = useMoveDetailsQueries(moveCode);
+  const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
@@ -64,7 +63,7 @@ const MovePaymentRequests = ({
           [`${variables.moveTaskOrderID}`]: updatedMove,
         },
       });
-      queryCache.invalidateQueries([MOVES, variables.moveTaskOrderID]);
+      queryCache.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

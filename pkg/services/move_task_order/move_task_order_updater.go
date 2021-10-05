@@ -109,16 +109,7 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 		}
 
 		err = appCtx.DB().Update(move)
-
-		if err != nil {
-			switch err.(type) {
-			case query.StaleIdentifierError:
-				return services.NewPreconditionFailedError(move.ID, err)
-			default:
-				return err
-			}
-		}
-		return nil
+		return err
 	})
 	if transactionError != nil {
 		return &models.Move{}, transactionError

@@ -436,7 +436,6 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Changes move (move task order) status to service counseling completed",
         "operationId": "UpdateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
@@ -6040,7 +6039,6 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Changes move (move task order) status to service counseling completed",
         "operationId": "UpdateMTOReviewedBillableWeightsAt",
         "parameters": [
           {

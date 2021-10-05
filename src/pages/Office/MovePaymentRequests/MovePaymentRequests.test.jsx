@@ -7,13 +7,12 @@ import MovePaymentRequests from './MovePaymentRequests';
 
 import MOVE_STATUSES from 'constants/moves';
 import { MockProviders } from 'testUtils';
-import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
-  useMoveDetailsQueries: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -404,7 +403,6 @@ describe('MovePaymentRequests', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
-      useMoveDetailsQueries.mockReturnValue(move);
 
       renderMovePaymentRequests(testProps);
 
@@ -414,7 +412,6 @@ describe('MovePaymentRequests', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
-      useMoveDetailsQueries.mockReturnValue(move);
 
       renderMovePaymentRequests(testProps);
 
@@ -426,7 +423,6 @@ describe('MovePaymentRequests', () => {
   describe('with multiple payment requests', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('renders without errors', () => {
@@ -475,7 +471,6 @@ describe('MovePaymentRequests', () => {
   describe('renders side navigation for each section', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it.each([
@@ -526,7 +521,6 @@ describe('MovePaymentRequests', () => {
   describe('with no payment requests for move', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('renders side navigation for payment request section', () => {
@@ -571,7 +565,6 @@ describe('MovePaymentRequests', () => {
   describe('a billable weight that does not exceed the max billable weight', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('does not show the max billable weight tag in sidebar', async () => {
@@ -604,7 +597,6 @@ describe('MovePaymentRequests', () => {
   describe('a billable weight that exceeds the max billable weight', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('shows the max billable weight tag in sidebar', async () => {
@@ -625,7 +617,6 @@ describe('MovePaymentRequests', () => {
   describe('a move that has an overweight shipment displays a warning tag', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(moveShipmentOverweight);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('shows the max billable weight warning tag in sidebar', async () => {
@@ -639,7 +630,6 @@ describe('MovePaymentRequests', () => {
   describe('a move that has a missing shipment reweigh weight displays a warning tag', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(moveShipmentMissingReweighWeight);
-      useMoveDetailsQueries.mockReturnValue(move);
     });
 
     it('shows the max billable weight warning tag in sidebar', async () => {
