@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -12,10 +13,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/luna-duclos/instrumentedsql"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/XSAM/otelsql"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )
@@ -49,6 +54,9 @@ const (
 	DbIamRoleFlag string = "db-iam-role"
 	// DbRegionFlag is the DB Region flag
 	DbRegionFlag string = "db-region"
+	// DbUseInstrumentedDriverFlag indicates if additional db
+	// instrumentation should be done
+	DbInstrumentedFlag = "db-instrumented"
 
 	// DbEnvContainer is the Container DB Env name
 	DbEnvContainer string = "container"
@@ -157,6 +165,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbIamRoleFlag, "", "The arn of the AWS IAM role to assume when connecting to the database.")
 	// Required by https://docs.aws.amazon.com/sdk-for-go/api/service/rds/rdsutils/#BuildAuthToken
 	flag.String(DbRegionFlag, "", "AWS Region of the database")
+	flag.Bool(DbInstrumentedFlag, false, "Use instrumented db driver")
 }
 
 // CheckDatabase validates DB command line flags
@@ -235,6 +244,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	dbPassword := v.GetString(DbPasswordFlag)
 	dbPool := v.GetInt(DbPoolFlag)
 	dbIdlePool := v.GetInt(DbIdlePoolFlag)
+	dbUseInstrumentedDriver := v.GetBool(DbInstrumentedFlag)
 
 	// Modify DB options by environment
 	dbOptions := map[string]string{
@@ -287,6 +297,60 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 			make(chan bool))
 
 		dbConnectionDetails.Password = passHolder
+	}
+
+	if dbUseInstrumentedDriver {
+		// instead of using pop's instrumentated driver, we want to
+		// use an open telementry compatible driver, so we're going to
+		// fake pop out
+
+		// // register the otelsql driver, which we will then fake pop
+		// // out to use
+		// driverName, err := otelsql.Register(iampg.CustomPostgres, semconv.DBSystemMySQL.Value.AsString())
+
+		// to fake pop out, we need to register the otelsql instrumented
+		// driver under the driverName that pop would use. To do that,
+		// we need to get the otelsql driver.Driver, which is easiest
+		// to get from sql.DB.Driver()
+		db, err := sql.Open(dbConnectionDetails.Driver, "")
+		if err != nil {
+			logger.Error("Failed opening uninstrumented connection", zap.Error(err))
+			return nil, err
+		}
+		currentDriver := db.Driver()
+		err = db.Close()
+		if err != nil {
+			logger.Error("Failed closing uninstrumented connection", zap.Error(err))
+			return nil, err
+		}
+
+		// This is the name from pop's instrumented connection code
+		// https://github.com/gobuffalo/pop/blob/master/connection_instrumented.go#L44
+		popInstrumentedDriverName := "instrumented-sql-driver-postgres"
+		// and we're going to fake out pop with the Driver so that the
+		// driver name matches what pop is looking for, but it will
+		// wind up using the desired driver under a wrapped otelsql connection
+		dbConnectionDetails.Driver = "postgres"
+		spanOptions := otelsql.SpanOptions{
+			Ping:      true,
+			AllowRoot: v.GetBool(DbDebugFlag),
+			RowsNext:  v.GetBool(DbDebugFlag),
+		}
+		sql.Register(popInstrumentedDriverName,
+			otelsql.WrapDriver(currentDriver,
+				semconv.DBSystemPostgreSQL.Value.AsString(),
+				otelsql.WithSpanOptions(spanOptions)))
+
+		// now we can update the connection details to indicate we
+		// want an instrumented connection
+		dbConnectionDetails.UseInstrumentedDriver = true
+		// pop expects at least one option when using instrumented
+		// sql, but the options will be ignored since we are faking
+		// things out
+		dbConnectionDetails.InstrumentedDriverOptions = []instrumentedsql.Opt{
+			instrumentedsql.WithOmitArgs(),
+		}
+		logger.Info("Using otelsql instrumented sql driver")
 	}
 
 	err := dbConnectionDetails.Finalize()

@@ -9,15 +9,23 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// DBStats returns the sql.DBStats for the configured pop connection
-func DBStats(c *pop.Connection) (sql.DBStats, error) {
+func DB(c *pop.Connection) (*sqlx.DB, error) {
 	// *sigh* pop does not expose DBStats, so use reflection to get
 	// access
 
 	// the store has *sqlx.DB as the first field
 	dbi := reflect.ValueOf(c.Store).Elem().Field(0).Interface()
 	if db, ok := dbi.(*sqlx.DB); ok {
-		return db.DB.Stats(), nil
+		return db, nil
 	}
-	return sql.DBStats{}, errors.New("Cannot get db field")
+	return nil, errors.New("Cannot get db field from pop.Connection")
+}
+
+// DBStats returns the sql.DBStats for the configured pop connection
+func DBStats(c *pop.Connection) (sql.DBStats, error) {
+	db, err := DB(c)
+	if err != nil {
+		return sql.DBStats{}, err
+	}
+	return db.DB.Stats(), nil
 }

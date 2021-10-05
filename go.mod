@@ -7,6 +7,7 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.4
+	github.com/XSAM/otelsql v0.7.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
 	github.com/aws/aws-sdk-go v1.41.4
@@ -50,6 +51,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.1
 	github.com/lib/pq v1.10.3
+	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.68.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.2
@@ -70,23 +72,23 @@ require (
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.9.4
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
-	go.opentelemetry.io/contrib/propagators/aws v1.0.0
-	go.opentelemetry.io/otel v1.0.1
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.24.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.24.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.0.1
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.1
-	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.24.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.1
-	go.opentelemetry.io/otel/metric v0.24.0
-	go.opentelemetry.io/otel/sdk v1.0.1
-	go.opentelemetry.io/otel/sdk/export/metric v0.24.0
-	go.opentelemetry.io/otel/sdk/metric v0.24.0
-	go.opentelemetry.io/otel/trace v1.0.1
+	go.opentelemetry.io/contrib/detectors/aws/ecs v0.23.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.23.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.23.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.23.0
+	go.opentelemetry.io/contrib/propagators/aws v0.23.0
+	go.opentelemetry.io/otel v1.0.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.23.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.23.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.0.0-RC3
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.0-RC3
+	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.23.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.0-RC3
+	go.opentelemetry.io/otel/metric v0.23.0
+	go.opentelemetry.io/otel/sdk v1.0.0
+	go.opentelemetry.io/otel/sdk/export/metric v0.23.0
+	go.opentelemetry.io/otel/sdk/metric v0.23.0
+	go.opentelemetry.io/otel/trace v1.0.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210908191846-a5e095526f91
