@@ -3767,7 +3767,7 @@ func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader
 	move := makeMoveForOrders(orders, db, "BILWEI", models.MoveStatusAPPROVALSREQUESTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("6cd95b06-fef3-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -3967,7 +3967,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -4014,7 +4014,7 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("4a1b0048-ffe7-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
 }
 
@@ -4061,7 +4061,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("096496b0-ffea-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
 }
 
@@ -4106,7 +4106,85 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("c5c32296-0147-11ec-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+}
+
+func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "deprecatedPaymentRequest@hhg.hhg"
+	uuidStr := "6995a480-2e90-4d9b-90df-0f9b42277653"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "6c4074fe-ba11-471f-89f2-cf4f8c075377"
+	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Deprecated"),
+			LastName:      models.StringPointer("PaymentRequest"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   sm,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("bb0c2329-e225-41cc-a931-823c6026425b"),
+			Locator:          "DEPPRQ",
+			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
+		},
+	})
+
+	actualHHGWeight := unit.Pound(6000)
+	now := time.Now()
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeActualWeight: &actualHHGWeight,
+			ShipmentType:      models.MTOShipmentTypeHHG,
+			ApprovedDate:      &now,
+			Status:            models.MTOShipmentStatusApproved,
+			MoveTaskOrder:     move,
+			MoveTaskOrderID:   move.ID,
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("f80a07d3-0dcf-431f-b72c-dfd77e0483f6"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusDeprecated)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -4655,7 +4733,7 @@ func createHHGMoveWithMultipleOrdersFiles(appCtx appcontext.AppContext, userUplo
 	move := makeMoveForOrders(orders, db, "MULTOR", models.MoveStatusSUBMITTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMoveWithAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -4667,7 +4745,7 @@ func createHHGMoveWithAmendedOrders(appCtx appcontext.AppContext, userUploader *
 	move := makeMoveForOrders(orders, db, "AMDORD", models.MoveStatusAPPROVALSREQUESTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -4689,7 +4767,7 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 	})
 	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("50b35add-705a-468b-8bad-056f5d9ef7e1"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -5157,7 +5235,7 @@ func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUpload
 	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	makePendingSITExtensionsForShipment(appCtx, shipment)
 	paymentRequestID := uuid.Must(uuid.FromString("70b35add-605a-289d-8dad-056f5d9ef7e1"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
