@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes, { arrayOf, shape } from 'prop-types';
+import { arrayOf, shape, bool, node, string } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -199,10 +199,10 @@ PaymentRequestCard.propTypes = {
   hasBillableWeightIssues: bool.isRequired,
   shipmentsInfo: arrayOf(
     shape({
-      mtoShipmentID: PropTypes.string,
-      shipmentAddress: PropTypes.node,
-      departureDate: PropTypes.string,
-      shipmentModificationType: PropTypes.string,
+      mtoShipmentID: string,
+      shipmentAddress: node,
+      departureDate: string,
+      shipmentModificationType: string,
     }),
   ),
 };
