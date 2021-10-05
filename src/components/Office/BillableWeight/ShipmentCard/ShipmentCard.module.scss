@@ -54,7 +54,7 @@ div.container {
       }
     }
 
-    .missing {
+    .warning {
       border-left: 4px solid $mm-gold;
       @include u-margin-left(-0.5);
     }

@@ -234,6 +234,7 @@ export default function ReviewBillableWeight() {
                   destinationAddress={selectedShipment.destinationAddress}
                   estimatedWeight={selectedShipment.primeEstimatedWeight}
                   originalWeight={selectedShipment.primeActualWeight}
+                  adjustedWeight={selectedShipment.billableWeightCap}
                   reweighRemarks={selectedShipment?.reweigh?.verificationReason}
                   reweighWeight={selectedShipment?.reweigh?.weight}
                   maxBillableWeight={maxBillableWeight}
