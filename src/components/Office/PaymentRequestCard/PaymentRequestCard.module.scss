@@ -112,7 +112,7 @@
   align-items: center;
 
   dl {
-    @include u-margin-right(4);
+    @include u-margin-right(2);
     @include u-margin-y(0);
   }
 
@@ -121,7 +121,7 @@
     font-weight: bold;
 
     &:not(:first-of-type) {
-      @include u-margin-left(4);
+      @include u-margin-left(1);
     }
   }
 
