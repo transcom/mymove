@@ -215,6 +215,10 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "updateMTOServiceItemStatus",
 	},
+	GhcUpdateMoveTaskOrderStatusEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateMoveTaskOrderStatus",
+	},
 	GhcUpdateMTOReviewedBillableWeightsEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "UpdateMTOReviewedBillableWeights",

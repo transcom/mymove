@@ -97,14 +97,6 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 		return &models.Move{}, err
 	}
 
-	// // check if status is in the right state
-	// // needs to be in MoveStatusNeedsServiceCounseling
-	// if move.Status != models.MoveStatusNeedsServiceCounseling {
-	// 	err = errors.Wrap(models.ErrInvalidTransition,
-	// 		fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
-
-	// 	return &models.Move{}, services.NewConflictError(move.ID, err.Error())
-	// }
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// update field for move
 		now := time.Now()

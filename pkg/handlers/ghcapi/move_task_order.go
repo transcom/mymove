@@ -186,7 +186,7 @@ type UpdateMTOReviewedBillableWeightsAtHandlerFunc struct {
 
 // Handle updates the timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
 func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskorderops.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	eTag := params.IfMatch
 
@@ -212,7 +212,12 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 	}
 
 	moveTaskOrderPayload := payloads.Move(mto)
-
+	// Audit
+	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for transitioning Move status to Service Counseling Completed.", zap.Error(err))
+		return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
+	}
 	_, err = event.TriggerEvent(event.Event{
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,
