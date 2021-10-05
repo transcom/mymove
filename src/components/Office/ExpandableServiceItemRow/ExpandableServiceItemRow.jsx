@@ -51,9 +51,10 @@ const ExpandableServiceItemRow = ({
         aria-expanded={isExpanded}
       >
         <td data-testid="serviceItemName">
-          {canShowExpandableContent && serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
-            <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
-          )}
+          {canShowExpandableContent &&
+            (paymentIsDeprecated || serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED) && (
+              <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
+            )}
           {serviceItem.mtoServiceItemName}
         </td>
         <td data-testid="serviceItemAmount">{toDollarString(formatCents(serviceItem.priceCents))}</td>
