@@ -1,8 +1,10 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/basics';
 
-.ReviewSITExtensionModal {
+div.ReviewSITExtensionModal {
   min-width: 45rem !important;
+  overflow-y: auto;
+  max-height: 90vh;
 
   .ApprovedDaysInput {
     max-width: 3rem;
