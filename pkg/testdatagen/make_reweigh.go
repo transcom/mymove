@@ -33,14 +33,12 @@ func MakeReweigh(db *pop.Connection, assertions Assertions) models.Reweigh {
 
 // MakeReweighForShipment creates a reweigh request for given shipment and a given weight.
 func MakeReweighForShipment(db *pop.Connection, assertions Assertions, shipment models.MTOShipment, pound unit.Pound) models.Reweigh {
-	verificationReason := "Unable to perform reweigh because shipment was already unloaded"
 	reweigh := models.Reweigh{
-		RequestedAt:        time.Now(),
-		RequestedBy:        models.ReweighRequesterPrime,
-		VerificationReason: &verificationReason,
-		Shipment:           shipment,
-		ShipmentID:         shipment.ID,
-		Weight:             &pound,
+		RequestedAt: time.Now(),
+		RequestedBy: models.ReweighRequesterPrime,
+		Shipment:    shipment,
+		ShipmentID:  shipment.ID,
+		Weight:      &pound,
 	}
 
 	mergeModels(&reweigh, assertions.Reweigh)
