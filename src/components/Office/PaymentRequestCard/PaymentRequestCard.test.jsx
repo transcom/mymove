@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -166,6 +167,46 @@ describe('PaymentRequestCard', () => {
 
       expect(showRequestDetailsButton.length).toBe(0);
       expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
+    });
+  });
+
+  describe('deprecated payment requests', () => {
+    const deprecatedPaymentRequest = {
+      id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+      createdAt: '2020-12-01T00:00:00.000Z',
+      moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+      paymentRequestNumber: '1843-9061-2',
+      moveTaskOrder: move,
+      status: 'DEPRECATED',
+      serviceItems: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 2000001,
+          status: 'REQUESTED',
+        },
+      ],
+    };
+
+    it('does not have a view documents link', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={deprecatedPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+      expect(screen.queryByText('View documents')).not.toBeInTheDocument();
+    });
+
+    it('does not have service item status', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={deprecatedPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+      fireEvent.click(screen.getByTestId('showRequestDetailsButton'));
+      expect(screen.queryByText('Needs review')).not.toBeInTheDocument();
+      expect(screen.getByTestId('deprecated-marker')).toBeInTheDocument();
     });
   });
 

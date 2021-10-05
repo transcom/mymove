@@ -60,7 +60,7 @@ const ExpandableServiceItemRow = ({
         <td data-testid="serviceItemStatus">
           {paymentIsDeprecated && (
             <div>
-              <span>-</span>
+              <span data-testid="deprecated-marker">-</span>
             </div>
           )}
           {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && !paymentIsDeprecated && (
