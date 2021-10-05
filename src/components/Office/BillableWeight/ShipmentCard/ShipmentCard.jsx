@@ -23,6 +23,8 @@ export default function ShipmentCard({
   originalWeight,
   reweighRemarks,
   reweighWeight,
+  maxBillableWeight,
+  totalBillableWeight,
 }) {
   return (
     <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG} className={styles.container}>
@@ -93,6 +95,8 @@ export default function ShipmentCard({
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
           editEntity={editEntity}
+          maxBillableWeight={maxBillableWeight}
+          totalBillableWeight={totalBillableWeight}
         />
       </footer>
     </ShipmentContainer>
@@ -119,6 +123,8 @@ ShipmentCard.propTypes = {
   }).isRequired,
   reweighRemarks: string,
   reweighWeight: number,
+  maxBillableWeight: number.isRequired,
+  totalBillableWeight: number,
 };
 
 ShipmentCard.defaultProps = {
@@ -128,4 +134,5 @@ ShipmentCard.defaultProps = {
   estimatedWeight: 0,
   reweighWeight: null,
   reweighRemarks: '',
+  totalBillableWeight: 0,
 };

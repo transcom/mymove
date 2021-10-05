@@ -236,6 +236,8 @@ export default function ReviewBillableWeight() {
                   originalWeight={selectedShipment.primeActualWeight}
                   reweighRemarks={selectedShipment?.reweigh?.verificationReason}
                   reweighWeight={selectedShipment?.reweigh?.weight}
+                  maxBillableWeight={maxBillableWeight}
+                  totalBillableWeight={totalBillableWeight}
                 />
               </div>
             </DocumentViewerSidebar.Content>
