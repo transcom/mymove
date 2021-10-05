@@ -3,10 +3,10 @@ package linter_tests
 // #nosec // want "Please provide the rule that is being disabled"
 func nosecShouldProvideRule() {}
 
-// #nosec G101 // want "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters"
+// #nosec G101 // want "Disabling of linter must have an annotation associated with it. Please visit https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Annotations-for-Disabled-Linters"
 func nosecShouldHaveAnnotation() {}
 
-//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
+//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Security-Workflow"
 //RA: <Why did the linter flag this line of code?>
 //RA: <Why is this line of code valuable?>
 //RA: <What mitigates the risk of negative impact?>
@@ -16,7 +16,7 @@ func nosecShouldHaveAnnotation() {}
 // #nosec G402
 func nosecAnnotationNotApprovedTemplate() {}
 
-//RA Summary: gosec - G401 - Weak cryptographic hash  // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
+//RA Summary: gosec - G401 - Weak cryptographic hash  // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Security-Workflow"
 //RA: This line was flagged because of the use of MD5 hashing
 //RA: This line of code hashes the AWS object to be able to verify data integrity
 //RA: Purpose of this hash is to protect against environmental risks, it does not

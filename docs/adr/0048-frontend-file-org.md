@@ -14,7 +14,7 @@ _Chosen Alternative:_ Actively move code into the new structure as it is worked 
 
 For the purpose of distinguishing between the two file structures, I will use **"legacy"** to mean the previous structure (in which all files were located in `src/shared` or `src/scenes`), and **"new"** to mean the new structure.
 
-For reference, the new file structure is described [here](https://github.com/transcom/mymove/wiki/frontend#file-layout--naming).
+For reference, the new file structure is described [here](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming).
 
 I am proposing we start operating under the following guidelines:
 
