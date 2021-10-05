@@ -384,33 +384,39 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-export const usePrimeSimulatorAvailableMovesQueries = (
-  sort,
-  order,
-  filters = [],
-  currentPage = PAGINATION_PAGE_DEFAULT,
-  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
-) => {
+// usePrimeSimulatorAvailableMovesQueries does not use the following arguments
+// because the API Request does not know how to handle them. The arguments that
+// this function would normally have are handled by the queueResult object
+// being created in this function below.
+// README: This is here for historical reasons in case anyone is wondering why
+// these arguments aren't being set even though this Query is being used by
+// the TableQueue component hasQuery function which expects to be able to
+// send these variables in.
+// sort,
+// order,
+// filters = [],
+// currentPage = PAGINATION_PAGE_DEFAULT,
+// currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+export const usePrimeSimulatorAvailableMovesQueries = () => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [
-      PRIME_SIMULATOR_AVAILABLE_MOVES,
-      {
-        sort,
-        order,
-        filters,
-        currentPage,
-        currentPageSize,
-      },
-    ],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
     getPrimeSimulatorAvailableMoves,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
-  const { ...dataProps } = data;
-
-  console.info(data, 'usePrimeSimulatorAvailableMovesQueries');
+  // README: This queueResult is being artificially constructed rather than
+  // created using the `..dataProp` destructering of other functions because
+  // the Prime API does not return an Object that the TableQueue component can
+  // consume. So the queueResult mimics that Objects properties since `data` in
+  // this case is a simple Array of Prime Available Moves.
+  const queueResult = {
+    data,
+    page: 0,
+    perPage: data.length,
+    totalCount: data.length,
+  };
 
   return {
-    queueResult: { data, ...dataProps },
+    queueResult,
     isLoading,
     isError,
     isSuccess,
