@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/strfmt"
@@ -14,8 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// NewOrdersAPIHandler returns a handler for the Orders API
-func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
+// NewOrdersAPI the Orders API
+func NewOrdersAPI(context handlers.HandlerContext) *ordersoperations.MymoveAPI {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
@@ -30,7 +29,7 @@ func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
 	ordersAPI.IndexOrdersForMemberHandler = IndexOrdersForMemberHandler{context}
 	ordersAPI.PostRevisionHandler = PostRevisionHandler{context}
 	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{context}
-	return ordersAPI.Serve(nil)
+	return ordersAPI
 }
 
 func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessages.Orders, error) {

@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"log"
-	"net/http"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -31,8 +30,8 @@ import (
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
 
-// NewAdminAPIHandler returns a handler for the admin API
-func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
+// NewAdminAPI returns the admin API
+func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 
 	// Wire up the handlers to the publicAPIMux
 	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")
@@ -224,5 +223,5 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
-	return adminAPI.Serve(nil)
+	return adminAPI
 }

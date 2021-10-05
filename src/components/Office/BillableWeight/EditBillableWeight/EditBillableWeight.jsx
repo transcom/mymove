@@ -17,20 +17,27 @@ function BillableWeightHintText({
   originalWeight,
   totalBillableWeight,
 }) {
-  const showToFit = billableWeight > maxBillableWeight && billableWeight < estimatedWeight * 1.1;
+  const estimatedWeightTimes110 = estimatedWeight * 1.1;
+
+  const showToFit = billableWeight > maxBillableWeight && billableWeight > estimatedWeightTimes110;
+  // the to fit value is the max billable weight minus the total billable weight, excludes the shipment currently in view
+  const toFitValue = maxBillableWeight - totalBillableWeight + billableWeight;
+
+  const show110OfTotalEstimatedWeight = estimatedWeight > 0 && billableWeight > estimatedWeightTimes110;
 
   return (
     <>
-      <div>
+      <div className={styles.hintText}>
         <strong>{formatWeight(originalWeight)}</strong> <span>| original weight</span>
       </div>
-      <div className={styles.hintText}>
-        <strong>{formatWeight(estimatedWeight * 1.1)}</strong> <span>| 110% of total estimated weight</span>
-      </div>
+      {show110OfTotalEstimatedWeight && (
+        <div className={styles.hintText}>
+          <strong>{formatWeight(estimatedWeightTimes110)}</strong> <span>| 110% of total estimated weight</span>
+        </div>
+      )}
       {showToFit && (
         <div className={styles.hintText}>
-          <strong>{formatWeight(maxBillableWeight - totalBillableWeight)}</strong>{' '}
-          <span>| to fit within max billable weight</span>
+          <strong>{formatWeight(toFitValue)}</strong> <span>| to fit within max billable weight</span>
         </div>
       )}
     </>
@@ -59,10 +66,12 @@ function MaxBillableWeightHintText({ weightAllowance, estimatedWeight }) {
         <strong data-testid="maxWeight-weightAllowance">{formatWeight(weightAllowance)}</strong>{' '}
         <span>| weight allowance</span>
       </div>
-      <div className={styles.hintText}>
-        <strong data-testid="maxWeight-estimatedWeight">{formatWeight(estimatedWeight * 1.1)}</strong>{' '}
-        <span>| 110% of total estimated weight</span>
-      </div>
+      {!Number.isNaN(estimatedWeight) && estimatedWeight && (
+        <div className={styles.hintText}>
+          <strong data-testid="maxWeight-estimatedWeight">{formatWeight(estimatedWeight * 1.1)}</strong>{' '}
+          <span>| 110% of total estimated weight</span>
+        </div>
+      )}
     </>
   );
 }
@@ -100,7 +109,9 @@ export default function EditBillableWeight({
   };
 
   const initialValues = {
-    billableWeight: (maxBillableWeight && String(maxBillableWeight)) || (billableWeight && String(billableWeight)), // Formik is expecting these weights as a string
+    // Check for billable weight first since a maxBillableWeight will always exist, this avoids
+    // a bug caused by short circuting where the value defaults to the maxBillableWeight
+    billableWeight: (billableWeight && String(billableWeight)) || (maxBillableWeight && String(maxBillableWeight)), // Formik is expecting these weights as a string
     billableWeightJustification,
   };
 

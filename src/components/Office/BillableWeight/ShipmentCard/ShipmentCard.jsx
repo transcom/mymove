@@ -24,6 +24,8 @@ export default function ShipmentCard({
   adjustedWeight,
   reweighRemarks,
   reweighWeight,
+  maxBillableWeight,
+  totalBillableWeight,
 }) {
   let showOriginalWeightHighlight = false;
   let showReweighWeightHighlight = false;
@@ -98,14 +100,16 @@ export default function ShipmentCard({
                 {reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}
               </span>
             </div>
-            <div className={styles.field}>
+            <div className={reweighRemarks ? styles.field : classnames(styles.field, styles.lastRow)}>
               <strong>Date reweigh requested</strong>
               <span data-testid="dateReweighRequested">{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
             </div>
-            <div className={classnames(styles.field, styles.remarks)}>
-              <strong>Reweigh remarks</strong>
-              <span data-testid="reweighRemarks">{reweighRemarks}</span>
-            </div>
+            {reweighRemarks && (
+              <div className={classnames(styles.field, styles.remarks, styles.lastRow)}>
+                <strong>Reweigh remarks</strong>
+                <span data-testid="reweighRemarks">{reweighRemarks}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -117,6 +121,8 @@ export default function ShipmentCard({
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
           editEntity={editEntity}
+          maxBillableWeight={maxBillableWeight}
+          totalBillableWeight={totalBillableWeight}
         />
       </footer>
     </ShipmentContainer>
@@ -144,6 +150,8 @@ ShipmentCard.propTypes = {
   }).isRequired,
   reweighRemarks: string,
   reweighWeight: number,
+  maxBillableWeight: number.isRequired,
+  totalBillableWeight: number,
 };
 
 ShipmentCard.defaultProps = {
@@ -154,4 +162,5 @@ ShipmentCard.defaultProps = {
   adjustedWeight: null,
   reweighWeight: null,
   reweighRemarks: '',
+  totalBillableWeight: 0,
 };

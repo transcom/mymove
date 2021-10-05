@@ -58,7 +58,7 @@ const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
 const PrimeSimulatorAvailableMoves = lazy(() =>
-  import('pages/Office/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
+  import('pages/PrimeUI/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
 );
 
 export class OfficeApp extends Component {

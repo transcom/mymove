@@ -201,12 +201,15 @@ export default function ReviewBillableWeight() {
                 )}
                 {((!selectedShipment?.reweigh?.weight && selectedShipment?.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
-                  <Alert slim type="warning">
+                  <Alert slim type="warning" data-testid="shipmentMissingInformation">
                     Shipment missing information
                   </Alert>
                 )}
-                {shipmentIsOverweight(selectedShipment.primeEstimatedWeight, selectedShipment.primeActualWeight) && (
-                  <Alert slim type="warning">
+                {shipmentIsOverweight(
+                  selectedShipment.primeEstimatedWeight,
+                  selectedShipment.calculatedBillableWeight,
+                ) && (
+                  <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
                     Shipment exceeds 110% of estimated weight.
                   </Alert>
                 )}
@@ -234,6 +237,8 @@ export default function ReviewBillableWeight() {
                   adjustedWeight={selectedShipment.billableWeightCap}
                   reweighRemarks={selectedShipment?.reweigh?.verificationReason}
                   reweighWeight={selectedShipment?.reweigh?.weight}
+                  maxBillableWeight={maxBillableWeight}
+                  totalBillableWeight={totalBillableWeight}
                 />
               </div>
             </DocumentViewerSidebar.Content>
