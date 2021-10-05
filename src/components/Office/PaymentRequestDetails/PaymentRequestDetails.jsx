@@ -6,7 +6,7 @@ import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModif
 
 import styles from './PaymentRequestDetails.module.scss';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { PAYMENT_REQUEST_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
@@ -88,6 +88,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
                   key={item.id}
                   index={index}
                   disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                  paymentIsDeprecated={paymentRequestStatus === PAYMENT_REQUEST_STATUS.DEPRECATED}
                 />
               );
             })}

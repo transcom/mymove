@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import PropTypes, { arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
@@ -10,6 +10,7 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
+import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import { groupByShipment } from 'utils/serviceItems';
@@ -70,7 +71,13 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
-
+  const ViewDocuments =
+    paymentRequest.status !== PAYMENT_REQUEST_STATUS.DEPRECATED ? (
+      <a href={`payment-requests/${paymentRequest.id}`}>
+        <FontAwesomeIcon icon="copy" />
+        View documents
+      </a>
+    ) : null;
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
       <div className={styles.summary}>
@@ -138,14 +145,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
             <dt>SAC/SDN:</dt>
             <dd>{sac}</dd>
           </dl>
-          {paymentRequest.status === 'PENDING' ? (
-            <a href="orders">View orders</a>
-          ) : (
-            <a href={`payment-requests/${paymentRequest.id}`}>
-              <FontAwesomeIcon icon="copy" />
-              View documents
-            </a>
-          )}
+          {paymentRequest.status === 'PENDING' ? <a href="orders">View orders</a> : ViewDocuments}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
               <Button
