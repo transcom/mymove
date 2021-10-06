@@ -25,7 +25,6 @@ import (
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() *zap.Logger
 	AppContextFromRequest(r *http.Request) appcontext.AppContext
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
@@ -135,10 +134,6 @@ func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
 	if logger != nil {
 		return logger
 	}
-	return hctx.logger
-}
-
-func (hctx *handlerContext) Logger() *zap.Logger {
 	return hctx.logger
 }
 
