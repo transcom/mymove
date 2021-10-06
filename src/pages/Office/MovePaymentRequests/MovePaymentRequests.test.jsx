@@ -379,6 +379,36 @@ const moveShipmentMissingReweighWeight = {
   order,
 };
 
+const returnWithBillableWeightsReviewed = {
+  paymentRequests: [],
+  mtoShipments: [
+    {
+      shipmentType: 'HHG',
+      id: '2',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 8000,
+      primeEstimatedWeight: 3000,
+      reweigh: {
+        id: '123',
+      },
+      mtoServiceItems: [
+        {
+          id: '3',
+          mtoShipmentID: '2',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+      ],
+    },
+  ],
+  order,
+  move,
+};
+
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -637,6 +667,32 @@ describe('MovePaymentRequests', () => {
       await waitFor(() => {
         expect(screen.getByTestId('maxBillableWeightWarningTag')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('a move that does not have a billableWeightsReviewedAt timestamp displays a primary styled Review Weights btn', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(moveShipmentMissingReweighWeight);
+    });
+
+    it('shows the max billable weight warning tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+
+      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      expect(reviewWeights).not.toHaveClass('usa-button--secondary');
+    });
+  });
+
+  describe('a move that has a billableWeightsReviewedAt timestamp displays a secondary styled Review Weights btn', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(returnWithBillableWeightsReviewed);
+    });
+
+    it('shows the max billable weight warning tag in sidebar', async () => {
+      renderMovePaymentRequests(testProps);
+
+      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      expect(reviewWeights).toHaveClass('usa-button--secondary');
     });
   });
 });

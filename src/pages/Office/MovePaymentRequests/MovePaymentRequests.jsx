@@ -58,11 +58,7 @@ const MovePaymentRequests = ({
   const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
-      queryCache.setQueryData([MOVES, move.locator], {
-        moves: {
-          [`${move.locator}`]: updatedMove,
-        },
-      });
+      queryCache.setQueryData([MOVES, move.locator], updatedMove);
       queryCache.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
