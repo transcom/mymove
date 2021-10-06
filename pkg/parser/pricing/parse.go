@@ -1,6 +1,7 @@
 package pricing
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -9,7 +10,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
-	"github.com/tealeg/xlsx"
+	"github.com/pterm/pterm"
+	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -120,8 +122,9 @@ type XlsxDataSheetInfo struct {
 }
 
 type xlsxProcessInfo struct {
-	process    *processXlsxSheet
-	adtlSuffix *string
+	process     *processXlsxSheet
+	description *string
+	adtlSuffix  *string
 }
 
 // ParamConfig is the parameter conifguration
@@ -156,12 +159,14 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		outputFilename: swag.String("1b_service_areas"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &parseDomesticServiceAreas,
-				adtlSuffix: swag.String("domestic"),
+				process:     &parseDomesticServiceAreas,
+				description: swag.String("domestic service areas"),
+				adtlSuffix:  swag.String("domestic"),
 			},
 			{
-				process:    &parseInternationalServiceAreas,
-				adtlSuffix: swag.String("international"),
+				process:     &parseInternationalServiceAreas,
+				description: swag.String("international service areas"),
+				adtlSuffix:  swag.String("international"),
 			},
 		},
 		verify: &verifyServiceAreas,
@@ -172,7 +177,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("2a) Domestic Linehaul Prices"),
 		outputFilename: swag.String("2a_domestic_linehaul_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseDomesticLinehaulPrices,
+			process:     &parseDomesticLinehaulPrices,
+			description: swag.String("domestic linehaul prices"),
 		},
 		},
 		verify: &verifyDomesticLinehaulPrices,
@@ -183,7 +189,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("2b) Dom. Service Area Prices"),
 		outputFilename: swag.String("2b_domestic_service_area_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseDomesticServiceAreaPrices,
+			process:     &parseDomesticServiceAreaPrices,
+			description: swag.String("domestic service area prices"),
 		},
 		},
 		verify: &verifyDomesticServiceAreaPrices,
@@ -195,12 +202,14 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		outputFilename: swag.String("2c_domestic_other_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &parseDomesticOtherPricesPack,
-				adtlSuffix: swag.String("pack"),
+				process:     &parseDomesticOtherPricesPack,
+				description: swag.String("domestic other (pack/unpack) prices"),
+				adtlSuffix:  swag.String("pack"),
 			},
 			{
-				process:    &parseDomesticOtherPricesSit,
-				adtlSuffix: swag.String("sit"),
+				process:     &parseDomesticOtherPricesSit,
+				description: swag.String("domestic other (SIT pickup/delivery) prices"),
+				adtlSuffix:  swag.String("sit"),
 			},
 		},
 		verify: &verifyDomesticOtherPrices,
@@ -211,8 +220,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("3a) OCONUS to OCONUS Prices"),
 		outputFilename: swag.String("3a_oconus_to_oconus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			//process: &parseOconusToOconusPrices,
-			process: &parseOconusToOconusPrices,
+			process:     &parseOconusToOconusPrices,
+			description: swag.String("OCONUS to OCONUS prices"),
 		},
 		},
 		verify: &verifyIntlOconusToOconusPrices,
@@ -223,7 +232,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("3b) CONUS to OCONUS Prices"),
 		outputFilename: swag.String("3b_conus_to_oconus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseConusToOconusPrices,
+			process:     &parseConusToOconusPrices,
+			description: swag.String("CONUS to OCONUS prices"),
 		},
 		},
 		verify: &verifyIntlConusToOconusPrices,
@@ -234,7 +244,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("3c) OCONUS to CONUS Prices"),
 		outputFilename: swag.String("3c_oconus_to_conus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseOconusToConusPrices,
+			process:     &parseOconusToConusPrices,
+			description: swag.String("OCONUS to CONUS prices"),
 		},
 		},
 		verify: &verifyIntlOconusToConusPrices,
@@ -245,7 +256,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("3e) Non-Standard Loc'n Prices"),
 		outputFilename: swag.String("3e_non_standard_locn_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseNonStandardLocnPrices,
+			process:     &parseNonStandardLocnPrices,
+			description: swag.String("non-standard location prices"),
 		},
 		},
 		verify: &verifyNonStandardLocnPrices,
@@ -256,7 +268,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("5b) Price Escalation Discount"),
 		outputFilename: swag.String("5b_price_escalation_discount"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parsePriceEscalationDiscount,
+			process:     &parsePriceEscalationDiscount,
+			description: swag.String("price escalation discount"),
 		},
 		},
 		verify: &verifyPriceEscalationDiscount,
@@ -267,7 +280,8 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		Description:    swag.String("3d) Other International Prices"),
 		outputFilename: swag.String("3d_other_international_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
-			process: &parseOtherIntlPrices,
+			process:     &parseOtherIntlPrices,
+			description: swag.String("other international prices"),
 		},
 		},
 		verify: &verifyOtherIntlPrices,
@@ -279,16 +293,19 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		outputFilename: swag.String("4a_mgmt_coun_trans_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &parseShipmentManagementServicesPrices,
-				adtlSuffix: swag.String("management"),
+				process:     &parseShipmentManagementServicesPrices,
+				description: swag.String("shipment management services prices"),
+				adtlSuffix:  swag.String("management"),
 			},
 			{
-				process:    &parseCounselingServicesPrices,
-				adtlSuffix: swag.String("counsel"),
+				process:     &parseCounselingServicesPrices,
+				description: swag.String("counseling services prices"),
+				adtlSuffix:  swag.String("counsel"),
 			},
 			{
-				process:    &parseTransitionPrices,
-				adtlSuffix: swag.String("transition"),
+				process:     &parseTransitionPrices,
+				description: swag.String("transition prices"),
+				adtlSuffix:  swag.String("transition"),
 			},
 		},
 		verify: &verifyManagementCounselTransitionPrices,
@@ -300,16 +317,19 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		outputFilename: swag.String("5a_access_and_add_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &parseDomesticMoveAccessorialPrices,
-				adtlSuffix: swag.String("domestic"),
+				process:     &parseDomesticMoveAccessorialPrices,
+				description: swag.String("domestic move accessorial prices"),
+				adtlSuffix:  swag.String("domestic"),
 			},
 			{
-				process:    &parseInternationalMoveAccessorialPrices,
-				adtlSuffix: swag.String("international"),
+				process:     &parseInternationalMoveAccessorialPrices,
+				description: swag.String("international move accessorial prices"),
+				adtlSuffix:  swag.String("international"),
 			},
 			{
-				process:    &parseDomesticInternationalAdditionalPrices,
-				adtlSuffix: swag.String("additional"),
+				process:     &parseDomesticInternationalAdditionalPrices,
+				description: swag.String("domestic/international additional prices"),
+				adtlSuffix:  swag.String("additional"),
 			},
 		},
 		verify: &verifyAccessAndAddPrices,
@@ -375,13 +395,13 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 //         c.) update InitDataSheetInfo() with a.) and b.)
 func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, logger Logger) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
-	var description string
+
+	description := "(no description)"
 	if xlsxInfo.Description != nil {
 		description = *xlsxInfo.Description
-		logger.Info("Processing sheet", zap.Int("sheet index", sheetIndex), zap.String("description", description))
-	} else {
-		logger.Info("Processing sheet (missing description)", zap.Int("sheet index", sheetIndex))
 	}
+
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Processing sheet index %d: %s", sheetIndex, description)))
 
 	// Call verify function
 	if params.RunVerify {
@@ -403,22 +423,37 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	if len(xlsxInfo.ProcessMethods) > 0 {
 		for methodIndex, p := range xlsxInfo.ProcessMethods {
 			if p.process != nil {
+				processDescription := "(no description)"
+				if p.description != nil {
+					processDescription = *p.description
+				}
+
+				spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
+				if err != nil {
+					logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+				}
+
 				callFunc := *p.process
 				slice, err := callFunc(params, sheetIndex, logger)
 				if err != nil {
+					spinner.Fail()
 					logger.Error("process error", zap.String("description", description), zap.Error(err))
-					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+					return errors.Wrapf(err, "process error for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
 					if err := createCSV(filename, slice, logger); err != nil {
+						spinner.Fail()
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
 				}
 				if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
+					spinner.Fail()
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
+
+				spinner.Success()
 			} else {
 				logger.Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
 			}
@@ -427,8 +462,6 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 		logger.Fatal("Missing process function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
 	}
 
-	// Verification and Process completed
-	logger.Info("Completed processing sheet", zap.Int("sheet index", sheetIndex), zap.String("description", description))
 	return nil
 }
 

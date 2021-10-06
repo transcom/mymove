@@ -48,7 +48,7 @@ const (
 type PersonallyProcuredMove struct {
 	ID                            uuid.UUID      `json:"id" db:"id"`
 	MoveID                        uuid.UUID      `json:"move_id" db:"move_id"`
-	Move                          Move           `belongs_to:"move"`
+	Move                          Move           `belongs_to:"move" fk_id:"move_id"`
 	CreatedAt                     time.Time      `json:"created_at" db:"created_at"`
 	UpdatedAt                     time.Time      `json:"updated_at" db:"updated_at"`
 	WeightEstimate                *unit.Pound    `json:"weight_estimate" db:"weight_estimate"`
@@ -73,8 +73,8 @@ type PersonallyProcuredMove struct {
 	Status                        PPMStatus      `json:"status" db:"status"`
 	HasRequestedAdvance           bool           `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceID                     *uuid.UUID     `json:"advance_id" db:"advance_id"`
-	Advance                       *Reimbursement `belongs_to:"reimbursements"`
-	AdvanceWorksheet              Document       `belongs_to:"documents"`
+	Advance                       *Reimbursement `belongs_to:"reimbursements" fk_id:"advance_id"`
+	AdvanceWorksheet              Document       `belongs_to:"documents" fk_id:"advance_worksheet_id"`
 	AdvanceWorksheetID            *uuid.UUID     `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 	TotalSITCost                  *unit.Cents    `json:"total_sit_cost" db:"total_sit_cost"`
 	HasProGear                    *ProGearStatus `json:"has_pro_gear" db:"has_pro_gear"`

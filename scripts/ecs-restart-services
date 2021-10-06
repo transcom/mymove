@@ -18,8 +18,8 @@ readonly environment="$1"
 readonly cluster="app-${environment}"
 
 # Validate the environments
-if [[ "${environment}" != "experimental" ]] && [[ "${environment}" != "staging" ]] && [[ "${environment}" != "prod" ]] ; then
-  echo "<environment> must be one of experimental, staging, or prod"
+if [[ "${environment}" != "demo" ]] && [[ "${environment}" != "exp" ]] && [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]] ; then
+  echo "<environment> must be one of demo, exp, stg, prd"
   exit 1
 fi
 

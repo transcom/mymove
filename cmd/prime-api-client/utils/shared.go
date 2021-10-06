@@ -23,6 +23,8 @@ const (
 	FilenameFlag string = "filename"
 	// IDFlag is the UUID of the object being retrieved
 	IDFlag string = "id"
+	// SinceFlag is the datetime for the `since` filter for fetching moves
+	SinceFlag string = "since"
 	// ETagFlag is the etag for the mto shipment being updated
 	ETagFlag string = "etag"
 	// PaymentRequestIDFlag is the payment request ID

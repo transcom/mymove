@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -29,6 +31,7 @@ type MoveTaskOrder struct {
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// destination duty station
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
 
@@ -39,17 +42,21 @@ type MoveTaskOrder struct {
 	Entitlements *Entitlements `json:"entitlements,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// locator
+	// Example: 1K43AR
 	Locator string `json:"locator,omitempty"`
 
 	// order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 	// origin duty station
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	OriginDutyStation strfmt.UUID `json:"originDutyStation,omitempty"`
 
@@ -57,6 +64,7 @@ type MoveTaskOrder struct {
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// reference Id
+	// Example: 1001-3456
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// requested pickup date
@@ -66,6 +74,10 @@ type MoveTaskOrder struct {
 	// service counseling completed at
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
+
+	// tio remarks
+	// Example: approved additional weight
+	TioRemarks *string `json:"tioRemarks,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -131,7 +143,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AvailableToPrimeAt) { // not required
 		return nil
 	}
@@ -144,7 +155,6 @@ func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) erro
 }
 
 func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -157,7 +167,6 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
 	}
@@ -175,7 +184,6 @@ func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) erro
 }
 
 func (m *MoveTaskOrder) validateDestinationDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
 	}
@@ -188,7 +196,6 @@ func (m *MoveTaskOrder) validateDestinationDutyStation(formats strfmt.Registry) 
 }
 
 func (m *MoveTaskOrder) validateEntitlements(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Entitlements) { // not required
 		return nil
 	}
@@ -206,7 +213,6 @@ func (m *MoveTaskOrder) validateEntitlements(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -219,7 +225,6 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
@@ -232,7 +237,6 @@ func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateOriginDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
 	}
@@ -245,7 +249,6 @@ func (m *MoveTaskOrder) validateOriginDutyStation(formats strfmt.Registry) error
 }
 
 func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
 	}
@@ -263,7 +266,6 @@ func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedPickupDate) { // not required
 		return nil
 	}
@@ -276,7 +278,6 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 }
 
 func (m *MoveTaskOrder) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
 		return nil
 	}
@@ -289,13 +290,76 @@ func (m *MoveTaskOrder) validateServiceCounselingCompletedAt(formats strfmt.Regi
 }
 
 func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move task order based on the context it is used
+func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateEntitlements(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateEntitlements(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Entitlements != nil {
+		if err := m.Entitlements.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlements")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
@@ -115,7 +116,7 @@ func main() {
 
 	logger.Println(ediString)
 
-	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	certLogger, _, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -129,20 +130,23 @@ func main() {
 	logger.Println("Sending to GEX ...")
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString("gex-url"),
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString("gex-basic-auth-username"),
 		v.GetString("gex-basic-auth-password"),
-	).SendToGex(ediString, v.GetString("transaction-name"))
+	).SendToGex(services.GEXChannelInvoice, ediString, v.GetString("transaction-name"))
 
 	if err != nil {
 		log.Fatalf("Gex Sender encountered an error: %v", err)
 	}
 
+	statusCode := 0
+
 	if resp == nil {
 		log.Fatal("Gex Sender had no response")
+	} else {
+		statusCode = resp.StatusCode
 	}
 
-	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
+	fmt.Printf("status code: %v, error: %v \n", statusCode, err)
 }

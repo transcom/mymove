@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, ButtonGroup } from '@trussworks/react-uswds';
+import { useHistory } from 'react-router-dom';
 
+import '../../styles/office.scss';
 import styles from './SignIn.module.scss';
+
 import '@trussworks/react-uswds/lib/index.css';
 
 import { withContext } from 'shared/AppContext';
@@ -14,13 +17,21 @@ import { isDevelopment } from 'shared/constants';
 
 const SignIn = ({ context, location, showLocalDevLogin }) => {
   const [showEula, setShowEula] = useState(false);
+  const history = useHistory();
+
+  useEffect(() => {
+    function unload() {
+      history.replace('', null);
+    }
+    window.addEventListener('beforeunload', unload);
+    return () => window.removeEventListener('beforeunload', unload);
+  }, [history]);
 
   const { error } = qs.parse(location.search);
-  const hash = qs.parse(location.hash);
   const { siteName, showLoginWarning } = context;
 
   return (
-    <div className="grid-container usa-prose">
+    <div className="usa-prose grid-container padding-top-3">
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
@@ -29,7 +40,7 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
         closeModal={() => setShowEula(false)}
       />
       <div className="grid-row">
-        <div className="grid-col-8 grid-offset-2">
+        <div>
           {error && (
             <div>
               <Alert type="error" heading="An error occurred">
@@ -38,10 +49,17 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
               <br />
             </div>
           )}
-          {'timedout' in hash && (
+          {location.state && location.state.timedout && (
             <div>
               <Alert type="error" heading="Logged out">
                 You have been logged out due to inactivity.
+              </Alert>
+            </div>
+          )}
+          {location.state && location.state.hasLoggedOut && (
+            <div>
+              <Alert type="success" heading="You have signed out of MilMove">
+                Sign in again when you&apos;re ready to start a new session.
               </Alert>
             </div>
           )}
@@ -64,21 +82,23 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
             </div>
           )}
           <div className="align-center">
-            <Button
-              aria-label="Sign In"
-              className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
-              data-testid="signin"
-              onClick={() => setShowEula(!showEula)}
-              type="button"
-            >
-              Sign in
-            </Button>
+            <ButtonGroup type="default">
+              <Button
+                aria-label="Sign In"
+                className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+                data-testid="signin"
+                onClick={() => setShowEula(!showEula)}
+                type="button"
+              >
+                Sign in
+              </Button>
 
-            {showLocalDevLogin && (
-              <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
-                Local Sign In
-              </a>
-            )}
+              {showLocalDevLogin && (
+                <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
+                  Local Sign In
+                </a>
+              )}
+            </ButtonGroup>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//ServiceItemParamName is the name of service item parameter
+// ServiceItemParamName is the name of service item parameter
 type ServiceItemParamName string
 
 func (s ServiceItemParamName) String() string {
@@ -20,8 +20,6 @@ func (s ServiceItemParamName) String() string {
 const (
 	// ServiceItemParamNameActualPickupDate is the param key name ActualPickupDate
 	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
-	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
-	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameContractCode is the param key name ContractCode
 	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
 	// ServiceItemParamNameContractYearName is the param key name ContractYearName
@@ -30,6 +28,12 @@ const (
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
+	// ServiceItemParamNameDimensionHeight is the param key name DimensionHeight
+	ServiceItemParamNameDimensionHeight ServiceItemParamName = "DimensionHeight"
+	// ServiceItemParamNameDimensionLength is the param key name DimensionLength
+	ServiceItemParamNameDimensionLength ServiceItemParamName = "DimensionLength"
+	// ServiceItemParamNameDimensionWidth is the param key name DimensionWidth
+	ServiceItemParamNameDimensionWidth ServiceItemParamName = "DimensionWidth"
 	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
@@ -118,16 +122,24 @@ const (
 	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
 	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
 	ServiceItemParamNameServicesScheduleOrigin ServiceItemParamName = "ServicesScheduleOrigin"
+	// ServiceItemParamNameSITPaymentRequestEnd is the param key name SITPaymentRequestEnd
+	ServiceItemParamNameSITPaymentRequestEnd ServiceItemParamName = "SITPaymentRequestEnd"
+	// ServiceItemParamNameSITPaymentRequestStart is the param key name SITPaymentRequestStart
+	ServiceItemParamNameSITPaymentRequestStart ServiceItemParamName = "SITPaymentRequestStart"
 	// ServiceItemParamNameSITScheduleDest is the param key name SITScheduleDest
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
-	// ServiceItemParamNameWeightActual is the param key name WeightActual
-	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
-	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
-	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
+	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
+	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
+	// ServiceItemParamNameWeightBilled is the param key name WeightBilled
+	ServiceItemParamNameWeightBilled ServiceItemParamName = "WeightBilled"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
 	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
+	// ServiceItemParamNameWeightOriginal is the param key name WeightOriginal
+	ServiceItemParamNameWeightOriginal ServiceItemParamName = "WeightOriginal"
+	// ServiceItemParamNameWeightReweigh is the param key name WeightReweigh
+	ServiceItemParamNameWeightReweigh ServiceItemParamName = "WeightReweigh"
 	// ServiceItemParamNameZipDestAddress is the param key name ZipDestAddress
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
@@ -161,7 +173,7 @@ const (
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
 	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
 	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
-	//ServiceItemParamTypeBoolean is a boolean
+	// ServiceItemParamTypeBoolean is a boolean
 	ServiceItemParamTypeBoolean ServiceItemParamType = "BOOLEAN"
 )
 
@@ -180,16 +192,20 @@ const (
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 	// ServiceItemParamOriginPricer is the Pricer origin
 	ServiceItemParamOriginPricer ServiceItemParamOrigin = "PRICER"
+	// ServiceItemParamOriginPaymentRequest is the PaymentRequest origin
+	ServiceItemParamOriginPaymentRequest ServiceItemParamOrigin = "PAYMENT_REQUEST"
 )
 
 // ValidServiceItemParamNames lists all valid service item param key names
 var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameActualPickupDate,
-	ServiceItemParamNameCanStandAlone,
 	ServiceItemParamNameContractCode,
 	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
 	ServiceItemParamNameCubicFeetCrating,
+	ServiceItemParamNameDimensionHeight,
+	ServiceItemParamNameDimensionLength,
+	ServiceItemParamNameDimensionWidth,
 	ServiceItemParamNameDistanceZip3,
 	ServiceItemParamNameDistanceZip5,
 	ServiceItemParamNameDistanceZipSITDest,
@@ -234,11 +250,15 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameServiceAreaOrigin,
 	ServiceItemParamNameServicesScheduleDest,
 	ServiceItemParamNameServicesScheduleOrigin,
+	ServiceItemParamNameSITPaymentRequestEnd,
+	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
-	ServiceItemParamNameWeightActual,
-	ServiceItemParamNameWeightBilledActual,
+	ServiceItemParamNameWeightAdjusted,
+	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
+	ServiceItemParamNameWeightOriginal,
+	ServiceItemParamNameWeightReweigh,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
@@ -249,11 +269,13 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 // ValidServiceItemParamNameStrings lists all valid service item param key names
 var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameActualPickupDate),
-	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameContractCode),
 	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
+	string(ServiceItemParamNameDimensionHeight),
+	string(ServiceItemParamNameDimensionLength),
+	string(ServiceItemParamNameDimensionWidth),
 	string(ServiceItemParamNameDistanceZip3),
 	string(ServiceItemParamNameDistanceZip5),
 	string(ServiceItemParamNameDistanceZipSITDest),
@@ -298,11 +320,15 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
 	string(ServiceItemParamNameServicesScheduleOrigin),
+	string(ServiceItemParamNameSITPaymentRequestEnd),
+	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
-	string(ServiceItemParamNameWeightActual),
-	string(ServiceItemParamNameWeightBilledActual),
+	string(ServiceItemParamNameWeightAdjusted),
+	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),
+	string(ServiceItemParamNameWeightOriginal),
+	string(ServiceItemParamNameWeightReweigh),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
@@ -326,6 +352,7 @@ var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
 	string(ServiceItemParamOriginPricer),
+	string(ServiceItemParamOriginPaymentRequest),
 }
 
 // ServiceItemParamKey is a key for a Service Item Param

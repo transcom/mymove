@@ -7,7 +7,7 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
-	newAddress := Address{
+	newAddress := &Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: swag.String("street 2"),
 		StreetAddress3: swag.String("street 3"),
@@ -16,9 +16,9 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		PostalCode:     "90210",
 	}
 
-	verrs, err := suite.DB().ValidateAndCreate(&newAddress)
+	verrs, err := newAddress.Validate(nil)
 
-	suite.Nil(err, "Error writing to the db.")
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 }
 

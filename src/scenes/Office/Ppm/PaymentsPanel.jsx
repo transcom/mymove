@@ -7,13 +7,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import {
   approveReimbursement,
-  selectActivePPMForMove,
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
+  selectActivePPMForMove,
 } from 'shared/Entities/modules/ppms';
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
+import {
+  getSignedCertification,
+  selectPaymentRequestCertificationForMove,
+} from 'shared/Entities/modules/signed_certifications';
 import { getLastError } from 'shared/Swagger/selectors';
 import { selectReimbursementById } from 'store/entities/selectors';
 
@@ -79,7 +81,7 @@ class PaymentsTable extends Component {
   };
 
   togglePaperwork = () => {
-    this.setState({ showPaperwork: !this.state.showPaperwork });
+    this.setState((prevState) => ({ showPaperwork: !prevState.showPaperwork }));
   };
 
   disableDownloadAll = () => {

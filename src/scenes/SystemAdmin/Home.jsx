@@ -1,3 +1,4 @@
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import restProvider from './shared/rest_provider';
 import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
 import { createBrowserHistory } from 'history';
@@ -14,7 +15,7 @@ import AdminUserList from 'pages/Admin/AdminUsers/AdminUserList';
 import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
 import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
 import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
-import OfficeList from './Offices/OfficeList';
+import OfficeList from 'pages/Admin/Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
@@ -40,7 +41,7 @@ const httpClient = (url, options = {}) => {
   }
   const token = Cookies.get('masked_gorilla_csrf');
   if (!token) {
-    console.warn('Unable to retrieve CSRF Token from cookie');
+    milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
   }
   options.headers.set('X-CSRF-TOKEN', token);
   // send cookies in the request

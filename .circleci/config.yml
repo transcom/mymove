@@ -13,16 +13,54 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40
 
-  postgres: &postgres postgres:12.4
+  postgres: &postgres postgres:12.7
+
+  # set demo-branch to the branch you want to deploy to demo, or
+  # `placeholder_branch_name` if you don't want to deploy to demo
+  #
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for demo deploys. See the branch settings below.
+  demo-branch: &demo-branch placeholder_branch_name
+
+  # set exp-branch to the branch you want to deploy to exp, or
+  # `placeholder_branch_name` if you don't want to deploy to exp
+  #
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for exp deploys. See the branch settings below.
+  exp-branch: &exp-branch placeholder_branch_name
+
+  # set acceptance-branch to the branch you want to ENABLE acceptance
+  # tests, or `placeholder_branch_name` if you don't want to run them
+  acceptance-branch: &acceptance-branch placeholder_branch_name
+
+  # set integration-ignore-branch to the branch if you want to IGNORE
+  # integration tests, or `placeholder_branch_name` if you do want to
+  # run them
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+
+  # set integration-mtls-ignore-branch to the branch if you want to
+  # IGNORE mtls integration tests, or `placeholder_branch_name` if you
+  # do want to run them
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+
+  # set client-ignore-branch to the branch if you want to IGNORE
+  # client tests, or `placeholder_branch_name` if you do want to run
+  # them
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+
+  # set server-ignore-branch to the branch if you want to IGNORE
+  # server tests, or `placeholder_branch_name` if you do want to run
+  # them
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   av_medium:
     resource_class: medium
-    working_directory: /root/project
+    working_directory: ~/transcom/mymove
     docker:
-      - image: mk0x/docker-clamav:latest
+      - image: milmove/clamav-ci
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
         # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
@@ -98,6 +136,25 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
+  aws_vars_demo:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for demo env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$DEMO_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEMO_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEMO_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEMO_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  tls_vars_demo:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for demo env'
+          command: |
+            echo "export TLS_CERT=$DEMO_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$DEMO_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$DEMO_DP3_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -107,6 +164,15 @@ commands:
             echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  tls_vars_exp:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for exp env'
+          command: |
+            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
@@ -118,6 +184,15 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_stg:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for stg env'
+          command: |
+            echo "export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_prd:
     steps:
       - run:
@@ -128,15 +203,14 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
-  aws_vars_transcom_com_dev:
+  tls_vars_prd:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for com-dev env'
+          name: 'Setting up TLS environment variables for prd env'
           command: |
-            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            echo "export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_transcom_gov_dev:
     steps:
@@ -148,6 +222,26 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
+  tls_vars_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up TLS environment variables for gov-dev env'
+          command: |
+            echo "export TLS_CERT=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_transcom_com_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for com-dev env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+
   announce_failure:
     parameters:
     steps:
@@ -222,6 +316,36 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
+  # Used for dp3 sites, which do not include gex/orders
+  deploy_dp3_tasks_steps:
+    parameters:
+      ecr_env:
+        type: string
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy GHC fuel price data task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
+      - deploy:
+          name: Deploy post move email survey task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
+      - deploy:
+          name: Deploy payment reminder email task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
   deploy_app_steps:
     parameters:
       compare_host:
@@ -250,7 +374,7 @@ commands:
           no_output_timeout: 20m
       - run:
           name: Health Check
-          command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+          command: bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 5m
       - run:
           name: TLS Check
           command: bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --log-level info --timeout 15m
@@ -271,7 +395,7 @@ commands:
       - run:
           name: Compare against deployed commit
           command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -287,14 +411,14 @@ commands:
       - run:
           name: Health Check
           command: |
-            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
       - run:
           name: TLS Check
           command: |
-            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
   deploy_webhook_client_steps:
     parameters:
@@ -430,6 +554,18 @@ commands:
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
       - run:
+          name: make db_test_truncate for <<parameters.application>>
+          command: make db_test_truncate
+          environment:
+            APPLICATION: '<< parameters.application >>'
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+      - run:
           name: make server_test_standalone for <<parameters.application>>
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
@@ -556,7 +692,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "mocks" -exec echo -n '{} ' \;)
+      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -567,14 +703,9 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
-      - run: mkdir -p /store && chown clamav /store
-      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
-      - run:
-          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
-          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
       - run: >
           clamscan \
             --recursive \
@@ -587,9 +718,7 @@ jobs:
             --max-recursion=30 \
             --max-files=50000 \
             --tempdir=/tmp \
-            --database=/store \
-            /root/project \
-            /store
+            ~/transcom/mymove
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -639,7 +768,10 @@ jobs:
       - run:
           name: Run eslint checks
           command: yarn lint
-      # adding danger checks here as they are similar to our pre-commit hooks
+      # Add DangerJS checks here since they are similar to our pre-commit hooks. This requires that
+      # the DANGER_GITHUB_API_TOKEN environment variable is set in the project settings for
+      # CircleCI. To generate a new token, log into the robot-mymove account and regenerate the
+      # personal access token named "MyMove Report Danger bot".
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
@@ -685,6 +817,23 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
+      - aws_vars_demo
+      - run:
+          name: Prepare certificates
+          command: |
+            sudo cp /home/circleci/transcom/mymove/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run:
+          name: Run Demo acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: demo
+            ENVIRONMENT: demo
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: demo
       - aws_vars_exp
       - run:
           name: Prepare certificates
@@ -925,6 +1074,33 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `build_dp3_app` builds the application container, replacing DoD chain/certs with non-ato version
+  build_dp3_app:
+    executor: mymove_medium_plus
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run:
+          name: Install Frozen YARN dependencies
+          command: yarn install --frozen-lockfile
+      - run: make client_build
+      - run: make server_build
+      - build_image:
+          dockerfile: Dockerfile.dp3
+          image_name: app
+          tag: web-dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
+
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
     executor: mymove_small
@@ -934,6 +1110,20 @@ jobs:
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
+          image_name: app
+          tag: web-dev
+          repo: app
+      - announce_failure
+
+  # `push_app_demo` pushes the app container to the milmove-demo container repository
+  push_app_demo:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_demo
+      - push_image:
+          ecr_env: demo
           image_name: app
           tag: web-dev
           repo: app
@@ -1012,6 +1202,9 @@ jobs:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
+      - store_artifacts:
+          path: ~/transcom/mymove/storybook-static
+          destination: storybook
       - announce_failure
 
   # `build_migrations` builds the migrations container
@@ -1040,6 +1233,20 @@ jobs:
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
+          image_name: app-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
+  # `push_migrations_demo` pushes the migrations container to the milmove-demo container repository
+  push_migrations_demo:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_demo
+      - push_image:
+          ecr_env: demo
           image_name: app-migrations
           tag: dev
           repo: app-migrations
@@ -1109,6 +1316,28 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  #`build_dp3_tasks` builds the task container, replacing DoD chain/certs with non-ato version
+  build_dp3_tasks:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+      - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: make server_generate
+      - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
+      - build_image:
+          dockerfile: Dockerfile.tasks_dp3
+          image_name: tasks
+          tag: dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
+
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
   push_tasks_gov_dev:
     executor: mymove_small
@@ -1118,6 +1347,20 @@ jobs:
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
+      - announce_failure
+
+  # `push_tasks_demo` pushes the tasks containers to the milmove-demo container repository
+  push_tasks_demo:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_demo
+      - push_image:
+          ecr_env: demo
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1181,6 +1424,35 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
+  build_dp3_webhook_client:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
+      - run: make bin/webhook-client
+      - build_image:
+          dockerfile: Dockerfile.webhook_client_dp3
+          image_name: webhook_client
+          tag: dev
+          working_dir: ~/transcom/mymove
+      - announce_failure
+  # `push_webhook_client_demo` pushes the webhook client container to the demo container repository
+  push_webhook_client_demo:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_demo
+      - push_image:
+          ecr_env: demo
+          image_name: webhook_client
+          tag: dev
+          repo: app-webhook-client
+      - announce_failure
+
   # `push_webhook_client_exp` pushes the webhook client container to the exp container repository
   push_webhook_client_exp:
     executor: mymove_small
@@ -1209,6 +1481,61 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # `deploy_demo_migrations` deploys migrations to the demo environment
+  deploy_demo_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_migrations_steps:
+          ecr_env: demo
+
+  # `deploy_demo_tasks` deploys scheduled tasks to the demo environment
+  deploy_demo_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_dp3_tasks_steps:
+          ecr_env: demo
+
+  # `deploy_demo_app` updates the server-TLS app service in the demo environment
+  deploy_demo_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_app_steps:
+          compare_host: '' # leave blank since we want demo to be able to roll back
+          health_check_hosts: my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us
+          ecr_env: demo
+
+  # `deploy_demo_app_client_tls` updates the mutual-TLS service in the demo environment
+  deploy_demo_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - tls_vars_demo
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want demo to be able to roll back
+          health_check_hosts: api.demo.dp3.us
+          ecr_env: demo
+
+  # `deploy_demo_webhook_client` deploys the webhook client to demo
+  deploy_demo_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_webhook_client_steps:
+          ecr_env: demo
+
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1220,6 +1547,7 @@ jobs:
           ecr_env: exp
 
   # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
+  # change to deploy_dp3_tasks_steps when exp moves to dp3.us
   deploy_exp_tasks:
     executor: mymove_small
     environment:
@@ -1233,7 +1561,8 @@ jobs:
   deploy_exp_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'exp'
+      APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
       - deploy_app_steps:
@@ -1244,9 +1573,11 @@ jobs:
   deploy_exp_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'exp'
+      APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
+      - tls_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
@@ -1257,6 +1588,7 @@ jobs:
     executor: mymove_small
     environment:
       APP_ENVIRONMENT: 'exp'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_exp
       - deploy_webhook_client_steps:
@@ -1309,6 +1641,7 @@ jobs:
       - APP_ENVIRONMENT: 'stg'
     steps:
       - aws_vars_stg
+      - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
@@ -1370,6 +1703,7 @@ jobs:
       - APP_ENVIRONMENT: 'prd'
     steps:
       - aws_vars_prd
+      - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,orders.move.mil
@@ -1401,9 +1735,11 @@ workflows:
       - acceptance_tests:
           requires:
             - pre_deps_golang
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *acceptance-branch
 
       - integration_tests:
           requires:
@@ -1414,10 +1750,11 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
           requires:
@@ -1427,26 +1764,29 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *integration-mtls-ignore-branch
 
       - client_test:
           requires:
             - pre_deps_yarn
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *client-ignore-branch
 
       - server_test:
           requires:
             - pre_deps_golang
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # See comments at the top of this file for configuring/using
+          # this branch config
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: *server-ignore-branch
 
       - build_app:
           requires:
@@ -1485,33 +1825,128 @@ workflows:
           requires:
             - build_tasks
 
+      - build_dp3_app:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+            - pre_deps_yarn
+          filters:
+            branches:
+              only: *demo-branch
+
+      - push_app_demo:
+          requires:
+            - build_dp3_app
+          filters:
+            branches:
+              only: *demo-branch
+
+      - push_migrations_demo:
+          requires:
+            - build_migrations
+          filters:
+            branches:
+              only: *demo-branch
+
+      - build_dp3_tasks:
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only: *demo-branch
+
+      - push_tasks_demo:
+          requires:
+            - build_dp3_tasks
+          filters:
+            branches:
+              only: *demo-branch
+
+      - build_dp3_webhook_client:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+          filters:
+            branches:
+              only: *demo-branch
+
+      - push_webhook_client_demo:
+          requires:
+            - build_dp3_webhook_client
+          filters:
+            branches:
+              only: *demo-branch
+
+      - deploy_demo_migrations:
+          requires:
+            - pre_deps_golang
+            - pre_test
+            - client_test
+            - server_test
+            - push_app_demo
+            - build_tools
+            - push_tasks_demo
+            - push_migrations_demo
+            - push_webhook_client_demo
+          filters:
+            branches:
+              only: *demo-branch
+
+      - deploy_demo_tasks:
+          requires:
+            - deploy_demo_migrations
+          filters:
+            branches:
+              only: *demo-branch
+
+      - deploy_demo_app:
+          requires:
+            - deploy_demo_migrations
+          filters:
+            branches:
+              only: *demo-branch
+
+      - deploy_demo_app_client_tls:
+          requires:
+            - deploy_demo_migrations
+          filters:
+            branches:
+              only: *demo-branch
+
+      - deploy_demo_webhook_client:
+          requires:
+            - deploy_demo_migrations
+          filters:
+            branches:
+              only: *demo-branch
+
       - push_app_exp:
           requires:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_migrations_exp:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_tasks_exp:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_webhook_client_exp:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_migrations:
           requires:
@@ -1526,35 +1961,35 @@ workflows:
             - push_webhook_client_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - deploy_exp_webhook_client:
           requires:
             - deploy_exp_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: *exp-branch
 
       - push_app_stg:
           requires:

@@ -1,22 +1,25 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { generatePath } from 'react-router';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateOrder } from 'services/ghcApi';
+import styles from 'styles/documentViewerWithSidebar.module.scss';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { useOrdersDocumentQueries } from 'hooks/queries';
+import { counselingUpdateAllowance } from 'services/ghcApi';
+import { dropdownInputOptions } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { dropdownInputOptions } from 'shared/formatters';
-import { ORDERS } from 'constants/queryKeys';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -47,10 +50,10 @@ const ServicesCounselingMoveAllowances = () => {
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/counseling/moves/${moveCode}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -63,17 +66,7 @@ const ServicesCounselingMoveAllowances = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      // TODO: Handle error some how
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
-      console.log(errorMsg);
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 
@@ -129,14 +122,14 @@ const ServicesCounselingMoveAllowances = () => {
   };
 
   return (
-    <div className={documentWrapperStyles.sidebar}>
+    <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={documentWrapperStyles.orderDetails}>
-              <div className={documentWrapperStyles.top}>
+            <div className={styles.content}>
+              <div className={styles.top}>
                 <Button
-                  className={documentWrapperStyles.closeButton}
+                  className={styles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -144,11 +137,16 @@ const ServicesCounselingMoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={documentWrapperStyles.header} data-testid="allowances-header">
-                  View Allowances
+                <h2 className={styles.header} data-testid="allowances-header">
+                  View allowances
                 </h2>
+                <div>
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
+                    View orders
+                  </Link>
+                </div>
               </div>
-              <div className={documentWrapperStyles.body}>
+              <div className={styles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
@@ -156,8 +154,8 @@ const ServicesCounselingMoveAllowances = () => {
                   header="Counseling"
                 />
               </div>
-              <div className={documentWrapperStyles.bottom}>
-                <div className={documentWrapperStyles.buttonGroup}>
+              <div className={styles.bottom}>
+                <div className={styles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>

@@ -13,6 +13,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -293,7 +295,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
-
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
 		MoveID:      strfmt.UUID(move1.ID.String()),
 		HTTPRequest: req,
@@ -892,12 +893,13 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	moveRouter := moverouter.NewMoveRouter()
 
-	err := move.Submit()
+	err := moveRouter.Submit(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = move.Approve()
+	err = moveRouter.Approve(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

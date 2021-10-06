@@ -1,6 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { Formik } from 'formik';
+import { render, screen } from '@testing-library/react';
 
 import AllowancesDetailForm from './AllowancesDetailForm';
 
@@ -11,6 +10,42 @@ const initialValues = {
   requiredMedicalEquipmentWeight: '1000',
   organizationalClothingAndIndividualEquipment: true,
 };
+
+jest.mock('formik', () => ({
+  ...jest.requireActual('formik'),
+  useField: (field) => {
+    switch (field.type) {
+      case 'checkbox': {
+        return [
+          {
+            name: field.name,
+            value: !!initialValues[field.name],
+            checked: !!initialValues[field.name],
+            onChange: jest.fn(),
+            onBlur: jest.fn(),
+          },
+        ];
+      }
+
+      default: {
+        return [
+          {
+            value: initialValues[field.name],
+          },
+          {
+            touched: false,
+          },
+          {
+            setValue: jest.fn(),
+            setTouched: jest.fn(),
+          },
+        ];
+      }
+    }
+  },
+}));
+
+const { Formik } = jest.requireActual('formik');
 
 const rankOptions = [
   { key: 'E_1', value: 'E-1' },
@@ -45,91 +80,41 @@ const entitlements = {
 };
 
 describe('AllowancesDetailForm', () => {
-  const wrapper = mount(
-    <Formik initialValues={initialValues} onSubmit={jest.fn()}>
-      <form>
+  it('renders the form', async () => {
+    render(
+      <Formik initialValues={initialValues}>
         <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
-      </form>
-    </Formik>,
-  );
-
-  it('renders the form', () => {
-    expect(wrapper.find(AllowancesDetailForm).exists()).toBe(true);
-  });
-
-  it('formats days in transit', () => {
-    // Storage in-transit
-    expect(wrapper.find('dd').at(2).text()).toBe('90 days');
-  });
-
-  it('renders the pro-gear hints', () => {
-    expect(wrapper.find('[data-testid="proGearWeightHint"]').at(0).text()).toBe('Max. 2,000 lbs');
-    expect(wrapper.find('[data-testid="proGearWeightSpouseHint"]').at(0).text()).toBe('Max. 500 lbs');
-  });
-
-  it('uses defaults for undefined values', () => {
-    const wrapperNoProps = mount(
-      <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
-        <form>
-          <AllowancesDetailForm entitlements={{}} rankOptions={[]} branchOptions={[]} />
-        </form>
       </Formik>,
     );
 
-    // Pro-gear
-    expect(wrapperNoProps.find(`input[data-testid="proGearWeightInput"]`).getDOMNode().value).toBe('0');
-
-    // Pro-gear spouse
-    expect(wrapperNoProps.find(`input[data-testid="proGearWeightSpouseInput"]`).getDOMNode().value).toBe('0');
-
-    // RME
-    expect(wrapperNoProps.find(`input[data-testid="rmeInput"]`).getDOMNode().value).toBe('0');
-
-    // Branch
-    expect(wrapperNoProps.find(`select[data-testid="branchInput"]`).getDOMNode().value).toBe('');
-
-    // Rank
-    expect(wrapperNoProps.find(`select[data-testid="rankInput"]`).getDOMNode().value).toBe('');
-
-    // OCIE
-    expect(
-      wrapperNoProps.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
-    ).toBeFalsy();
-
-    // Authorized weight text only
-    expect(wrapperNoProps.find('dd').at(0).text()).toBe('0 lbs');
-
-    // Weight allowance
-    expect(wrapperNoProps.find('dd').at(1).text()).toBe('0 lbs');
-
-    // Storage in-transit
-    expect(wrapperNoProps.find('dd').at(2).text()).toBe('0 days');
-
-    // Dependents authorized
-    expect(wrapperNoProps.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeFalsy();
+    expect(await screen.findByTestId('proGearWeightInput')).toHaveDisplayValue('2,000');
+    expect(screen.getByTestId('proGearWeightHint')).toHaveTextContent('Max. 2,000 lbs');
+    expect(screen.getByTestId('proGearWeightSpouseHint')).toHaveTextContent('Max. 500 lbs');
   });
 
-  it('renders editable authorized weight input', () => {
-    const wrapperNoProps = mount(
-      <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
-        <form>
-          <AllowancesDetailForm entitlements={{}} rankOptions={[]} branchOptions={[]} editableAuthorizedWeight />
-        </form>
+  it('renders the pro-gear hints', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
       </Formik>,
     );
-    // Authorized weight input
-    expect(wrapperNoProps.find('input[data-testid="authorizedWeightInput"]').getDOMNode().value).toBe('0');
+
+    expect(await screen.findByTestId('proGearWeightHint')).toHaveTextContent('Max. 2,000 lbs');
+    expect(screen.getByTestId('proGearWeightSpouseHint')).toHaveTextContent('Max. 500 lbs');
   });
 
-  it('renders the title header', () => {
-    const wrapperNoProps = mount(
-      <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
-        <form>
-          <AllowancesDetailForm entitlements={{}} rankOptions={[]} branchOptions={[]} header="Counseling" />
-        </form>
+  it('renders the title header', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          rankOptions={rankOptions}
+          branchOptions={branchOptions}
+          header="Test Header"
+        />
       </Formik>,
     );
-    // Authorized weight input
-    expect(wrapperNoProps.find('[data-testid="header"]').text()).toBe('Counseling');
+
+    expect(await screen.findByRole('heading', { level: 3 })).toHaveTextContent('Test Header');
   });
 });

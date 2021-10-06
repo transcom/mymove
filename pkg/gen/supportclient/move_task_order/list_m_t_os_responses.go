@@ -59,9 +59,8 @@ func (o *ListMTOsReader) ReadResponse(response runtime.ClientResponse, consumer 
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -70,7 +69,7 @@ func NewListMTOsOK() *ListMTOsOK {
 	return &ListMTOsOK{}
 }
 
-/*ListMTOsOK handles this case with default header values.
+/* ListMTOsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved all move task orders.
 */
@@ -81,7 +80,6 @@ type ListMTOsOK struct {
 func (o *ListMTOsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsOK  %+v", 200, o.Payload)
 }
-
 func (o *ListMTOsOK) GetPayload() supportmessages.MoveTaskOrders {
 	return o.Payload
 }
@@ -101,7 +99,7 @@ func NewListMTOsBadRequest() *ListMTOsBadRequest {
 	return &ListMTOsBadRequest{}
 }
 
-/*ListMTOsBadRequest handles this case with default header values.
+/* ListMTOsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -112,7 +110,6 @@ type ListMTOsBadRequest struct {
 func (o *ListMTOsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *ListMTOsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -134,7 +131,7 @@ func NewListMTOsUnauthorized() *ListMTOsUnauthorized {
 	return &ListMTOsUnauthorized{}
 }
 
-/*ListMTOsUnauthorized handles this case with default header values.
+/* ListMTOsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -145,7 +142,6 @@ type ListMTOsUnauthorized struct {
 func (o *ListMTOsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *ListMTOsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -167,7 +163,7 @@ func NewListMTOsForbidden() *ListMTOsForbidden {
 	return &ListMTOsForbidden{}
 }
 
-/*ListMTOsForbidden handles this case with default header values.
+/* ListMTOsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -178,7 +174,6 @@ type ListMTOsForbidden struct {
 func (o *ListMTOsForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsForbidden  %+v", 403, o.Payload)
 }
-
 func (o *ListMTOsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -200,7 +195,7 @@ func NewListMTOsNotFound() *ListMTOsNotFound {
 	return &ListMTOsNotFound{}
 }
 
-/*ListMTOsNotFound handles this case with default header values.
+/* ListMTOsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -211,7 +206,6 @@ type ListMTOsNotFound struct {
 func (o *ListMTOsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsNotFound  %+v", 404, o.Payload)
 }
-
 func (o *ListMTOsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -233,7 +227,7 @@ func NewListMTOsInternalServerError() *ListMTOsInternalServerError {
 	return &ListMTOsInternalServerError{}
 }
 
-/*ListMTOsInternalServerError handles this case with default header values.
+/* ListMTOsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -244,7 +238,6 @@ type ListMTOsInternalServerError struct {
 func (o *ListMTOsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *ListMTOsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

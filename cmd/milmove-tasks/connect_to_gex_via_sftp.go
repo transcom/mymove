@@ -19,7 +19,7 @@ import (
 
 // Call this from the command line with go run ./cmd/milmove-tasks connect-to-gex-via-sftp
 
-func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger logger) error {
+func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
 	if err := cli.CheckGEX(v); err != nil {
@@ -43,7 +43,7 @@ func initConnectToGEXViaSFTPFlags(flag *pflag.FlagSet) {
 func connectToGEXViaSFTP(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

@@ -2,28 +2,33 @@ package primeapi
 
 import (
 	"log"
-	"net/http"
+
+	"github.com/transcom/mymove/pkg/services/upload"
 
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	reweigh "github.com/transcom/mymove/pkg/services/reweigh"
+	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	primeops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// NewPrimeAPIHandler returns a handler for the Prime API
-func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
-	builder := query.NewQueryBuilder(context.DB())
+// NewPrimeAPI returns the Prime API
+func NewPrimeAPI(ctx handlers.HandlerContext) *primeoperations.MymoveAPI {
+	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 
 	primeSpec, err := loads.Analyzed(primeapi.SwaggerJSON, "")
@@ -31,80 +36,122 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
-	queryBuilder := query.NewQueryBuilder(context.DB())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := move.NewMoveRouter()
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	uploadCreator := upload.NewUploadCreator(ctx.FileStorer())
+
+	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
+		paymentrequest.NewPaymentRequestCreator(
+			ctx.GHCPlanner(),
+			ghcrateengine.NewServiceItemPricer(),
+		),
+		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+	)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
 	primeAPI.ServeError = handlers.ServeCustomError
 
-	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
-		context,
-		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
+		ctx,
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
-	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
-		context,
-		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
+		ctx,
+		movetaskorder.NewMoveTaskOrderFetcher(),
+	}
+
+	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{
+		ctx,
+		move.NewPrimeMoveExcessWeightUploader(uploadCreator),
 	}
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
-		context,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
-		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
+		ctx,
+		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
-		context,
-		mtoserviceitem.NewMTOServiceItemUpdater(builder),
+		ctx,
+		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
-		context,
-		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
+		ctx,
+		mtoshipment.NewMTOShipmentUpdater(
+			builder,
+			fetcher,
+			ctx.Planner(),
+			moveRouter,
+			moveWeights,
+			ctx.NotificationSender(),
+			paymentRequestShipmentRecalculator,
+		),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
-		context,
+		ctx,
 		paymentrequest.NewPaymentRequestCreator(
-			context.DB(),
-			context.GHCPlanner(),
-			ghcrateengine.NewServiceItemPricer(context.DB()),
+			ctx.GHCPlanner(),
+			ghcrateengine.NewServiceItemPricer(),
 		),
 	}
 
 	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
-		context,
-		// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
-		// unable to get logger to pass in for instantiation
-		//paymentrequest.NewPaymentRequestUploadCreator(context.DB(), &logger,
-		//	context.FileStorer()),
+		ctx,
+		paymentrequest.NewPaymentRequestUploadCreator(ctx.FileStorer()),
 	}
 
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
-		context,
+		ctx,
 		fetch.NewFetcher(queryBuilder),
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
-		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
+		movetaskorder.NewMoveTaskOrderUpdater(
+			queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+			moveRouter,
+		),
+		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
-		context,
-		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
-		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
+		ctx,
+		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
+		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
-		context,
-		mtoshipment.NewMTOShipmentAddressUpdater(context.DB()),
+		ctx,
+		mtoshipment.NewMTOShipmentAddressUpdater(),
 	}
 
 	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
-		context,
-		mtoagent.NewMTOAgentCreator(context.DB(), movetaskorder.NewMoveTaskOrderChecker(context.DB())),
+		ctx,
+		mtoagent.NewMTOAgentCreator(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
-		context,
-		mtoagent.NewMTOAgentUpdater(context.DB()),
+		ctx,
+		mtoagent.NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
-	return primeAPI.Serve(nil)
+	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
+		ctx,
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, ctx.NotificationSender(), paymentRequestShipmentRecalculator),
+		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
+	}
+
+	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{
+		ctx,
+		reweigh.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
+	}
+
+	primeAPI.MtoShipmentCreateSITExtensionHandler = CreateSITExtensionHandler{
+		ctx,
+		sitextension.NewSitExtensionCreator(moveRouter),
+	}
+
+	return primeAPI
 }

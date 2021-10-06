@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/services/event"
@@ -34,7 +35,7 @@ type GetPaymentRequestForMoveHandler struct {
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
 func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
 		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
@@ -42,7 +43,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPayme
 
 	locator := params.Locator
 
-	paymentRequests, err := h.FetchPaymentRequestListByMove(session.OfficeUserID, locator)
+	paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, session.OfficeUserID, locator)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
@@ -67,6 +68,7 @@ type GetPaymentRequestHandler struct {
 // Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
@@ -80,7 +82,7 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
-	paymentRequest, err := h.FetchPaymentRequest(paymentRequestID)
+	paymentRequest, err := h.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -112,6 +114,7 @@ type UpdatePaymentRequestStatusHandler struct {
 // Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
@@ -126,7 +129,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
-	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -136,17 +139,14 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	now := time.Now()
 	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
-	// Let's map the incoming status to our enumeration type
-	switch existingPaymentRequest.Status {
-	case models.PaymentRequestStatusReviewed, models.PaymentRequestStatusReviewedAllRejected:
-		existingPaymentRequest.ReviewedAt = &now
-	case models.PaymentRequestStatusSentToGex:
-		existingPaymentRequest.SentToGexAt = &now
-	case models.PaymentRequestStatusReceivedByGex:
-		existingPaymentRequest.ReceivedByGexAt = &now
-	case models.PaymentRequestStatusPaid:
-		existingPaymentRequest.PaidAt = &now
+	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
+		payload := payloadForValidationError("Unable to complete request",
+			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
+			h.GetTraceID(), validate.NewErrors())
+		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 	}
+
+	existingPaymentRequest.ReviewedAt = &now
 
 	// If we got a rejection reason let's use it
 	if params.Body.RejectionReason != nil {
@@ -161,13 +161,12 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment request ", h.GetTraceID())
-			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
+			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
@@ -198,4 +197,46 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
+}
+
+// ShipmentsSITBalanceHandler is the handler type for getShipmentsPaymentSITBalance
+type ShipmentsSITBalanceHandler struct {
+	handlers.HandlerContext
+	services.ShipmentsPaymentSITBalance
+}
+
+// Handle handles the getShipmentsPaymentSITBalance request
+func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+
+	handleError := func(err error) middleware.Responder {
+		logger.Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
+		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+		switch err.(type) {
+		case services.NotFoundError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceNotFound().WithPayload(payload)
+		case services.ForbiddenError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceForbidden().WithPayload(payload)
+		case services.QueryError:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+		default:
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		return handleError(services.NewForbiddenError("user is not authorized with the TIO role"))
+	}
+
+	shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)
+	if err != nil {
+		return handleError(err)
+	}
+
+	payload := payloads.ShipmentsPaymentSITBalance(shipmentSITBalances)
+
+	return paymentrequestop.NewGetShipmentsPaymentSITBalanceOK().WithPayload(payload)
 }

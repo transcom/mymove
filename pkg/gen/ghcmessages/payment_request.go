@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -25,6 +27,7 @@ type PaymentRequest struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -36,17 +39,26 @@ type PaymentRequest struct {
 	MoveTaskOrder *Move `json:"moveTaskOrder,omitempty"`
 
 	// move task order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// payment request number
+	// Example: 1234-5678-1
 	// Read Only: true
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
 	// proof of service docs
 	ProofOfServiceDocs ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
+	// recalculation of payment request ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Read Only: true
+	// Format: uuid
+	RecalculationOfPaymentRequestID *strfmt.UUID `json:"recalculationOfPaymentRequestID,omitempty"`
+
 	// rejection reason
+	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// reviewed at
@@ -84,6 +96,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRecalculationOfPaymentRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReviewedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -103,7 +119,6 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -116,7 +131,6 @@ func (m *PaymentRequest) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -129,7 +143,6 @@ func (m *PaymentRequest) validateID(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateMoveTaskOrder(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrder) { // not required
 		return nil
 	}
@@ -147,7 +160,6 @@ func (m *PaymentRequest) validateMoveTaskOrder(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -160,7 +172,6 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 }
 
 func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ProofOfServiceDocs) { // not required
 		return nil
 	}
@@ -175,8 +186,19 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateRecalculationOfPaymentRequestID(formats strfmt.Registry) error {
+	if swag.IsZero(m.RecalculationOfPaymentRequestID) { // not required
+		return nil
+	}
 
+	if err := validate.FormatOf("recalculationOfPaymentRequestID", "body", "uuid", m.RecalculationOfPaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReviewedAt) { // not required
 		return nil
 	}
@@ -189,7 +211,6 @@ func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceItems) { // not required
 		return nil
 	}
@@ -205,12 +226,126 @@ func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
 }
 
 func (m *PaymentRequest) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
 	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this payment request based on the context it is used
+func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveTaskOrder(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePaymentRequestNumber(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateProofOfServiceDocs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRecalculationOfPaymentRequestID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateMoveTaskOrder(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MoveTaskOrder != nil {
+		if err := m.MoveTaskOrder.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("moveTaskOrder")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidatePaymentRequestNumber(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "paymentRequestNumber", "body", string(m.PaymentRequestNumber)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateProofOfServiceDocs(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ProofOfServiceDocs.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("proofOfServiceDocs")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateRecalculationOfPaymentRequestID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "recalculationOfPaymentRequestID", "body", m.RecalculationOfPaymentRequestID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ServiceItems.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceItems")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}

@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -22,6 +23,11 @@ import (
 // swagger:model ReServiceCode
 type ReServiceCode string
 
+func NewReServiceCode(value ReServiceCode) *ReServiceCode {
+	v := value
+	return &v
+}
+
 const (
 
 	// ReServiceCodeCS captures enum value "CS"
@@ -35,9 +41,6 @@ const (
 
 	// ReServiceCodeDCRT captures enum value "DCRT"
 	ReServiceCodeDCRT ReServiceCode = "DCRT"
-
-	// ReServiceCodeDCRTSA captures enum value "DCRTSA"
-	ReServiceCodeDCRTSA ReServiceCode = "DCRTSA"
 
 	// ReServiceCodeDDASIT captures enum value "DDASIT"
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
@@ -180,7 +183,7 @@ var reServiceCodeEnum []interface{}
 
 func init() {
 	var res []ReServiceCode
-	if err := json.Unmarshal([]byte(`["CS","DBHF","DBTF","DCRT","DCRTSA","DDASIT","DDDSIT","DDFSIT","DDP","DDSHUT","DLH","DMHF","DNPKF","DOASIT","DOFSIT","DOP","DOPSIT","DOSHUT","DPK","DSH","DUCRT","DUPK","FSC","IBHF","IBTF","ICOLH","ICOUB","ICRT","ICRTSA","IDASIT","IDDSIT","IDFSIT","IDSHUT","IHPK","IHUPK","INPKF","IOASIT","IOCLH","IOCUB","IOFSIT","IOOLH","IOOUB","IOPSIT","IOSHUT","IUBPK","IUBUPK","IUCRT","MS","NSTH","NSTUB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CS","DBHF","DBTF","DCRT","DDASIT","DDDSIT","DDFSIT","DDP","DDSHUT","DLH","DMHF","DNPKF","DOASIT","DOFSIT","DOP","DOPSIT","DOSHUT","DPK","DSH","DUCRT","DUPK","FSC","IBHF","IBTF","ICOLH","ICOUB","ICRT","ICRTSA","IDASIT","IDDSIT","IDFSIT","IDSHUT","IHPK","IHUPK","INPKF","IOASIT","IOCLH","IOCUB","IOFSIT","IOOLH","IOOUB","IOPSIT","IOSHUT","IUBPK","IUBUPK","IUCRT","MS","NSTH","NSTUB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -207,5 +210,10 @@ func (m ReServiceCode) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this re service code based on context it is used
+func (m ReServiceCode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

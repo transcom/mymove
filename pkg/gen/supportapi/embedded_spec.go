@@ -237,11 +237,7 @@ func init() {
         "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -346,11 +342,7 @@ func init() {
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -420,11 +412,7 @@ func init() {
         "operationId": "updateMTOShipmentStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -533,7 +521,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -583,9 +571,64 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/recalculate": {
+      "post": {
+        "description": "Recalculates an existing pending payment request by creating a new payment request for the same service\nitems but is priced based on the current inputs (weights, dates, etc.). The previously existing payment\nrequest is then deprecated. A link is made between the new and existing payment requests.\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "recalculatePaymentRequest",
+        "operationId": "recalculatePaymentRequest",
+        "responses": {
+          "201": {
+            "description": "The new payment request with recalculated pricing.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request to recalculate.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -599,11 +642,7 @@ func init() {
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -1010,14 +1049,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -1086,6 +1117,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -1101,6 +1136,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -1400,9 +1440,6 @@ func init() {
           "format": "int32",
           "example": 1000
         },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
-        },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
@@ -1441,7 +1478,6 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
-                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -1450,7 +1486,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1523,10 +1559,19 @@ func init() {
             "description"
           ],
           "properties": {
-            "description": {
-              "description": "Further details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",
@@ -1582,6 +1627,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "eTag": {
           "type": "string",
@@ -1663,7 +1711,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2007,6 +2058,13 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2042,7 +2100,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -2067,7 +2126,6 @@ func init() {
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "readFromSyncada": {
@@ -2143,7 +2201,6 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
-        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -2231,7 +2288,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -2256,10 +2315,9 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -2308,29 +2366,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -2405,6 +2463,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -2451,6 +2518,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
@@ -3154,7 +3222,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -3225,9 +3293,88 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/recalculate": {
+      "post": {
+        "description": "Recalculates an existing pending payment request by creating a new payment request for the same service\nitems but is priced based on the current inputs (weights, dates, etc.). The previously existing payment\nrequest is then deprecated. A link is made between the new and existing payment requests.\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "recalculatePaymentRequest",
+        "operationId": "recalculatePaymentRequest",
+        "responses": {
+          "201": {
+            "description": "The new payment request with recalculated pricing.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request to recalculate.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -3694,14 +3841,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -3770,6 +3909,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -3785,6 +3928,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -4084,9 +4232,6 @@ func init() {
           "format": "int32",
           "example": 1000
         },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
-        },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
@@ -4125,7 +4270,6 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
-                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -4134,7 +4278,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -4207,10 +4351,19 @@ func init() {
             "description"
           ],
           "properties": {
-            "description": {
-              "description": "Further details about the shuttle service.",
-              "type": "string",
-              "example": "Things to be moved to the place by shuttle."
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",
@@ -4266,6 +4419,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "eTag": {
           "type": "string",
@@ -4347,7 +4503,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4691,6 +4850,13 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "recalculationOfPaymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4726,7 +4892,8 @@ func init() {
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
-        "EDI_ERROR"
+        "EDI_ERROR",
+        "DEPRECATED"
       ]
     },
     "PaymentRequests": {
@@ -4751,7 +4918,6 @@ func init() {
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "readFromSyncada": {
@@ -4827,7 +4993,6 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
-        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -4915,7 +5080,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -4940,10 +5107,9 @@ func init() {
       }
     },
     "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -4992,32 +5158,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "$ref": "#/definitions/ValidationErrorAllOf1"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
-    },
-    "ValidationErrorAllOf1": {
-      "type": "object"
+      ]
     },
     "WebhookNotification": {
       "type": "object",
@@ -5092,6 +5255,15 @@ func init() {
       ]
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "There was a conflict with the request.",
@@ -5138,6 +5310,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {

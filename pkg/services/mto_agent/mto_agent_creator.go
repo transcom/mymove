@@ -1,68 +1,66 @@
 package mtoagent
 
 import (
-	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // mtoAgentCreator sets up the service object
 type mtoAgentCreator struct {
-	db                     *pop.Connection
-	mtoAvailabilityChecker services.MoveTaskOrderChecker
+	basicChecks []mtoAgentValidator
+	primeChecks []mtoAgentValidator
 }
 
 // NewMTOAgentCreator creates a new struct with the service dependencies
-func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
+func NewMTOAgentCreator(mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
 	return &mtoAgentCreator{
-		db,
-		mtoAvailabilityChecker,
+		basicChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+		},
+		primeChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+			checkContactInfo(),
+			checkAgentType(),
+			checkPrimeAvailability(mtoAvailabilityChecker),
+		},
 	}
 }
 
-// CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
-func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.CreateMTOAgent(mtoAgent, CreateMTOAgentPrimeValidator)
-
+// CreateMTOAgentBasic passes the Prime validator key to CreateMTOAgent
+func (f *mtoAgentCreator) CreateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCtx, mtoAgent, f.basicChecks...)
 }
 
-func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey string) (*models.MTOAgent, error) {
+// CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
+func (f *mtoAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCtx, mtoAgent, f.primeChecks...)
+}
+
+// CreateMTOAgent creates an MTO Agent
+func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	verrs := validate.NewErrors()
-	err := f.db.Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
-
+	err := appCtx.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	if validatorKey == CreateMTOAgentPrimeValidator {
-		var isAvailable bool
-
-		isAvailable, err = f.mtoAvailabilityChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)
-
-		if !isAvailable || err != nil {
-			return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
-		}
+	err = validateMTOAgent(appCtx, *mtoAgent, nil, mtoShipment, checks...)
+	if err != nil {
+		return nil, err
 	}
 
-	// Confirm that MTOAgent does not already exist for the specified MTOAgentType
-	for _, agent := range mtoShipment.MTOAgents {
-		if agent.MTOAgentType == mtoAgent.MTOAgentType {
-			return nil, services.NewConflictError(agent.ID, " MTOAgent already exists for this agent type and shipment. Please use updateMTOAgent endpoint.")
-		}
-	}
+	// TODO: this basically operates as a way to make a (shallow?) copy of the
+	// mtoAgent (because pass-by-value parameter); haven't dug into
+	// why this is necessary
+	mtoAgent = mergeAgent(*mtoAgent, nil)
 
-	// Confirm either phone or email is present
-	if mtoAgent.Email == nil && mtoAgent.Phone == nil {
-		verrs.Add("contactInfo", "agent must have at least one contact method provided")
-		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "Invalid input found while validating the agent.")
-	}
-
-	verrs, err = f.db.ValidateAndCreate(mtoAgent)
+	verrs, err := appCtx.DB().ValidateAndCreate(mtoAgent)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {

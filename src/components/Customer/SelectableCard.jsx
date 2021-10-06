@@ -1,15 +1,14 @@
 import React from 'react';
 import { string, func, bool, node } from 'prop-types';
 import { Radio, Button } from '@trussworks/react-uswds';
-import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './SelectableCard.module.scss';
 
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
   return (
-    <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
-      <div className={styles.cardTitle}>
+    <div>
+      <div className={styles.cardContainer}>
         <Radio
           id={id}
           label={label}
@@ -18,15 +17,22 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           onChange={onChange}
           checked={checked}
           disabled={disabled}
+          labelDescription={cardText}
+          data-testid="radio"
+          tile
         />
         {onHelpClick && (
-          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+          <Button
+            data-testid="helpButton"
+            type="button"
+            onClick={onHelpClick}
+            unstyled
+            className={styles.helpButton}
+            aria-label="help"
+          >
             <FontAwesomeIcon icon={['far', 'question-circle']} />
           </Button>
         )}
-      </div>
-      <div data-testid="selectableCardText" className={styles.cardText}>
-        {cardText}
       </div>
     </div>
   );

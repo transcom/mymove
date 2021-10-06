@@ -6,22 +6,9 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
-	suite.T().Run("test PaymentRequest association", func(t *testing.T) {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		validPR2ICN := testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID: paymentRequest.ID,
-			}})
-		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequestID)
-		err := suite.DB().Load(&validPR2ICN, "PaymentRequest")
-		suite.NoError(err)
-		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequest.ID)
-	})
-
 	suite.T().Run("test valid PaymentRequestToInterchangeControlNumber", func(t *testing.T) {
 		validPR2ICN := models.PaymentRequestToInterchangeControlNumber{
 			PaymentRequestID:         uuid.Must(uuid.NewV4()),

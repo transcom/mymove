@@ -69,7 +69,7 @@ type UpdateOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOrderBadRequest creates UpdateOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateOrderBadRequest() *UpdateOrderBadRequest {
 }
 
 // WithPayload adds the payload to the update order bad request response
-func (o *UpdateOrderBadRequest) WithPayload(payload interface{}) *UpdateOrderBadRequest {
+func (o *UpdateOrderBadRequest) WithPayload(payload *ghcmessages.Error) *UpdateOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update order bad request response
-func (o *UpdateOrderBadRequest) SetPayload(payload interface{}) {
+func (o *UpdateOrderBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,58 +93,18 @@ func (o *UpdateOrderBadRequest) SetPayload(payload interface{}) {
 func (o *UpdateOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// UpdateOrderUnauthorizedCode is the HTTP code returned for type UpdateOrderUnauthorized
-const UpdateOrderUnauthorizedCode int = 401
-
-/*UpdateOrderUnauthorized The request was unauthenticated
-
-swagger:response updateOrderUnauthorized
-*/
-type UpdateOrderUnauthorized struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewUpdateOrderUnauthorized creates UpdateOrderUnauthorized with default headers values
-func NewUpdateOrderUnauthorized() *UpdateOrderUnauthorized {
-
-	return &UpdateOrderUnauthorized{}
-}
-
-// WithPayload adds the payload to the update order unauthorized response
-func (o *UpdateOrderUnauthorized) WithPayload(payload interface{}) *UpdateOrderUnauthorized {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the update order unauthorized response
-func (o *UpdateOrderUnauthorized) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UpdateOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateOrderForbiddenCode is the HTTP code returned for type UpdateOrderForbidden
 const UpdateOrderForbiddenCode int = 403
 
-/*UpdateOrderForbidden The request was unauthorized
+/*UpdateOrderForbidden The request was denied
 
 swagger:response updateOrderForbidden
 */
@@ -153,7 +113,7 @@ type UpdateOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOrderForbidden creates UpdateOrderForbidden with default headers values
@@ -163,13 +123,13 @@ func NewUpdateOrderForbidden() *UpdateOrderForbidden {
 }
 
 // WithPayload adds the payload to the update order forbidden response
-func (o *UpdateOrderForbidden) WithPayload(payload interface{}) *UpdateOrderForbidden {
+func (o *UpdateOrderForbidden) WithPayload(payload *ghcmessages.Error) *UpdateOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update order forbidden response
-func (o *UpdateOrderForbidden) SetPayload(payload interface{}) {
+func (o *UpdateOrderForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +137,11 @@ func (o *UpdateOrderForbidden) SetPayload(payload interface{}) {
 func (o *UpdateOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +157,7 @@ type UpdateOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOrderNotFound creates UpdateOrderNotFound with default headers values
@@ -205,13 +167,13 @@ func NewUpdateOrderNotFound() *UpdateOrderNotFound {
 }
 
 // WithPayload adds the payload to the update order not found response
-func (o *UpdateOrderNotFound) WithPayload(payload interface{}) *UpdateOrderNotFound {
+func (o *UpdateOrderNotFound) WithPayload(payload *ghcmessages.Error) *UpdateOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update order not found response
-func (o *UpdateOrderNotFound) SetPayload(payload interface{}) {
+func (o *UpdateOrderNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +181,55 @@ func (o *UpdateOrderNotFound) SetPayload(payload interface{}) {
 func (o *UpdateOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// UpdateOrderConflictCode is the HTTP code returned for type UpdateOrderConflict
+const UpdateOrderConflictCode int = 409
+
+/*UpdateOrderConflict Conflict error
+
+swagger:response updateOrderConflict
+*/
+type UpdateOrderConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewUpdateOrderConflict creates UpdateOrderConflict with default headers values
+func NewUpdateOrderConflict() *UpdateOrderConflict {
+
+	return &UpdateOrderConflict{}
+}
+
+// WithPayload adds the payload to the update order conflict response
+func (o *UpdateOrderConflict) WithPayload(payload *ghcmessages.Error) *UpdateOrderConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update order conflict response
+func (o *UpdateOrderConflict) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateOrderConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type UpdateOrderPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOrderPreconditionFailed creates UpdateOrderPreconditionFailed with default headers values
@@ -247,13 +255,13 @@ func NewUpdateOrderPreconditionFailed() *UpdateOrderPreconditionFailed {
 }
 
 // WithPayload adds the payload to the update order precondition failed response
-func (o *UpdateOrderPreconditionFailed) WithPayload(payload interface{}) *UpdateOrderPreconditionFailed {
+func (o *UpdateOrderPreconditionFailed) WithPayload(payload *ghcmessages.Error) *UpdateOrderPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update order precondition failed response
-func (o *UpdateOrderPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateOrderPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +269,18 @@ func (o *UpdateOrderPreconditionFailed) SetPayload(payload interface{}) {
 func (o *UpdateOrderPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateOrderUnprocessableEntityCode is the HTTP code returned for type UpdateOrderUnprocessableEntity
 const UpdateOrderUnprocessableEntityCode int = 422
 
-/*UpdateOrderUnprocessableEntity Validation error
+/*UpdateOrderUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateOrderUnprocessableEntity
 */
@@ -314,11 +324,16 @@ func (o *UpdateOrderUnprocessableEntity) WriteResponse(rw http.ResponseWriter, p
 // UpdateOrderInternalServerErrorCode is the HTTP code returned for type UpdateOrderInternalServerError
 const UpdateOrderInternalServerErrorCode int = 500
 
-/*UpdateOrderInternalServerError internal server error
+/*UpdateOrderInternalServerError A server error occurred
 
 swagger:response updateOrderInternalServerError
 */
 type UpdateOrderInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOrderInternalServerError creates UpdateOrderInternalServerError with default headers values
@@ -327,10 +342,25 @@ func NewUpdateOrderInternalServerError() *UpdateOrderInternalServerError {
 	return &UpdateOrderInternalServerError{}
 }
 
+// WithPayload adds the payload to the update order internal server error response
+func (o *UpdateOrderInternalServerError) WithPayload(payload *ghcmessages.Error) *UpdateOrderInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update order internal server error response
+func (o *UpdateOrderInternalServerError) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }

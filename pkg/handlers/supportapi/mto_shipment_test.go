@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -25,7 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -69,9 +71,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	// Used for all tests except 500 error:
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(queryBuilder)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
@@ -91,7 +94,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		fetcher,
@@ -110,6 +113,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

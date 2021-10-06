@@ -1,69 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import bytes from 'bytes';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+import styles from './UploadsTable.module.scss';
+
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const UploadsTable = ({ uploads, onDelete }) => {
-  const getUploadUrl = (upload) => {
-    switch (upload.status) {
-      case UPLOAD_SCAN_STATUS.INFECTED:
-        return (
-          <>
-            <Link to="/infected-upload" className="usa-link">
-              {upload.filename}
-            </Link>
-          </>
-        );
-      case UPLOAD_SCAN_STATUS.PROCESSING:
-        return (
-          <>
-            <Link to="/processing-upload" className="usa-link">
-              {upload.filename}
-            </Link>
-          </>
-        );
-      default:
-        return (
-          <>
-            <a href={upload.url} target="_blank" rel="noopener noreferrer" className="usa-link">
-              {upload.filename}
-            </a>
-          </>
-        );
+  const getIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+      return 'file-pdf';
     }
+    return 'file-image';
   };
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Uploaded</th>
-          <th>Size</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        {uploads.map((upload) => (
-          <tr key={upload.id} className="vertical-align text-top">
-            <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
-              {getUploadUrl(upload)}
-            </td>
-            <td>{moment(upload.created_at).format('LLL')}</td>
-            <td>{bytes(upload.bytes)}</td>
-            <td>
+    uploads?.length > 0 && (
+      <SectionWrapper className={styles.uploadsTableContainer}>
+        <h6>{uploads.length} Files Uploaded</h6>
+        <ul>
+          {uploads.map((upload) => (
+            <li className={styles.uploadListItem} key={upload.id}>
+              <div className={styles.fileInfoContainer}>
+                <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={styles.faIcon} />
+                <div className={styles.fileInfo}>
+                  <p>{upload.filename}</p>
+                  <p className={styles.fileSizeAndTime}>
+                    <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
+                    <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
+                  </p>
+                </div>
+              </div>
               <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
                 Delete
               </Button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+            </li>
+          ))}
+        </ul>
+      </SectionWrapper>
+    )
   );
 };
 

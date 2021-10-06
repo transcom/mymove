@@ -85,30 +85,59 @@ const ppmDefaultProps = {
   originZIP: '00000',
 };
 
-export default {
-  title: 'Customer Components / ShipmentCard',
+const secondaryDeliveryAddress = {
+  secondaryDeliveryAddress: {
+    street_address_1: '17 8th St',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
 };
 
-export const HHGShipment = () => (
-  <div style={{ padding: 10 }}>
-    <HHGShipmentCard {...hhgDefaultProps} />
-  </div>
+const secondaryPickupAddress = {
+  secondaryPickupAddress: {
+    street_address_1: '812 S 129th Street',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
+};
+
+export default {
+  title: 'Customer Components / ShipmentCard',
+  decorators: [
+    (Story) => (
+      <div style={{ padding: 10 }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const HHGShipment = () => <HHGShipmentCard {...hhgDefaultProps} />;
+
+export const HHGShipmentWithSecondaryDestinationAddress = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryDeliveryAddress} />
 );
 
-export const NTSShipment = () => (
-  <div style={{ padding: 10 }}>
-    <NTSShipmentCard {...ntsDefaultProps} />
-  </div>
+export const HHGShipmentWithSecondaryPickupAddress = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryPickupAddress} />
 );
 
-export const NTSRShipment = () => (
-  <div style={{ padding: 10 }}>
-    <NTSRShipmentCard {...ntsrDefaultProps} />
-  </div>
+export const HHGShipmentWithSecondaryAddresses = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryPickupAddress} {...secondaryDeliveryAddress} />
 );
 
-export const PPMShipment = () => (
-  <div style={{ padding: 10 }}>
-    <PPMShipmentCard {...ppmDefaultProps} />
-  </div>
+export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
+
+export const NTSShipmentWithSecondaryPickupAddress = () => (
+  <NTSShipmentCard {...ntsDefaultProps} {...secondaryPickupAddress} />
 );
+
+export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
+
+export const NTSRShipmentWithSecondaryDestinationAddress = () => (
+  <NTSRShipmentCard {...ntsrDefaultProps} {...secondaryDeliveryAddress} />
+);
+
+export const PPMShipment = () => <PPMShipmentCard {...ppmDefaultProps} />;

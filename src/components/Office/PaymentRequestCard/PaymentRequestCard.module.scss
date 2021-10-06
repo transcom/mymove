@@ -97,6 +97,12 @@
     @include u-display(flex);
     align-items: flex-end;
     justify-content: flex-end;
+    flex-direction: column;
+
+    .errorText {
+      color: $base;
+      font-size: 13px;
+    }
   }
 }
 
@@ -149,8 +155,8 @@
 
 .drawer {
   border-top: 1px solid #dcdee0;
-  padding-left: 7.2rem;
-  padding-right: 7.2rem;
+  padding-left: 0;
+  padding-right: 0;
   @include u-margin-top(2);
 
   > div {

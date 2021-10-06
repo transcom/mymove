@@ -6,12 +6,16 @@ import (
 
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -20,38 +24,43 @@ import (
 
 // UpdateMTOShipmentQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	CreateOne(model interface{}) (*validate.Errors, error)
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-	Count(model interface{}, filters []services.QueryFilter) (int, error)
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+	Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error)
+	FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type mtoShipmentUpdater struct {
-	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner route.Planner
+	planner      route.Planner
+	moveRouter   services.MoveRouter
+	moveWeights  services.MoveWeights
+	sender       notifications.NotificationSender
+	recalculator services.PaymentRequestShipmentRecalculator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
-		db,
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
 	}
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
-	verrs := validate.NewErrors()
-	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
-
+func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
+
+	dbShipment.Diversion = requestedUpdatedShipment.Diversion
 
 	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
 		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
@@ -71,10 +80,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	if requestedUpdatedShipment.ScheduledPickupDate != nil {
 		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
-	}
-
-	if requestedUpdatedShipment.ScheduledPickupDate != nil {
-		dbShipment.ApprovedDate = requestedUpdatedShipment.ApprovedDate
 	}
 
 	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
@@ -105,9 +110,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	if requestedUpdatedShipment.Status != "" {
 		dbShipment.Status = requestedUpdatedShipment.Status
-		if dbShipment.Status != models.MTOShipmentStatusDraft && dbShipment.Status != models.MTOShipmentStatusSubmitted {
-			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
-		}
 	}
 
 	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
@@ -120,6 +122,18 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	if requestedUpdatedShipment.CustomerRemarks != nil {
 		dbShipment.CustomerRemarks = requestedUpdatedShipment.CustomerRemarks
+	}
+
+	if requestedUpdatedShipment.CounselorRemarks != nil {
+		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks
+	}
+
+	if requestedUpdatedShipment.BillableWeightCap != nil {
+		dbShipment.BillableWeightCap = requestedUpdatedShipment.BillableWeightCap
+	}
+
+	if requestedUpdatedShipment.BillableWeightJustification != nil {
+		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
 	}
 
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
@@ -165,13 +179,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		}
 		dbShipment.MTOAgents = agentsToCreateOrUpdate // don't return unchanged existing agents
 	}
-
-	if verrs.HasAny() {
-		dbShipment = oldShipmentCopy
-		return services.NewInvalidInputError(dbShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
-	}
-
-	return nil
 }
 
 // StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
@@ -183,60 +190,131 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
-//UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipment.ID.String()),
+//CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
+func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
+	if session.IsOfficeApp() && session.IsOfficeUser() {
+		switch mtoShipment.Status {
+		case models.MTOShipmentStatusSubmitted:
+			if session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return true, nil
+			}
+		case models.MTOShipmentStatusApproved:
+			if session.Roles.HasRole(roles.RoleTypeTIO) {
+				return true, nil
+			}
+		default:
+			return false, nil
+		}
+
+		return false, nil
 	}
-	var oldShipment models.MTOShipment
 
-	err := f.FetchRecord(&oldShipment, queryFilters)
+	return true, nil
+}
 
+func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
+	var shipment models.MTOShipment
+
+	err := appCtx.DB().EagerPreload(
+		"MoveTaskOrder",
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOAgents",
+		"SITExtensions",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
+
+	if err != nil {
+		return nil, services.NewNotFoundError(mtoShipmentID, "Shipment not found")
+	}
+
+	return &shipment, nil
+}
+
+// UpdateMTOShipmentOffice updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the OFFICE USER
+func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(
+		appCtx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+	)
+}
+
+// UpdateMTOShipmentCustomer updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the CUSTOMER
+func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(
+		appCtx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+	)
+}
+
+// UpdateMTOShipmentPrime updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the PRIME
+func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(
+		appCtx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+		checkAvailToPrime(),
+	)
+}
+
+//updateMTOShipment updates the mto shipment
+func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
+	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}
+
+	// run the (read-only) validations
+	if verr := validateShipment(appCtx, mtoShipment, oldShipment, checks...); verr != nil {
+		return nil, verr
+	}
+
 	var dbShipment models.MTOShipment
-	err = deepcopy.Copy(&dbShipment, &oldShipment) // save the original db version, oldShipment will be modified
+	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
-	err = setNewShipmentFields(&oldShipment, mtoShipment)
-	if err != nil {
-		return nil, err
-	}
-	newShipment := &oldShipment // old shipment has now been updated with requested changes
-	// db version is used to check if agents need creating or updating
-	err = f.updateShipmentRecord(&dbShipment, newShipment, eTag)
 
+	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
+	newShipment := oldShipment // old shipment has now been updated with requested changes
+	// db version is used to check if agents need creating or updating
+	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
 		switch err.(type) {
 		case StaleIdentifierError:
-			return &models.MTOShipment{}, services.NewPreconditionFailedError(mtoShipment.ID, err)
+			return nil, services.NewPreconditionFailedError(mtoShipment.ID, err)
 		default:
-			return &models.MTOShipment{}, err
+			return nil, err
 		}
 	}
 
-	var updatedShipment models.MTOShipment
-	err = f.FetchRecord(&updatedShipment, queryFilters)
+	updatedShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return nil, err
 	}
 
-	err = f.db.Eager("MTOServiceItems.ReService").Find(&updatedShipment, mtoShipment.ID.String())
-	if err != nil {
-		return &models.MTOShipment{}, err
-	}
-
-	return &updatedShipment, nil
+	return updatedShipment, nil
 }
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
-func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
-
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
-
+func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
+	var autoReweighShipments models.MTOShipments
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
 
@@ -253,7 +331,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 			// If there is an existing DestinationAddressID, tx.Save will use it
 			// to find and update the existing record. If there isn't, it will create
 			// a new record.
-			err := tx.Save(newShipment.DestinationAddress)
+			err := txnAppCtx.DB().Save(newShipment.DestinationAddress)
 			if err != nil {
 				return err
 			}
@@ -268,7 +346,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
 			}
 
-			err := tx.Save(newShipment.PickupAddress)
+			err := txnAppCtx.DB().Save(newShipment.PickupAddress)
 			if err != nil {
 				return err
 			}
@@ -278,10 +356,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 
 		if newShipment.SecondaryPickupAddress != nil {
 			if dbShipment.SecondaryPickupAddressID != nil {
-				newShipment.PickupAddress.ID = *dbShipment.SecondaryPickupAddressID
+				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}
 
-			err := tx.Save(newShipment.SecondaryPickupAddress)
+			err := txnAppCtx.DB().Save(newShipment.SecondaryPickupAddress)
 			if err != nil {
 				return err
 			}
@@ -294,7 +372,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				newShipment.SecondaryDeliveryAddress.ID = *dbShipment.SecondaryDeliveryAddressID
 			}
 
-			err := tx.Save(newShipment.SecondaryDeliveryAddress)
+			err := txnAppCtx.DB().Save(newShipment.SecondaryDeliveryAddress)
 			if err != nil {
 				return err
 			}
@@ -315,14 +393,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 						updateAgentQuery := generateAgentQuery()
 						params := generateMTOAgentsParams(copyOfAgent)
 
-						if err := tx.RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
+						if err := txnAppCtx.DB().RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
 							return err
 						}
 					}
 				}
 				if copyOfAgent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
-					verrs, err := f.builder.CreateOne(&copyOfAgent)
+					verrs, err := f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
 					}
@@ -332,10 +410,100 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 			}
 		}
+
+		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
+		// excess weight risk depending on the weight allowance and other shipment estimated weights
+		if newShipment.PrimeEstimatedWeight != nil {
+			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
+				/*
+					TODO: If the move was already in risk of excess we need to set the status back to APPROVED if
+					the new shipment estimated weight drops it out of the range. Can potentially reuse
+					moveRouter.ApproveAmmendedOrders if we also add checks for excess weight there and orders
+					acknowledgement
+				*/
+				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
+				if verrs != nil && verrs.HasAny() {
+					return errors.New(verrs.Error())
+				}
+				if err != nil {
+					return err
+				}
+
+				existingMoveStatus := move.Status
+				err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
+				if err != nil {
+					return err
+				}
+
+				if existingMoveStatus != move.Status {
+					err = txnAppCtx.DB().Update(move)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		if newShipment.PrimeActualWeight != nil {
+			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
+				var err error
+				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
+		// this shipment
+		runShipmentRecalculate := false
+		if newShipment.BillableWeightCap != nil {
+			// new billable cap has a value and it is not the same as the previous value
+			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
+				runShipmentRecalculate = true
+			}
+		} else if dbShipment.BillableWeightCap != nil {
+			// setting the billable cap back to nil (where previously it wasn't)
+			runShipmentRecalculate = true
+		}
+
+		// A diverted shipment gets set to the SUBMITTED status automatically:
+		if !dbShipment.Diversion && newShipment.Diversion {
+			newShipment.Status = models.MTOShipmentStatusSubmitted
+
+			// Get the move
+			var move models.Move
+			err := txnAppCtx.DB().Find(&move, dbShipment.MoveTaskOrderID)
+			if err != nil {
+				return err
+			}
+
+			existingMoveStatus := move.Status
+			err = f.moveRouter.SendToOfficeUser(txnAppCtx, &move)
+			if err != nil {
+				return err
+			}
+
+			// only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = txnAppCtx.DB().Update(&move)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		//
+		// Save all of the updated values from newShipment (MTOShipment) in raw query call to the database
+		//
+
+		// Generate query to update all mto_shipments columns
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		// Generate slice of column values to be used for the update from the MTOShipment model
 		params := generateMTOShipmentParams(*newShipment)
 
-		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
+		// Execute query to update all mto_shipments columns with values from MTOShipment
+		if err := txnAppCtx.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
 		// #TODO: Is there any reason we can't remove updateMTOShipmentQuery and use tx.Update?
@@ -343,8 +511,21 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		// if err := tx.Update(newShipment); err != nil {
 		// 	return err
 		// }
-		return nil
 
+		//
+		// Perform shipment recalculate payment request
+		//
+		if runShipmentRecalculate {
+			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
+			if err != nil {
+				return err
+			}
+		}
+
+		//
+		// Done with updates to shipment
+		//
+		return nil
 	})
 
 	if transactionError != nil {
@@ -354,6 +535,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		}
 		return services.NewQueryError("mtoShipment", transactionError, "")
 	}
+
+	if len(autoReweighShipments) > 0 {
+		for _, shipment := range autoReweighShipments {
+			err := f.sender.SendNotification(
+				notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), shipment.MoveTaskOrderID, shipment),
+			)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 
 }
@@ -364,6 +557,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.RequestedPickupDate,
 		mtoShipment.RequestedDeliveryDate,
 		mtoShipment.CustomerRemarks,
+		mtoShipment.CounselorRemarks,
 		mtoShipment.PrimeEstimatedWeight,
 		mtoShipment.PrimeEstimatedWeightRecordedDate,
 		mtoShipment.PrimeActualWeight,
@@ -377,6 +571,9 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.PickupAddressID,
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
+		mtoShipment.Diversion,
+		mtoShipment.BillableWeightCap,
+		mtoShipment.BillableWeightJustification,
 		mtoShipment.ID,
 	}
 }
@@ -389,6 +586,7 @@ func generateUpdateMTOShipmentQuery() string {
 			requested_pickup_date = ?,
 			requested_delivery_date = ?,
 			customer_remarks = ?,
+			counselor_remarks = ?,
 			prime_estimated_weight = ?,
 			prime_estimated_weight_recorded_date = ?,
 			prime_actual_weight = ?,
@@ -401,7 +599,10 @@ func generateUpdateMTOShipmentQuery() string {
 			destination_address_id = ?,
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
-			secondary_pickup_address_id = ?
+			secondary_pickup_address_id = ?,
+			diversion = ?,
+			billable_weight_cap = ?,
+			billable_weight_justification = ?
 		WHERE
 			id = ?
 	`
@@ -462,92 +663,54 @@ func generateAgentQuery() string {
 }
 
 type mtoShipmentStatusUpdater struct {
-	db        *pop.Connection
 	builder   UpdateMTOShipmentQueryBuilder
 	siCreator services.MTOServiceItemCreator
 	planner   route.Planner
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := fetchShipment(shipmentID, o.builder)
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
+	shipment, err := fetchShipment(appCtx, shipmentID, o.builder)
 	if err != nil {
 		return nil, err
-	}
-
-	switch shipment.Status {
-	case models.MTOShipmentStatusDraft:
-		if status != models.MTOShipmentStatusSubmitted {
-			return nil, ConflictStatusError{
-				id:                        shipment.ID,
-				transitionFromStatus:      shipment.Status,
-				transitionToStatus:        status,
-				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted},
-			}
-		}
-	case models.MTOShipmentStatusSubmitted:
-		if status != models.MTOShipmentStatusApproved && status != models.MTOShipmentStatusRejected {
-			return nil, ConflictStatusError{
-				id:                        shipment.ID,
-				transitionFromStatus:      shipment.Status,
-				transitionToStatus:        status,
-				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusRejected},
-			}
-		}
-	case models.MTOShipmentStatusApproved:
-		if status != models.MTOShipmentStatusCancellationRequested {
-			return nil, ConflictStatusError{
-				id:                        shipment.ID,
-				transitionFromStatus:      shipment.Status,
-				transitionToStatus:        status,
-				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCancellationRequested},
-			}
-		}
-	default:
-		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: status}
 	}
 
 	if status != models.MTOShipmentStatusRejected {
 		rejectionReason = nil
 	}
 
-	shipment.Status = status
-	shipment.RejectionReason = rejectionReason
+	// here we determine if the current shipment status is diversion requested before updating
+	wasShipmentDiversionRequested := shipment.Status == models.MTOShipmentStatusDiversionRequested
+	shipmentRouter := NewShipmentRouter()
 
-	// When a shipment is approved, service items automatically get created, but
-	// service items can only be created if a Move's status is either Approved
-	// or Approvals Requested, so check and fail early.
+	switch status {
+	case models.MTOShipmentStatusCancellationRequested:
+		err = shipmentRouter.RequestCancellation(appCtx, shipment)
+	case models.MTOShipmentStatusApproved:
+		err = shipmentRouter.Approve(appCtx, shipment)
+	case models.MTOShipmentStatusCanceled:
+		err = shipmentRouter.Cancel(appCtx, shipment)
+	case models.MTOShipmentStatusDiversionRequested:
+		err = shipmentRouter.RequestDiversion(appCtx, shipment)
+	case models.MTOShipmentStatusRejected:
+		err = shipmentRouter.Reject(appCtx, shipment, rejectionReason)
+	default:
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: status}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	// calculate required delivery date to save it with the shipment
 	if shipment.Status == models.MTOShipmentStatusApproved {
-		move := shipment.MoveTaskOrder
-		if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
-			return nil, services.NewConflictError(
-				move.ID,
-				fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
-			)
+		err = o.setRequiredDeliveryDate(appCtx, shipment)
+		if err != nil {
+			return nil, err
 		}
-
-		approvedDate := time.Now()
-		shipment.ApprovedDate = &approvedDate
-
-		if shipment.ScheduledPickupDate != nil &&
-			shipment.RequiredDeliveryDate == nil &&
-			shipment.PrimeEstimatedWeight != nil {
-			requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
-			if calcErr != nil {
-				return nil, calcErr
-			}
-			shipment.RequiredDeliveryDate = requiredDeliveryDate
-		}
-
 	}
 
-	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
-
-	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-		return &models.MTOShipment{}, invalidInputError
-	}
+	verrs, err := o.builder.UpdateOne(appCtx, shipment, &eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -558,54 +721,74 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		}
 	}
 
-	if shipment.Status == models.MTOShipmentStatusApproved {
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-			return &models.MTOShipment{}, invalidInputError
-		}
+	if verrs != nil && verrs.HasAny() {
+		return nil, services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+	}
 
+	// after updating shipment
+	// create shipment level service items if shipment status was NOT diversion requested before it was updated
+	// and current status is approved
+	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !wasShipmentDiversionRequested
+	if createSSI {
+		err = o.createShipmentServiceItems(appCtx, shipment)
 		if err != nil {
-			switch err.(type) {
-			case query.StaleIdentifierError:
-				return nil, services.NewPreconditionFailedError(shipment.ID, err)
-			default:
-				return nil, err
-			}
-		}
-
-		reServiceCodes := reServiceCodesForShipment(shipment)
-		serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		for _, serviceItem := range serviceItemsToCreate {
-			copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-			_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
-
-			if verrs != nil && verrs.HasAny() {
-				invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
-				return &models.MTOShipment{}, invalidInputError
-			}
-
-			if err != nil {
-				return nil, err
-			}
+			return nil, err
 		}
 	}
 
-	return &shipment, nil
+	return shipment, nil
 }
 
-func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (models.MTOShipment, error) {
+// createShipmentServiceItems creates shipment level service items
+func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	reServiceCodes := reServiceCodesForShipment(*shipment)
+	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
+	for _, serviceItem := range serviceItemsToCreate {
+		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
+		_, verrs, err := o.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
+			return invalidInputError
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// setRequiredDeliveryDate set the calculated delivery date for the shipment
+func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	if shipment.ScheduledPickupDate != nil &&
+		shipment.RequiredDeliveryDate == nil &&
+		shipment.PrimeEstimatedWeight != nil {
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		if calcErr != nil {
+			return calcErr
+		}
+
+		shipment.RequiredDeliveryDate = requiredDeliveryDate
+	}
+
+	return nil
+}
+
+func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
-	err := builder.FetchOne(&shipment, queryFilters)
+	err := builder.FetchOne(appCtx, &shipment, queryFilters)
 
 	if err != nil {
-		return shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
+		return &shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
 	}
 
-	return shipment, nil
+	return &shipment, nil
 }
 
 func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
@@ -688,7 +871,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
 // the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
 // based on the max_days_transit_time.
-func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
+func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
 	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
 	// story: https://dp3.atlassian.net/browse/MB-1141
 	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
@@ -707,15 +890,16 @@ func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 	}
 	// Query the ghc_domestic_transit_times table for the max transit time
 	var ghcDomesticTransitTime models.GHCDomesticTransitTime
-	err = db.Where("distance_miles_lower <= ? "+
+	err = appCtx.DB().Where("distance_miles_lower <= ? "+
 		"AND distance_miles_upper >= ? "+
 		"AND weight_lbs_lower <= ? "+
 		"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
 		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance)
 	}
+
 	// Add the max transit time to the pickup date to get the new required delivery date
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
@@ -754,8 +938,8 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
-	return &mtoShipmentStatusUpdater{db, builder, siCreator, planner}
+func NewMTOShipmentStatusUpdater(builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
+	return &mtoShipmentStatusUpdater{builder, siCreator, planner}
 }
 
 // ConflictStatusError returns an error for a conflict in status
@@ -768,29 +952,22 @@ type ConflictStatusError struct {
 
 // Error is the string representation of the error
 func (e ConflictStatusError) Error() string {
-	var allowedStatusMsg string
 	if e.transitionAllowedStatuses != nil {
-		allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", *e.transitionAllowedStatuses)
+		return fmt.Sprintf("Shipment with id '%s' can only transition to status '%s' from %+q, but its current status is '%s'",
+			e.id.String(), e.transitionToStatus, *e.transitionAllowedStatuses, e.transitionFromStatus)
 	}
-	return fmt.Sprintf("shipment with id '%s' cannot transition status from '%s' to '%s'.%s",
-		e.id.String(), e.transitionFromStatus, e.transitionToStatus, allowedStatusMsg)
+
+	return ""
 }
 
-func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.Move
-
-	err := f.db.Q().
-		Join("mto_shipments", "moves.id = mto_shipments.move_id").
-		Where("available_to_prime_at IS NOT NULL").
-		Where("mto_shipments.id = ?", mtoShipmentID).
-		Where("show = TRUE").
-		First(&mto)
+// MTOShipmentsMTOAvailableToPrime checks if a given shipment is available to the Prime
+// TODO: trend away from using this method, it represents *business logic* and should
+// ideally be done only as an internal check, rather than relying on being invoked
+// by the handler layer
+func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
+	err := checkAvailToPrime().Validate(appCtx, &models.MTOShipment{ID: mtoShipmentID}, nil)
 	if err != nil {
-		if err.Error() == models.RecordNotFoundErrorString {
-			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
-		}
-		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
+		return false, err
 	}
-
 	return true, nil
 }

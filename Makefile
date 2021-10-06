@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.4
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -50,6 +50,8 @@ endif
 
 SCHEMASPY_OUTPUT=./tmp/schemaspy
 
+export DEVSEED_SUBSCENARIO
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -66,14 +68,17 @@ help:  ## Print the help documentation
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 .PHONY: ensure_pre_commit
-ensure_pre_commit: .git/hooks/pre-commit ## Ensure pre-commit is installed
+ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit is installed
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
+
+.PHONY: install_pre_commit
+install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install
 	pre-commit install-hooks
 
 .PHONY: prereqs
-prereqs: .prereqs.stamp ## Check that pre-requirements are installed
-.prereqs.stamp: scripts/prereqs
+prereqs: .prereqs.stamp ## Check that pre-requirements are installed, includes dependency scripts
+.prereqs.stamp: scripts/prereqs scripts/check-aws-cli-version scripts/check-aws-vault-version scripts/check-bash-version scripts/check-chamber-version scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version scripts/check-opensc-version
 	scripts/prereqs
 	touch .prereqs.stamp
 
@@ -120,7 +125,13 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit deps_shared ## Run all checks and install all dependencies
+
+.PHONY: deps_nix
+deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
+
+.PHONY: deps_shared
+deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -132,6 +143,10 @@ diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on enviro
 check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
+.PHONY: check_app
+check_app: ## Make sure you're running the correct APP
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 #
 # ----- END CHECK TARGETS -----
 #
@@ -192,19 +207,19 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
+bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
-bin/soda: .check_go_version.stamp .check_gopath.stamp
+bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
-bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 # No static linking / $(LDFLAGS) because mockery is only used for testing
-bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
+bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/mockery github.com/vektra/mockery/v2
 
 ### Cert Targets
 
@@ -272,12 +287,6 @@ bin/report-ecs: cmd/report-ecs
 bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
-
-bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
-
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
@@ -295,8 +304,21 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
+.PHONY: check_swagger_generate
+check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
+.swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+ifneq ("$(wildcard .swagger_build.stamp)","")
+	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
+	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
+endif
+
+.PHONY: swagger_generate
+swagger_generate: .client_deps.stamp check_swagger_generate ## Bundles the API definition files into a complete specification
+	yarn build-redoc
+	touch .swagger_build.stamp
+
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
+server_generate: .check_go_version.stamp .check_gopath.stamp swagger_generate pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
@@ -310,7 +332,7 @@ server_run_standalone: check_log_dir server_build client_build db_dev_run redis_
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
-	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
+	find ./swagger-def -type f | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
@@ -397,8 +419,11 @@ endif
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+.PHONY: server_test_setup
+server_test_setup: db_test_reset db_test_migrate redis_reset db_test_truncate
+
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
+server_test: server_test_setup server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -516,20 +541,19 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
 .PHONY: db_dev_fresh
-db_dev_fresh: db_dev_reset db_dev_migrate
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
+
+.PHONY: db_dev_truncate
+db_dev_truncate: ## Truncate dev db
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 ## Alias for db_dev_bandwidth_up
 ## We started with `db_bandwidth_up`, which some folks are already using, and
@@ -539,11 +563,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
-db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -654,6 +674,16 @@ db_test_run: db_test_start db_test_create ## Run Test DB
 .PHONY: db_test_reset
 db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 
+.PHONY: db_test_truncate
+db_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database..."
+	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
+
+.PHONY: db_e2e_test_truncate
+db_e2e_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -723,11 +753,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
@@ -737,6 +763,18 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+
+.PHONY: db_dev_e2e_backup
+db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-backup e2e_dev
+
+.PHONY: db_dev_e2e_restore
+db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-restore e2e_dev
+
+.PHONY: db_dev_e2e_cleanup
+db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
+	./scripts/db-cleanup e2e_dev
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -925,6 +963,18 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
+.PHONY: run_demo_migrations
+run_demo_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud demo migrations against Deployed Migrations DB
+	@echo "Migrating the demo-migrations database with demo migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-demo-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-demo \
+	bin/milmove migrate
 #
 # ----- END PROD_MIGRATION TARGETS -----
 #
@@ -978,8 +1028,8 @@ webhook_client_start:
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
-		-e GEX_MTLS_CLIENT_CERT \
-		-e GEX_MTLS_CLIENT_KEY \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_CERT \
+		-e MOVE_MIL_INTEGRATIONS_DOD_TLS_KEY \
 		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
@@ -1041,7 +1091,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+	docker pull milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
@@ -1076,15 +1126,6 @@ clean: ## Clean all generated files
 	rm -rf ./storybook-static
 	rm -rf ./coverage
 	rm -rf ./log
-
-.PHONY: spellcheck
-spellcheck: ## Run interactive spellchecker
-	@which mdspell -s || (echo "Install mdspell with yarn global add markdown-spellcheck" && exit 1)
-	/usr/local/bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
-		`find . -type f -name "*.md" \
-			-not -path "./node_modules/*" \
-			-not -path "./vendor/*" \
-			-not -path "./docs/adr/index.md" | sort`
 
 .PHONY: storybook
 storybook: ## Start the storybook server

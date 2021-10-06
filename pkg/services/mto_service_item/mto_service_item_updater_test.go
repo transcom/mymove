@@ -13,6 +13,12 @@ import (
 	"testing"
 	"time"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
+
+	"github.com/transcom/mymove/pkg/handlers"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -30,8 +36,9 @@ import (
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
-	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
@@ -42,7 +49,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		notFoundServiceItem := serviceItem
 		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &notFoundServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &notFoundServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -55,7 +62,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &invalidServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &invalidServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -69,7 +76,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
 		newServiceItem := serviceItem
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, "bloop")
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &newServiceItem, "bloop")
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -87,29 +94,35 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
 		newServiceItem.SITDestinationFinalAddress = &newAddress
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &newServiceItem, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(updatedServiceItem.ID, serviceItem.ID)
-		suite.Equal(updatedServiceItem.MTOShipmentID, serviceItem.MTOShipmentID)
-		suite.Equal(updatedServiceItem.MoveTaskOrderID, serviceItem.MoveTaskOrderID)
-		suite.Equal(updatedServiceItem.Reason, newServiceItem.Reason)
-		suite.Equal(updatedServiceItem.SITEntryDate.Local(), newServiceItem.SITEntryDate.Local())
-		suite.Equal(updatedServiceItem.Status, serviceItem.Status) // should not have been updated
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.StreetAddress1, newAddress.StreetAddress1)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.City, newAddress.City)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.State, newAddress.State)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.Country, newAddress.Country)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.PostalCode, newAddress.PostalCode)
-		suite.NotEqual(updatedServiceItem.Status, newServiceItem.Status)
+		suite.Equal(serviceItem.ID, updatedServiceItem.ID)
+		suite.Equal(serviceItem.MTOShipmentID, updatedServiceItem.MTOShipmentID)
+		suite.Equal(serviceItem.MoveTaskOrderID, updatedServiceItem.MoveTaskOrderID)
+		suite.Equal(newServiceItem.Reason, updatedServiceItem.Reason)
+		suite.Equal(newServiceItem.SITEntryDate.Local(), updatedServiceItem.SITEntryDate.Local())
+		suite.Equal(serviceItem.Status, updatedServiceItem.Status) // should not have been updated
+		suite.Equal(newAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(newAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(newAddress.Country, updatedServiceItem.SITDestinationFinalAddress.Country)
+		suite.Equal(newAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.ActualWeight, updatedServiceItem.ActualWeight)
+		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
+		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
-	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+	checker := movetaskorder.NewMoveTaskOrderChecker()
 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: testdatagen.MakeAvailableMove(suite.DB()),
@@ -120,7 +133,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
 		serviceItemData := updateMTOServiceItemData{}
 		fakeKey := "FakeKey"
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, fakeKey)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, fakeKey)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -139,7 +152,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -157,7 +170,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -177,9 +190,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -195,9 +207,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItem,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -217,9 +228,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -247,9 +257,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -264,7 +273,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, "")
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, "")
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -273,7 +282,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
@@ -296,9 +305,45 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 	return eTag, serviceItem, move
 }
 
+func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowledgedAmendedOrders() (string, models.MTOServiceItem, models.Move) {
+	storer := storageTest.NewFakeS3Storage(true)
+	userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
+	suite.NoError(err)
+	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
+			DocumentID: &amendedDocument.ID,
+			Document:   amendedDocument,
+			UploaderID: amendedDocument.ServiceMember.UserID,
+		},
+		UserUploader: userUploader,
+	})
+
+	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
+	now := time.Now()
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			UploadedAmendedOrders:   &amendedDocument,
+			UploadedAmendedOrdersID: &amendedDocument.ID,
+			ServiceMember:           amendedDocument.ServiceMember,
+			ServiceMemberID:         amendedDocument.ServiceMemberID,
+		},
+		Move: models.Move{ExcessWeightQualifiedAt: &now},
+	})
+
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+	return eTag, serviceItem, move
+}
+
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
-	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	rejectionReason := swag.String("")
 
@@ -308,16 +353,22 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItem()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+		suite.NotNil(serviceItem.ApprovedAt)
+		suite.Nil(serviceItem.RejectionReason)
+		suite.Nil(serviceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that the move's status changes to Approvals Requested if any of its service
@@ -328,11 +379,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		move.Status = models.MoveStatusAPPROVED
 		suite.MustSave(&move)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
@@ -340,7 +394,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(serviceItem.RejectedAt)
 		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that the move's status changes to Approved if the service item is
@@ -350,11 +403,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag, serviceItem, move := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
+		suite.NoError(err)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.Equal(models.MTOServiceItemStatusRejected, serviceItem.Status)
@@ -362,7 +418,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NotNil(serviceItem.RejectedAt)
 		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.NoError(err)
 	})
 
 	// Test that a service item's status can only be updated if the Move's status
@@ -372,16 +427,53 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
-		suite.DB().Find(&move, move.ID)
-		suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Cannot approve or reject a service item if the move's status is neither Approved nor Approvals Requested.")
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusDRAFT, move.Status)
 		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
 		suite.Nil(updatedServiceItem)
+	})
+
+	suite.T().Run("does not approve the move if unacknowledged amended orders exist", func(t *testing.T) {
+		suite.SetupTest()
+
+		eTag, serviceItem, move := suite.createServiceItemForMoveWithUnacknowledgedAmendedOrders()
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
+
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+		suite.Nil(serviceItem.RejectionReason)
+		suite.Nil(serviceItem.RejectedAt)
+		suite.NotNil(serviceItem.ApprovedAt)
+		suite.NotNil(updatedServiceItem)
+	})
+
+	suite.T().Run("Returns an error when eTag is stale", func(t *testing.T) {
+		suite.SetupTest()
+		_, serviceItem, _ := suite.createServiceItem()
+		rejectionReason = swag.String("incomplete")
+
+		_, err := updater.ApproveOrRejectServiceItem(
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")
+
 		suite.Error(err)
-		suite.Contains(err.Error(), "Cannot update a service item on a move that is not currently approved")
+		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
 }

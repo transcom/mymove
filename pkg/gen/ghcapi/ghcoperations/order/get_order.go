@@ -29,7 +29,7 @@ func NewGetOrder(ctx *middleware.Context, handler GetOrderHandler) *GetOrder {
 	return &GetOrder{Context: ctx, Handler: handler}
 }
 
-/*GetOrder swagger:route GET /orders/{orderID} order getOrder
+/* GetOrder swagger:route GET /orders/{orderID} order getOrder
 
 Gets an order by ID
 
@@ -44,17 +44,15 @@ type GetOrder struct {
 func (o *GetOrder) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetOrderParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

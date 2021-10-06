@@ -3,7 +3,8 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0 as builder
+FROM milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40 as builder
+
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
 # hadolint ignore=DL3002
@@ -11,19 +12,6 @@ USER root
 WORKDIR /build
 COPY Makefile /build/
 COPY scripts /build/scripts
-
-# Install client deps and server deps first since they don't change as
-# often as code
-FROM builder as client_deps
-# js dep needs
-COPY .yarnrc \
-  config-overrides.js jsconfig.json package.json terser-rescript.js \
-  yarn.lock /build/
-COPY .eslintignore .eslintrc.js .prettierignore .prettierrc \
-  /build/
-COPY eslint-plugin-ato /build/eslint-plugin-ato
-RUN set -x \
-  && yarn
 
 FROM builder as server_deps
 ENV GOPATH=/go
@@ -52,12 +40,12 @@ RUN mkdir /build/src
 RUN set -x \
   && make bin/rds-ca-2019-root.pem \
   && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
-  && make server_generate \
+  && scripts/gen-server \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
 
 # define migrations before client build since it doesn't need client
-FROM alpine:3.12.3 as migrate
+FROM alpine:3.14.2 as migrate
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
@@ -90,6 +78,18 @@ ENTRYPOINT ["/bin/sh", "-c", \
 ]
 
 # build client after migrate since migrations don't need client
+
+FROM builder as client_deps
+# js dep needs
+COPY .yarnrc \
+  config-overrides.js jsconfig.json package.json terser-rescript.js \
+  yarn.lock /build/
+COPY .eslintignore .eslintrc.js .prettierignore .prettierrc \
+  /build/
+COPY eslint-plugin-ato /build/eslint-plugin-ato
+RUN set -x \
+  && yarn
+
 FROM client_deps as client_builder
 # js build needs
 # copy directories separately

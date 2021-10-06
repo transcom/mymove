@@ -5,6 +5,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -17,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {
@@ -33,14 +33,13 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 // CreateUploadHandler is the create upload handler
 type CreateUploadHandler struct {
 	handlers.HandlerContext
-	// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
-	// unable to get logger to pass in for instantiation
-	//services.PaymentRequestUploadCreator
+	services.PaymentRequestUploadCreator
 }
 
 // Handle creates uploads
 func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	var contractorID uuid.UUID
 	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())
@@ -72,8 +71,7 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 		return paymentrequestop.NewCreateUploadInternalServerError()
 	}
 
-	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())
-	createdUpload, err := uploadCreator.CreateUpload(file.Data, paymentRequestID, contractorID, file.Header.Filename)
+	createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename)
 	if err != nil {
 		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {

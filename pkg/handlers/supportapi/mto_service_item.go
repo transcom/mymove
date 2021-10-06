@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/models"
 
@@ -24,16 +25,17 @@ type UpdateMTOServiceItemStatusHandler struct {
 // Handle updates mto server item statuses
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	mtoServiceItemID := uuid.FromStringOrNil(params.MtoServiceItemID)
 	status := models.MTOServiceItemStatus(params.Body.Status)
 	eTag := params.IfMatch
 	reason := params.Body.RejectionReason
 
-	mtoServiceItem, err := h.UpdateMTOServiceItemStatus(mtoServiceItemID, status, reason, eTag)
+	mtoServiceItem, err := h.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, status, reason, eTag)
 
 	if err != nil {
-		logger.Error("UpdateMTOServiceItemStatus error: ", zap.Error(err))
+		logger.Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:

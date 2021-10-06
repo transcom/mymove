@@ -25,11 +25,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*CreateMTOServiceItemOK, error)
+	CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts ...ClientOption) (*CreateMTOServiceItemOK, error)
 
-	UpdateMTOServiceItem(params *UpdateMTOServiceItemParams) (*UpdateMTOServiceItemOK, error)
+	UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -81,7 +84,21 @@ model type with the following codes:
 
 **DDFSIT**
 
-**1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+**1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+  * `firstAvailableDeliveryDate1`
+    * string <date>
+    * First available date that Prime can deliver SIT service item.
+  * `firstAvailableDeliveryDate2`
+    * string <date>
+    * Second available date that Prime can deliver SIT service item.
+  * `timeMilitary1`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+  * `timeMilitary2`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+
+When a DDFSIT is requested, the API will auto-create the following group of service items:
   * DDFSIT - Domestic destination 1st day SIT
   * DDASIT - Domestic destination Additional day SIT
   * DDDSIT - Domestic destination SIT delivery
@@ -92,13 +109,12 @@ model type with the following codes:
 Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
 
 */
-func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*CreateMTOServiceItemOK, error) {
+func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts ...ClientOption) (*CreateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMTOServiceItemParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createMTOServiceItem",
 		Method:             "POST",
 		PathPattern:        "/mto-service-items",
@@ -109,7 +125,12 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*Crea
 		Reader:             &CreateMTOServiceItemReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +159,12 @@ To create a service item, please use [createMTOServiceItem](#operation/createMTO
 Currently this is not implemented and will generated the NotImplemented error.
 
 */
-func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams) (*UpdateMTOServiceItemOK, error) {
+func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOServiceItemParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOServiceItem",
 		Method:             "PATCH",
 		PathPattern:        "/mto-service-items/{mtoServiceItemID}",
@@ -155,7 +175,12 @@ func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams) (*Upda
 		Reader:             &UpdateMTOServiceItemReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
+func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 	suite.T().Run("fetch office user upload", func(t *testing.T) {
 		email := "officeuser1@example.com"
 		ou := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
@@ -28,11 +28,11 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 
 		assertions := testdatagen.Assertions{UserUpload: models.UserUpload{UploaderID: *ou.UserID}}
 		uu := testdatagen.MakeUserUpload(suite.DB(), assertions)
-		uif := NewUploadInformationFetcher(suite.DB())
+		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		ui, err := uif.FetchUploadInformation(u.ID)
+		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.ServiceMemberID)
@@ -45,11 +45,11 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 
 	suite.T().Run("fetch service member upload", func(t *testing.T) {
 		uu := testdatagen.MakeDefaultUserUpload(suite.DB())
-		uif := NewUploadInformationFetcher(suite.DB())
+		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		ui, err := uif.FetchUploadInformation(u.ID)
+		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.OfficeUserID)

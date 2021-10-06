@@ -24,7 +24,7 @@ const (
 // MTOServiceItemDimension is an object representing dimensions for a service item.
 type MTOServiceItemDimension struct {
 	ID               uuid.UUID             `db:"id"`
-	MTOServiceItem   MTOServiceItem        `belongs_to:"mto_service_items"`
+	MTOServiceItem   MTOServiceItem        `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
 	MTOServiceItemID uuid.UUID             `db:"mto_service_item_id"`
 	Type             DimensionType         `db:"type"`
 	Length           unit.ThousandthInches `db:"length_thousandth_inches"`
@@ -55,4 +55,10 @@ func (m *MTOServiceItemDimension) Validate(tx *pop.Connection) (*validate.Errors
 // TableName overrides the table name used by Pop.
 func (m MTOServiceItemDimension) TableName() string {
 	return "mto_service_item_dimensions"
+}
+
+// Volume calculates Length x Height x Width
+func (m *MTOServiceItemDimension) Volume() unit.CubicThousandthInch {
+	volume := m.Length * m.Width * m.Height
+	return unit.CubicThousandthInch(volume)
 }

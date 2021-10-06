@@ -1,22 +1,38 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Alert, CardGroup, CardHeader, CardBody, CardMedia, GridContainer, Grid } from '@trussworks/react-uswds';
-import { func, number, string } from 'prop-types';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { generalRoutes, customerRoutes } from 'constants/routes';
+import styles from './MovingInfo.module.scss';
+
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import PPMShipmentImg from 'images/ppm-shipment.png';
-import HHGShipmentImg from 'images/hhg-shipment.jpg';
-import MoveCounselorImg from 'images/move-counselor.jpg';
-import MovingTruckImg from 'images/moving-truck.jpg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatWeight } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { RouteProps } from 'types/router';
+
+const IconSection = ({ icon, headline, children }) => (
+  <Grid row className={styles.IconSection}>
+    <Grid col="auto" className={styles.SectionIcon}>
+      <FontAwesomeIcon size="lg" icon={icon} />
+    </Grid>
+    <Grid col="fill" className={styles.SectionContent}>
+      <h2 className={styles.SectionHeadline}>{headline} </h2>
+      {children}
+    </Grid>
+  </Grid>
+);
+
+IconSection.propTypes = {
+  icon: string.isRequired,
+  headline: string.isRequired,
+  children: node.isRequired,
+};
 
 export class MovingInfo extends Component {
   componentDidMount() {
@@ -36,100 +52,48 @@ export class MovingInfo extends Component {
         <ScrollToTop />
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <h1 data-testid="shipmentsHeader">Tips for planning your shipments</h1>
-            {entitlementWeight === 0 ? (
-              <></>
-            ) : (
-              <Alert
-                data-testid="shipmentsAlert"
-                type="info"
-                heading={`You can move ${formatWeight(entitlementWeight)} for free`}
-                noIcon
-              >
-                The government will pay to move that much weight. Your whole move, no matter how many shipments it
-                takes.
-                <br />
-                <br />
-                If you move more weight, you’ll need to pay for the excess. We’ll tell you if it looks like that could
-                happen.
-              </Alert>
-            )}
-            <SectionWrapper>
-              <CardGroup>
-                <MilmoveCard>
-                  <CardHeader>
-                    <h3 data-testid="shipmentsSubHeader">Hold on to things you’ll need quickly</h3>
-                  </CardHeader>
-                  <CardMedia inset>
-                    <img src={PPMShipmentImg} alt="PPM Shipment" />
-                  </CardMedia>
-                  <CardBody>
-                    <p>Hand-carry important documents — ID, medical info, orders, school records, etc.</p>
-                    <p>
-                      Pack a set of things that you’ll need when you arrive — clothes, electronics, chargers, cleaning
-                      supplies, etc. Valuables that can’t be replaced are also a good idea.
-                    </p>
-                    <p>To be paid for moving these things, select a PPM shipment.</p>
-                  </CardBody>
-                </MilmoveCard>
-                <MilmoveCard>
-                  <CardHeader>
-                    <h3 data-testid="shipmentsSubHeader">One move, several parts</h3>
-                  </CardHeader>
-                  <CardMedia inset>
-                    <img src={HHGShipmentImg} alt="HHG Shipment" />
-                  </CardMedia>
-                  <CardBody>
-                    <p>
-                      It’s common to move a few things yourself and have professional movers pack and move the rest.
-                    </p>
-                    <p>
-                      You can have things picked up or delivered to more than one place — your home and an office, for
-                      example. But multiple shipments make it easier to go over weight and end up paying for part of
-                      your move yourself.
-                    </p>
-                  </CardBody>
-                </MilmoveCard>
-                <MilmoveCard>
-                  <CardHeader>
-                    <h3 data-testid="shipmentsSubHeader">Talk to your move counselor</h3>
-                  </CardHeader>
-                  <CardMedia inset>
-                    <img src={MoveCounselorImg} alt="Move counselor" />
-                  </CardMedia>
-                  <CardBody>
-                    <p>
-                      A session with a move counselor is free. Counselors have a lot of experience with military moves
-                      and can steer you through complicated situations.
-                    </p>
-                    <p>Your counselor can identify:</p>
-                    <ul>
-                      <li>belongings that won’t count against your weight allowance</li>
-                      <li>excess weight, excess distance, and other things that can cost you money</li>
-                      <li>things to make your move easier</li>
-                    </ul>
-                  </CardBody>
-                </MilmoveCard>
-                <MilmoveCard>
-                  <CardHeader>
-                    <h3 data-testid="shipmentsSubHeader">Talk to your movers</h3>
-                  </CardHeader>
-                  <CardMedia inset>
-                    <img src={MovingTruckImg} alt="Moving truck" />
-                  </CardMedia>
-                  <CardBody>
-                    <p>
-                      If you have any shipments using professional movers, you’ll be referred to a point of contact for
-                      your move.
-                    </p>
-                    <p>When things get complicated or you have questions during your move, they are there to help.</p>
-                    <p>
-                      It’s OK if things change after you submit your move info. Your movers or your counselor will make
-                      things work.
-                    </p>
-                  </CardBody>
-                </MilmoveCard>
-              </CardGroup>
+            <h1 className={styles.ShipmentsHeader}>Things to know about selecting shipments</h1>
+            <SectionWrapper className={styles.Wrapper}>
+              {entitlementWeight !== 0 && (
+                <IconSection
+                  icon="weight-hanging"
+                  headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
+                >
+                  <p>You&apos;ll have to pay for any excess weight the government moves.</p>
+                </IconSection>
+              )}
+              <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
+                <p>
+                  After you submit this information, you&apos;ll talk to a move counselor. They will verify your choices
+                  and help identify more complicated situations.
+                </p>
+                <p>
+                  If you use movers, they will be your point of contact throughout your move and can also help you make
+                  changes to your shipments.
+                </p>
+              </IconSection>
+              <IconSection icon="truck-moving" headline="If you use movers, they will:">
+                <div className={styles.IconSectionList}>
+                  <ul>
+                    <li>Help estimate how much your belongings weigh</li>
+                    <li>Set pack and pickup dates based on your preferred pickup date</li>
+                    <li>Contact you after you talk to a move counselor</li>
+                    <li>Be your main point of contact during your move</li>
+                  </ul>
+                </div>
+              </IconSection>
+              <IconSection icon="car" headline="It's common to move some things yourself.">
+                <p>
+                  Most people doing a PCS have professionals move most of their things, but handle a few important
+                  things themselves.
+                </p>
+              </IconSection>
+              <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">
+                <p>
+                  The government will pay you for moving belongings that you document by weight. (This is a PPM, or
+                  DITY.)
+                </p>
+              </IconSection>
             </SectionWrapper>
 
             <WizardNavigation

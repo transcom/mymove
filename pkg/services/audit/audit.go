@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,50 +24,12 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
 
-	logItems = append(logItems,
-		zap.String("event_type", eventType),
-		zap.String("responsible_user_id", session.UserID.String()),
-		zap.String("responsible_user_email", session.Email),
-	)
+	logItems = append(logItems, zap.String("event_type", eventType))
+	logItems = append(logItems, extractResponsibleUser(session)...)
 
-	if session.IsAdminUser() || session.IsOfficeUser() {
-		logItems = append(logItems,
-			zap.String("responsible_user_name", fullName(session.FirstName, session.LastName)),
-		)
-	}
-
-	t, err := validateInterface(model)
+	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
-		recordType := parseRecordType(t.String())
-		elem := reflect.ValueOf(model).Elem()
-
-		var createdAt string
-		if elem.FieldByName("CreatedAt").IsValid() {
-			createdAt = elem.FieldByName("CreatedAt").Interface().(time.Time).String()
-		} else {
-			createdAt = time.Now().String()
-		}
-
-		var updatedAt string
-		if elem.FieldByName("updatedAt").IsValid() {
-			updatedAt = elem.FieldByName("updatedAt").Interface().(time.Time).String()
-		} else {
-			updatedAt = time.Now().String()
-		}
-
-		var id string
-		if elem.FieldByName("ID").IsValid() {
-			id = elem.FieldByName("ID").Interface().(uuid.UUID).String()
-		} else {
-			id = ""
-		}
-
-		logItems = append(logItems,
-			zap.String("record_id", id),
-			zap.String("record_type", recordType),
-			zap.String("record_created_at", createdAt),
-			zap.String("record_updated_at", updatedAt),
-		)
+		logItems = append(logItems, extractRecordInformation(item, model)...)
 
 		if payload != nil {
 			_, err = validateInterface(payload)
@@ -80,7 +43,6 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 				fieldFromType := payloadValue.Type().Field(i)
 				fieldFromValue := payloadValue.Field(i)
 				fieldName := flect.Underscore(fieldFromType.Name)
-
 				if !fieldFromValue.IsZero() {
 					payloadFields = append(payloadFields, fieldName)
 				}
@@ -107,6 +69,88 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	logger.Info(msg, logItems...)
 
 	return logItems, nil
+}
+
+// CaptureAccountStatus captures an audit record when a user account is enabled or disabled
+func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+	var logItems []zap.Field
+	eventType := extractEventType(request) + "_active_status_changed"
+	msg := flect.Titleize(eventType)
+	logItems = append(logItems, zap.String("event_type", eventType))
+	logItems = append(logItems, extractResponsibleUser(session)...)
+
+	item, err := validateInterface(model)
+	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
+		logItems = append(logItems, extractRecordInformation(item, model)...)
+
+		// Create log message and view value of active
+		activeMessage := "disabled"
+		if activeValue {
+			activeMessage = "enabled"
+		}
+
+		logItems = append(logItems, zap.String("active_value", strconv.FormatBool(activeValue)))
+		msg += fmt.Sprintf(" - account %s", activeMessage)
+	} else {
+		msg += " invalid or zero or nil model interface received from request handler"
+		logItems = append(logItems,
+			zap.Error(err),
+		)
+	}
+
+	logger.Info(msg, logItems...)
+	return logItems, nil
+}
+
+func extractResponsibleUser(session *auth.Session) []zap.Field {
+	var logItems []zap.Field
+	logItems = append(logItems,
+		zap.String("responsible_user_id", session.UserID.String()),
+		zap.String("responsible_user_email", session.Email),
+	)
+
+	if session.IsAdminUser() || session.IsOfficeUser() {
+		logItems = append(logItems,
+			zap.String("responsible_user_name", fullName(session.FirstName, session.LastName)),
+		)
+	}
+	return logItems
+}
+
+func extractRecordInformation(item reflect.Type, model interface{}) []zap.Field {
+	var logItems []zap.Field
+	recordType := parseRecordType(item.String())
+	elem := reflect.ValueOf(model).Elem()
+
+	var createdAt string
+	if elem.FieldByName("CreatedAt").IsValid() {
+		createdAt = elem.FieldByName("CreatedAt").Interface().(time.Time).String()
+	} else {
+		createdAt = time.Now().String()
+	}
+
+	var updatedAt string
+	if elem.FieldByName("UpdatedAt").IsValid() {
+		updatedAt = elem.FieldByName("UpdatedAt").Interface().(time.Time).String()
+	} else {
+		updatedAt = time.Now().String()
+	}
+
+	var id string
+	if elem.FieldByName("ID").IsValid() {
+		id = elem.FieldByName("ID").Interface().(uuid.UUID).String()
+	} else {
+		id = ""
+	}
+
+	logItems = append(logItems,
+		zap.String("record_id", id),
+		zap.String("record_type", recordType),
+		zap.String("record_created_at", createdAt),
+		zap.String("record_updated_at", updatedAt),
+	)
+
+	return logItems
 }
 
 func parseRecordType(rt string) string {

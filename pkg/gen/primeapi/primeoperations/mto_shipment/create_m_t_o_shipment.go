@@ -29,22 +29,17 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 	return &CreateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/*CreateMTOShipment swagger:route POST /mto-shipments mtoShipment createMTOShipment
+/* CreateMTOShipment swagger:route POST /mto-shipments mtoShipment createMTOShipment
 
 createMTOShipment
 
-Creates a MTO shipment for the specified Move Task Order.
-Required fields include:
-* Shipment Type
-* Customer requested pick-up date
-* Pick-up Address
-* Delivery Address
-* Releasing / Receiving agents
+Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
+approve it before the contractor can proceed with billing.
 
-Optional fields include:
-* Customer Remarks
-* Releasing / Receiving agents
-* An array of optional accessorial service item codes
+**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
+one of their moves. Otherwise, the Prime can fetch the related move using the
+[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
 
 
 */
@@ -56,17 +51,15 @@ type CreateMTOShipment struct {
 func (o *CreateMTOShipment) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateMTOShipmentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

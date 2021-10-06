@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -32,12 +34,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 }
 
 func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
-	approver := testdatagen.MakeStubbedUser(suite.DB())
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
-		UserID:          approver.ID,
-		ApplicationName: auth.OfficeApp,
-	}, "milmovelocal", move.ID)
+	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{}, "milmovelocal", uuid.Must(uuid.NewV4()))
 
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
@@ -78,13 +75,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
-
-	approver := testdatagen.MakeStubbedUser(suite.DB())
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
-		UserID:          approver.ID,
-		ApplicationName: auth.OfficeApp,
-	}, "milmovelocal", move.ID)
+	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{}, "milmovelocal", uuid.Must(uuid.NewV4()))
 
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",

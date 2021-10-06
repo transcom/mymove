@@ -27,18 +27,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop/v5"
-
+	"github.com/golang-jwt/jwt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
-	goji "goji.io"
-	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
@@ -65,6 +65,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 // initServeFlags - Order matters!
@@ -284,18 +285,17 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 }
 
 // indexHandler returns a handler that will serve the resulting content
-func indexHandler(buildDir string, logger logger) http.HandlerFunc {
+func indexHandler(buildDir string, globalLogger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
-	// #nosec - indexPath does not come from user input
 	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
 	if err != nil {
-		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
+		globalLogger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
 	}
 
 	stat, err := os.Stat(indexPath)
 	if err != nil {
-		logger.Fatal("could not stat index.html template", zap.Error(err))
+		globalLogger.Fatal("could not stat index.html template", zap.Error(err))
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -326,6 +326,7 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 func serveFunction(cmd *cobra.Command, args []string) error {
 
 	var logger *zap.Logger
+	var loggerSync func()
 	var dbConnection *pop.Connection
 	dbClose := &sync.Once{}
 	var redisPool *redis.Pool
@@ -353,10 +354,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				})
 			}
 
-			loggerSyncErr := logger.Sync()
-			if loggerSyncErr != nil {
-				logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-			}
+			loggerSync()
 		}
 	}()
 
@@ -375,7 +373,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err = logging.Config(
+	logger, loggerSync, err = logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
@@ -430,6 +428,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+	telemetryConfig, err := cli.CheckTelemetry(v)
+	if err != nil {
+		logger.Fatal("invalid trace config", zap.Error(err))
+	}
+
+	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
+	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
@@ -505,6 +510,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
+	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
+
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
 	if errRedisConnection != nil {
@@ -561,8 +569,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	build := v.GetString(cli.BuildRootFlag)
 
 	// Serves files out of build folder
-	clientHandler := http.FileServer(http.Dir(build))
-
+	clientHandler := spaHandler{
+		staticPath: build,
+		indexPath:  "index.html",
+	}
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
@@ -602,7 +612,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}))
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
-			"",
 			false,
 			&tls.Config{MinVersion: tls.VersionTLS12},
 			"",
@@ -611,7 +620,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
-			cli.GEXChannelInvoice,
 			true,
 			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
@@ -654,24 +662,22 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
-	// bare is the base muxer. Not intended to have any middleware attached.
-	bare := goji.NewMux()
+	// site is the base
+	site := mux.NewRouter()
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	if storageBackend == "local" {
 		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
 		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 		//Add a file handler to provide access to files uploaded in development
 		fs := storage.NewFilesystemHandler(localStorageRoot)
-		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
+
+		site.HandleFunc(path.Join("/", localStorageWebRoot), fs)
 	}
-	// Base routes
-	site := goji.SubMux()
-	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+	site.Use(middleware.Trace(logger)) // injects trace id into the context
 	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))
@@ -681,7 +687,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Stub health check
-	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
+	healthHandler := func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
@@ -744,72 +750,84 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		logger.Info("Request health", fields...)
 
-	})
+	}
+	site.HandleFunc("/health", healthHandler).Methods("GET")
 
-	staticMux := goji.SubMux()
+	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(logger))
 	staticMux.Use(middleware.RequestLogger(logger))
-	staticMux.Handle(pat.Get("/*"), clientHandler)
-	// Needed to serve static paths (like favicon)
-	staticMux.Handle(pat.Get(""), clientHandler)
+	if telemetryConfig.Enabled {
+		staticMux.Use(otelmux.Middleware("static"))
+	}
+	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
-	// Allow public content through without any auth or app checks
-	site.Handle(pat.New("/static/*"), staticMux)
-	site.Handle(pat.New("/downloads/*"), staticMux)
-	site.Handle(pat.New("/favicon.ico"), staticMux)
+	downloadMux := site.PathPrefix("/downloads/").Subrouter()
+	downloadMux.Use(middleware.ValidMethodsStatic(logger))
+	downloadMux.Use(middleware.RequestLogger(logger))
+	if telemetryConfig.Enabled {
+		downloadMux.Use(otelmux.Middleware("download"))
+	}
+	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
+
+	site.Handle("/favicon.ico", clientHandler)
 
 	// Explicitly disable swagger.json route
-	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
+	site.Handle("/swagger.json", http.NotFoundHandler()).Methods("GET")
 	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
-		site.Handle(pat.Get("/swagger-ui/*"), staticMux)
+		site.PathPrefix("/swagger-ui/").Handler(clientHandler).Methods("GET")
 	} else {
-		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
+		site.PathPrefix("/swagger-ui/").Handler(http.NotFoundHandler()).Methods("GET")
 	}
 
 	if v.GetBool(cli.ServeOrdersFlag) {
-		ordersMux := goji.SubMux()
+		ordersMux := site.Host(appnames.OrdersServername).PathPrefix("/orders/v1/").Subrouter()
 		ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.OrdersServername)
 		ordersMux.Use(ordersDetectionMiddleware)
 		ordersMux.Use(middleware.NoCache(logger))
 		ordersMux.Use(clientCertMiddleware)
 		ordersMux.Use(middleware.RequestLogger(logger))
-		ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
+		ordersMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.OrdersSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Orders API Swagger UI serving is enabled")
-			ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+			ordersMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "orders.html"))).Methods("GET")
 		} else {
-			ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
-		site.Handle(pat.New("/orders/v1/*"), ordersMux)
+		api := ordersapi.NewOrdersAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 	if v.GetBool(cli.ServeDPSFlag) {
-		dpsMux := goji.SubMux()
+		dpsMux := site.Host(appnames.DpsServername).PathPrefix("/dps/v0/").Subrouter()
 		dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
 		dpsMux.Use(dpsDetectionMiddleware)
 		dpsMux.Use(middleware.NoCache(logger))
 		dpsMux.Use(clientCertMiddleware)
 		dpsMux.Use(middleware.RequestLogger(logger))
-		dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
+		dpsMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.DPSSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("DPS API Swagger UI serving is enabled")
-			dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+			dpsMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "dps.html"))).Methods("GET")
 		} else {
-			dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			dpsMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
-		site.Handle(pat.New("/dps/v0/*"), dpsMux)
+		api := dpsapi.NewDPSAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		dpsMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSDDCFlag) {
-		sddcDPSMux := goji.SubMux()
+		sddcDPSMux := site.Host(appnames.SddcServername).PathPrefix("/dps_auth/").Subrouter()
+
 		sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
 		sddcDPSMux.Use(sddcDetectionMiddleware)
 		sddcDPSMux.Use(middleware.NoCache(logger))
 		sddcDPSMux.Use(middleware.RequestLogger(logger))
-		site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-		sddcDPSMux.Handle(pat.Get("/set_cookie"),
+		if telemetryConfig.Enabled {
+			sddcDPSMux.Use(otelmux.Middleware("sddc"))
+		}
+		sddcDPSMux.Handle("/set_cookie",
 			dpsauth.NewSetCookieHandler(logger,
 				dpsAuthSecretKey,
 				dpsCookieDomain,
@@ -818,7 +836,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	if v.GetBool(cli.ServePrimeFlag) {
-		primeMux := goji.SubMux()
+		primeMux := site.Host(appnames.PrimeServername).PathPrefix("/prime/v1/").Subrouter()
+
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
 		if v.GetBool(cli.DevlocalAuthFlag) {
@@ -830,59 +849,59 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
-		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
+		primeMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.PrimeSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Prime API Swagger UI serving is enabled")
-			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
+			primeMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "prime.html"))).Methods("GET")
 		} else {
-			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
-		site.Handle(pat.New("/prime/v1/*"), primeMux)
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeSupportFlag) {
-		supportMux := goji.SubMux()
+		supportMux := site.Host(appnames.PrimeServername).PathPrefix("/support/v1/").Subrouter()
+
 		supportDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		supportMux.Use(supportDetectionMiddleware)
 		supportMux.Use(clientCertMiddleware)
 		supportMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
 		supportMux.Use(middleware.NoCache(logger))
 		supportMux.Use(middleware.RequestLogger(logger))
-		supportMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SupportSwaggerFlag)))
+		supportMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.SupportSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Support API Swagger UI serving is enabled")
-			supportMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "support.html")))
+			supportMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "support.html"))).Methods("GET")
 		} else {
-			supportMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			supportMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		supportMux.Handle(pat.New("/*"), supportapi.NewSupportAPIHandler(handlerContext))
-		site.Handle(pat.New("/support/v1/*"), supportMux)
+		supportMux.PathPrefix("/").Handler(supportapi.NewSupportAPIHandler(handlerContext))
 	}
 
 	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
-	root := goji.NewMux()
+	root := mux.NewRouter()
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
-	debug := goji.SubMux()
+	debug := root.PathPrefix("/debug/pprof/").Subrouter()
 	debug.Use(userAuthMiddleware)
-	root.Handle(pat.New("/debug/pprof/*"), debug)
 	if v.GetBool(cli.DebugPProfFlag) {
 		logger.Info("Enabling pprof routes")
-		debug.HandleFunc(pat.Get("/"), pprof.Index)
-		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
-		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
-		debug.HandleFunc(pat.Get("/cmdline"), pprof.Cmdline)
-		debug.Handle(pat.Get("/goroutine"), pprof.Handler("goroutine"))
-		debug.Handle(pat.Get("/heap"), pprof.Handler("heap"))
-		debug.Handle(pat.Get("/mutex"), pprof.Handler("mutex"))
-		debug.HandleFunc(pat.Get("/profile"), pprof.Profile)
-		debug.HandleFunc(pat.Get("/trace"), pprof.Trace)
-		debug.Handle(pat.Get("/threadcreate"), pprof.Handler("threadcreate"))
-		debug.HandleFunc(pat.Get("/symbol"), pprof.Symbol)
+		debug.HandleFunc("/", pprof.Index).Methods("GET")
+		debug.Handle("/allocs", pprof.Handler("allocs")).Methods("GET")
+		debug.Handle("/block", pprof.Handler("block")).Methods("GET")
+		debug.HandleFunc("/cmdline", pprof.Cmdline).Methods("GET")
+		debug.Handle("/goroutine", pprof.Handler("goroutine")).Methods("GET")
+		debug.Handle("/heap", pprof.Handler("heap")).Methods("GET")
+		debug.Handle("/mutex", pprof.Handler("mutex")).Methods("GET")
+		debug.HandleFunc("/profile", pprof.Profile).Methods("GET")
+		debug.HandleFunc("/trace", pprof.Trace).Methods("GET")
+		debug.Handle("/threadcreate", pprof.Handler("threadcreate")).Methods("GET")
+		debug.HandleFunc("/symbol", pprof.Symbol).Methods("GET")
 	} else {
-		debug.HandleFunc(pat.Get("/*"), http.NotFound)
+		debug.HandleFunc("/", http.NotFound).Methods("GET")
 	}
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
@@ -894,68 +913,88 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
-	site.Handle(
-		pat.New("/*"),
-		milSession.LoadAndSave(adminSession.LoadAndSave(officeSession.LoadAndSave(root))))
+	site.Host(appnames.MilServername).PathPrefix("/").Handler(milSession.LoadAndSave(root))
+	site.Host(appnames.AdminServername).PathPrefix("/").Handler(adminSession.LoadAndSave(root))
+	site.Host(appnames.OfficeServername).PathPrefix("/").Handler(officeSession.LoadAndSave(root))
 
 	if v.GetBool(cli.ServeAPIInternalFlag) {
-		internalMux := goji.SubMux()
-		root.Handle(pat.New("/internal/*"), internalMux)
-		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
+		internalMux := root.PathPrefix("/internal/").Subrouter()
+		internalMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.InternalSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Internal API Swagger UI serving is enabled")
-			internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
+			internalMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "internal.html"))).Methods("GET")
 		} else {
-			internalMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			internalMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
+		internalMux.HandleFunc("/users/is_logged_in", isLoggedInMiddleware).Methods("GET")
 		// Mux for internal API that enforces auth
-		internalAPIMux := goji.SubMux()
-		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
-		internalMux.Handle(pat.New("/*"), internalAPIMux)
+		internalAPIMux := internalMux.PathPrefix("/").Subrouter()
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
-		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
-		adminMux := goji.SubMux()
-		root.Handle(pat.New("/admin/v1/*"), adminMux)
-		adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
+		adminMux := root.PathPrefix("/admin/v1/").Subrouter()
+
+		adminMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.AdminSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Admin API Swagger UI serving is enabled")
-			adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+			adminMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "admin.html"))).Methods("GET")
 		} else {
-			adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			adminMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
 
 		// Mux for admin API that enforces auth
-		adminAPIMux := goji.SubMux()
-		adminMux.Handle(pat.New("/*"), adminAPIMux)
+		adminAPIMux := adminMux.PathPrefix("/").Subrouter()
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
-		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+		api := adminapi.NewAdminAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		adminAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+	}
+
+	if v.GetBool(cli.ServePrimeSimulatorFlag) {
+		// attach prime simulator API to root so cookies are handled
+		primeSimulatorMux := root.Host(appnames.OfficeServername).PathPrefix("/prime/v1/").Subrouter()
+		primeSimulatorMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.PrimeSwaggerFlag))).Methods("GET")
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime Simulator API Swagger UI serving is enabled")
+			primeSimulatorMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "prime.html"))).Methods("GET")
+		} else {
+			primeSimulatorMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
+		}
+
+		// Mux for prime simulator API that enforces auth
+		primeSimulatorAPIMux := primeSimulatorMux.PathPrefix("/").Subrouter()
+		primeSimulatorAPIMux.Use(userAuthMiddleware)
+		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
+		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
+		api := primeapi.NewPrimeAPI(handlerContext)
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		primeSimulatorAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	if v.GetBool(cli.ServeGHCFlag) {
-		ghcMux := goji.SubMux()
-		root.Handle(pat.New("/ghc/v1/*"), ghcMux)
-		ghcMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.GHCSwaggerFlag)))
+		ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
+		ghcMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.GHCSwaggerFlag))).Methods("GET")
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("GHC API Swagger UI serving is enabled")
-			ghcMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "ghc.html")))
+			ghcMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "ghc.html"))).Methods("GET")
 		} else {
-			ghcMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+			ghcMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
 
 		// Mux for GHC API that enforces auth
-		ghcAPIMux := goji.SubMux()
-		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
+		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
-		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
+		tracingMiddleware := middleware.OpenAPITracing(api)
+		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
@@ -965,20 +1004,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Active: v.GetBool(cli.FeatureFlagAccessCode),
 		},
 	)
-	authMux := goji.SubMux()
-	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection))
+	authMux := root.PathPrefix("/auth/").Subrouter()
+	authMux.Use(otelmux.Middleware("auth"))
+	authMux.Handle("/login-gov", authentication.RedirectHandler{Context: authContext}).Methods("GET")
+	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, dbConnection, notificationSender)).Methods("GET")
+	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, dbConnection)).Methods("POST")
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
-		localAuthMux := goji.SubMux()
-		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
+		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
+		localAuthMux.Use(otelmux.Middleware("devlocal"))
+		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, dbConnection)).Methods("GET")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, dbConnection, appnames)).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames)).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, dbConnection, appnames)).Methods("POST")
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
@@ -993,8 +1032,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
+	root.PathPrefix("/").Handler(indexHandler(build, logger)).Methods("GET", "HEAD")
 
+	otelHTTPOptions := []otelhttp.Option{}
+	if telemetryConfig.ReadEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
+	}
+	if telemetryConfig.WriteEvents {
+		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
+	}
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
@@ -1005,7 +1051,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: bare,
+			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls", otelHTTPOptions...),
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -1021,7 +1067,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  bare,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -1039,7 +1085,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  bare,
+			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,
@@ -1051,10 +1097,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// make sure we flush any pending startup messages
-	loggerSyncErr := logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	loggerSync()
 
 	// Create a buffered channel that accepts 1 signal at a time.
 	quit := make(chan os.Signal, 1)
@@ -1067,11 +1110,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
 
-	// flush message that we received signal
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	loggerSync()
 
 	gracefulShutdownTimeout := v.GetDuration(cli.GracefulShutdownTimeoutFlag)
 
@@ -1080,11 +1119,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
 
-	// flush message that we are waiting on listeners
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	loggerSync()
 
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
@@ -1115,10 +1150,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	loggerSync()
 
 	var dbCloseErr error
 	dbClose.Do(func() {
@@ -1153,10 +1185,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	loggerSync()
 
 	if shutdownError {
 		os.Exit(1)

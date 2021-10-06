@@ -23,9 +23,9 @@ type ReZip3 struct {
 	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract            ReContract            `belongs_to:"re_contract"`
-	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_areas"`
-	RateArea            *ReRateArea           `belongs_to:"re_rate_areas"`
+	Contract            ReContract            `belongs_to:"re_contract" fk_id:"contract_id"`
+	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_areas" fk_id:"domestic_service_area_id"`
+	RateArea            *ReRateArea           `belongs_to:"re_rate_areas" fk_id:"rate_area_id"`
 }
 
 // ReZip3s is not required by pop and may be deleted

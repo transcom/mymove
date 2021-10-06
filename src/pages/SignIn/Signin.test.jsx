@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 
 import SignIn from './SignIn';
 
@@ -27,5 +27,33 @@ describe('SignIn tests', () => {
     const CancelButton = wrapper.find('button[aria-label="Cancel"]');
     CancelButton.simulate('click');
     expect(wrapper.find('[data-testid="modal"]').length).toEqual(0);
+  });
+
+  it('show logout message when hasLoggedOut state is true', () => {
+    const context = { siteName: 'TestMove' };
+    const location = { state: { hasLoggedOut: true } };
+    const wrapper = mount(<SignIn location={location} />, { context });
+    expect(wrapper.find(Alert).text()).toContain('You have signed out of MilMove');
+  });
+
+  it('does not show logout message when hasLoggedOut state is false', () => {
+    const context = { siteName: 'TestMove' };
+    const location = { state: { hasLoggedOut: false } };
+    const wrapper = mount(<SignIn location={location} />, { context });
+    expect(wrapper.find(Alert).length).toEqual(0);
+  });
+
+  it('show logout message when timedout state is true', () => {
+    const context = { siteName: 'TestMove' };
+    const location = { state: { timedout: true } };
+    const wrapper = mount(<SignIn location={location} />, { context });
+    expect(wrapper.find(Alert).text()).toContain('You have been logged out due to inactivity');
+  });
+
+  it('does not show logout message when timedout state is false', () => {
+    const context = { siteName: 'TestMove' };
+    const location = { state: { timedout: false } };
+    const wrapper = mount(<SignIn location={location} />, { context });
+    expect(wrapper.find(Alert).length).toEqual(0);
   });
 });

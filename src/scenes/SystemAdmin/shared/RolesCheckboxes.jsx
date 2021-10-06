@@ -1,18 +1,11 @@
 import React from 'react';
 import { CheckboxGroupInput } from 'react-admin';
 
-const choices = [
-  { roleType: 'customer', name: 'Customer' },
-  { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
-  { roleType: 'transportation_invoicing_officer', name: 'Transportation Invoicing Officer' },
-  { roleType: 'contracting_officer', name: 'Contracting Officer' },
-  { roleType: 'ppm_office_users', name: 'PPM Office Users' },
-  { roleType: 'services_counselor', name: 'Services Counselor' },
-];
+import { adminOfficeRoles } from 'constants/userRoles';
 
 const makeRoleTypeArray = (roles) => {
   if (!roles || roles.length === 0) {
-    return;
+    return undefined;
   }
   return roles.reduce((rolesArray, role) => {
     if (role.roleType) {
@@ -24,7 +17,7 @@ const makeRoleTypeArray = (roles) => {
 
 const parseCheckboxInput = (input) => {
   return input.reduce((rolesArray, role) => {
-    rolesArray.push(choices.find((choice) => choice.roleType === role));
+    rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
     return rolesArray;
   }, []);
 };
@@ -34,7 +27,7 @@ const RolesCheckboxInput = (props) => (
     source="roles"
     format={makeRoleTypeArray}
     parse={parseCheckboxInput}
-    choices={choices}
+    choices={adminOfficeRoles}
     optionValue="roleType"
     validate={props.validate}
   />

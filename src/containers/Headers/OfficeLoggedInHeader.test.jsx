@@ -15,7 +15,7 @@ jest.mock('store/auth/actions', () => ({
 }));
 
 jest.mock('utils/api', () => ({
-  LogoutUser: jest.fn(),
+  LogoutUser: jest.fn(() => ({ then: () => {} })),
 }));
 
 describe('OfficeLoggedInHeader', () => {

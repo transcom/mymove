@@ -17,10 +17,10 @@ import (
 type UserUpload struct {
 	ID         uuid.UUID  `db:"id"`
 	DocumentID *uuid.UUID `db:"document_id"`
-	Document   Document   `belongs_to:"documents"`
+	Document   Document   `belongs_to:"documents" fk_id:"document_id"`
 	UploaderID uuid.UUID  `db:"uploader_id"`
 	UploadID   uuid.UUID  `db:"upload_id"`
-	Upload     Upload     `belongs_to:"uploads"`
+	Upload     Upload     `belongs_to:"uploads" fk_id:"upload_id"`
 	CreatedAt  time.Time  `db:"created_at"`
 	UpdatedAt  time.Time  `db:"updated_at"`
 	DeletedAt  *time.Time `db:"deleted_at"`

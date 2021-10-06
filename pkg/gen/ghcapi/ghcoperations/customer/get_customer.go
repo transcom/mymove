@@ -29,7 +29,7 @@ func NewGetCustomer(ctx *middleware.Context, handler GetCustomerHandler) *GetCus
 	return &GetCustomer{Context: ctx, Handler: handler}
 }
 
-/*GetCustomer swagger:route GET /customer/{customerID} customer getCustomer
+/* GetCustomer swagger:route GET /customer/{customerID} customer getCustomer
 
 Returns a given customer
 
@@ -44,17 +44,15 @@ type GetCustomer struct {
 func (o *GetCustomer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetCustomerParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

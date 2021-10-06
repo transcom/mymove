@@ -1,8 +1,6 @@
 package movetaskorder_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,8 +24,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		},
 	})
 
-	builder := query.NewQueryBuilder(suite.DB())
-	mtoCreator := NewMoveTaskOrderCreator(builder, suite.DB())
+	builder := query.NewQueryBuilder()
+	mtoCreator := NewMoveTaskOrderCreator(builder)
 
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
@@ -38,12 +36,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		Status:       models.MoveStatusDRAFT,
 		Locator:      models.GenerateLocator(),
 	}
-	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(&newMto)
+	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(suite.TestAppContext(), &newMto)
 	suite.NoError(err)
 	suite.Empty(verrs)
 
-	suite.T().Run("move task order is created", func(t *testing.T) {
-		// testing mto
-		suite.NotZero(actualMTO.ID)
-	})
+	suite.NotZero(actualMTO.ID, "move task order is created")
 }

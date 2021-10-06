@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,10 +21,12 @@ import (
 type AccessCode struct {
 
 	// when the access code was claimed or used
+	// Example: 2018-04-12T23:20:50.520Z
 	// Format: date-time
 	ClaimedAt *strfmt.DateTime `json:"claimed_at,omitempty"`
 
 	// code
+	// Example: CODE456
 	// Required: true
 	Code *string `json:"code"`
 
@@ -33,6 +36,7 @@ type AccessCode struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -43,6 +47,7 @@ type AccessCode struct {
 	MoveType *string `json:"move_type"`
 
 	// service member id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ServiceMemberID strfmt.UUID `json:"service_member_id,omitempty"`
 }
@@ -82,7 +87,6 @@ func (m *AccessCode) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AccessCode) validateClaimedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ClaimedAt) { // not required
 		return nil
 	}
@@ -173,7 +177,6 @@ func (m *AccessCode) validateMoveType(formats strfmt.Registry) error {
 }
 
 func (m *AccessCode) validateServiceMemberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
 	}
@@ -182,6 +185,11 @@ func (m *AccessCode) validateServiceMemberID(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this access code based on context it is used
+func (m *AccessCode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

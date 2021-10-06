@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -38,6 +39,7 @@ type MTOAgent struct {
 	FirstName *string `json:"firstName,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -46,6 +48,7 @@ type MTOAgent struct {
 	LastName *string `json:"lastName,omitempty"`
 
 	// mto shipment ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
@@ -126,7 +129,6 @@ func (m *MTOAgent) validateAgentTypeEnum(path, location string, value string) er
 }
 
 func (m *MTOAgent) validateAgentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AgentType) { // not required
 		return nil
 	}
@@ -140,7 +142,6 @@ func (m *MTOAgent) validateAgentType(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -153,12 +154,11 @@ func (m *MTOAgent) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -166,7 +166,6 @@ func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -179,7 +178,6 @@ func (m *MTOAgent) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validateMtoShipmentID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipmentID) { // not required
 		return nil
 	}
@@ -192,12 +190,11 @@ func (m *MTOAgent) validateMtoShipmentID(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Phone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -205,12 +202,34 @@ func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
 }
 
 func (m *MTOAgent) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o agent based on the context it is used
+func (m *MTOAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOAgent) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 

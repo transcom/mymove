@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -9,19 +9,21 @@ import classnames from 'classnames';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
-import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
-import { shipmentStatuses } from 'constants/shipments';
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
-import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
-import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
+import { useMoveDetailsQueries } from 'hooks/queries';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -31,7 +33,12 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
+const MoveDetails = ({
+  setUnapprovedShipmentCount,
+  setUnapprovedServiceItemCount,
+  setExcessWeightRiskCount,
+  setUnapprovedSITExtensionCount,
+}) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -39,33 +46,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
-  let sections = ['orders', 'allowances', 'customer-info'];
-
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
-
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
-    }
-  };
-
-  useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  });
+  let sections = useMemo(() => {
+    return ['orders', 'allowances', 'customer-info'];
+  }, []);
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
@@ -85,8 +68,17 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     },
   });
 
-  const submittedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED);
-  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
+  const submittedShipments = mtoShipments?.filter(
+    (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
+  );
+
+  const approvedOrCanceledShipments = mtoShipments?.filter(
+    (shipment) =>
+      shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELED,
+  );
 
   useEffect(() => {
     const shipmentCount = submittedShipments?.length || 0;
@@ -99,22 +91,51 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
       if (
         serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
         serviceItem.mtoShipmentID &&
-        approvedShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+        approvedOrCanceledShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
       ) {
         serviceItemCount += 1;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
-  }, [approvedShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+  }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+
+    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
+      setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
+    }
+  }, [mtoShipments, setExcessWeightRiskCount, order, move]);
+
+  useEffect(() => {
+    let unapprovedSITExtensionCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
+        unapprovedSITExtensionCount += 1;
+      }
+    });
+    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+  }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
 
-  if (submittedShipments.length > 0 && approvedShipments.length > 0) {
+  if (submittedShipments.length > 0 && approvedOrCanceledShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
-  } else if (approvedShipments.length > 0) {
+  } else if (approvedOrCanceledShipments.length > 0) {
     sections = ['approved-shipments', ...sections];
   } else if (submittedShipments.length > 0) {
     sections = ['requested-shipments', ...sections];
@@ -129,6 +150,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    uploadedAmendedOrderID: order.uploadedAmendedOrderID,
+    amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
     sacSDN: order.sac,
   };
@@ -161,6 +184,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   };
 
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+  const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
   return (
     <div className={styles.tabContent}>
@@ -168,11 +192,21 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: s === activeSection })}
+                onClick={() => setActiveSection(s)}
+              >
                 {sectionLabels[`${s}`]}
                 {s === 'orders' && hasMissingOrdersRequiredInfo && (
                   <Tag className="usa-tag usa-tag--alert">
                     <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
+                {s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders && (
+                  <Tag className={styles.tag} data-testid="newOrdersNavTag">
+                    NEW
                   </Tag>
                 )}
                 {s === 'requested-shipments' && (
@@ -205,11 +239,11 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
               />
             </div>
           )}
-          {approvedShipments.length > 0 && (
+          {approvedOrCanceledShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <RequestedShipments
                 moveTaskOrder={move}
-                mtoShipments={approvedShipments}
+                mtoShipments={approvedOrCanceledShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
@@ -221,6 +255,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
+              tag={hasAmendedOrders ? 'NEW' : ''}
               editButton={
                 <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
                   Edit orders
@@ -256,6 +291,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
+  setUnapprovedSITExtensionCount: func.isRequired,
 };
 
 export default MoveDetails;

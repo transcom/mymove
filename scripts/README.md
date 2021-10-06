@@ -11,19 +11,20 @@ If you want to see if scripts are not listed in this file you can run
 These scripts are primarily used for managing the developers
 environment.
 
-| Script Name               | Description                                                            |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `check-aws-cli-version`   | checks the awscli version required for the project                     |
-| `check-aws-vault-version` | checks the aws-vault version required for the project                  |
-| `check-bash-version`      | Script helps ensure that /etc/shells has all the correct entries in it |
-| `check-chamber-version`   | checks the chamber version required for the project                    |
-| `check-go-version`        | checks the go version required for the project                         |
-| `check-gopath`            | checks the go path is correct for the project                          |
-| `check-hosts-file`        | Script helps ensure that /etc/hosts has all the correct entries in it  |
-| `check-node-version`      | checks the node version required for the project                       |
-| `check-opensc-version`    | checks the opensc version required for the project                     |
-| `kill-process-on-port`    | asks to kill a process running on the specified port                   |
-| `prereqs`                 | validate if all prerequisite programs have been installed              |
+| Script Name               | Description                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `check-aws-cli-version`   | checks the awscli version required for the project                                                              |
+| `check-aws-vault-version` | checks the aws-vault version required for the project                                                           |
+| `check-bash-version`      | Script helps ensure that /etc/shells has all the correct entries in it                                          |
+| `check-changes`           | Script to check for changes since the last `git pull` using `git diff` for any file changes to a given path     |
+| `check-chamber-version`   | checks the chamber version required for the project                                                             |
+| `check-go-version`        | checks the go version required for the project                                                                  |
+| `check-gopath`            | checks the go path is correct for the project                                                                   |
+| `check-hosts-file`        | Script helps ensure that /etc/hosts has all the correct entries in it                                           |
+| `check-node-version`      | checks the node version required for the project                                                                |
+| `check-opensc-version`    | checks the opensc version required for the project                                                              |
+| `kill-process-on-port`    | asks to kill a process running on the specified port                                                            |
+| `prereqs`                 | validate if all prerequisite programs have been installed                                                       |
 
 ## AWS Scripts
 
@@ -58,7 +59,7 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/h
 ## Deployment Scripts
 
 This series of scripts allows you to quickly deploy the app manually (for example, should CircleCI be down).
-Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`) passed in as a variable.
+Run the scripts in this order with the environment you're deploying to (`demo`, `exp`, `stg`, `prd`) passed in as a variable.
 You will need to specify which account you're using. Do so by pre-pending
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec AWS_ACCOUNT --` to the script command (i.e.
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp`).
@@ -71,12 +72,12 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/d
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks exp
 ```
 
-| Script Name             | Description                                                             |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `deploy-app-migrations` | Deploy the app migrations                                               |
-| `deploy-app`            | Deploy the app                                                          |
-| `deploy-app-client-tls` | Deploy the app client-tls                                               |
-| `deploy-app-tasks`      | Deploy the app tasks                                                    |
+| Script Name                     | Description                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `deploy-app-migrations`         | Deploy the app migrations                                               |
+| `deploy-app`                    | Deploy the app                                                          |
+| `deploy-app-client-tls`         | Deploy the app client-tls                                               |
+| `deploy-app-tasks`              | Deploy the app tasks                                                    |
 
 ## Pre-commit Scripts
 
@@ -130,7 +131,7 @@ application testing
 | `merge-pr`                      | A script to automate the landing of your GitHub pull requests.                                    |
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
-| `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 
@@ -174,6 +175,7 @@ These scripts are primarily used for working with the database
 | ---------------------------- | -------------------------------------------------------------------------------------- |
 | `db-backup`                  | Backup the contents of the development database for later restore.                     |
 | `db-cleanup`                 | Remove the database backup.                                                            |
+| `db-truncate`                | Truncates the configured database. Used in testing.                                    |
 | `db-restore`                 | Restore the contents of the development database from an earlier backup.               |
 | `psql-dev`                   | Convenience script to drop into development postgres DB                                |
 | `psql-deployed-migrations`   | Convenience script to drop into deployed migrations postgres DB                        |

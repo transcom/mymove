@@ -30,6 +30,9 @@ describe('TIO user', () => {
     );
     cy.intercept('**/ghc/v1/moves/**/payment-requests').as('getMovePaymentRequests');
     cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
+    cy.intercept('**/ghc/v1/move/**').as('getMoves');
+    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('**/ghc/v1/documents/**').as('getDocuments');
 
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
@@ -58,6 +61,7 @@ describe('TIO user', () => {
     // View Orders page
     cy.contains('View orders').click();
 
+    cy.wait(['@getMoves', '@getOrders', '@getDocuments']);
     cy.get('form').within(($form) => {
       cy.get('input[name="tac"]').click().clear().type('E15A');
       cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
@@ -85,7 +89,55 @@ describe('TIO user', () => {
     cy.wait('@patchPaymentServiceItemStatus');
     cy.contains('Next').click();
 
-    // Reject the second
+    // Approve the second service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Approve the shuttling service item
+
+    // Confirm TIO can view the calculations
+    cy.contains('Show calculations').click();
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Calculations');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Total amount requested');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Service schedule: 2');
+
+    // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
+    cy.contains('Hide calculations').click();
+
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Approve the second service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Approve the crating service item
+
+    // Confirm TIO can view the calculations
+    cy.contains('Show calculations').click();
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Calculations');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Total amount requested');
+    cy.get('[data-testid="ServiceItemCalculations"]').contains('Dimensions: 12x3x10 in');
+
+    // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
+    cy.contains('Hide calculations').click();
+
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Reject the last
     cy.get('[data-testid="ServiceItemCard"]').each((el) => {
       completeServiceItemCard(el, false);
     });
@@ -95,8 +147,8 @@ describe('TIO user', () => {
     // Complete Request
     cy.contains('Complete request');
 
-    cy.get('[data-testid="requested"]').contains('$1,099.99');
-    cy.get('[data-testid="accepted"]').contains('$100.00');
+    cy.get('[data-testid="requested"]').contains('$1,130.21');
+    cy.get('[data-testid="accepted"]').contains('$130.22');
     cy.get('[data-testid="rejected"]').contains('$999.99');
 
     cy.contains('Authorize payment').click();

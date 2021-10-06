@@ -3,13 +3,11 @@ package mtoshipment
 import (
 	"fmt"
 
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/fetch"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,37 +16,34 @@ import (
 )
 
 type createMTOShipmentQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	CreateOne(model interface{}) (*validate.Errors, error)
-	Transaction(fn func(tx *pop.Connection) error) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentCreator struct {
-	db      *pop.Connection
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	createNewBuilder      func(db *pop.Connection) createMTOShipmentQueryBuilder
-	mtoServiceItemCreator services.MTOServiceItemCreator
+	createNewBuilder func() createMTOShipmentQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentCreator {
-	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
-		return query.NewQueryBuilder(db)
+func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+	createNewBuilder := func() createMTOShipmentQueryBuilder {
+		return query.NewQueryBuilder()
 	}
 
 	return &mtoShipmentCreator{
-		db,
 		builder,
 		fetch.NewFetcher(builder),
 		createNewBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
+		moveRouter,
 	}
 }
 
 // CreateMTOShipment updates the mto shipment
-func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
+func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
 
@@ -65,7 +60,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	}
 
 	// check if Move exists
-	err = f.builder.FetchOne(&move, queryFilters)
+	err = f.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "for move")
 	}
@@ -91,7 +86,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			queryFilters = []services.QueryFilter{
 				query.NewQueryFilter("code", "=", reServiceCode),
 			}
-			err = f.builder.FetchOne(&reService, queryFilters)
+			err = f.builder.FetchOne(appCtx, &reService, queryFilters)
 			if err != nil {
 				return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 			}
@@ -113,13 +108,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		shipment.MTOServiceItems = serviceItemsList
 	}
 
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
-		// create new builder to use tx
-		txBuilder := f.createNewBuilder(tx)
-
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			verrs, err = txBuilder.CreateOne(shipment.PickupAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.PickupAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
@@ -128,12 +120,28 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
+		if shipment.SecondaryPickupAddress != nil {
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryPickupAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			}
+			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+		}
+
 		if shipment.DestinationAddress != nil {
-			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.DestinationAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
+		}
+
+		if shipment.SecondaryDeliveryAddress != nil {
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryDeliveryAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			}
+			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
 		}
 
 		// check that required items to create shipment are present
@@ -146,8 +154,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			shipment.Status = models.MTOShipmentStatusDraft
 		}
 
+		// Assign default SITDaysAllowance based on customer type...but we only have service members right now.
+		// Once we introduce more, this logic will have to change.
+		defaultSITDays := int(models.DefaultServiceMemberSITDaysAllowance)
+		shipment.SITDaysAllowance = &defaultSITDays
+
 		// create a shipment
-		verrs, err = txBuilder.CreateOne(shipment)
+		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
 
 		if verrs != nil || err != nil {
 			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
@@ -160,13 +173,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			for _, agent := range shipment.MTOAgents {
 				copyOfAgent := agent
 				copyOfAgent.MTOShipmentID = shipment.ID
-				verrs, err = txBuilder.CreateOne(&copyOfAgent)
+				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
 				if err != nil {
 					return err
 				}
+
+				for _, agentInList := range agentsList {
+					if agentInList.MTOAgentType == copyOfAgent.MTOAgentType {
+						return services.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
+					}
+				}
+
 				agentsList = append(agentsList, copyOfAgent)
 			}
 			shipment.MTOAgents = agentsList
@@ -181,7 +201,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				copyOfServiceItem.MTOShipmentID = &shipment.ID
 				copyOfServiceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
 
-				verrs, err = txBuilder.CreateOne(&copyOfServiceItem)
+				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfServiceItem)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
@@ -191,6 +211,21 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				serviceItemsList = append(serviceItemsList, copyOfServiceItem)
 			}
 			shipment.MTOServiceItems = serviceItemsList
+		}
+
+		// transition the move to "Approvals Requested" if a shipment was created with the "Submitted" status:
+		if shipment.Status == models.MTOShipmentStatusSubmitted && move.Status == models.MoveStatusAPPROVED {
+			err = f.moveRouter.SendToOfficeUser(txnAppCtx, &move)
+			if err != nil {
+				return err
+			}
+			verrs, err = f.builder.UpdateOne(txnAppCtx, &move, nil)
+			if err != nil {
+				return err
+			}
+			if verrs != nil && verrs.HasAny() {
+				return verrs
+			}
 		}
 
 		return nil
@@ -242,7 +277,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		verrs.Add("secondaryPickupAddress:id", addressMsg)
 	}
 	if shipment.SecondaryDeliveryAddress != nil && shipment.SecondaryDeliveryAddress.ID != uuid.Nil {
-		verrs.Add("secondaryDestinationAddress:id", addressMsg)
+		verrs.Add("SecondaryDeliveryAddress:id", addressMsg)
 	}
 
 	if verrs.HasAny() {

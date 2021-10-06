@@ -29,7 +29,7 @@ func NewTacValidation(ctx *middleware.Context, handler TacValidationHandler) *Ta
 	return &TacValidation{Context: ctx, Handler: handler}
 }
 
-/*TacValidation swagger:route GET /tac/valid tac order tacValidation
+/* TacValidation swagger:route GET /tac/valid tac order tacValidation
 
 Validation of a TAC value
 
@@ -44,17 +44,15 @@ type TacValidation struct {
 func (o *TacValidation) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewTacValidationParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

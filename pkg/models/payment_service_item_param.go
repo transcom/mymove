@@ -19,8 +19,8 @@ type PaymentServiceItemParam struct {
 	UpdatedAt             time.Time `db:"updated_at"`
 
 	// Associations
-	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_item"`
-	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key"`
+	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_item" fk_id:"payment_service_item_id"`
+	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key" fk_id:"service_item_param_key_id"`
 
 	// Used to lookup the appropriate ServiceItemParamKeyID when creating a PaymentServiceItemParam
 	IncomingKey string `db:"-"`

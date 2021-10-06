@@ -42,7 +42,7 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(dbEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

@@ -15,7 +15,8 @@ import (
 )
 
 // NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewMakeMoveTaskOrderAvailableParams() MakeMoveTaskOrderAvailableParams {
 
 	return MakeMoveTaskOrderAvailableParams{}
@@ -60,7 +61,6 @@ func (o *MakeMoveTaskOrderAvailableParams) BindRequest(r *http.Request, route *m
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -82,7 +82,6 @@ func (o *MakeMoveTaskOrderAvailableParams) bindIfMatch(rawData []string, hasKey 
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -97,7 +96,6 @@ func (o *MakeMoveTaskOrderAvailableParams) bindMoveTaskOrderID(rawData []string,
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil

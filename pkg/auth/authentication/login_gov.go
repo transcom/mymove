@@ -11,7 +11,7 @@ import (
 
 	"net/http"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
@@ -42,11 +42,11 @@ func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, er
 type LoginGovProvider struct {
 	hostname  string
 	secretKey string
-	logger    Logger
+	logger    *zap.Logger
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, logger Logger) LoginGovProvider {
+func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
 	return LoginGovProvider{
 		hostname:  hostname,
 		secretKey: secretKey,

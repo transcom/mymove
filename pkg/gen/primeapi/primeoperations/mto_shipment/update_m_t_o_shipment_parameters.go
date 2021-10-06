@@ -6,6 +6,7 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOShipmentParams() UpdateMTOShipmentParams {
 
 	return UpdateMTOShipmentParams{}
@@ -44,7 +46,7 @@ type UpdateMTOShipmentParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *primemessages.MTOShipment
+	Body *primemessages.UpdateMTOShipment
 	/*UUID of the shipment being updated.
 	  Required: true
 	  In: path
@@ -67,7 +69,7 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.MTOShipment
+		var body primemessages.UpdateMTOShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -80,6 +82,11 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -87,11 +94,11 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -113,7 +120,6 @@ func (o *UpdateMTOShipmentParams) bindIfMatch(rawData []string, hasKey bool, for
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

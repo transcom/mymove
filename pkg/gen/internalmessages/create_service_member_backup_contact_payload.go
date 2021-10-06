@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,19 +20,22 @@ import (
 type CreateServiceMemberBackupContactPayload struct {
 
 	// Email
+	// Example: john_bob@exmaple.com
 	// Required: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
 	// Name
+	// Example: Susan Smith
 	// Required: true
 	Name *string `json:"name"`
 
 	// permission
 	// Required: true
-	Permission BackupContactPermission `json:"permission"`
+	Permission *BackupContactPermission `json:"permission"`
 
 	// Phone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 }
@@ -67,7 +72,7 @@ func (m *CreateServiceMemberBackupContactPayload) validateEmail(formats strfmt.R
 		return err
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -85,24 +90,61 @@ func (m *CreateServiceMemberBackupContactPayload) validateName(formats strfmt.Re
 
 func (m *CreateServiceMemberBackupContactPayload) validatePermission(formats strfmt.Registry) error {
 
-	if err := m.Permission.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("permission")
-		}
+	if err := validate.Required("permission", "body", m.Permission); err != nil {
 		return err
+	}
+
+	if err := validate.Required("permission", "body", m.Permission); err != nil {
+		return err
+	}
+
+	if m.Permission != nil {
+		if err := m.Permission.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("permission")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *CreateServiceMemberBackupContactPayload) validateTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Telephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create service member backup contact payload based on the context it is used
+func (m *CreateServiceMemberBackupContactPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidatePermission(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateServiceMemberBackupContactPayload) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Permission != nil {
+		if err := m.Permission.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("permission")
+			}
+			return err
+		}
 	}
 
 	return nil

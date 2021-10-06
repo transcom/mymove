@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -32,22 +31,10 @@ func (suite *ModelSuite) TestWebhookNotification() {
 			Payload:         "{\"msg\": \"This is the payload\"}",
 			Status:          "PENDING",
 		}
+
 		expErrors := map[string][]string{}
+
 		suite.verifyValidationErrors(&newNotification, expErrors)
-		if verrs, err := suite.DB().ValidateAndCreate(&newNotification); err != nil || verrs.HasAny() {
-			if verrs.HasAny() {
-				fmt.Println(verrs)
-			}
-			fmt.Println(err)
-			suite.T().Fatal("Didn't create notification in db.")
-		}
-
-		if newNotification.ID == uuid.Nil {
-			t.Error("Didn't get an id back for Notification.")
-		} else {
-			fmt.Println("got id ", newNotification.ID.String())
-		}
-
 	})
 
 	suite.T().Run("test simple notification", func(t *testing.T) {
@@ -57,7 +44,9 @@ func (suite *ModelSuite) TestWebhookNotification() {
 			Payload:  "{\"msg\": \"This is the payload\"}",
 			Status:   "SKIPPED",
 		}
+
 		expErrors := map[string][]string{}
+
 		suite.verifyValidationErrors(&newNotification, expErrors)
 	})
 
@@ -69,11 +58,12 @@ func (suite *ModelSuite) TestWebhookNotification() {
 			Payload:  "",
 			Status:   "NEW",
 		}
+
 		expErrors := map[string][]string{}
 		expErrors["status"] = []string{"Status is not in the list [PENDING, SENT, SKIPPED, FAILING, FAILED]."}
 		expErrors["event_key"] = []string{"Eventkey should be in Subject.Action format."}
 		expErrors["payload"] = []string{"Payload can not be blank."}
-		suite.verifyValidationErrors(&newNotification, expErrors)
 
+		suite.verifyValidationErrors(&newNotification, expErrors)
 	})
 }

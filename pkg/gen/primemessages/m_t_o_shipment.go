@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"strconv"
@@ -23,97 +24,152 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
-	// actual pickup date
+	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
-	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// date when the shipment was given the status "APPROVED"
+	// The date when the Transportation Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
-	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+	ApprovedDate *strfmt.Date `json:"approvedDate"`
+
+	// The counselor can use the counselor remarks field to inform the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+	//
+	// Example: handle with care
+	// Read Only: true
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 	// created at
 	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// customer remarks
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Customer enters this information during onboarding. Optional field.
+	//
+	// Example: handle with care
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+	// during onboarding, if they know their new address already.
+	//
+	// May be blank when entered by the customer, required when entered by the Prime. May not represent the true
+	// final destination due to the shipment being diverted or placed in SIT.
+	//
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress,omitempty"`
 
-	// e tag
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	//
+	Diversion bool `json:"diversion,omitempty"`
+
+	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
-	// first available delivery date
+	// The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.
+	//
 	// Format: date
-	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+	FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
-	// id
+	// The ID of the shipment.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// move task order ID
+	// The ID of the move for this shipment.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
+	//
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress,omitempty"`
 
-	// Email or id of a contact person for this update.
+	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
+	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// prime actual weight
+	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
+	// Example: 4500
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
-	// prime estimated weight
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
+	//
+	// Example: 4500
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-	// prime estimated weight recorded date
+	// The date when the Prime contractor recorded the shipment's estimated weight.
 	// Read Only: true
 	// Format: date
-	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+	PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
-	// rejection reason
+	// The reason why this shipment was rejected by the TOO.
+	// Example: MTO Shipment not good enough
 	// Read Only: true
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// requested pickup date
+	// The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
+	//
 	// Read Only: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
-	// required delivery date
+	// The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
+	//
 	// Read Only: true
 	// Format: date
-	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+	RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
-	// scheduled pickup date
+	// reweigh
+	Reweigh *Reweigh `json:"reweigh,omitempty"`
+
+	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
-	// secondary delivery address
-	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+	// A second delivery address for this shipment, if the customer entered one. An optional field.
+	SecondaryDeliveryAddress struct {
+		Address
+	} `json:"secondaryDeliveryAddress,omitempty"`
 
-	// secondary pickup address
-	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+	// A second pickup address for this shipment, if the customer entered one. An optional field.
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
-	// status
+	// sit extensions
+	SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
+
+	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
+	//
 	// Read Only: true
-	// Enum: [APPROVED SUBMITTED REJECTED CANCELLATION_REQUESTED]
+	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -135,21 +191,27 @@ func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+		ApprovedDate *strfmt.Date `json:"approvedDate"`
+
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
+
+		Diversion bool `json:"diversion,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
-		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+		FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
@@ -157,7 +219,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -165,21 +229,29 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
-		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		Reweigh *Reweigh `json:"reweigh,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
+
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 		Status string `json:"status,omitempty"`
 
@@ -213,6 +285,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// approvedDate
 	result.ApprovedDate = data.ApprovedDate
 
+	// counselorRemarks
+	result.CounselorRemarks = data.CounselorRemarks
+
 	// createdAt
 	result.CreatedAt = data.CreatedAt
 
@@ -221,6 +296,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
+
+	// diversion
+	result.Diversion = data.Diversion
 
 	// eTag
 	result.ETag = data.ETag
@@ -261,6 +339,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// requiredDeliveryDate
 	result.RequiredDeliveryDate = data.RequiredDeliveryDate
 
+	// reweigh
+	result.Reweigh = data.Reweigh
+
 	// scheduledPickupDate
 	result.ScheduledPickupDate = data.ScheduledPickupDate
 
@@ -272,6 +353,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// shipmentType
 	result.ShipmentType = data.ShipmentType
+
+	// sitExtensions
+	result.SitExtensions = data.SitExtensions
 
 	// status
 	result.Status = data.Status
@@ -289,27 +373,35 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+		ApprovedDate *strfmt.Date `json:"approvedDate"`
+
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
+
+		Diversion bool `json:"diversion,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
-		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+		FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -317,21 +409,29 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
-		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		Reweigh *Reweigh `json:"reweigh,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
+
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+		SitExtensions SITExtensions `json:"sitExtensions,omitempty"`
 
 		Status string `json:"status,omitempty"`
 
@@ -344,11 +444,15 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ApprovedDate: m.ApprovedDate,
 
+		CounselorRemarks: m.CounselorRemarks,
+
 		CreatedAt: m.CreatedAt,
 
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		Diversion: m.Diversion,
 
 		ETag: m.ETag,
 
@@ -374,6 +478,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		RequiredDeliveryDate: m.RequiredDeliveryDate,
 
+		Reweigh: m.Reweigh,
+
 		ScheduledPickupDate: m.ScheduledPickupDate,
 
 		SecondaryDeliveryAddress: m.SecondaryDeliveryAddress,
@@ -381,6 +487,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		SecondaryPickupAddress: m.SecondaryPickupAddress,
 
 		ShipmentType: m.ShipmentType,
+
+		SitExtensions: m.SitExtensions,
 
 		Status: m.Status,
 
@@ -458,6 +566,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateReweigh(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -471,6 +583,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitExtensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -489,7 +605,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ActualPickupDate) { // not required
 		return nil
 	}
@@ -502,7 +617,6 @@ func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Agents) { // not required
 		return nil
 	}
@@ -518,7 +632,6 @@ func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ApprovedDate) { // not required
 		return nil
 	}
@@ -531,7 +644,6 @@ func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -544,25 +656,14 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
 }
 
 func (m *MTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
 		return nil
 	}
@@ -575,7 +676,6 @@ func (m *MTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry
 }
 
 func (m *MTOShipment) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -588,7 +688,6 @@ func (m *MTOShipment) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -601,7 +700,6 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
 	}
@@ -621,25 +719,14 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
 }
 
 func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PrimeEstimatedWeightRecordedDate) { // not required
 		return nil
 	}
@@ -652,7 +739,6 @@ func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Re
 }
 
 func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedPickupDate) { // not required
 		return nil
 	}
@@ -665,7 +751,6 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 }
 
 func (m *MTOShipment) validateRequiredDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequiredDeliveryDate) { // not required
 		return nil
 	}
@@ -677,8 +762,24 @@ func (m *MTOShipment) validateRequiredDeliveryDate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
+func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
+	if swag.IsZero(m.Reweigh) { // not required
+		return nil
+	}
 
+	if m.Reweigh != nil {
+		if err := m.Reweigh.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reweigh")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
 	}
@@ -691,43 +792,22 @@ func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error
 }
 
 func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
-	}
-
-	if m.SecondaryDeliveryAddress != nil {
-		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryDeliveryAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
 }
 
 func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
-	}
-
-	if m.SecondaryPickupAddress != nil {
-		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryPickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
 }
 
 func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ShipmentType) { // not required
 		return nil
 	}
@@ -742,11 +822,26 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitExtensions) { // not required
+		return nil
+	}
+
+	if err := m.SitExtensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
 var mTOShipmentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED","CANCELLATION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -756,17 +851,23 @@ func init() {
 
 const (
 
-	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
-	MTOShipmentStatusAPPROVED string = "APPROVED"
-
 	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
 	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
+
+	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
+	MTOShipmentStatusAPPROVED string = "APPROVED"
 
 	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
 	MTOShipmentStatusREJECTED string = "REJECTED"
 
 	// MTOShipmentStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
 	MTOShipmentStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// MTOShipmentStatusCANCELED captures enum value "CANCELED"
+	MTOShipmentStatusCANCELED string = "CANCELED"
+
+	// MTOShipmentStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	MTOShipmentStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
 )
 
 // prop value enum
@@ -778,7 +879,6 @@ func (m *MTOShipment) validateStatusEnum(path, location string, value string) er
 }
 
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -792,12 +892,316 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o shipment based on the context it is used
+func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAgents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateApprovedDate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCounselorRemarks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCustomerRemarks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveTaskOrderID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePrimeEstimatedWeightRecordedDate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRequestedPickupDate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRequiredDeliveryDate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReweigh(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitExtensions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOShipment) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateApprovedDate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "approvedDate", "body", m.ApprovedDate); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateCounselorRemarks(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "counselorRemarks", "body", m.CounselorRemarks); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateCustomerRemarks(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "customerRemarks", "body", m.CustomerRemarks); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateMoveTaskOrderID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveTaskOrderID", "body", strfmt.UUID(m.MoveTaskOrderID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "mtoServiceItems", "body", []MTOServiceItem(m.MtoServiceItems())); err != nil {
+		return err
+	}
+
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
+
+		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidatePrimeEstimatedWeightRecordedDate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeEstimatedWeightRecordedDate", "body", m.PrimeEstimatedWeightRecordedDate); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateRequestedPickupDate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateRequiredDeliveryDate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "requiredDeliveryDate", "body", m.RequiredDeliveryDate); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Reweigh != nil {
+		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reweigh")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitExtensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

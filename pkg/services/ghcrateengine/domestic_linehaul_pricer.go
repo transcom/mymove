@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -19,18 +19,15 @@ const (
 )
 
 type domesticLinehaulPricer struct {
-	db *pop.Connection
 }
 
 // NewDomesticLinehaulPricer creates a new pricer for domestic linehaul services
-func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPricer {
-	return &domesticLinehaulPricer{
-		db: db,
-	}
+func NewDomesticLinehaulPricer() services.DomesticLinehaulPricer {
+	return &domesticLinehaulPricer{}
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -49,12 +46,12 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(p.db, contractCode, isPeakPeriod, distance, weight, serviceArea)
+	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, weight, serviceArea)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(p.db, domesticLinehaulPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domesticLinehaulPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -76,7 +73,7 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 }
 
 // PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
-func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -92,7 +89,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -102,12 +99,12 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilled), serviceAreaOrigin)
 }
 
-func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
+func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
 	var domesticLinehaulPrice models.ReDomesticLinehaulPrice
-	err := db.Q().
+	err := appCtx.DB().Q().
 		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
 		Join("re_contracts c", "re_domestic_linehaul_prices.contract_id = c.id").
 		Where("c.code = $1", contractCode).

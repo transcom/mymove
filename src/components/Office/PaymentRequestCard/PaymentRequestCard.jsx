@@ -1,5 +1,5 @@
-import React, { useState, Fragment } from 'react';
-import PropTypes, { arrayOf, shape } from 'prop-types';
+import React, { useState } from 'react';
+import { arrayOf, shape, bool, node, string } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -10,6 +10,7 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
+import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import { groupByShipment } from 'utils/serviceItems';
@@ -31,7 +32,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
+const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillableWeightIssues }) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -51,12 +52,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
-      requestedAmount += item.priceCents;
+      if (item.priceCents != null) {
+        requestedAmount += item.priceCents;
 
-      if (item.status === 'APPROVED') {
-        approvedAmount += item.priceCents;
-      } else if (item.status === 'DENIED') {
-        rejectedAmount += item.priceCents;
+        if (item.status === 'APPROVED') {
+          approvedAmount += item.priceCents;
+        } else if (item.status === 'DENIED') {
+          rejectedAmount += item.priceCents;
+        }
       }
     });
 
@@ -68,7 +71,13 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
-
+  const ViewDocuments =
+    paymentRequest.status !== PAYMENT_REQUEST_STATUS.DEPRECATED ? (
+      <a href={`payment-requests/${paymentRequest.id}`}>
+        <FontAwesomeIcon icon="copy" />
+        View documents
+      </a>
+    ) : null;
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
       <div className={styles.summary}>
@@ -120,10 +129,15 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
           )}
           {paymentRequest.status === 'PENDING' && (
             <div className={styles.reviewButton}>
-              <Button onClick={handleClick}>
+              <Button onClick={handleClick} disabled={hasBillableWeightIssues} test-dataid="reviewBtn">
                 <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                 Review service items
               </Button>
+              {hasBillableWeightIssues && (
+                <span className={styles.errorText} test-dataid="errorTxt">
+                  Resolve billable weight before reviewing service items.
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -136,14 +150,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
             <dt>SAC/SDN:</dt>
             <dd>{sac}</dd>
           </dl>
-          {paymentRequest.status === 'PENDING' ? (
-            <a href="orders">View orders</a>
-          ) : (
-            <a href={`payment-requests/${paymentRequest.id}`}>
-              <FontAwesomeIcon icon="copy" />
-              View documents
-            </a>
-          )}
+          {paymentRequest.status === 'PENDING' ? <a href="orders">View orders</a> : ViewDocuments}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
               <Button
@@ -162,13 +169,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
-            let shipmentAddress = '';
+            let selectedShipment = {};
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
-            if (serviceItemShipmentID) {
-              shipmentAddress = shipmentAddresses.find((address) => address.mtoShipmentID === serviceItemShipmentID)
-                ?.shipmentAddress;
+            if (serviceItemShipmentID && shipmentsInfo) {
+              selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
             return (
@@ -176,7 +182,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
                 key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
-                shipmentAddress={shipmentAddress}
+                shipment={selectedShipment}
                 paymentRequestStatus={paymentRequest.status}
               />
             );
@@ -190,7 +196,19 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
-  shipmentAddresses: arrayOf(shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.string })).isRequired,
+  hasBillableWeightIssues: bool.isRequired,
+  shipmentsInfo: arrayOf(
+    shape({
+      mtoShipmentID: string,
+      shipmentAddress: node,
+      departureDate: string,
+      shipmentModificationType: string,
+    }),
+  ),
+};
+
+PaymentRequestCard.defaultProps = {
+  shipmentsInfo: [],
 };
 
 export default withRouter(PaymentRequestCard);

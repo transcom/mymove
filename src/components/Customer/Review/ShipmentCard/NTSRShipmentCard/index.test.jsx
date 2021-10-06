@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import NTSRShipmentCard from './index';
 
@@ -22,6 +23,15 @@ const defaultProps = {
   },
   remarks:
     'This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+};
+
+const secondaryDeliveryAddress = {
+  secondaryDeliveryAddress: {
+    street_address_1: 'Some Street Name',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
 };
 
 function mountNTSRShipmentCard(props) {
@@ -56,5 +66,21 @@ describe('NTSRShipmentCard component', () => {
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
     expect(wrapper.find('.remarksCell').length).toBe(0);
+  });
+
+  it('should not render a secondary destination location if not provided one', async () => {
+    render(<NTSRShipmentCard {...defaultProps} />);
+
+    const secondDestination = await screen.queryByText('Second Destination');
+    expect(secondDestination).not.toBeInTheDocument();
+  });
+
+  it('should render a secondary destination location if provided one', async () => {
+    render(<NTSRShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
+
+    const secondDestination = await screen.getByText('Second Destination');
+    expect(secondDestination).toBeInTheDocument();
+    const secondDesintationInformation = await screen.getByText(/Some Street Name/);
+    expect(secondDesintationInformation).toBeInTheDocument();
   });
 });

@@ -5,15 +5,16 @@ import (
 	"math"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -28,12 +29,12 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(db, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -53,7 +54,7 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 	return totalPriceCents, params, nil
 }
 
-func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
@@ -68,12 +69,12 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(db, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -105,7 +106,7 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
@@ -140,8 +141,8 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	// 1) Zip3 to same zip3
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
-		shorthaulPricer := NewDomesticShorthaulPricer(db)
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		shorthaulPricer := NewDomesticShorthaulPricer()
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -154,8 +155,8 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	// 2) Zip3 to different zip3 and > 50 miles
 	if distance > 50 {
 		// Do a normal linehaul calculation
-		linehaulPricer := NewDomesticLinehaulPricer(db)
-		totalPriceCents, displayParams, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		linehaulPricer := NewDomesticLinehaulPricer()
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
@@ -169,11 +170,11 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 
 	// Rate comes from the domestic other price table based on SIT schedule
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	domOtherPrice, err := fetchDomOtherPrice(db, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
+	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
 	}
-	contractYear, err := fetchContractYear(db, domOtherPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domOtherPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -204,9 +205,97 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	return totalPriceCents, displayParams, nil
 }
 
+func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
+		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
+	}
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+	if requestedPickupDate.IsZero() {
+		return 0, nil, errors.New("RequestedPickupDate is required")
+	}
+	if weight < minDomesticWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if serviceSchedule == 0 {
+		return 0, nil, errors.New("Service schedule is required")
+	}
+
+	// look up rate for domestic accessorial price
+	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
+	}
+
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+	}
+
+	basePrice := domAccessorialPrice.PerUnitCents.Float64() * weight.ToCWTFloat64()
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	totalCost := unit.Cents(math.Round(escalatedPrice))
+
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domAccessorialPrice.PerUnitCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, params, nil
+}
+
+func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
+		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
+	}
+
+	if billedCubicFeet < 4.0 {
+		return 0, nil, fmt.Errorf("crate must be billed for a minimum of 4 cubic feet")
+	}
+	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, code, serviceSchedule)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
+	}
+
+	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not lookup contract year: %w", err)
+	}
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	totalCost := unit.Cents(math.Round(escalatedPrice))
+
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domAccessorialPrice.PerUnitCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, params, nil
+}
+
 // createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
 // It also returns the newly created PaymentServiceItemParams.
-func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
+func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
 	if len(params) == 0 {
@@ -217,7 +306,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 
 		// Find the paymentServiceItemParam associated with this PricingDisplayParam
 		var serviceItemParamKey models.ServiceItemParamKey
-		err := db.Q().
+		err := appCtx.DB().Q().
 			Where("key = ?", param.Key).
 			First(&serviceItemParamKey)
 		if err != nil {
@@ -235,7 +324,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 			Value:                 param.Value,
 		}
 
-		verrs, err := db.ValidateAndCreate(&newParam)
+		verrs, err := appCtx.DB().ValidateAndCreate(&newParam)
 		if err != nil {
 			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
 		} else if verrs.HasAny() {

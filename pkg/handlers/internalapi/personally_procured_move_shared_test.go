@@ -49,7 +49,7 @@ func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
 	}
 
 	for _, ts := range tests {
-		destinationZip, err := GetDestinationDutyStationPostalCode(suite.DB(), ts.lookupID)
+		destinationZip, err := GetDestinationDutyStationPostalCode(suite.TestAppContext(), ts.lookupID)
 		suite.Equal(ts.resultErr, err, "Wrong resultErr: %s", ts.lookupID)
 		suite.Equal(ts.resultZip, destinationZip, "Wrong moveID: %s", ts.lookupID)
 	}

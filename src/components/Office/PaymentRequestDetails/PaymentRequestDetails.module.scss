@@ -5,14 +5,33 @@
 .PaymentRequestDetails {
   :global .stackedtable-header {
     max-width: unset;
+
     h3 {
-      margin-top: 10px;
+      @include u-margin-top(2);
+      @include u-margin-bottom(1.5);
+      display: flex;
+      align-items: center;
+
+      span {
+        @include u-margin-left(1);
+        vertical-align: middle;
+      }
+    }
+    display: block;
+
+    .departureDate {
+        @include u-text('bold');
+    }
+
+    p {
+      @include u-margin-top(-.5);
+      @include u-margin-bottom(3);
     }
   }
 
   :global .table--stacked {
     width: 100%;
-
+    table-layout: fixed;
     th {
       @include u-font-weight(bold);
       @include u-font-size('body', '3xs');

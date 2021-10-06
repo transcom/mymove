@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 )
 
@@ -45,6 +46,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
+		useSwaggerUI:        false,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
@@ -54,11 +56,38 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		MtoServiceItemDeleteMTOServiceItemHandler: mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.DeleteMTOServiceItem has not yet been implemented")
+		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
 		}),
-		MoveTaskOrderDeleteMoveTaskOrderHandler: move_task_order.DeleteMoveTaskOrderHandlerFunc(func(params move_task_order.DeleteMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.DeleteMoveTaskOrder has not yet been implemented")
+		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
+		}),
+		ShipmentApproveSITExtensionHandler: shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
+		}),
+		ShipmentApproveShipmentHandler: shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
+		}),
+		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
+		}),
+		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
+		}),
+		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
+		}),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
+		ShipmentCreateSITExtensionAsTOOHandler: shipment.CreateSITExtensionAsTOOHandlerFunc(func(params shipment.CreateSITExtensionAsTOOParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
+		}),
+		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
+		}),
+		ShipmentDenySITExtensionHandler: shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
 		}),
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
@@ -99,20 +128,38 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
 		}),
+		PaymentRequestsGetShipmentsPaymentSITBalanceHandler: payment_requests.GetShipmentsPaymentSITBalanceHandlerFunc(func(params payment_requests.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
+		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		}),
 		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
 		}),
-		OrderListMoveTaskOrdersHandler: order.ListMoveTaskOrdersHandlerFunc(func(params order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation order.ListMoveTaskOrders has not yet been implemented")
+		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
-		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
+		}),
+		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
+		}),
+		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
+		}),
+		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
+		}),
+		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
+		}),
+		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
@@ -120,8 +167,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
 		}),
+		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
+		}),
 		MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler: move_task_order.UpdateMTOStatusServiceCounselingCompletedHandlerFunc(func(params move_task_order.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMTOStatusServiceCounselingCompleted has not yet been implemented")
+		}),
+		OrderUpdateMaxBillableWeightAsTIOHandler: order.UpdateMaxBillableWeightAsTIOHandlerFunc(func(params order.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateMaxBillableWeightAsTIO has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
@@ -152,13 +205,16 @@ type MymoveAPI struct {
 	defaultConsumes string
 	defaultProduces string
 	Middleware      func(middleware.Builder) http.Handler
+	useSwaggerUI    bool
 
 	// BasicAuthenticator generates a runtime.Authenticator from the supplied basic auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BasicAuthenticator func(security.UserPassAuthentication) runtime.Authenticator
+
 	// APIKeyAuthenticator generates a runtime.Authenticator from the supplied token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	APIKeyAuthenticator func(string, string, security.TokenAuthentication) runtime.Authenticator
+
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
@@ -171,10 +227,28 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
-	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
-	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
-	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
+	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
+	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
+	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
+	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
+	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
+	ShipmentApproveSITExtensionHandler shipment.ApproveSITExtensionHandler
+	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
+	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
+	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
+	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
+	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
+	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
+	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
+	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
+	ShipmentCreateSITExtensionAsTOOHandler shipment.CreateSITExtensionAsTOOHandler
+	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
+	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
+	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
+	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
@@ -201,22 +275,38 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
 	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
+	// PaymentRequestsGetShipmentsPaymentSITBalanceHandler sets the operation handler for the get shipments payment s i t balance operation
+	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
-	// OrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	OrderListMoveTaskOrdersHandler order.ListMoveTaskOrdersHandler
-	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
-	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
+	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
+	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
+	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
+	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
+	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
+	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
+	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
+	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
+	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
+	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
+	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
+	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
+	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
+	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
+	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler sets the operation handler for the update m t o status service counseling completed operation
 	MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler
+	// OrderUpdateMaxBillableWeightAsTIOHandler sets the operation handler for the update max billable weight as t i o operation
+	OrderUpdateMaxBillableWeightAsTIOHandler order.UpdateMaxBillableWeightAsTIOHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
@@ -227,6 +317,7 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -244,6 +335,16 @@ type MymoveAPI struct {
 
 	// User defined logger function.
 	Logger func(string, ...interface{})
+}
+
+// UseRedoc for documentation at /docs
+func (o *MymoveAPI) UseRedoc() {
+	o.useSwaggerUI = false
+}
+
+// UseSwaggerUI for documentation at /docs
+func (o *MymoveAPI) UseSwaggerUI() {
+	o.useSwaggerUI = true
 }
 
 // SetDefaultProduces sets the default produces media type
@@ -293,11 +394,38 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MtoServiceItemDeleteMTOServiceItemHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.DeleteMTOServiceItemHandler")
+	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
 	}
-	if o.MoveTaskOrderDeleteMoveTaskOrderHandler == nil {
-		unregistered = append(unregistered, "move_task_order.DeleteMoveTaskOrderHandler")
+	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
+		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
+	}
+	if o.ShipmentApproveSITExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveSITExtensionHandler")
+	}
+	if o.ShipmentApproveShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentHandler")
+	}
+	if o.ShipmentApproveShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
+	}
+	if o.OrderCounselingUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
+	}
+	if o.OrderCounselingUpdateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
+	}
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.ShipmentCreateSITExtensionAsTOOHandler == nil {
+		unregistered = append(unregistered, "shipment.CreateSITExtensionAsTOOHandler")
+	}
+	if o.ShipmentDeleteShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
+	}
+	if o.ShipmentDenySITExtensionHandler == nil {
+		unregistered = append(unregistered, "shipment.DenySITExtensionHandler")
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
@@ -338,20 +466,38 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesGetServicesCounselingQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
 	}
+	if o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler == nil {
+		unregistered = append(unregistered, "payment_requests.GetShipmentsPaymentSITBalanceHandler")
+	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
 	if o.MtoShipmentListMTOShipmentsHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
 	}
-	if o.OrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "order.ListMoveTaskOrdersHandler")
+	if o.ShipmentRejectShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
 	}
-	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
-		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
+	if o.ShipmentRequestShipmentCancellationHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
+	}
+	if o.ShipmentRequestShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
+	}
+	if o.ShipmentRequestShipmentReweighHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
+	}
+	if o.OrderUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
+	}
+	if o.OrderUpdateBillableWeightHandler == nil {
+		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
+	}
+	if o.CustomerUpdateCustomerHandler == nil {
+		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -359,8 +505,14 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
 	}
+	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
+	}
 	if o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler")
+	}
+	if o.OrderUpdateMaxBillableWeightAsTIOHandler == nil {
+		unregistered = append(unregistered, "order.UpdateMaxBillableWeightAsTIOHandler")
 	}
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderHandler")
@@ -465,14 +617,50 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve"] = shipment.NewApproveSITExtension(o.context, o.ShipmentApproveSITExtensionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/approve"] = shipment.NewApproveShipment(o.context, o.ShipmentApproveShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}/allowances"] = order.NewCounselingUpdateAllowance(o.context, o.OrderCounselingUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}"] = order.NewCounselingUpdateOrder(o.context, o.OrderCounselingUpdateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/sit-extensions"] = shipment.NewCreateSITExtensionAsTOO(o.context, o.ShipmentCreateSITExtensionAsTOOHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewDeleteMTOServiceItem(o.context, o.MtoServiceItemDeleteMTOServiceItemHandler)
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
+	o.handlers["DELETE"]["/shipments/{shipmentID}"] = shipment.NewDeleteShipment(o.context, o.ShipmentDeleteShipmentHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewDeleteMoveTaskOrder(o.context, o.MoveTaskOrderDeleteMoveTaskOrderHandler)
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny"] = shipment.NewDenySITExtension(o.context, o.ShipmentDenySITExtensionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -528,23 +716,47 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/payment-requests/{paymentRequestID}/shipments-payment-sit-balance"] = payment_requests.NewGetShipmentsPaymentSITBalance(o.context, o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/orders/{orderID}/move-task-orders"] = order.NewListMoveTaskOrders(o.context, o.OrderListMoveTaskOrdersHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
+	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
+	o.handlers["POST"]["/shipments/{shipmentID}/request-cancellation"] = shipment.NewRequestShipmentCancellation(o.context, o.ShipmentRequestShipmentCancellationHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-diversion"] = shipment.NewRequestShipmentDiversion(o.context, o.ShipmentRequestShipmentDiversionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/tac/valid"] = tac.NewTacValidation(o.context, o.TacTacValidationHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{orderID}/allowances"] = order.NewUpdateAllowance(o.context, o.OrderUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{orderID}/update-billable-weight"] = order.NewUpdateBillableWeight(o.context, o.OrderUpdateBillableWeightHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -556,7 +768,15 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed"] = move_task_order.NewUpdateMTOStatusServiceCounselingCompleted(o.context, o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{orderID}/update-max-billable-weight/tio"] = order.NewUpdateMaxBillableWeightAsTIO(o.context, o.OrderUpdateMaxBillableWeightAsTIOHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -586,6 +806,9 @@ func (o *MymoveAPI) Serve(builder middleware.Builder) http.Handler {
 
 	if o.Middleware != nil {
 		return o.Middleware(builder)
+	}
+	if o.useSwaggerUI {
+		return o.context.APIHandlerSwaggerUI(builder)
 	}
 	return o.context.APIHandler(builder)
 }

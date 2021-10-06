@@ -72,7 +72,7 @@ type GetPaymentRequestsForMoveForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetPaymentRequestsForMoveForbidden creates GetPaymentRequestsForMoveForbidden with default headers values
@@ -82,13 +82,13 @@ func NewGetPaymentRequestsForMoveForbidden() *GetPaymentRequestsForMoveForbidden
 }
 
 // WithPayload adds the payload to the get payment requests for move forbidden response
-func (o *GetPaymentRequestsForMoveForbidden) WithPayload(payload interface{}) *GetPaymentRequestsForMoveForbidden {
+func (o *GetPaymentRequestsForMoveForbidden) WithPayload(payload *ghcmessages.Error) *GetPaymentRequestsForMoveForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get payment requests for move forbidden response
-func (o *GetPaymentRequestsForMoveForbidden) SetPayload(payload interface{}) {
+func (o *GetPaymentRequestsForMoveForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -96,9 +96,11 @@ func (o *GetPaymentRequestsForMoveForbidden) SetPayload(payload interface{}) {
 func (o *GetPaymentRequestsForMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -114,7 +116,7 @@ type GetPaymentRequestsForMoveNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetPaymentRequestsForMoveNotFound creates GetPaymentRequestsForMoveNotFound with default headers values
@@ -124,13 +126,13 @@ func NewGetPaymentRequestsForMoveNotFound() *GetPaymentRequestsForMoveNotFound {
 }
 
 // WithPayload adds the payload to the get payment requests for move not found response
-func (o *GetPaymentRequestsForMoveNotFound) WithPayload(payload interface{}) *GetPaymentRequestsForMoveNotFound {
+func (o *GetPaymentRequestsForMoveNotFound) WithPayload(payload *ghcmessages.Error) *GetPaymentRequestsForMoveNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get payment requests for move not found response
-func (o *GetPaymentRequestsForMoveNotFound) SetPayload(payload interface{}) {
+func (o *GetPaymentRequestsForMoveNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -138,16 +140,18 @@ func (o *GetPaymentRequestsForMoveNotFound) SetPayload(payload interface{}) {
 func (o *GetPaymentRequestsForMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetPaymentRequestsForMoveUnprocessableEntityCode is the HTTP code returned for type GetPaymentRequestsForMoveUnprocessableEntity
 const GetPaymentRequestsForMoveUnprocessableEntityCode int = 422
 
-/*GetPaymentRequestsForMoveUnprocessableEntity Validation error
+/*GetPaymentRequestsForMoveUnprocessableEntity The payload was unprocessable.
 
 swagger:response getPaymentRequestsForMoveUnprocessableEntity
 */
@@ -200,7 +204,7 @@ type GetPaymentRequestsForMoveInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetPaymentRequestsForMoveInternalServerError creates GetPaymentRequestsForMoveInternalServerError with default headers values
@@ -210,13 +214,13 @@ func NewGetPaymentRequestsForMoveInternalServerError() *GetPaymentRequestsForMov
 }
 
 // WithPayload adds the payload to the get payment requests for move internal server error response
-func (o *GetPaymentRequestsForMoveInternalServerError) WithPayload(payload interface{}) *GetPaymentRequestsForMoveInternalServerError {
+func (o *GetPaymentRequestsForMoveInternalServerError) WithPayload(payload *ghcmessages.Error) *GetPaymentRequestsForMoveInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get payment requests for move internal server error response
-func (o *GetPaymentRequestsForMoveInternalServerError) SetPayload(payload interface{}) {
+func (o *GetPaymentRequestsForMoveInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -224,8 +228,10 @@ func (o *GetPaymentRequestsForMoveInternalServerError) SetPayload(payload interf
 func (o *GetPaymentRequestsForMoveInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

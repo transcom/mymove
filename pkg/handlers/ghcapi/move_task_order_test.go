@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -63,7 +65,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandler{
 		context,
-		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -118,12 +120,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			ServiceItemCodes: &serviceItemCodes,
 		}
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// setup the handler
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")
@@ -141,7 +144,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
 		suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
-		suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 
@@ -187,6 +190,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	// so we can mock this here to speed up the test and avoid hitting the DB
 	moveUpdater := &mocks.MoveTaskOrderUpdater{}
 	moveUpdater.On("MakeAvailableToPrime",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 		false,
@@ -200,15 +204,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	order := move.Orders
-	order.TAC = nil
-	suite.MustSave(&order)
-	err := move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
+	orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusServiceCounselingCompleted,
+		},
+		Order: orderWithoutDefaults,
+	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -219,12 +221,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -233,6 +236,9 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
+	suite.Contains(*errorDetail, "OrdersNumber cannot be blank.")
+	suite.Contains(*errorDetail, "DepartmentIndicator cannot be blank.")
+	suite.Contains(*errorDetail, "OrdersTypeDetail cannot be blank.")
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
@@ -248,11 +254,12 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 
 	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
@@ -269,7 +276,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 
 		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
 		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
-		suite.Nil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
+		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 

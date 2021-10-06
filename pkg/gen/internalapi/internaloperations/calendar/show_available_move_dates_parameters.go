@@ -16,7 +16,8 @@ import (
 )
 
 // NewShowAvailableMoveDatesParams creates a new ShowAvailableMoveDatesParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowAvailableMoveDatesParams() ShowAvailableMoveDatesParams {
 
 	return ShowAvailableMoveDatesParams{}
@@ -53,7 +54,6 @@ func (o *ShowAvailableMoveDatesParams) BindRequest(r *http.Request, route *middl
 	if err := o.bindStartDate(qStartDate, qhkStartDate, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,6 +72,7 @@ func (o *ShowAvailableMoveDatesParams) bindStartDate(rawData []string, hasKey bo
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("startDate", "query", raw); err != nil {
 		return err
 	}

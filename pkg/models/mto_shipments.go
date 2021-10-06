@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -45,6 +46,14 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
+// These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
+// creating a shipment and setting the initial value. Other values will likely be added to this once we deal with
+// different types of customers.
+const (
+	// DefaultServiceMemberSITDaysAllowance is the default number of SIT days a service member is allowed
+	DefaultServiceMemberSITDaysAllowance = 90
+)
+
 // MTOShipmentStatus represents the possible statuses for a mto shipment
 type MTOShipmentStatus string
 
@@ -57,18 +66,18 @@ const (
 	MTOShipmentStatusApproved MTOShipmentStatus = "APPROVED"
 	// MTOShipmentStatusRejected is the rejected status type for MTO Shipments
 	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
-	// MTOShipmentStatusCancellationRequested is the status that indicates the TOO has requested that the Prime cancel the shipment
+	// MTOShipmentStatusCancellationRequested indicates the TOO has requested that the Prime cancel the shipment
 	MTOShipmentStatusCancellationRequested MTOShipmentStatus = "CANCELLATION_REQUESTED"
-	// MTOShipmentStatusCanceled is the status that indicates that a shipment has been canceled by the Prime
+	// MTOShipmentStatusCanceled indicates that a shipment has been canceled by the Prime
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
-	// MTOShipmentStatusDiversionRequested is the status that indicates that teh TOO has requested that the prime divert a shipment
+	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
-	MoveTaskOrder                    Move              `belongs_to:"moves"`
+	MoveTaskOrder                    Move              `belongs_to:"moves" fk_id:"move_id"`
 	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
@@ -79,26 +88,32 @@ type MTOShipment struct {
 	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
 	CounselorRemarks                 *string           `db:"counselor_remarks"`
-	PickupAddress                    *Address          `belongs_to:"addresses"`
+	PickupAddress                    *Address          `belongs_to:"addresses" fk_id:"pickup_address_id"`
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
-	DestinationAddress               *Address          `belongs_to:"addresses"`
+	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
-	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
+	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
-	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`
+	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
+	SITDaysAllowance                 *int              `db:"sit_days_allowance"`
+	SITExtensions                    SITExtensions     `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
+	BillableWeightCap                *unit.Pound       `db:"billable_weight_cap"`
+	BillableWeightJustification      *string           `db:"billable_weight_justification"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
+	Reweigh                          *Reweigh          `has_one:"reweighs" fk_id:"shipment_id"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
+	DeletedAt                        *time.Time        `db:"deleted_at"`
 }
 
 // MTOShipments is a list of mto shipments
@@ -123,6 +138,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
 	}
+	vs = append(vs, &OptionalPoundIsNonNegative{Field: m.BillableWeightCap, Name: "BillableWeightCap"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.BillableWeightJustification, Name: "BillableWeightJustification"})
 	if m.Status == MTOShipmentStatusRejected {
 		var rejectionReason string
 		if m.RejectionReason != nil {
@@ -130,10 +147,28 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		}
 		vs = append(vs, &validators.StringIsPresent{Field: rejectionReason, Name: "RejectionReason"})
 	}
+	if m.SITDaysAllowance != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.SITDaysAllowance, Compared: -1, Name: "SITDaysAllowance"})
+	}
 	return validate.Validate(vs...), nil
 }
 
 // TableName overrides the table name used by Pop.
 func (m MTOShipment) TableName() string {
 	return "mto_shipments"
+}
+
+// GetCustomerFromShipment gets the service member given a shipment id
+func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Q().
+		InnerJoin("orders", "orders.service_member_id = service_members.id").
+		InnerJoin("moves", "moves.orders_id = orders.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		Where("mto_shipments.id = ?", shipmentID).
+		First(&serviceMember)
+	if err != nil {
+		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
+	}
+	return &serviceMember, nil
 }

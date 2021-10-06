@@ -14,12 +14,8 @@ export const HelperNeedsOrders = () => (
 );
 
 export const HelperNeedsShipment = () => (
-  <Helper title="Gather this info, then plan your shipments">
-    <ul>
-      <li>Preferred moving details</li>
-      <li>Destination address (your new place, your duty station ZIP, or somewhere else)</li>
-      <li>Names and contact info for anyone you authorize to act on your behalf</li>
-    </ul>
+  <Helper title="Time for step 3: set up your shipments">
+    <p>Share where and when you&apos;re moving, and how you want your things to be shipped.</p>
   </Helper>
 );
 
@@ -84,5 +80,14 @@ export const HelperSubmittedPPM = () => (
       </li>
       <li>Once you have moved, you’ll request payment using MilMove.</li>
     </ul>
+  </Helper>
+);
+
+export const HelperAmendedOrders = () => (
+  <Helper title="Next step: Contact your movers (if you have them)">
+    <p>
+      If your destination changed or your move was canceled, contact your movers ASAP to let them know. They&apos;ll
+      work with you to coordinate any changes.
+    </p>
   </Helper>
 );

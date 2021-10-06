@@ -29,7 +29,7 @@ func NewCreateSignedCertification(ctx *middleware.Context, handler CreateSignedC
 	return &CreateSignedCertification{Context: ctx, Handler: handler}
 }
 
-/*CreateSignedCertification swagger:route POST /moves/{moveId}/signed_certifications certification createSignedCertification
+/* CreateSignedCertification swagger:route POST /moves/{moveId}/signed_certifications certification createSignedCertification
 
 Submits signed certification for the given move ID
 
@@ -44,17 +44,15 @@ type CreateSignedCertification struct {
 func (o *CreateSignedCertification) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateSignedCertificationParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

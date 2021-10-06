@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -18,6 +19,11 @@ import (
 // swagger:model ServiceItemParamOrigin
 type ServiceItemParamOrigin string
 
+func NewServiceItemParamOrigin(value ServiceItemParamOrigin) *ServiceItemParamOrigin {
+	v := value
+	return &v
+}
+
 const (
 
 	// ServiceItemParamOriginPRIME captures enum value "PRIME"
@@ -25,6 +31,12 @@ const (
 
 	// ServiceItemParamOriginSYSTEM captures enum value "SYSTEM"
 	ServiceItemParamOriginSYSTEM ServiceItemParamOrigin = "SYSTEM"
+
+	// ServiceItemParamOriginPRICER captures enum value "PRICER"
+	ServiceItemParamOriginPRICER ServiceItemParamOrigin = "PRICER"
+
+	// ServiceItemParamOriginPAYMENTREQUEST captures enum value "PAYMENT_REQUEST"
+	ServiceItemParamOriginPAYMENTREQUEST ServiceItemParamOrigin = "PAYMENT_REQUEST"
 )
 
 // for schema
@@ -32,7 +44,7 @@ var serviceItemParamOriginEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamOrigin
-	if err := json.Unmarshal([]byte(`["PRIME","SYSTEM"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PRIME","SYSTEM","PRICER","PAYMENT_REQUEST"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -59,5 +71,10 @@ func (m ServiceItemParamOrigin) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this service item param origin based on context it is used
+func (m ServiceItemParamOrigin) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

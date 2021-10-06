@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -23,7 +24,12 @@ type UploadPayload struct {
 	// Required: true
 	Bytes *int64 `json:"bytes"`
 
+	// checksum
+	// Example: ImGQ2Ush0bDHsaQthV5BnQ==
+	Checksum string `json:"checksum,omitempty"`
+
 	// content type
+	// Example: application/pdf
 	// Required: true
 	ContentType *string `json:"content_type"`
 
@@ -33,10 +39,12 @@ type UploadPayload struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// filename
+	// Example: filename.pdf
 	// Required: true
 	Filename *string `json:"filename"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -51,6 +59,7 @@ type UploadPayload struct {
 	UpdatedAt *strfmt.DateTime `json:"updated_at"`
 
 	// url
+	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uri
 	URL *strfmt.URI `json:"url"`
@@ -184,7 +193,6 @@ func (m *UploadPayload) validateStatusEnum(path, location string, value string) 
 }
 
 func (m *UploadPayload) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -220,6 +228,11 @@ func (m *UploadPayload) validateURL(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this upload payload based on context it is used
+func (m *UploadPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

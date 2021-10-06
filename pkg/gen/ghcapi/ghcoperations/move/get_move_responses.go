@@ -60,11 +60,16 @@ func (o *GetMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetMoveBadRequestCode is the HTTP code returned for type GetMoveBadRequest
 const GetMoveBadRequestCode int = 400
 
-/*GetMoveBadRequest The locator provided is invalid
+/*GetMoveBadRequest The request payload is invalid
 
 swagger:response getMoveBadRequest
 */
 type GetMoveBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveBadRequest creates GetMoveBadRequest with default headers values
@@ -73,12 +78,27 @@ func NewGetMoveBadRequest() *GetMoveBadRequest {
 	return &GetMoveBadRequest{}
 }
 
+// WithPayload adds the payload to the get move bad request response
+func (o *GetMoveBadRequest) WithPayload(payload *ghcmessages.Error) *GetMoveBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get move bad request response
+func (o *GetMoveBadRequest) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *GetMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // GetMoveUnauthorizedCode is the HTTP code returned for type GetMoveUnauthorized
@@ -93,7 +113,7 @@ type GetMoveUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveUnauthorized creates GetMoveUnauthorized with default headers values
@@ -103,13 +123,13 @@ func NewGetMoveUnauthorized() *GetMoveUnauthorized {
 }
 
 // WithPayload adds the payload to the get move unauthorized response
-func (o *GetMoveUnauthorized) WithPayload(payload interface{}) *GetMoveUnauthorized {
+func (o *GetMoveUnauthorized) WithPayload(payload *ghcmessages.Error) *GetMoveUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move unauthorized response
-func (o *GetMoveUnauthorized) SetPayload(payload interface{}) {
+func (o *GetMoveUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -117,9 +137,11 @@ func (o *GetMoveUnauthorized) SetPayload(payload interface{}) {
 func (o *GetMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -135,7 +157,7 @@ type GetMoveForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveForbidden creates GetMoveForbidden with default headers values
@@ -145,13 +167,13 @@ func NewGetMoveForbidden() *GetMoveForbidden {
 }
 
 // WithPayload adds the payload to the get move forbidden response
-func (o *GetMoveForbidden) WithPayload(payload interface{}) *GetMoveForbidden {
+func (o *GetMoveForbidden) WithPayload(payload *ghcmessages.Error) *GetMoveForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move forbidden response
-func (o *GetMoveForbidden) SetPayload(payload interface{}) {
+func (o *GetMoveForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -159,9 +181,11 @@ func (o *GetMoveForbidden) SetPayload(payload interface{}) {
 func (o *GetMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -177,7 +201,7 @@ type GetMoveNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveNotFound creates GetMoveNotFound with default headers values
@@ -187,13 +211,13 @@ func NewGetMoveNotFound() *GetMoveNotFound {
 }
 
 // WithPayload adds the payload to the get move not found response
-func (o *GetMoveNotFound) WithPayload(payload interface{}) *GetMoveNotFound {
+func (o *GetMoveNotFound) WithPayload(payload *ghcmessages.Error) *GetMoveNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move not found response
-func (o *GetMoveNotFound) SetPayload(payload interface{}) {
+func (o *GetMoveNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -201,9 +225,11 @@ func (o *GetMoveNotFound) SetPayload(payload interface{}) {
 func (o *GetMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -219,7 +245,7 @@ type GetMoveInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveInternalServerError creates GetMoveInternalServerError with default headers values
@@ -229,13 +255,13 @@ func NewGetMoveInternalServerError() *GetMoveInternalServerError {
 }
 
 // WithPayload adds the payload to the get move internal server error response
-func (o *GetMoveInternalServerError) WithPayload(payload interface{}) *GetMoveInternalServerError {
+func (o *GetMoveInternalServerError) WithPayload(payload *ghcmessages.Error) *GetMoveInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move internal server error response
-func (o *GetMoveInternalServerError) SetPayload(payload interface{}) {
+func (o *GetMoveInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -243,8 +269,10 @@ func (o *GetMoveInternalServerError) SetPayload(payload interface{}) {
 func (o *GetMoveInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { debounce, get, bind, cloneDeep } from 'lodash';
+import { bind, cloneDeep, debounce, get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
@@ -15,31 +15,23 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { calculatePPMSITEstimate, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { updatePPMs, updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
+import { updatePPM, updatePPMs, updatePPMSitEstimate } from 'store/entities/actions';
 import {
-  selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
   selectCurrentOrders,
   selectCurrentPPM,
   selectPPMSitEstimate,
+  selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
 
 let EditDateAndLocationForm = (props) => {
-  const {
-    handleSubmit,
-    currentOrders,
-    getSitEstimate,
-    sitEstimate,
-    schema,
-    valid,
-    sitReimbursement,
-    submitting,
-  } = props;
+  const { handleSubmit, currentOrders, getSitEstimate, sitEstimate, schema, valid, sitReimbursement, submitting } =
+    props;
 
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
 
@@ -143,6 +135,7 @@ class EditDateAndLocation extends Component {
           return err;
         });
     }
+    return undefined;
   };
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {

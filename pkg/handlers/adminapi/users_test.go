@@ -18,6 +18,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -69,7 +70,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			UserID:      strfmt.UUID(userIDString),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			userservice.NewUserFetcher(queryBuilder),
@@ -94,6 +95,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		}
 		userFetcher := &mocks.UserFetcher{}
 		userFetcher.On("FetchUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(user, nil).Once()
 		handler := GetUserHandler{
@@ -117,6 +119,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		expectedError := models.ErrFetchNotFound
 		userFetcher := &mocks.UserFetcher{}
 		userFetcher.On("FetchUser",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
@@ -158,7 +161,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
@@ -184,6 +187,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		userListFetcher := &mocks.ListFetcher{}
 		userListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -191,6 +195,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		userListFetcher.On("FetchRecordCount",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
@@ -212,79 +217,72 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateUserHandler() {
+
+	// Create a DB Object for the user
 	milSessionID := "mil-session"
 	adminSessionID := "admin-session"
 	officeSessionID := "office-session"
 
-	// Create a user that has multiple sessions
-	// and is labeled an Active user of the system
-	assertions := testdatagen.Assertions{
-		User: models.User{
-			CurrentMilSessionID:    milSessionID,
-			CurrentAdminSessionID:  adminSessionID,
-			CurrentOfficeSessionID: officeSessionID,
-			Active:                 true,
-		},
-	}
-
-	user := testdatagen.MakeUser(suite.DB(), assertions)
-	userID := user.ID
-
+	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	endpoint := fmt.Sprintf("/users/%s", userID)
-	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req = suite.AuthenticateUserRequest(req, requestUser)
-
-	revokeMilSession := true
-	revokeAdminSession := false
-	revokeOfficeSession := true
-	active := true
-	deactivate := false
-	revoke := true
-
-	params := userop.UpdateUserParams{
-		HTTPRequest: req,
-		User: &adminmessages.UserUpdatePayload{
-			RevokeMilSession:    &revokeMilSession,    // true
-			RevokeAdminSession:  &revokeAdminSession,  // false
-			RevokeOfficeSession: &revokeOfficeSession, // true
-			Active:              &active,              // required value, true
-		},
-		UserID: strfmt.UUID(userID.String()),
-	}
-
 	sessionManagers := setupSessionManagers()
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
+	handler := UpdateUserHandler{
+		handlerContext,
+		userservice.NewUserSessionRevocation(queryBuilder),
+		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
+		newQueryFilter,
+	}
+
+	// The requestUser is the admin user that is making the change to the user
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
 	suite.T().Run("Successful userSessionRevocation", func(t *testing.T) {
 		// Under test: UsereSessionRevocation, userUpdater
+		// Mocked: 	   QueryFilter
 		// Set up:     We revoke two sessions from an existing user.
-		//			   The user remains active.
+		//			   The user active state is set to nil, so user should stay active.
 		// Expected outcome:
 		//             CurrentMilSessionID and CurrentOfficeSessionID are cleared from db.
 		//			   CurrentAdminSessionID is still present.
 		//             Active status is true.```
-		queryBuilder := query.NewQueryBuilder(suite.DB())
 
-		handler := UpdateUserHandler{
-			handlerContext,
-			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
-			newQueryFilter,
+		// Create a user that has multiple sessions
+		// and is labeled an Active user of the system
+		assertions := testdatagen.Assertions{
+			User: models.User{
+				CurrentMilSessionID:    milSessionID,
+				CurrentAdminSessionID:  adminSessionID,
+				CurrentOfficeSessionID: officeSessionID,
+				Active:                 true,
+			},
+		}
+		user := testdatagen.MakeUser(suite.DB(), assertions)
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := userop.UpdateUserParams{
+			HTTPRequest: req,
+			User: &adminmessages.UserUpdatePayload{
+				RevokeMilSession:    swag.Bool(true),
+				RevokeAdminSession:  swag.Bool(false),
+				RevokeOfficeSession: swag.Bool(true),
+				Active:              nil,
+			},
+			UserID: strfmt.UUID(user.ID.String()),
 		}
 
 		suite.NoError(params.User.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
-		foundUser, _ := models.GetUser(suite.DB(), userID)
+		foundUser, _ := models.GetUser(suite.DB(), user.ID)
 		suite.IsType(&userop.UpdateUserOK{}, response)
 		suite.Equal("", foundUser.CurrentMilSessionID)
 		suite.Equal(adminSessionID, foundUser.CurrentAdminSessionID)
@@ -302,8 +300,6 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		//             Active status is false.
 		//			   *All* sessions are revoked because the user is deactivated.
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-
 		// Create a fresh user to reset all values
 		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 			User: models.User{
@@ -314,30 +310,25 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			},
 		})
 
-		userID := user.ID
-
+		// Create the update to revoke 2 sessions and deactivate the user
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active:              &deactivate,
-				RevokeMilSession:    &revoke,
-				RevokeOfficeSession: &revoke,
+				Active:              swag.Bool(false),
+				RevokeMilSession:    swag.Bool(true),
+				RevokeOfficeSession: swag.Bool(true),
 			},
-			UserID: strfmt.UUID(userID.String()),
+			UserID: strfmt.UUID(user.ID.String()),
 		}
 
-		handler := UpdateUserHandler{
-			handlerContext,
-			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
-			newQueryFilter,
-		}
-
+		// Send request
 		suite.NoError(params.User.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
-		foundUser, _ := models.GetUser(suite.DB(), userID)
+		// Check response
+		foundUser, _ := models.GetUser(suite.DB(), user.ID)
 		// The user is deactivated and all user sessions are revoked.
 		suite.IsType(&userop.UpdateUserOK{}, response)
 		suite.Equal("", foundUser.CurrentMilSessionID)
@@ -355,8 +346,6 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		//             Active status is false.
 		//			   All sessions are revoked because the user is deactivated.
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-
 		// Create a fresh user to reset all values
 		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 			User: models.User{
@@ -367,28 +356,21 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			},
 		})
 
-		userID := user.ID
-
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active: &deactivate,
+				Active: swag.Bool(false),
 			},
-			UserID: strfmt.UUID(userID.String()),
-		}
-
-		handler := UpdateUserHandler{
-			handlerContext,
-			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
-			newQueryFilter,
+			UserID: strfmt.UUID(user.ID.String()),
 		}
 
 		suite.NoError(params.User.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
-		foundUser, _ := models.GetUser(suite.DB(), userID)
+		foundUser, _ := models.GetUser(suite.DB(), user.ID)
 		// The user is deactivated and all user sessions are revoked.
 		suite.IsType(&userop.UpdateUserOK{}, response)
 		suite.Equal("", foundUser.CurrentMilSessionID)
@@ -408,8 +390,6 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// 			   Session IDs remain.
 		//
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-
 		// Create a new user that is inactive but has session values
 		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 			User: models.User{
@@ -419,32 +399,24 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 				Active:                 false,
 			},
 		})
-		userID := user.ID
 
 		// Manually update Active because of an issue with mergeModels in MakeUser
-		user.Active = deactivate
 		suite.DB().ValidateAndUpdate(&user)
 
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active: &active,
+				Active: swag.Bool(true),
 			},
-			UserID: strfmt.UUID(userID.String()),
-		}
-
-		handler := UpdateUserHandler{
-			handlerContext,
-			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
-			newQueryFilter,
+			UserID: strfmt.UUID(user.ID.String()),
 		}
 
 		suite.NoError(params.User.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
-		foundUser, _ := models.GetUser(suite.DB(), userID)
+		foundUser, _ := models.GetUser(suite.DB(), user.ID)
 
 		suite.IsType(&userop.UpdateUserOK{}, response)
 		suite.Equal(milSessionID, foundUser.CurrentMilSessionID)
@@ -473,22 +445,22 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			},
 		})
 
-		userID := user.ID
-
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active: &deactivate,
+				Active: swag.Bool(false),
 			},
-			UserID: strfmt.UUID(userID.String()),
+			UserID: strfmt.UUID(user.ID.String()),
 		}
 
 		userRevocation := &mocks.UserSessionRevocation{}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
 
 		err := validate.NewErrors()
 
 		userRevocation.On("RevokeUserSession",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
 			sessionManagers[0].Store,
@@ -497,13 +469,13 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, suite.TestNotificationSender()),
 			newQueryFilter,
 		}
 
 		suite.NoError(params.User.Validate(strfmt.Default))
 		handler.Handle(params)
-		foundUser, _ := models.GetUser(suite.DB(), userID)
+		foundUser, _ := models.GetUser(suite.DB(), user.ID)
 
 		// Session update fails, active update succeeds
 		suite.Error(err, "Error saving user")
@@ -530,26 +502,28 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		})
 
 		userID := user.ID
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active:              &deactivate,
-				RevokeAdminSession:  &revoke,
-				RevokeMilSession:    &revoke,
-				RevokeOfficeSession: &revoke,
+				Active:              swag.Bool(false),
+				RevokeAdminSession:  swag.Bool(true),
+				RevokeMilSession:    swag.Bool(true),
+				RevokeOfficeSession: swag.Bool(true),
 			},
 			UserID: strfmt.UUID(userID.String()),
 		}
 
+		// Create a mock updater that returns an error
 		userUpdater := &mocks.UserUpdater{}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-
 		err := validate.NewErrors()
 
 		userUpdater.On("UpdateUser",
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			userID,
+			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
 
 		handler := UpdateUserHandler{
@@ -576,7 +550,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// Mocked: UserUpdater, RevokeUserSession
 		// Set up:     RevokeUser and updateUser return an err.
 		// Expected outcome:
-		//             Active status is unchanged and true.
+		//             Active status is unchanged and nil.
 		// 			   User sessions are not revoked.
 
 		// Create a fresh user to reset all values
@@ -590,31 +564,37 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		})
 
 		userID := user.ID
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
-				Active:              &deactivate,
-				RevokeAdminSession:  &revoke,
-				RevokeMilSession:    &revoke,
-				RevokeOfficeSession: &revoke,
+				Active:              nil,
+				RevokeAdminSession:  swag.Bool(true),
+				RevokeMilSession:    swag.Bool(true),
+				RevokeOfficeSession: swag.Bool(true),
 			},
 			UserID: strfmt.UUID(userID.String()),
 		}
 
+		// Create a mock that returns error on user session revocation
+		// and on user update
 		userUpdater := &mocks.UserUpdater{}
 		userRevocation := &mocks.UserSessionRevocation{}
 		err := validate.NewErrors()
 
 		userRevocation.On("RevokeUserSession",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
 			sessionManagers[0].Store,
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			userID,
+			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
 
 		handler := UpdateUserHandler{
@@ -636,5 +616,4 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(officeSessionID, foundUser.CurrentOfficeSessionID)
 		suite.Equal(true, foundUser.Active)
 	})
-
 }

@@ -1,28 +1,29 @@
 import React, { Component } from 'react';
-import { bool, string, func, shape, number } from 'prop-types';
-import { Formik, Field } from 'formik';
+import { bool, func, number, shape, string } from 'prop-types';
+import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
 import {
-  Fieldset,
-  Radio,
-  Checkbox,
   Alert,
+  Checkbox,
+  Fieldset,
   FormGroup,
-  Label,
-  Textarea,
-  GridContainer,
   Grid,
+  GridContainer,
+  Label,
+  Radio,
+  Textarea,
 } from '@trussworks/react-uswds';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
 
+import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, MatchShape, HistoryShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { createMTOShipment, patchMTOShipment, getResponseError } from 'services/internalApi';
+import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { shipmentForm } from 'content/shipments';
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -33,6 +34,17 @@ import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
+
+const blankAddress = {
+  address: {
+    street_address_1: '',
+    street_address_2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+  },
+};
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -43,22 +55,34 @@ class MtoShipmentForm extends Component {
     };
   }
 
-  submitMTOShipment = ({ shipmentType, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
+  submitMTOShipment = ({
+    shipmentType,
+    pickup,
+    hasDeliveryAddress,
+    delivery,
+    customerRemarks,
+    hasSecondaryPickup,
+    secondaryPickup,
+    hasSecondaryDelivery,
+    secondaryDelivery,
+  }) => {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
-    const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
-      delete deliveryDetails.address;
-    }
-
-    const pendingMtoShipment = formatMtoShipmentForAPI({
+    const preformattedMtoShipment = {
       shipmentType: shipmentType || selectedMoveType,
       moveId,
       customerRemarks,
       pickup,
-      delivery: deliveryDetails,
-    });
+      delivery: {
+        ...delivery,
+        address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
+      },
+      secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
+      secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
+    };
+
+    const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
 
     const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
@@ -119,7 +143,7 @@ class MtoShipmentForm extends Component {
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
-    const optionalLabel = <span className={styles.optional}>Optional</span>;
+    const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
     return (
       <Formik
@@ -130,7 +154,7 @@ class MtoShipmentForm extends Component {
         onSubmit={this.submitMTOShipment}
       >
         {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
-          const { hasDeliveryAddress } = values;
+          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
             const { checked } = e.target;
@@ -159,13 +183,7 @@ class MtoShipmentForm extends Component {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  address: {
-                    street_address_1: '',
-                    street_address_2: '',
-                    city: '',
-                    state: '',
-                    postal_code: '',
-                  },
+                  ...blankAddress,
                 },
               });
             }
@@ -191,32 +209,31 @@ class MtoShipmentForm extends Component {
                       billed for any excess weight you move.
                     </Alert>
 
-                    <Form className={styles.form}>
+                    <Form className={formStyles.form}>
                       {showPickupFields && (
                         <>
-                          <SectionWrapper className={styles.formSection}>
-                            {showDeliveryFields && <h2>Pickup information</h2>}
-                            <Fieldset legend="Pickup date">
+                          <SectionWrapper className={formStyles.formSection}>
+                            {showDeliveryFields && <h2>Pickup info</h2>}
+                            <Fieldset legend="Date">
+                              <Hint id="pickupDateHint">
+                                This is the day movers would put this shipment on their truck. Packing starts earlier.
+                                Dates will be finalized when you talk to your movers. Your actual pickup date will fall
+                                within 7 days of your preferred date.
+                              </Hint>
                               <DatePickerInput
                                 name="pickup.requestedDate"
-                                label="Requested pickup date"
+                                label="Preferred pickup date"
                                 id="requestedPickupDate"
                                 validate={validateDate}
                               />
-                              <Hint id="pickupDateHint">
-                                <p>
-                                  Movers will contact you to schedule the actual pickup date. That date should fall
-                                  within 7 days of your requested date. Tip: Avoid scheduling multiple shipments on the
-                                  same day.
-                                </p>
-                              </Hint>
                             </Fieldset>
 
                             <AddressFields
                               name="pickup.address"
-                              legend="Pickup location"
+                              legend="Location"
                               render={(fields) => (
                                 <>
+                                  <p>What address are the movers picking up from?</p>
                                   <Checkbox
                                     data-testid="useCurrentResidence"
                                     label="Use my current address"
@@ -225,19 +242,43 @@ class MtoShipmentForm extends Component {
                                     id="useCurrentResidenceCheckbox"
                                   />
                                   {fields}
-                                  <Hint>
+                                  <h4>Second pickup location</h4>
+                                  <FormGroup>
                                     <p>
-                                      If you have more things at another pickup location, you can schedule a shipment
-                                      for them later.
+                                      Do you want movers to pick up any belongings from a second address? (Must be near
+                                      your pickup address. Subject to approval.)
                                     </p>
-                                  </Hint>
+                                    <div className={formStyles.radioGroup}>
+                                      <Field
+                                        as={Radio}
+                                        id="has-secondary-pickup"
+                                        data-testid="has-secondary-pickup"
+                                        label="Yes"
+                                        name="hasSecondaryPickup"
+                                        value="yes"
+                                        title="Yes, I have a second pickup location"
+                                        checked={hasSecondaryPickup === 'yes'}
+                                      />
+                                      <Field
+                                        as={Radio}
+                                        id="no-secondary-pickup"
+                                        data-testid="no-secondary-pickup"
+                                        label="No"
+                                        name="hasSecondaryPickup"
+                                        value="no"
+                                        title="No, I do not have a second pickup location"
+                                        checked={hasSecondaryPickup !== 'yes'}
+                                      />
+                                    </div>
+                                  </FormGroup>
+                                  {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
                                 </>
                               )}
                             />
 
                             <ContactInfoFields
                               name="pickup.agent"
-                              legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
+                              legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                               render={(fields) => (
                                 <>
                                   <p>Who can let the movers pick up your things if you’re not there?</p>
@@ -251,27 +292,25 @@ class MtoShipmentForm extends Component {
 
                       {showDeliveryFields && (
                         <>
-                          <SectionWrapper className={styles.formSection}>
-                            {showPickupFields && <h2>Delivery information</h2>}
-                            <Fieldset legend="Delivery date">
+                          <SectionWrapper className={formStyles.formSection}>
+                            {showPickupFields && <h2>Destination info</h2>}
+                            <Fieldset legend="Date">
+                              <Hint>
+                                If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
+                                later by talking with your movers once the shipment is underway.
+                              </Hint>
                               <DatePickerInput
                                 name="delivery.requestedDate"
-                                label="Requested delivery date"
+                                label="Preferred delivery date"
                                 id="requestedDeliveryDate"
                                 validate={validateDate}
                               />
-                              <Hint>
-                                <p>
-                                  Shipments can take several weeks to arrive, depending on how far they’re going. Your
-                                  movers will contact you close to the date you select to coordinate delivery.
-                                </p>
-                              </Hint>
                             </Fieldset>
 
-                            <Fieldset legend="Delivery location">
+                            <Fieldset legend="Location">
                               <FormGroup>
                                 <p>Do you know your delivery address yet?</p>
-                                <div className={styles.radioGroup}>
+                                <div className={formStyles.radioGroup}>
                                   <Field
                                     as={Radio}
                                     id="has-delivery-address"
@@ -298,12 +337,38 @@ class MtoShipmentForm extends Component {
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <Hint>
+                                      <h4>Second Destination</h4>
+                                      <FormGroup>
                                         <p>
-                                          If you have more things to go to another destination, you can schedule a
-                                          shipment for them later.
+                                          Do you want the movers to deliver any belongings to a second address? (Must be
+                                          near your delivery address. Subject to approval.)
                                         </p>
-                                      </Hint>
+                                        <div className={formStyles.radioGroup}>
+                                          <Field
+                                            as={Radio}
+                                            data-testid="has-secondary-delivery"
+                                            id="has-secondary-delivery"
+                                            label="Yes"
+                                            name="hasSecondaryDelivery"
+                                            value="yes"
+                                            title="Yes, I have a second destination location"
+                                            checked={hasSecondaryDelivery === 'yes'}
+                                          />
+                                          <Field
+                                            as={Radio}
+                                            data-testid="no-secondary-delivery"
+                                            id="no-secondary-delivery"
+                                            label="No"
+                                            name="hasSecondaryDelivery"
+                                            value="no"
+                                            title="No, I do not have a second destination location"
+                                            checked={hasSecondaryDelivery !== 'yes'}
+                                          />
+                                        </div>
+                                      </FormGroup>
+                                      {hasSecondaryDelivery === 'yes' && (
+                                        <AddressFields name="secondaryDelivery.address" />
+                                      )}
                                     </>
                                   )}
                                 />
@@ -323,7 +388,7 @@ class MtoShipmentForm extends Component {
 
                             <ContactInfoFields
                               name="delivery.agent"
-                              legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
+                              legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                               render={(fields) => (
                                 <>
                                   <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
@@ -337,7 +402,7 @@ class MtoShipmentForm extends Component {
 
                       {isNTS && (
                         <>
-                          <SectionWrapper className={styles.formSection} data-testid="nts-what-to-expect">
+                          <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
                             <Fieldset legend="What you can expect">
                               <p>
                                 The moving company will find a storage facility approved by the government, and will
@@ -352,27 +417,27 @@ class MtoShipmentForm extends Component {
                         </>
                       )}
 
-                      <SectionWrapper className={styles.formSection}>
-                        <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
+                      <SectionWrapper className={formStyles.formSection}>
+                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
                           <Label htmlFor="customerRemarks">
-                            Is there anything special about this shipment that the movers should know?
+                            Are there things about this shipment that your counselor or movers should discuss with you?
                           </Label>
 
-                          <div className={styles.remarksExamples}>
+                          <Callout>
                             Examples
                             <ul>
-                              <li>Things that might need special handling</li>
-                              <li>Access info for a location</li>
-                              <li>Weapons or alcohol</li>
+                              <li>Large, bulky, or fragile items</li>
+                              <li>Access info for your origin or destination address</li>
+                              <li>You’re shipping weapons or alcohol</li>
                             </ul>
-                          </div>
+                          </Callout>
 
                           <Field
                             as={Textarea}
                             data-testid="remarks"
                             name="customerRemarks"
-                            className={`${styles.remarks}`}
-                            placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
+                            className={`${formStyles.remarks}`}
+                            placeholder="Don’t itemize your belongings here. Your movers will help do that when they talk to you."
                             id="customerRemarks"
                             maxLength={250}
                           />
@@ -383,14 +448,10 @@ class MtoShipmentForm extends Component {
                       </SectionWrapper>
 
                       <Hint>
-                        <p>
-                          You can change details for your shipment when you talk to your move counselor or the person
-                          who’s your point of contact with the movers. You can also edit in MilMove up to 24 hours
-                          before your final pickup date.
-                        </p>
+                        <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
-                      <div className={styles.formActions}>
+                      <div className={formStyles.formActions}>
                         <WizardNavigation
                           disableNext={isSubmitting || !isValid}
                           editMode={!isCreatePage}

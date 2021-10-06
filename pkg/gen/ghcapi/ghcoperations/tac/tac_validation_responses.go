@@ -69,7 +69,7 @@ type TacValidationBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewTacValidationBadRequest creates TacValidationBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewTacValidationBadRequest() *TacValidationBadRequest {
 }
 
 // WithPayload adds the payload to the tac validation bad request response
-func (o *TacValidationBadRequest) WithPayload(payload interface{}) *TacValidationBadRequest {
+func (o *TacValidationBadRequest) WithPayload(payload *ghcmessages.Error) *TacValidationBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the tac validation bad request response
-func (o *TacValidationBadRequest) SetPayload(payload interface{}) {
+func (o *TacValidationBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *TacValidationBadRequest) SetPayload(payload interface{}) {
 func (o *TacValidationBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type TacValidationUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewTacValidationUnauthorized creates TacValidationUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewTacValidationUnauthorized() *TacValidationUnauthorized {
 }
 
 // WithPayload adds the payload to the tac validation unauthorized response
-func (o *TacValidationUnauthorized) WithPayload(payload interface{}) *TacValidationUnauthorized {
+func (o *TacValidationUnauthorized) WithPayload(payload *ghcmessages.Error) *TacValidationUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the tac validation unauthorized response
-func (o *TacValidationUnauthorized) SetPayload(payload interface{}) {
+func (o *TacValidationUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *TacValidationUnauthorized) SetPayload(payload interface{}) {
 func (o *TacValidationUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type TacValidationForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewTacValidationForbidden creates TacValidationForbidden with default headers values
@@ -163,13 +167,13 @@ func NewTacValidationForbidden() *TacValidationForbidden {
 }
 
 // WithPayload adds the payload to the tac validation forbidden response
-func (o *TacValidationForbidden) WithPayload(payload interface{}) *TacValidationForbidden {
+func (o *TacValidationForbidden) WithPayload(payload *ghcmessages.Error) *TacValidationForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the tac validation forbidden response
-func (o *TacValidationForbidden) SetPayload(payload interface{}) {
+func (o *TacValidationForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *TacValidationForbidden) SetPayload(payload interface{}) {
 func (o *TacValidationForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type TacValidationNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewTacValidationNotFound creates TacValidationNotFound with default headers values
@@ -205,13 +211,13 @@ func NewTacValidationNotFound() *TacValidationNotFound {
 }
 
 // WithPayload adds the payload to the tac validation not found response
-func (o *TacValidationNotFound) WithPayload(payload interface{}) *TacValidationNotFound {
+func (o *TacValidationNotFound) WithPayload(payload *ghcmessages.Error) *TacValidationNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the tac validation not found response
-func (o *TacValidationNotFound) SetPayload(payload interface{}) {
+func (o *TacValidationNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *TacValidationNotFound) SetPayload(payload interface{}) {
 func (o *TacValidationNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type TacValidationInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewTacValidationInternalServerError creates TacValidationInternalServerError with default headers values
@@ -247,13 +255,13 @@ func NewTacValidationInternalServerError() *TacValidationInternalServerError {
 }
 
 // WithPayload adds the payload to the tac validation internal server error response
-func (o *TacValidationInternalServerError) WithPayload(payload interface{}) *TacValidationInternalServerError {
+func (o *TacValidationInternalServerError) WithPayload(payload *ghcmessages.Error) *TacValidationInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the tac validation internal server error response
-func (o *TacValidationInternalServerError) SetPayload(payload interface{}) {
+func (o *TacValidationInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +269,10 @@ func (o *TacValidationInternalServerError) SetPayload(payload interface{}) {
 func (o *TacValidationInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

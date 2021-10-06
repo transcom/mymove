@@ -8,7 +8,6 @@ import (
 
 // MakeProofOfServiceDoc creates a single ProofOfServiceDoc.
 func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.ProofOfServiceDoc {
-
 	var pr models.PaymentRequest
 	prID := assertions.ProofOfServiceDoc.PaymentRequestID
 	// ID is required because it must be populated for Eager saving to work.

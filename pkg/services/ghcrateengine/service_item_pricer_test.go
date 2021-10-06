@@ -2,9 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"testing"
-
-	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -12,49 +9,32 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
-	suite.setupPriceServiceItemData()
-	paymentServiceItem := suite.setupPriceServiceItem()
-	serviceItemPricer := NewServiceItemPricer(suite.DB())
+	suite.Run("golden path", func() {
+		suite.setupPriceServiceItemData()
+		paymentServiceItem := suite.setupPriceServiceItem()
+		serviceItemPricer := NewServiceItemPricer()
 
-	suite.T().Run("golden path", func(t *testing.T) {
-		priceCents, _, err := serviceItemPricer.PriceServiceItem(paymentServiceItem)
+		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
-	suite.T().Run("not implemented pricer", func(t *testing.T) {
+	suite.Run("not implemented pricer", func() {
+		suite.setupPriceServiceItemData()
+		serviceItemPricer := NewServiceItemPricer()
+
 		badPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: "BOGUS",
 			},
 		})
 
-		_, _, err := serviceItemPricer.PriceServiceItem(badPaymentServiceItem)
+		_, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), badPaymentServiceItem)
 		suite.Error(err)
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) TestUsingConnection() {
-	originalDB := suite.DB()
-	serviceItemPricerInterface := NewServiceItemPricer(originalDB)
-
-	err := originalDB.Rollback(func(tx *pop.Connection) {
-		txServiceItemPricerInterface := serviceItemPricerInterface.UsingConnection(tx)
-
-		txServiceItemPricerStruct, _ := txServiceItemPricerInterface.(serviceItemPricer)
-		suite.Same(tx, txServiceItemPricerStruct.db)
-
-		serviceItemPricerStruct, _ := serviceItemPricerInterface.(*serviceItemPricer)
-		suite.Same(originalDB, serviceItemPricerStruct.db)
-	})
-
-	suite.Nil(err)
-}
-
 func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
-	serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
-	serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
-
 	testCases := []struct {
 		serviceCode models.ReServiceCode
 		pricer      services.ParamsPricer
@@ -65,6 +45,10 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 		{models.ReServiceCodeDSH, &domesticShorthaulPricer{}},
 		{models.ReServiceCodeDOP, &domesticOriginPricer{}},
 		{models.ReServiceCodeDDP, &domesticDestinationPricer{}},
+		{models.ReServiceCodeDDSHUT, &domesticDestinationShuttlingPricer{}},
+		{models.ReServiceCodeDOSHUT, &domesticOriginShuttlingPricer{}},
+		{models.ReServiceCodeDCRT, &domesticCratingPricer{}},
+		{models.ReServiceCodeDUCRT, &domesticUncratingPricer{}},
 		{models.ReServiceCodeDPK, &domesticPackPricer{}},
 		{models.ReServiceCodeDUPK, &domesticUnpackPricer{}},
 		{models.ReServiceCodeFSC, &fuelSurchargePricer{}},
@@ -77,14 +61,20 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 	}
 
 	for _, testCase := range testCases {
-		suite.T().Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func() {
+			serviceItemPricerInterface := NewServiceItemPricer()
+			serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+
 			pricer, err := serviceItemPricer.getPricer(testCase.serviceCode)
 			suite.NoError(err)
 			suite.IsType(testCase.pricer, pricer)
 		})
 	}
 
-	suite.T().Run("pricer not found", func(t *testing.T) {
+	suite.Run("pricer not found", func() {
+		serviceItemPricerInterface := NewServiceItemPricer()
+		serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+
 		_, err := serviceItemPricer.getPricer("BOGUS")
 		suite.Error(err)
 		suite.IsType(services.NotImplementedError{}, err)

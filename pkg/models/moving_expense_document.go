@@ -55,7 +55,7 @@ func IsExpenseModelDocumentType(docType MoveDocumentType) bool {
 type MovingExpenseDocument struct {
 	ID                   uuid.UUID         `json:"id" db:"id"`
 	MoveDocumentID       uuid.UUID         `json:"move_document_id" db:"move_document_id"`
-	MoveDocument         MoveDocument      `belongs_to:"move_documents"`
+	MoveDocument         MoveDocument      `belongs_to:"move_documents" fk_id:"move_document_id"`
 	MovingExpenseType    MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
 	PaymentMethod        string            `json:"payment_method" db:"payment_method"`

@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetWebhookSubscriptionParams creates a new GetWebhookSubscriptionParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetWebhookSubscriptionParams() GetWebhookSubscriptionParams {
 
 	return GetWebhookSubscriptionParams{}
@@ -50,7 +51,6 @@ func (o *GetWebhookSubscriptionParams) BindRequest(r *http.Request, route *middl
 	if err := o.bindWebhookSubscriptionID(rWebhookSubscriptionID, rhkWebhookSubscriptionID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

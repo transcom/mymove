@@ -29,7 +29,7 @@ func NewCancelMove(ctx *middleware.Context, handler CancelMoveHandler) *CancelMo
 	return &CancelMove{Context: ctx, Handler: handler}
 }
 
-/*CancelMove swagger:route POST /moves/{moveId}/cancel office cancelMove
+/* CancelMove swagger:route POST /moves/{moveId}/cancel office cancelMove
 
 Cancels a move
 
@@ -44,17 +44,15 @@ type CancelMove struct {
 func (o *CancelMove) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCancelMoveParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

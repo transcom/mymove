@@ -124,6 +124,15 @@ export const DOPSIT = (data) => (
   />
 );
 
+export const DOSHUT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginShuttleService}
+    totalAmountRequested={642}
+    itemCode="DOSHUT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DDP = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticDestinationPrice}
@@ -138,6 +147,35 @@ export const DDASIT = (data) => (
     serviceItemParams={testParams.DomesticDestinationAdditionalSIT}
     totalAmountRequested={642}
     itemCode="DDASIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DDSHUT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationShuttleService}
+    totalAmountRequested={642}
+    itemCode="DDSHUT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DCRT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticCrating}
+    additionalServiceItemData={testParams.additionalCratingDataDCRT}
+    totalAmountRequested={642}
+    itemCode="DCRT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DUCRT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticUncrating}
+    additionalServiceItemData={testParams.additionalCratingDataDCRT}
+    totalAmountRequested={642}
+    itemCode="DUCRT"
     tableSize={data.tableSize}
   />
 );

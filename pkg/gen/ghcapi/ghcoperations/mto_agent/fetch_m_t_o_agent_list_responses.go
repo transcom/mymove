@@ -72,7 +72,7 @@ type FetchMTOAgentListNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOAgentListNotFound creates FetchMTOAgentListNotFound with default headers values
@@ -82,13 +82,13 @@ func NewFetchMTOAgentListNotFound() *FetchMTOAgentListNotFound {
 }
 
 // WithPayload adds the payload to the fetch m t o agent list not found response
-func (o *FetchMTOAgentListNotFound) WithPayload(payload interface{}) *FetchMTOAgentListNotFound {
+func (o *FetchMTOAgentListNotFound) WithPayload(payload *ghcmessages.Error) *FetchMTOAgentListNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o agent list not found response
-func (o *FetchMTOAgentListNotFound) SetPayload(payload interface{}) {
+func (o *FetchMTOAgentListNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -96,16 +96,18 @@ func (o *FetchMTOAgentListNotFound) SetPayload(payload interface{}) {
 func (o *FetchMTOAgentListNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // FetchMTOAgentListUnprocessableEntityCode is the HTTP code returned for type FetchMTOAgentListUnprocessableEntity
 const FetchMTOAgentListUnprocessableEntityCode int = 422
 
-/*FetchMTOAgentListUnprocessableEntity Validation error
+/*FetchMTOAgentListUnprocessableEntity The payload was unprocessable.
 
 swagger:response fetchMTOAgentListUnprocessableEntity
 */
@@ -158,7 +160,7 @@ type FetchMTOAgentListInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOAgentListInternalServerError creates FetchMTOAgentListInternalServerError with default headers values
@@ -168,13 +170,13 @@ func NewFetchMTOAgentListInternalServerError() *FetchMTOAgentListInternalServerE
 }
 
 // WithPayload adds the payload to the fetch m t o agent list internal server error response
-func (o *FetchMTOAgentListInternalServerError) WithPayload(payload interface{}) *FetchMTOAgentListInternalServerError {
+func (o *FetchMTOAgentListInternalServerError) WithPayload(payload *ghcmessages.Error) *FetchMTOAgentListInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o agent list internal server error response
-func (o *FetchMTOAgentListInternalServerError) SetPayload(payload interface{}) {
+func (o *FetchMTOAgentListInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -182,8 +184,10 @@ func (o *FetchMTOAgentListInternalServerError) SetPayload(payload interface{}) {
 func (o *FetchMTOAgentListInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

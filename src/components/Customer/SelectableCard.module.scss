@@ -3,83 +3,104 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/_variables';
 
-.cardContainer {
-  @include u-padding-top(2);
-  @include u-padding-right(2);
-  @include u-padding-bottom(3);
-  @include u-padding-left(2);
-  border-radius: 2px;
-  background-color: $bg-white;
-  border: 2px solid $base-lighter;
-
-  :global(.usa-radio__label) {
-    font-weight: bold;
-  }
-  :global(.usa-radio__input:disabled + .usa-radio__label) {
-    color: $base-darkest;
-  }
-  :global(.usa-radio__label) {
-    @include u-margin-top(0);
-  }
-}
-
-.cardTitle {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  :global(.usa-radio) {
-    @include u-margin-right(1);
-  }
-}
-
-.selected {
-  @include u-shadow(2);
-  background-color: $info-light;
-}
-
-p + .cardContainer {
+p+.cardContainer {
   margin-top: 0px;
 }
 
-.cardContainer + .cardContainer {
+.cardContainer+.cardContainer {
   @include u-margin-top('105');
 }
 
-.cardText {
-  font-weight: normal;
-  color: $base;
-  font-size: 13px;
-  line-height: 1.25;
-  @include u-padding-top(1);
-  @media (min-width: $tablet) {
-    padding-left: 2rem;
-  }
-  div {
-    @include u-margin-bottom(1);
-  }
-}
+.cardContainer {
+  position: relative;
 
-.helpButton {
-  margin: -10px;
-  margin-top: -9px;
-  padding: 10px; // Required to get to 44px for touch area
+  :global(.usa-radio__input:disabled + .usa-radio__label) {
+    color: $base-darkest;
+  }
 
-  // TODO - needed until we remove some duplicate USWDS CSS in this project
-  &:global(.usa-button) {
-    margin: -10px;
-    margin-top: -9px;
+  :global(.usa-radio__label) {
+    @include u-margin-top(0);
+  }
+
+  :global(.usa-radio__input--tile + .usa-radio__label) {
+    border-radius: 2px;
+    background-color: $bg-white;
+  }
+
+  :global(.usa-checkbox__label),
+  :global(.usa-radio__label) {
+    @include u-text('bold');
+    @include u-padding-bottom(2);
+  }
+
+  :global(.usa-radio__label):before {
+    @include u-margin-left(1);
+    margin-top: 7px;
+  }
+
+  :global(.usa-checkbox__label-description) {
+    font-weight: normal;
+    color: $base;
+    font-size: 13px;
+    line-height: 1.25;
+    @include u-padding-top(1);
+    transform: translate(0px, -8px);
+    width: 100%;
+
+    div {
+      @include u-margin-bottom(1);
+    }
+  }
+
+  .helpButton {
     padding: 10px; // Required to get to 44px for touch area
-    min-width: 0;
-    width: auto;
-    flex-shrink: 0;
-    flex-grow: 0;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    // TODO - needed until we remove some duplicate USWDS CSS in this project
+    &:global(.usa-button) {
+      padding: 10px; // Required to get to 44px for touch area
+      min-width: 0;
+      width: auto;
+      flex-shrink: 0;
+      flex-grow: 0;
+    }
+
+    svg {
+      // TODO - temp until we can make icon code more consistent
+      width: 24px !important;
+      height: 24px;
+      fill: $primary;
+    }
   }
 
-  svg {
-    // TODO - temp until we can make icon code more consistent
-    width: 24px !important;
-    height: 24px;
-    fill: $primary;
+  :global(.usa-radio__input--tile:checked + .usa-radio__label) {
+    @include u-shadow(2);
+    background-color: $info-light;
+    border: 2px solid $base-lighter;
+    @include u-padding-bottom('205');
+
+    & :global(.usa-checkbox__label-description) {
+      color: $base-dark;
+    }
+  }
+
+  :global(.usa-radio__input--tile + .usa-radio__label) {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
+    @include u-padding-bottom('205');
+    text-indent: -40px;
+    padding-left: 50px;
+  }
+
+  @media (max-width: $tablet) {
+    :global(.usa-radio__label) {
+      @include u-padding-right(6);
+    }
+
+    :global(.usa-checkbox__label-description) {
+      transform: translate(-32px, -8px);
+      width: calc(100% + 65px);
+    }
   }
 }

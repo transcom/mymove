@@ -1,24 +1,57 @@
 import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import { Button, Tag } from '@trussworks/react-uswds';
 
-import DataPointGroup from '../../DataPointGroup/index';
-import DataPoint from '../../DataPoint/index';
+import DataTableWrapper from '../../DataTableWrapper/index';
+import DataTable from '../../DataTable/index';
 
+import styles from './ShipmentWeightDetails.module.scss';
+
+import returnLowestValue from 'utils/returnLowestValue';
 import { formatWeight } from 'shared/formatters';
 
-const ShipmentWeightDetails = ({ estimatedWeight, actualWeight }) => {
-  const headers = ['Estimated weight', 'Actual weight'];
-  const row = [estimatedWeight ? formatWeight(estimatedWeight) : '', actualWeight ? formatWeight(actualWeight) : ''];
+const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
+  const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
+  const reweighHeader = (
+    <div className={styles.shipmentWeight}>
+      <span>Shipment weight</span>
+      {!shipmentInfo.reweighID && (
+        <div className={styles.rightAlignButtonWrapper}>
+          <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+            Request reweigh
+          </Button>
+        </div>
+      )}
+      {shipmentInfo.reweighID && !shipmentInfo.reweighWeight && <Tag>reweigh requested</Tag>}
+      {shipmentInfo.reweighWeight && <Tag>reweighed</Tag>}
+    </div>
+  );
   return (
-    <DataPointGroup className="maxw-tablet">
-      <DataPoint columnHeaders={headers} dataRow={row} />
-    </DataPointGroup>
+    <div className={classnames('maxw-tablet', styles.ShipmentWeightDetails)}>
+      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
+        <DataTable
+          columnHeaders={['Estimated weight']}
+          dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
+        />
+      </DataTableWrapper>
+      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
+        <DataTable columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
+      </DataTableWrapper>
+    </div>
   );
 };
 
 ShipmentWeightDetails.propTypes = {
   estimatedWeight: PropTypes.number,
   actualWeight: PropTypes.number,
+  shipmentInfo: PropTypes.shape({
+    shipmentID: PropTypes.string,
+    ifMatchEtag: PropTypes.string,
+    reweighID: PropTypes.string,
+    reweighWeight: PropTypes.number,
+  }).isRequired,
+  handleRequestReweighModal: PropTypes.func.isRequired,
 };
 
 ShipmentWeightDetails.defaultProps = {

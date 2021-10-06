@@ -12,7 +12,7 @@ import (
 
 // PPMDiscountFetch attempts to fetch the discount rates first for COS D, then 2
 // Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
-func PPMDiscountFetch(db *pop.Connection, logger Logger, move Move, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
+func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, move Move, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
 	// Try to fetch with COS D.
 	lhDiscount, sitDiscount, err := FetchDiscountRates(db,
 		originZip,

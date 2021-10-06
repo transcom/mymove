@@ -63,6 +63,11 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    span {
+      @include u-font-size('body', '3xs');
+      @include u-font-weight(normal);
+      color: $base;
+    }
   }
 
   &:hover {

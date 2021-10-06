@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,20 +28,20 @@ type IndexWebhookSubscriptionsHandler struct {
 // Handle retrieves a list of webhook subscriptions
 func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.IndexWebhookSubscriptionsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var webhookSubscriptions models.WebhookSubscriptions
-	err := h.ListFetcher.FetchRecordList(&webhookSubscriptions, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(appCtx, &webhookSubscriptions, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalWebhookSubscriptionsCount, err := h.ListFetcher.FetchRecordCount(&webhookSubscriptions, queryFilters)
+	totalWebhookSubscriptionsCount, err := h.ListFetcher.FetchRecordCount(appCtx, &webhookSubscriptions, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -66,10 +67,11 @@ type GetWebhookSubscriptionHandler struct {
 // Handle retrieves a webhook subscription
 func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	webhookSubscriptionID := uuid.FromStringOrNil(params.WebhookSubscriptionID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 
-	webhookSubscription, err := h.WebhookSubscriptionFetcher.FetchWebhookSubscription(queryFilters)
+	webhookSubscription, err := h.WebhookSubscriptionFetcher.FetchWebhookSubscription(appCtx, queryFilters)
 
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -89,12 +91,13 @@ type CreateWebhookSubscriptionHandler struct {
 // Handle creates an admin user
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	subscription := payloads.WebhookSubscriptionModelFromCreate(params.WebhookSubscription)
 	subscriberIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", subscription.SubscriberID),
 	}
 
-	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(subscription, subscriberIDFilter)
+	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(appCtx, subscription, subscriberIDFilter)
 
 	if verrs != nil {
 		logger.Error("Error saving webhook subscription", zap.Error(verrs))
@@ -131,6 +134,7 @@ type UpdateWebhookSubscriptionHandler struct {
 // Handle updates a webhook subscription
 func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.UpdateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.WebhookSubscription
 
 	// Checks that ID in body matches ID in query
@@ -146,7 +150,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
 
 	// Note we are not checking etag as adminapi does not seem to use this
-	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity, &params.IfMatch)
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(appCtx, webhookSubscription, payload.Severity, &params.IfMatch)
 
 	// Return error response if not successful
 	if err != nil {

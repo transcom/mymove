@@ -17,6 +17,8 @@ export const customerRoutes = {
   BACKUP_CONTACTS_PATH: '/service-member/backup-contact',
   ORDERS_INFO_PATH: '/orders/info',
   ORDERS_UPLOAD_PATH: '/orders/upload',
+  ORDERS_AMEND_PATH: '/orders/amend',
+  ORDERS_EDIT_PATH: '/moves/:moveId/review/edit-orders',
   SHIPMENT_MOVING_INFO_PATH: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
@@ -27,4 +29,22 @@ export const customerRoutes = {
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
+};
+
+const BASE_MOVE_PATH = '/counseling/moves/:moveCode';
+
+export const servicesCounselingRoutes = {
+  ALLOWANCES_EDIT_PATH: `${BASE_MOVE_PATH}/allowances`,
+  BASE_MOVE_PATH,
+  CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVE_PATH}/customer`,
+  MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
+  ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
+  QUEUE_VIEW_PATH: '/counseling/queue',
+  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
+  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
+};
+
+export const tioRoutes = {
+  PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
+  BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
 };

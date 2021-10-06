@@ -25,11 +25,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateWebhookNotification(params *CreateWebhookNotificationParams) (*CreateWebhookNotificationCreated, error)
+	CreateWebhookNotification(params *CreateWebhookNotificationParams, opts ...ClientOption) (*CreateWebhookNotificationCreated, error)
 
-	ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams) (*ReceiveWebhookNotificationOK, error)
+	ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams, opts ...ClientOption) (*ReceiveWebhookNotificationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -40,13 +43,12 @@ type ClientService interface {
   This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.
 
 */
-func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationParams) (*CreateWebhookNotificationCreated, error) {
+func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationParams, opts ...ClientOption) (*CreateWebhookNotificationCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateWebhookNotificationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createWebhookNotification",
 		Method:             "POST",
 		PathPattern:        "/webhook-notifications",
@@ -57,7 +59,12 @@ func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationPara
 		Reader:             &CreateWebhookNotificationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -77,13 +84,12 @@ func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationPara
   This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 
 */
-func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams) (*ReceiveWebhookNotificationOK, error) {
+func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams, opts ...ClientOption) (*ReceiveWebhookNotificationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewReceiveWebhookNotificationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "receiveWebhookNotification",
 		Method:             "POST",
 		PathPattern:        "/webhook-notify",
@@ -94,7 +100,12 @@ func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationPa
 		Reader:             &ReceiveWebhookNotificationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

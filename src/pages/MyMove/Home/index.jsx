@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { arrayOf, bool, shape, string, node, func } from 'prop-types';
+import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
+  HelperAmendedOrders,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
@@ -18,29 +20,30 @@ import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ShipmentList from 'components/ShipmentList';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
-import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import {
-  selectServiceMemberFromLoggedInUser,
-  selectIsProfileComplete,
-  selectCurrentOrders,
   selectCurrentMove,
+  selectCurrentOrders,
   selectCurrentPPM,
+  selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
+  selectServiceMemberFromLoggedInUser,
+  selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
+import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 
@@ -82,6 +85,11 @@ export class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
+  get hasUnapprovedAmendedOrders() {
+    const { move, uploadedAmendedOrderDocuments } = this.props;
+    return !!uploadedAmendedOrderDocuments?.length && move.status !== 'APPROVED';
+  }
+
   get hasOrdersNoUpload() {
     const { orders, uploadedOrderDocuments } = this.props;
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
@@ -119,13 +127,29 @@ export class Home extends Component {
     if (this.hasAnyShipments) {
       return 'Add another shipment';
     }
-    return 'Plan your shipments';
+    return 'Set up your shipments';
   }
+
+  renderAlert = () => {
+    if (this.hasUnapprovedAmendedOrders) {
+      return (
+        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+          <span className={styles.alertMessageFirstLine}>
+            The transportation office will review your new documents and update your move info. Contact your movers to
+            coordinate any changes to your move.
+          </span>
+          <span className={styles.alertMessageSecondLine}>You don&apos;t need to do anything else in MilMove.</span>
+        </Alert>
+      );
+    }
+    return null;
+  };
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
     if (this.hasPPMShipment)
       return (
         <>
@@ -249,6 +273,7 @@ export class Home extends Component {
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
 
     return (
@@ -268,6 +293,7 @@ export class Home extends Component {
 
             {isProfileComplete && (
               <>
+                {this.renderAlert()}
                 {this.renderHelper()}
                 <SectionWrapper>
                   <Step
@@ -278,24 +304,44 @@ export class Home extends Component {
                     step="1"
                     onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
                   >
-                    <Description>Make sure to keep your personal information up to date during your move</Description>
+                    <Description>Make sure to keep your personal information up to date during your move.</Description>
                   </Step>
-                  <Step
-                    complete={this.hasOrders}
-                    completedHeaderText="Orders uploaded"
-                    editBtnLabel={this.hasOrders && !this.hasSubmittedMove ? 'Edit' : ''}
-                    onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
-                    headerText="Upload orders"
-                    actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
-                    onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
-                    step="2"
-                  >
-                    {this.hasOrders ? (
-                      <DocsUploaded files={uploadedOrderDocuments} />
-                    ) : (
-                      <Description>Upload photos of each page, or upload a PDF.</Description>
-                    )}
-                  </Step>
+                  {!this.hasSubmittedMove && (
+                    <Step
+                      complete={this.hasOrders}
+                      completedHeaderText="Orders uploaded"
+                      editBtnLabel={this.hasOrders ? 'Edit' : ''}
+                      onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                      headerText="Upload orders"
+                      actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+                      onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
+                      step="2"
+                    >
+                      {this.hasOrders && !this.hasSubmittedMove ? (
+                        <DocsUploaded files={uploadedOrderDocuments} />
+                      ) : (
+                        <Description>Upload photos of each page, or upload a PDF.</Description>
+                      )}
+                    </Step>
+                  )}
+                  {this.hasSubmittedMove && this.hasOrders && (
+                    <Step
+                      complete={this.hasOrders && this.hasSubmittedMove}
+                      completedHeaderText="Orders"
+                      editBtnLabel="Upload documents"
+                      onEditBtnClick={() => this.handleNewPathClick(ordersAmendPath)}
+                      headerText="Orders"
+                      step="2"
+                      containerClassName="step-amended-orders"
+                    >
+                      <p>If you receive amended orders:</p>
+                      <ul>
+                        <li>Upload the new documents here</li>
+                        <li>Talk directly with your movers about changes</li>
+                        <li>The transportation office will update your move info to reflect the new orders</li>
+                      </ul>
+                    </Step>
+                  )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
                     actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
@@ -303,7 +349,7 @@ export class Home extends Component {
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
                     completedHeaderText="Shipments"
-                    headerText="Shipment selection"
+                    headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
                     secondaryClassName="margin-top-2"
                     step="3"
@@ -321,8 +367,9 @@ export class Home extends Component {
                       </div>
                     ) : (
                       <Description>
-                        Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
-                        shipments to make it work.
+                        We&apos;ll collect addresses, dates, and how you want to move your things.
+                        <br />
+                        Note: You can change these details later by talking to a move counselor or your movers.
                       </Description>
                     )}
                   </Step>
@@ -383,6 +430,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -394,9 +442,10 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  orders: null,
+  orders: {},
   serviceMember: null,
   signedCertification: {},
+  uploadedAmendedOrderDocuments: [],
 };
 
 const mapStateToProps = (state) => {
@@ -408,6 +457,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
@@ -430,9 +480,11 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
 });
 
 export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-    mergeProps,
-  )(requireCustomerState(Home, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  withRouter(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+    )(requireCustomerState(Home, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
 );

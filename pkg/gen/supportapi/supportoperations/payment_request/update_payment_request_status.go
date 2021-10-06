@@ -29,11 +29,11 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 	return &UpdatePaymentRequestStatus{Context: ctx, Handler: handler}
 }
 
-/*UpdatePaymentRequestStatus swagger:route PATCH /payment-requests/{paymentRequestID}/status paymentRequest updatePaymentRequestStatus
+/* UpdatePaymentRequestStatus swagger:route PATCH /payment-requests/{paymentRequestID}/status paymentRequest updatePaymentRequestStatus
 
 updatePaymentRequestStatus
 
-Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
+Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 
@@ -49,17 +49,15 @@ type UpdatePaymentRequestStatus struct {
 func (o *UpdatePaymentRequestStatus) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdatePaymentRequestStatusParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

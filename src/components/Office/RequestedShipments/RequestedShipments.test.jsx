@@ -1,6 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
@@ -16,6 +17,7 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.404029Z',
     customerRemarks: 'please treat gently',
+    counselorRemarks: 'looks good',
     destinationAddress: {
       city: 'Fairfield',
       country: 'US',
@@ -74,6 +76,7 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.431993Z',
     customerRemarks: 'please treat gently',
+    counselorRemarks: 'looks good',
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
     id: 'c2f68d97-b960-4c86-a418-c70a0aeba04e',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -121,6 +124,7 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.404029Z',
     customerRemarks: 'Please treat gently',
+    counselorRemarks: 'looks good',
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
     id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aeee',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -237,6 +241,18 @@ const moveTaskOrder = {
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
 
+const moveTaskOrderAvailableToPrimeAt = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
+  availableToPrimeAt: '2020-06-10T15:58:02.431995Z',
+};
+
+const moveTaskOrderServicesCounselingCompleted = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
+  serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z',
+};
+
 const serviceItems = [
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -287,6 +303,32 @@ const requestedShipmentsComponent = (
   />
 );
 
+const requestedShipmentsComponentAvailableToPrimeAt = (
+  <RequestedShipments
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
+  />
+);
+
+const requestedShipmentsComponentServicesCounselingCompleted = (
+  <RequestedShipments
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+  />
+);
+
 const requestedShipmentsComponentMissingRequiredInfo = (
   <RequestedShipments
     ordersInfo={ordersInfo}
@@ -301,9 +343,16 @@ const requestedShipmentsComponentMissingRequiredInfo = (
 );
 
 describe('RequestedShipments', () => {
-  it('renders the container successfully', () => {
+  it('renders the container successfully without services counseling completed', () => {
     const wrapper = shallow(requestedShipmentsComponent);
     expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
+    expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(false);
+  });
+
+  it('renders the container successfully with services counseling completed', () => {
+    const wrapper = shallow(requestedShipmentsComponentServicesCounselingCompleted);
+    expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
+    expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(true);
   });
 
   it('renders a shipment passed to it', () => {
@@ -317,6 +366,12 @@ describe('RequestedShipments', () => {
     const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
     expect(approveButton.exists()).toBe(true);
     expect(approveButton.text()).toContain('Approve selected shipments');
+    expect(approveButton.html()).toContain('disabled=""');
+  });
+
+  it('renders the button when it is available to the prime', () => {
+    const wrapper = mount(requestedShipmentsComponentAvailableToPrimeAt);
+    const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
     expect(approveButton.html()).toContain('disabled=""');
   });
 
@@ -336,6 +391,13 @@ describe('RequestedShipments', () => {
     expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postal_code,
     );
+  });
+
+  it('renders the secondary address info if provided', () => {
+    render(requestedShipmentsComponent);
+    // There are three shipments on the screen, but only two have secondary address info
+    expect(screen.getAllByText('Second pickup address')).toHaveLength(2);
+    expect(screen.getAllByText('Second destination address')).toHaveLength(2);
   });
 
   it('enables the modal button when a shipment and service item are checked', async () => {
@@ -492,4 +554,31 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });
+
+  it.each([['APPROVED'], ['SUBMITTED']])(
+    'displays the customer and counselor remarks for a(n) %s shipment',
+    (status) => {
+      const wrapper = mount(
+        <RequestedShipments
+          ordersInfo={ordersInfo}
+          allowancesInfo={allowancesInfo}
+          mtoAgents={agents}
+          customerInfo={customerInfo}
+          mtoShipments={shipments}
+          approveMTO={approveMTO}
+          shipmentsStatus={status}
+          mtoServiceItems={serviceItems}
+        />,
+      );
+
+      const customerRemarks = wrapper.find('[data-testid="customerRemarks"]');
+      const counselorRemarks = wrapper.find('[data-testid="counselorRemarks"]');
+
+      expect(customerRemarks.at(0).text()).toBe('please treat gently');
+      expect(customerRemarks.at(1).text()).toBe('please treat gently');
+
+      expect(counselorRemarks.at(0).text()).toBe('looks good');
+      expect(counselorRemarks.at(1).text()).toBe('looks good');
+    },
+  );
 });

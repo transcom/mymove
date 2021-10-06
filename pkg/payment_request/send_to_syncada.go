@@ -8,11 +8,13 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // SendToSyncada send EDI file to Syncada for processing
-func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
+func SendToSyncada(appCtx appcontext.AppContext, edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool) error {
+	logger := appCtx.Logger()
 	syncadaFileName := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), icn)
 
 	if !sendEDIFile {
@@ -25,7 +27,7 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 	}
 	if gexSender != nil {
 		logger.Info("SendToSyncada() is in send mode using GEX, sending syncadaFileName: " + syncadaFileName)
-		resp, err := gexSender.SendToGex(edi, syncadaFileName)
+		resp, err := gexSender.SendToGex(services.GEXChannelInvoice, edi, syncadaFileName)
 		if err != nil {
 			logger.Error("GEX Sender encountered an error", zap.Error(err))
 			return fmt.Errorf("GEX sender encountered an error: %w", err)

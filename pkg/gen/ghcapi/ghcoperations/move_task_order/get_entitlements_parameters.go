@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetEntitlementsParams creates a new GetEntitlementsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetEntitlementsParams() GetEntitlementsParams {
 
 	return GetEntitlementsParams{}
@@ -49,7 +50,6 @@ func (o *GetEntitlementsParams) BindRequest(r *http.Request, route *middleware.M
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -65,7 +65,6 @@ func (o *GetEntitlementsParams) bindMoveTaskOrderID(rawData []string, hasKey boo
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil

@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -31,6 +32,7 @@ type CreateMTOShipmentHandler struct {
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
 		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
@@ -47,7 +49,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
 	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	serviceItemsList := make(models.MTOServiceItems, 0)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, serviceItemsList)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
 
 	if err != nil {
 		logger.Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -83,6 +85,7 @@ type UpdateMTOShipmentHandler struct {
 // Handle updates the mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil {
 		return mtoshipmentops.NewUpdateMTOShipmentUnauthorized()
@@ -112,7 +115,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				h.GetTraceID()))
 	}
 
-	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
+	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(appCtx, mtoShipment, params.IfMatch)
 
 	if err != nil {
 		logger.Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -153,6 +156,7 @@ type ListMTOShipmentsHandler struct {
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
 		return mtoshipmentops.NewListMTOShipmentsUnauthorized()
@@ -173,7 +177,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	}
 
 	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
+	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 		return mtoshipmentops.NewListMTOShipmentsNotFound()
@@ -182,12 +186,18 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
+
+	// TODO: In some places, we used this unbound eager call accidentally and loaded all associations when the
+	//   intention was to load no associations. In this instance, we get E2E failures if we change this to load
+	//   no associations, so we'll keep it as is and can revisit later if we want to optimize further.  This is
+	//   just loading shipments for a specific move (likely only 1 or 2 in most cases), so the impact of the
+	//   additional loading shouldn't be too dramatic.
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
 
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
 
 	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, queryOrder)
+	err = h.ListFetcher.FetchRecordList(appCtx, &shipments, queryFilters, queryAssociations, nil, queryOrder)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto shipments : ", zap.Error(err))

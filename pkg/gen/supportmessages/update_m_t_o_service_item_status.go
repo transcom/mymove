@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -17,6 +19,7 @@ import (
 type UpdateMTOServiceItemStatus struct {
 
 	// Reason the service item was rejected by the TOO""
+	// Example: item was too heavy
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
@@ -38,12 +41,37 @@ func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UpdateMTOServiceItemStatus) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
 	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update m t o service item status based on the context it is used
+func (m *UpdateMTOServiceItemStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateMTOServiceItemStatus) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}

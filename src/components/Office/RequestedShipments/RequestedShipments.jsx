@@ -4,15 +4,15 @@ import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
-
 import styles from './RequestedShipments.module.scss';
 
-import { shipmentTypeLabels } from 'content/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
-import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { shipmentTypeLabels } from 'content/shipments';
+import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -32,6 +32,21 @@ const RequestedShipments = ({
 
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
+  };
+
+  const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    return {
+      heading: shipmentTypeLabels[shipment.shipmentType],
+      isDiversion: shipment.diversion,
+      shipmentStatus: shipment.status,
+      requestedPickupDate: shipment.requestedPickupDate,
+      pickupAddress: shipment.pickupAddress,
+      secondaryPickupAddress: shipment.secondaryPickupAddress,
+      destinationAddress: shipment.destinationAddress || dutyStationPostal,
+      secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+      counselorRemarks: shipment.counselorRemarks,
+      customerRemarks: shipment.customerRemarks,
+    };
   };
 
   const formik = useFormik({
@@ -58,9 +73,8 @@ const RequestedShipments = ({
             Promise.all(
               filteredShipments.map((shipment) =>
                 approveMTOShipment({
-                  moveTaskOrderID: moveTaskOrder.id,
                   shipmentID: shipment.id,
-                  shipmentStatus: 'APPROVED',
+                  operationPath: 'shipment.approveShipment',
                   ifMatchETag: shipment.eTag,
                   normalize: false,
                 }),
@@ -81,15 +95,20 @@ const RequestedShipments = ({
       } else {
         // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
         Promise.all(
-          filteredShipments.map((shipment) =>
-            approveMTOShipment({
-              moveTaskOrderID: moveTaskOrder.id,
+          filteredShipments.map((shipment) => {
+            let operationPath = 'shipment.approveShipment';
+
+            if (shipment.approvedDate) {
+              operationPath = 'shipment.approveShipmentDiversion';
+            }
+
+            return approveMTOShipment({
               shipmentID: shipment.id,
-              shipmentStatus: 'APPROVED',
+              operationPath,
               ifMatchETag: shipment.eTag,
               normalize: false,
-            }),
-          ),
+            });
+          }),
         )
           .then(() => {
             handleAfterSuccess('mto');
@@ -137,7 +156,7 @@ const RequestedShipments = ({
 
           <form onSubmit={formik.handleSubmit}>
             <h2>Requested shipments</h2>
-            <div className={styles.shipmentCards}>
+            <div className={shipmentCardsStyles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
                   <ShipmentDisplay
@@ -145,12 +164,7 @@ const RequestedShipments = ({
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     isSubmitted
-                    displayInfo={{
-                      heading: shipmentTypeLabels[shipment.shipmentType],
-                      requestedMoveDate: shipment.requestedPickupDate,
-                      currentAddress: shipment.pickupAddress,
-                      destinationAddress: shipment.destinationAddress || dutyStationPostal,
-                    }}
+                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
                     {...formik.getFieldProps(`shipments`)}
                   />
@@ -168,12 +182,18 @@ const RequestedShipments = ({
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
                     />
-                    <Checkbox
-                      id="counselingFee"
-                      label={serviceItemCodes.CS}
-                      name="counselingFee"
-                      onChange={formik.handleChange}
-                    />
+                    {moveTaskOrder.serviceCounselingCompletedAt ? (
+                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
+                        The customer has received counseling for this move.
+                      </p>
+                    ) : (
+                      <Checkbox
+                        id="counselingFee"
+                        label={serviceItemCodes.CS}
+                        name="counselingFee"
+                        onChange={formik.handleChange}
+                      />
+                    )}
                   </Fieldset>
                 </>
               )}
@@ -194,19 +214,14 @@ const RequestedShipments = ({
       {shipmentsStatus === 'APPROVED' && (
         <>
           <h2>Approved shipments</h2>
-          <div className={styles.shipmentCards}>
+          <div className={shipmentCardsStyles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
                 <ShipmentDisplay
                   key={shipment.id}
                   shipmentId={shipment.id}
                   shipmentType={shipment.shipmentType}
-                  displayInfo={{
-                    heading: shipmentTypeLabels[shipment.shipmentType],
-                    requestedMoveDate: shipment.requestedPickupDate,
-                    currentAddress: shipment.pickupAddress,
-                    destinationAddress: shipment.destinationAddress || dutyStationPostal,
-                  }}
+                  displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                   isSubmitted={false}
                 />
               ))}

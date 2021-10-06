@@ -1,33 +1,38 @@
 package models_test
 
 import (
-	"log"
 	"reflect"
 	"sort"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/appcontext"
+	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type ModelSuite struct {
 	testingsuite.PopTestSuite
+	logger *zap.Logger
 }
 
 func (suite *ModelSuite) SetupTest() {
-	errTruncateAll := suite.TruncateAll()
-	if errTruncateAll != nil {
-		log.Panicf("failed to truncate database: %#v", errTruncateAll)
-	}
+
 }
 
-func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, exp map[string][]string) {
+// TestAppContext returns the AppContext for the test suite
+func (suite *ModelSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
+}
+
+func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := model.Validate(suite.DB())
+	verrs, err := model.Validate(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +59,10 @@ func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, 
 }
 
 func TestModelSuite(t *testing.T) {
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())}
+	hs := &ModelSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		logger:       zap.NewNop(), // Use a no-op logger during testing
+	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }

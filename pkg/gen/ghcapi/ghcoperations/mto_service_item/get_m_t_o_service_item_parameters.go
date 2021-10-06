@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetMTOServiceItemParams creates a new GetMTOServiceItemParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetMTOServiceItemParams() GetMTOServiceItemParams {
 
 	return GetMTOServiceItemParams{}
@@ -59,7 +60,6 @@ func (o *GetMTOServiceItemParams) BindRequest(r *http.Request, route *middleware
 	if err := o.bindMtoServiceItemID(rMtoServiceItemID, rhkMtoServiceItemID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -75,7 +75,6 @@ func (o *GetMTOServiceItemParams) bindMoveTaskOrderID(rawData []string, hasKey b
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil
@@ -90,7 +89,6 @@ func (o *GetMTOServiceItemParams) bindMtoServiceItemID(rawData []string, hasKey 
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MtoServiceItemID = raw
 
 	return nil

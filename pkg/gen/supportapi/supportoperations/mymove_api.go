@@ -38,6 +38,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
+		useSwaggerUI:        false,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
@@ -74,6 +75,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestProcessReviewedPaymentRequestsHandler: payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
 		}),
+		PaymentRequestRecalculatePaymentRequestHandler: payment_request.RecalculatePaymentRequestHandlerFunc(func(params payment_request.RecalculatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.RecalculatePaymentRequest has not yet been implemented")
+		}),
 		WebhookReceiveWebhookNotificationHandler: webhook.ReceiveWebhookNotificationHandlerFunc(func(params webhook.ReceiveWebhookNotificationParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook.ReceiveWebhookNotification has not yet been implemented")
 		}),
@@ -105,13 +109,16 @@ type MymoveAPI struct {
 	defaultConsumes string
 	defaultProduces string
 	Middleware      func(middleware.Builder) http.Handler
+	useSwaggerUI    bool
 
 	// BasicAuthenticator generates a runtime.Authenticator from the supplied basic auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BasicAuthenticator func(security.UserPassAuthentication) runtime.Authenticator
+
 	// APIKeyAuthenticator generates a runtime.Authenticator from the supplied token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	APIKeyAuthenticator func(string, string, security.TokenAuthentication) runtime.Authenticator
+
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
@@ -142,6 +149,8 @@ type MymoveAPI struct {
 	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
 	// PaymentRequestProcessReviewedPaymentRequestsHandler sets the operation handler for the process reviewed payment requests operation
 	PaymentRequestProcessReviewedPaymentRequestsHandler payment_request.ProcessReviewedPaymentRequestsHandler
+	// PaymentRequestRecalculatePaymentRequestHandler sets the operation handler for the recalculate payment request operation
+	PaymentRequestRecalculatePaymentRequestHandler payment_request.RecalculatePaymentRequestHandler
 	// WebhookReceiveWebhookNotificationHandler sets the operation handler for the receive webhook notification operation
 	WebhookReceiveWebhookNotificationHandler webhook.ReceiveWebhookNotificationHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -150,6 +159,7 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
 	// PaymentRequestUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestUpdatePaymentRequestStatusHandler payment_request.UpdatePaymentRequestStatusHandler
+
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -167,6 +177,16 @@ type MymoveAPI struct {
 
 	// User defined logger function.
 	Logger func(string, ...interface{})
+}
+
+// UseRedoc for documentation at /docs
+func (o *MymoveAPI) UseRedoc() {
+	o.useSwaggerUI = false
+}
+
+// UseSwaggerUI for documentation at /docs
+func (o *MymoveAPI) UseSwaggerUI() {
+	o.useSwaggerUI = true
 }
 
 // SetDefaultProduces sets the default produces media type
@@ -242,6 +262,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_request.ProcessReviewedPaymentRequestsHandler")
+	}
+	if o.PaymentRequestRecalculatePaymentRequestHandler == nil {
+		unregistered = append(unregistered, "payment_request.RecalculatePaymentRequestHandler")
 	}
 	if o.WebhookReceiveWebhookNotificationHandler == nil {
 		unregistered = append(unregistered, "webhook.ReceiveWebhookNotificationHandler")
@@ -382,6 +405,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/payment-requests/{paymentRequestID}/recalculate"] = payment_request.NewRecalculatePaymentRequest(o.context, o.PaymentRequestRecalculatePaymentRequestHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/webhook-notify"] = webhook.NewReceiveWebhookNotification(o.context, o.WebhookReceiveWebhookNotificationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -404,6 +431,9 @@ func (o *MymoveAPI) Serve(builder middleware.Builder) http.Handler {
 
 	if o.Middleware != nil {
 		return o.Middleware(builder)
+	}
+	if o.useSwaggerUI {
+		return o.context.APIHandlerSwaggerUI(builder)
 	}
 	return o.context.APIHandler(builder)
 }

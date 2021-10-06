@@ -18,16 +18,19 @@ const testPDFFiles = [
       'Test File - - A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering.pdf',
     contentType: 'pdf',
     url: pdf,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
   {
     filename: 'Test File 2.pdf',
     contentType: 'pdf',
     url: pdf2,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
   {
     filename: 'Test File 3.pdf',
     contentType: 'pdf',
     url: pdf3,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
 ];
 
@@ -36,16 +39,19 @@ const testImageFiles = [
     filename: 'PCS Orders TACOMA Page 1',
     contentType: 'jpg',
     url: jpg,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
   {
     filename: 'PCS Orders TACOMA Page 2.png',
     contentType: 'png',
     url: png,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
   {
     filename: 'PCS Orders TACOMA Page 3.gif',
     contentType: 'gif',
     url: gif,
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
 ];
 

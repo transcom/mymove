@@ -25,33 +25,46 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
 * [Overview](#overview)
 * [Supported Browsers](#supported-browsers)
 * [Login.gov](#logingov)
+  * [Creating alternative users with the same email address](#creating-alternative-users-with-the-same-email-address)
+* [Project Layout](#project-layout)
 * [Application Setup](#application-setup)
-  * [Setup: Developer Setup](#setup-developer-setup)
-  * [Setup: Git](#setup-git)
-  * [Setup: Golang](#setup-golang)
-  * [Setup: Project Checkout](#setup-project-checkout)
-  * [Setup: Project Layout](#setup-project-layout)
-  * [Setup: Editor Config](#setup-editor-config)
-  * [Setup: Makefile](#setup-makefile)
-  * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
-  * [Setup: Direnv](#setup-direnv)
-    * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
-  * [Setup: Prerequisites](#setup-prerequisites)
-  * [Setup: Pre-Commit](#setup-pre-commit)
-    * [Troubleshooting install issues (process hanging on install hooks)](#troubleshooting-install-issues-process-hanging-on-install-hooks)
-  * [Setup: Dependencies](#setup-dependencies)
-  * [Setup: Build Tools](#setup-build-tools)
-  * [Setup: Database](#setup-database)
-  * [Setup: Server](#setup-server)
-  * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
-  * [Setup: OfficeLocal client](#setup-officelocal-client)
-  * [Setup: AdminLocal client](#setup-adminlocal-client)
-  * [Setup: DPS user](#setup-dps-user)
-  * [Setup: Orders Gateway](#setup-orders-gateway)
-  * [Setup: Prime API](#setup-prime-api)
-  * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
+  * [Setup: Base Setup](#setup-base-setup)
+    * [Homebrew](#homebrew)
+    * [Setup: Git](#setup-git)
+    * [Setup: Docker](#setup-docker)
+    * [Setup: Project Checkout](#setup-project-checkout)
+    * [Setup: Editor Config](#setup-editor-config)
   * [Setup: Nix](#setup-nix)
+    * [Nix: Initial Setup](#nix-initial-setup)
+    * [Nix: Clean Up Local Env](#nix-clean-up-local-env)
+    * [Nix: Installing Dependencies](#nix-installing-dependencies)
+  * [Setup: Manual](#setup-manual)
+    * [Manual: Bash](#manual-bash)
+    * [Manual: Golang](#manual-golang)
+    * [Manual: Prerequisites](#manual-prerequisites)
+  * [Setup: Shared](#setup-shared)
+    * [Setup: AWS Services](#setup-aws-services)
+    * [Setup: Direnv](#setup-direnv)
+      * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
+      * [Troubleshooting direnv & chamber](#troubleshooting-direnv--chamber)
+    * [Setup: Dependencies](#setup-dependencies)
+      * [Setup: Pre-Commit](#setup-pre-commit)
+        * [Pre-Commit Troubleshooting (Manual): Process hanging on install hooks](#pre-commit-troubleshooting-manual-process-hanging-on-install-hooks)
+        * [Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED](#pre-commit-troubleshooting-nix-ssl-certificate-verify-failed)
+    * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
+      * [Setup: Build Tools](#setup-build-tools)
+      * [Setup: Database](#setup-database)
+      * [Setup: Server](#setup-server)
+        * [Server Dependencies](#server-dependencies)
+      * [Setup: MilMove Local Client](#setup-milmove-local-client)
+  * [Other Possible Setups](#other-possible-setups)
+    * [Setup: Office Local client](#setup-office-local-client)
+    * [Setup: Admin Local client](#setup-admin-local-client)
+    * [Setup: DPS user](#setup-dps-user)
+    * [Setup: Orders Gateway](#setup-orders-gateway)
+    * [Setup: Prime API](#setup-prime-api)
 * [Development](#development)
+  * [Makefile](#makefile)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
   * [API / Swagger](#api--swagger)
@@ -65,14 +78,13 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Migrations](#migrations)
   * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
-  * [Spellcheck](#spellcheck)
-    * [Tips for staying sane](#tips-for-staying-sane)
   * [GoLand](#goland)
+    * [Goland: Nix](#goland-nix)
+  * [Storybook](#storybook)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
-    * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
   * [Manual Redeploys and Other Helpful Information in an Emergency](#manual-redeploys-and-other-helpful-information-in-an-emergency)
   * [PII Best Practices](#pii-best-practices)
     * [More about content dispositions](#more-about-content-dispositions)
@@ -92,98 +104,27 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 
 ## Login.gov
 
-You'll need accounts for login.gov and the login.gov sandbox.  These will require two-factor authentication, so have your second factor (one of: phone, authentication app, security key, CAC) on hand.
-To create an account at login.gov, use your regular `truss.works` email and follow [the official instructions](https://login.gov/help/creating-an-account/how-to-create-an-account/).
-To create an account in the sandbox, follow the same instructions, but [in the sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do _not_ use your regular email address in the sandbox.
-**Tip**: You can use the plus sign `+` to create a new truss email address.  `name+some_string@truss.works` will be treated as a new address, but will be routed to `name@truss.works`.
+You'll need accounts for login.gov and the login.gov sandbox.  These will
+require two-factor authentication, so have your second factor (one of: phone,
+authentication app, security key, CAC) on hand.  To create an account at
+login.gov, use your regular `truss.works` email and follow [the official
+instructions](https://login.gov/help/creating-an-account/how-to-create-an-account/).
+To create an account in the sandbox, follow the same instructions, but [in the
+sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do
+_not_ use your regular email address in the sandbox.
 
-## Application Setup
+### Creating alternative users with the same email address
 
-### Setup: Developer Setup
+You can use the plus sign `+` to create a new Truss email address.
+`name+some_string@truss.works` will be treated as a new address, but will be
+routed to your `name@truss.works` email automatically. Don't use this for the
+office-side of account creation. It's helpful to use these types of accounts for
+the customer-side accounts.
 
-Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
+## Project Layout
 
-See [Setup: Nix](#setup-nix) for an experiment with a possibly simpler
-way to install all the developer dependencies
-
-There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
-
-* Install [Homebrew](https://brew.sh)
-  * Use the following command `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-* We normally use the latest version of Go unless there's a known conflict (which will be announced by the team) or if we're in the time period just after a new version has been released.
-  * Install it with Homebrew: `brew install go`
-  * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
-* Ensure you are using the latest version of bash for this project:
-  * Install it with Homebrew: `brew install bash`
-  * Update list of shells that users can choose from: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
-  * If you are using bash as your shell (and not zsh, fish, etc) and want to use the latest shell as well then change it (optional): `chsh -s /usr/local/bin/bash`
-  * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
-
-### Setup: Git
-
-Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
-
-  ```bash
-  git config --global user.email "trussel@truss.works"
-  git config --global user.name "Trusty Trussel"
-  ```
-
-If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
-
-For web-based Git operations, GitHub will use your primary email unless you choose "Keep my email address private". If you don't want to set your work address as primary, please [turn on the privacy setting](https://github.com/settings/emails).
-
-Note that with 2-factor-authentication enabled, in order to push local code to GitHub through HTTPS, you need to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as your password.
-
-### Setup: Golang
-
-All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
-
-  ```bash
-  export GOPATH=~/code/go
-  ```
-
-Golang expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
-
-  ```bash
-  export GOPATH=${GOPATH:-$(go env GOPATH)}
-  ```
-
-**Regardless of where your go code is located**, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
-
-  ```bash
-  export PATH=$(go env GOPATH)/bin:$PATH
-  ```
-
-Finally to have these changes applied to your shell you must `source` your profile:
-
-  ```bash
-  source ~/.bash_profile
-  ```
-
-You can confirm that the values exist with:
-
-  ```bash
-  env | grep GOPATH
-  # Verify the GOPATH is correct
-  env | grep PATH
-  # Verify the PATH includes your GOPATH bin directory
-  ```
-
-### Setup: Project Checkout
-
-You can checkout this repository by running `git clone git@github.com:transcom/mymove.git`. Please check out the code in a directory like `~/Projects/mymove` and NOT in your `$GOPATH`. As an example:
-
-  ```bash
-  mkdir -p ~/Projects
-  git clone git@github.com:transcom/mymove.git
-  cd mymove
-  ```
-
-You will then find the code at `~/Projects/mymove`. You can check the code out anywhere EXCEPT inside your `$GOPATH`. So this is customization that is up to you.
-
-### Setup: Project Layout
-
-All of our code is intermingled in the top level directory of mymove. Here is an explanation of what some of these directories contain:
+All of our code is intermingled in the top level directory of `mymove`. Here is an explanation of what some of these
+directories contain:
 
 * `.circleci`: Directory for CircleCI CI/CD configuration
 * `bin`: A location for tools compiled from the `cmd` directory
@@ -201,11 +142,715 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 * `src`: The react source code for the client
 * `swagger`: The swagger definition files for each of our APIs
 
-### Setup: Editor Config
+## Application Setup
 
-[EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that if you wish.
+Note: These instructions are a living document and often fall out-of-date.
+If you run into anything that needs correcting or updating, please create
+a PR with those changes to help those coming after you.
 
-### Setup: Makefile
+There are two main ways we have for setting up local development:
+
+* Using `nix` with a bit of `homebrew`
+* Using primarily only `homebrew`
+
+Both need a bit of base setup before, but then you can follow whichever path you prefer after that. There are also
+a few parts that may be shared between both setups.
+
+### Setup: Base Setup
+
+There are a number of things you'll need at a minimum to be able to work with this project.
+
+#### Homebrew
+
+We use [Homebrew](https://brew.sh) to manage a few of the packages we need for this project.
+
+To install it, run:
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+#### Setup: Git
+
+Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
+
+```shell
+git config --global user.email "trussel@truss.works"
+```
+
+```shell
+git config --global user.name "Trusty Trussel"
+```
+
+If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or
+clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
+
+For web-based Git operations, GitHub will use your primary email unless you choose "Keep my email address private".
+If you don't want to set your work address as primary, please
+[turn on the privacy setting](https://github.com/settings/emails).
+
+Note if you want use HTTPS instead of SSH for working with git, since we want 2-factor-authentication enabled, you need
+to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as
+your password.
+
+#### Setup: Docker
+
+Install [Docker](https://www.docker.com/products/docker-desktop).
+
+#### Setup: Project Checkout
+
+You can checkout this repository by running
+
+```shell
+git clone git@github.com:transcom/mymove.git
+```
+
+Please check out the code in a directory like `~/Projects/mymove`. You can check the code out anywhere EXCEPT
+inside your `$GOPATH`. As an example:
+
+```shell
+mkdir -p ~/Projects
+```
+
+```shell
+git clone git@github.com:transcom/mymove.git
+```
+
+```shell
+cd mymove
+```
+
+You will then find the code at `~/Projects/mymove`.
+
+#### Setup: Editor Config
+
+[EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes) with a
+[file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your
+editor to take advantage of that if you wish.
+
+### Setup: Nix
+
+If you need help with this setup, you can ask for help in the
+[Truss slack #code-nix channel](https://trussworks.slack.com/archives/C01KTH6HP7D).
+
+1. [Initial Setup](#nix-initial-setup)
+1. [Clean Up Local Env](#nix-clean-up-local-env)
+1. Set up hosts file. Run
+
+    ```shell
+    make check_hosts
+    ```
+
+    If it tells you to run any commands, do so to set up your hosts file propely.
+
+1. [Install Dependencies](#nix-installing-dependencies)
+1. [Quick Initial Setup](#setup-quick-initial-setup)
+
+#### Nix: Initial Setup
+
+1. First read the overview in the
+    [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/main/developing/nix).
+1. Follow the installation instructions in the playbook.
+
+#### Nix: Clean Up Local Env
+
+This section is only if you had previously set up any of these tools/packages. It is also optional, with the following
+the caveat of this note:
+
+:warning: NOTE: If you need any of the packages/tools for other things that you won't use `nix` for, you can set things
+up so that they both work side by side, but you'll just have to set up your `PATH` properly. And even then, there may be
+other steps necessary which aren't documented here.
+
+1. Disable or uninstall `nodenv`, `asdf` or any other version switchers for `mymove`.
+    1. `nodenv`:
+        1. TLDR (disable only): remove `eval "$(nodenv init -)"` from `.zshrc` (or your shell's config file)
+        1. Full instructions: [Uninstalling nodenv](https://github.com/nodenv/nodenv#uninstalling-nodenv)
+    1. `asdf`:
+        1. See [Remove asdf](https://asdf-vm.com/#/core-manage-asdf?id=remove)
+        1. Remove setting of `GOPATH` and putting `GOPATH` in `PATH` in `.zshrc` (or your shell's config file). Looks
+           something like this:
+
+           ```shell
+           export GOPATH=~/dev/go
+           export PATH=$(go env GOPATH)/bin:$PATH
+           ```
+
+#### Nix: Installing Dependencies
+
+1. Install a few MilMove dependencies:
+
+    ```shell
+    nix-env -i aws-vault chamber direnv bash
+    ```
+
+1. [Set up AWS services](#setup-aws-services)
+
+1. Configure direnv:
+    1. [Set up direnv](#setup-direnv)
+    1. In `.zshrc` (or the relevant one for you), the `nix` setup line (inserted by the `nix` installation) needs to run
+       before the `direnv` hook setup.
+
+1. Run `./nix/update.sh`
+    1. NOTE: If the nix dependencies change, you should see a warning from direnv:
+
+    ```text
+    direnv: WARNING: nix packages out of date. Run nix/update.sh
+    ```
+
+1. Run
+
+    ```shell
+    make deps_nix
+    ```
+
+    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
+       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
+
+### Setup: Manual
+
+1. [Install bash](#manual-bash)
+1. [Setup golang](#manual-golang)
+1. Install initial repo dependencies by running:
+
+    ```shell
+    brew install aws-vault chamber awscli direnv
+    ```
+
+1. [Set up AWS services](#setup-aws-services)
+1. [Prereqs](#manual-prerequisites)
+1. [Set up direnv](#setup-direnv)
+1. Set up more dependencies by running
+
+    ```shell
+    make deps
+    ```
+
+    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
+       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
+1. [Quick Initial Setup](#setup-quick-initial-setup)
+
+#### Manual: Bash
+
+Ensure you are using the latest version of bash for this project:
+
+1. Install it with Homebrew:
+
+    ```shell
+    brew install bash
+    ```
+
+1. Update list of shells that users can choose from:
+
+    ```shell
+    [[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells
+    ```
+
+1. Optional: If you are using `bash` as your shell (and not `zsh`, `fish`, etc.) and want to use the latest shell as
+   well then change it:
+
+    ```shell
+    chsh -s /usr/local/bin/bash
+    ```
+
+1. Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH`
+    1. To check in, run
+
+        ```shell
+        echo $PATH
+        ```
+
+    1. If you need to modify your path, edit `~/.zshrc` (or your shell's config file) and change the `PATH`.
+    1. Then source your profile/shell config file. E.g.
+
+        ```shell
+        source ~/.zshrc`
+        ```
+
+#### Manual: Golang
+
+When working with `go`, we need to define a path where `go` will download source code and compiled commands will live.
+See [GOPATH environment variable](https://pkg.go.dev/cmd/go#hdr-GOPATH_environment_variable) and
+[GOPATH and modules](https://pkg.go.dev/cmd/go#hdr-GOPATH_and_Modules) for more details.
+
+Golang expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add
+the following to your `.zshrc` (or you shell's config file). This line will set the GOPATH environment variable to the
+value of `go env GOPATH` if it is not already set.
+
+```shell
+export GOPATH=${GOPATH:-$(go env GOPATH)}
+```
+
+You can also define your own path if you'd prefer. For example, if you want your go code to live at `~/code/go`,
+you should add the following like to your `.zshrc` (or your shell's config file):
+
+```shell
+export GOPATH=~/code/go
+```
+
+**Regardless of where your go code is located**, you need to add `$GOPATH/bin` to your `PATH` so that executables
+installed with the go tooling can be found. Add the following to your `.zshrc` (or your shell's config file):
+
+```shell
+export PATH=$(go env GOPATH)/bin:$PATH
+```
+
+Finally to have these changes applied to your shell you must either restart your shell, or `source` the file you added
+the above commands to. E.g.:
+
+```shell
+source ~/.zshrc
+```
+
+You can confirm that the values exist with:
+
+* Verify the `GOPATH` is correct
+
+    ```shell
+    env | grep GOPATH
+    ```
+
+* Verify the `PATH` includes your `GOPATH` bin directory
+
+    ```shell
+    env | grep PATH
+    ```
+
+#### Manual: Prerequisites
+
+1. Run
+
+    ```shell
+    make prereqs
+    ```
+
+    to check which things you do and don't have installed.
+
+2. Install everything it tells you to. Most of the prerequisites can be installed via
+
+    ```shell
+    brew install <package>
+    ```
+
+    * **NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work
+      correctly!
+
+### Setup: Shared
+
+#### Setup: AWS Services
+
+This project uses AWS services which means you'll need an account to work with parts of it. AWS credentials are managed
+via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow
+these instructions to
+[finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
+
+#### Setup: Direnv
+
+For managing local environment variables, we're using [direnv](https://direnv.net/).
+
+1. [configure your shell to use direnv](https://direnv.net/docs/hook.html).
+1. Run
+
+    ```shell
+    direnv allow
+    ```
+
+    1. This will to load up the `.envrc` file. It should complain that you have missing variables. We'll fix that next.
+
+To fix the missing variables issue, you can do one of the following things:
+
+* Let `direnv` get secret values with `chamber`. To enable this, run:
+
+  ```shell
+  cp .envrc.chamber.template .envrc.chamber
+  ```
+
+  * **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with
+
+    ```shell
+    direnv export fish | source
+    ```
+
+  * **Note also** if you have a very poor internet connection, this method may be
+  problematic to you.
+
+* An alternative is to add a `.envrc.local` file. Then run:
+
+  ```shell
+  DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal >> .envrc.local
+  ```
+
+* If you don't have access to `chamber`, you can also run
+
+  ```shell
+  touch .envrc.local
+  ```
+
+  then add any values that the output from `direnv` asks you to define.
+
+##### Helpful variables for `.envrc.local`
+
+* Increase concurrency of `golangci-lint`; defaults to 6 on dev machines and to 1 in CircleCI.
+
+  ```shell
+  export GOLANGCI_LINT_CONCURRENCY=8
+  ```
+
+* Enable go code debugging in goland
+
+  ```shell
+  export GOLAND=1
+  ```
+
+* Silence SQL logs locally; we default this to be true in `.envrc`
+
+  ```shell
+  export DB_DEBUG=0
+  ```
+
+##### Troubleshooting direnv & chamber
+
+Make sure you have the latest version of Chamber that supports the `env` command
+option. You may run into the following error if the version of Chamber you have
+installed does not support `env`. The error presents itself because of the
+`chamber` commands that `direnv` runs as part of the `.envrc.*` files shown
+above.
+
+```shell
+>_ cd mymove
+direnv: loading .envrc.chamber
+Error: unknown command "env" for "chamber"
+Run 'chamber --help' for usage.
+```
+
+#### Setup: Dependencies
+
+This step will check your system for any setup issues. Then it will ensure that you have installed `pre-commit`
+and go on to install the client (javascript) and server (golang) dependencies for you. If you are interested in
+more details, you can look at the sections under this one, but it's not required.
+
+##### Setup: Pre-Commit
+
+Part of the `pre-commit` setup run by the `make deps` or `make deps_nix` commands. They in turn run
+
+```shell
+pre-commit install
+```
+
+to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than
+
+```shell
+brew install pre-commit
+```
+
+and must be done so that the hook will check files you are about to commit to the repository.
+
+Next it installs the `pre-commit` hook libraries with
+
+```shell
+pre-commit install-hooks
+```
+
+If you ever want to run the `pre-commit` hooks for all files, you can run
+
+```shell
+pre-commit run -a
+```
+
+though before you can do that, you'll need to have installed the `javascript` dependencies and generated some `golang`
+code from Swagger files. Once you've finished setting up your project locally, you should be good to go. If you want
+to skip ahead and be able to run `pre-commit` checks since now, you can run
+
+```shell
+make pre_commit_tests
+```
+
+or
+
+```shell
+make server_generate client_deps && pre-commit run -a
+```
+
+###### Pre-Commit Troubleshooting (Manual): Process hanging on install hooks
+
+Since pre-commit uses node to hook things up in both your local repo and its cache folder
+(located at `~/.cache/pre-commit`),it requires a global node install.
+
+If you are using `nodenv` to manage multiple versions of node, you'll need to set a global version to proceed.
+E.g. by running
+
+```shell
+nodenv global 14.17.1
+```
+
+You can find the current supported node version [here (in `.node-version`)](./.node-version). To install the currently
+required version for this project, run:
+
+```shell
+nodenv install
+```
+
+###### Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED
+
+This can happen because of the way certs need to be handled in this project and `nix`. To get around this issue, you
+can try running:
+
+```shell
+NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt <pre-commit related command>
+```
+
+E.g.
+
+```shell
+NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt pre-commit install-hooks
+```
+
+#### Setup: Quick Initial Setup
+
+The following commands will get `mymove` running on your machine for the first time.
+This is an abbreviated list that should get you started. Please read the linked sections for explanations/details.
+
+1. Build all tools
+
+    ```shell
+    make build_tools
+    ```
+
+    1. [Setup: Build Tools](#setup-build-tools)
+1. Create and start the development database
+
+    ```shell
+    make db_dev_run
+    ```
+
+    1. [Setup: Database](#setup-database)
+1. Run migrations against development database
+
+    ```shell
+    make db_dev_migrate
+    ```
+
+    1. [Setup: Database](#setup-database)
+1. Start backend server
+
+    ```shell
+    make server_run
+    ```
+
+    1. [Setup: Server](#setup-server)
+1. Install javascript dependencies and build client bundle
+
+    ```shell
+    make client_build
+    ```
+
+    1. [Setup: MilMove Local Client](#setup-milmove-local-client)
+1. Run frontend server
+
+    ```shell
+    make client_run
+    ```
+
+    1. [Setup: MilMove Local Client](#setup-milmove-local-client)
+
+##### Setup: Build Tools
+
+This builds all the server and tool dependencies. These will be needed in future steps to not only generate test data
+but also to interact with the database and more.
+
+```shell
+make build_tools
+```
+
+##### Setup: Database
+
+You will need to setup a local database before you can begin working on the local server / client. Docker will need to
+be running for any of this to work.
+
+1. Creates a PostgreSQL docker container for dev, if it doesn't exist already, and starts/runs it.
+
+    ```shell
+    make db_dev_run
+    ```
+
+1. Runs all existing database migrations for dev database, which does things like creating table structures, etc.
+   You will run this command again anytime you add new migrations to the app (see below for more).
+
+    ```shell
+    make db_dev_migrate
+    ```
+
+You can validate that your dev database is running by running
+
+```shell
+psql-dev
+```
+
+This puts you in a PostgreSQL shell. To show all the tables, type
+
+```shell
+\dt
+```
+
+If you want to exit out of the PostgreSQL shell, type
+
+```shell
+\q
+```
+
+If you are stuck on this step you may need to see the section on Troubleshooting.
+
+##### Setup: Server
+
+This step installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server.
+It will listen on port `8080` and will rebuild the actual server any time a go file changes.
+
+```shell
+make server_run
+```
+
+To have hot reloading of the entire application (at least for the customer side), pair the above with
+
+```shell
+make client_run
+```
+
+In rare cases, you may want to run the server standalone, in which case you can run
+
+```shell
+make server_run_standalone
+```
+
+This will build both the client and the server and this invocation can be relied upon to be serving the client JS on
+its own rather than relying on webpack doing so. You can run this without running `make client_run` and the whole app
+should work.
+
+###### Server Dependencies
+
+Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically
+detected in import statements and added to `go.mod` when you run
+
+```shell
+go build
+```
+
+or
+
+```shell
+go run
+```
+
+You can also manually edit `go.mod` as needed.
+
+If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in
+`pkg/tools/tools.go`.
+
+After importing _any_ go dependency it's a good practice to run
+
+```shell
+go mod tidy
+```
+
+which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
+
+##### Setup: MilMove Local Client
+
+Commands in this section:
+
+```shell
+make client_build
+```
+
+and
+
+```shell
+make client_run
+````
+
+These will start the webpack dev server, serving the frontend on port 3000. If paired with
+
+```shell
+make server_run
+```
+
+then the whole app will work, the webpack dev server proxies all API calls through to the server.
+
+If both the server and client are running, you should be able to view the Swagger UI at
+<http://milmovelocal:3000/swagger-ui/internal.html>. If it does not, try running
+
+```shell
+make client_build
+```
+
+(this only needs to be run the first time).
+
+Dependencies are managed by `yarn`. To add a new dependency, use
+
+```shell
+yarn add
+```
+
+### Other Possible Setups
+
+The instructions so far have been for getting the project up and running, but focused on the client/customer side.
+There are more things you can set up in the following sections.
+
+#### Setup: Office Local client
+
+1. Ensure that you have a test account which can log into the office site. To load test data, run:
+
+    ```shell
+    make db_dev_e2e_populate
+    ```
+
+1. Run
+
+    ```shell
+    make office_client_run
+    ```
+
+1. Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
+
+#### Setup: Admin Local client
+
+Run
+
+```shell
+make admin_client_run
+````
+
+#### Setup: DPS user
+
+1. Ensure that you have a login.gov test account
+2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the
+   interface.
+
+#### Setup: Orders Gateway
+
+Nothing to do.
+
+#### Setup: Prime API
+
+The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact
+with it in a local environment.
+
+1. Make sure that the `primelocal` alias is setup for localhost
+    1. Check your `/etc/hosts` file for an entry for `primelocal`.
+2. Run
+
+    ```shell
+    make server_run
+    ```
+
+3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl
+   at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, run
+
+    ```shell
+    ./scripts/prime-api move-task-orders
+    ```
+
+## Development
+
+### Makefile
 
 The primary way to interact with the project is via the `Makefile`. The `Makefile` contains a number of handy
 targets (you can think of these as commands) that make interacting with the project easier. Each target manages
@@ -215,161 +860,6 @@ the server and client, and manage the database.
 The fastest way to get familiar with the `Makefile` is to use the command `make help`. You can also type `make`
 and it will default to calling `make help` target on your behalf.  The `Makefile` is important to this project
 so take the time to understand what it does.
-
-### Setup: Quick Initial Setup
-
-The following commands will get mymove running on your machine for the first time. This is an abbreviated list that should get you started. Please read below for explanations of each of the commands.
-
-1. `direnv allow`
-1. `make prereqs`
-1. `make ensure_pre_commit`
-1. `make deps`
-1. `make build_tools`
-1. `make db_dev_run`
-1. `make db_dev_migrate`
-1. `make server_run`
-1. `make client_build`
-1. `make client_run`
-
-### Setup: Direnv
-
-For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~/.bash_profile`, though instructions say `~/.bashrc`). For zsh, add `eval "$(direnv hook zsh)"` to `~/.zshrc`.
-
-Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
-
-The first and recommended way is to use the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault. We suggest installing chamber with `brew install chamber`. To use the AWS vault you will need to follow the [instructions to set up AWS first](#setup-aws-services-optional).
-
-Once you've installed, run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you.
-
-The alternative is to add a `.envrc.local` file. Then run `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber, you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
-
-#### Helpful variables for `.envrc.local`
-
-* `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
-* `export GOLAND=1` - variable to enable go code debugging in goland
-
-### Setup: Prerequisites
-
-Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
-
-**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
-
-### Setup: Pre-Commit
-
-Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
-
-You can feel free to skip running the pre-commit checks at this time. Before you do run `pre-commit run -a`, you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`.
-
-#### Troubleshooting install issues (process hanging on install hooks)
-
-Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.21.0`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
-
-### Setup: Dependencies
-
-Run `make deps`. This will check your system for any setup issues. Then it will ensure that you have installed pre-commit
-and go on to install the client (javascript) and server (golang) dependencies for you.
-
-### Setup: Build Tools
-
-Run `make build_tools` to get all the server and tool dependencies built. These will be needed in future steps to not only generate test data but also to interact with the database and more.
-
-### Setup: Database
-
-You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
-
-1. `make db_dev_run` and `make db_test_run`: Creates a PostgreSQL docker container for dev and test, if they don't already exist.
-
-1. `make db_dev_migrate` and `make db_test_migrate`:  Runs all existing database migrations for dev and test databases, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
-
-You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-
-If you are stuck on this step you may need to see the section on Troubleshooting.
-
-### Setup: Server
-
-1. `make server_run`: installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server. It will listen on 8080 and will rebuild the actual server any time a go file changes. Pair this with `make client_run` to have hot reloading of the entire application.
-
-In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
-
-Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically detected in import statements and added to `go.mod` when you run `go build` or `go run`. You can also manually edit `go.mod` as needed.
-
-If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`.
-
-After importing _any_ go dependency it's a good practice to run `go mod tidy`, which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
-
-### Setup: MilMoveLocal Client
-
-1. `make client_build` (if setting up for first time)
-2. `make client_run`
-
-The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
-
-If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/swagger-ui/internal.html>.  If it does not, try running `make client_build` (this only needs to be run the first time).
-
-Dependencies are managed by yarn. To add a new dependency, use `yarn add`
-
-### Setup: OfficeLocal client
-
-1. Ensure that you have a test account which can log into the office site:
-    * run `make db_dev_e2e_populate` to load test data
-2. Run `make office_client_run`
-    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-
-### Setup: AdminLocal client
-
-1. `make admin_client_run`
-
-### Setup: DPS user
-
-1. Ensure that you have a login.gov test account
-2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the interface.
-
-### Setup: Orders Gateway
-
-Nothing to do.
-
-### Setup: Prime API
-
-The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
-
-1. Make sure that the `primelocal` alias is setup for localhost - this should have been completed in the [Setup:Prerequisites](#Setup-Prerequisites) (check your `/etc/hosts` file for an entry for `primelocal`).
-2. run `make server_run`
-3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
-
-
-
-### Setup: AWS Services (Optional)
-
-If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
-
-AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
-
-### Setup: Nix
-
-NOTE: Nix is an experiment. If you are setting things up with Nix you
-do not need to follow the instructions above about [Setup: Golang](#setup-golang) and [Setup: Quick Initial Setup](#setup-quick-initial-setup).
-
-NOTE: Nix as an experiment means you ask for help in the `#code-nix`
-slack channel. It's not an officially supported development environment.
-
-1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/main/developing/nix).
-1. Follow the [macOS installation instructions](https://nixos.org/manual/nix/stable/#sect-macos-installation).
-1. Ensure you have `direnv` and a modern `bash` installed. To install
-   globally with nix, run `nix-env -i direnv bash`
-1. Ensure you have run `direnv allow` to set up the appropriate nix
-   environment variables.
-1. Make sure you have disabled any `nodeenv`, `asdf` or any other
-   version switchers for mymove.
-1. Run `./nix/update.sh`
-
-If the nix dependencies change, you should see a warning from direnv:
-
-```text
-direnv: WARNING: nix packages out of date. Run nix/update.sh
-```
-
-## Development
 
 ### TSP Award Queue
 
@@ -397,19 +887,34 @@ Currently, scenarios have the following numbers:
 
 ### API / Swagger
 
-Internal services (i.e. endpoints only intended for use by the React client) are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+Internal services (i.e. endpoints only intended for use by the React client) are
+defined in `swagger-def/internal.yaml` and served from the value of the
+`basePath:` stanza at the root of the generated `./swagger/internal.yaml` file.
+**Internal endpoints are not intended for use by external clients**.
 
-The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
+The Orders Gateway's API is defined in the file `swagger-def/orders.yaml` and
+served from the value of the `basePath:` stanza at the root of the generated
+`./swagger/orders.yaml` file.
 
-The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
+The Admin API is defined in the file `swagger-def/admin.yaml` and served from
+the value of the `basePath:` stanza at the root of the generated
+`./swagger/admin.yaml` file.
 
-You can view the documentation for the following APIs (powered by Swagger UI) at the following URLS with a local client and server running:
+The Prime API is defined in the file `./swagger-def/prime.yaml` and served from
+the value of the `basePath:` stanza at the root of the generated
+`./swagger/prime.yaml` file.
 
-* internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
+You can view the documentation for the following APIs (powered by Swagger UI) at
+the following URLS with a local client and server running:
 
-* admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
+* internal API: [http://milmovelocal:3000/swagger-ui/internal.html](http://milmovelocal:3000/swagger-ui/internal.html)
+* admin API: [http://milmovelocal:3000/swagger-ui/admin.html](http://milmovelocal:3000/swagger-ui/admin.html)
+* GHC API: [http://milmovelocal:3000/swagger-ui/ghc.html](http://milmovelocal:3000/swagger-ui/ghc.html)
+* Prime API: [http://primelocal:3000/swagger-ui/prime.html](http://primelocal:3000/swagger-ui/prime.html)
 
-* GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
+For more information on _API / Swagger_ definitions, please review the README
+documentation found in the `./swagger/README.md` and `./swagger-def/README.md`
+files.
 
 ### Testing
 
@@ -509,7 +1014,7 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 
 #### Migrations
 
-To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/migrate-the-database)
+To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/Database-Migrations)
 
 Running migrations in local development:
 
@@ -556,7 +1061,7 @@ MY_SPECIAL_TOKEN=abcxyz
 {
   "name": "MY_SPECIAL_TOKEN",
   "value": "{{ .MY_SPECIAL_TOKEN }}"
-},
+}
 ```
 
 ### Documentation
@@ -572,21 +1077,40 @@ $ godoc -http=:6060
 
 Then visit <http://localhost:6060/pkg/github.com/transcom/mymove/>
 
-### Spellcheck
-
-We use [markdown-spellcheck](https://github.com/lukeapage/node-markdown-spellcheck) as a pre-commit hook to catch spelling errors in Markdown files. To make fixing caught errors easier, there's a handy make target that runs the spellchecker in interactive mode:
-
-* `make spellcheck`
-
-This will let you walk through the caught spelling errors one-by-one and choose whether to fix it, add it to the dictionary, or have it be permanently ignored for that file.
-
-#### Tips for staying sane
-
-* If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
-
 ### GoLand
 
-* GoLand supports [attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine), however this requires that the server has been built with specific flags. If you wish to use this feature in development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
+GoLand supports
+[attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine),
+however this requires that the server has been built with specific flags. If you wish to use this feature in
+development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps
+outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
+
+#### Goland: Nix
+
+To get Goland to play nicely with `nix`, there's a few things you can set up:
+
+* Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
+  * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.16.6/bin/go`
+* Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
+  * You may need to create the `.gopath` dir yourself.
+* Update Node and NPM:
+  * Node interpreter: `/nix/var/nix/profiles/mymove/bin/node`
+  * Package manager:
+    * This might be fixed automatically, but if not, you can point it `/nix/var/nix/profiles/mymove/bin/yarn`
+    * Similar to `GOROOT`, it will resolve to something that looks like
+      `/nix/store/cnmxp5isc3ck1bm11zryy8dnsbnm87wk-yarn-1.22.10/libexec/yarn`
+
+### Storybook
+
+We use [Storybook](https://storybook.js.org) for reviewing our
+component library. The current components are deployed to
+[https://storybook.dp3.us](https://storybook.dp3.us) after each build
+of the master branch.
+
+Each PR saves storybook as an artifact in CircleCI. Find the
+`build_storybook` task and then go to the "ARTIFACTS" tab. Find the
+link to `storybook/index.html` and click on it.
 
 ### Troubleshooting
 
@@ -626,32 +1150,6 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 #### Linters & Pre-commit Hooks
 
 We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://github.com/transcom/mymove/wiki/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
-
-#### Yarn install markdown-spell (aka mdspell)
-
-We use `mdspell` for spell checking markdown files during pre-commit hooks. You may run into an issue such as below during the installation command `yarn global add markdown-spellcheck` suggested by the Makefile.
-
-Example error:
-
-```sh
->$ yarn global add markdown-spellcheck
-
-yarn global v1.19.0
-[1/4] :mag:  Resolving packages...
-[2/4] :truck:  Fetching packages...
-error An unexpected error occurred: "https://registry.yarnpkg.com/har-validator/-/har-validator-5.1.2.tgz: Request failed \"404 Not Found\"".
-info If you think this is a bug, please open a bug report with the information provided in "/Users/john/.config/yarn/global/yarn-error.log".
-info Visit https://yarnpkg.com/en/docs/cli/global for documentation about this command.
-```
-
-If you do, following these steps may resolve it.
-
-```sh
-rm ~/.config/yarn/global/yarn.lock
-cd ~/.config/yarn/global
-yarn cache clean
-yarn global add markdown-spellcheck
-```
 
 ### Manual Redeploys and Other Helpful Information in an Emergency
 

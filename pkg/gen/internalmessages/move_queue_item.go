@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,6 +21,7 @@ import (
 type MoveQueueItem struct {
 
 	// actual move date
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
@@ -33,20 +35,25 @@ type MoveQueueItem struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// Customer Name
+	// Example: Thedog, Nino
 	// Required: true
 	CustomerName *string `json:"customer_name"`
 
 	// delivered date
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	DeliveredDate *strfmt.DateTime `json:"delivered_date,omitempty"`
 
 	// Destination
+	// Example: Dover AFB
 	DestinationDutyStationName *string `json:"destination_duty_station_name,omitempty"`
 
 	// Destination GBLOC
+	// Example: LKNQ
 	DestinationGbloc *string `json:"destination_gbloc,omitempty"`
 
 	// DoD ID #
+	// Example: 5789345789
 	// Required: true
 	// Max Length: 10
 	// Min Length: 10
@@ -54,30 +61,37 @@ type MoveQueueItem struct {
 	Edipi *string `json:"edipi"`
 
 	// GBL Number
+	// Example: LNK12345
 	GblNumber *string `json:"gbl_number,omitempty"`
 
 	// hhg status
+	// Example: ACCEPTED
 	HhgStatus *string `json:"hhg_status,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// invoice approved date
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	InvoiceApprovedDate *strfmt.DateTime `json:"invoice_approved_date,omitempty"`
 
 	// last modified date
+	// Example: 2017-07-21T17:32:28.000Z
 	// Required: true
 	// Format: date-time
 	LastModifiedDate *strfmt.DateTime `json:"last_modified_date"`
 
 	// locator
+	// Example: 12432
 	// Required: true
 	Locator *string `json:"locator"`
 
 	// move date
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	MoveDate *strfmt.Date `json:"move_date,omitempty"`
 
@@ -87,20 +101,25 @@ type MoveQueueItem struct {
 	OrdersType *string `json:"orders_type"`
 
 	// Origin
+	// Example: Dover AFB
 	OriginDutyStationName *string `json:"origin_duty_station_name,omitempty"`
 
 	// Origin GBLOC
+	// Example: LKNQ
 	OriginGbloc *string `json:"origin_gbloc,omitempty"`
 
 	// original move date
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
 	// pm survey conducted date
+	// Example: 2017-07-21T17:32:28.000Z
 	// Format: date-time
 	PmSurveyConductedDate *strfmt.DateTime `json:"pm_survey_conducted_date,omitempty"`
 
 	// ppm status
+	// Example: PAYMENT_REQUESTED
 	PpmStatus *string `json:"ppm_status,omitempty"`
 
 	// rank
@@ -108,10 +127,12 @@ type MoveQueueItem struct {
 	Rank *ServiceMemberRank `json:"rank"`
 
 	// status
+	// Example: APPROVED
 	// Required: true
 	Status *string `json:"status"`
 
 	// submitted date
+	// Example: 2018-04-25T00:00:00.000Z
 	// Format: date-time
 	SubmittedDate *strfmt.DateTime `json:"submitted_date,omitempty"`
 
@@ -202,7 +223,6 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateActualMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
@@ -246,7 +266,6 @@ func (m *MoveQueueItem) validateCustomerName(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateDeliveredDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DeliveredDate) { // not required
 		return nil
 	}
@@ -264,15 +283,15 @@ func (m *MoveQueueItem) validateEdipi(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.MinLength("edipi", "body", string(*m.Edipi), 10); err != nil {
+	if err := validate.MinLength("edipi", "body", *m.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("edipi", "body", string(*m.Edipi), 10); err != nil {
+	if err := validate.MaxLength("edipi", "body", *m.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("edipi", "body", string(*m.Edipi), `^\d{10}$`); err != nil {
+	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
 		return err
 	}
 
@@ -293,7 +312,6 @@ func (m *MoveQueueItem) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateInvoiceApprovedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.InvoiceApprovedDate) { // not required
 		return nil
 	}
@@ -328,7 +346,6 @@ func (m *MoveQueueItem) validateLocator(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveDate) { // not required
 		return nil
 	}
@@ -354,17 +371,17 @@ func init() {
 
 const (
 
-	// MoveQueueItemOrdersTypePCSOCONUS captures enum value "PCS - OCONUS"
-	MoveQueueItemOrdersTypePCSOCONUS string = "PCS - OCONUS"
+	// MoveQueueItemOrdersTypePCSDashOCONUS captures enum value "PCS - OCONUS"
+	MoveQueueItemOrdersTypePCSDashOCONUS string = "PCS - OCONUS"
 
-	// MoveQueueItemOrdersTypePCSCONUS captures enum value "PCS - CONUS"
-	MoveQueueItemOrdersTypePCSCONUS string = "PCS - CONUS"
+	// MoveQueueItemOrdersTypePCSDashCONUS captures enum value "PCS - CONUS"
+	MoveQueueItemOrdersTypePCSDashCONUS string = "PCS - CONUS"
 
-	// MoveQueueItemOrdersTypePCSTDYOCONUS captures enum value "PCS + TDY - OCONUS"
-	MoveQueueItemOrdersTypePCSTDYOCONUS string = "PCS + TDY - OCONUS"
+	// MoveQueueItemOrdersTypePCSPlusTDYDashOCONUS captures enum value "PCS + TDY - OCONUS"
+	MoveQueueItemOrdersTypePCSPlusTDYDashOCONUS string = "PCS + TDY - OCONUS"
 
-	// MoveQueueItemOrdersTypePCSTDYCONUS captures enum value "PCS + TDY - CONUS"
-	MoveQueueItemOrdersTypePCSTDYCONUS string = "PCS + TDY - CONUS"
+	// MoveQueueItemOrdersTypePCSPlusTDYDashCONUS captures enum value "PCS + TDY - CONUS"
+	MoveQueueItemOrdersTypePCSPlusTDYDashCONUS string = "PCS + TDY - CONUS"
 )
 
 // prop value enum
@@ -390,7 +407,6 @@ func (m *MoveQueueItem) validateOrdersType(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateOriginalMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginalMoveDate) { // not required
 		return nil
 	}
@@ -403,7 +419,6 @@ func (m *MoveQueueItem) validateOriginalMoveDate(formats strfmt.Registry) error 
 }
 
 func (m *MoveQueueItem) validatePmSurveyConductedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PmSurveyConductedDate) { // not required
 		return nil
 	}
@@ -416,6 +431,10 @@ func (m *MoveQueueItem) validatePmSurveyConductedDate(formats strfmt.Registry) e
 }
 
 func (m *MoveQueueItem) validateRank(formats strfmt.Registry) error {
+
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
+		return err
+	}
 
 	if err := validate.Required("rank", "body", m.Rank); err != nil {
 		return err
@@ -443,7 +462,6 @@ func (m *MoveQueueItem) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateSubmittedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubmittedDate) { // not required
 		return nil
 	}
@@ -456,13 +474,58 @@ func (m *MoveQueueItem) validateSubmittedDate(formats strfmt.Registry) error {
 }
 
 func (m *MoveQueueItem) validateWeightAllotment(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightAllotment) { // not required
 		return nil
 	}
 
 	if m.WeightAllotment != nil {
 		if err := m.WeightAllotment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_allotment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move queue item based on the context it is used
+func (m *MoveQueueItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateWeightAllotment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MoveQueueItem) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveQueueItem) contextValidateWeightAllotment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.WeightAllotment != nil {
+		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
 			}

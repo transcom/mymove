@@ -15,14 +15,14 @@ import (
 type TransportationOffice struct {
 	ID               uuid.UUID             `json:"id" db:"id"`
 	ShippingOfficeID *uuid.UUID            `json:"shipping_office_id" db:"shipping_office_id"`
-	ShippingOffice   *TransportationOffice `belongs_to:"transportation_offices"`
+	ShippingOffice   *TransportationOffice `belongs_to:"transportation_offices" fk_id:"shipping_office_id"`
 	Name             string                `json:"name" db:"name"`
-	Address          Address               `belongs_to:"address"`
+	Address          Address               `belongs_to:"address" fk_id:"address_id"`
 	AddressID        uuid.UUID             `json:"address_id" db:"address_id"`
 	Latitude         float32               `json:"latitude" db:"latitude"`
 	Longitude        float32               `json:"longitude" db:"longitude"`
-	PhoneLines       OfficePhoneLines      `has_many:"office_phone_lines"`
-	Emails           OfficeEmails          `has_many:"office_emails"`
+	PhoneLines       OfficePhoneLines      `has_many:"office_phone_lines" fk_id:"transportation_office_id"`
+	Emails           OfficeEmails          `has_many:"office_emails" fk_id:"transportation_office_id"`
 	Hours            *string               `json:"hours" db:"hours"`
 	Services         *string               `json:"services" db:"services"`
 	Note             *string               `json:"note" db:"note"`

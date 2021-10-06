@@ -16,7 +16,6 @@ describe('RejectServiceItemModal', () => {
     createdAt: '2020-10-31T00:00:00',
     details: {
       description: 'grandfather clock',
-      imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
       itemDimensions: { length: 7000, width: 2000, height: 3500 },
     },
   };
@@ -60,7 +59,6 @@ describe('RejectServiceItemModal', () => {
       approvedAt: '2020-10-31T00:00:00.12345',
       details: {
         description: 'grandfather clock',
-        imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
         itemDimensions: { length: 7000, width: 2000, height: 3500 },
       },
     };

@@ -34,14 +34,14 @@ const (
 type Invoice struct {
 	ID            uuid.UUID     `json:"id" db:"id"`
 	ApproverID    uuid.UUID     `json:"approver_id" db:"approver_id"`
-	Approver      OfficeUser    `belongs_to:"office_user"`
+	Approver      OfficeUser    `belongs_to:"office_user" fk_id:"approver_id"`
 	Status        InvoiceStatus `json:"status" db:"status"`
 	InvoiceNumber string        `json:"invoice_number" db:"invoice_number"`
 	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
 	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
 	UserUploadID  *uuid.UUID    `json:"user_upload_id" db:"user_upload_id"`
-	UserUpload    *UserUpload   `belongs_to:"user_uploads"`
+	UserUpload    *UserUpload   `belongs_to:"user_uploads" fk_id:"user_upload_id"`
 }
 
 // Invoices is an array of invoices

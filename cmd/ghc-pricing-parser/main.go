@@ -10,11 +10,13 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/pterm/pterm"
+	"github.com/pterm/pterm/putils"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -74,7 +76,7 @@ func main() {
 	v.AutomaticEnv()
 
 	// Create logger
-	logger, err := logging.Config(logging.WithEnvironment(v.GetString(cli.DbEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	logger, _, err := logging.Config(logging.WithEnvironment(v.GetString(cli.DbEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -120,24 +122,37 @@ func main() {
 		logger.Fatal("could not parse the given contract start date", zap.Error(err))
 	}
 
-	// Open the spreadsheet
-	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
-	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
-	if err != nil {
-		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
+	if params.ShowOutput {
+		pterm.EnableDebugMessages()
 	}
 
+	// Open the spreadsheet
+	printDivider("Loading")
+	spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
+	if err != nil {
+		logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+	}
+
+	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
+	if err != nil {
+		spinner.Fail()
+		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
+	}
+	spinner.Success()
+
 	// Now kick off the parsing
+	printDivider("Parsing")
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
 		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}
-	if err = summarizeXlsxStageParsing(db, logger); err != nil {
+	if err = summarizeXlsxStageParsing(db); err != nil {
 		logger.Fatal("Failed to summarize XLSX to stage table parsing", zap.Error(err))
 	}
 
 	// If the parsing was successful, run GHC Rate Engine importer
 	if params.RunImport {
+		printDivider("Importing")
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
 			Logger:            logger,
 			ContractCode:      params.ContractCode,
@@ -148,15 +163,14 @@ func main() {
 		if err != nil {
 			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
 		}
-		if err := summarizeStageReImport(db, logger, ghcREImporter.ContractID); err != nil {
+		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
 			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
 		}
 	}
 }
 
-func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
-	logger.Info("XLSX to stage table parsing complete. Summary follows:")
-	logger.Info("====")
+func summarizeXlsxStageParsing(db *pop.Connection) error {
+	printDivider("XLSX to stage table parsing complete; summary follows")
 
 	models := []struct {
 		header        string
@@ -182,11 +196,8 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 		{"5b: Price Escalation Discount", models.StagePriceEscalationDiscount{}},
 	}
 
-	for index, model := range models {
-		if index != 0 {
-			logger.Info("----")
-		}
-		err := summarizeModel(db, logger, model.header, model.modelInstance, nil)
+	for _, model := range models {
+		err := summarizeModel(db, model.header, model.modelInstance, nil)
 		if err != nil {
 			return err
 		}
@@ -195,9 +206,8 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	return nil
 }
 
-func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
-	logger.Info("Stage table import into rate engine tables complete. Summary follows:")
-	logger.Info("====")
+func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
+	printDivider("Stage table import into rate engine tables complete; summary follows")
 
 	models := []struct {
 		header        string
@@ -276,11 +286,8 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 		},
 	}
 
-	for index, model := range models {
-		if index != 0 {
-			logger.Info("----")
-		}
-		err := summarizeModel(db, logger, model.header, model.modelInstance, model.filter)
+	for _, model := range models {
+		err := summarizeModel(db, model.header, model.modelInstance, model.filter)
 		if err != nil {
 			return err
 		}
@@ -289,7 +296,7 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	return nil
 }
 
-func summarizeModel(db *pop.Connection, logger logger, header string, modelInstance interface{}, filter *pop.Query) error {
+func summarizeModel(db *pop.Connection, header string, modelInstance interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460
 	modelType := reflect.TypeOf(modelInstance)
 	if modelType.Kind() != reflect.Struct {
@@ -316,14 +323,13 @@ func summarizeModel(db *pop.Connection, logger logger, header string, modelInsta
 
 	modelSlice = modelPtrSlice.Elem()
 
-	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
-	logger.Info(headerMsg, zap.Int("row count", length))
-	if length > 0 {
-		logger.Info("first:", zap.Any(modelName, modelSlice.Index(0).Interface()))
+	pterm.DefaultHeader.WithMargin(2).Println(fmt.Sprintf("%s (%s)", header, modelName))
+	baseTable := pterm.DefaultTable.WithHasHeader()
+	err = putils.TableFromStructSlice(*baseTable, modelSlice.Interface()).Render()
+	if err != nil {
+		return err
 	}
-	if length > 1 {
-		logger.Info("second:", zap.Any(modelName, modelSlice.Index(1).Interface()))
-	}
+	pterm.Printf(pterm.Gray("(representative rows above; " + pterm.Green(length) + " rows total)\n\n"))
 
 	return nil
 }
@@ -349,4 +355,10 @@ func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
 	message += "NOTE: This option disables the Rate Engine table import by disabling the --re-import flag\n"
 
 	return message
+}
+
+func printDivider(contents string) {
+	pterm.Println()
+	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println(contents)
+	pterm.Println()
 }

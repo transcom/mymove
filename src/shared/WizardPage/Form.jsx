@@ -14,7 +14,7 @@ import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
 import ScrollToTop from 'components/ScrollToTop';
 
-import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
+import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -63,6 +63,7 @@ export class WizardFormPage extends Component {
       return this.props.reduxFormSubmit().then(() => this.beforeTransition(getPreviousPagePath, false));
     }
     this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
+    return undefined;
   }
 
   submit() {
@@ -77,17 +78,8 @@ export class WizardFormPage extends Component {
     // and accompanying submit validation https://redux-form.com/8.2.0/examples/submitvalidation/
     // while forms that provide their own handlesubmit prop are expected to not be using redux-form's submit validation
     const hasReduxFormSubmitHandler = !!this.props.reduxFormSubmit;
-    const {
-      handleSubmit,
-      className,
-      pageKey,
-      pageList,
-      children,
-      serverError,
-      valid,
-      dirty,
-      readyToSubmit,
-    } = this.props;
+    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty, readyToSubmit } =
+      this.props;
     const canMoveForward = valid && readyToSubmit;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);

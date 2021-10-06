@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -23,8 +24,10 @@ import (
 // swagger:discriminator UpdateMTOServiceItem modelType
 type UpdateMTOServiceItem interface {
 	runtime.Validatable
+	runtime.ContextValidatable
 
 	// ID of the service item. Must match path.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -121,6 +124,12 @@ func unmarshalUpdateMTOServiceItem(data []byte, consumer runtime.Consumer) (Upda
 			return nil, err
 		}
 		return &result, nil
+	case "UpdateMTOServiceItemShuttle":
+		var result UpdateMTOServiceItemShuttle
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 }
@@ -140,12 +149,37 @@ func (m *updateMTOServiceItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *updateMTOServiceItem) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID()) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update m t o service item based on the context it is used
+func (m *updateMTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateModelType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *updateMTOServiceItem) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
 		return err
 	}
 

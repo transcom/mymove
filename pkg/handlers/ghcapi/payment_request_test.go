@@ -3,7 +3,9 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -24,9 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
-
-	"net/http/httptest"
-	"time"
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
@@ -60,7 +59,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 
 		handler := GetPaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			paymentrequest.NewPaymentRequestFetcher(),
 		}
 		response := handler.Handle(params)
 
@@ -87,7 +86,8 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			RoleType: roles.RoleTypeTOO,
 		})
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
@@ -108,7 +108,8 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 
 	suite.T().Run("payment request not found", func(t *testing.T) {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(models.PaymentRequest{}, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -159,7 +160,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerContext:            context,
-			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
@@ -182,7 +183,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
 			mock.Anything).Return(nil, errors.New("not found")).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
@@ -204,7 +206,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		officeUserTOO := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
 			mock.Anything).Return(&paymentRequests, nil).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
@@ -239,13 +242,14 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		UpdatedAt: time.Now(),
 	}
 
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder(suite.DB()))
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 
 	suite.T().Run("successful status update of payment request", func(t *testing.T) {
 		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(pendingPaymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(pendingPaymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -275,7 +279,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(pendingPaymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(pendingPaymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -301,6 +306,42 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.NotNil(payload.ReviewedAt)
 	})
 
+	suite.T().Run("prevent handler from updating payment request status to unapproved statuses", func(t *testing.T) {
+		nonApprovedPRStatuses := [...]ghcmessages.PaymentRequestStatus{
+			ghcmessages.PaymentRequestStatusSENTTOGEX,
+			ghcmessages.PaymentRequestStatusRECEIVEDBYGEX,
+			ghcmessages.PaymentRequestStatusPAID,
+			ghcmessages.PaymentRequestStatusEDIERROR,
+			ghcmessages.PaymentRequestStatusPENDING,
+			ghcmessages.PaymentRequestStatusDEPRECATED,
+		}
+
+		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
+			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())
+
+			paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+			paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+				pendingPaymentRequest.ID).Return(pendingPaymentRequest, nil).Once()
+
+			req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
+			params := paymentrequestop.UpdatePaymentRequestStatusParams{
+				HTTPRequest:      req,
+				Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: nonApprovedPRStatus, RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
+				PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
+			}
+
+			handler := UpdatePaymentRequestStatusHandler{
+				HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+				PaymentRequestStatusUpdater: statusUpdater,
+				PaymentRequestFetcher:       paymentRequestFetcher,
+			}
+
+			response := handler.Handle(params)
+			suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
+		}
+	})
+
 	suite.T().Run("failed status update of payment request - forbidden", func(t *testing.T) {
 		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
@@ -308,10 +349,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		})
 
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequest, nil).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(&paymentRequest, nil).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
@@ -342,10 +385,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		availablePaymentRequestID := availablePaymentRequest.ID
 
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&availablePaymentRequest, nil).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(&availablePaymentRequest, nil).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(availablePaymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(availablePaymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -373,10 +418,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -401,10 +448,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, not found (404)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -429,10 +478,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, precondition failed (412)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.PreconditionFailedError{}).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(nil, services.PreconditionFailedError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -457,10 +508,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, validation errors (422)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything, mock.Anything).Return(nil, services.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(paymentRequest, nil).Once()
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -480,5 +533,226 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
+	})
+
+}
+
+func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
+	officeUserTIO := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	suite.T().Run("successful response of the shipments SIT Balance handler", func(t *testing.T) {
+		now := time.Now()
+
+		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusReviewed,
+			},
+			Move: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
+		})
+
+		move := reviewedPaymentRequest.MoveTaskOrder
+
+		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				SequenceNumber: 2,
+			},
+			Move: move,
+		})
+
+		year, month, day := time.Now().Date()
+		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
+		sitDaysAllowance := 120
+
+		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &originEntryDate,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+			MTOShipment: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+			Move: move,
+		})
+
+		shipment := doasit.MTOShipment
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: originEntryDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+			PaymentRequest: reviewedPaymentRequest,
+			MTOServiceItem: doasit,
+			Move:           move,
+		})
+
+		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: paymentEndDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     reviewedPaymentRequest,
+			MTOServiceItem:     doasit,
+		})
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: "30",
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
+			PaymentServiceItem: doasitParam.PaymentServiceItem,
+			PaymentRequest:     reviewedPaymentRequest,
+			MTOServiceItem:     doasit,
+			Move:               move,
+		})
+
+		destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+		ddasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &destinationEntryDate,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+			MTOShipment: shipment,
+			Move:        move,
+		})
+
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: destinationEntryDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
+			PaymentRequest: pendingPaymentRequest,
+			MTOServiceItem: ddasit,
+			Move:           move,
+		})
+
+		destinationPaymentEndDate := destinationEntryDate.Add(time.Hour * 24 * 60)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: destinationPaymentEndDate.Format("2006-01-02"),
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
+			PaymentServiceItem: ddasitParam.PaymentServiceItem,
+			PaymentRequest:     pendingPaymentRequest,
+			MTOServiceItem:     ddasit,
+			Move:               move,
+		})
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItemParam: models.PaymentServiceItemParam{
+				Value: "60",
+			},
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
+			PaymentServiceItem: ddasitParam.PaymentServiceItem,
+			PaymentRequest:     pendingPaymentRequest,
+			MTOServiceItem:     ddasit,
+			Move:               move,
+		})
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/shipments-payment-sit-balance", pendingPaymentRequest.ID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUserTIO)
+
+		params := paymentrequestop.GetShipmentsPaymentSITBalanceParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
+		}
+
+		handler := ShipmentsSITBalanceHandler{
+			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceOK{}, response)
+
+		payload := response.(*paymentrequestop.GetShipmentsPaymentSITBalanceOK).Payload
+
+		suite.NotNil(payload)
+		suite.Len(payload, 1)
+		shipmentSITBalance := payload[0]
+
+		suite.Equal(shipment.ID.String(), shipmentSITBalance.ShipmentID.String())
+		suite.Equal(int64(120), shipmentSITBalance.TotalSITDaysAuthorized)
+		suite.Equal(int64(60), shipmentSITBalance.PendingSITDaysInvoiced)
+		suite.Equal(int64(30), shipmentSITBalance.TotalSITDaysRemaining)
+		suite.Equal(destinationPaymentEndDate.Format("2006-01-02"), shipmentSITBalance.PendingBilledEndDate.String())
+		suite.Equal(int64(30), *shipmentSITBalance.PreviouslyBilledDays)
+	})
+
+	suite.T().Run("returns 403 unauthorized when request is not made by TIO office user", func(t *testing.T) {
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		paymentRequestID := uuid.Must(uuid.NewV4())
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/shipments-payment-sit-balance", paymentRequestID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := paymentrequestop.GetShipmentsPaymentSITBalanceParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := ShipmentsSITBalanceHandler{
+			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceForbidden{}, response)
+	})
+
+	suite.T().Run("returns 404 not found when payment request does not exist", func(t *testing.T) {
+		paymentRequestID := uuid.Must(uuid.NewV4())
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/shipments-payment-sit-balance", paymentRequestID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUserTIO)
+
+		params := paymentrequestop.GetShipmentsPaymentSITBalanceParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := ShipmentsSITBalanceHandler{
+			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceNotFound{}, response)
 	})
 }

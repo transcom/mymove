@@ -13,7 +13,7 @@ type DutyStationName struct {
 	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
 	Name          string      `json:"name" db:"name"`
 	DutyStationID uuid.UUID   `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation   DutyStation `belongs_to:"duty_stations"`
+	DutyStation   DutyStation `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 }
 
 // DutyStationNames is not required by pop and may be deleted

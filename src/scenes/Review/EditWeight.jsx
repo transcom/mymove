@@ -6,20 +6,19 @@ import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
-import { formatCents } from 'shared/formatters';
+import { formatCents, formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { formatCentsRange } from 'shared/formatters';
 import scrollToTop from 'shared/scrollToTop';
 import {
-  selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectCurrentPPM,
   selectPPMEstimateRange,
+  selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
-import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { calculatePPMEstimate, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -57,6 +56,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
     return 'Cannot be more than your full entitlement';
   }
+  return undefined;
 };
 
 let EditWeightForm = (props) => {
@@ -291,6 +291,8 @@ class EditWeight extends Component {
         </div>
       );
     }
+    // don't show any text if there is no error
+    return undefined;
   }
 
   render() {

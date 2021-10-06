@@ -1,7 +1,7 @@
 export const PAYMENT_REQUESTS = 'paymentRequests';
+export const SHIPMENTS_PAYMENT_SIT_BALANCE = 'shipmentsPaymentSITBalance';
 export const MTO_SHIPMENTS = 'mtoShipments';
 export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
-export const MOVE_TASK_ORDERS = 'moveTaskOrders';
 export const ORDERS = 'orders';
 export const MOVE_PAYMENT_REQUESTS = 'movePaymentRequests';
 export const ORDERS_DOCUMENTS = 'documents';
@@ -11,3 +11,4 @@ export const SERVICES_COUNSELING_QUEUE = 'servicesCounselingQueue';
 export const USER = 'user';
 export const MOVES = 'moves';
 export const CUSTOMER = 'customer';
+export const PRIME_SIMULATOR_AVAILABLE_MOVES = 'listMoves';

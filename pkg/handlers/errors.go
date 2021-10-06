@@ -26,7 +26,7 @@ import (
 // The following are strings to be used in the title field of errors sent to the client
 
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
-const SQLErrMessage string = "Unhandled SQL error encountered"
+const SQLErrMessage string = "Unhandled data error encountered"
 
 // NotFoundMessage indicates a resource was not found
 const NotFoundMessage string = "Not Found Error"
@@ -138,7 +138,7 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 }
 
 // ResponseForError logs an error and returns the expected error type
-func ResponseForError(logger Logger, err error) middleware.Responder {
+func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
@@ -170,7 +170,7 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 	}
 }
 
-func responseForBaseError(logger Logger, err error) middleware.Responder {
+func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
 	switch errors.Cause(err) {
@@ -208,7 +208,7 @@ func responseForBaseError(logger Logger, err error) middleware.Responder {
 }
 
 // ResponseForVErrors checks for validation errors
-func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middleware.Responder {
+func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs != nil && verrs.HasAny() {
 		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
@@ -218,7 +218,7 @@ func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middle
 }
 
 // ResponseForCustomErrors checks for custom errors and returns a custom response body message
-func ResponseForCustomErrors(logger Logger, err error, httpStatus int) middleware.Responder {
+func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered error", zap.Error(err))
 
@@ -226,7 +226,7 @@ func ResponseForCustomErrors(logger Logger, err error, httpStatus int) middlewar
 }
 
 // ResponseForConflictErrors checks for conflict errors
-func ResponseForConflictErrors(logger Logger, err error) middleware.Responder {
+func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered conflict error", zap.Error(err))
 

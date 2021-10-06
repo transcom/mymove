@@ -9,15 +9,18 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/orders/**/move-task-orders').as('getMoveTaskOrders');
+    cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
 
-    const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
+    // This user has multiple roles, which is the kind of user we use to test in staging.
+    // By using this type of user, we can catch bugs like the one fixed in PR 6706.
+    const userId = '8d78c849-0853-4eb8-a7a7-73055db7a6a8';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 
@@ -64,14 +67,14 @@ describe('TOO user', () => {
 
       // Click approve
       cy.contains('Approve and send').click();
-      cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
+      cy.wait(['@approveShipment', '@patchMTOStatus']);
     });
 
     // Redirected to Move Task Order page
     cy.url().should('include', `/moves/${moveLocator}/mto`);
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (12 items)');
 
     // Navigate back to Move Details
     cy.get('[data-testid="MoveDetails-Tab"]').click();
@@ -92,14 +95,14 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
     const shipments = cy.get('[data-testid="ShipmentContainer"]');
     shipments.should('have.length', 1);
 
-    cy.contains('Approved service items (6 items)');
+    cy.contains('Approved service items (12 items)');
     cy.contains('Rejected service items').should('not.exist');
 
     cy.get('[data-testid="modal"]').should('not.exist');
@@ -109,8 +112,8 @@ describe('TOO user', () => {
       cy.get('tbody tr').should('have.length', 2);
       cy.get('.acceptButton').first().click();
     });
-    cy.contains('Approved service items (7 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
+    cy.contains('Approved service items (12 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
 
     // Reject a requested service item
     cy.contains('Requested service items (1 item)');
@@ -134,8 +137,8 @@ describe('TOO user', () => {
     // Accept a previously rejected service item
     cy.get('[data-testid="RejectedServiceItemsTable"] button').click();
 
-    cy.contains('Approved service items (8 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 8);
+    cy.contains('Approved service items (13 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
     cy.contains('Rejected service items (1 item)').should('not.exist');
 
     // Reject a previously accpeted service item
@@ -154,8 +157,8 @@ describe('TOO user', () => {
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
 
     cy.contains('Requested service items').should('not.exist');
-    cy.contains('Approved service items (7 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
+    cy.contains('Approved service items (13 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 13);
   });
 
   it('is able to edit orders', () => {
@@ -173,9 +176,9 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
 
     // Toggle between Edit Allowances and Edit Orders page
-    cy.get('[data-testid="view-allowances"]').click();
+    cy.get('[data-testid="view-allowances"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
-    cy.get('[data-testid="view-orders"]').click();
+    cy.get('[data-testid="view-orders"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/orders`);
 
     // Edit orders fields
@@ -272,8 +275,13 @@ describe('TOO user', () => {
       cy.get('button').contains('Save').click();
     });
 
+    cy.wait(['@patchAllowances']);
+
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');
@@ -298,7 +306,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
@@ -314,7 +322,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.wait(['@patchMTOShipmentStatus']);
+    cy.wait(['@requestShipmentCancellation']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
     cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');
@@ -326,5 +334,43 @@ describe('TOO user', () => {
     cy.get('[data-testid="rejectTextButton"]').first().click();
     cy.get('[data-testid="closeRejectServiceItem"]').click();
     cy.get('[data-testid="alert"]').should('not.exist');
+  });
+
+  it('is able to view SIT and create and edit SIT extensions', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
+
+    // View SIT display
+    cy.get('[data-testid="sitExtensions"]');
+
+    // Total SIT
+    cy.contains('270 authorized');
+    // cy.contains('60 used');
+    // cy.contains('210 remaining');
+    // cy.contains('Ends 26 Apr 2022');
+
+    // Current SIT
+    cy.contains('Current location: destination');
+    cy.contains('60');
+    // cy.contains('29 Aug 2021');
+    // cy.contains('Ends 26 Apr 2022');
+
+    // Previous SIT
+    // cy.contains('30 days at origin (30 Jul 2021 - 29 Aug 2021)');
+    cy.contains('30 days at origin');
+
+    // SIT extensions
+    cy.contains('90 days added');
+    // cy.contains('on 28 Sep 2021');
+    cy.contains('Serious illness of the member');
+    cy.contains('The customer requested an extension.');
+    cy.contains('The service member is unable to move into their new home at the expected time');
   });
 });

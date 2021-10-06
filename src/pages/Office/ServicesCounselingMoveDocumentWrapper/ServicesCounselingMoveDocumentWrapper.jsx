@@ -1,16 +1,18 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { matchPath, useLocation, useParams } from 'react-router-dom';
 
-import styles from './ServicesCounselingMoveDocumentWrapper.module.scss';
-
+import styles from 'styles/documentViewerWithSidebar.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import ServicesCounselingMoveAllowances from 'pages/Office/ServicesCounselingMoveAllowances/ServicesCounselingMoveAllowances';
+import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ServicesCounselingMoveDocumentWrapper = () => {
   const { moveCode } = useParams();
+  const { pathname } = useLocation();
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
@@ -19,6 +21,11 @@ const ServicesCounselingMoveDocumentWrapper = () => {
 
   const documentsForViewer = Object.values(upload);
 
+  const showOrders = matchPath(pathname, {
+    path: servicesCounselingRoutes.ORDERS_EDIT_PATH,
+    exact: true,
+  });
+
   return (
     <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
@@ -26,7 +33,11 @@ const ServicesCounselingMoveDocumentWrapper = () => {
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}
-      <ServicesCounselingMoveAllowances moveCode={moveCode} />
+      {showOrders ? (
+        <ServicesCounselingOrders moveCode={moveCode} />
+      ) : (
+        <ServicesCounselingMoveAllowances moveCode={moveCode} />
+      )}
     </div>
   );
 };

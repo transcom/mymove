@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -13,10 +14,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOAgentType MTO Agent Type
+// MTOAgentType Agent Type
+//
+// The type for this agent. `RELEASING` means they have authority on pickup, `RECEIVING` means they can receive the shipment on delivery.
+//
+// Example: RELEASING_AGENT
 //
 // swagger:model MTOAgentType
 type MTOAgentType string
+
+func NewMTOAgentType(value MTOAgentType) *MTOAgentType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -59,5 +69,10 @@ func (m MTOAgentType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this m t o agent type based on context it is used
+func (m MTOAgentType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

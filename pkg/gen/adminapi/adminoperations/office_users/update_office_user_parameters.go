@@ -6,6 +6,7 @@ package office_users
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateOfficeUserParams creates a new UpdateOfficeUserParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateOfficeUserParams() UpdateOfficeUserParams {
 
 	return UpdateOfficeUserParams{}
@@ -70,6 +72,11 @@ func (o *UpdateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.OfficeUser = &body
 			}
@@ -77,11 +84,11 @@ func (o *UpdateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 	} else {
 		res = append(res, errors.Required("officeUser", "body", ""))
 	}
+
 	rOfficeUserID, rhkOfficeUserID, _ := route.Params.GetOK("officeUserId")
 	if err := o.bindOfficeUserID(rOfficeUserID, rhkOfficeUserID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

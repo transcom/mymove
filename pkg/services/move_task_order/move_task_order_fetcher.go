@@ -2,48 +2,28 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type moveTaskOrderFetcher struct {
-	db *pop.Connection
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{db}
-}
-
-// ListMoveTaskOrders retrieves all MTOs for a specific Order. Can filter out hidden MTOs (show=False)
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) ([]models.Move, error) {
-	var moveTaskOrders []models.Move
-	query := f.db.Where("orders_id = $1", orderID)
-
-	setMTOQueryFilters(query, searchParams)
-
-	err := query.Eager().All(&moveTaskOrders)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, services.NotFoundError{}
-		default:
-			return []models.Move{}, err
-		}
-	}
-	return moveTaskOrders, nil
+func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
+	return &moveTaskOrderFetcher{}
 }
 
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
-	query := f.db.EagerPreload(
+	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -72,10 +52,10 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
-	query := f.db.EagerPreload(
+	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -85,11 +65,19 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
+		"MTOShipments.SITExtensions",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
-	).Where("id = $1", moveTaskOrderID)
+	)
+
+	// Find the move by ID or Locator
+	if searchParams.MoveTaskOrderID != uuid.Nil {
+		query.Where("id = $1", searchParams.MoveTaskOrderID)
+	} else {
+		query.Where("locator = $1", searchParams.Locator)
+	}
 
 	setMTOQueryFilters(query, searchParams)
 
@@ -97,13 +85,57 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Move{}, services.NewNotFoundError(moveTaskOrderID, "")
+			return &models.Move{}, services.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, err
 		}
 	}
 
+	for i, shipment := range mto.MTOShipments {
+		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
+
+		if reweighErr != nil {
+			return &models.Move{}, err
+		}
+
+		mto.MTOShipments[i].Reweigh = reweigh
+	}
+
 	return mto, nil
+}
+
+// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targetting the Prime API.
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	var moveTaskOrders models.Moves
+	var err error
+
+	sql := `SELECT moves.*
+            FROM moves INNER JOIN orders ON moves.orders_id = orders.id
+            WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
+
+	if searchParams != nil && searchParams.Since != nil {
+		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
+                          (moves.id IN (SELECT mto_shipments.move_id
+                                        FROM mto_shipments WHERE mto_shipments.updated_at >= $1
+                                        UNION
+                                        SELECT mto_service_items.move_id
+			                            FROM mto_service_items
+			                            WHERE mto_service_items.updated_at >= $1
+			                            UNION
+			                            SELECT payment_requests.move_id
+			                            FROM payment_requests
+			                            WHERE payment_requests.updated_at >= $1)));`
+		err = appCtx.DB().RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
+	} else {
+		sql = sql + `;`
+		err = appCtx.DB().RawQuery(sql).All(&moveTaskOrders)
+	}
+
+	if err != nil {
+		return models.Moves{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	return moveTaskOrders, nil
 }
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
@@ -121,9 +153,26 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 		}
 
 		if searchParams.Since != nil {
-			since := time.Unix(*searchParams.Since, 0)
-			query.Where("updated_at > ?", since)
+			query.Where("updated_at > ?", *searchParams.Since)
 		}
 	}
 	// No return since this function uses pointers to modify the referenced query directly
+}
+
+//fetchReweigh retrieves a reweigh for a given shipment id
+func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	reweigh := &models.Reweigh{}
+	err := appCtx.DB().
+		Where("shipment_id = ?", shipmentID).
+		First(reweigh)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &models.Reweigh{}, nil
+		default:
+			return &models.Reweigh{}, err
+		}
+	}
+	return reweigh, nil
 }

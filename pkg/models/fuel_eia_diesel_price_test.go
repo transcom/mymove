@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
@@ -128,30 +127,6 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 	})
 }
 
-// Create multiple records covering a range of dates
-// Can change the dates for start and end ranges and
-// can create a default baseline and price to use via assertions
-func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
-	testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
-	// or call testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
-	// to change the date range:
-	//     assertions testdatagen.Assertions{}
-	//     assertions.assertions.FuelEIADieselPrice.RateStartDate = time.Date(testdatagen.TestYear-1, time.July, 15, 0, 0, 0, 0, time.UTC)
-	//     assertions.assertions.FuelEIADieselPrice.RateEndDate = time.Date(testdatagen.TestYear+1, time.July, 14, 0, 0, 0, 0, time.UTC)
-	//     testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
-}
-
-// Create 1 record for the shipment date provided and use assertions
-func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
-	rateStartDate := time.Date(2017, time.July, 15, 0, 0, 0, 0, time.UTC)
-	assertions := testdatagen.Assertions{}
-	assertions.FuelEIADieselPrice.RateStartDate = rateStartDate
-	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = unit.Millicents(695700)
-	shipmentDate := assertions.FuelEIADieselPrice.RateStartDate.AddDate(0, 0, 10)
-
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), shipmentDate, assertions)
-}
-
 func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	// Make fuel price records for the last twelve months
 	clock := clock.NewMock()
@@ -172,10 +147,4 @@ func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	expectedNumFuelPrices = 12
 	suite.NoError(err)
 	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
-}
-
-// Create 1 record for the shipment date provided
-func (suite *ModelSuite) TestMakeDefaultFuelEIADieselPriceForDate() {
-	shipmentDate := time.Now()
-	testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 }

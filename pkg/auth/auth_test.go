@@ -43,7 +43,7 @@ func ApplicationTestServername() ApplicationServername {
 
 type authSuite struct {
 	testingsuite.BaseTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestAuthSuite(t *testing.T) {

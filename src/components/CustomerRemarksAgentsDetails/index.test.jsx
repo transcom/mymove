@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 
 import CustomerRemarksAgentsDetails from './index';
 
-import DataPoint from 'components/DataPoint';
+import DataTable from 'components/DataTable';
 
 describe('CustomerRemarksAgentsDetails', () => {
   it('renders empty details', () => {
@@ -15,7 +15,7 @@ describe('CustomerRemarksAgentsDetails', () => {
     const index = 0;
     const customerRemarks = 'This is a remark.';
     const wrapper = shallow(<CustomerRemarksAgentsDetails customerRemarks={customerRemarks} />);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(customerRemarks);
+    expect(wrapper.find(DataTable).at(index).dive().text()).toContain(customerRemarks);
   });
 
   it('renders with releasing agent details', () => {
@@ -27,7 +27,7 @@ describe('CustomerRemarksAgentsDetails', () => {
       email: 'test@test.com',
     };
     const wrapper = shallow(<CustomerRemarksAgentsDetails releasingAgent={releasingAgent} />);
-    const releasingSection = wrapper.find(DataPoint).at(index).dive().text();
+    const releasingSection = wrapper.find(DataTable).at(index).dive().text();
     expect(releasingSection).toContain(releasingAgent.firstName);
     expect(releasingSection).toContain(releasingAgent.lastName);
     expect(releasingSection).toContain(releasingAgent.phone);
@@ -43,7 +43,7 @@ describe('CustomerRemarksAgentsDetails', () => {
       email: 'test@test.com',
     };
     const wrapper = shallow(<CustomerRemarksAgentsDetails receivingAgent={receivingAgent} />);
-    const receivingSection = wrapper.find(DataPoint).at(index).dive().text();
+    const receivingSection = wrapper.find(DataTable).at(index).dive().text();
     expect(receivingSection).toContain(receivingAgent.firstName);
     expect(receivingSection).toContain(receivingAgent.lastName);
     expect(receivingSection).toContain(receivingAgent.phone);

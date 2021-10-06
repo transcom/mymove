@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
+import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { FilesShape } from './types';
@@ -7,12 +8,11 @@ import styles from './DocumentViewer.module.scss';
 import Content from './Content/Content';
 import Menu from './Menu/Menu';
 
-import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
+import { formatDate } from 'shared/dates';
 import { filenameFromPath } from 'shared/formatters';
 
 /**
  * TODO
- * - implement open in a new window
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
  * - handle fetch doc errors
@@ -22,7 +22,9 @@ const DocumentViewer = ({ files }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
-  const selectedFile = files[parseInt(selectedFileIndex, 10)];
+  const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
+
+  const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
   if (!selectedFile) {
     return (
@@ -66,11 +68,10 @@ const DocumentViewer = ({ files }) => {
     selectFile(index);
     closeMenu();
   };
-  const openInNewWindow = () => {
-    // TODO - do we need to stream the file or can we just open the URL?
-  };
 
   const selectedFilename = filenameFromPath(selectedFile.filename);
+
+  const selectedFileDate = formatDate(moment(selectedFile.createdAt), 'DD MMM YYYY');
 
   return (
     <div className={styles.DocumentViewer}>
@@ -78,19 +79,15 @@ const DocumentViewer = ({ files }) => {
         <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
           <FontAwesomeIcon icon="th-list" />
         </Button>
-
-        <p title={selectedFilename}>{selectedFilename}</p>
-        {/* TODO */}
-        <Button type="button" unstyled onClick={openInNewWindow}>
-          <span>Open in a new window</span>
-          <ExternalLink />
-        </Button>
+        <p title={selectedFilename} data-testid="documentTitle">
+          <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
+        </p>
       </div>
       <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
-        files={files}
+        files={sortedFiles}
         handleClose={closeMenu}
         selectedFileIndex={selectedFileIndex}
         handleSelectFile={handleSelectFile}

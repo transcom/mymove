@@ -12,6 +12,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -21,6 +25,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
@@ -29,8 +34,9 @@ import (
 )
 
 // IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
-func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
+func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger := logging.FromContext(r.Context())
 		data := map[string]interface{}{
 			"isLoggedIn": false,
 		}
@@ -48,10 +54,11 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 }
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 
+			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
 
 			// We must have a logged in session and a user
@@ -65,11 +72,11 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
 
@@ -79,7 +86,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger Logger) error {
+func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger *zap.Logger) error {
 	userID := session.UserID
 
 	user, err := models.GetUser(db, userID)
@@ -104,7 +111,7 @@ func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop
 	return err
 }
 
-func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger Logger) error {
+func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger *zap.Logger) error {
 	userID := session.UserID
 	user, err := models.GetUser(db, userID)
 	if err != nil {
@@ -149,7 +156,7 @@ func currentSessionID(session *auth.Session, user *models.User) string {
 	return ""
 }
 
-func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger Logger, db *pop.Connection) error {
+func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger *zap.Logger, db *pop.Connection) error {
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
 	err := sessionManager.RenewToken(ctx)
@@ -205,7 +212,7 @@ func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, s
 }
 
 // AdminAuthMiddleware is middleware for admin authentication
-func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := auth.SessionFromRequestContext(r)
@@ -223,9 +230,10 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 }
 
 // PrimeAuthorizationMiddleware is the prime authorization middleware
-func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
 			clientCert := ClientCertFromContext(r.Context())
 			if clientCert == nil {
 				logger.Error("unauthorized user for ghc prime")
@@ -241,6 +249,24 @@ func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Ha
 			next.ServeHTTP(w, r)
 		}
 
+		return http.HandlerFunc(mw)
+	}
+}
+
+// PrimeSimulatorAuthorizationMiddleware ensures only users with the
+// prime simulator role can access the simulator
+func PrimeSimulatorAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
+			session := auth.SessionFromRequestContext(r)
+			if session == nil || !session.Roles.HasRole(roles.RoleTypePrimeSimulator) {
+				logger.Error("forbidden user for prime simulator")
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		}
 		return http.HandlerFunc(mw)
 	}
 }
@@ -282,7 +308,7 @@ func (context Context) sessionManager(session *auth.Session) *scs.SessionManager
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	logger           Logger
+	logger           *zap.Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
@@ -296,7 +322,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
@@ -323,7 +349,6 @@ func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
@@ -349,6 +374,21 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
+			h.logger.Info("session exists but has an empty IDToken")
+
+			if session.UserID != uuid.Nil {
+				err := resetUserCurrentSessionID(session, h.db, h.logger)
+				if err != nil {
+					h.logger.Error("failed to reset user's current_x_session_id")
+				}
+			}
+
+			err := h.sessionManager(session).Destroy(r.Context())
+			if err != nil {
+				h.logger.Error("failed to destroy session")
+			}
+
+			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, redirectURL)
 		}
 	}
@@ -407,6 +447,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 		Secure:   h.UseSecureCookie,
 	}
+
 	http.SetCookie(w, &stateCookie)
 	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
@@ -414,14 +455,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db *pop.Connection
+	db     *pop.Connection
+	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
 		Context: ac,
 		db:      db,
+		sender:  sender,
 	}
 	return handler
 }
@@ -511,6 +554,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
+		h.logger.Error("Reading openIDSession from login.gov", zap.Error(err))
 		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
@@ -574,7 +618,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
 				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
 				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
@@ -604,13 +648,15 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		} else {
 			// In case they managed to login before the admin_user record was created
 			var adminUser models.AdminUser
-			queryBuilder := query.NewQueryBuilder(h.db)
+			queryBuilder := query.NewQueryBuilder()
 			filters := []services.QueryFilter{
 				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
 			}
-			err := queryBuilder.FetchOne(&adminUser, filters)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
+			appCtx := appcontext.NewAppContext(h.db, h.logger)
+			err := queryBuilder.FetchOne(appCtx, &adminUser, filters)
+
+			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				h.logger.Error("No admin user found", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
@@ -662,7 +708,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		officeUser, err = models.FetchOfficeUserByEmail(conn, session.Email)
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No Office user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
 			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
@@ -679,15 +725,16 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	var adminUser models.AdminUser
 	if session.IsAdminApp() {
-		queryBuilder := query.NewQueryBuilder(conn)
+		queryBuilder := query.NewQueryBuilder()
+		appCtx := appcontext.NewAppContext(h.db, h.logger)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("email", "=", session.Email),
 		}
-		err = queryBuilder.FetchOne(&adminUser, filters)
+		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			h.logger.Error("No admin user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
 			h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
@@ -704,6 +751,24 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+		if err == nil {
+			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
+			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
+			h.logger.Info(
+				"New user account created through Login.gov",
+				zap.String("newUserID", user.ID.String()),
+				zap.String("sysAdminEmail", sysAdminEmail),
+			)
+			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
+			if emailErr == nil {
+				sendErr := h.sender.SendNotification(email)
+				if sendErr != nil {
+					h.logger.Error("Error sending user creation email", zap.Error(sendErr))
+				}
+			} else {
+				h.logger.Error("Error creating user creation email", zap.Error(emailErr))
+			}
+		}
 		// Create the user's service member now and add the ServiceMemberID to
 		// the session to allow the user's `CurrentMilSessionId` field to be
 		// populated. This field is only populated if `session.IsServiceMember()`
@@ -753,7 +818,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
 	if err != nil {
@@ -800,7 +865,7 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 }
 
 // InitAuth initializes the Login.gov provider
-func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
+func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
 	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
 	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
 	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)

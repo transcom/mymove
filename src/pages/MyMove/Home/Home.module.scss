@@ -11,6 +11,7 @@
 
   .secondaryBtn {
     box-shadow: inset 0 0 0 2px $primary;
+
     &:disabled {
       box-shadow: none;
     }
@@ -41,6 +42,7 @@
     font-size: 28px;
     margin: 0px;
   }
+
   p {
     font-size: 15px;
     margin: 0px;
@@ -81,7 +83,7 @@
 .subheaderContainer {
   display: flex;
   justify-content: space-between;
-  color: $base-light;
+  color: $base-lighter;
   @include u-margin-top(1.5);
   @include u-margin-bottom(0);
 
@@ -139,4 +141,13 @@
       @include u-margin-top(0);
     }
   }
+}
+
+.alertMessageSecondLine {
+  display: block;
+  @include u-margin-y(1em);
+}
+
+.alertMessageFirstLine {
+  display: block;
 }

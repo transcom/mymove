@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -21,6 +22,22 @@ func MakeRole(db *pop.Connection, assertions Assertions) roles.Role {
 	mustCreate(db, &role, assertions.Stub)
 
 	return role
+}
+
+// MakeUsersRoles ties roles to the user
+func MakeUsersRoles(db *pop.Connection, assertions Assertions) models.UsersRoles {
+	usersRoles := models.UsersRoles{
+		ID:     uuid.Must(uuid.NewV4()),
+		UserID: assertions.User.ID,
+		RoleID: assertions.UsersRoles.RoleID,
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&usersRoles, assertions.UsersRoles)
+
+	mustCreate(db, &usersRoles, assertions.Stub)
+
+	return usersRoles
 }
 
 // MakeServicesCounselorRole creates a single services counselor role.

@@ -29,7 +29,7 @@ func NewGetAdminUser(ctx *middleware.Context, handler GetAdminUserHandler) *GetA
 	return &GetAdminUser{Context: ctx, Handler: handler}
 }
 
-/*GetAdminUser swagger:route GET /admin_users/{adminUserId} admin_users getAdminUser
+/* GetAdminUser swagger:route GET /admin_users/{adminUserId} admin_users getAdminUser
 
 Fetch a specific admin user
 
@@ -44,17 +44,15 @@ type GetAdminUser struct {
 func (o *GetAdminUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetAdminUserParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

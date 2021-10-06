@@ -1,12 +1,20 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
-  ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
+jest.mock('components/DutyStationSearchBox/api', () => ({
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postal_code: '85309',
+      state: 'AZ',
+      street_address_1: 'n/a',
+    }),
+  ),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -166,28 +174,28 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('validates the new duty station against the current duty station', async () => {
-    const { queryByText, getByRole, getByLabelText } = render(
-      <OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />,
-    );
+    render(<OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
-    expect(getByRole('form')).toHaveFormValues({
-      new_duty_station: 'Luke AFB',
-    });
+    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    const selectedOption = await screen.findByText(/Luke/);
+    userEvent.click(selectedOption);
 
     await waitFor(() => {
-      expect(getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
-      expect(
-        queryByText('You entered the same duty station for your origin and destination. Please change one of them.'),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_station: 'Luke AFB',
+      });
     });
+
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
+    expect(
+      screen.getByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+    ).toBeInTheDocument();
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
@@ -203,21 +211,25 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    render(<OrdersInfoForm {...testProps} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
-    expect(getByRole('form')).toHaveFormValues({
-      new_duty_station: 'Luke AFB',
+    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    const selectedOption = await screen.findByText(/Luke/);
+    userEvent.click(selectedOption);
+
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_station: 'Luke AFB',
+      });
     });
 
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
     userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -228,7 +240,14 @@ describe('OrdersInfoForm component', () => {
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
           new_duty_station: {
-            address: undefined,
+            address: {
+              city: 'Glendale Luke AFB',
+              country: 'United States',
+              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+              postal_code: '85309',
+              state: 'AZ',
+              street_address_1: 'n/a',
+            },
             address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
             affiliation: 'AIR_FORCE',
             created_at: '2021-02-11T16:48:04.117Z',

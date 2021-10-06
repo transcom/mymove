@@ -6,12 +6,9 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -31,6 +28,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -159,7 +157,7 @@ type SubmitMoveHandler struct {
 // Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -167,8 +165,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-
-	err = h.MoveRouter.Submit(move)
+	err = h.MoveRouter.Submit(appCtx, move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -178,7 +175,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	certificateParams.HTTPRequest = params.HTTPRequest
 	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
+	verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -200,7 +197,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
-func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+	logger := appCtx.Logger()
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -221,10 +219,10 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
-		verrs, err := db.ValidateAndCreate(&newSignedCertification)
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(&newSignedCertification)
 		if err != nil || verrs.HasAny() {
 			responseError = fmt.Errorf("error saving signed certification: %w", err)
 			responseVErrors.Append(verrs)
@@ -234,27 +232,27 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		for _, ppm := range move.PersonallyProcuredMoves {
 			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
 			if copyOfPpm.Advance != nil {
-				if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
+				if verrs, err := txnAppCtx.DB().ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
 					return transactionError
 				}
 			}
 
-			if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
+			if verrs, err := txnAppCtx.DB().ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
 				return transactionError
 			}
 		}
 
-		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+		if verrs, err := txnAppCtx.DB().ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
 			return transactionError
 		}
 
-		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+		if verrs, err := txnAppCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Move")
 			return transactionError
@@ -414,4 +412,48 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerContext
+}
+
+// SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
+type SubmitAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveRouter
+}
+
+// Handle ... submit a move to TOO for approval
+func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+
+	err = h.MoveRouter.Submit(appCtx, move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(saveErr, "Error Saving Move")
+	}
+
+	if responseVErrors.HasAny() {
+		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+	}
+
+	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
 }

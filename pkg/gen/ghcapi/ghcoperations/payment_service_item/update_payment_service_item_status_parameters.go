@@ -6,6 +6,7 @@ package payment_service_item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdatePaymentServiceItemStatusParams creates a new UpdatePaymentServiceItemStatusParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdatePaymentServiceItemStatusParams() UpdatePaymentServiceItemStatusParams {
 
 	return UpdatePaymentServiceItemStatusParams{}
@@ -84,6 +86,11 @@ func (o *UpdatePaymentServiceItemStatusParams) BindRequest(r *http.Request, rout
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -91,6 +98,7 @@ func (o *UpdatePaymentServiceItemStatusParams) BindRequest(r *http.Request, rout
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
@@ -100,7 +108,6 @@ func (o *UpdatePaymentServiceItemStatusParams) BindRequest(r *http.Request, rout
 	if err := o.bindPaymentServiceItemID(rPaymentServiceItemID, rhkPaymentServiceItemID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -122,7 +129,6 @@ func (o *UpdatePaymentServiceItemStatusParams) bindIfMatch(rawData []string, has
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -137,7 +143,6 @@ func (o *UpdatePaymentServiceItemStatusParams) bindMoveTaskOrderID(rawData []str
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil
@@ -152,7 +157,6 @@ func (o *UpdatePaymentServiceItemStatusParams) bindPaymentServiceItemID(rawData 
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.PaymentServiceItemID = raw
 
 	return nil

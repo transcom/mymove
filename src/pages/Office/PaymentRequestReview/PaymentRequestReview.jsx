@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMutation, queryCache } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
+import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MatchShape, HistoryShape } from 'types/router';
+import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
@@ -17,9 +18,15 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
-  const { paymentRequest, paymentRequests, paymentServiceItems, isLoading, isError } = usePaymentRequestQueries(
-    paymentRequestId,
-  );
+  const {
+    paymentRequest,
+    paymentRequests,
+    paymentServiceItems,
+    mtoShipments,
+    shipmentsPaymentSITBalance,
+    isLoading,
+    isError,
+  } = usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
@@ -58,7 +65,46 @@ export const PaymentRequestReview = ({ history, match }) => {
         },
       });
     },
+    throwOnError: true,
   });
+
+  const serviceItemCards = React.useMemo(() => {
+    // avoids needing to search through the same arary to match up shipment ids for payment service items
+    // eslint has a rule about function param reassignment so not using array.reduce here
+    const normalizedShipments = {};
+    mtoShipments?.forEach((shipment) => {
+      normalizedShipments[shipment.id] = shipment;
+    });
+
+    return Object.values(paymentServiceItems || {}).map((item) => {
+      const selectedShipment = normalizedShipments[item.mtoShipmentID];
+      const shipmentSITBalance = shipmentsPaymentSITBalance
+        ? shipmentsPaymentSITBalance[item.mtoShipmentID]
+        : undefined;
+      return {
+        id: item.id,
+        mtoShipmentID: item.mtoShipmentID,
+        mtoShipmentType: item.mtoShipmentType,
+        mtoShipmentDepartureDate: selectedShipment?.actualPickupDate,
+        mtoShipmentPickupAddress: selectedShipment
+          ? formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress)
+          : undefined,
+        mtoShipmentDestinationAddress: selectedShipment
+          ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
+          : undefined,
+        mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
+        mtoServiceItemCode: item.mtoServiceItemCode,
+        mtoServiceItemName: item.mtoServiceItemName,
+        mtoServiceItems: selectedShipment?.mtoServiceItems,
+        amount: item.priceCents ? item.priceCents / 100 : 0,
+        createdAt: item.createdAt,
+        status: item.status,
+        rejectionReason: item.rejectionReason,
+        paymentServiceItemParams: item.paymentServiceItemParams,
+        shipmentSITBalance,
+      };
+    });
+  }, [paymentServiceItems, mtoShipments, shipmentsPaymentSITBalance]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -66,16 +112,13 @@ export const PaymentRequestReview = ({ history, match }) => {
   const uploads = paymentRequest.proofOfServiceDocs
     ? paymentRequest.proofOfServiceDocs.flatMap((docs) => docs.uploads.flatMap((primeUploads) => primeUploads))
     : [];
-  const paymentServiceItemsArr = Object.values(paymentServiceItems);
 
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
-    const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
-
-    mutatePaymentServiceItemStatus({
+    return mutatePaymentServiceItemStatus({
       moveTaskOrderID: paymentRequest.moveTaskOrderID,
       paymentServiceItemID,
       status: values.status,
-      ifMatchEtag: paymentServiceItemForRequest.eTag,
+      ifMatchEtag: paymentServiceItems[paymentServiceItemID].eTag,
       rejectionReason: values.rejectionReason,
     });
   };
@@ -98,21 +141,6 @@ export const PaymentRequestReview = ({ history, match }) => {
   const handleClose = () => {
     history.push(`/moves/${moveCode}/payment-requests`);
   };
-
-  const serviceItemCards = paymentServiceItemsArr.map((item) => {
-    return {
-      id: item.id,
-      mtoShipmentID: item.mtoShipmentID,
-      mtoShipmentType: item.mtoShipmentType,
-      mtoServiceItemCode: item.mtoServiceItemCode,
-      mtoServiceItemName: item.mtoServiceItemName,
-      amount: item.priceCents ? item.priceCents / 100 : 0,
-      createdAt: item.createdAt,
-      status: item.status,
-      rejectionReason: item.rejectionReason,
-      paymentServiceItemParams: item.paymentServiceItemParams,
-    };
-  });
 
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>

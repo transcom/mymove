@@ -69,7 +69,7 @@ type GetServicesCounselingQueueForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetServicesCounselingQueueForbidden creates GetServicesCounselingQueueForbidden with default headers values
@@ -79,13 +79,13 @@ func NewGetServicesCounselingQueueForbidden() *GetServicesCounselingQueueForbidd
 }
 
 // WithPayload adds the payload to the get services counseling queue forbidden response
-func (o *GetServicesCounselingQueueForbidden) WithPayload(payload interface{}) *GetServicesCounselingQueueForbidden {
+func (o *GetServicesCounselingQueueForbidden) WithPayload(payload *ghcmessages.Error) *GetServicesCounselingQueueForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get services counseling queue forbidden response
-func (o *GetServicesCounselingQueueForbidden) SetPayload(payload interface{}) {
+func (o *GetServicesCounselingQueueForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetServicesCounselingQueueForbidden) SetPayload(payload interface{}) {
 func (o *GetServicesCounselingQueueForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetServicesCounselingQueueInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetServicesCounselingQueueInternalServerError creates GetServicesCounselingQueueInternalServerError with default headers values
@@ -121,13 +123,13 @@ func NewGetServicesCounselingQueueInternalServerError() *GetServicesCounselingQu
 }
 
 // WithPayload adds the payload to the get services counseling queue internal server error response
-func (o *GetServicesCounselingQueueInternalServerError) WithPayload(payload interface{}) *GetServicesCounselingQueueInternalServerError {
+func (o *GetServicesCounselingQueueInternalServerError) WithPayload(payload *ghcmessages.Error) *GetServicesCounselingQueueInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get services counseling queue internal server error response
-func (o *GetServicesCounselingQueueInternalServerError) SetPayload(payload interface{}) {
+func (o *GetServicesCounselingQueueInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,8 +137,10 @@ func (o *GetServicesCounselingQueueInternalServerError) SetPayload(payload inter
 func (o *GetServicesCounselingQueueInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

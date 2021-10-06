@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -14,7 +15,8 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOAgents m t o agents
+// MTOAgents A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.
+//
 //
 // swagger:model MTOAgents
 type MTOAgents []*MTOAgent
@@ -36,6 +38,29 @@ func (m MTOAgents) Validate(formats strfmt.Registry) error {
 
 		if m[i] != nil {
 			if err := m[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName(strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// ContextValidate validate this m t o agents based on the context it is used
+func (m MTOAgents) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	for i := 0; i < len(m); i++ {
+
+		if m[i] != nil {
+			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
 				}

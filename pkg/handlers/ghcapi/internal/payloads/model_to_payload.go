@@ -4,6 +4,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -13,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -39,19 +42,24 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                 strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:         Contractor(move.Contractor),
-		Locator:            move.Locator,
-		OrdersID:           strfmt.UUID(move.OrdersID.String()),
-		Orders:             Order(&move.Orders),
-		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
-		Status:             ghcmessages.MoveStatus(move.Status),
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		ID:                           strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:                   Contractor(move.Contractor),
+		Locator:                      move.Locator,
+		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
+		Orders:                       Order(&move.Orders),
+		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
+		Status:                       ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
+		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
+		ETag:                         etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 	}
 
 	return payload
@@ -91,6 +99,8 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		ID:             strfmt.UUID(customer.ID.String()),
 		LastName:       swag.StringValue(customer.LastName),
 		Phone:          customer.Telephone,
+		Suffix:         customer.Suffix,
+		MiddleName:     customer.MiddleName,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 		BackupContact:  BackupContact(customer.BackupContacts),
@@ -135,32 +145,40 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	var moveCode string
+	var moveTaskOrderID strfmt.UUID
+	var moveTaskOrder models.Move
 	if order.Moves != nil && len(order.Moves) > 0 {
 		moveCode = order.Moves[0].Locator
+		moveTaskOrderID = strfmt.UUID(order.Moves[0].ID.String())
+		moveTaskOrder = order.Moves[0]
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
-		Grade:                  &grade,
-		OrderNumber:            order.OrdersNumber,
-		OrderTypeDetail:        &ordersTypeDetail,
-		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(order.UpdatedAt),
-		Agency:                 branch,
-		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:               Customer(&order.ServiceMember),
-		FirstName:              swag.StringValue(order.ServiceMember.FirstName),
-		LastName:               swag.StringValue(order.ServiceMember.LastName),
-		ReportByDate:           strfmt.Date(order.ReportByDate),
-		DateIssued:             strfmt.Date(order.IssueDate),
-		OrderType:              ghcmessages.OrdersType(order.OrdersType),
-		DepartmentIndicator:    &deptIndicator,
-		Tac:                    handlers.FmtStringPtr(order.TAC),
-		Sac:                    handlers.FmtStringPtr(order.SAC),
-		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
-		MoveCode:               moveCode,
+		DestinationDutyStation:      destinationDutyStation,
+		Entitlement:                 entitlements,
+		Grade:                       &grade,
+		OrderNumber:                 order.OrdersNumber,
+		OrderTypeDetail:             &ordersTypeDetail,
+		ID:                          strfmt.UUID(order.ID.String()),
+		OriginDutyStation:           originDutyStation,
+		ETag:                        etag.GenerateEtag(order.UpdatedAt),
+		Agency:                      branch,
+		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                    Customer(&order.ServiceMember),
+		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),
+		LastName:                    swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:                strfmt.Date(order.ReportByDate),
+		DateIssued:                  strfmt.Date(order.IssueDate),
+		OrderType:                   ghcmessages.OrdersType(order.OrdersType),
+		DepartmentIndicator:         &deptIndicator,
+		Tac:                         handlers.FmtStringPtr(order.TAC),
+		Sac:                         handlers.FmtStringPtr(order.SAC),
+		UploadedOrderID:             strfmt.UUID(order.UploadedOrdersID.String()),
+		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
+		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
+		MoveCode:                    moveCode,
+		MoveTaskOrderID:             moveTaskOrderID,
+		MoveTaskOrder:               Move(&moveTaskOrder),
 	}
 
 	return &payload
@@ -269,52 +287,152 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	}
 }
 
+// SITExtension payload
+func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+	payload := &ghcmessages.SITExtension{
+		ID:                strfmt.UUID(sitExtension.ID.String()),
+		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
+		RequestReason:     string(sitExtension.RequestReason),
+		RequestedDays:     int64(sitExtension.RequestedDays),
+		Status:            string(sitExtension.Status),
+		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
+	}
+
+	return payload
+}
+
+// SITExtensions payload
+func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SITExtensions {
+	payload := make(ghcmessages.SITExtensions, len(*sitExtensions))
+
+	if len(*sitExtensions) > 0 {
+		for i, m := range *sitExtensions {
+			copyOfSITExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			payload[i] = SITExtension(&copyOfSITExtension)
+		}
+	}
+	return &payload
+}
+
+// SITStatus payload
+func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
+	if shipmentSITStatuses == nil {
+		return nil
+	}
+	payload := &ghcmessages.SITStatus{
+		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
+		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		Location:            shipmentSITStatuses.Location,
+		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs),
+		SitDepartureDate:    handlers.FmtDateTimePtr(shipmentSITStatuses.SITDepartureDate),
+		SitEntryDate:        strfmt.DateTime(shipmentSITStatuses.SITEntryDate),
+		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+	}
+
+	return payload
+}
+
+// SITStatuses payload
+func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*ghcmessages.SITStatus {
+	sitStatuses := map[string]*ghcmessages.SITStatus{}
+	if len(shipmentSITStatuses) == 0 {
+		return sitStatuses
+	}
+
+	for _, sitStatus := range shipmentSITStatuses {
+		copyOfSITStatus := sitStatus
+		sitStatuses[sitStatus.ShipmentID.String()] = SITStatus(&copyOfSITStatus)
+	}
+
+	return sitStatuses
+}
+
 // MTOShipment payload
-func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
+func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
 	payload := &ghcmessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             mtoShipment.ShipmentType,
-		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RejectionReason:          mtoShipment.RejectionReason,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
-		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
-		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
-		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                          strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		Status:                      ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:            mtoShipment.CounselorRemarks,
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		RejectionReason:             mtoShipment.RejectionReason,
+		PickupAddress:               Address(mtoShipment.PickupAddress),
+		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:          Address(mtoShipment.DestinationAddress),
+		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
+		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
+		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		Diversion:                   mtoShipment.Diversion,
+		Reweigh:                     Reweigh(mtoShipment.Reweigh, sitStatusPayload),
+		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
+		SitDaysAllowance:            handlers.FmtIntPtrToInt64(mtoShipment.SITDaysAllowance),
+		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
+		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
+		BillableWeightJustification: mtoShipment.BillableWeightJustification,
+	}
+
+	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
+		payload.SitExtensions = *SITExtensions(&mtoShipment.SITExtensions)
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
+	}
+
+	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
+		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
+
+	if sitStatusPayload != nil {
+		payload.SitStatus = sitStatusPayload
+	}
+
+	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
+	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+
+	// CalculatedBillableWeight is intentionally not a part of the mto_shipments model
+	// because we don't want to store a derived value in the database
+	payload.CalculatedBillableWeight = handlers.FmtPoundPtr(calculatedWeights.CalculatedBillableWeight)
 
 	return payload
 }
 
 // MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
+func MTOShipments(mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MTOShipment(&copyOfMtoShipment)
+		if sitStatus, ok := sitStatusPayload[copyOfMtoShipment.ID.String()]; ok {
+			payload[i] = MTOShipment(&copyOfMtoShipment, sitStatus)
+		} else {
+			payload[i] = MTOShipment(&copyOfMtoShipment, nil)
+		}
 	}
 	return &payload
 }
@@ -376,18 +494,19 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 	}
 
 	return &ghcmessages.PaymentRequest{
-		ID:                   *handlers.FmtUUID(pr.ID),
-		IsFinal:              &pr.IsFinal,
-		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:        Move(&pr.MoveTaskOrder),
-		PaymentRequestNumber: pr.PaymentRequestNumber,
-		RejectionReason:      pr.RejectionReason,
-		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
-		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
-		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
-		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:   serviceDocs,
-		CreatedAt:            strfmt.DateTime(pr.CreatedAt),
+		ID:                              *handlers.FmtUUID(pr.ID),
+		IsFinal:                         &pr.IsFinal,
+		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		PaymentRequestNumber:            pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                 pr.RejectionReason,
+		Status:                          ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:                    *PaymentServiceItems(&pr.PaymentServiceItems),
+		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:              serviceDocs,
+		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 	}, nil
 }
 
@@ -468,10 +587,14 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
+		SITPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
+		SitEntryDate:     handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitDepartureDate: handlers.FmtDateTimePtr(s.SITDepartureDate),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		EstimatedWeight:  handlers.FmtPoundPtr(s.EstimatedWeight),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
 		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
@@ -569,6 +692,15 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	}, nil
 }
 
+// In the TOO queue response we only want to count shipments in these statuses (excluding draft and cancelled)
+// For the Services Counseling queue we will find the earliest move date from shipments in these statuses
+func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
+	return status == models.MTOShipmentStatusSubmitted ||
+		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusDiversionRequested ||
+		status == models.MTOShipmentStatusCancellationRequested
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -577,8 +709,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+			if queueIncludeShipmentStatus(shipment.Status) {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
@@ -596,7 +729,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.Orders.ID),
+			ID:                     *handlers.FmtUUID(move.ID),
 			Locator:                move.Locator,
 			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
@@ -667,4 +800,58 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	}
 
 	return &queuePaymentRequests
+}
+
+// Reweigh payload
+func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.Reweigh {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
+		return nil
+	}
+	payload := &ghcmessages.Reweigh{
+		ID:                     strfmt.UUID(reweigh.ID.String()),
+		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),
+		RequestedBy:            ghcmessages.ReweighRequester(reweigh.RequestedBy),
+		VerificationReason:     reweigh.VerificationReason,
+		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
+		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+		Shipment:               MTOShipment(&reweigh.Shipment, sitStatusPayload),
+		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
+	}
+
+	return payload
+}
+
+// ShipmentPaymentSITBalance payload
+func ShipmentPaymentSITBalance(shipmentSITBalance *services.ShipmentPaymentSITBalance) *ghcmessages.ShipmentPaymentSITBalance {
+	if shipmentSITBalance == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.ShipmentPaymentSITBalance{
+		PendingBilledEndDate:    handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
+		PendingSITDaysInvoiced:  int64(shipmentSITBalance.PendingSITDaysInvoiced),
+		PreviouslyBilledDays:    handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),
+		PreviouslyBilledEndDate: handlers.FmtDatePtr(shipmentSITBalance.PreviouslyBilledEndDate),
+		ShipmentID:              *handlers.FmtUUID(shipmentSITBalance.ShipmentID),
+		TotalSITDaysAuthorized:  int64(shipmentSITBalance.TotalSITDaysAuthorized),
+		TotalSITDaysRemaining:   int64(shipmentSITBalance.TotalSITDaysRemaining),
+		TotalSITEndDate:         handlers.FmtDate(shipmentSITBalance.TotalSITEndDate),
+	}
+
+	return payload
+}
+
+// ShipmentsPaymentSITBalance payload
+func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSITBalance) ghcmessages.ShipmentsPaymentSITBalance {
+	if len(shipmentsSITBalance) == 0 {
+		return nil
+	}
+
+	payload := make(ghcmessages.ShipmentsPaymentSITBalance, len(shipmentsSITBalance))
+	for i, shipmentSITBalance := range shipmentsSITBalance {
+		shipmentSITBalanceCopy := shipmentSITBalance
+		payload[i] = ShipmentPaymentSITBalance(&shipmentSITBalanceCopy)
+	}
+
+	return payload
 }

@@ -65,9 +65,8 @@ func (o *CreateUploadReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -76,7 +75,7 @@ func NewCreateUploadCreated() *CreateUploadCreated {
 	return &CreateUploadCreated{}
 }
 
-/*CreateUploadCreated handles this case with default header values.
+/* CreateUploadCreated describes a response with status code 201, with default header values.
 
 Successfully created upload of digital file.
 */
@@ -87,7 +86,6 @@ type CreateUploadCreated struct {
 func (o *CreateUploadCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadCreated  %+v", 201, o.Payload)
 }
-
 func (o *CreateUploadCreated) GetPayload() *primemessages.Upload {
 	return o.Payload
 }
@@ -109,7 +107,7 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 	return &CreateUploadBadRequest{}
 }
 
-/*CreateUploadBadRequest handles this case with default header values.
+/* CreateUploadBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -120,7 +118,6 @@ type CreateUploadBadRequest struct {
 func (o *CreateUploadBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreateUploadBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -142,7 +139,7 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 	return &CreateUploadUnauthorized{}
 }
 
-/*CreateUploadUnauthorized handles this case with default header values.
+/* CreateUploadUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,7 +150,6 @@ type CreateUploadUnauthorized struct {
 func (o *CreateUploadUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *CreateUploadUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -175,7 +171,7 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 	return &CreateUploadForbidden{}
 }
 
-/*CreateUploadForbidden handles this case with default header values.
+/* CreateUploadForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -186,7 +182,6 @@ type CreateUploadForbidden struct {
 func (o *CreateUploadForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadForbidden  %+v", 403, o.Payload)
 }
-
 func (o *CreateUploadForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -208,7 +203,7 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 	return &CreateUploadNotFound{}
 }
 
-/*CreateUploadNotFound handles this case with default header values.
+/* CreateUploadNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -219,7 +214,6 @@ type CreateUploadNotFound struct {
 func (o *CreateUploadNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreateUploadNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,9 +235,9 @@ func NewCreateUploadUnprocessableEntity() *CreateUploadUnprocessableEntity {
 	return &CreateUploadUnprocessableEntity{}
 }
 
-/*CreateUploadUnprocessableEntity handles this case with default header values.
+/* CreateUploadUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type CreateUploadUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -252,7 +246,6 @@ type CreateUploadUnprocessableEntity struct {
 func (o *CreateUploadUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreateUploadUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -274,7 +267,7 @@ func NewCreateUploadInternalServerError() *CreateUploadInternalServerError {
 	return &CreateUploadInternalServerError{}
 }
 
-/*CreateUploadInternalServerError handles this case with default header values.
+/* CreateUploadInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -285,7 +278,6 @@ type CreateUploadInternalServerError struct {
 func (o *CreateUploadInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreateUploadInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

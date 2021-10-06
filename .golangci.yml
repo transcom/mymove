@@ -45,13 +45,6 @@ linters:
     - staticcheck
   fast: false
 issues:
-  # Disable defaults for the exclude patterns and instead list them all out
-  # TODO: Slowly remove these where they make sense and fix code
-  exclude-use-default: false
-  exclude:
-    # gosec: Duplicated errcheck checks
-    # TODO: Remove this when errcheck is enabled above - duplication is ok
-    - G104
   fix: true
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m

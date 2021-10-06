@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MTOServiceItemStatus represents the possible statuses for a mto shipment
@@ -24,11 +26,11 @@ const (
 // MTOServiceItem is an object representing service items for a move task order.
 type MTOServiceItem struct {
 	ID                            uuid.UUID                      `db:"id"`
-	MoveTaskOrder                 Move                           `belongs_to:"moves"`
+	MoveTaskOrder                 Move                           `belongs_to:"moves" fk_id:"move_id"`
 	MoveTaskOrderID               uuid.UUID                      `db:"move_id"`
-	MTOShipment                   MTOShipment                    `belongs_to:"mto_shipments"`
+	MTOShipment                   MTOShipment                    `belongs_to:"mto_shipments" fk_id:"mto_shipment_id"`
 	MTOShipmentID                 *uuid.UUID                     `db:"mto_shipment_id"`
-	ReService                     ReService                      `belongs_to:"re_services"`
+	ReService                     ReService                      `belongs_to:"re_services" fk_id:"re_service_id"`
 	ReServiceID                   uuid.UUID                      `db:"re_service_id"`
 	Reason                        *string                        `db:"reason"`
 	RejectionReason               *string                        `db:"rejection_reason"`
@@ -37,13 +39,15 @@ type MTOServiceItem struct {
 	SITPostalCode                 *string                        `db:"sit_postal_code"`
 	SITEntryDate                  *time.Time                     `db:"sit_entry_date"`
 	SITDepartureDate              *time.Time                     `db:"sit_departure_date"`
-	SITOriginHHGOriginalAddress   *Address                       `belongs_to:"addresses"`
+	SITOriginHHGOriginalAddress   *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_original_address_id"`
 	SITOriginHHGOriginalAddressID *uuid.UUID                     `db:"sit_origin_hhg_original_address_id"`
-	SITOriginHHGActualAddress     *Address                       `belongs_to:"addresses"`
+	SITOriginHHGActualAddress     *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_actual_address_id"`
 	SITOriginHHGActualAddressID   *uuid.UUID                     `db:"sit_origin_hhg_actual_address_id"`
-	SITDestinationFinalAddress    *Address                       `belongs_to:"addresses"`
+	SITDestinationFinalAddress    *Address                       `belongs_to:"addresses" fk_id:"sit_destination_final_address_id"`
 	SITDestinationFinalAddressID  *uuid.UUID                     `db:"sit_destination_final_address_id"`
 	Description                   *string                        `db:"description"`
+	EstimatedWeight               *unit.Pound                    `db:"estimated_weight"`
+	ActualWeight                  *unit.Pound                    `db:"actual_weight"`
 	Dimensions                    MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts              MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
 	CreatedAt                     time.Time                      `db:"created_at"`

@@ -27,6 +27,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	}()
 
 	quoted := 0
+	quoteRunLength := 0
 	blocks := NewStack()
 	var stmt strings.Builder
 
@@ -45,6 +46,12 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				close(statements)
 				return
 			}
+		}
+
+		if char != '\'' {
+			quoteRunLength = 0
+		} else {
+			quoteRunLength++
 		}
 
 		// If statement is empty, don't prefix with spaces
@@ -81,9 +88,9 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		}
 
 		// If not in block not quoted and on semicolon, then split statement.
-		if blocks.Empty() && quoted == 0 && char == ';' {
+		if blocks.Empty() && quoted == 0 && char == ';' && !inCopyStatement {
 			str := strings.TrimSpace(stmt.String() + ";")
-			if len(str) > 0 {
+			if len(str) > 0 { // will the len ever be zero? we're adding a semicolon?
 				statements <- str
 				stmt.Reset()
 			}
@@ -118,6 +125,10 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 							quoted--
 						} else if prev, err := in.Index(i - 1); err == nil && prev != '\'' {
 							quoted--
+						} else if quoteRunLength%2 == 1 {
+							// An odd number of consecutive quotes within a string literal includes an opening or closing quote
+							// opening quotes are handled elsewhere, so when we get here we must have a closing quote
+							quoted--
 						}
 					}
 				}
@@ -127,7 +138,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		}
 
 		// If not quoted and there's a quote, increase our quote level.
-		if char == '\'' {
+		if char == '\'' && !inCopyStatement {
 			str, err := in.Range(i, i+2)
 			if err != nil {
 				if err == ErrWait {

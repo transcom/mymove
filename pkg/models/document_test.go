@@ -11,23 +11,16 @@ import (
 )
 
 func (suite *ModelSuite) Test_DocumentCreate() {
-	t := suite.T()
-
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := testdatagen.MakeStubbedServiceMember(suite.DB())
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&document)
+	verrs, err := document.Validate(nil)
 
-	if err != nil {
-		t.Fatalf("could not save Document: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) Test_DocumentValidations() {

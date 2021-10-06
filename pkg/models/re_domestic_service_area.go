@@ -20,7 +20,7 @@ type ReDomesticServiceArea struct {
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract ReContract `belongs_to:"re_contract"`
+	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
 }
 
 // ReDomesticServiceAreas is not required by pop and may be deleted

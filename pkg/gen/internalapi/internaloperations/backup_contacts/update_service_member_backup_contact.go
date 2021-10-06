@@ -29,7 +29,7 @@ func NewUpdateServiceMemberBackupContact(ctx *middleware.Context, handler Update
 	return &UpdateServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/*UpdateServiceMemberBackupContact swagger:route PUT /backup_contacts/{backupContactId} backup_contacts updateServiceMemberBackupContact
+/* UpdateServiceMemberBackupContact swagger:route PUT /backup_contacts/{backupContactId} backup_contacts updateServiceMemberBackupContact
 
 Updates a service member backup contact
 
@@ -44,17 +44,15 @@ type UpdateServiceMemberBackupContact struct {
 func (o *UpdateServiceMemberBackupContact) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdateServiceMemberBackupContactParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

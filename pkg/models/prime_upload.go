@@ -16,11 +16,11 @@ import (
 type PrimeUpload struct {
 	ID                  uuid.UUID         `db:"id"`
 	ProofOfServiceDocID uuid.UUID         `db:"proof_of_service_docs_id"`
-	ProofOfServiceDoc   ProofOfServiceDoc `belongs_to:"proof_of_service_docs"`
+	ProofOfServiceDoc   ProofOfServiceDoc `belongs_to:"proof_of_service_docs" fk_id:"proof_of_service_docs_id"`
 	ContractorID        uuid.UUID         `db:"contractor_id"`
-	Contractor          Contractor        `belongs_to:"contractors"`
+	Contractor          Contractor        `belongs_to:"contractors" fk_id:"contractor_id"`
 	UploadID            uuid.UUID         `db:"upload_id"`
-	Upload              Upload            `belongs_to:"uploads"`
+	Upload              Upload            `belongs_to:"uploads" fk_id:"upload_id"`
 	CreatedAt           time.Time         `db:"created_at"`
 	UpdatedAt           time.Time         `db:"updated_at"`
 	DeletedAt           *time.Time        `db:"deleted_at"`

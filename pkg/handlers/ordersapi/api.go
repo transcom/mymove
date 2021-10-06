@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/strfmt"
@@ -14,8 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// NewOrdersAPIHandler returns a handler for the Orders API
-func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
+// NewOrdersAPI the Orders API
+func NewOrdersAPI(context handlers.HandlerContext) *ordersoperations.MymoveAPI {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
@@ -30,7 +29,7 @@ func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
 	ordersAPI.IndexOrdersForMemberHandler = IndexOrdersForMemberHandler{context}
 	ordersAPI.PostRevisionHandler = PostRevisionHandler{context}
 	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{context}
-	return ordersAPI.Serve(nil)
+	return ordersAPI
 }
 
 func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessages.Orders, error) {
@@ -47,7 +46,7 @@ func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessa
 		UUID:      strfmt.UUID(order.ID.String()),
 		OrdersNum: order.OrdersNumber,
 		Edipi:     order.Edipi,
-		Issuer:    ordersmessages.Issuer(order.Issuer),
+		Issuer:    ordersmessages.NewIssuer(ordersmessages.Issuer(order.Issuer)),
 		Revisions: revisionPayloads,
 	}
 	return ordersPayload, nil
@@ -55,6 +54,11 @@ func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessa
 
 func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRevision) (*ordersmessages.Revision, error) {
 	seqNum := int64(revision.SeqNum)
+	affiliation := ordersmessages.NewAffiliation(ordersmessages.Affiliation(revision.Affiliation))
+	rank := ordersmessages.NewRank(ordersmessages.Rank(revision.Paygrade))
+	status := ordersmessages.NewStatus(ordersmessages.Status(revision.Status))
+	ordersType := ordersmessages.NewOrdersType(ordersmessages.OrdersType(revision.OrdersType))
+
 	revisionPayload := &ordersmessages.Revision{
 		SeqNum: &seqNum,
 		Member: &ordersmessages.Member{
@@ -62,16 +66,16 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 			MiddleName:  revision.MiddleName,
 			FamilyName:  revision.FamilyName,
 			Suffix:      revision.NameSuffix,
-			Affiliation: ordersmessages.Affiliation(revision.Affiliation),
-			Rank:        ordersmessages.Rank(revision.Paygrade),
+			Affiliation: affiliation,
+			Rank:        rank,
 			Title:       revision.Title,
 		},
-		Status:        ordersmessages.Status(revision.Status),
+		Status:        status,
 		DateIssued:    handlers.FmtDateTimePtr(&revision.DateIssued),
 		NoCostMove:    revision.NoCostMove,
 		TdyEnRoute:    revision.TdyEnRoute,
 		TourType:      ordersmessages.TourType(revision.TourType),
-		OrdersType:    ordersmessages.OrdersType(revision.OrdersType),
+		OrdersType:    ordersType,
 		HasDependents: &revision.HasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        revision.LosingUIC,

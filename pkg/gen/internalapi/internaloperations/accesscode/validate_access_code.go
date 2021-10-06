@@ -29,7 +29,7 @@ func NewValidateAccessCode(ctx *middleware.Context, handler ValidateAccessCodeHa
 	return &ValidateAccessCode{Context: ctx, Handler: handler}
 }
 
-/*ValidateAccessCode swagger:route GET /access_codes/valid accesscode validateAccessCode
+/* ValidateAccessCode swagger:route GET /access_codes/valid accesscode validateAccessCode
 
 Validate if an access code has been unused and associated with the correct move type.
 
@@ -44,17 +44,15 @@ type ValidateAccessCode struct {
 func (o *ValidateAccessCode) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewValidateAccessCodeParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

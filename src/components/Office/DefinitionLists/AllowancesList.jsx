@@ -1,13 +1,18 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+import { formatWeight } from 'shared/formatters';
 import friendlyBranchRank from 'utils/branchRankFormatters';
 
-const AllowancesList = ({ info }) => {
+const AllowancesList = ({ info, showVisualCues }) => {
+  const visualCuesStyle = classNames(descriptionListStyles.row, {
+    [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
+  });
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -24,28 +29,22 @@ const AllowancesList = ({ info }) => {
           <dd data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Storage in transit</dt>
-          <dd data-testid="storageInTransit">
-            {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
-          </dd>
-        </div>
-        <div className={descriptionListStyles.row}>
           <dt>Dependents</dt>
           <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
-        <div className={descriptionListStyles.row}>
+        <div className={visualCuesStyle}>
           <dt>Pro-gear</dt>
           <dd data-testid="progear">{formatWeight(info.progear)}</dd>
         </div>
-        <div className={descriptionListStyles.row}>
+        <div className={visualCuesStyle}>
           <dt>Spouse pro-gear</dt>
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
-        <div className={descriptionListStyles.row}>
+        <div className={visualCuesStyle}>
           <dt>RME</dt>
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
-        <div className={descriptionListStyles.row}>
+        <div className={visualCuesStyle}>
           <dt>OCIE</dt>
           <dd data-testid="ocie">
             {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
@@ -69,6 +68,11 @@ AllowancesList.propTypes = {
     requiredMedicalEquipmentWeight: PropTypes.number,
     organizationalClothingAndIndividualEquipment: PropTypes.bool,
   }).isRequired,
+  showVisualCues: PropTypes.bool,
+};
+
+AllowancesList.defaultProps = {
+  showVisualCues: false,
 };
 
 export default AllowancesList;

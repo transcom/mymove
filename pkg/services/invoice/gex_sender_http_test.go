@@ -1,10 +1,12 @@
 package invoice
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -13,7 +15,7 @@ import (
 
 type GexSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestGexSuite(t *testing.T) {
@@ -27,12 +29,12 @@ func TestGexSuite(t *testing.T) {
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_Call() {
-	ediString := ""
+	bodyString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	resp, err := NewGexSenderHTTP(mockServer.URL, "", false, nil, "", "").
-		SendToGex(ediString, "test_transaction")
+	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -42,8 +44,8 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, err = NewGexSenderHTTP(mockServer.URL, "", false, nil, "", "").
-		SendToGex(ediString, "test_transaction")
+	resp, err = NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -53,12 +55,12 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
-	ediString := ""
+	bodyString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	resp, err := NewGexSenderHTTP(mockServer.URL, "test_channel", false, nil, "", "").
-		SendToGex(ediString, "test_filename")
+	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(services.GEXChannelInvoice, bodyString, "test_filename")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -66,6 +68,19 @@ func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
 	suite.Equal(expectedStatus, resp.StatusCode)
 
 	// Make sure we sent a request with correct channel and filename query parameters
-	suite.Contains(resp.Request.URL.RawQuery, "channel=test_channel")
+	suite.Contains(resp.Request.URL.RawQuery, fmt.Sprintf("channel=%s", services.GEXChannelInvoice))
 	suite.Contains(resp.Request.URL.RawQuery, "fname=test_filename")
+}
+
+func (suite *GexSuite) TestSendToGexHTTP_InvalidChannel() {
+	bodyString := ""
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	var invalidChannel services.GEXChannel = "INVALID-CHANNEL"
+	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(invalidChannel, bodyString, "test_filename")
+	suite.Nil(resp)
+	suite.NotNil(err)
+	suite.Equal("Invalid channel type, expected [\"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM\" \"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM\"]", err.Error())
 }

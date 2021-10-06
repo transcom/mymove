@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -38,6 +39,7 @@ type OfficeUser struct {
 	FirstName *string `json:"firstName"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -160,7 +162,7 @@ func (m *OfficeUser) validateEmail(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -238,7 +240,7 @@ func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -272,13 +274,44 @@ func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this office user based on the context it is used
+func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateRoles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *OfficeUser) contextValidateRoles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Roles); i++ {
+
+		if m.Roles[i] != nil {
+			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

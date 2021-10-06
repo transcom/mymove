@@ -1,6 +1,6 @@
 default_language_version:
   # this should match the version in .node-version at the root of this project
-  node: 12.21.0
+  node: 14.17.1
 
 repos:
   - repo: local
@@ -12,12 +12,11 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.0.1
     hooks:
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
-        exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
         #RA Summary: detect-private-key - Private key found
         #RA: detect-private-key detected a private key in source control
@@ -56,13 +55,13 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: git://github.com/golangci/golangci-lint
-    rev: v1.34.1
+    rev: v1.42.0
     hooks:
       - id: golangci-lint
-        entry: bash -c 'exec golangci-lint run -v ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
+        entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.26.0
+    rev: v0.28.1
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -71,6 +70,7 @@ repos:
     rev: 1.0.5
     hooks:
       - id: shell-lint
+        args: [-x]
 
   - repo: local
     hooks:
@@ -104,6 +104,9 @@ repos:
         language: script
         files: swagger/*
         types: [yaml]
+        exclude: swagger-def/* # These are partial swagger files that are compiled into the ones in swagger/*.
+                               # They will be checked unless explicitly excluded, but they will fail.
+                               # By only validating the compiled files, we are effectively checking these files as well.
 
   - repo: local
     hooks:
@@ -121,13 +124,6 @@ repos:
         args: ['docs/adr']
       - id: circleci-validate
       - id: markdown-toc
-      - id: mdspell
-        exclude: >
-          (?x)^(
-            node_modules/|
-            vendor/|
-            docs/adr/index.md
-          )$
       - id: hadolint
 
   - repo: local
@@ -154,3 +150,12 @@ repos:
         language: script
         files: swagger/(support|prime).yaml
         types: [yaml]
+
+  - repo: local
+    hooks:
+      - id: post-merge-migrate
+        name: post-merge checker
+        entry: scripts/check-changes
+        language: script
+        stages: [post-merge]
+        pass_filenames: false

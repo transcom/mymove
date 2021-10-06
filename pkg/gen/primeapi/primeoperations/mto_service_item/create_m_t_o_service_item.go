@@ -29,7 +29,7 @@ func NewCreateMTOServiceItem(ctx *middleware.Context, handler CreateMTOServiceIt
 	return &CreateMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*CreateMTOServiceItem swagger:route POST /mto-service-items mtoServiceItem createMTOServiceItem
+/* CreateMTOServiceItem swagger:route POST /mto-service-items mtoServiceItem createMTOServiceItem
 
 createMTOServiceItem
 
@@ -77,7 +77,21 @@ model type with the following codes:
 
 **DDFSIT**
 
-**1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+**1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+  * `firstAvailableDeliveryDate1`
+    * string <date>
+    * First available date that Prime can deliver SIT service item.
+  * `firstAvailableDeliveryDate2`
+    * string <date>
+    * Second available date that Prime can deliver SIT service item.
+  * `timeMilitary1`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+  * `timeMilitary2`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+
+When a DDFSIT is requested, the API will auto-create the following group of service items:
   * DDFSIT - Domestic destination 1st day SIT
   * DDASIT - Domestic destination Additional day SIT
   * DDDSIT - Domestic destination SIT delivery
@@ -97,17 +111,15 @@ type CreateMTOServiceItem struct {
 func (o *CreateMTOServiceItem) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateMTOServiceItemParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

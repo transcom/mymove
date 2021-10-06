@@ -69,15 +69,20 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	model := &models.MTOShipment{
 		MoveTaskOrderID:       uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
 		Status:                models.MTOShipmentStatusDraft,
 	}
 
+	if mtoShipment.ShipmentType != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
+	}
+
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -104,7 +109,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

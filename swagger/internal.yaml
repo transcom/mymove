@@ -7,7 +7,7 @@ info:
     email: ppp@truss.works
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: 'https://opensource.org/licenses/MIT'
 basePath: /internal
 consumes:
   - application/json
@@ -33,10 +33,8 @@ definitions:
         readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
-        x-nullable: true
       office_user:
         $ref: '#/definitions/OfficeUser'
-        x-nullable: true
       roles:
         type: array
         items:
@@ -47,7 +45,7 @@ definitions:
     type: string
     x-nullable: true
     title: Branch of service
-    enum: &AFFILIATION
+    enum:
       - ARMY
       - NAVY
       - MARINES
@@ -552,8 +550,8 @@ definitions:
         x-nullable: true
         x-display-value:
           NOT SURE: Not Sure
-          'YES': Yes
-          'NO': No
+          'YES': 'Yes'
+          'NO': 'No'
       has_pro_gear_over_thousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
@@ -564,8 +562,8 @@ definitions:
         x-nullable: true
         x-display-value:
           NOT SURE: Not Sure
-          'YES': Yes
-          'NO': No
+          'YES': 'Yes'
+          'NO': 'No'
       created_at:
         type: string
         format: date-time
@@ -708,7 +706,7 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       cancel_reason:
         type: string
-        example: 'Change of orders'
+        example: Change of orders
         x-nullable: true
     required:
       - id
@@ -721,7 +719,7 @@ definitions:
     properties:
       cancel_reason:
         type: string
-        example: 'Change of orders'
+        example: Change of orders
         x-nullable: true
     required:
       - cancel_reason
@@ -919,7 +917,7 @@ definitions:
     type: string
     title: Document type
     example: EXPENSE
-    enum: &MOVEDOCUMENTTYPE
+    enum:
       - OTHER
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
@@ -1259,7 +1257,7 @@ definitions:
         maxLength: 10
         example: '5789345789'
         x-nullable: true
-        title: 'DoD ID number'
+        title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -1320,10 +1318,8 @@ definitions:
         x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
-        title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
-        title: Backup Mailing Address
   PatchServiceMemberPayload:
     type: object
     properties:
@@ -1400,10 +1396,8 @@ definitions:
         x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
-        title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
-        title: Backup Mailing Address
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1550,7 +1544,6 @@ definitions:
         x-nullable: true
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
-        x-nullable: true
     required:
       - id
       - move_id
@@ -1577,7 +1570,6 @@ definitions:
         x-nullable: true
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
-        x-nullable: true
     required:
       - date
       - signature
@@ -1636,7 +1628,7 @@ definitions:
       url:
         type: string
         format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
       filename:
         type: string
         example: filename.pdf
@@ -1644,6 +1636,9 @@ definitions:
         type: string
         format: mime-type
         example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
       bytes:
         type: integer
       status:
@@ -1898,7 +1893,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'USA'
+        example: USA
         default: USA
     required:
       - street_address_1
@@ -1977,7 +1972,8 @@ definitions:
       - SUBMITTED
       - APPROVED
       - CANCELED
-      - 'NEEDS SERVICE COUNSELING'
+      - NEEDS SERVICE COUNSELING
+      - APPROVALS REQUESTED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -2057,7 +2053,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
         type: string
-        example: 'O-6'
+        example: O-6
         x-nullable: true
       issue_date:
         type: string
@@ -2082,7 +2078,9 @@ definitions:
         title: Are dependents included in your orders?
       spouse_has_pro_gear:
         type: boolean
-        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+        title: >-
+          Do you have a spouse who will need to move items related to their
+          occupation (also known as spouse pro-gear)?
       origin_duty_station:
         $ref: '#/definitions/DutyStationPayload'
         x-nullable: true
@@ -2090,13 +2088,19 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders:
+        $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       moves:
         $ref: '#/definitions/IndexMovesPayload'
       orders_number:
         type: string
         title: Orders Number
         x-nullable: true
-        example: '030-00362'
+        example: 030-00362
       created_at:
         type: string
         format: date-time
@@ -2106,12 +2110,12 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: 'F8J1'
+        example: F8J1
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: 'N002214CSW32Y9'
+        example: N002214CSW32Y9
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2159,7 +2163,9 @@ definitions:
         title: Are dependents included in your orders?
       spouse_has_pro_gear:
         type: boolean
-        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+        title: >-
+          Do you have a spouse who will need to move items related to their
+          occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
@@ -2168,16 +2174,16 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: '030-00362'
+        example: 030-00362
       tac:
         type: string
         title: TAC
-        example: 'F8J1'
+        example: F8J1
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: 'N002214CSW32Y9'
+        example: N002214CSW32Y9
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2219,12 +2225,12 @@ definitions:
         example: '12432'
       gbl_number:
         type: string
-        example: 'LNK12345'
+        example: LNK12345
         title: GBL Number
         x-nullable: true
       customer_name:
         type: string
-        example: Thedog, Nino
+        example: 'Thedog, Nino'
         title: Customer Name
       edipi:
         type: string
@@ -2247,17 +2253,17 @@ definitions:
       move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: 2018-04-25T00:00:00.000Z
         x-nullable: true
       submitted_date:
         type: string
         format: date-time
-        example: 2018-04-25
+        example: 2018-04-25T00:00:00.000Z
         x-nullable: true
       last_modified_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: 2017-07-21T17:32:28.000Z
       created_at:
         type: string
         format: date-time
@@ -2274,7 +2280,7 @@ definitions:
       pm_survey_conducted_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: 2017-07-21T17:32:28.000Z
         x-nullable: true
       origin_gbloc:
         type: string
@@ -2289,12 +2295,12 @@ definitions:
       delivered_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: 2017-07-21T17:32:28.000Z
         x-nullable: true
       invoice_approved_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: 2017-07-21T17:32:28.000Z
         x-nullable: true
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
@@ -2303,12 +2309,12 @@ definitions:
       actual_move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: 2018-04-25T00:00:00.000Z
         x-nullable: true
       original_move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: 2018-04-25T00:00:00.000Z
         x-nullable: true
     required:
       - id
@@ -2422,10 +2428,10 @@ definitions:
         example: false
       postal_code:
         type: string
-        description: zip code, international allowed
+        description: 'zip code, international allowed'
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       postal_code_type:
         type: string
         enum:
@@ -2461,7 +2467,7 @@ definitions:
       claimed_at:
         type: string
         format: date-time
-        example: 2018-04-12T23:20:50.52Z
+        example: 2018-04-12T23:20:50.520Z
         description: when the access code was claimed or used
         x-nullable: true
     required:
@@ -2502,7 +2508,6 @@ definitions:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
-        readOnly: true
         type: string
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -2638,7 +2643,11 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
@@ -2664,12 +2673,14 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
-        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -2747,23 +2758,25 @@ paths:
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: Made estimate of PPM cost range
           schema:
             $ref: '#/definitions/PPMEstimateRange'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
-          description: ppm discount not found for provided postal codes and original move date
-        409:
+        '404':
+          description: >-
+            ppm discount not found for provided postal codes and original move
+            date
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        422:
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
   /estimates/ppm_sit:
     get:
@@ -2803,21 +2816,21 @@ paths:
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: show PPM SIT estimate
           schema:
             $ref: '#/definitions/PPMSitEstimate'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        409:
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        422:
+        '422':
           description: the payload was unprocessable
-        500:
+        '500':
           description: internal server error
   /users/logged_in:
     get:
@@ -2827,15 +2840,15 @@ paths:
       tags:
         - users
       responses:
-        200:
+        '200':
           description: Currently logged in user
           schema:
             $ref: '#/definitions/LoggedInUserPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        500:
+        '500':
           description: server error
   /users/is_logged_in:
     get:
@@ -2845,13 +2858,13 @@ paths:
       tags:
         - users
       responses:
-        200:
+        '200':
           description: Currently logged in user
           schema:
             type: boolean
-        400:
+        '400':
           description: invalid request
-        500:
+        '500':
           description: server error
   /orders:
     post:
@@ -2867,19 +2880,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateUpdateOrders'
       responses:
-        201:
+        '201':
           description: created instance of orders
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /orders/{ordersId}:
+  '/orders/{ordersId}':
     put:
       summary: Updates orders
       description: All fields sent in this request will be set on the orders referenced
@@ -2899,19 +2912,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateUpdateOrders'
       responses:
-        200:
+        '200':
           description: updated instance of orders
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given order
@@ -2927,21 +2940,59 @@ paths:
           required: true
           description: UUID of the order
       responses:
-        200:
+        '200':
           description: the instance of the order
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: order is not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}:
+  '/orders/{ordersId}/upload_amended_orders':
+    patch:
+      summary: Patch the amended orders for a given order
+      description: Patch the amended orders for a given order
+      operationId: uploadAmendedOrders
+      tags:
+        - orders
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
+  '/moves/{moveId}':
     patch:
       summary: Patches the move
       description: Any fields sent in this request will be set on the move referenced
@@ -2961,19 +3012,19 @@ paths:
           schema:
             $ref: '#/definitions/PatchMovePayload'
       responses:
-        201:
+        '201':
           description: updated instance of move
           schema:
             $ref: '#/definitions/MovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move is not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given move
@@ -2989,21 +3040,21 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: the instance of the move
           schema:
             $ref: '#/definitions/MovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move is not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/signed_certifications:
+  '/moves/{moveId}/signed_certifications':
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID
@@ -3023,19 +3074,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateSignedCertificationPayload'
       responses:
-        201:
+        '201':
           description: created instance of signed_certification
           schema:
             $ref: '#/definitions/SignedCertificationPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to sign for this move
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: gets the signed certifications for the given move ID
@@ -3050,21 +3101,21 @@ paths:
           format: uuid
           required: true
       responses:
-        200:
+        '200':
           description: returns a list of signed certifications
           schema:
             $ref: '#/definitions/SignedCertifications'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move:
+  '/moves/{moveId}/personally_procured_move':
     post:
       summary: Creates a new PPM for the given move
       description: Create an instance of personally_procured_move tied to the move ID
@@ -3084,19 +3135,19 @@ paths:
           schema:
             $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
       responses:
-        201:
+        '201':
           description: created instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: server error
     get:
       summary: Returns a list of all PPMs associated with this move
@@ -3112,20 +3163,22 @@ paths:
           required: true
           description: UUID of the move these PPMs are associated with
       responses:
-        200:
+        '200':
           description: returns list of personally_procured_move
           schema:
             $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
+  '/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate':
     patch:
       summary: Calculates the estimated incentive of a PPM
-      description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
+      description: >-
+        This request calculates the estimated incentive of a PPM and attaches
+        this range to the PPM
       operationId: updatePersonallyProcuredMoveEstimate
       tags:
         - ppm
@@ -3143,23 +3196,25 @@ paths:
           required: true
           description: UUID of the PPM being patched
       responses:
-        200:
+        '200':
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
-          description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        422:
+        '404':
+          description: >-
+            ppm is not found or ppm discount not found for provided postal codes
+            and original move date
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
+  '/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}':
     put:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
@@ -3185,17 +3240,17 @@ paths:
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
       responses:
-        200:
+        '200':
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
     patch:
       summary: Patches the PPM
@@ -3222,21 +3277,23 @@ paths:
           schema:
             $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
       responses:
-        200:
+        '200':
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
-          description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        422:
+        '404':
+          description: >-
+            ppm is not found or ppm discount not found for provided postal codes
+            and original move date
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given PPM
@@ -3258,20 +3315,22 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
+        '200':
           description: the instance of personally_procured_move
           schema:
             $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-  /personally_procured_move/{personallyProcuredMoveId}/submit:
+  '/personally_procured_move/{personallyProcuredMoveId}/submit':
     post:
       summary: Submits a PPM for approval
-      description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
+      description: >-
+        Submits a PPM for approval by the office. The status of the PPM will be
+        updated to SUBMITTED
       operationId: submitPersonallyProcuredMove
       tags:
         - ppm
@@ -3288,21 +3347,21 @@ paths:
           schema:
             $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
       responses:
-        200:
+        '200':
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: ppm is not found
-        500:
+        '500':
           description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
+  '/personally_procured_move/{personallyProcuredMoveId}/expense_summary':
     get:
       summary: Returns an expense summary organized by expense type
       description: Calculates and returns an expense summary organized by expense type
@@ -3317,21 +3376,21 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
+        '200':
           description: Successfully calculated expense summary
           schema:
             $ref: '#/definitions/ExpenseSummaryPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: personally procured move not found
-        500:
+        '500':
           description: server error
-  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
+  '/personally_procured_move/{personallyProcuredMoveId}/request_payment':
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
       description: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -3346,21 +3405,21 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
+        '200':
           description: Sucesssfully requested payment
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: server error
-  /reimbursement/{reimbursementId}/approve:
+  '/reimbursement/{reimbursementId}/approve':
     post:
       summary: Approves the reimbursement
       description: Sets the status of the reimbursement to APPROVED.
@@ -3375,19 +3434,19 @@ paths:
           required: true
           description: UUID of the reimbursement being approved
       responses:
-        200:
+        '200':
           description: updated instance of reimbursement
           schema:
             $ref: '#/definitions/Reimbursement'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/orders:
+  '/moves/{moveId}/orders':
     get:
       summary: Returns orders information for a move for office use
       description: Returns orders information for a move for office use
@@ -3402,21 +3461,21 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: the orders information for a move for office use
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/move_documents:
+  '/moves/{moveId}/move_documents':
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
@@ -3431,15 +3490,15 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: returns list of move douments
           schema:
             $ref: '#/definitions/MoveDocuments'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
     post:
       summary: Creates a move document
@@ -3460,19 +3519,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateGenericMoveDocumentPayload'
       responses:
-        200:
+        '200':
           description: returns new move document object
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
-  /move_documents/{moveDocumentId}:
+  '/move_documents/{moveDocumentId}':
     put:
       summary: Updates a move document
       description: Update a move document with the given information
@@ -3492,19 +3551,19 @@ paths:
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
       responses:
-        200:
+        '200':
           description: updated instance of move document
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move document not found
-        500:
+        '500':
           description: internal server error
     delete:
       summary: Deletes a move document
@@ -3520,19 +3579,19 @@ paths:
           required: true
           description: UUID of the move document model
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
             $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/moving_expense_documents:
+  '/moves/{moveId}/moving_expense_documents':
     post:
       summary: Creates a moving expense document
       description: Created a moving expense document with the given information
@@ -3552,22 +3611,24 @@ paths:
           schema:
             $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
       responses:
-        200:
+        '200':
           description: returns new moving expense document object
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/approve:
+  '/moves/{moveId}/approve':
     post:
       summary: Approves a move to proceed
-      description: Approves the basic details of a move. The status of the move will be updated to APPROVED
+      description: >-
+        Approves the basic details of a move. The status of the move will be
+        updated to APPROVED
       operationId: approveMove
       tags:
         - office
@@ -3579,26 +3640,28 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: returns updated (approved) move object
           schema:
             $ref: '#/definitions/MovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to approve this move
-        409:
+        '409':
           description: the move is not in a state to be approved
           schema:
             $ref: '#/definitions/MovePayload'
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/submit:
+  '/moves/{moveId}/submit':
     post:
       summary: Submits a move for approval
-      description: Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
+      description: >-
+        Submits a move for approval by the office. The status of the move will
+        be updated to SUBMITTED
       operationId: submitMoveForApproval
       tags:
         - moves
@@ -3615,26 +3678,28 @@ paths:
           schema:
             $ref: '#/definitions/SubmitMoveForApprovalPayload'
       responses:
-        200:
+        '200':
           description: returns updated (submitted) move object
           schema:
             $ref: '#/definitions/MovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to approve this move
-        409:
+        '409':
           description: the move is not in a state to be approved
           schema:
             $ref: '#/definitions/MovePayload'
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/cancel:
+  '/moves/{moveId}/cancel':
     post:
       summary: Cancels a move
-      description: Cancels the basic details of a move. The status of the move will be updated to CANCELED
+      description: >-
+        Cancels the basic details of a move. The status of the move will be
+        updated to CANCELED
       operationId: cancelMove
       tags:
         - office
@@ -3651,23 +3716,57 @@ paths:
           schema:
             $ref: '#/definitions/CancelMove'
       responses:
-        200:
+        '200':
           description: returns updated (canceled) move object
           schema:
             $ref: '#/definitions/MovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to cancel this move
-        409:
+        '409':
           description: the move is not in a state to be canceled
           schema:
             $ref: '#/definitions/MovePayload'
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/move_dates_summary:
+  '/moves/{moveId}/submit_amended_orders':
+    post:
+      summary: Submits amended orders for review
+      description: >-
+        Submits amended orders for review by the office. The status of the move
+        will be updated to an appropriate status depending on whether it needs
+        services counseling or not.
+      operationId: submitAmendedOrders
+      tags:
+        - moves
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        '200':
+          description: returns updated (submitted) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '400':
+          description: invalid request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: not authorized to approve this move
+        '409':
+          description: the move is not in a state to be approved
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '500':
+          description: server error
+  '/moves/{moveId}/move_dates_summary':
     get:
       summary: Returns projected move-related dates for a given move date
       description: Returns projected move-related dates for a given move date
@@ -3688,19 +3787,19 @@ paths:
           required: true
           description: The chosen move date
       responses:
-        200:
+        '200':
           description: List of projected move-related dates
           schema:
             $ref: '#/definitions/MoveDatesSummary'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/shipment_summary_worksheet:
+  '/moves/{moveId}/shipment_summary_worksheet':
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
@@ -3723,7 +3822,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        200:
+        '200':
           headers:
             Content-Disposition:
               type: string
@@ -3732,15 +3831,15 @@ paths:
           schema:
             format: binary
             type: file
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
+  '/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments':
     post:
       summary: Creates PPM attachments PDF
       description: Creates a PPM attachments PDF
@@ -3760,29 +3859,35 @@ paths:
           required: true
           items:
             type: string
-            enum: *MOVEDOCUMENTTYPE
+            enum:
+              - OTHER
+              - WEIGHT_TICKET
+              - STORAGE_EXPENSE
+              - SHIPMENT_SUMMARY
+              - EXPENSE
+              - WEIGHT_TICKET_SET
           collectionFormat: csv
           description: Restrict the list to documents with matching docType.
       responses:
-        200:
+        '200':
           description: returns a PPM attachments upload
           schema:
             $ref: '#/definitions/UploadPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to perform this action
-        413:
+        '413':
           description: payload is too large
-        422:
+        '422':
           description: malformed PDF contained in uploads
-        424:
+        '424':
           description: no files to be processed into attachments PDF
-        500:
+        '500':
           description: server error
-  /personally_procured_moves/{personallyProcuredMoveId}/approve:
+  '/personally_procured_moves/{personallyProcuredMoveId}/approve':
     post:
       summary: Approves the PPM
       description: Sets the status of the PPM to APPROVED.
@@ -3802,17 +3907,17 @@ paths:
           schema:
             $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
       responses:
-        200:
+        '200':
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
   /personally_procured_moves/incentive:
     get:
@@ -3849,24 +3954,26 @@ paths:
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: Made calculation of PPM incentive
           schema:
             $ref: '#/definitions/PPMIncentive'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        409:
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        500:
+        '500':
           description: internal server error
   /documents:
     post:
       summary: Create a new document
-      description: Documents represent a physical artifact such as a scanned document or a PDF file
+      description: >-
+        Documents represent a physical artifact such as a scanned document or a
+        PDF file
       operationId: createDocument
       tags:
         - documents
@@ -3877,15 +3984,15 @@ paths:
           schema:
             $ref: '#/definitions/PostDocumentPayload'
       responses:
-        201:
+        '201':
           description: created document
           schema:
             $ref: '#/definitions/DocumentPayload'
-        400:
+        '400':
           description: invalid request
-        500:
+        '500':
           description: server error
-  /documents/{documentId}:
+  '/documents/{documentId}':
     get:
       summary: Returns a document
       description: Returns a document and its uploads
@@ -3900,24 +4007,24 @@ paths:
           required: true
           description: UUID of the document to return
       responses:
-        200:
+        '200':
           description: the requested document
           schema:
             $ref: '#/definitions/DocumentPayload'
-        400:
+        '400':
           description: invalid request
           schema:
             $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  /uploads/{uploadId}:
+  '/uploads/{uploadId}':
     delete:
       summary: Deletes an upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
       operationId: deleteUpload
       tags:
         - uploads
@@ -3929,22 +4036,22 @@ paths:
           required: true
           description: UUID of the upload to be deleted
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
             $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
   /uploads:
     post:
       summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
       operationId: createUpload
       tags:
         - uploads
@@ -3963,25 +4070,25 @@ paths:
           description: The file to upload.
           required: true
       responses:
-        201:
+        '201':
           description: created upload
           schema:
             $ref: '#/definitions/UploadPayload'
-        400:
+        '400':
           description: invalid request
           schema:
             $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        413:
+        '413':
           description: payload is too large
-        500:
+        '500':
           description: server error
     delete:
       summary: Deletes a collection of uploads
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
       operationId: deleteUploads
       tags:
         - uploads
@@ -3995,17 +4102,17 @@ paths:
           required: true
           description: Array of UUIDs to be deleted
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
             $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
   /service_members:
     post:
@@ -4021,21 +4128,21 @@ paths:
           schema:
             $ref: '#/definitions/CreateServiceMemberPayload'
       responses:
-        201:
+        '201':
           description: created instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}:
+  '/service_members/{serviceMemberId}':
     get:
       summary: Returns the given service member
       description: Returns the given service member
@@ -4050,23 +4157,25 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: the instance of the service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
     patch:
       summary: Patches the service member
-      description: Any fields sent in this request will be set on the service member referenced
+      description: >-
+        Any fields sent in this request will be set on the service member
+        referenced
       operationId: patchServiceMember
       tags:
         - service_members
@@ -4083,21 +4192,21 @@ paths:
           schema:
             $ref: '#/definitions/PatchServiceMemberPayload'
       responses:
-        200:
+        '200':
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}/current_orders:
+  '/service_members/{serviceMemberId}/current_orders':
     get:
       summary: Returns the latest orders for a given service member
       description: Returns orders
@@ -4112,21 +4221,21 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: the instance of the service member
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}/backup_contacts:
+  '/service_members/{serviceMemberId}/backup_contacts':
     post:
       summary: Submits backup contact for a logged-in user
       description: Creates an instance of a backup contact tied to a service member user
@@ -4146,19 +4255,19 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        201:
+        '201':
           description: created instance of service member backup contact
           schema:
             $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to create this backup contact
-        404:
+        '404':
           description: contact not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: List all service member backup contacts
@@ -4174,21 +4283,21 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: list of service member backup contacts
           schema:
             $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to see this backup contact
-        404:
+        '404':
           description: contact not found
-        500:
+        '500':
           description: internal server error
-  /backup_contacts/{backupContactId}:
+  '/backup_contacts/{backupContactId}':
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
@@ -4203,23 +4312,25 @@ paths:
           required: true
           description: UUID of the service member backup contact
       responses:
-        200:
+        '200':
           description: the instance of the service member backup contact
           schema:
             $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: backup contact not found
-        500:
+        '500':
           description: internal server error
     put:
       summary: Updates a service member backup contact
-      description: Any fields sent in this request will be set on the backup contact referenced
+      description: >-
+        Any fields sent in this request will be set on the backup contact
+        referenced
       operationId: updateServiceMemberBackupContact
       tags:
         - backup_contacts
@@ -4236,19 +4347,19 @@ paths:
           required: true
           description: UUID of the service member backup contact
       responses:
-        201:
+        '201':
           description: updated instance of backup contact
           schema:
             $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: backup contact not found
-        500:
+        '500':
           description: internal server error
   /duty_stations:
     get:
@@ -4264,21 +4375,21 @@ paths:
           required: true
           description: Search string for duty stations
       responses:
-        200:
+        '200':
           description: the instance of the duty station
           schema:
             $ref: '#/definitions/DutyStationsPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: matching duty station not found
-        500:
+        '500':
           description: internal server error
-  /duty_stations/{dutyStationId}/transportation_office:
+  '/duty_stations/{dutyStationId}/transportation_office':
     get:
       summary: Returns the transportation office for a given duty station
       description: Returns the given duty station's transportation office
@@ -4293,21 +4404,21 @@ paths:
           required: true
           description: UUID of the duty station
       responses:
-        200:
+        '200':
           description: the instance of the transportation office for a duty station
           schema:
             $ref: '#/definitions/TransportationOffice'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: transportation office not found
-        500:
+        '500':
           description: internal server error
-  /queues/{queueType}:
+  '/queues/{queueType}':
     get:
       summary: Show all moves in a queue
       description: Show all moves in a queue
@@ -4327,19 +4438,19 @@ paths:
           required: true
           description: Queue type to show
       responses:
-        200:
+        '200':
           description: list all moves in the specified queue
           schema:
             type: array
             items:
               $ref: '#/definitions/MoveQueueItem'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to access this queue
-        404:
+        '404':
           description: move queue item is not found
   /entitlements:
     get:
@@ -4349,13 +4460,15 @@ paths:
       tags:
         - entitlements
       responses:
-        200:
+        '200':
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
-  /entitlements/{moveId}:
+  '/entitlements/{moveId}':
     get:
-      summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
+      summary: >-
+        Validates that the stored weight estimate is below the allotted
+        entitlement range for a service member
       description: Determine whether weight estimate is below entitlement
       operationId: validateEntitlement
       tags:
@@ -4368,11 +4481,11 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: weight estimate is below allotted entitlement
-        404:
+        '404':
           description: personally procured move not found
-        409:
+        '409':
           description: Requested weight estimate is above allotted entitlement
   /calendar/available_move_dates:
     get:
@@ -4387,19 +4500,21 @@ paths:
           type: string
           format: date
           required: true
-          description: Look for future available dates starting from (and including) this date
+          description: >-
+            Look for future available dates starting from (and including) this
+            date
       responses:
-        200:
+        '200':
           description: List of available dates
           schema:
             $ref: '#/definitions/AvailableMoveDates'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
   /dps_auth/cookie_url:
     post:
@@ -4412,7 +4527,7 @@ paths:
         - in: query
           name: cookie_name
           type: string
-          description: The name of the cookie to set, DPS by default
+          description: 'The name of the cookie to set, DPS by default'
           required: false
         - in: query
           name: dps_redirect_url
@@ -4420,17 +4535,17 @@ paths:
           description: The DPS URL to redirec to
           required: false
       responses:
-        200:
+        '200':
           description: Success
           schema:
             $ref: '#/definitions/DPSAuthCookieURLPayload'
-        400:
+        '400':
           description: invalid request
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/weight_ticket:
+  '/moves/{moveId}/weight_ticket':
     post:
       summary: Creates a weight ticket document
       description: Created a weight ticket document with the given information
@@ -4450,22 +4565,26 @@ paths:
           schema:
             $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
       responses:
-        200:
+        '200':
           description: returns new weight ticket document object
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
-  /rate_engine_postal_codes/{postal_code}:
+  '/rate_engine_postal_codes/{postal_code}':
     get:
-      summary: Validate if a zipcode is valid for origin or destination location for a move.
-      description: Verifies if a zipcode is valid for origin or destination location for a move.
+      summary: >-
+        Validate if a zipcode is valid for origin or destination location for a
+        move.
+      description: >-
+        Verifies if a zipcode is valid for origin or destination location for a
+        move.
       operationId: validatePostalCodeWithRateData
       tags:
         - postal_codes
@@ -4484,17 +4603,17 @@ paths:
             - origin
             - destination
       responses:
-        200:
+        '200':
           description: postal_code is valid or invalid
           schema:
             $ref: '#/definitions/RateEnginePostalCodePayload'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: server error
   /access_codes:
     get:
@@ -4504,22 +4623,26 @@ paths:
       tags:
         - accesscode
       responses:
-        200:
+        '200':
           description: access code has been found in system
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to fetch access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
   /access_codes/valid:
     get:
-      summary: Validate if an access code has been unused and associated with the correct move type.
-      description: Verifies if access code is both unused and correctly associated with a move type.
+      summary: >-
+        Validate if an access code has been unused and associated with the
+        correct move type.
+      description: >-
+        Verifies if access code is both unused and correctly associated with a
+        move type.
       operationId: validateAccessCode
       tags:
         - accesscode
@@ -4531,22 +4654,26 @@ paths:
           pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
           x-nullable: false
       responses:
-        200:
+        '200':
           description: access code is invalid or valid
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to validate access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
   /access_codes/invalid:
     patch:
-      summary: Updates access code as invalid by associating it with the current service member.
-      description: Updates access code as invalid by associating it with the current service member.
+      summary: >-
+        Updates access code as invalid by associating it with the current
+        service member.
+      description: >-
+        Updates access code as invalid by associating it with the current
+        service member.
       operationId: claimAccessCode
       tags:
         - accesscode
@@ -4563,19 +4690,19 @@ paths:
               code:
                 type: string
       responses:
-        200:
+        '200':
           description: access code is invalid or valid
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to validate access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
-  /addresses/{addressId}:
+  '/addresses/{addressId}':
     get:
       summary: Returns an address
       description: Returns an address
@@ -4590,19 +4717,19 @@ paths:
           required: true
           description: UUID of the address to return
       responses:
-        200:
+        '200':
           description: the requested address
           schema:
             $ref: '#/definitions/Address'
-        400:
+        '400':
           description: invalid request
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  '/mto_shipments':
+  /mto_shipments:
     post:
       summary: createMTOShipment
       description: |
@@ -4683,8 +4810,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
         - in: body
           name: body
           schema:
@@ -4708,7 +4837,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{moveTaskOrderID}/mto_shipments:
+  '/moves/{moveTaskOrderID}/mto_shipments':
     get:
       summary: Gets all shipments for a move task order
       description: |
@@ -4748,7 +4877,9 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
-    description: 'The request could not be processed because of conflict in the current state of the resource.'
+    description: >-
+      The request could not be processed because of conflict in the current
+      state of the resource.
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:
@@ -4760,7 +4891,9 @@ responses:
     schema:
       $ref: '#/definitions/Error'
   PreconditionFailed:
-    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+    description: >-
+      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
+      request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
   UnprocessableEntity:

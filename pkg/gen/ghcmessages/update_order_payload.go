@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -17,76 +19,59 @@ import (
 // swagger:model UpdateOrderPayload
 type UpdateOrderPayload struct {
 
-	// the branch that the service member belongs to
-	// Required: true
-	Agency Branch `json:"agency"`
-
-	// unit is in lbs
-	// Minimum: 1
-	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
-
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
-
-	// dependents authorized
-	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
-
-	// grade
-	Grade *Grade `json:"grade,omitempty"`
 
 	// Orders date
 	//
 	// The date and time that these orders were cut.
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	IssueDate *strfmt.Date `json:"issueDate"`
 
 	// new duty station Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
+	// Confirmation that the new amended orders were reviewed after previously approving the original orders
+	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
+
 	// Orders Number
+	// Example: 030-00362
 	OrdersNumber *string `json:"ordersNumber,omitempty"`
 
 	// orders type
 	// Required: true
-	OrdersType OrdersType `json:"ordersType"`
+	OrdersType *OrdersType `json:"ordersType"`
 
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
-	// only for Army
-	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
-
 	// origin duty station Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	OriginDutyStationID *strfmt.UUID `json:"originDutyStationId"`
 
-	// unit is in lbs
-	// Minimum: 0
-	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
-
-	// unit is in lbs
-	// Minimum: 0
-	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse,omitempty"`
-
 	// Report-by date
 	//
 	// Report By Date
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
-	// unit is in lbs
-	// Minimum: 0
-	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
-
 	// SAC
+	// Example: N002214CSW32Y9
 	Sac *string `json:"sac,omitempty"`
 
 	// TAC
+	// Example: F8J1
+	// Max Length: 4
+	// Min Length: 4
 	Tac *string `json:"tac,omitempty"`
 }
 
@@ -94,19 +79,7 @@ type UpdateOrderPayload struct {
 func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAgency(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAuthorizedWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -130,19 +103,11 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateProGearWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateProGearWeightSpouse(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateReportByDate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateRequiredMedicalEquipmentWeight(formats); err != nil {
+	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -152,33 +117,7 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateAgency(formats strfmt.Registry) error {
-
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.AuthorizedWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("authorizedWeight", "body", int64(*m.AuthorizedWeight), 1, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
 	}
@@ -187,24 +126,6 @@ func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateGrade(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
 			}
 			return err
 		}
@@ -241,18 +162,27 @@ func (m *UpdateOrderPayload) validateNewDutyStationID(formats strfmt.Registry) e
 
 func (m *UpdateOrderPayload) validateOrdersType(formats strfmt.Registry) error {
 
-	if err := m.OrdersType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ordersType")
-		}
+	if err := validate.Required("ordersType", "body", m.OrdersType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("ordersType", "body", m.OrdersType); err != nil {
+		return err
+	}
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersType")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *UpdateOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrdersTypeDetail) { // not required
 		return nil
 	}
@@ -282,32 +212,6 @@ func (m *UpdateOrderPayload) validateOriginDutyStationID(formats strfmt.Registry
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateProGearWeight(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ProGearWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("proGearWeight", "body", int64(*m.ProGearWeight), 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateProGearWeightSpouse(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ProGearWeightSpouse) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
@@ -321,14 +225,81 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateRequiredMedicalEquipmentWeight(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RequiredMedicalEquipmentWeight) { // not required
+func (m *UpdateOrderPayload) validateTac(formats strfmt.Registry) error {
+	if swag.IsZero(m.Tac) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", int64(*m.RequiredMedicalEquipmentWeight), 0, false); err != nil {
+	if err := validate.MinLength("tac", "body", *m.Tac, 4); err != nil {
 		return err
+	}
+
+	if err := validate.MaxLength("tac", "body", *m.Tac, 4); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update order payload based on the context it is used
+func (m *UpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			}
+			return err
+		}
 	}
 
 	return nil

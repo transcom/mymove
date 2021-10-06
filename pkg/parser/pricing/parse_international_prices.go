@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -25,29 +23,28 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing OCONUS to OCONUS prices")
+	prefixPrinter := newDebugPrefix("StageOconusToOconusPrice")
 
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For each Rate Season
 		for _, r := range rateSeasons {
 			oconusToOconusPrice := models.StageOconusToOconusPrice{
-				OriginIntlPriceAreaID:      getCell(row.Cells, originPriceAreaIDColumn),
-				OriginIntlPriceArea:        getCell(row.Cells, originPriceAreaColumn),
-				DestinationIntlPriceAreaID: getCell(row.Cells, destinationPriceAreaIDColumn),
-				DestinationIntlPriceArea:   getCell(row.Cells, destinationPriceAreaColumn),
+				OriginIntlPriceAreaID:      mustGetCell(sheet, rowIndex, originPriceAreaIDColumn),
+				OriginIntlPriceArea:        mustGetCell(sheet, rowIndex, originPriceAreaColumn),
+				DestinationIntlPriceAreaID: mustGetCell(sheet, rowIndex, destinationPriceAreaIDColumn),
+				DestinationIntlPriceArea:   mustGetCell(sheet, rowIndex, destinationPriceAreaColumn),
 				Season:                     r,
 			}
 
-			oconusToOconusPrice.HHGShippingLinehaulPrice = getCell(row.Cells, colIndex)
+			oconusToOconusPrice.HHGShippingLinehaulPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			oconusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
+			oconusToOconusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageOconusToOconusPrice", oconusToOconusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", oconusToOconusPrice)
+
 			oconusToOconusPrices = append(oconusToOconusPrices, oconusToOconusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type
@@ -65,29 +62,28 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseConusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing CONUS to OCONUS prices")
+	prefixPrinter := newDebugPrefix("StageConusToOconusPrice")
 
 	var conusToOconusPrices []models.StageConusToOconusPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For each Rate Season
 		for _, r := range rateSeasons {
 			conusToOconusPrice := models.StageConusToOconusPrice{
-				OriginDomesticPriceAreaCode: getCell(row.Cells, originPriceAreaIDColumn),
-				OriginDomesticPriceArea:     getCell(row.Cells, originPriceAreaColumn),
-				DestinationIntlPriceAreaID:  getCell(row.Cells, destinationPriceAreaIDColumn),
-				DestinationIntlPriceArea:    getCell(row.Cells, destinationPriceAreaColumn),
+				OriginDomesticPriceAreaCode: mustGetCell(sheet, rowIndex, originPriceAreaIDColumn),
+				OriginDomesticPriceArea:     mustGetCell(sheet, rowIndex, originPriceAreaColumn),
+				DestinationIntlPriceAreaID:  mustGetCell(sheet, rowIndex, destinationPriceAreaIDColumn),
+				DestinationIntlPriceArea:    mustGetCell(sheet, rowIndex, destinationPriceAreaColumn),
 				Season:                      r,
 			}
 
-			conusToOconusPrice.HHGShippingLinehaulPrice = getCell(row.Cells, colIndex)
+			conusToOconusPrice.HHGShippingLinehaulPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			conusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
+			conusToOconusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageConusToOconusPrice", conusToOconusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", conusToOconusPrice)
+
 			conusToOconusPrices = append(conusToOconusPrices, conusToOconusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type
@@ -105,29 +101,28 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseOconusToConusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing OCONUS to CONUS prices")
+	prefixPrinter := newDebugPrefix("StageOconusToConusPrice")
 
 	var oconusToConusPrices []models.StageOconusToConusPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For each Rate Season
 		for _, r := range rateSeasons {
 			oconusToConusPrice := models.StageOconusToConusPrice{
-				OriginIntlPriceAreaID:            getCell(row.Cells, originPriceAreaIDColumn),
-				OriginIntlPriceArea:              getCell(row.Cells, originPriceAreaColumn),
-				DestinationDomesticPriceAreaCode: getCell(row.Cells, destinationPriceAreaIDColumn),
-				DestinationDomesticPriceArea:     getCell(row.Cells, destinationPriceAreaColumn),
+				OriginIntlPriceAreaID:            mustGetCell(sheet, rowIndex, originPriceAreaIDColumn),
+				OriginIntlPriceArea:              mustGetCell(sheet, rowIndex, originPriceAreaColumn),
+				DestinationDomesticPriceAreaCode: mustGetCell(sheet, rowIndex, destinationPriceAreaIDColumn),
+				DestinationDomesticPriceArea:     mustGetCell(sheet, rowIndex, destinationPriceAreaColumn),
 				Season:                           r,
 			}
 
-			oconusToConusPrice.HHGShippingLinehaulPrice = getCell(row.Cells, colIndex)
+			oconusToConusPrice.HHGShippingLinehaulPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			oconusToConusPrice.UBPrice = getCell(row.Cells, colIndex)
+			oconusToConusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageOconusToConusPrice", oconusToConusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", oconusToConusPrice)
+
 			oconusToConusPrices = append(oconusToConusPrices, oconusToConusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type
@@ -156,73 +151,72 @@ func verifyInternationalPrices(params ParamConfig, sheetIndex int, xlsxSheetNum 
 		"UB Price (except SIT) (per cwt)",
 	}
 
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerIndexStart:verifyHeaderIndexEnd]
-	repeatingRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[repeatingHeaderIndexStart:verifyHeaderIndexEnd2]
-	for dataRowsIndex, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for dataRowIndex := headerIndexStart; dataRowIndex < verifyHeaderIndexEnd; dataRowIndex++ {
 		colIndex := feeColIndexStart
 		// For each Rate Season
 		for _, r := range rateSeasons {
 			verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, rateSeasons %v",
-				dataRowsIndex, colIndex, r)
+				dataRowIndex, colIndex, r)
 
-			if dataRowsIndex == 0 {
+			if dataRowIndex == 0 {
 				if xlsxSheetNum == 10 {
-					if "OriginIntlPriceAreaID" != removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <OriginIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)), verificationLog)
+					if "OriginIntlPriceAreaID" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <OriginIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)), verificationLog)
 					}
-					if "OriginIntlPriceArea(PPIRA)" != removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <OriginIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)), verificationLog)
+					if "OriginIntlPriceArea(PPIRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <OriginIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)), verificationLog)
 					}
-					if "DestinationIntlPriceAreaID" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <DestinationIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)), verificationLog)
+					if "DestinationIntlPriceAreaID" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <DestinationIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)), verificationLog)
 					}
-					if "DestinationIntlPriceArea(PPIRA)" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <DestinationIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)), verificationLog)
+					if "DestinationIntlPriceArea(PPIRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <DestinationIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)), verificationLog)
 					}
 				}
 
 				if xlsxSheetNum == 11 {
-					if "OriginDomesticPriceAreaCode" != removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <OriginDomesticPriceAreaCode> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)), verificationLog)
+					if "OriginDomesticPriceAreaCode" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <OriginDomesticPriceAreaCode> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)), verificationLog)
 					}
-					if "OriginDomesticPriceArea(PPDRA)" != removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <OriginDomesticPriceArea(PPDRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)), verificationLog)
+					if "OriginDomesticPriceArea(PPDRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <OriginDomesticPriceArea(PPDRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)), verificationLog)
 					}
-					if "DestinationIntlPriceAreaID" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <DestinationIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)), verificationLog)
+					if "DestinationIntlPriceAreaID" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <DestinationIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)), verificationLog)
 					}
-					if "DestinationIntlPriceArea(PPIRA)" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <DestinationIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)), verificationLog)
+					if "DestinationIntlPriceArea(PPIRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <DestinationIntlPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)), verificationLog)
 					}
 				}
 
 				if xlsxSheetNum == 12 {
-					if "OriginIntlPriceAreaID" != removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <OriginIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaIDColumn)), verificationLog)
+					if "OriginIntlPriceAreaID" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <OriginIntlPriceAreaID> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaIDColumn)), verificationLog)
 					}
-					if "OriginInternationalPriceArea(PPIRA)" != removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <OriginInternationalPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)), verificationLog)
+					if "OriginInternationalPriceArea(PPIRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <OriginInternationalPriceArea(PPIRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, originPriceAreaColumn)), verificationLog)
 					}
-					if "DestinationDomesticPriceAreaCode" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)) {
-						return fmt.Errorf("format error: Header <DestinationDomesticPriceAreaCode> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaIDColumn)), verificationLog)
+					if "DestinationDomesticPriceAreaCode" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)) {
+						return fmt.Errorf("format error: Header <DestinationDomesticPriceAreaCode> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaIDColumn)), verificationLog)
 					}
-					if "DestinationDomesticPriceArea(PPDRA)" != removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)) {
-						return fmt.Errorf("format error: Header <DestinationDomesticPriceArea(PPDRA)> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, destinationPriceAreaColumn)), verificationLog)
+					if "DestinationDomesticPriceArea(PPDRA)" != removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)) {
+						return fmt.Errorf("format error: Header <DestinationDomesticPriceArea(PPDRA)> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, dataRowIndex, destinationPriceAreaColumn)), verificationLog)
 					}
 				}
 
-				for repeatingRowsIndex, row := range repeatingRows {
-					if repeatingRowsIndex == 0 {
+				for repeatingRowIndex := repeatingHeaderIndexStart; repeatingRowIndex < verifyHeaderIndexEnd2; repeatingRowIndex++ {
+					if repeatingRowIndex == 0 {
 						colIndex := feeColIndexStart
 						for _, repeatingHeader := range repeatingHeaders {
-							if removeWhiteSpace(repeatingHeader) != removeWhiteSpace(getCell(row.Cells, colIndex)) {
-								return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", removeWhiteSpace(repeatingHeader), removeWhiteSpace(getCell(row.Cells, colIndex)), verificationLog)
+							if removeWhiteSpace(repeatingHeader) != removeWhiteSpace(mustGetCell(sheet, repeatingRowIndex, colIndex)) {
+								return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", removeWhiteSpace(repeatingHeader), removeWhiteSpace(mustGetCell(sheet, repeatingRowIndex, colIndex)), verificationLog)
 							}
 							colIndex++
 						}
-					} else if dataRowsIndex == 1 {
-						if "EXAMPLE" != removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)) {
-							return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originPriceAreaColumn)), verificationLog)
+					} else if dataRowIndex == 1 {
+						if "EXAMPLE" != removeWhiteSpace(mustGetCell(sheet, repeatingRowIndex, originPriceAreaColumn)) {
+							return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(mustGetCell(sheet, repeatingRowIndex, originPriceAreaColumn)), verificationLog)
 						}
 					}
 				}

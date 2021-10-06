@@ -6,6 +6,7 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -69,9 +70,8 @@ func (o *UpdateMTOPostCounselingInformationReader) ReadResponse(response runtime
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -80,7 +80,7 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 	return &UpdateMTOPostCounselingInformationOK{}
 }
 
-/*UpdateMTOPostCounselingInformationOK handles this case with default header values.
+/* UpdateMTOPostCounselingInformationOK describes a response with status code 200, with default header values.
 
 Successfully updated move task order with post counseling information.
 */
@@ -91,7 +91,6 @@ type UpdateMTOPostCounselingInformationOK struct {
 func (o *UpdateMTOPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -113,7 +112,7 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 	return &UpdateMTOPostCounselingInformationUnauthorized{}
 }
 
-/*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
+/* UpdateMTOPostCounselingInformationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -124,7 +123,6 @@ type UpdateMTOPostCounselingInformationUnauthorized struct {
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -146,7 +144,7 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 	return &UpdateMTOPostCounselingInformationForbidden{}
 }
 
-/*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
+/* UpdateMTOPostCounselingInformationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -157,7 +155,6 @@ type UpdateMTOPostCounselingInformationForbidden struct {
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -179,7 +176,7 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 	return &UpdateMTOPostCounselingInformationNotFound{}
 }
 
-/*UpdateMTOPostCounselingInformationNotFound handles this case with default header values.
+/* UpdateMTOPostCounselingInformationNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -190,7 +187,6 @@ type UpdateMTOPostCounselingInformationNotFound struct {
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -212,7 +208,7 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 	return &UpdateMTOPostCounselingInformationPreconditionFailed{}
 }
 
-/*UpdateMTOPostCounselingInformationPreconditionFailed handles this case with default header values.
+/* UpdateMTOPostCounselingInformationPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -223,7 +219,6 @@ type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -245,9 +240,9 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationUnprocessableEntity{}
 }
 
-/*UpdateMTOPostCounselingInformationUnprocessableEntity handles this case with default header values.
+/* UpdateMTOPostCounselingInformationUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -256,7 +251,6 @@ type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -278,7 +272,7 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationInternalServerError{}
 }
 
-/*UpdateMTOPostCounselingInformationInternalServerError handles this case with default header values.
+/* UpdateMTOPostCounselingInformationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -289,7 +283,6 @@ type UpdateMTOPostCounselingInformationInternalServerError struct {
 func (o *UpdateMTOPostCounselingInformationInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
@@ -369,7 +362,6 @@ func (o *UpdateMTOPostCounselingInformationBody) validatePpmTypeEnum(path, locat
 }
 
 func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PpmType) { // not required
 		return nil
 	}
@@ -379,6 +371,11 @@ func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this update m t o post counseling information body based on context it is used
+func (o *UpdateMTOPostCounselingInformationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

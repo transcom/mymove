@@ -6,6 +6,8 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -19,7 +21,7 @@ type Member struct {
 
 	// affiliation
 	// Required: true
-	Affiliation Affiliation `json:"affiliation"`
+	Affiliation *Affiliation `json:"affiliation"`
 
 	// In languages that use Western order, like English, this is the last name.
 	// Required: true
@@ -34,7 +36,7 @@ type Member struct {
 
 	// rank
 	// Required: true
-	Rank Rank `json:"rank"`
+	Rank *Rank `json:"rank"`
 
 	// Jr., Sr., III, etc.
 	Suffix *string `json:"suffix,omitempty"`
@@ -74,11 +76,21 @@ func (m *Member) Validate(formats strfmt.Registry) error {
 
 func (m *Member) validateAffiliation(formats strfmt.Registry) error {
 
-	if err := m.Affiliation.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("affiliation")
-		}
+	if err := validate.Required("affiliation", "body", m.Affiliation); err != nil {
 		return err
+	}
+
+	if err := validate.Required("affiliation", "body", m.Affiliation); err != nil {
+		return err
+	}
+
+	if m.Affiliation != nil {
+		if err := m.Affiliation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("affiliation")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -86,7 +98,7 @@ func (m *Member) validateAffiliation(formats strfmt.Registry) error {
 
 func (m *Member) validateFamilyName(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("familyName", "body", string(m.FamilyName)); err != nil {
+	if err := validate.RequiredString("familyName", "body", m.FamilyName); err != nil {
 		return err
 	}
 
@@ -95,7 +107,7 @@ func (m *Member) validateFamilyName(formats strfmt.Registry) error {
 
 func (m *Member) validateGivenName(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("givenName", "body", string(m.GivenName)); err != nil {
+	if err := validate.RequiredString("givenName", "body", m.GivenName); err != nil {
 		return err
 	}
 
@@ -104,11 +116,67 @@ func (m *Member) validateGivenName(formats strfmt.Registry) error {
 
 func (m *Member) validateRank(formats strfmt.Registry) error {
 
-	if err := m.Rank.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("rank")
-		}
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
 		return err
+	}
+
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
+		return err
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this member based on the context it is used
+func (m *Member) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Member) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Affiliation != nil {
+		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("affiliation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Member) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil

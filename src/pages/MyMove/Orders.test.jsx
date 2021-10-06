@@ -1,12 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import { Orders } from './Orders';
 
-import { getServiceMember, getOrdersForServiceMember, createOrders, patchOrders } from 'services/internalApi';
+import { createOrders, getOrdersForServiceMember, getServiceMember, patchOrders } from 'services/internalApi';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -16,8 +15,17 @@ jest.mock('services/internalApi', () => ({
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-jest.mock('scenes/ServiceMembers/api.js', () => ({
-  ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
+jest.mock('components/DutyStationSearchBox/api', () => ({
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postal_code: '85309',
+      state: 'AZ',
+      street_address_1: 'n/a',
+    }),
+  ),
   SearchDutyStations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -183,29 +191,32 @@ describe('Orders page', () => {
 
       createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByRole, getByLabelText, getByRole } = render(<Orders {...testProps} />);
+      render(<Orders {...testProps} />);
 
       await waitFor(() => {
-        userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+        userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       });
 
-      userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-      userEvent.click(getByLabelText('No'));
+      userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction
-      fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-      await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+      await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+      const selectedOption = await screen.findByText(/Luke/);
+      userEvent.click(selectedOption);
 
-      expect(getByRole('form')).toHaveFormValues({
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '08 Nov 2020',
-        report_by_date: '26 Nov 2020',
-        has_dependents: 'no',
-        new_duty_station: 'Luke AFB',
+      await waitFor(() => {
+        expect(screen.getByRole('form')).toHaveFormValues({
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          issue_date: '08 Nov 2020',
+          report_by_date: '26 Nov 2020',
+          has_dependents: 'no',
+          new_duty_station: 'Luke AFB',
+        });
       });
 
-      const submitButton = queryByRole('button', { name: 'Next' });
+      const submitButton = screen.getByRole('button', { name: 'Next' });
       expect(submitButton).toBeEnabled();
 
       expect(submitButton).toBeInTheDocument();

@@ -15,9 +15,9 @@ type EdiError struct {
 	CreatedAt                  time.Time                                `json:"created_at" db:"created_at"`
 	UpdatedAt                  time.Time                                `json:"updated_at" db:"updated_at"`
 	PaymentRequestID           uuid.UUID                                `json:"payment_request_id" db:"payment_request_id"`
-	PaymentRequest             PaymentRequest                           `belongs_to:"payment_requests"`
+	PaymentRequest             PaymentRequest                           `belongs_to:"payment_requests" fk_id:"payment_request_id"`
 	InterchangeControlNumberID *uuid.UUID                               `json:"interchange_control_number_id" db:"interchange_control_number_id"`
-	InterchangeControlNumber   PaymentRequestToInterchangeControlNumber `belongs_to:"payment_request_to_interchange_control_numbers"`
+	InterchangeControlNumber   PaymentRequestToInterchangeControlNumber `belongs_to:"payment_request_to_interchange_control_numbers" fk_id:"interchange_control_number_id"`
 	Code                       *string                                  `json:"code" db:"code"`
 	Description                *string                                  `json:"description" db:"description"`
 	EDIType                    EDIType                                  `json:"edi_type" db:"edi_type"`

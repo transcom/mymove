@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { deleteMoveDocument, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
@@ -34,7 +34,7 @@ export class DocumentsUploaded extends Component {
   }
 
   toggleShowDocs = () => {
-    this.setState({ showDocs: !this.state.showDocs });
+    this.setState((prevState) => ({ showDocs: !prevState.showDocs }));
   };
 
   renderHeader = () => {
@@ -47,15 +47,8 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const {
-      expenseDocs,
-      weightTicketSetDocs,
-      weightTicketDocs,
-      moveId,
-      showLinks,
-      inReviewPage,
-      deleteMoveDocument,
-    } = this.props;
+    const { expenseDocs, weightTicketSetDocs, weightTicketDocs, moveId, showLinks, inReviewPage, deleteMoveDocument } =
+      this.props;
     const totalDocs = expenseDocs.length + weightTicketSetDocs.length + weightTicketDocs.length;
     const expandedDocumentList = showDocs || inReviewPage;
     const hiddenDocumentList = !inReviewPage && !showDocs;

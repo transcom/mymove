@@ -23,11 +23,11 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "nodejs-12.16.3";
+      name = "nodejs-14.17.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "528d35bec0cb976a06cc0e8487c6e5136400b16b";
-    }) {}).nodejs-12_x
+      rev = "75916fb375eb571dceebef84263a6cb942372769";
+    }) {}).nodejs-14_x
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
@@ -39,26 +39,26 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "go-1.15.8";
+      name = "go-1.17.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "860a644e0d07d769d39c4f89cac8c5d4ca686161";
-    }) {}).go
+      rev = "6d488e823899d2dc1c2ce746a900b3267e93c2f7";
+    }) {}).go_1_17
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "postgresql-12.4";
+      name = "postgresql-12.7";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "db2de55cbe4258f223ca7af0ace34fce9046d731";
+      rev = "860b56be91fb874d48e23a950815969a7b832fbc";
     }) {}).postgresql_12
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "pre-commit-2.7.1";
+      name = "pre-commit-2.14.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "229ff549e611d33d6b8ef2c6a2ce8879e9e75545";
     }) {}).pre-commit
 
     (import (builtins.fetchGit {
@@ -103,10 +103,10 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "aws-vault-6.2.0";
+      name = "aws-vault-6.3.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "54c1e44240d8a527a8f4892608c4bce5440c3ecb";
     }) {}).aws-vault
 
     (import (builtins.fetchGit {

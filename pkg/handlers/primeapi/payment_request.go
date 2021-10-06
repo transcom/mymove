@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/gobuffalo/validate/v3"
@@ -30,6 +31,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	payload := params.Body
 	if payload == nil {
@@ -79,7 +81,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
-	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
 		switch e := err.(type) {
@@ -163,7 +165,7 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			MTOServiceItem:   mtoServiceItem,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, mtoServiceItem.ReService)
+		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(mtoServiceItem.ReService.Code, payloadServiceItem)
 		if err != nil {
 			return nil, verrs, err
 		}
@@ -178,20 +180,21 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, verrs, nil
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem, reService models.ReService) (models.PaymentServiceItemParams, error) {
-	/************
-	  ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
-	  there were params sent. If there were params in via the create payment request then we will error out.
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(reServiceCode models.ReServiceCode, payloadMTOServiceItem *primemessages.ServiceItem) (models.PaymentServiceItemParams, error) {
+	var paymentServiceItemParams models.PaymentServiceItemParams
 
-	  Currently not expecting the prime to provide any params. This might change as we continue adding service items
-	  for billing and then we'll have to adjust which service items allow incoming params at that time.
-	***********/
+	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
+		if !AllowedParamKeysPaymentRequest.Contains(reServiceCode, payloadServiceItemParam.Key) {
+			return models.PaymentServiceItemParams{}, fmt.Errorf("the parameter %s is either invalid or cannot be passed while creating a payment request for a %s service item", payloadServiceItemParam.Key, reServiceCode)
+		}
+		paymentServiceItemParam := models.PaymentServiceItemParam{
+			// ID and PaymentServiceItemID to be filled in when payment request is created
+			IncomingKey: payloadServiceItemParam.Key,
+			Value:       payloadServiceItemParam.Value,
+		}
 
-	if len(payloadMTOServiceItem.Params) > 0 {
-		// if not in this function it can also be done up top
-		return models.PaymentServiceItemParams{}, fmt.Errorf("updating service item params not allowed for service item [%s] with MTO Service UUID: %s", reService.Name, payloadMTOServiceItem.ID)
-
+		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
 	}
 
-	return models.PaymentServiceItemParams{}, nil
+	return paymentServiceItemParams, nil
 }

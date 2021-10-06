@@ -2,19 +2,16 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeMTOAgent creates a single MTOAgent and associated MTOShipment
 func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
-	var mtoShipmentID uuid.UUID
-	mtoShipment := assertions.MTOShipment
 
-	if isZeroUUID(assertions.MTOAgent.MTOShipmentID) {
+	mtoShipment := assertions.MTOShipment
+	if isZeroUUID(mtoShipment.ID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
-		mtoShipmentID = mtoShipment.ID
 	}
 
 	firstName := "Jason"
@@ -24,7 +21,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	MTOAgent := models.MTOAgent{
 		MTOShipment:   mtoShipment,
-		MTOShipmentID: mtoShipmentID,
+		MTOShipmentID: mtoShipment.ID,
 		FirstName:     &firstName,
 		LastName:      &lastName,
 		Email:         &email,

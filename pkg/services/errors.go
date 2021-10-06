@@ -7,6 +7,23 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ContextError is returned when there was an issue with the context passed into a function
+// (Often an environment error)
+type ContextError struct {
+	message string
+}
+
+func (e ContextError) Error() string {
+	return fmt.Sprintf("ContextError: %s", e.message)
+}
+
+// NewContextError creates an error for a problem with the context
+func NewContextError(message string) ContextError {
+	return ContextError{
+		message: message,
+	}
+}
+
 // PreconditionFailedError is the precondition failed error
 type PreconditionFailedError struct {
 	id uuid.UUID
@@ -211,6 +228,40 @@ func (e NotImplementedError) Error() string {
 // NewNotImplementedError creates an error for some unimplemented functionality
 func NewNotImplementedError(message string) NotImplementedError {
 	return NotImplementedError{
+		message: message,
+	}
+}
+
+// ForbiddenError is the forbidden error
+type ForbiddenError struct {
+	message string
+}
+
+// NewForbiddenError returns an error for forbidden
+func NewForbiddenError(message string) ForbiddenError {
+	return ForbiddenError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the forbidden error
+func (e ForbiddenError) Error() string {
+	return fmt.Sprintf("User is forbidden: %s", e.message)
+}
+
+// ImplementationError is returned when a type or function has been implemented incorrectly
+// (Typically a dev error)
+type ImplementationError struct {
+	message string
+}
+
+func (e ImplementationError) Error() string {
+	return fmt.Sprintf("ImplementationError: %s", e.message)
+}
+
+// NewImplementationError creates an error for some unimplemented functionality
+func NewImplementationError(message string) ImplementationError {
+	return ImplementationError{
 		message: message,
 	}
 }

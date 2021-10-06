@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,10 +21,11 @@ import (
 type UpdateMTOShipmentStatus struct {
 
 	// rejection reason
+	// Example: MTO Shipment not good enough
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
-	// Enum: [REJECTED APPROVED SUBMITTED CANCELLATION_REQUESTED]
+	// Enum: [REJECTED APPROVED SUBMITTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
 	Status string `json:"status,omitempty"`
 }
 
@@ -45,7 +47,7 @@ var updateMTOShipmentStatusTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED","SUBMITTED","CANCELLATION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED","SUBMITTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -66,6 +68,12 @@ const (
 
 	// UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
 	UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// UpdateMTOShipmentStatusStatusCANCELED captures enum value "CANCELED"
+	UpdateMTOShipmentStatusStatusCANCELED string = "CANCELED"
+
+	// UpdateMTOShipmentStatusStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	UpdateMTOShipmentStatusStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
 )
 
 // prop value enum
@@ -77,7 +85,6 @@ func (m *UpdateMTOShipmentStatus) validateStatusEnum(path, location string, valu
 }
 
 func (m *UpdateMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -87,6 +94,11 @@ func (m *UpdateMTOShipmentStatus) validateStatus(formats strfmt.Registry) error 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this update m t o shipment status based on context it is used
+func (m *UpdateMTOShipmentStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

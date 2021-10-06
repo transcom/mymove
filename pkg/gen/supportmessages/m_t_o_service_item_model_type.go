@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -19,13 +20,18 @@ import (
 //   * DOFSIT, DOASIT - MTOServiceItemOriginSIT
 //   * DDFSIT, DDASIT - MTOServiceItemDestSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
-//   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+//   * DCRT, DUCRT - MTOServiceItemDomesticCrating
 //
 // The documentation will then update with the supported fields.
 //
 //
 // swagger:model MTOServiceItemModelType
 type MTOServiceItemModelType string
+
+func NewMTOServiceItemModelType(value MTOServiceItemModelType) *MTOServiceItemModelType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -77,5 +83,10 @@ func (m MTOServiceItemModelType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this m t o service item model type based on context it is used
+func (m MTOServiceItemModelType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -71,9 +71,8 @@ func (o *CreateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewCreateMTOAgentOK() *CreateMTOAgentOK {
 	return &CreateMTOAgentOK{}
 }
 
-/*CreateMTOAgentOK handles this case with default header values.
+/* CreateMTOAgentOK describes a response with status code 200, with default header values.
 
 Successfully added the agent.
 */
@@ -93,7 +92,6 @@ type CreateMTOAgentOK struct {
 func (o *CreateMTOAgentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentOK  %+v", 200, o.Payload)
 }
-
 func (o *CreateMTOAgentOK) GetPayload() *primemessages.MTOAgent {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewCreateMTOAgentBadRequest() *CreateMTOAgentBadRequest {
 	return &CreateMTOAgentBadRequest{}
 }
 
-/*CreateMTOAgentBadRequest handles this case with default header values.
+/* CreateMTOAgentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type CreateMTOAgentBadRequest struct {
 func (o *CreateMTOAgentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreateMTOAgentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewCreateMTOAgentUnauthorized() *CreateMTOAgentUnauthorized {
 	return &CreateMTOAgentUnauthorized{}
 }
 
-/*CreateMTOAgentUnauthorized handles this case with default header values.
+/* CreateMTOAgentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type CreateMTOAgentUnauthorized struct {
 func (o *CreateMTOAgentUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *CreateMTOAgentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewCreateMTOAgentForbidden() *CreateMTOAgentForbidden {
 	return &CreateMTOAgentForbidden{}
 }
 
-/*CreateMTOAgentForbidden handles this case with default header values.
+/* CreateMTOAgentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type CreateMTOAgentForbidden struct {
 func (o *CreateMTOAgentForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentForbidden  %+v", 403, o.Payload)
 }
-
 func (o *CreateMTOAgentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewCreateMTOAgentNotFound() *CreateMTOAgentNotFound {
 	return &CreateMTOAgentNotFound{}
 }
 
-/*CreateMTOAgentNotFound handles this case with default header values.
+/* CreateMTOAgentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type CreateMTOAgentNotFound struct {
 func (o *CreateMTOAgentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreateMTOAgentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewCreateMTOAgentConflict() *CreateMTOAgentConflict {
 	return &CreateMTOAgentConflict{}
 }
 
-/*CreateMTOAgentConflict handles this case with default header values.
+/* CreateMTOAgentConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -258,7 +252,6 @@ type CreateMTOAgentConflict struct {
 func (o *CreateMTOAgentConflict) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentConflict  %+v", 409, o.Payload)
 }
-
 func (o *CreateMTOAgentConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -280,9 +273,9 @@ func NewCreateMTOAgentUnprocessableEntity() *CreateMTOAgentUnprocessableEntity {
 	return &CreateMTOAgentUnprocessableEntity{}
 }
 
-/*CreateMTOAgentUnprocessableEntity handles this case with default header values.
+/* CreateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type CreateMTOAgentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -291,7 +284,6 @@ type CreateMTOAgentUnprocessableEntity struct {
 func (o *CreateMTOAgentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreateMTOAgentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewCreateMTOAgentInternalServerError() *CreateMTOAgentInternalServerError {
 	return &CreateMTOAgentInternalServerError{}
 }
 
-/*CreateMTOAgentInternalServerError handles this case with default header values.
+/* CreateMTOAgentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type CreateMTOAgentInternalServerError struct {
 func (o *CreateMTOAgentInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreateMTOAgentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

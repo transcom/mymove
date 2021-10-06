@@ -112,13 +112,14 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	serviceFlag       string = "service"
-	imageURIFlag      string = "image"
-	variablesFileFlag string = "variables-file"
-	entryPointFlag    string = "entrypoint"
-	cpuFlag           string = "cpu"
-	memFlag           string = "memory"
-	registerFlag      string = "register"
+	serviceFlag              string = "service"
+	imageURIFlag             string = "image"
+	variablesFileFlag        string = "variables-file"
+	entryPointFlag           string = "entrypoint"
+	cpuFlag                  string = "cpu"
+	memFlag                  string = "memory"
+	registerFlag             string = "register"
+	openTelemetrySidecarFlag string = "open-telemetry-sidecar"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
@@ -227,6 +228,9 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
+
+	// Open Telemetry SideCar
+	flag.Bool(openTelemetrySidecarFlag, false, "Include open telemetry sidecar container")
 
 	// Dry Run or Registration
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -584,30 +588,53 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// that have been transitioned into being set as environment variables.
 	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
 
-	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
-		ContainerDefinitions: []*ecs.ContainerDefinition{
-			{
-				Name:        aws.String(containerDefName),
-				Image:       aws.String(ecrImage.ImageURI),
-				Essential:   aws.Bool(true),
-				EntryPoint:  aws.StringSlice(entryPointList),
-				Command:     []*string{},
-				Secrets:     secrets,
-				Environment: containerEnvironment,
+	containerDefinitions := []*ecs.ContainerDefinition{
+		{
+			Name:        aws.String(containerDefName),
+			Image:       aws.String(ecrImage.ImageURI),
+			Essential:   aws.Bool(true),
+			EntryPoint:  aws.StringSlice(entryPointList),
+			Command:     []*string{},
+			Secrets:     secrets,
+			Environment: containerEnvironment,
+			LogConfiguration: &ecs.LogConfiguration{
+				LogDriver: aws.String("awslogs"),
+				Options: map[string]*string{
+					"awslogs-group":         aws.String(awsLogsGroup),
+					"awslogs-region":        aws.String(awsRegion),
+					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+				},
+			},
+			PortMappings:           portMappings,
+			ReadonlyRootFilesystem: aws.Bool(true),
+			Privileged:             aws.Bool(false),
+			User:                   aws.String("1042"),
+		},
+	}
+
+	if v.GetBool(openTelemetrySidecarFlag) {
+		containerDefinitions = append(containerDefinitions,
+			&ecs.ContainerDefinition{
+				Name:      aws.String("otel-" + containerDefName),
+				Image:     aws.String("amazon/aws-otel-collector"),
+				Essential: aws.Bool(true),
+				Command: aws.StringSlice([]string{
+					"--config=/etc/ecs/ecs-default-config.yaml",
+				}),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
 						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+						"awslogs-stream-prefix": aws.String("otel-" + awsLogsStreamPrefix),
 					},
 				},
-				PortMappings:           portMappings,
-				ReadonlyRootFilesystem: aws.Bool(true),
-				Privileged:             aws.Bool(false),
-				User:                   aws.String("1042"),
 			},
-		},
+		)
+	}
+
+	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions:    containerDefinitions,
 		Cpu:                     aws.String(cpu),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
 		Family:                  aws.String(family),

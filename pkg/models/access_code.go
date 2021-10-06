@@ -14,7 +14,7 @@ import (
 type AccessCode struct {
 	ID              uuid.UUID        `json:"id" db:"id"`
 	ServiceMemberID *uuid.UUID       `json:"service_member_id" db:"service_member_id"`
-	ServiceMember   ServiceMember    `belongs_to:"service_members"`
+	ServiceMember   ServiceMember    `belongs_to:"service_members" fk_id:"service_member_id"`
 	Code            string           `json:"code" db:"code"`
 	MoveType        SelectedMoveType `json:"move_type" db:"move_type"`
 	CreatedAt       time.Time        `json:"created_at" db:"created_at"`

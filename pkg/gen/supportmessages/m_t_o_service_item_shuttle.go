@@ -7,6 +7,7 @@ package supportmessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -33,9 +34,13 @@ type MTOServiceItemShuttle struct {
 
 	statusField MTOServiceItemStatus
 
-	// Further details about the shuttle service.
-	// Required: true
-	Description *string `json:"description"`
+	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	// Example: 4000
+	ActualWeight *int64 `json:"actualWeight"`
+
+	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	// Example: 4200
+	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Service codes allowed for this model type.
 	// Required: true
@@ -43,6 +48,7 @@ type MTOServiceItemShuttle struct {
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why a shuttle service is required.
+	// Example: Storage items need to be picked up.
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -130,9 +136,13 @@ func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Further details about the shuttle service.
-		// Required: true
-		Description *string `json:"description"`
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Example: 4000
+		ActualWeight *int64 `json:"actualWeight"`
+
+		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// Example: 4200
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
@@ -140,6 +150,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why a shuttle service is required.
+		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -198,7 +209,8 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 	result.statusField = base.Status
 
-	result.Description = data.Description
+	result.ActualWeight = data.ActualWeight
+	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
 
@@ -213,9 +225,13 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Further details about the shuttle service.
-		// Required: true
-		Description *string `json:"description"`
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Example: 4000
+		ActualWeight *int64 `json:"actualWeight"`
+
+		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// Example: 4200
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
@@ -223,11 +239,14 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why a shuttle service is required.
+		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
 
-		Description: m.Description,
+		ActualWeight: m.ActualWeight,
+
+		EstimatedWeight: m.EstimatedWeight,
 
 		ReServiceCode: m.ReServiceCode,
 
@@ -294,10 +313,6 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDescription(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -370,15 +385,6 @@ func (m *MTOServiceItemShuttle) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) error {
-
-	if err := validate.Required("description", "body", m.Description); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 var mTOServiceItemShuttleTypeReServiceCodePropEnum []interface{}
 
 func init() {
@@ -416,6 +422,70 @@ func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) e
 func (m *MTOServiceItemShuttle) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item shuttle based on the context it is used
+func (m *MTOServiceItemShuttle) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

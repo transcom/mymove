@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -16,6 +17,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
 	counselorRemarks := mtoShipment.CounselorRemarks
+	billableWeightJustification := mtoShipment.BillableWeightJustification
+	billableWeightCap := mtoShipment.BillableWeightCap
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -47,13 +50,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			})
 		}
 
-		// Make secondary pickup address if it was not provided
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
-		if isZeroUUID(secondaryPickupAddress.ID) {
-			secondaryPickupAddress = MakeAddress(db, Assertions{
-				Address: assertions.SecondaryPickupAddress,
-			})
-		}
 	}
 
 	var destinationAddress, secondaryDeliveryAddress models.Address
@@ -66,23 +63,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			})
 		}
 
-		// Make secondary delivery address if it was not provided
-		if assertions.MTOShipment.SecondaryDeliveryAddress != nil {
-			secondaryDeliveryAddress = *assertions.MTOShipment.SecondaryDeliveryAddress
-			if isZeroUUID(secondaryDeliveryAddress.ID) {
-				secondaryDeliveryAddress = MakeAddress(db, Assertions{
-					Address: *assertions.MTOShipment.SecondaryDeliveryAddress,
-				})
-			}
-		} else {
-			secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
-			if isZeroUUID(secondaryDeliveryAddress.ID) {
-				secondaryDeliveryAddress = MakeAddress(db, Assertions{
-					Address: assertions.SecondaryDeliveryAddress,
-				})
-			}
-		}
-
+		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
 	}
 
 	// mock weights
@@ -105,31 +86,40 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:         moveTaskOrder,
-		MoveTaskOrderID:       moveTaskOrder.ID,
-		RequestedPickupDate:   &requestedPickupDate,
-		ScheduledPickupDate:   &scheduledPickupDate,
-		ActualPickupDate:      &actualPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		CustomerRemarks:       swag.String("Please treat gently"),
-		CounselorRemarks:      counselorRemarks,
-		PrimeEstimatedWeight:  estimatedWeight,
-		PrimeActualWeight:     &actualWeight,
-		ShipmentType:          shipmentType,
-		Status:                shipmentStatus,
-		RejectionReason:       swag.String("Not enough information"),
+		MoveTaskOrder:               moveTaskOrder,
+		MoveTaskOrderID:             moveTaskOrder.ID,
+		RequestedPickupDate:         &requestedPickupDate,
+		ScheduledPickupDate:         &scheduledPickupDate,
+		ActualPickupDate:            &actualPickupDate,
+		RequestedDeliveryDate:       &requestedDeliveryDate,
+		CustomerRemarks:             swag.String("Please treat gently"),
+		CounselorRemarks:            counselorRemarks,
+		PrimeEstimatedWeight:        estimatedWeight,
+		PrimeActualWeight:           &actualWeight,
+		ShipmentType:                shipmentType,
+		Status:                      shipmentStatus,
+		BillableWeightCap:           billableWeightCap,
+		BillableWeightJustification: billableWeightJustification,
 	}
 
 	if shipmentHasDeliveryDetails {
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
-		MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+
+		if !isZeroUUID(secondaryDeliveryAddress.ID) {
+			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+		}
 	}
 
 	if shipmentHasPickupDetails {
 		MTOShipment.PickupAddress = &pickupAddress
 		MTOShipment.PickupAddressID = &pickupAddress.ID
-		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
+
+		if !isZeroUUID(secondaryPickupAddress.ID) {
+			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
+			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+		}
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
@@ -157,6 +147,7 @@ func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
 
 // MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
 // through milmove UI.
+// It does not create associated addresses.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -211,4 +202,14 @@ func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions A
 func MakeSubmittedMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
 	assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 	return MakeMTOShipmentWithMove(db, move, assertions)
+}
+
+// MakeStubbedShipment makes a stubbed shipment
+func MakeStubbedShipment(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipmentMinimal(db, Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 }

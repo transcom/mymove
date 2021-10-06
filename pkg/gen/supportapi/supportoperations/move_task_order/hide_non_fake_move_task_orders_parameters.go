@@ -13,7 +13,8 @@ import (
 )
 
 // NewHideNonFakeMoveTaskOrdersParams creates a new HideNonFakeMoveTaskOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewHideNonFakeMoveTaskOrdersParams() HideNonFakeMoveTaskOrdersParams {
 
 	return HideNonFakeMoveTaskOrdersParams{}

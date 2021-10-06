@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model PaymentRequestStatus
 type PaymentRequestStatus string
+
+func NewPaymentRequestStatus(value PaymentRequestStatus) *PaymentRequestStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -40,6 +46,9 @@ const (
 
 	// PaymentRequestStatusEDIERROR captures enum value "EDI_ERROR"
 	PaymentRequestStatusEDIERROR PaymentRequestStatus = "EDI_ERROR"
+
+	// PaymentRequestStatusDEPRECATED captures enum value "DEPRECATED"
+	PaymentRequestStatusDEPRECATED PaymentRequestStatus = "DEPRECATED"
 )
 
 // for schema
@@ -47,7 +56,7 @@ var paymentRequestStatusEnum []interface{}
 
 func init() {
 	var res []PaymentRequestStatus
-	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID","EDI_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID","EDI_ERROR","DEPRECATED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -74,5 +83,10 @@ func (m PaymentRequestStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this payment request status based on context it is used
+func (m PaymentRequestStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

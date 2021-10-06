@@ -163,6 +163,13 @@ export const paymentRequest = new schema.Entity('paymentRequests', {
 
 export const paymentRequests = new schema.Array(paymentRequest);
 
+export const shipmentPaymentSITBalance = new schema.Entity(
+  'shipmentsPaymentSITBalance',
+  {},
+  { idAttribute: 'shipmentID' },
+);
+export const shipmentsPaymentSITBalance = new schema.Array(shipmentPaymentSITBalance);
+
 // MTO Agents
 export const mtoAgent = new schema.Entity('mtoAgents');
 export const mtoAgents = new schema.Array(mtoAgent);

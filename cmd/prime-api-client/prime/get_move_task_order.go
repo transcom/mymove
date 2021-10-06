@@ -61,7 +61,7 @@ func GetMTO(cmd *cobra.Command, args []string) error {
 	// Get the UUID that was passed in
 	moveID := v.GetString(utils.IDFlag)
 	var getMTOParams mto.GetMoveTaskOrderParams
-	getMTOParams.MoveTaskOrderID = moveID
+	getMTOParams.MoveID = moveID
 	getMTOParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore

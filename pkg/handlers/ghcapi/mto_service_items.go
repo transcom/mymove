@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -28,10 +29,15 @@ func payloadForClientError(title string, detail string, instance uuid.UUID) *ghc
 }
 
 func payloadForValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *ghcmessages.ValidationError {
-	return &ghcmessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *payloadForClientError(title, detail, instance),
+	payload := &ghcmessages.ValidationError{
+		ClientError: *payloadForClientError(title, detail, instance),
 	}
+
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+
+	return payload
 }
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status
@@ -44,6 +50,7 @@ type UpdateMTOServiceItemStatusHandler struct {
 // Handle handler that handles the handling for updating service item status
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.UpdateMTOServiceItemStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	existingMTOServiceItem := models.MTOServiceItem{}
 
 	mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
@@ -58,7 +65,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 	// Fetch the existing service item
 	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", mtoServiceItemID)}
-	err = h.Fetcher.FetchRecord(&existingMTOServiceItem, filter)
+	err = h.Fetcher.FetchRecord(appCtx, &existingMTOServiceItem, filter)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
@@ -72,13 +79,12 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
 
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a mto service item", h.GetTraceID())
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
@@ -119,6 +125,7 @@ type ListMTOServiceItemsHandler struct {
 // Handle handler that lists mto service items for the move task order
 func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
@@ -136,7 +143,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	}
 
 	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
+	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
@@ -146,14 +153,14 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
-	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
+	queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 		query.NewQueryAssociation("ReService"),
 		query.NewQueryAssociation("CustomerContacts"),
 		query.NewQueryAssociation("Dimensions"),
 	})
 
 	var serviceItems models.MTOServiceItems
-	err = h.ListFetcher.FetchRecordList(&serviceItems, queryFilters, queryAssociations, nil, nil)
+	err = h.ListFetcher.FetchRecordList(appCtx, &serviceItems, queryFilters, queryAssociations, nil, nil)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto service items: ", zap.Error(err))

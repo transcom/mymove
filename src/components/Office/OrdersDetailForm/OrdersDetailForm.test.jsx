@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
 
 import OrdersDetailForm from './OrdersDetailForm';
@@ -36,6 +36,7 @@ const initialValues = {
   ordersTypeDetail: 'HHG_PERMITTED',
   tac: 'Tac',
   sac: 'Sac',
+  ordersAcknowledgement: true,
 };
 
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -45,11 +46,12 @@ const defaultProps = {
   deptIndicatorOptions: deptOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
+  showOrdersAcknowledgement: true,
   validateTac: jest.fn,
 };
 
-function mountOrdersDetailForm(props) {
-  return mount(
+function renderOrdersDetailForm(props) {
+  render(
     <Formik initialValues={initialValues}>
       <form>
         <OrdersDetailForm {...defaultProps} {...props} />
@@ -59,44 +61,63 @@ function mountOrdersDetailForm(props) {
 }
 
 describe('OrdersDetailForm', () => {
-  const wrapper = mountOrdersDetailForm();
+  it('renders the Form', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
 
-  it('renders the Form', () => {
-    expect(wrapper.find(OrdersDetailForm).exists()).toBe(true);
+    // hidden fields are default visible
+    expect(screen.getByLabelText('Department indicator')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders number')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders type detail')).toBeInTheDocument();
+    expect(screen.getByLabelText('TAC')).toBeInTheDocument();
+    expect(screen.getByLabelText('SAC')).toBeInTheDocument();
+    expect(screen.getByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
-  it('accepts deptIndicatorOptions prop', () => {
-    expect(wrapper.find('DropdownInput[name="departmentIndicator"]').prop('options')).toBe(deptOptions);
+  it('accepts deptIndicatorOptions prop', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByLabelText('Department indicator')).toBeInTheDocument();
   });
 
-  it('accepts ordersTypeOptions prop', () => {
-    expect(wrapper.find('DropdownInput[name="ordersType"]').prop('options')).toBe(ordersTypeOptions);
+  it('accepts ordersTypeOptions prop', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByLabelText('Orders type')).toBeInTheDocument();
   });
 
-  it('accepts ordersTypeDetailOptions prop', () => {
-    expect(wrapper.find('DropdownInput[name="ordersTypeDetail"]').prop('options')).toBe(ordersTypeDetailOptions);
+  it('accepts ordersTypeDetailOptions prop', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByLabelText('Orders type detail')).toBeInTheDocument();
   });
 
-  it('populates initial field values', () => {
-    /*
-    expect(wrapper.find('[name="originDutyStation"]').value).toBe(dutyStation);
-    expect(wrapper.find('[name="newDutyStation"]').prop('value')).toBe(dutyStation);
-    expect(wrapper.find('[name="issueDate"]').prop('value')).toBe('08 Mar 2020');
-    expect(wrapper.find('[name="reportByDate"]').prop('value')).toBe('01 Apr 2020');
-    expect(wrapper.find('[name="departmentIndicator"]').prop('value')).toBe('NAVY_AND_MARINES');
-    expect(wrapper.find('[name="ordersNumber"]').prop('value')).toBe('999999999');
-    expect(wrapper.find('[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
-    expect(wrapper.find('[name="ordersTypeDetail"]').prop('value')).toBe('HHG_PERMITTED');
-    expect(wrapper.find('[name="tac"]').prop('value')).toBe('Tac');
-    expect(wrapper.find('[name="sac"]').prop('value')).toBe('Sac');
-    */
+  it('accepts showOrdersAcknowledgement prop', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
-  it('shows the tac warning', () => {
-    const tacWarning = 'You have been warned';
-    const wrapperWarn = mountOrdersDetailForm({ tacWarning });
+  it('shows the tac warning', async () => {
+    renderOrdersDetailForm({ tacWarning: 'Test warning' });
+    expect(await screen.findByText('Test warning')).toBeInTheDocument();
+  });
 
-    expect(wrapperWarn.find('[data-testid="textInputWarning"]').exists()).toBe(true);
-    expect(wrapperWarn.find('[data-testid="textInputWarning"]').text()).toEqual(tacWarning);
+  it('hides hideable fields', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showTac: false,
+      showSac: false,
+      showOrdersAcknowledgement: false,
+    });
+
+    // fields are visible
+    expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
+
+    // fields are hidden
+    expect(screen.queryByLabelText('Department indicator')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders number')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders type detail')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
   });
 });

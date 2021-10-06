@@ -71,9 +71,8 @@ func (o *CreateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 	return &CreateMTOServiceItemOK{}
 }
 
-/*CreateMTOServiceItemOK handles this case with default header values.
+/* CreateMTOServiceItemOK describes a response with status code 200, with default header values.
 
 Successfully created an MTO service item.
 */
@@ -93,7 +92,6 @@ type CreateMTOServiceItemOK struct {
 func (o *CreateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
-
 func (o *CreateMTOServiceItemOK) GetPayload() []primemessages.MTOServiceItem {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 	return &CreateMTOServiceItemBadRequest{}
 }
 
-/*CreateMTOServiceItemBadRequest handles this case with default header values.
+/* CreateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type CreateMTOServiceItemBadRequest struct {
 func (o *CreateMTOServiceItemBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 	return &CreateMTOServiceItemUnauthorized{}
 }
 
-/*CreateMTOServiceItemUnauthorized handles this case with default header values.
+/* CreateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type CreateMTOServiceItemUnauthorized struct {
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *CreateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 	return &CreateMTOServiceItemForbidden{}
 }
 
-/*CreateMTOServiceItemForbidden handles this case with default header values.
+/* CreateMTOServiceItemForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type CreateMTOServiceItemForbidden struct {
 func (o *CreateMTOServiceItemForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
-
 func (o *CreateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 	return &CreateMTOServiceItemNotFound{}
 }
 
-/*CreateMTOServiceItemNotFound handles this case with default header values.
+/* CreateMTOServiceItemNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type CreateMTOServiceItemNotFound struct {
 func (o *CreateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewCreateMTOServiceItemConflict() *CreateMTOServiceItemConflict {
 	return &CreateMTOServiceItemConflict{}
 }
 
-/*CreateMTOServiceItemConflict handles this case with default header values.
+/* CreateMTOServiceItemConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -258,7 +252,6 @@ type CreateMTOServiceItemConflict struct {
 func (o *CreateMTOServiceItemConflict) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemConflict  %+v", 409, o.Payload)
 }
-
 func (o *CreateMTOServiceItemConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -280,9 +273,9 @@ func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocess
 	return &CreateMTOServiceItemUnprocessableEntity{}
 }
 
-/*CreateMTOServiceItemUnprocessableEntity handles this case with default header values.
+/* CreateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
 
-The payload was unprocessable.
+The request was unprocessable, likely due to bad input from the requester.
 */
 type CreateMTOServiceItemUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -291,7 +284,6 @@ type CreateMTOServiceItemUnprocessableEntity struct {
 func (o *CreateMTOServiceItemUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewCreateMTOServiceItemInternalServerError() *CreateMTOServiceItemInternalS
 	return &CreateMTOServiceItemInternalServerError{}
 }
 
-/*CreateMTOServiceItemInternalServerError handles this case with default header values.
+/* CreateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type CreateMTOServiceItemInternalServerError struct {
 func (o *CreateMTOServiceItemInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

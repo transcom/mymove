@@ -1,16 +1,14 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
-import { isHappoRun } from 'happo-plugin-storybook/register';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import QueueTable from '../components/QueueTable';
-import ServiceItemTable from '../components/ServiceItemTable';
-import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
-import DataPoint from '../components/DataPoint';
-import DataPointGroup from '../components/DataPointGroup';
+import ServiceItemsTable from '../components/Office/ServiceItemsTable/ServiceItemsTable';
+import DataTable from '../components/DataTable';
+import DataTableWrapper from '../components/DataTableWrapper';
 
-const dataPointBody = (
+const DataTableBody = (
   <>
     Dorothy Lagomarsino
     <br />
@@ -226,7 +224,7 @@ export const TableElements = () => (
         <code>data point</code>
         <br />
         <br />
-        <DataPoint columnHeaders={['Receiving agent']} dataRow={[dataPointBody]} />
+        <DataTable columnHeaders={['Receiving agent']} dataRow={[DataTableBody]} />
         <br />
         <br />
         <code>data point compact</code>
@@ -247,12 +245,12 @@ export const TableElements = () => (
       </div>
       <div className="sb-table-wrapper">
         <code>data-pair</code>
-        <DataPointGroup>
-          <DataPoint
+        <DataTableWrapper className="table--data-point-group">
+          <DataTable
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
           />
-        </DataPointGroup>
+        </DataTableWrapper>
       </div>
     </div>
   </div>
@@ -268,38 +266,38 @@ export const StandardTables = () => (
     <div className="display-flex">
       <div style={{ 'margin-right': '1em' }}>
         <h3>Data point</h3>
-        <DataPoint columnHeaders={['Receiving agent']} dataRow={[dataPointBody]} />
+        <DataTable columnHeaders={['Receiving agent']} dataRow={[DataTableBody]} />
       </div>
       <div style={{ 'margin-right': '1em' }}>
         <h3>Data point compact</h3>
-        <DataPoint
+        <DataTable
           columnHeaders={['Receiving agent']}
-          dataRow={[dataPointBody]}
+          dataRow={[DataTableBody]}
           custClass="table--data-point--compact"
         />
       </div>
       <div style={{ width: '40px' }} />
       <div>
         <h3>Data point group</h3>
-        <DataPointGroup>
-          <DataPoint
+        <DataTableWrapper className="table--data-point-group">
+          <DataTable
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
           />
-        </DataPointGroup>
+        </DataTableWrapper>
         <div style={{ 'margin-bottom': '1em' }} />
-        <DataPointGroup>
-          <DataPoint
+        <DataTableWrapper className="table--data-point-group">
+          <DataTable
             columnHeaders={['Authorized addresses', '']}
             dataRow={['San Antonio, TX 78234', 'Tacoma, WA 98421']}
             icon={<FontAwesomeIcon icon="arrow-right" />}
           />
-          <DataPoint
+          <DataTable
             columnHeaders={["Customer's addresses", '']}
             dataRow={['812 S 129th St, San Antonio, TX 78234', '441 SW Rio de la Plata Drive, Tacoma, WA 98421']}
             icon={<FontAwesomeIcon icon="arrow-right" />}
           />
-        </DataPointGroup>
+        </DataTableWrapper>
       </div>
     </div>
   </div>
@@ -309,11 +307,7 @@ export const ServiceItemTables = () => (
   <div id="sb-tables" style={{ padding: '20px' }}>
     <hr />
     <h3>Service item table</h3>
-    <ServiceItemTable />
-    <br />
-    <hr />
-    <h3>Service item table with images and buttons</h3>
-    <ServiceItemTableHasImg
+    <ServiceItemsTable
       statusForTableType="SUBMITTED"
       serviceItems={[
         {
@@ -325,7 +319,6 @@ export const ServiceItemTables = () => (
             description: "Here's the description",
             itemDimensions: { length: 8400, width: 2600, height: 4200 },
             crateDimensions: { length: 110000, width: 36000, height: 54000 },
-            imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },
       ]}

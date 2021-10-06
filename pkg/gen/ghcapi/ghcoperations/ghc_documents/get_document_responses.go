@@ -69,7 +69,7 @@ type GetDocumentBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentBadRequest creates GetDocumentBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewGetDocumentBadRequest() *GetDocumentBadRequest {
 }
 
 // WithPayload adds the payload to the get document bad request response
-func (o *GetDocumentBadRequest) WithPayload(payload interface{}) *GetDocumentBadRequest {
+func (o *GetDocumentBadRequest) WithPayload(payload *ghcmessages.Error) *GetDocumentBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document bad request response
-func (o *GetDocumentBadRequest) SetPayload(payload interface{}) {
+func (o *GetDocumentBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetDocumentBadRequest) SetPayload(payload interface{}) {
 func (o *GetDocumentBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetDocumentUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentUnauthorized creates GetDocumentUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewGetDocumentUnauthorized() *GetDocumentUnauthorized {
 }
 
 // WithPayload adds the payload to the get document unauthorized response
-func (o *GetDocumentUnauthorized) WithPayload(payload interface{}) *GetDocumentUnauthorized {
+func (o *GetDocumentUnauthorized) WithPayload(payload *ghcmessages.Error) *GetDocumentUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document unauthorized response
-func (o *GetDocumentUnauthorized) SetPayload(payload interface{}) {
+func (o *GetDocumentUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *GetDocumentUnauthorized) SetPayload(payload interface{}) {
 func (o *GetDocumentUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type GetDocumentForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentForbidden creates GetDocumentForbidden with default headers values
@@ -163,13 +167,13 @@ func NewGetDocumentForbidden() *GetDocumentForbidden {
 }
 
 // WithPayload adds the payload to the get document forbidden response
-func (o *GetDocumentForbidden) WithPayload(payload interface{}) *GetDocumentForbidden {
+func (o *GetDocumentForbidden) WithPayload(payload *ghcmessages.Error) *GetDocumentForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document forbidden response
-func (o *GetDocumentForbidden) SetPayload(payload interface{}) {
+func (o *GetDocumentForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *GetDocumentForbidden) SetPayload(payload interface{}) {
 func (o *GetDocumentForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type GetDocumentNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentNotFound creates GetDocumentNotFound with default headers values
@@ -205,13 +211,13 @@ func NewGetDocumentNotFound() *GetDocumentNotFound {
 }
 
 // WithPayload adds the payload to the get document not found response
-func (o *GetDocumentNotFound) WithPayload(payload interface{}) *GetDocumentNotFound {
+func (o *GetDocumentNotFound) WithPayload(payload *ghcmessages.Error) *GetDocumentNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document not found response
-func (o *GetDocumentNotFound) SetPayload(payload interface{}) {
+func (o *GetDocumentNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +225,18 @@ func (o *GetDocumentNotFound) SetPayload(payload interface{}) {
 func (o *GetDocumentNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetDocumentPreconditionFailedCode is the HTTP code returned for type GetDocumentPreconditionFailed
 const GetDocumentPreconditionFailedCode int = 412
 
-/*GetDocumentPreconditionFailed Precondition Failed
+/*GetDocumentPreconditionFailed Precondition failed
 
 swagger:response getDocumentPreconditionFailed
 */
@@ -237,7 +245,7 @@ type GetDocumentPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentPreconditionFailed creates GetDocumentPreconditionFailed with default headers values
@@ -247,13 +255,13 @@ func NewGetDocumentPreconditionFailed() *GetDocumentPreconditionFailed {
 }
 
 // WithPayload adds the payload to the get document precondition failed response
-func (o *GetDocumentPreconditionFailed) WithPayload(payload interface{}) *GetDocumentPreconditionFailed {
+func (o *GetDocumentPreconditionFailed) WithPayload(payload *ghcmessages.Error) *GetDocumentPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document precondition failed response
-func (o *GetDocumentPreconditionFailed) SetPayload(payload interface{}) {
+func (o *GetDocumentPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +269,18 @@ func (o *GetDocumentPreconditionFailed) SetPayload(payload interface{}) {
 func (o *GetDocumentPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetDocumentUnprocessableEntityCode is the HTTP code returned for type GetDocumentUnprocessableEntity
 const GetDocumentUnprocessableEntityCode int = 422
 
-/*GetDocumentUnprocessableEntity Validation error
+/*GetDocumentUnprocessableEntity The payload was unprocessable.
 
 swagger:response getDocumentUnprocessableEntity
 */
@@ -323,7 +333,7 @@ type GetDocumentInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetDocumentInternalServerError creates GetDocumentInternalServerError with default headers values
@@ -333,13 +343,13 @@ func NewGetDocumentInternalServerError() *GetDocumentInternalServerError {
 }
 
 // WithPayload adds the payload to the get document internal server error response
-func (o *GetDocumentInternalServerError) WithPayload(payload interface{}) *GetDocumentInternalServerError {
+func (o *GetDocumentInternalServerError) WithPayload(payload *ghcmessages.Error) *GetDocumentInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document internal server error response
-func (o *GetDocumentInternalServerError) SetPayload(payload interface{}) {
+func (o *GetDocumentInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -347,8 +357,10 @@ func (o *GetDocumentInternalServerError) SetPayload(payload interface{}) {
 func (o *GetDocumentInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

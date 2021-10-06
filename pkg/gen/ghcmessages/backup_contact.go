@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,15 +20,18 @@ import (
 type BackupContact struct {
 
 	// email
+	// Required: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Email *string `json:"email,omitempty"`
+	Email *string `json:"email"`
 
 	// name
-	Name *string `json:"name,omitempty"`
+	// Required: true
+	Name *string `json:"name"`
 
 	// phone
+	// Required: true
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	Phone *string `json:"phone,omitempty"`
+	Phone *string `json:"phone"`
 }
 
 // Validate validates this backup contact
@@ -34,6 +39,10 @@ func (m *BackupContact) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -49,11 +58,20 @@ func (m *BackupContact) Validate(formats strfmt.Registry) error {
 
 func (m *BackupContact) validateEmail(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Email) { // not required
-		return nil
+	if err := validate.Required("email", "body", m.Email); err != nil {
+		return err
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BackupContact) validateName(formats strfmt.Registry) error {
+
+	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
 
@@ -62,14 +80,19 @@ func (m *BackupContact) validateEmail(formats strfmt.Registry) error {
 
 func (m *BackupContact) validatePhone(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Phone) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Required("phone", "body", m.Phone); err != nil {
 		return err
 	}
 
+	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this backup contact based on context it is used
+func (m *BackupContact) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

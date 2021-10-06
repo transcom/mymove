@@ -25,17 +25,26 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK, error)
+	CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOption) (*CreateMTOAgentOK, error)
 
-	CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error)
+	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
 
-	UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK, error)
+	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
-	UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error)
+	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
-	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error)
+	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error)
+
+	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams, opts ...ClientOption) (*UpdateMTOShipmentAddressOK, error)
+
+	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error)
+
+	UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -55,13 +64,12 @@ The shipment should be associated with an MTO that is available to the Pime.
 If the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
 
 */
-func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK, error) {
+func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOption) (*CreateMTOAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMTOAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createMTOAgent",
 		Method:             "POST",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}/agents",
@@ -72,7 +80,12 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK
 		Reader:             &CreateMTOAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -89,27 +102,21 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK
 /*
   CreateMTOShipment creates m t o shipment
 
-  Creates a MTO shipment for the specified Move Task Order.
-Required fields include:
-* Shipment Type
-* Customer requested pick-up date
-* Pick-up Address
-* Delivery Address
-* Releasing / Receiving agents
+  Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
+approve it before the contractor can proceed with billing.
 
-Optional fields include:
-* Customer Remarks
-* Releasing / Receiving agents
-* An array of optional accessorial service item codes
+**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
+one of their moves. Otherwise, the Prime can fetch the related move using the
+[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
 
 */
-func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
+func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMTOShipmentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createMTOShipment",
 		Method:             "POST",
 		PathPattern:        "/mto-shipments",
@@ -120,7 +127,12 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 		Reader:             &CreateMTOShipmentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +143,50 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  CreateSITExtension creates s i t extension
+
+  ### Functionality
+This endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an
+increase in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance
+includes time spent in both origin and destination SIT.
+
+*/
+func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateSITExtensionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "createSITExtension",
+		Method:             "POST",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/sit-extensions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateSITExtensionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateSITExtensionCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createSITExtension: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -149,13 +205,12 @@ The shipment should be associated with an MTO that is available to the Prime.
 If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
 
 */
-func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK, error) {
+func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOAgent",
 		Method:             "PUT",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}/agents/{agentID}",
@@ -166,7 +221,12 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 		Reader:             &UpdateMTOAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -183,32 +243,27 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 /*
   UpdateMTOShipment updates m t o shipment
 
-  Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+  Updates an existing shipment for a move.
 
-* `scheduledPickupDate`
-* `actualPickupDate`
-* `firstAvailableDeliveryDate`
-* `destinationAddress`
-* `pickupAddress`
-* `secondaryDeliveryAddress`
-* `secondaryPickupAddress`
-* `primeEstimatedWeight`
-* `primeActualWeight`
-* `shipmentType`
-* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+Note that there are some restrictions on nested objects:
+
+* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
+* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
+* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 
 */
-func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
+func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOShipmentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOShipment",
-		Method:             "PUT",
+		Method:             "PATCH",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -217,7 +272,12 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 		Reader:             &UpdateMTOShipmentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -250,13 +310,12 @@ The mtoShipment should be associated with an MTO that is available to prime.
 If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
 
 */
-func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error) {
+func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams, opts ...ClientOption) (*UpdateMTOShipmentAddressOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOShipmentAddressParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOShipmentAddress",
 		Method:             "PUT",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}/addresses/{addressID}",
@@ -267,7 +326,12 @@ func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams
 		Reader:             &UpdateMTOShipmentAddressReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -278,6 +342,96 @@ func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for updateMTOShipmentAddress: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  UpdateMTOShipmentStatus updates m t o shipment status
+
+  ### Functionality
+This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
+status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
+
+*/
+func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateMTOShipmentStatusParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateMTOShipmentStatus",
+		Method:             "PATCH",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateMTOShipmentStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateMTOShipmentStatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateMTOShipmentStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  UpdateReweigh updates reweigh
+
+  ### Functionality
+This endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.
+Only one of weight or verificationReason should be sent in the request body.
+
+A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
+A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
+so not all shipments will have a reweigh weight.
+
+*/
+func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateReweighParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateReweigh",
+		Method:             "PATCH",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateReweighReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateReweighOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateReweigh: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

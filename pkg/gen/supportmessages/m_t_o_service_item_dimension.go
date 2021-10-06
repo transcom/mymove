@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,21 +20,22 @@ import (
 type MTOServiceItemDimension struct {
 
 	// Height in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Height *int32 `json:"height"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Length in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Length *int32 `json:"length"`
 
-	// type
-	Type DimensionType `json:"type,omitempty"`
-
 	// Width in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Width *int32 `json:"width"`
 }
@@ -50,10 +53,6 @@ func (m *MTOServiceItemDimension) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLength(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -77,7 +76,6 @@ func (m *MTOServiceItemDimension) validateHeight(formats strfmt.Registry) error 
 }
 
 func (m *MTOServiceItemDimension) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -98,28 +96,17 @@ func (m *MTOServiceItemDimension) validateLength(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDimension) validateWidth(formats strfmt.Registry) error {
 
 	if err := validate.Required("width", "body", m.Width); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this m t o service item dimension based on context it is used
+func (m *MTOServiceItemDimension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

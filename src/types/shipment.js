@@ -1,8 +1,11 @@
+/* eslint-disable import/prefer-default-export */
 import PropTypes from 'prop-types';
 
+import { AddressShape } from 'types/address';
+import { AgentShape } from 'types/agent';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentStatuses } from 'constants/shipments';
 
-// eslint-disable-next-line import/prefer-default-export
 export const ShipmentOptionsOneOf = PropTypes.oneOf([
   SHIPMENT_OPTIONS.HHG,
   SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
@@ -10,4 +13,35 @@ export const ShipmentOptionsOneOf = PropTypes.oneOf([
   SHIPMENT_OPTIONS.NTS,
   SHIPMENT_OPTIONS.NTSR,
   SHIPMENT_OPTIONS.PPM,
+]);
+
+export const ShipmentShape = PropTypes.shape({
+  shipmentType: ShipmentOptionsOneOf,
+  requestedPickupDate: PropTypes.string,
+  scheduledPickupDate: PropTypes.string,
+  actualPickupDate: PropTypes.string,
+  pickupAddress: AddressShape,
+  secondaryPickupAddress: AddressShape,
+  destinationAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
+  agents: PropTypes.arrayOf(AgentShape),
+  primeEstimatedWeight: PropTypes.number,
+  primeActualWeight: PropTypes.number,
+  diversion: PropTypes.bool,
+  counselorRemarks: PropTypes.string,
+  customerRemarks: PropTypes.string,
+  status: PropTypes.string,
+  reweigh: PropTypes.shape({
+    id: PropTypes.string,
+  }),
+});
+
+export const ShipmentStatusesOneOf = PropTypes.oneOf([
+  shipmentStatuses.DRAFT,
+  shipmentStatuses.SUBMITTED,
+  shipmentStatuses.APPROVED,
+  shipmentStatuses.CANCELLATION_REQUESTED,
+  shipmentStatuses.DIVERSION_REQUESTED,
+  shipmentStatuses.CANCELED,
+  shipmentStatuses.REJECTED,
 ]);

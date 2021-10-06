@@ -29,7 +29,7 @@ func NewIndexElectronicOrders(ctx *middleware.Context, handler IndexElectronicOr
 	return &IndexElectronicOrders{Context: ctx, Handler: handler}
 }
 
-/*IndexElectronicOrders swagger:route GET /electronic_orders electronic_order indexElectronicOrders
+/* IndexElectronicOrders swagger:route GET /electronic_orders electronic_order indexElectronicOrders
 
 List electronic orders
 
@@ -44,17 +44,15 @@ type IndexElectronicOrders struct {
 func (o *IndexElectronicOrders) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewIndexElectronicOrdersParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

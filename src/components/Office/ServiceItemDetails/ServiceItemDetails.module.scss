@@ -15,16 +15,10 @@
   @include u-margin-top(2);
 }
 
-.detailImage {
-  @include u-display(flex);
+.detailCrating {
   p {
     @include u-margin-top(0);
   }
-}
-
-.siThumbnail {
-  width: 100px;
-  height: 100px;
 }
 
 .detailCaption {

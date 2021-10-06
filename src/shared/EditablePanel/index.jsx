@@ -206,7 +206,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
     };
 
     toggleEdit = () => {
-      this.setState({ isEditable: !this.state.isEditable });
+      this.setState((prevState) => ({ isEditable: !prevState.isEditable }));
     };
 
     cancel = () => {

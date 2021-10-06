@@ -1,16 +1,12 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestAdminUserCreation() {
-	t := suite.T()
-
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := testdatagen.MakeStubbedUser(suite.DB())
 
 	newAdminUser := AdminUser{
 		FirstName: "Leo",
@@ -20,13 +16,10 @@ func (suite *ModelSuite) TestAdminUserCreation() {
 		Email:     "leo@gmail.com",
 	}
 
-	if verrs, err := suite.DB().ValidateAndCreate(&newAdminUser); err != nil || verrs.HasAny() {
-		t.Fatal("Didn't create admin user in db.")
-	}
+	verrs, err := newAdminUser.Validate(nil)
 
-	if newAdminUser.ID == uuid.Nil {
-		t.Error("Didn't get an id back for admin user.")
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) TestAdminUserCreationWithoutValues() {

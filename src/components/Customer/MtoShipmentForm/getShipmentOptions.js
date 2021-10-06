@@ -1,22 +1,27 @@
 import * as Yup from 'yup';
 
-import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
+import { AdditionalAddressSchema, RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const hhgShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
 });
 
 const ntsShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });
 
 const ntsReleaseShipmentSchema = Yup.object().shape({
   delivery: OptionalPlaceSchema,
+  secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });
 

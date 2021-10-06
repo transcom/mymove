@@ -3,7 +3,7 @@ package dpsauth
 import (
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/pkg/errors"
 )
 

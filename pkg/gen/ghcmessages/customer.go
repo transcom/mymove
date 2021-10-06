@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -37,20 +39,32 @@ type Customer struct {
 	Email *string `json:"email,omitempty"`
 
 	// first name
+	// Example: John
 	FirstName string `json:"first_name,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
+	// Example: Doe
 	LastName string `json:"last_name,omitempty"`
+
+	// middle name
+	// Example: David
+	MiddleName *string `json:"middle_name,omitempty"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
 
+	// suffix
+	// Example: Jr.
+	Suffix *string `json:"suffix,omitempty"`
+
 	// user ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UserID strfmt.UUID `json:"userID,omitempty"`
 }
@@ -90,7 +104,6 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.BackupContact) { // not required
 		return nil
 	}
@@ -108,7 +121,6 @@ func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CurrentAddress) { // not required
 		return nil
 	}
@@ -126,12 +138,11 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -139,7 +150,6 @@ func (m *Customer) validateEmail(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -152,12 +162,11 @@ func (m *Customer) validateID(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validatePhone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Phone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -165,13 +174,58 @@ func (m *Customer) validatePhone(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("userID", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this customer based on the context it is used
+func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateBackupContact(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCurrentAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Customer) contextValidateBackupContact(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BackupContact != nil {
+		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backup_contact")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentAddress != nil {
+		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("current_address")
+			}
+			return err
+		}
 	}
 
 	return nil

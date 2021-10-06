@@ -25,7 +25,7 @@ const TableQueue = ({
   showFilters,
   showPagination,
 }) => {
-  const [paramSort, setParamSort] = useState([]);
+  const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);

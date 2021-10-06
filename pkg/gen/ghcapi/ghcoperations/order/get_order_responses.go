@@ -69,7 +69,7 @@ type GetOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetOrderBadRequest creates GetOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewGetOrderBadRequest() *GetOrderBadRequest {
 }
 
 // WithPayload adds the payload to the get order bad request response
-func (o *GetOrderBadRequest) WithPayload(payload interface{}) *GetOrderBadRequest {
+func (o *GetOrderBadRequest) WithPayload(payload *ghcmessages.Error) *GetOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get order bad request response
-func (o *GetOrderBadRequest) SetPayload(payload interface{}) {
+func (o *GetOrderBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetOrderBadRequest) SetPayload(payload interface{}) {
 func (o *GetOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetOrderUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetOrderUnauthorized creates GetOrderUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewGetOrderUnauthorized() *GetOrderUnauthorized {
 }
 
 // WithPayload adds the payload to the get order unauthorized response
-func (o *GetOrderUnauthorized) WithPayload(payload interface{}) *GetOrderUnauthorized {
+func (o *GetOrderUnauthorized) WithPayload(payload *ghcmessages.Error) *GetOrderUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get order unauthorized response
-func (o *GetOrderUnauthorized) SetPayload(payload interface{}) {
+func (o *GetOrderUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *GetOrderUnauthorized) SetPayload(payload interface{}) {
 func (o *GetOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type GetOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetOrderForbidden creates GetOrderForbidden with default headers values
@@ -163,13 +167,13 @@ func NewGetOrderForbidden() *GetOrderForbidden {
 }
 
 // WithPayload adds the payload to the get order forbidden response
-func (o *GetOrderForbidden) WithPayload(payload interface{}) *GetOrderForbidden {
+func (o *GetOrderForbidden) WithPayload(payload *ghcmessages.Error) *GetOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get order forbidden response
-func (o *GetOrderForbidden) SetPayload(payload interface{}) {
+func (o *GetOrderForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *GetOrderForbidden) SetPayload(payload interface{}) {
 func (o *GetOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type GetOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetOrderNotFound creates GetOrderNotFound with default headers values
@@ -205,13 +211,13 @@ func NewGetOrderNotFound() *GetOrderNotFound {
 }
 
 // WithPayload adds the payload to the get order not found response
-func (o *GetOrderNotFound) WithPayload(payload interface{}) *GetOrderNotFound {
+func (o *GetOrderNotFound) WithPayload(payload *ghcmessages.Error) *GetOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get order not found response
-func (o *GetOrderNotFound) SetPayload(payload interface{}) {
+func (o *GetOrderNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *GetOrderNotFound) SetPayload(payload interface{}) {
 func (o *GetOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type GetOrderInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetOrderInternalServerError creates GetOrderInternalServerError with default headers values
@@ -247,13 +255,13 @@ func NewGetOrderInternalServerError() *GetOrderInternalServerError {
 }
 
 // WithPayload adds the payload to the get order internal server error response
-func (o *GetOrderInternalServerError) WithPayload(payload interface{}) *GetOrderInternalServerError {
+func (o *GetOrderInternalServerError) WithPayload(payload *ghcmessages.Error) *GetOrderInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get order internal server error response
-func (o *GetOrderInternalServerError) SetPayload(payload interface{}) {
+func (o *GetOrderInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +269,10 @@ func (o *GetOrderInternalServerError) SetPayload(payload interface{}) {
 func (o *GetOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

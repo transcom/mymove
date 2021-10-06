@@ -17,7 +17,7 @@ type ProofOfServiceDoc struct {
 	UpdatedAt        time.Time `db:"updated_at"`
 
 	//Associations
-	PaymentRequest PaymentRequest `belongs_to:"payment_request"`
+	PaymentRequest PaymentRequest `belongs_to:"payment_request" fk_id:"payment_request_id"`
 	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" fk_id:"proof_of_service_docs_id" order_by:"created_at asc"`
 }
 

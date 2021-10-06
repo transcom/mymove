@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,6 +23,10 @@ type Move struct {
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+	// billable weights reviewed at
+	// Format: date-time
+	BillableWeightsReviewedAt *strfmt.DateTime `json:"billableWeightsReviewedAt,omitempty"`
+
 	// contractor
 	Contractor *Contractor `json:"contractor,omitempty"`
 
@@ -35,21 +41,33 @@ type Move struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
+	// Format: date-time
+	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excess_weight_acknowledged_at,omitempty"`
+
+	// Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
+	// Format: date-time
+	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excess_weight_qualified_at,omitempty"`
+
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// locator
+	// Example: 1K43AR
 	Locator string `json:"locator,omitempty"`
 
 	// orders
 	Orders *Order `json:"orders,omitempty"`
 
 	// orders Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrdersID strfmt.UUID `json:"ordersId,omitempty"`
 
 	// reference Id
+	// Example: 1001-3456
 	ReferenceID *string `json:"referenceId,omitempty"`
 
 	// service counseling completed at
@@ -62,6 +80,10 @@ type Move struct {
 	// submitted at
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
+
+	// tio remarks
+	// Example: approved additional weight
+	TioRemarks *string `json:"tioRemarks,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -76,6 +98,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBillableWeightsReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateContractor(formats); err != nil {
 		res = append(res, err)
 	}
@@ -85,6 +111,14 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightQualifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -123,7 +157,6 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateAvailableToPrimeAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AvailableToPrimeAt) { // not required
 		return nil
 	}
@@ -135,8 +168,19 @@ func (m *Move) validateAvailableToPrimeAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateContractor(formats strfmt.Registry) error {
+func (m *Move) validateBillableWeightsReviewedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.BillableWeightsReviewedAt) { // not required
+		return nil
+	}
 
+	if err := validate.FormatOf("billableWeightsReviewedAt", "body", "date-time", m.BillableWeightsReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateContractor(formats strfmt.Registry) error {
 	if swag.IsZero(m.Contractor) { // not required
 		return nil
 	}
@@ -154,7 +198,6 @@ func (m *Move) validateContractor(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateContractorID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ContractorID) { // not required
 		return nil
 	}
@@ -167,7 +210,6 @@ func (m *Move) validateContractorID(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -179,8 +221,31 @@ func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateID(formats strfmt.Registry) error {
+func (m *Move) validateExcessWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightAcknowledgedAt) { // not required
+		return nil
+	}
 
+	if err := validate.FormatOf("excess_weight_acknowledged_at", "body", "date-time", m.ExcessWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excess_weight_qualified_at", "body", "date-time", m.ExcessWeightQualifiedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -193,7 +258,6 @@ func (m *Move) validateID(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateOrders(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Orders) { // not required
 		return nil
 	}
@@ -211,7 +275,6 @@ func (m *Move) validateOrders(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateOrdersID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrdersID) { // not required
 		return nil
 	}
@@ -224,7 +287,6 @@ func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
 		return nil
 	}
@@ -237,7 +299,6 @@ func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) err
 }
 
 func (m *Move) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -253,7 +314,6 @@ func (m *Move) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateSubmittedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
 	}
@@ -266,12 +326,73 @@ func (m *Move) validateSubmittedAt(formats strfmt.Registry) error {
 }
 
 func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move based on the context it is used
+func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateContractor(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Move) contextValidateContractor(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Contractor != nil {
+		if err := m.Contractor.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("contractor")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Orders != nil {
+		if err := m.Orders.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

@@ -13,9 +13,9 @@ import (
 type MoveDocumentExtractor struct {
 	ID                       uuid.UUID            `json:"id" db:"id"`
 	DocumentID               uuid.UUID            `json:"document_id" db:"document_id"`
-	Document                 Document             `belongs_to:"documents"`
+	Document                 Document             `belongs_to:"documents" fk_id:"document_id"`
 	MoveID                   uuid.UUID            `json:"move_id" db:"move_id"`
-	Move                     Move                 `belongs_to:"moves"`
+	Move                     Move                 `belongs_to:"moves" fk_id:"move_id"`
 	Title                    string               `json:"title" db:"title"`
 	Status                   MoveDocumentStatus   `json:"status" db:"status"`
 	PersonallyProcuredMoveID *uuid.UUID           `json:"personally_procured_move_id" db:"personally_procured_move_id"`

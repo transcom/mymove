@@ -35,7 +35,7 @@ const (
 type WeightTicketSetDocument struct {
 	ID                       uuid.UUID           `json:"id" db:"id"`
 	MoveDocumentID           uuid.UUID           `json:"move_document_id" db:"move_document_id"`
-	MoveDocument             MoveDocument        `belongs_to:"move_documents"`
+	MoveDocument             MoveDocument        `belongs_to:"move_documents" fk_id:"move_document_id"`
 	EmptyWeight              *unit.Pound         `json:"empty_weight,omitempty" db:"empty_weight"`
 	EmptyWeightTicketMissing bool                `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
 	FullWeight               *unit.Pound         `json:"full_weight,omitempty" db:"full_weight"`

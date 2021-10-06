@@ -16,23 +16,28 @@ readonly environment="${1:-exp}"
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
+  demo)
+    health_check_hosts=my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us
+    tls_health_check_hosts=my.demo.dp3.us
+    export AWS_ACCOUNT_ID=447641181206
+    ;;
   exp)
     health_check_hosts=my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
-    tls_health_check_hosts=gex.exp.move.mil,my.exp.move.mil,orders.exp.move.mil
+    tls_health_check_hosts=my.exp.move.mil
     export AWS_ACCOUNT_ID=015681133840
     ;;
   stg)
     health_check_hosts=my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
-    tls_health_check_hosts=gex.stg.move.mil,my.stg.move.mil,orders.stg.move.mil
+    tls_health_check_hosts=my.stg.move.mil
     export AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
     health_check_hosts=my.move.mil,office.move.mil,admin.move.mil
-    tls_health_check_hosts=gex.move.mil,my.move.mil,orders.move.mil
+    tls_health_check_hosts=my.move.mil
     export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of exp, stg, or prd"
+    echo "<environment> must be one of demo, exp, stg, or prd"
     exit 1
     ;;
 esac

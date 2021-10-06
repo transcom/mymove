@@ -21,7 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
-func checkPaymentReminderConfig(v *viper.Viper, logger logger) error {
+func checkPaymentReminderConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 
@@ -70,7 +70,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(dbEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),

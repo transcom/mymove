@@ -1,6 +1,13 @@
+import { fileUploadTimeout } from '../../support/constants';
+
 describe('orders entry', function () {
   before(() => {
     cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    // cy.logout();
+    cy.intercept('**/internal/orders/**').as('uploadAmendedOrders');
   });
 
   it('will accept orders information', function () {
@@ -48,6 +55,34 @@ describe('orders entry', function () {
     cy.contains('Continue Move Setup').click();
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq('/orders/upload');
+    });
+  });
+
+  it('will allow amended orders upload', function () {
+    const userId = '6016e423-f8d5-44ca-98a8-af03c8445c94';
+    cy.apiSignInAsUser(userId);
+    cy.intercept('PATCH', '**/internal/orders/**').as('uploadAmendedOrder');
+    cy.intercept('GET', '**/internal/service_members/**').as('currentOrders');
+
+    cy.contains('Upload documents').click();
+
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.eq('/orders/amend');
+    });
+
+    cy.upload_file('.filepond--root', 'sample-orders.png');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+
+    cy.wait(['@currentOrders', '@uploadAmendedOrder']);
+
+    cy.nextPage();
+
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.eq('/');
+    });
+
+    cy.get('.usa-alert--success').within(() => {
+      cy.contains('The transportation office will review your new documents');
     });
   });
 });

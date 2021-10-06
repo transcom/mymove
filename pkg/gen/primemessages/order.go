@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,6 +23,7 @@ type Order struct {
 	Customer *Customer `json:"customer,omitempty"`
 
 	// customer ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
@@ -35,6 +38,7 @@ type Order struct {
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -50,6 +54,7 @@ type Order struct {
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
 	// rank
+	// Example: E_5
 	// Required: true
 	Rank *string `json:"rank"`
 
@@ -109,7 +114,6 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateCustomer(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Customer) { // not required
 		return nil
 	}
@@ -127,7 +131,6 @@ func (m *Order) validateCustomer(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateCustomerID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CustomerID) { // not required
 		return nil
 	}
@@ -140,7 +143,6 @@ func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
 	}
@@ -158,7 +160,6 @@ func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateEntitlement(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Entitlement) { // not required
 		return nil
 	}
@@ -176,7 +177,6 @@ func (m *Order) validateEntitlement(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -207,7 +207,6 @@ func (m *Order) validateOrderNumber(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
 	}
@@ -234,13 +233,107 @@ func (m *Order) validateRank(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateReportByDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this order based on the context it is used
+func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCustomer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Customer != nil {
+		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateDestinationDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationDutyStation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOriginDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginDutyStation != nil {
+		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originDutyStation")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -29,7 +29,7 @@ func NewIndexSignedCertification(ctx *middleware.Context, handler IndexSignedCer
 	return &IndexSignedCertification{Context: ctx, Handler: handler}
 }
 
-/*IndexSignedCertification swagger:route GET /moves/{moveId}/signed_certifications certification indexSignedCertification
+/* IndexSignedCertification swagger:route GET /moves/{moveId}/signed_certifications certification indexSignedCertification
 
 gets the signed certifications for the given move ID
 
@@ -44,17 +44,15 @@ type IndexSignedCertification struct {
 func (o *IndexSignedCertification) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewIndexSignedCertificationParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

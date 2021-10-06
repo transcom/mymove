@@ -25,15 +25,20 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetPaymentRequestEDI(params *GetPaymentRequestEDIParams) (*GetPaymentRequestEDIOK, error)
+	GetPaymentRequestEDI(params *GetPaymentRequestEDIParams, opts ...ClientOption) (*GetPaymentRequestEDIOK, error)
 
-	ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*ListMTOPaymentRequestsOK, error)
+	ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams, opts ...ClientOption) (*ListMTOPaymentRequestsOK, error)
 
-	ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams) (*ProcessReviewedPaymentRequestsOK, error)
+	ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams, opts ...ClientOption) (*ProcessReviewedPaymentRequestsOK, error)
 
-	UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error)
+	RecalculatePaymentRequest(params *RecalculatePaymentRequestParams, opts ...ClientOption) (*RecalculatePaymentRequestCreated, error)
+
+	UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams, opts ...ClientOption) (*UpdatePaymentRequestStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -42,19 +47,18 @@ type ClientService interface {
   GetPaymentRequestEDI gets payment request e d i
 
   Returns the EDI (Electronic Data Interchange) message for the payment request identified
-by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
+by the given payment request ID. Note that the EDI returned in the JSON payload will have where there
 would normally be line breaks (due to JSON not allowing line breaks in a string).
 
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams) (*GetPaymentRequestEDIOK, error) {
+func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams, opts ...ClientOption) (*GetPaymentRequestEDIOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPaymentRequestEDIParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "getPaymentRequestEDI",
 		Method:             "GET",
 		PathPattern:        "/payment-requests/{paymentRequestID}/edi",
@@ -65,7 +69,12 @@ func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams) (*GetP
 		Reader:             &GetPaymentRequestEDIReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -89,13 +98,12 @@ This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
 This is a support endpoint and is not available in production.
 
 */
-func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*ListMTOPaymentRequestsOK, error) {
+func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams, opts ...ClientOption) (*ListMTOPaymentRequestsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListMTOPaymentRequestsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "listMTOPaymentRequests",
 		Method:             "GET",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}/payment-requests",
@@ -106,7 +114,12 @@ func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*
 		Reader:             &ListMTOPaymentRequestsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -129,13 +142,12 @@ the SendToSyncada flag is set
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams) (*ProcessReviewedPaymentRequestsOK, error) {
+func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams, opts ...ClientOption) (*ProcessReviewedPaymentRequestsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewProcessReviewedPaymentRequestsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "processReviewedPaymentRequests",
 		Method:             "PATCH",
 		PathPattern:        "/payment-requests/process-reviewed",
@@ -146,7 +158,12 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 		Reader:             &ProcessReviewedPaymentRequestsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -161,22 +178,66 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 }
 
 /*
+  RecalculatePaymentRequest recalculates payment request
+
+  Recalculates an existing pending payment request by creating a new payment request for the same service
+items but is priced based on the current inputs (weights, dates, etc.). The previously existing payment
+request is then deprecated. A link is made between the new and existing payment requests.
+
+This is a support endpoint and will not be available in production.
+
+*/
+func (a *Client) RecalculatePaymentRequest(params *RecalculatePaymentRequestParams, opts ...ClientOption) (*RecalculatePaymentRequestCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRecalculatePaymentRequestParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "recalculatePaymentRequest",
+		Method:             "POST",
+		PathPattern:        "/payment-requests/{paymentRequestID}/recalculate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &RecalculatePaymentRequestReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RecalculatePaymentRequestCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for recalculatePaymentRequest: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
   UpdatePaymentRequestStatus updates payment request status
 
-  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
+  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 
 This is a support endpoint and is not available in production.
 
 */
-func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error) {
+func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams, opts ...ClientOption) (*UpdatePaymentRequestStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdatePaymentRequestStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updatePaymentRequestStatus",
 		Method:             "PATCH",
 		PathPattern:        "/payment-requests/{paymentRequestID}/status",
@@ -187,7 +248,12 @@ func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusPa
 		Reader:             &UpdatePaymentRequestStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

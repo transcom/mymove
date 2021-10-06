@@ -32,11 +32,6 @@ describe('AllowancesList', () => {
     expect(screen.getByText('11,000 lbs')).toBeInTheDocument();
   });
 
-  it('renders formatted storage in transit', () => {
-    render(<AllowancesList info={info} />);
-    expect(screen.getByText('90 days')).toBeInTheDocument();
-  });
-
   it('renders authorized dependents', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByTestId('dependents').textContent).toEqual('Authorized');
@@ -72,5 +67,13 @@ describe('AllowancesList', () => {
     const withUnauthorizedOcie = { ...info, organizationalClothingAndIndividualEquipment: false };
     render(<AllowancesList info={withUnauthorizedOcie} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Unauthorized');
+  });
+
+  it('renders visual cues classname', () => {
+    render(<AllowancesList info={info} showVisualCues />);
+    expect(screen.getByText('Pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('RME').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
   });
 });

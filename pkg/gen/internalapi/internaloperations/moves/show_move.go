@@ -29,7 +29,7 @@ func NewShowMove(ctx *middleware.Context, handler ShowMoveHandler) *ShowMove {
 	return &ShowMove{Context: ctx, Handler: handler}
 }
 
-/*ShowMove swagger:route GET /moves/{moveId} moves showMove
+/* ShowMove swagger:route GET /moves/{moveId} moves showMove
 
 Returns the given move
 
@@ -44,17 +44,15 @@ type ShowMove struct {
 func (o *ShowMove) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowMoveParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

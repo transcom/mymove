@@ -76,9 +76,6 @@ else
   docker build -f Dockerfile.tools_local --tag tools:latest .
 fi
 
-# Following the logs should block any more actions until migrations are completed and the container exits
-docker-compose logs -f milmove_migrate
-
 # Need to wait not just for DB but also migrations to finish
 while true; do
   MIGRATE_EXIT=$(docker ps --filter="name=mymove_milmove_migrate_1" --filter="status=exited" -q)

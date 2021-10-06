@@ -64,7 +64,8 @@ describe('formatters', () => {
     });
 
     it('should default to DD-MMM-YY ouptut format', () => {
-      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+      const inputFormat = 'MMM-DD-YY';
+      expect(formatters.formatDate('Nov-11-99', inputFormat)).toBe('11-Nov-99');
     });
   });
 
@@ -159,22 +160,12 @@ describe('paymentRequestStatusReadable', () => {
   it('returns expected string for PAID', () => {
     expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
   });
-});
 
-describe('formatDaysInTransit', () => {
-  it('returns 0 days when value is null', () => {
-    expect(formatters.formatDaysInTransit()).toEqual('0 days');
+  it('returns expected string for EDI_ERROR', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
   });
 
-  it('returns 0 days when value is zero', () => {
-    expect(formatters.formatDaysInTransit(0)).toEqual('0 days');
-  });
-
-  it('returns 1 day when value is one', () => {
-    expect(formatters.formatDaysInTransit(1)).toEqual('1 day');
-  });
-
-  it('returns plural when greater than 1', () => {
-    expect(formatters.formatDaysInTransit(2)).toEqual('2 days');
+  it('returns expected string for DEPRECATED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
   });
 });

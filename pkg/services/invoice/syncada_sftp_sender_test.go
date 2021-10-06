@@ -21,7 +21,7 @@ import (
 
 type SyncadaSftpSenderSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestSyncadaSftpSenderSuite(t *testing.T) {
@@ -42,69 +42,53 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		Setup              setupEnvVars
 	}{
 		{
-			TestEnvironmentVar: "SYNCADA_SFTP_PORT",
+			TestEnvironmentVar: "GEX_SFTP_PORT",
 			Setup: func() {
-				os.Unsetenv("SYNCADA_SFTP_PORT")
-				os.Unsetenv("SYNCADA_SFTP_USER_ID")
-				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
-				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
-				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+				os.Unsetenv("GEX_SFTP_PORT")
+				os.Unsetenv("GEX_SFTP_USER_ID")
+				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
+				os.Unsetenv("GEX_SFTP_PASSWORD")
+				os.Unsetenv("GEX_SFTP_HOST_KEY")
 			},
 		},
 		{
-			TestEnvironmentVar: "SYNCADA_SFTP_USER_ID",
+			TestEnvironmentVar: "GEX_SFTP_USER_ID",
 			Setup: func() {
-				os.Setenv("SYNCADA_SFTP_PORT", "1234")
-				os.Unsetenv("SYNCADA_SFTP_USER_ID")
-				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
-				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
-				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+				os.Setenv("GEX_SFTP_PORT", "1234")
+				os.Unsetenv("GEX_SFTP_USER_ID")
+				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
+				os.Unsetenv("GEX_SFTP_PASSWORD")
+				os.Unsetenv("GEX_SFTP_HOST_KEY")
 			},
 		},
 		{
-			TestEnvironmentVar: "SYNCADA_SFTP_IP_ADDRESS",
+			TestEnvironmentVar: "GEX_SFTP_IP_ADDRESS",
 			Setup: func() {
-				os.Setenv("SYNCADA_SFTP_PORT", "1234")
-				os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
-				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
-				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+				os.Setenv("GEX_SFTP_PORT", "1234")
+				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
+				os.Unsetenv("GEX_SFTP_PASSWORD")
+				os.Unsetenv("GEX_SFTP_HOST_KEY")
 			},
 		},
 		{
-			TestEnvironmentVar: "SYNCADA_SFTP_PASSWORD",
+			TestEnvironmentVar: "GEX_SFTP_PASSWORD",
 			Setup: func() {
-				os.Setenv("SYNCADA_SFTP_PORT", "1234")
-				os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
-				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+				os.Setenv("GEX_SFTP_PORT", "1234")
+				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+				os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
+				os.Unsetenv("GEX_SFTP_PASSWORD")
+				os.Unsetenv("GEX_SFTP_HOST_KEY")
 			},
 		},
 		{
-			TestEnvironmentVar: "SYNCADA_SFTP_INBOUND_DIRECTORY",
+			TestEnvironmentVar: "GEX_SFTP_HOST_KEY",
 			Setup: func() {
-				os.Setenv("SYNCADA_SFTP_PORT", "1234")
-				os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-				os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
-			},
-		},
-		{
-			TestEnvironmentVar: "SYNCADA_SFTP_HOST_KEY",
-			Setup: func() {
-				os.Setenv("SYNCADA_SFTP_PORT", "1234")
-				os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-				os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-				os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
-				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+				os.Setenv("GEX_SFTP_PORT", "1234")
+				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+				os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
+				os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
+				os.Unsetenv("GEX_SFTP_HOST_KEY")
 			},
 		},
 	}
@@ -121,26 +105,24 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 	}
 
 	suite.T().Run("constructor doesn't fail if passed in all env", func(t *testing.T) {
-		os.Setenv("SYNCADA_SFTP_PORT", "1234")
-		os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-		os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-		os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-		os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+		os.Setenv("GEX_SFTP_PORT", "1234")
+		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
+		os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
 		// generated fake host key to pass parser used following command and only saved the pub key
 		//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-		os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+		os.Setenv("GEX_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 		sender, err := InitNewSyncadaSFTPSession()
 		suite.NoError(err)
 		suite.NotNil(sender)
 	})
 
 	suite.T().Run("constructor fails with invalid host key", func(t *testing.T) {
-		os.Setenv("SYNCADA_SFTP_PORT", "1234")
-		os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-		os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-		os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-		os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
-		os.Setenv("SYNCADA_SFTP_HOST_KEY", "FAKE::HOSTKEY::INVALID")
+		os.Setenv("GEX_SFTP_PORT", "1234")
+		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
+		os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
+		os.Setenv("GEX_SFTP_HOST_KEY", "FAKE::HOSTKEY::INVALID")
 		sender, err := InitNewSyncadaSFTPSession()
 		suite.Error(err)
 		suite.Nil(sender)

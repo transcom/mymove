@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,9 +20,11 @@ import (
 type MTOHideMove struct {
 
 	// Reason the move was selected to be hidden
+	// Example: invalid name
 	HideReason *string `json:"hideReason,omitempty"`
 
 	// ID of the associated moveTaskOrder
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 }
@@ -40,7 +44,6 @@ func (m *MTOHideMove) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MTOHideMove) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -49,6 +52,11 @@ func (m *MTOHideMove) validateMoveTaskOrderID(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this m t o hide move based on context it is used
+func (m *MTOHideMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -1,10 +1,10 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import MoveAllowances from './MoveAllowances';
 
 import { MockProviders } from 'testUtils';
+import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const mockOriginDutyStation = {
   address: {
@@ -41,89 +41,121 @@ const mockDestinationDutyStation = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useOrdersDocumentQueries: () => {
-    return {
-      orders: {
-        1: {
-          agency: 'ARMY',
-          customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
-          date_issued: '2018-03-15',
-          department_indicator: 'AIR_FORCE',
-          destinationDutyStation: mockDestinationDutyStation,
-          eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
-          entitlement: {
-            authorizedWeight: 5000,
-            dependentsAuthorized: true,
-            eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
-            id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
-            nonTemporaryStorage: true,
-            privatelyOwnedVehicle: true,
-            proGearWeight: 2000,
-            proGearWeightSpouse: 500,
-            requiredMedicalEquipmentWeight: 1000,
-            organizationalClothingAndIndividualEquipment: true,
-            storageInTransit: 2,
-            totalDependents: 1,
-            totalWeight: 5000,
-          },
-          first_name: 'Leo',
-          grade: 'E_1',
-          id: '1',
-          last_name: 'Spacemen',
-          order_number: 'ORDER3',
-          order_type: 'PERMANENT_CHANGE_OF_STATION',
-          order_type_detail: 'HHG_PERMITTED',
-          originDutyStation: mockOriginDutyStation,
-          report_by_date: '2018-08-01',
-          tac: 'F8E1',
-          sac: 'E2P3',
-        },
-      },
-    };
-  },
+  useOrdersDocumentQueries: jest.fn(),
 }));
 
-describe('MoveAllowances page', () => {
-  const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/allowances']}>
-      <MoveAllowances />
-    </MockProviders>,
-  );
+const useOrdersDocumentQueriesReturnValue = {
+  orders: {
+    1: {
+      agency: 'ARMY',
+      customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+      date_issued: '2018-03-15',
+      department_indicator: 'AIR_FORCE',
+      destinationDutyStation: mockDestinationDutyStation,
+      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
+      entitlement: {
+        authorizedWeight: 5000,
+        dependentsAuthorized: true,
+        eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
+        id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
+        nonTemporaryStorage: true,
+        privatelyOwnedVehicle: true,
+        proGearWeight: 2000,
+        proGearWeightSpouse: 500,
+        requiredMedicalEquipmentWeight: 1000,
+        organizationalClothingAndIndividualEquipment: true,
+        storageInTransit: 2,
+        totalDependents: 1,
+        totalWeight: 5000,
+      },
+      first_name: 'Leo',
+      grade: 'E_1',
+      id: '1',
+      last_name: 'Spacemen',
+      order_number: 'ORDER3',
+      order_type: 'PERMANENT_CHANGE_OF_STATION',
+      order_type_detail: 'HHG_PERMITTED',
+      originDutyStation: mockOriginDutyStation,
+      report_by_date: '2018-08-01',
+      tac: 'F8E1',
+      sac: 'E2P3',
+    },
+  },
+};
 
-  it('renders the sidebar elements', () => {
-    expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');
-    // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
-    expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View Orders');
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
+describe('MoveAllowances page', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveAllowances />
+        </MockProviders>,
+      );
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveAllowances />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
-  it('renders displays the allowances in the sidebar form', () => {
-    // Pro-gear
-    expect(wrapper.find(`input[data-testid="proGearWeightInput"]`).getDOMNode().value).toBe('2,000');
+  describe('Basic rendering', () => {
+    beforeEach(() => useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue));
 
-    // Pro-gear spouse
-    expect(wrapper.find(`input[data-testid="proGearWeightSpouseInput"]`).getDOMNode().value).toBe('500');
+    it('renders the sidebar elements', async () => {
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveAllowances />
+        </MockProviders>,
+      );
 
-    // RME
-    expect(wrapper.find(`input[data-testid="rmeInput"]`).getDOMNode().value).toBe('1,000');
+      expect(await screen.findByTestId('allowances-header')).toHaveTextContent('View Allowances');
+      // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
+      expect(await screen.findByTestId('view-orders')).toHaveTextContent('View Orders');
+    });
 
-    // Branch
-    expect(wrapper.find(`select[data-testid="branchInput"]`).getDOMNode().value).toBe('ARMY');
+    it('renders displays the allowances in the sidebar form', async () => {
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveAllowances />
+        </MockProviders>,
+      );
 
-    // Rank
-    expect(wrapper.find(`select[data-testid="rankInput"]`).getDOMNode().value).toBe('E_1');
+      expect(await screen.findByTestId('proGearWeightInput')).toHaveDisplayValue('2,000');
+      expect(screen.getByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
+      expect(screen.getByTestId('rmeInput')).toHaveDisplayValue('1,000');
+      expect(screen.getByTestId('branchInput')).toHaveDisplayValue('Army');
+      expect(screen.getByTestId('rankInput')).toHaveDisplayValue('E-1');
 
-    // OCIE
-    expect(
-      wrapper.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
-    ).toBeTruthy();
+      expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
+      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
-    // Weight allowance
-    expect(wrapper.find('dd').at(0).text()).toBe('5,000 lbs');
-
-    // Storage in-transit
-    expect(wrapper.find('dd').at(1).text()).toBe('2 days');
-
-    // Dependents authorized
-    expect(wrapper.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeTruthy();
+      expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
+    });
   });
 });

@@ -59,9 +59,8 @@ func (o *ListMTOPaymentRequestsReader) ReadResponse(response runtime.ClientRespo
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -70,7 +69,7 @@ func NewListMTOPaymentRequestsOK() *ListMTOPaymentRequestsOK {
 	return &ListMTOPaymentRequestsOK{}
 }
 
-/*ListMTOPaymentRequestsOK handles this case with default header values.
+/* ListMTOPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -81,7 +80,6 @@ type ListMTOPaymentRequestsOK struct {
 func (o *ListMTOPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsOK  %+v", 200, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsOK) GetPayload() supportmessages.PaymentRequests {
 	return o.Payload
 }
@@ -101,7 +99,7 @@ func NewListMTOPaymentRequestsBadRequest() *ListMTOPaymentRequestsBadRequest {
 	return &ListMTOPaymentRequestsBadRequest{}
 }
 
-/*ListMTOPaymentRequestsBadRequest handles this case with default header values.
+/* ListMTOPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -112,7 +110,6 @@ type ListMTOPaymentRequestsBadRequest struct {
 func (o *ListMTOPaymentRequestsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -134,7 +131,7 @@ func NewListMTOPaymentRequestsUnauthorized() *ListMTOPaymentRequestsUnauthorized
 	return &ListMTOPaymentRequestsUnauthorized{}
 }
 
-/*ListMTOPaymentRequestsUnauthorized handles this case with default header values.
+/* ListMTOPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -145,7 +142,6 @@ type ListMTOPaymentRequestsUnauthorized struct {
 func (o *ListMTOPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -167,7 +163,7 @@ func NewListMTOPaymentRequestsForbidden() *ListMTOPaymentRequestsForbidden {
 	return &ListMTOPaymentRequestsForbidden{}
 }
 
-/*ListMTOPaymentRequestsForbidden handles this case with default header values.
+/* ListMTOPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -178,7 +174,6 @@ type ListMTOPaymentRequestsForbidden struct {
 func (o *ListMTOPaymentRequestsForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsForbidden  %+v", 403, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -200,7 +195,7 @@ func NewListMTOPaymentRequestsNotFound() *ListMTOPaymentRequestsNotFound {
 	return &ListMTOPaymentRequestsNotFound{}
 }
 
-/*ListMTOPaymentRequestsNotFound handles this case with default header values.
+/* ListMTOPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -211,7 +206,6 @@ type ListMTOPaymentRequestsNotFound struct {
 func (o *ListMTOPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -233,7 +227,7 @@ func NewListMTOPaymentRequestsInternalServerError() *ListMTOPaymentRequestsInter
 	return &ListMTOPaymentRequestsInternalServerError{}
 }
 
-/*ListMTOPaymentRequestsInternalServerError handles this case with default header values.
+/* ListMTOPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -244,7 +238,6 @@ type ListMTOPaymentRequestsInternalServerError struct {
 func (o *ListMTOPaymentRequestsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *ListMTOPaymentRequestsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

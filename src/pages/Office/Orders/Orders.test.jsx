@@ -1,11 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
-import { IMaskInput } from 'react-imask';
+import { render, screen } from '@testing-library/react';
 
 import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
+import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const mockOriginDutyStation = {
   address: {
@@ -42,67 +42,99 @@ const mockDestinationDutyStation = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useOrdersDocumentQueries: () => {
-    return {
-      orders: {
-        1: {
-          agency: 'ARMY',
-          customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
-          date_issued: '2018-03-15',
-          department_indicator: 'AIR_FORCE',
-          destinationDutyStation: mockDestinationDutyStation,
-          eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
-          entitlement: {
-            authorizedWeight: 5000,
-            dependentsAuthorized: true,
-            eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
-            id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
-            nonTemporaryStorage: true,
-            privatelyOwnedVehicle: true,
-            proGearWeight: 2000,
-            proGearWeightSpouse: 500,
-            storageInTransit: 2,
-            totalDependents: 1,
-            totalWeight: 5000,
-          },
-          first_name: 'Leo',
-          grade: 'E_1',
-          id: '1',
-          last_name: 'Spacemen',
-          order_number: 'ORDER3',
-          order_type: 'PERMANENT_CHANGE_OF_STATION',
-          order_type_detail: 'HHG_PERMITTED',
-          originDutyStation: mockOriginDutyStation,
-          report_by_date: '2018-08-01',
-          tac: 'F8E1',
-          sac: 'E2P3',
-        },
-      },
-    };
-  },
+  useOrdersDocumentQueries: jest.fn(),
 }));
 
-describe('Orders page', () => {
-  const wrapper = mount(
-    <MockProviders initialEntries={['moves/FP24I2/orders']}>
-      <Orders />
-    </MockProviders>,
-  );
+const useOrdersDocumentQueriesReturnValue = {
+  orders: {
+    1: {
+      agency: 'ARMY',
+      customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+      date_issued: '2018-03-15',
+      department_indicator: 'AIR_FORCE',
+      destinationDutyStation: mockDestinationDutyStation,
+      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
+      entitlement: {
+        authorizedWeight: 5000,
+        dependentsAuthorized: true,
+        eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
+        id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
+        nonTemporaryStorage: true,
+        privatelyOwnedVehicle: true,
+        proGearWeight: 2000,
+        proGearWeightSpouse: 500,
+        storageInTransit: 2,
+        totalDependents: 1,
+        totalWeight: 5000,
+      },
+      first_name: 'Leo',
+      grade: 'E_1',
+      id: '1',
+      last_name: 'Spacemen',
+      order_number: 'ORDER3',
+      order_type: 'PERMANENT_CHANGE_OF_STATION',
+      order_type_detail: 'HHG_PERMITTED',
+      originDutyStation: mockOriginDutyStation,
+      report_by_date: '2018-08-01',
+      tac: 'F8E1',
+      sac: 'E2P3',
+    },
+  },
+};
 
-  it('renders the sidebar orders detail form', () => {
-    expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
+const loadingReturnValue = {
+  ...useOrdersDocumentQueriesReturnValue,
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  ...useOrdersDocumentQueriesReturnValue,
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
+describe('Orders page', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useOrdersDocumentQueries.mockReturnValueOnce(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useOrdersDocumentQueries.mockReturnValueOnce(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
-  it('populates initial field values', () => {
-    expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
-    expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
-    expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');
-    expect(wrapper.find('input[name="reportByDate"]').prop('value')).toBe('01 Aug 2018');
-    expect(wrapper.find('select[name="departmentIndicator"]').prop('value')).toBe('AIR_FORCE');
-    expect(wrapper.find('input[name="ordersNumber"]').prop('value')).toBe('ORDER3');
-    expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
-    expect(wrapper.find('select[name="ordersTypeDetail"]').prop('value')).toBe('HHG_PERMITTED');
-    expect(wrapper.find(IMaskInput).getDOMNode().value).toBe('F8E1');
-    expect(wrapper.find('input[name="sac"]').prop('value')).toBe('E2P3');
+  describe('Basic rendering', () => {
+    it('renders the sidebar orders detail form', async () => {
+      useOrdersDocumentQueries.mockReturnValueOnce(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+      expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
+    });
   });
 });

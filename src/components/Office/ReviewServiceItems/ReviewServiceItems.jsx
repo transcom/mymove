@@ -14,10 +14,13 @@ import RejectRequest from './RejectRequest';
 import PaymentReviewed from './PaymentReviewed';
 
 import Alert from 'shared/Alert';
-import { ServiceItemCardsShape } from 'types/serviceItemCard';
+import { ServiceItemCardsShape } from 'types/serviceItems';
+import { MTOServiceItemShape } from 'types/order';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
+
+const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
 const ReviewServiceItems = ({
   header,
@@ -37,14 +40,22 @@ const ReviewServiceItems = ({
 
   const [curCardIndex, setCardIndex] = useState(requestReviewed ? totalCards : 0);
 
-  const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
-
   const handleServiceItemNavBtnClick = (index) => {
     setCardIndex(index);
   };
 
   const handleAuthorizePaymentClick = (allServiceItemsRejected = false) => {
     onCompleteReview(allServiceItemsRejected);
+  };
+
+  const findAdditionalServiceItemData = (mtoServiceItemCode) => {
+    const serviceItemCard = serviceItemCards?.find((item) => item.mtoServiceItemCode === mtoServiceItemCode);
+
+    const additionalServiceItems = serviceItemCard
+      ? serviceItemCard.mtoServiceItems?.find((mtoItem) => mtoItem.reServiceCode === mtoServiceItemCode)
+      : [];
+
+    return additionalServiceItems;
   };
 
   // calculating the sums
@@ -188,6 +199,7 @@ const ReviewServiceItems = ({
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...curCard}
                 requestComplete={requestReviewed}
+                additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
               />
             ))
           ) : (
@@ -197,6 +209,7 @@ const ReviewServiceItems = ({
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...currentCard}
               requestComplete={requestReviewed}
+              additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
             />
           ))}
       </div>
@@ -243,6 +256,7 @@ ReviewServiceItems.propTypes = {
     detail: PropTypes.string,
     title: PropTypes.string,
   }),
+  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
 };
 
 ReviewServiceItems.defaultProps = {
@@ -251,6 +265,7 @@ ReviewServiceItems.defaultProps = {
   serviceItemCards: [],
   disableScrollIntoView: false,
   completeReviewError: undefined,
+  mtoServiceItems: [],
 };
 
 export default ReviewServiceItems;

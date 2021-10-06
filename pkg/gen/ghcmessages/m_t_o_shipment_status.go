@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -14,9 +15,15 @@ import (
 )
 
 // MTOShipmentStatus Shipment Status
+// Example: SUBMITTED
 //
 // swagger:model MTOShipmentStatus
 type MTOShipmentStatus string
+
+func NewMTOShipmentStatus(value MTOShipmentStatus) *MTOShipmentStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -31,6 +38,12 @@ const (
 
 	// MTOShipmentStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
 	MTOShipmentStatusCANCELLATIONREQUESTED MTOShipmentStatus = "CANCELLATION_REQUESTED"
+
+	// MTOShipmentStatusCANCELED captures enum value "CANCELED"
+	MTOShipmentStatusCANCELED MTOShipmentStatus = "CANCELED"
+
+	// MTOShipmentStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	MTOShipmentStatusDIVERSIONREQUESTED MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
 // for schema
@@ -38,7 +51,7 @@ var mTOShipmentStatusEnum []interface{}
 
 func init() {
 	var res []MTOShipmentStatus
-	if err := json.Unmarshal([]byte(`["SUBMITTED","REJECTED","APPROVED","CANCELLATION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","REJECTED","APPROVED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -65,5 +78,10 @@ func (m MTOShipmentStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this m t o shipment status based on context it is used
+func (m MTOShipmentStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

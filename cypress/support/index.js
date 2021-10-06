@@ -31,3 +31,15 @@ Cypress.on('fail', (error, runnable) => {
   const isPa11yFailure = error.message.indexOf('cy.pa11y') > -1;
   if (!isPa11yFailure) throw error; // throw error to have test still fail
 });
+
+// See https://docs.cypress.io/guides/references/migration-guide#Uncaught-exception-and-unhandled-rejections
+Cypress.on('uncaught:exception', (err, runnable, promise) => {
+  // when the exception originated from an unhandled promise
+  // rejection, the promise is provided as a third argument
+  // you can turn off failing the test in this case
+  if (promise) {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+  }
+});

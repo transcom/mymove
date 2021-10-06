@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -53,7 +55,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	handler := ListMTOsHandler{
 		HandlerContext:       context,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -166,12 +168,13 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -194,7 +197,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -238,12 +241,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	deptIndicator := supportmessages.DeptIndicatorAIRFORCE
 	selectedMoveType := supportmessages.SelectedMoveTypeHHG
 
+	rank := (supportmessages.Rank)("E_6")
 	mtoPayload := &supportmessages.MoveTaskOrder{
 		PpmType:          "FULL",
 		SelectedMoveType: &selectedMoveType,
 		ContractorID:     handlers.FmtUUID(contractor.ID),
 		Order: &supportmessages.Order{
-			Rank:                     (supportmessages.Rank)("E_6"),
+			Rank:                     &rank,
 			OrderNumber:              swag.String("4554"),
 			DestinationDutyStationID: handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:      handlers.FmtUUID(originDutyStation.ID),
@@ -254,10 +258,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			},
 			IssueDate:           handlers.FmtDatePtr(issueDate),
 			ReportByDate:        handlers.FmtDatePtr(reportByDate),
-			OrdersType:          "PERMANENT_CHANGE_OF_STATION",
+			OrdersType:          supportmessages.NewOrdersType("PERMANENT_CHANGE_OF_STATION"),
 			OrdersTypeDetail:    &ordersTypedetail,
 			UploadedOrdersID:    handlers.FmtUUID(document.ID),
-			Status:              (supportmessages.OrdersStatus)(models.OrderStatusDRAFT),
+			Status:              supportmessages.NewOrdersStatus(supportmessages.OrdersStatusDRAFT),
 			Tac:                 swag.String("E19A"),
 			DepartmentIndicator: &deptIndicator,
 		},
@@ -267,7 +271,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	request := httptest.NewRequest("POST", "/move-task-orders", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := CreateMoveTaskOrderHandler{context,
-		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 	}
 
 	suite.T().Run("Successful createMoveTaskOrder 201", func(t *testing.T) {
@@ -323,7 +327,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// We have to set the status for the orders to APPROVED and the move to SUBMITTED so that we can try to approve
 		// this move later on. We can't approve a DRAFT move.
 		integrationMTO.Status = supportmessages.MoveStatusSUBMITTED
-		integrationMTO.Order.Status = supportmessages.OrdersStatusAPPROVED
+		integrationMTO.Order.Status = supportmessages.NewOrdersStatus(supportmessages.OrdersStatusAPPROVED)
 
 		// We only provide an existing customerID not the whole object.
 		// We expect the handler to link the correct objects
@@ -352,12 +356,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			MoveTaskOrderID: createdMTO.ID.String(),
 			IfMatch:         createdMTO.ETag,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 
@@ -428,7 +433,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			LastName:  swag.String("Griffin"),
 			Agency:    swag.String("Marines"),
 			DodID:     swag.String("1209457894"),
-			Rank:      (supportmessages.Rank)("ACADEMY_CADET"),
+			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
 		}
 		mtoPayload.Order.CustomerID = nil
 
@@ -529,6 +534,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
 		notFoundError := services.NotFoundError{}
 		mockCreator.On("InternalCreateMoveTaskOrder",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, notFoundError)
@@ -564,7 +570,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 
 		// CALL FUNCTION UNDER TEST

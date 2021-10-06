@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -20,6 +21,7 @@ import (
 type ProofOfServicePackage struct {
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -46,7 +48,6 @@ func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ProofOfServicePackage) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -59,7 +60,6 @@ func (m *ProofOfServicePackage) validateID(formats strfmt.Registry) error {
 }
 
 func (m *ProofOfServicePackage) validateUploads(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Uploads) { // not required
 		return nil
 	}
@@ -71,6 +71,38 @@ func (m *ProofOfServicePackage) validateUploads(formats strfmt.Registry) error {
 
 		if m.Uploads[i] != nil {
 			if err := m.Uploads[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this proof of service package based on the context it is used
+func (m *ProofOfServicePackage) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateUploads(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProofOfServicePackage) contextValidateUploads(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Uploads); i++ {
+
+		if m.Uploads[i] != nil {
+			if err := m.Uploads[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
 				}

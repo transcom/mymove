@@ -5,7 +5,10 @@ import AsyncSelect from 'react-select/async';
 
 import { DutyStationInput } from './DutyStationInput';
 
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
+import {
+  DutyStationSearchBoxComponent,
+  DutyStationSearchBoxContainer,
+} from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();
@@ -24,8 +27,9 @@ jest.mock('formik', () => {
   };
 });
 
-jest.mock('scenes/ServiceMembers/api', () => {
+jest.mock('components/DutyStationSearchBox/api', () => {
   return {
+    SearchDutyStations: () => new Promise((resolve) => resolve([])),
     ShowAddress: () => new Promise((resolve) => resolve(43)),
   };
 });
@@ -35,13 +39,14 @@ describe('DutyStationInput', () => {
     const wrapper = shallow(<DutyStationInput name="name" label="label" />);
 
     it('renders a Duty Station search input', () => {
-      const input = wrapper.find(DutyStationSearchBox);
+      const input = wrapper.find(DutyStationSearchBoxContainer);
       expect(input.length).toBe(1);
     });
 
     it('triggers onChange properly', async () => {
-      const input = wrapper.find(DutyStationSearchBox).dive();
-      const select = input.find(AsyncSelect);
+      const container = wrapper.find(DutyStationSearchBoxContainer).dive();
+      const component = container.find(DutyStationSearchBoxComponent).dive();
+      const select = component.find(AsyncSelect);
       await select.simulate('change', { id: 1, address_id: 1 });
       expect(mockSetValue).toHaveBeenCalledWith({ address: 43, address_id: 1, id: 1 });
     });

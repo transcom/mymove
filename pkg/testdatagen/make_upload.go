@@ -3,7 +3,13 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/gofrs/uuid"
+
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/gobuffalo/pop/v5"
@@ -24,7 +30,10 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		if assertions.File != nil {
 			file = assertions.File
 		}
-		upload, verrs, err = assertions.Uploader.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		// Ugh. Use the global logger. All testdatagen methods should
+		// take a logger
+		appCtx := appcontext.NewAppContext(db, zap.L())
+		upload, verrs, err = assertions.Uploader.CreateUpload(appCtx, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
 		}
@@ -75,4 +84,13 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 // MakeDefaultUpload makes an Upload with default values
 func MakeDefaultUpload(db *pop.Connection) models.Upload {
 	return MakeUpload(db, Assertions{})
+}
+
+// MakeStubbedUpload makes a fake Upload that is not saved to the DB
+func MakeStubbedUpload(db *pop.Connection, assertions Assertions) models.Upload {
+	assertions.Stub = true
+	assertions.Upload.ID = uuid.Must(uuid.NewV4())
+	assertions.Upload.CreatedAt = time.Now()
+	assertions.Upload.UpdatedAt = time.Now()
+	return MakeUpload(db, assertions)
 }

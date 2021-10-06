@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -38,15 +39,17 @@ type MoveDocumentPayload struct {
 	FullWeightTicketMissing *bool `json:"full_weight_ticket_missing,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// move document type
 	// Required: true
-	MoveDocumentType MoveDocumentType `json:"move_document_type"`
+	MoveDocumentType *MoveDocumentType `json:"move_document_type"`
 
 	// move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	MoveID *strfmt.UUID `json:"move_id"`
@@ -55,6 +58,7 @@ type MoveDocumentPayload struct {
 	MovingExpenseType MovingExpenseType `json:"moving_expense_type,omitempty"`
 
 	// Notes
+	// Example: This document is good to go!
 	Notes *string `json:"notes,omitempty"`
 
 	// Payment Method
@@ -62,6 +66,7 @@ type MoveDocumentPayload struct {
 	PaymentMethod string `json:"payment_method,omitempty"`
 
 	// personally procured move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
@@ -76,17 +81,20 @@ type MoveDocumentPayload struct {
 
 	// status
 	// Required: true
-	Status MoveDocumentStatus `json:"status"`
+	Status *MoveDocumentStatus `json:"status"`
 
 	// End date of storage for storage expenses
+	// Example: 2018-04-26
 	// Format: date
 	StorageEndDate *strfmt.Date `json:"storage_end_date,omitempty"`
 
 	// Start date of storage for storage expenses
+	// Example: 2018-04-26
 	// Format: date
 	StorageStartDate *strfmt.Date `json:"storage_start_date,omitempty"`
 
 	// Document title
+	// Example: very_useful_document.pdf
 	// Required: true
 	Title *string `json:"title"`
 
@@ -103,6 +111,7 @@ type MoveDocumentPayload struct {
 	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Weight ticket date
+	// Example: 2018-04-26
 	// Format: date
 	WeightTicketDate *strfmt.Date `json:"weight_ticket_date,omitempty"`
 
@@ -203,12 +212,11 @@ func (m *MoveDocumentPayload) validateDocument(formats strfmt.Registry) error {
 }
 
 func (m *MoveDocumentPayload) validateEmptyWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.EmptyWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("empty_weight", "body", int64(*m.EmptyWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("empty_weight", "body", *m.EmptyWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -216,12 +224,11 @@ func (m *MoveDocumentPayload) validateEmptyWeight(formats strfmt.Registry) error
 }
 
 func (m *MoveDocumentPayload) validateFullWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FullWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("full_weight", "body", int64(*m.FullWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("full_weight", "body", *m.FullWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -243,11 +250,21 @@ func (m *MoveDocumentPayload) validateID(formats strfmt.Registry) error {
 
 func (m *MoveDocumentPayload) validateMoveDocumentType(formats strfmt.Registry) error {
 
-	if err := m.MoveDocumentType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("move_document_type")
-		}
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
+		return err
+	}
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -267,7 +284,6 @@ func (m *MoveDocumentPayload) validateMoveID(formats strfmt.Registry) error {
 }
 
 func (m *MoveDocumentPayload) validateMovingExpenseType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MovingExpenseType) { // not required
 		return nil
 	}
@@ -312,7 +328,6 @@ func (m *MoveDocumentPayload) validatePaymentMethodEnum(path, location string, v
 }
 
 func (m *MoveDocumentPayload) validatePaymentMethod(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentMethod) { // not required
 		return nil
 	}
@@ -326,7 +341,6 @@ func (m *MoveDocumentPayload) validatePaymentMethod(formats strfmt.Registry) err
 }
 
 func (m *MoveDocumentPayload) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoveID) { // not required
 		return nil
 	}
@@ -339,12 +353,11 @@ func (m *MoveDocumentPayload) validatePersonallyProcuredMoveID(formats strfmt.Re
 }
 
 func (m *MoveDocumentPayload) validateRequestedAmountCents(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedAmountCents) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("requested_amount_cents", "body", int64(m.RequestedAmountCents), 1, false); err != nil {
+	if err := validate.MinimumInt("requested_amount_cents", "body", m.RequestedAmountCents, 1, false); err != nil {
 		return err
 	}
 
@@ -353,18 +366,27 @@ func (m *MoveDocumentPayload) validateRequestedAmountCents(formats strfmt.Regist
 
 func (m *MoveDocumentPayload) validateStatus(formats strfmt.Registry) error {
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		}
+	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
+	}
+
+	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *MoveDocumentPayload) validateStorageEndDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.StorageEndDate) { // not required
 		return nil
 	}
@@ -377,7 +399,6 @@ func (m *MoveDocumentPayload) validateStorageEndDate(formats strfmt.Registry) er
 }
 
 func (m *MoveDocumentPayload) validateStorageStartDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.StorageStartDate) { // not required
 		return nil
 	}
@@ -399,7 +420,6 @@ func (m *MoveDocumentPayload) validateTitle(formats strfmt.Registry) error {
 }
 
 func (m *MoveDocumentPayload) validateWeightTicketDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightTicketDate) { // not required
 		return nil
 	}
@@ -412,13 +432,110 @@ func (m *MoveDocumentPayload) validateWeightTicketDate(formats strfmt.Registry) 
 }
 
 func (m *MoveDocumentPayload) validateWeightTicketSetType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightTicketSetType) { // not required
 		return nil
 	}
 
 	if m.WeightTicketSetType != nil {
 		if err := m.WeightTicketSetType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_ticket_set_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move document payload based on the context it is used
+func (m *MoveDocumentPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDocument(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveDocumentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateWeightTicketSetType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MoveDocumentPayload) contextValidateDocument(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Document != nil {
+		if err := m.Document.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("document")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveDocumentPayload) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("moving_expense_type")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveDocumentPayload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveDocumentPayload) contextValidateWeightTicketSetType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.WeightTicketSetType != nil {
+		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
 			}

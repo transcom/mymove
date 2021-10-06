@@ -17,19 +17,54 @@ import (
 
 // AddressModel model
 func AddressModel(address *primemessages.Address) *models.Address {
-	if address == nil {
+	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
+	// We should always have ID if the user intends to update an Address,
+	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
-	return &models.Address{
+	modelAddress := &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress1: *address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
 	}
+	if address.StreetAddress1 != nil {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	}
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+	return modelAddress
+}
+
+// ReweighModelFromUpdate model
+func ReweighModelFromUpdate(reweigh *primemessages.UpdateReweigh, reweighID strfmt.UUID, mtoShipmentID strfmt.UUID) *models.Reweigh {
+	if reweigh == nil {
+		return nil
+	}
+
+	model := &models.Reweigh{
+		ID:         uuid.FromStringOrNil(reweighID.String()),
+		ShipmentID: uuid.FromStringOrNil(mtoShipmentID.String()),
+	}
+
+	if reweigh.Weight != nil {
+		model.Weight = handlers.PoundPtrFromInt64Ptr(reweigh.Weight)
+	}
+
+	if reweigh.VerificationReason != nil {
+		model.VerificationReason = reweigh.VerificationReason
+	}
+
+	return model
 }
 
 // MTOAgentModel model
@@ -95,8 +130,12 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 
 	model := &models.MTOShipment{
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
+		Diversion:       bool(mtoShipment.Diversion),
+	}
+
+	if mtoShipment.ShipmentType != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight > 0 {
@@ -110,12 +149,17 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
 	}
 
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
 	}
 
 	if mtoShipment.Agents != nil {
@@ -125,48 +169,19 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	return model
 }
 
-// MTOShipmentModel model
-func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
+// MTOShipmentModelFromUpdate model
+func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}
 
 	model := &models.MTOShipment{
-		ID:           uuid.FromStringOrNil(mtoShipment.ID.String()),
-		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
-	}
-
-	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
-	if !scheduledPickupDate.IsZero() {
-		model.ScheduledPickupDate = &scheduledPickupDate
-	}
-
-	firstAvailableDeliveryDate := time.Time(mtoShipment.FirstAvailableDeliveryDate)
-	if !firstAvailableDeliveryDate.IsZero() {
-		model.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
-	}
-
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	if !requestedPickupDate.IsZero() {
-		model.RequestedPickupDate = &requestedPickupDate
-	}
-
-	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
-	if !actualPickupDate.IsZero() {
-		model.ActualPickupDate = &actualPickupDate
-	}
-
-	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
-		model.RequiredDeliveryDate = &requiredDeliveryDate
-	}
-
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	}
-
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+		ID:                         uuid.FromStringOrNil(mtoShipmentID.String()),
+		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
+		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
+		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
+		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
+		Diversion:                  mtoShipment.Diversion,
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
@@ -179,20 +194,31 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.PrimeEstimatedWeight = &estimatedWeight
 	}
 
-	if mtoShipment.SecondaryPickupAddress != nil {
-		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
-		secondaryPickupAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryPickupAddress.ID.String())
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
-	if mtoShipment.SecondaryDeliveryAddress != nil {
-		model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-		secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
-
-	if mtoShipment.Agents != nil {
-		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
 	return model
@@ -244,6 +270,16 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		if destsit.ReServiceCode != nil {
 			model.ReService.Code = models.ReServiceCode(*destsit.ReServiceCode)
+
+		}
+
+		// Check for required fields on a DDFSIT
+		if model.ReService.Code == models.ReServiceCodeDDFSIT {
+			verrs := validateDDFSIT(*destsit)
+
+			if verrs.HasAny() {
+				return nil, verrs
+			}
 		}
 
 		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
@@ -274,7 +310,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
-		model.Description = shuttleService.Description
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -287,6 +325,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// have to get code from payload
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
+		model.Reason = domesticCrating.Reason
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
@@ -304,7 +343,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
-		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
+		if basic.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*basic.ReServiceCode)
+		}
 	}
 
 	return model, nil
@@ -332,8 +373,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 	// Here we initialize more fields below for the specific model types.
 	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
-	modelType := mtoServiceItem.ModelType()
-	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+	switch mtoServiceItem.ModelType() {
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
@@ -345,18 +386,67 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
 
-		return model, nil
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	default:
+		// assume basic service item
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 	}
 
-	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
-	return nil, verrs
+	return model, nil
+}
 
+// SITExtensionModel transform the request data the sitExtension model
+func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+	if sitExtension == nil {
+		return nil
+	}
+
+	model := &models.SITExtension{
+		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
+		RequestedDays:     int(*sitExtension.RequestedDays),
+		ContractorRemarks: sitExtension.ContractorRemarks,
+		RequestReason:     models.SITExtensionRequestReason(*sitExtension.RequestReason),
+	}
+
+	return model
 }
 
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(
-		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
+		&models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
 	)
+}
+
+// validateDDFSIT validates that DDFSIT has required Customer Contact fields
+func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.FirstAvailableDeliveryDate1 == nil {
+		verrs.Add("firstAvailableDeliveryDate1", "firstAvailableDeliveryDate1 is required in body.")
+	}
+	if m.FirstAvailableDeliveryDate2 == nil {
+		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2 is required in body.")
+	}
+	if m.TimeMilitary1 == nil {
+		verrs.Add("timeMilitary1", "timeMilitary1 is required in body.")
+	}
+	if m.TimeMilitary2 == nil {
+		verrs.Add("timeMilitary2", "timeMilitary2 is required in body.")
+	}
+	return verrs
 }

@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
 export const utcDateFormat = 'YYYY-MM-DDThh:mm:ssZ';
@@ -34,11 +35,13 @@ export function formatDateForSwagger(dateString) {
   if (dateString) {
     return formatDate(dateString, swaggerDateFormat);
   }
+  return undefined;
 }
 
 export function formatDateTime(dateString) {
   if (dateString) {
-    const startOfDay = moment(dateString).hour(0);
+    const startOfDay = moment(new Date(dateString)).hour(0);
     return moment.utc(startOfDay).format(utcDateFormat);
   }
+  return undefined;
 }

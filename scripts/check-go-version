@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER=1.15
+VERSION_NUMBER=1.17
 
 VERSION="go${VERSION_NUMBER}"
 
@@ -14,4 +14,3 @@ else
   echo "Install go with 'asdf plugin add golang; asdf install'"
   exit 1
 fi
-

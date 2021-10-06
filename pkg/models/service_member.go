@@ -41,7 +41,7 @@ type ServiceMember struct {
 	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
 	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
-	User                   User                      `belongs_to:"user"`
+	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
 	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
@@ -55,13 +55,13 @@ type ServiceMember struct {
 	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
 	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
 	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress     *Address                  `belongs_to:"address"`
+	ResidentialAddress     *Address                  `belongs_to:"address" fk_id:"residential_address_id"`
 	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress   *Address                  `belongs_to:"address"`
-	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
+	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
+	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
+	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyStation               `belongs_to:"duty_stations"`
+	DutyStation            DutyStation               `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
@@ -334,6 +334,7 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"UploadedOrders",
+		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -360,6 +361,24 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		}
 	}
 	order.UploadedOrders.UserUploads = relevantUploads
+
+	// Eager loading of nested has_many associations is broken
+	if order.UploadedAmendedOrders != nil {
+		err = db.Load(order.UploadedAmendedOrders, "UserUploads.Upload")
+		if err != nil {
+			return Order{}, err
+		}
+
+		// Only return user uploads that haven't been deleted
+		userUploads := order.UploadedAmendedOrders.UserUploads
+		relevantUploads := make([]UserUpload, 0, len(userUploads))
+		for _, userUpload := range userUploads {
+			if userUpload.DeletedAt == nil {
+				relevantUploads = append(relevantUploads, userUpload)
+			}
+		}
+		order.UploadedAmendedOrders.UserUploads = relevantUploads
+	}
 
 	// User must be logged in service member
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {

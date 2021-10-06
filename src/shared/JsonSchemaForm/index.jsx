@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
 import { isEmpty, uniq } from 'lodash';
-import { reduxForm, Field } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import 'shared/JsonSchemaForm/index.css';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:
@@ -41,7 +42,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
 export const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
-    return;
+    return undefined;
   }
   return SchemaField.createSchemaField(fieldName, field, nameSpace);
 };
@@ -74,7 +75,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
             requiredErrors[requiredFieldName] = 'Required.';
           }
         } else {
-          console.error('The schema should have all required fields in it.');
+          milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'The schema should have all required fields in it.');
         }
       }
     });
@@ -91,7 +92,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
         }
       }
     } else {
-      console.error(`The schema should have fields for all present values. Missing ${key}`);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `The schema should have fields for all present values. Missing ${key}`);
     }
   });
 
@@ -136,7 +137,7 @@ export const recursivelyAnnotateRequiredFields = (schema) => {
           schemaForKey[ALWAYS_REQUIRED_KEY] = true;
         }
       } else {
-        console.error('The schema should have all required fields in it.');
+        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'The schema should have all required fields in it.');
       }
     });
   }
@@ -149,6 +150,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
     const fields = schema.properties || {};
     return uiSchema.order.map((i) => renderGroupOrField(i, fields, uiSchema, nameSpace));
   }
+  return undefined;
 };
 
 export const addUiSchemaRequiredFields = (schema, uiSchema) => {

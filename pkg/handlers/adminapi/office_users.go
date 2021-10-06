@@ -1,13 +1,13 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -67,23 +67,34 @@ type IndexOfficeUsersHandler struct {
 	services.NewPagination
 }
 
+var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		nameSearch := fmt.Sprintf("%s%%", content)
+		return []services.QueryFilter{
+			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
+			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
+			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+		}
+	},
+}
+
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
+	queryFilters := generateQueryFilters(logger, params.Filter, officeUserFilterConverters)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	var officeUsers models.OfficeUsers
-	err := h.ListFetcher.FetchRecordList(&officeUsers, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(&officeUsers, queryFilters)
+	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -109,12 +120,13 @@ type GetOfficeUserHandler struct {
 // Handle retrieves an office user
 func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	officeUserID := params.OfficeUserID
 
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
 
-	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(queryFilters)
+	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -146,6 +158,7 @@ type CreateOfficeUserHandler struct {
 func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
 	if err != nil {
@@ -177,7 +190,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		h.NewQueryFilter("id", "=", transportationOfficeID),
 	}
 
-	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
+	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
 	if verrs != nil {
 		validationError := &adminmessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
@@ -195,7 +208,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
-	_, err = h.UserRoleAssociator.UpdateUserRoles(*createdOfficeUser.UserID, updatedRoles)
+	_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
 	if err != nil {
 		logger.Error("Error updating user roles", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
@@ -222,13 +235,14 @@ type UpdateOfficeUserHandler struct {
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
 	}
 
-	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(officeUserID, payload)
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
 
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
@@ -237,10 +251,18 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	}
 	if updatedOfficeUser.UserID != nil && payload.Roles != nil {
 		updatedRoles := rolesPayloadToModel(payload.Roles)
-		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
+		_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
 			logger.Error("Error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
+	}
+
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedOfficeUser, *payload.Active, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
 		}
 	}
 
@@ -262,31 +284,4 @@ func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleTy
 		}
 	}
 	return rt
-}
-
-// generateQueryFilters is helper to convert filter params from a json string
-// of the form `{"search": "example1@example.com"}` to an array of services.QueryFilter
-func (h IndexOfficeUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
-	type Filter struct {
-		Search string `json:"search"`
-	}
-	f := Filter{}
-	var queryFilters []services.QueryFilter
-	if filters == nil {
-		return queryFilters
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-	if f.Search != "" {
-		nameSearch := fmt.Sprintf("%s%%", f.Search)
-		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", f.Search)))
-		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", nameSearch))
-		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", nameSearch))
-	}
-	return queryFilters
 }

@@ -8,9 +8,10 @@
 
   :global .stackedtable-header {
     max-width: unset;
-    h4 {
-      @include u-font-weight(bold);
-      color: $base-darkest;
+    h2 {
+      span {
+        @include u-margin-left(2);
+      }
     }
 
     a.usa-button--secondary {

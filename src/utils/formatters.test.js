@@ -3,10 +3,10 @@ import * as formatters from './formatters';
 describe('formatters', () => {
   describe('format date for customer app', () => {
     it('should format customer date to DD MMM YYYY', () => {
-      expect(formatters.formatCustomerDate('Sep-27-20')).toBe('27 Sep 2020');
+      expect(formatters.formatCustomerDate('2020-09-27T00:00:00Z')).toBe('27 Sep 2020');
     });
     it('should format signature date to YYYY-MM-DD', () => {
-      expect(formatters.formatSignatureDate('Sep-27-20')).toBe('2020-09-27');
+      expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');
     });
   });
   describe('format order type for customer app', () => {
@@ -60,6 +60,24 @@ describe('formatters', () => {
   describe('formatDollarFromMillicents', () => {
     it('returns expected value', () => {
       expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');
+    });
+  });
+
+  describe('formatDaysInTransit', () => {
+    it('returns 0 days when value is null', () => {
+      expect(formatters.formatDaysInTransit()).toEqual('0 days');
+    });
+
+    it('returns 0 days when value is zero', () => {
+      expect(formatters.formatDaysInTransit(0)).toEqual('0 days');
+    });
+
+    it('returns 1 day when value is one', () => {
+      expect(formatters.formatDaysInTransit(1)).toEqual('1 day');
+    });
+
+    it('returns plural when greater than 1', () => {
+      expect(formatters.formatDaysInTransit(2)).toEqual('2 days');
     });
   });
 });

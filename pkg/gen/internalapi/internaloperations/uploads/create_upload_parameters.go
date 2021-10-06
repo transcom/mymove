@@ -17,8 +17,16 @@ import (
 	"github.com/go-openapi/validate"
 )
 
+// CreateUploadMaxParseMemory sets the maximum size in bytes for
+// the multipart form parser for this operation.
+//
+// The default value is 32 MB.
+// The multipart parser stores up to this + 10MB.
+var CreateUploadMaxParseMemory int64 = 32 << 20
+
 // NewCreateUploadParams creates a new CreateUploadParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreateUploadParams() CreateUploadParams {
 
 	return CreateUploadParams{}
@@ -55,7 +63,7 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := r.ParseMultipartForm(CreateUploadMaxParseMemory); err != nil {
 		if err != http.ErrNotMultipart {
 			return errors.New(400, "%v", err)
 		} else if err := r.ParseForm(); err != nil {
@@ -77,7 +85,6 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 	} else {
 		o.File = &runtime.File{Data: file, Header: fileHeader}
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -93,6 +100,7 @@ func (o *CreateUploadParams) bindDocumentID(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}

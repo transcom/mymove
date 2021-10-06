@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
@@ -18,7 +19,6 @@ import (
 )
 
 type paymentRequestListFetcher struct {
-	db *pop.Connection
 }
 
 var parameters = map[string]string{
@@ -32,24 +32,24 @@ var parameters = map[string]string{
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
-func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestListFetcher {
-	return &paymentRequestListFetcher{db}
+func NewPaymentRequestListFetcher() services.PaymentRequestListFetcher {
+	return &paymentRequestListFetcher{}
 }
 
 // QueryOption defines the type for the functional arguments passed to ListOrders
 type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
-func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
+func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
 	if gblocErr != nil {
 		return &models.PaymentRequests{}, 0, gblocErr
 	}
 
 	paymentRequests := models.PaymentRequests{}
-	query := f.db.Q().EagerPreload(
+	query := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
@@ -118,7 +118,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
-		loadErr := f.db.Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
+		loadErr := appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
 		if loadErr != nil {
 			return nil, 0, err
 		}
@@ -128,9 +128,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 }
 
 // FetchPaymentRequestListByMove returns a payment request by move locator id
-func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
+func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
 	if gblocErr != nil {
 		return &models.PaymentRequests{}, gblocErr
 	}
@@ -138,7 +138,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 	paymentRequests := models.PaymentRequests{}
 
 	// Replaced EagerPreload due to nullable fka on Contractor
-	query := f.db.Q().Eager(
+	query := appCtx.DB().Q().Eager(
 		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",

@@ -3,6 +3,9 @@ package internalapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -16,11 +19,13 @@ import (
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
 type ApproveMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
@@ -44,7 +49,8 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return officeop.NewApprovePPMBadRequest()
 	}
 
-	err = move.Approve()
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	err = h.MoveRouter.Approve(appCtx, move)
 	if err != nil {
 		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)
@@ -67,11 +73,14 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 // CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
 type CancelMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
 	}
@@ -86,8 +95,9 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return handlers.ResponseForError(logger, err)
 	}
 
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 	// Canceling move will result in canceled associated PPMs
-	err = move.Cancel(*params.CancelMove.CancelReason)
+	err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
 	if err != nil {
 		logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)

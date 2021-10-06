@@ -117,13 +117,13 @@ export function customerFillsOutOrdersInformation() {
     expect(loc.pathname).to.eq('/orders/upload');
   });
 
-  cy.upload_file('.filepond--root', 'top-secret.png');
+  cy.upload_file('.filepond--root', 'sample-orders.png');
   cy.get('button[data-testid="wizardNextButton"]', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
 
   cy.get('h1').contains('Tips for planning your shipments');
   cy.nextPage();
 
   cy.visit('/');
-  cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
-  cy.get('button').contains('Plan your shipments').click();
+  cy.get('[data-testid="doc-list-container"]').contains('sample-orders.png');
+  cy.get('button').contains('Set up your shipments').click();
 }

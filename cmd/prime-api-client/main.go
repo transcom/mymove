@@ -34,15 +34,15 @@ func main() {
 	}
 	initRootFlags(root.PersistentFlags())
 
-	fetchMTOsCommand := &cobra.Command{
-		Use:          "fetch-mto-updates",
-		Short:        "Fetch all MTOs available to prime",
-		Long:         "fetch move task orders",
-		RunE:         prime.FetchMTOUpdates,
+	listMovesCommand := &cobra.Command{
+		Use:          "list-moves",
+		Short:        "An optimized fetch for all moves available to Prime",
+		Long:         "Fetches moves that are available to Prime quickly, without all the data for nested objects.",
+		RunE:         prime.ListMoves,
 		SilenceUsage: true,
 	}
-	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
-	root.AddCommand(fetchMTOsCommand)
+	prime.InitListMovesFlags(listMovesCommand.Flags())
+	root.AddCommand(listMovesCommand)
 
 	getMoveTaskOrder := &cobra.Command{
 		Use:   "get-move-task-order",
@@ -64,7 +64,7 @@ func main() {
 		Use:          "support-list-mtos",
 		Short:        "Fetch all MTOs",
 		Long:         "fetch all move task orders",
-		RunE:         prime.FetchMTOUpdates,
+		RunE:         support.ListMTOs,
 		SilenceUsage: true,
 	}
 	support.InitListMTOsFlags(listMTOsCommand.Flags())
@@ -148,6 +148,29 @@ func main() {
 	}
 	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
+
+	updateMTOShipmentStatusCommand := &cobra.Command{
+		Use:   "update-mto-shipment-status",
+		Short: "Update MTO shipment status",
+		Long: `
+  This command allows the Prime to update the MTO shipment status.
+  Currently, they are only allowed to update a shipment to the "CANCELED" status.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/status
+  The file should contain json as follows:
+    {
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": <MtoShipmentRequestStatus>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.UpdateMTOShipmentStatus,
+		SilenceUsage: true,
+	}
+	prime.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	updateMTOShipmentAddressCommand := &cobra.Command{
 		Use:   "update-mto-shipment-address",
@@ -402,7 +425,7 @@ func main() {
 	prime.InitCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
-	updateMTOShipmentStatusCommand := &cobra.Command{
+	supportUpdateMTOShipmentStatusCommand := &cobra.Command{
 		Use:   "support-update-mto-shipment-status",
 		Short: "Update MTO shipment status for prime",
 		Long: `
@@ -422,8 +445,8 @@ func main() {
 		RunE:         support.UpdateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
-	root.AddCommand(updateMTOShipmentStatusCommand)
+	support.InitUpdateMTOShipmentStatusFlags(supportUpdateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(supportUpdateMTOShipmentStatusCommand)
 
 	getPaymentRequestEDI := &cobra.Command{
 		Use:   "support-get-payment-request-edi",
@@ -485,6 +508,23 @@ func main() {
 	}
 	support.InitHideNonFakeMoveTaskOrdersFlags(hideNonFakeMoveTaskOrdersCommand.Flags())
 	root.AddCommand(hideNonFakeMoveTaskOrdersCommand)
+
+	recalculatePaymentRequestCommand := &cobra.Command{
+		Use:   "support-recalculate-payment-request",
+		Short: "Recalculates the given payment request",
+		Long: `
+  This command recalculates the payment request with the given ID by
+  creating a new payment request and deprecating the existing one.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a payment request ID using the --id arg.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/recalculate
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         support.RecalculatePaymentRequest,
+		SilenceUsage: true,
+	}
+	support.InitGetPaymentRequestEDIFlags(recalculatePaymentRequestCommand.Flags())
+	root.AddCommand(recalculatePaymentRequestCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

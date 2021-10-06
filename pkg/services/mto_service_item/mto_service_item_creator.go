@@ -5,29 +5,29 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type createMTOServiceItemQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	CreateOne(model interface{}) (*validate.Errors, error)
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-	Transaction(fn func(tx *pop.Connection) error) error
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoServiceItemCreator struct {
 	builder          createMTOServiceItemQueryBuilder
-	createNewBuilder func(db *pop.Connection) createMTOServiceItemQueryBuilder
+	createNewBuilder func() createMTOServiceItemQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
@@ -39,7 +39,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("id", "=", moveID),
 	}
 	// check if Move exists
-	err = o.builder.FetchOne(&move, queryFilters)
+	err = o.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
 	}
@@ -59,7 +59,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
-	err = o.builder.FetchOne(&reService, queryFilters)
+	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
@@ -74,7 +74,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
 			serviceItem.Status = "APPROVED"
 		}
-		verrs, err = o.builder.CreateOne(serviceItem)
+		verrs, err = o.builder.CreateOne(appCtx, serviceItem)
 		if verrs != nil {
 			return nil, verrs, nil
 		}
@@ -101,7 +101,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("id", "=", mtoShipmentID),
 		query.NewQueryFilter("move_id", "=", moveID),
 	}
-	err = o.builder.FetchOne(&mtoShipment, queryFilters)
+	err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
 			fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
@@ -115,7 +115,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -123,7 +123,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 		// DDASIT must be associated with shipment that has DDFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDDFSIT)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -131,7 +131,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
-		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
+		err = validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary)
 		if err != nil {
 			return nil, nil, services.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
 		}
@@ -146,7 +146,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	updateShipmentPickupAddress := false
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
+		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(appCtx, serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
 		}
@@ -194,11 +194,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
-	transactionErr := o.builder.Transaction(func(tx *pop.Connection) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-		// create new builder to use tx
-		txBuilder := o.createNewBuilder(tx)
-
+		if err != nil {
+			txnAppCtx.Logger().Error(fmt.Sprintf("error starting txn: %v", err))
+			return err
+		}
 		for serviceItemIndex := range requestedServiceItems {
 			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
 
@@ -206,7 +207,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			if requestedServiceItem.SITOriginHHGActualAddress != nil {
 				address := requestedServiceItem.SITOriginHHGActualAddress
 				if address.ID == uuid.Nil {
-					verrs, err = txBuilder.CreateOne(address)
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
 					if verrs != nil || err != nil {
 						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
 					}
@@ -218,7 +219,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
 				address := requestedServiceItem.SITOriginHHGOriginalAddress
 				if address.ID == uuid.Nil {
-					verrs, err = txBuilder.CreateOne(address)
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
 					if verrs != nil || err != nil {
 						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
 					}
@@ -226,7 +227,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
 			}
 
-			verrs, err = txBuilder.CreateOne(requestedServiceItem)
+			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
@@ -237,9 +238,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			for index := range requestedServiceItem.Dimensions {
 				createDimension := &requestedServiceItem.Dimensions[index]
 				createDimension.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = txBuilder.CreateOne(createDimension)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				verrs, err = o.builder.CreateOne(txnAppCtx, createDimension)
+				if verrs != nil && verrs.HasAny() {
+					return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
+				}
+				if err != nil {
+					return fmt.Errorf("%e", err)
 				}
 			}
 
@@ -247,7 +251,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			for index := range requestedServiceItem.CustomerContacts {
 				createCustContacts := &requestedServiceItem.CustomerContacts[index]
 				createCustContacts.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = txBuilder.CreateOne(createCustContacts)
+				verrs, err = o.builder.CreateOne(txnAppCtx, createCustContacts)
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
 				}
@@ -256,57 +260,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		// If updates were made to shipment, save update in the database
 		if updateShipmentPickupAddress {
-			verrs, err = txBuilder.UpdateOne(mtoShipment.PickupAddress, nil)
+			verrs, err = o.builder.UpdateOne(txnAppCtx, mtoShipment.PickupAddress, nil)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
 			}
 		}
 
-		moveShouldBeApproved := true
-
-		// If any of the requested service items are in SUBMITTED status, then
-		// we need to change the move status to APPROVALS REQUESTED so the TOO
-		// can review them. Setting moveSouldBeApproved to false is how we know
-		// to set it to APPROVALS REQUESTED further down below.
-		for _, serviceItem := range requestedServiceItems {
-			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-				moveShouldBeApproved = false
-				break
-			}
-		}
-
-		// In case other service items have been created at the same time on this
-		// same move, we fetch the move from the DB and check if it has any
-		// submitted service items.
-		err = tx.Reload(&move)
-		if err != nil {
-			return fmt.Errorf("%e", err)
-		}
-		for _, serviceItem := range move.MTOServiceItems {
-			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-				moveShouldBeApproved = false
-				break
-			}
-		}
-
-		if moveShouldBeApproved {
-			err = move.Approve()
-			if err != nil {
-				return fmt.Errorf("%e", err)
-			}
-			verrs, err = txBuilder.UpdateOne(&move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
-		} else {
-			err = move.SetApprovalsRequested()
-			if err != nil {
-				return fmt.Errorf("%e", err)
-			}
-			verrs, err = txBuilder.UpdateOne(&move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
+		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
+			return err
 		}
 
 		return nil
@@ -325,7 +286,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 // checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one
 // requested.
-func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(serviceItem *models.MTOServiceItem) error {
+func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
 	var duplicateServiceItem models.MTOServiceItem
 
 	queryFilters := []services.QueryFilter{
@@ -337,7 +298,7 @@ func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(serviceItem *models.M
 	}
 
 	// We DON'T want to find this service item:
-	err := o.builder.FetchOne(&duplicateServiceItem, queryFilters)
+	err := o.builder.FetchOne(appCtx, &duplicateServiceItem, queryFilters)
 	if err == nil && duplicateServiceItem.ID != uuid.Nil {
 		return services.NewConflictError(duplicateServiceItem.ID,
 			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
@@ -349,13 +310,13 @@ func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(serviceItem *models.M
 }
 
 // makeExtraSITServiceItem sets up extra SIT service items if a first-day SIT service item is being created.
-func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppContext, firstSIT *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
 	var reService models.ReService
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
-	err := o.builder.FetchOne(&reService, queryFilters)
+	err := o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
 	}
@@ -375,16 +336,16 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServ
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
-	createNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
-		return query.NewQueryBuilder(db)
+	createNewBuilder := func() createMTOServiceItemQueryBuilder {
+		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder}
+	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
 }
 
-func validateTimeMilitaryField(timeMilitary string) error {
+func validateTimeMilitaryField(appCtx appcontext.AppContext, timeMilitary string) error {
 	if len(timeMilitary) == 0 {
 		return nil
 	} else if len(timeMilitary) != 5 {
@@ -420,7 +381,7 @@ func validateTimeMilitaryField(timeMilitary string) error {
 }
 
 // Check if and address has and ID, if it does, it needs to match OG SIT
-func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
 	var validReService models.ReService
@@ -431,7 +392,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 	}
 
 	// Fetch the ID for the ReServiceCode passed in, so we can check the shipment for its existence
-	err := o.builder.FetchOne(&validReService, queryFilter)
+	err := o.builder.FetchOne(appCtx, &validReService, queryFilter)
 
 	if err != nil {
 		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
@@ -443,7 +404,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 		query.NewQueryFilter("re_service_id", "=", validReService.ID),
 	}
 	// Fetch the required first-day SIT item for the shipment
-	err = o.builder.FetchOne(&mtoServiceItem, mtoServiceItemQueryFilter)
+	err = o.builder.FetchOne(appCtx, &mtoServiceItem, mtoServiceItemQueryFilter)
 
 	if err != nil {
 		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
@@ -479,12 +440,12 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 }
 
 // check if an address has an ID
-func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
+func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
 	var extraServiceItems models.MTOServiceItems
 	var extraServiceItem *models.MTOServiceItem
 
 	// check if there's another First Day SIT item for this shipment
-	err := o.checkDuplicateServiceCodes(serviceItem)
+	err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
 	if err != nil {
 		return nil, err
 	}
@@ -522,7 +483,7 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 	}
 
 	for _, code := range reServiceCodes {
-		extraServiceItem, err = o.makeExtraSITServiceItem(serviceItem, code)
+		extraServiceItem, err = o.makeExtraSITServiceItem(appCtx, serviceItem, code)
 		if err != nil {
 			return nil, err
 		}

@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { text, boolean } from '@storybook/addon-knobs';
+import { boolean, text } from '@storybook/addon-knobs';
 
 import DocsUploaded from '../DocsUploaded/index';
-import ShipmentList from '../ShipmentList/index';
+import ShipmentList from '../../../ShipmentList/index';
 
 import Step from '.';
 
@@ -20,7 +20,7 @@ export const ProfileComplete = () => (
       onEditBtnClick={() => {}}
       step={text('Step', '1')}
     >
-      <p>{(text('Description'), 'Make sure to keep your personal information up to date during your move')}</p>
+      <p>{text('Description', 'Make sure to keep your personal information up to date during your move')}</p>
     </Step>
   </div>
 );
@@ -36,7 +36,7 @@ export const UploadOrders = () => (
       onEditBtnClick={() => {}}
       step={text('Step', '2')}
     >
-      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+      <p>{text('Description', 'Upload photos of each page, or upload a PDF')}</p>
     </Step>
   </div>
 );
@@ -63,6 +63,28 @@ export const OrdersUploaded = () => (
   </div>
 );
 
+export const OrdersAmended = () => (
+  <div className="grid-container">
+    <h3>Orders</h3>
+    <Step
+      complete={boolean('Complete', true)}
+      completedHeaderText={text('Complete Header Text', 'Orders')}
+      editBtnLabel={text('Upload documents Button Label', 'Upload documents')}
+      headerText={text('Header Text', 'Orders')}
+      onEditBtnClick={() => {}}
+      step={text('Step', '2')}
+      containerClassName="step-amended-orders"
+    >
+      <p>If you receive amended orders:</p>
+      <ul>
+        <li>Upload the new documents here</li>
+        <li>Talk directly with your movers about changes</li>
+        <li>The transportation office will update your move info to reflect the new orders</li>
+      </ul>
+    </Step>
+  </div>
+);
+
 export const ShipmentSelection = () => (
   <div className="grid-container">
     <h3>Shipment Selection</h3>
@@ -75,7 +97,7 @@ export const ShipmentSelection = () => (
       step={text('Step', '2')}
       actionBtnLabel="Plan your shipments"
     >
-      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+      <p>{text('Description', 'Upload photos of each page, or upload a PDF')}</p>
     </Step>
   </div>
 );
@@ -115,10 +137,10 @@ export const ConfirmMove = () => (
       actionBtnLabel="Review and submit"
     >
       <p>
-        {
-          (text('Description'),
-          'Review your move details and sign the legal paperwork, then send the info on to your move counselor')
-        }
+        {text(
+          'Description',
+          'Review your move details and sign the legal paperwork, then send the info on to your move counselor',
+        )}
       </p>
     </Step>
   </div>
@@ -136,7 +158,7 @@ export const MoveSubmitted = () => (
       secondaryBtn
       secondaryBtnStyle={{ boxShadow: 'inset 0 0 0 2px #0050d8' }}
     >
-      <p>{(text('Description'), 'Move submitted 03 Nov 2020')}</p>
+      <p>{text('Description', 'Move submitted 03 Nov 2020')}</p>
     </Step>
   </div>
 );

@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6 as builder
+FROM milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40 as builder
 
 ENV CIRCLECI=true
 
@@ -19,7 +19,7 @@ RUN rm -f bin/prime-api-client && make bin/prime-api-client
 # FINAL #
 #########
 
-FROM alpine:3.12.3
+FROM alpine:3.14.2
 
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox

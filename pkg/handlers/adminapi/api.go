@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"log"
-	"net/http"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -31,8 +30,8 @@ import (
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
 
-// NewAdminAPIHandler returns a handler for the admin API
-func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
+// NewAdminAPI returns the admin API
+func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 
 	// Wire up the handlers to the publicAPIMux
 	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")
@@ -41,183 +40,188 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
-	queryBuilder := query.NewQueryBuilder(context.DB())
+	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
-		context,
+		ctx,
 		officeuser.NewOfficeUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	userRolesCreator := usersroles.NewUsersRolesCreator(context.DB())
+	userRolesCreator := usersroles.NewUsersRolesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
-		context,
-		officeuser.NewOfficeUserCreator(context.DB(), queryBuilder),
+		ctx,
+		officeuser.NewOfficeUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
-		context,
+		ctx,
 		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
 
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
-		context,
+		ctx,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.OrganizationIndexOrganizationsHandler = IndexOrganizationsHandler{
-		context,
+		ctx,
 		organization.NewOrganizationListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
-		context,
+		ctx,
 		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
-		context,
+		ctx,
 		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
-		context,
+		ctx,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
-		context,
+		ctx,
 		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AccessCodesIndexAccessCodesHandler = IndexAccessCodesHandler{
-		context,
+		ctx,
 		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{
-		context,
+		ctx,
 		adminuser.NewAdminUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
-		context,
+		ctx,
 		user.NewUserSessionRevocation(queryBuilder),
-		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
-		context,
+		ctx,
 		adminuser.NewAdminUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
-		context,
-		adminuser.NewAdminUserCreator(context.DB(), queryBuilder),
+		ctx,
+		adminuser.NewAdminUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
-		context,
+		ctx,
 		adminUpdater,
 		query.NewQueryFilter,
 	}
 
 	adminAPI.UsersGetUserHandler = GetUserHandler{
-		context,
+		ctx,
 		user.NewUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.UsersIndexUsersHandler = IndexUsersHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
-		context,
-		upload.NewUploadInformationFetcher(context.DB()),
+		ctx,
+		upload.NewUploadInformationFetcher(),
 	}
 
 	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
-		context,
+		ctx,
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
+	moveRouter := move.NewMoveRouter()
 	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
-		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		ctx,
+		movetaskorder.NewMoveTaskOrderUpdater(
+			queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+			moveRouter,
+		),
 	}
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
-		context,
+		ctx,
 	}
 
 	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.WebhookSubscriptionsGetWebhookSubscriptionHandler = GetWebhookSubscriptionHandler{
-		context,
+		ctx,
 		webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
-		context,
-		webhooksubscription.NewWebhookSubscriptionCreator(context.DB(), queryBuilder),
+		ctx,
+		webhooksubscription.NewWebhookSubscriptionCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.WebhookSubscriptionsUpdateWebhookSubscriptionHandler = UpdateWebhookSubscriptionHandler{
-		context,
+		ctx,
 		webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	return adminAPI.Serve(nil)
+	return adminAPI
 }

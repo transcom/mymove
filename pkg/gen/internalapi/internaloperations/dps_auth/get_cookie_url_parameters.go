@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetCookieURLParams creates a new GetCookieURLParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetCookieURLParams() GetCookieURLParams {
 
 	return GetCookieURLParams{}
@@ -60,7 +61,6 @@ func (o *GetCookieURLParams) BindRequest(r *http.Request, route *middleware.Matc
 	if err := o.bindDpsRedirectURL(qDpsRedirectURL, qhkDpsRedirectURL, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -76,10 +76,10 @@ func (o *GetCookieURLParams) bindCookieName(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.CookieName = &raw
 
 	return nil
@@ -94,10 +94,10 @@ func (o *GetCookieURLParams) bindDpsRedirectURL(rawData []string, hasKey bool, f
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.DpsRedirectURL = &raw
 
 	return nil

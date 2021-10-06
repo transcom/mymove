@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -36,7 +37,7 @@ type Event struct {
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
 	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          handlers.Logger         // The logger
+	logger          *zap.Logger             // The logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -53,6 +54,33 @@ const MTOShipmentCreateEventKey KeyType = "MTOShipment.Create"
 
 // MTOShipmentUpdateEventKey is a key containing MTOShipment.Update
 const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
+
+// ShipmentDeleteEventKey is a key containing Shipment.Delete
+const ShipmentDeleteEventKey KeyType = "Shipment.Delete"
+
+// ShipmentApproveEventKey is a key containing Shipment.Approve
+const ShipmentApproveEventKey KeyType = "Shipment.Approve"
+
+// ShipmentRequestDiversionEventKey is a key containing Shipment.RequestDiversion
+const ShipmentRequestDiversionEventKey KeyType = "Shipment.RequestDiversion"
+
+// ShipmentApproveDiversionEventKey is a key containing Shipment.ApproveDiversion
+const ShipmentApproveDiversionEventKey KeyType = "Shipment.ApproveDiversion"
+
+// ShipmentRejectEventKey is a key containing Shipment.Reject
+const ShipmentRejectEventKey KeyType = "Shipment.Reject"
+
+// ShipmentRequestCancellationEventKey is a key containing Shipment.RequestCancellation
+const ShipmentRequestCancellationEventKey KeyType = "Shipment.RequestCancellation"
+
+// ShipmentRequestReweighEventKey is a key containing Shipment.RequestReweigh
+const ShipmentRequestReweighEventKey KeyType = "Shipment.RequestReweigh"
+
+// ApproveSITExtensionEventKey is a key containing Shipment.ApproveSIT
+const ApproveSITExtensionEventKey KeyType = "Shipment.ApproveSITExtension"
+
+// DenySITExtensionEventKey is a key containing Shipment.DenySIT
+const DenySITExtensionEventKey KeyType = "Shipment.DenySITExtension"
 
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
@@ -76,18 +104,27 @@ const TestUpdateEventKey KeyType = "Test.Update"
 const TestDeleteEventKey KeyType = "Test.Delete"
 
 var eventModels = map[KeyType]eventModel{
-	OrderUpdateEventKey:          {OrderUpdateEventKey, models.Order{}},
-	MoveTaskOrderCreateEventKey:  {MoveTaskOrderCreateEventKey, models.Move{}},
-	MoveTaskOrderUpdateEventKey:  {MoveTaskOrderUpdateEventKey, models.Move{}},
-	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
-	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
-	MTOServiceItemCreateEventKey: {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
-	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
-	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
-	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
-	TestCreateEventKey:           {TestCreateEventKey, nil},
-	TestUpdateEventKey:           {TestUpdateEventKey, nil},
-	TestDeleteEventKey:           {TestDeleteEventKey, nil}}
+	OrderUpdateEventKey:                 {OrderUpdateEventKey, models.Order{}},
+	MoveTaskOrderCreateEventKey:         {MoveTaskOrderCreateEventKey, models.Move{}},
+	MoveTaskOrderUpdateEventKey:         {MoveTaskOrderUpdateEventKey, models.Move{}},
+	MTOShipmentCreateEventKey:           {MTOShipmentCreateEventKey, models.MTOShipment{}},
+	MTOShipmentUpdateEventKey:           {MTOShipmentUpdateEventKey, models.MTOShipment{}},
+	ShipmentDeleteEventKey:              {ShipmentDeleteEventKey, models.MTOShipment{}},
+	ShipmentApproveEventKey:             {ShipmentApproveEventKey, models.MTOShipment{}},
+	ShipmentRequestDiversionEventKey:    {ShipmentRequestDiversionEventKey, models.MTOShipment{}},
+	ShipmentApproveDiversionEventKey:    {ShipmentApproveDiversionEventKey, models.MTOShipment{}},
+	ShipmentRejectEventKey:              {ShipmentRejectEventKey, models.MTOShipment{}},
+	ShipmentRequestCancellationEventKey: {ShipmentRequestCancellationEventKey, models.MTOShipment{}},
+	ShipmentRequestReweighEventKey:      {ShipmentRequestReweighEventKey, models.MTOShipment{}},
+	ApproveSITExtensionEventKey:         {ApproveSITExtensionEventKey, models.MTOShipment{}},
+	DenySITExtensionEventKey:            {DenySITExtensionEventKey, models.MTOShipment{}},
+	MTOServiceItemCreateEventKey:        {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
+	MTOServiceItemUpdateEventKey:        {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
+	PaymentRequestCreateEventKey:        {PaymentRequestCreateEventKey, models.PaymentRequest{}},
+	PaymentRequestUpdateEventKey:        {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
+	TestCreateEventKey:                  {TestCreateEventKey, nil},
+	TestUpdateEventKey:                  {TestUpdateEventKey, nil},
+	TestDeleteEventKey:                  {TestDeleteEventKey, nil}}
 
 // IsCreateEvent returns true if this event is a create event
 func IsCreateEvent(e KeyType) (bool, error) {

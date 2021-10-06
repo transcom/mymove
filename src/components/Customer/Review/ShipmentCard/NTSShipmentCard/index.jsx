@@ -7,7 +7,7 @@ import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 
 import { AddressShape } from 'types/address';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { customerRoutes } from 'constants/routes';
 
@@ -15,6 +15,7 @@ const NTSShipmentCard = ({
   moveId,
   onEditClick,
   pickupLocation,
+  secondaryPickupAddress,
   releasingAgent,
   remarks,
   requestedPickupDate,
@@ -54,6 +55,7 @@ const NTSShipmentCard = ({
             shipmentNumber={shipmentNumber}
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
+            secondaryPickupAddress={secondaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           {remarks && (
@@ -76,6 +78,7 @@ NTSShipmentCard.propTypes = {
   showEditBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  secondaryPickupAddress: AddressShape,
   releasingAgent: shape({
     firstName: string,
     lastName: string,
@@ -90,6 +93,7 @@ NTSShipmentCard.defaultProps = {
   releasingAgent: null,
   remarks: '',
   shipmentNumber: 0,
+  secondaryPickupAddress: null,
 };
 
 export default NTSShipmentCard;

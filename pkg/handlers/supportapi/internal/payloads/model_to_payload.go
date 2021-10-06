@@ -86,7 +86,7 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
 	if customer.Rank != nil {
-		payload.Rank = supportmessages.Rank(*customer.Rank)
+		payload.Rank = supportmessages.NewRank(supportmessages.Rank(*customer.Rank))
 	}
 	return &payload
 }
@@ -105,18 +105,17 @@ func Order(order *models.Order) *supportmessages.Order {
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
-
 	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
 		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
 		Entitlement:              Entitlement(order.Entitlement),
 		Customer:                 Customer(&order.ServiceMember),
 		OrderNumber:              order.OrdersNumber,
-		OrdersType:               supportmessages.OrdersType(order.OrdersType),
+		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
 		ID:                       strfmt.UUID(order.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(order.UpdatedAt),
-		Status:                   supportmessages.OrdersStatus(order.Status),
+		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         handlers.FmtUUID(order.UploadedOrdersID),
 		ReportByDate:             &reportByDate,
@@ -125,7 +124,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	}
 
 	if order.Grade != nil {
-		payload.Rank = (supportmessages.Rank)(*order.Grade)
+		rank := (supportmessages.Rank)(*order.Grade)
+		payload.Rank = &rank
 	}
 	if order.OriginDutyStationID != nil {
 		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
@@ -144,10 +144,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var totalWeight int64
 	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
 		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
 	var authorizedWeight *int64
@@ -164,17 +162,18 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	return &supportmessages.Entitlement{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
+		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
+		StorageInTransit:               sit,
+		TotalDependents:                totalDependents,
+		TotalWeight:                    totalWeight,
+		ETag:                           etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -328,21 +327,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
 
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &supportmessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(item.ID.String()),
-				Type:   supportmessages.DimensionType(item.Type),
 				Height: item.Height.Int32Ptr(),
 				Length: item.Length.Int32Ptr(),
 				Width:  item.Width.Int32Ptr(),
 			},
 			Crate: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(crate.ID.String()),
-				Type:   supportmessages.DimensionType(crate.Type),
 				Height: crate.Height.Int32Ptr(),
 				Length: crate.Length.Int32Ptr(),
 				Width:  crate.Width.Int32Ptr(),
@@ -351,14 +348,15 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &supportmessages.MTOServiceItemShuttle{
-			Description:   mtoServiceItem.Description,
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:        mtoServiceItem.Reason,
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:          mtoServiceItem.Reason,
+			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 	default:
 		// otherwise, basic service item
 		payload = &supportmessages.MTOServiceItemBasic{
-			ReServiceCode: supportmessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode: supportmessages.NewReServiceCode(supportmessages.ReServiceCode(mtoServiceItem.ReService.Code)),
 		}
 	}
 
@@ -455,13 +453,14 @@ func MTOHideMove(hiddenMove services.HiddenMove) *supportmessages.MTOHideMove {
 // PaymentRequest converts PaymentRequest model to payload
 func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 	return &supportmessages.PaymentRequest{
-		ID:                   *handlers.FmtUUID(pr.ID),
-		IsFinal:              &pr.IsFinal,
-		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
-		PaymentRequestNumber: pr.PaymentRequestNumber,
-		RejectionReason:      pr.RejectionReason,
-		Status:               supportmessages.PaymentRequestStatus(pr.Status),
-		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+		ID:                              *handlers.FmtUUID(pr.ID),
+		IsFinal:                         &pr.IsFinal,
+		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
+		PaymentRequestNumber:            pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                 pr.RejectionReason,
+		Status:                          supportmessages.PaymentRequestStatus(pr.Status),
+		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
 	}
 }
 

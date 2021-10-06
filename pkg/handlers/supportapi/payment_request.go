@@ -1,15 +1,11 @@
 package supportapi
 
 import (
-	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/db/sequence"
-	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/appcontext"
 
 	"github.com/spf13/viper"
 
@@ -40,6 +36,7 @@ type UpdatePaymentRequestStatusHandler struct {
 // Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {
@@ -48,7 +45,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
-	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String())
@@ -79,22 +76,24 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	// Let's map the incoming status to our enumeration type
 	switch params.Body.Status {
-	case "PENDING":
+	case supportmessages.PaymentRequestStatusPENDING:
 		status = models.PaymentRequestStatusPending
-	case "REVIEWED":
+	case supportmessages.PaymentRequestStatusREVIEWED:
 		status = models.PaymentRequestStatusReviewed
 		reviewedDate = time.Now()
-	case "SENT_TO_GEX":
+	case supportmessages.PaymentRequestStatusSENTTOGEX:
 		status = models.PaymentRequestStatusSentToGex
 		sentGexDate = time.Now()
-	case "RECEIVED_BY_GEX":
+	case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
 		status = models.PaymentRequestStatusReceivedByGex
 		recGexDate = time.Now()
-	case "PAID":
+	case supportmessages.PaymentRequestStatusPAID:
 		status = models.PaymentRequestStatusPaid
 		paidAtDate = time.Now()
-	case "EDI_ERROR":
+	case supportmessages.PaymentRequestStatusEDIERROR:
 		status = models.PaymentRequestStatusEDIError
+	case supportmessages.PaymentRequestStatusDEPRECATED:
+		status = models.PaymentRequestStatusDeprecated
 	}
 
 	// If we got a rejection reason let's use it
@@ -104,23 +103,24 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                   existingPaymentRequest.ID,
-		MoveTaskOrder:        existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID:      existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:              existingPaymentRequest.IsFinal,
-		Status:               status,
-		RejectionReason:      rejectionReason,
-		RequestedAt:          existingPaymentRequest.RequestedAt,
-		ReviewedAt:           &reviewedDate,
-		SentToGexAt:          &sentGexDate,
-		ReceivedByGexAt:      &recGexDate,
-		PaidAt:               &paidAtDate,
-		PaymentRequestNumber: existingPaymentRequest.PaymentRequestNumber,
-		SequenceNumber:       existingPaymentRequest.SequenceNumber,
+		ID:                              existingPaymentRequest.ID,
+		MoveTaskOrder:                   existingPaymentRequest.MoveTaskOrder,
+		MoveTaskOrderID:                 existingPaymentRequest.MoveTaskOrderID,
+		IsFinal:                         existingPaymentRequest.IsFinal,
+		Status:                          status,
+		RejectionReason:                 rejectionReason,
+		RequestedAt:                     existingPaymentRequest.RequestedAt,
+		ReviewedAt:                      &reviewedDate,
+		SentToGexAt:                     &sentGexDate,
+		ReceivedByGexAt:                 &recGexDate,
+		PaidAt:                          &paidAtDate,
+		PaymentRequestNumber:            existingPaymentRequest.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID: existingPaymentRequest.RecalculationOfPaymentRequestID,
+		SequenceNumber:                  existingPaymentRequest.SequenceNumber,
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &paymentRequestForUpdate, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
@@ -142,7 +142,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		UpdatedObjectID: updatedPaymentRequest.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.SupportUpdatePaymentRequestStatusEndpointKey,
-		DBConnection:    h.DB(),
+		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
@@ -194,9 +194,10 @@ type GetPaymentRequestEDIHandler struct {
 // Handle getting the EDI for a given payment request
 func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRequestEDIParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
-	paymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	paymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for EDI generation with ID: %s", params.PaymentRequestID.String())
 		logger.Error(msg, zap.Error(err))
@@ -206,8 +207,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	var payload supportmessages.PaymentRequestEDI
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
-	h.GHCPaymentRequestInvoiceGenerator.InitDB(h.DB())
-	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
+	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(appCtx, paymentRequest, false)
 	if err == nil {
 		payload.Edi, err = edi858c.EDIString(logger)
 	}
@@ -220,12 +220,12 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			return paymentrequestop.NewGetPaymentRequestEDINotFound().
 				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 
-		// InvalidInputError -> Unprocessable Entity reponse
+		// InvalidInputError -> Unprocessable Entity response
 		case services.InvalidInputError:
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
 				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 
-		// ConflictError -> Conflict Error reponse
+		// ConflictError -> Conflict Error response
 		case services.ConflictError:
 			return paymentrequestop.NewGetPaymentRequestEDIConflict().
 				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
@@ -235,7 +235,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				// Note we do not expose this detail in the payload
-				logger.Error("Error retrieving an EDI for thepayment request", zap.Error(e.Unwrap()))
+				logger.Error("Error retrieving an EDI for the payment request", zap.Error(e.Unwrap()))
 			}
 			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
 				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
@@ -268,6 +268,7 @@ type ProcessReviewedPaymentRequestsHandler struct {
 // Handle getting the EDI for a given payment request
 func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
@@ -288,50 +289,16 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		// Set up viper to read environment variables
-		v := viper.New()
-		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-		v.AutomaticEnv()
-		gexURL := v.GetString(cli.GEXURLFlag)
-		dbEnv := v.GetString(cli.DbEnvFlag)
-
-		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
-		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
-		// test ICNs in Syncada.
-		var icnSequencer sequence.Sequencer
-		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
-		icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
-		if err != nil {
-			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
-		}
-
-		certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
-		if err != nil {
-			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
-		}
-		certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
-		if certificates == nil || rootCAs == nil || err != nil {
-			logger.Fatal("Error in getting tls certs", zap.Error(err))
-		}
-		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-
-		gexSender := invoice.NewGexSenderHTTP(
-			gexURL,
-			cli.GEXChannelInvoice,
-			true,
-			tlsConfig,
-			v.GetString(cli.GEXBasicAuthUsernameFlag),
-			v.GetString(cli.GEXBasicAuthPasswordFlag))
-		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx, true, h.ICNSequencer(), h.GexSender())
 		if err != nil {
 			msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
 			logger.Error(msg, zap.Error(err))
 			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
-		reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
+		reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest(appCtx)
 	} else {
 		if paymentRequestID != uuid.Nil {
-			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 			if err != nil {
 				msg := fmt.Sprintf("Error finding Payment Request with ID: %s", params.Body.PaymentRequestID.String())
 				logger.Error(msg, zap.Error(err))
@@ -339,7 +306,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			}
 			paymentRequests = append(paymentRequests, pr)
 		} else {
-			reviewedPaymentRequests, err := h.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+			reviewedPaymentRequests, err := h.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(appCtx)
 			if err != nil {
 				msg := "function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest"
 				logger.Error(msg, zap.Error(err))
@@ -351,26 +318,28 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		// Update each payment request to have the given status
 		for _, pr := range paymentRequests {
 			switch paymentRequestStatus {
-			case "PENDING":
+			case supportmessages.PaymentRequestStatusPENDING:
 				pr.Status = models.PaymentRequestStatusPending
-			case "REVIEWED":
+			case supportmessages.PaymentRequestStatusREVIEWED:
 				reviewedAt := time.Now()
 				pr.Status = models.PaymentRequestStatusReviewed
 				pr.ReviewedAt = &reviewedAt
-			case "SENT_TO_GEX":
+			case supportmessages.PaymentRequestStatusSENTTOGEX:
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex
 				pr.SentToGexAt = &sentToGex
-			case "RECEIVED_BY_GEX":
+			case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
 				recByGex := time.Now()
 				pr.Status = models.PaymentRequestStatusReceivedByGex
 				pr.ReceivedByGexAt = &recByGex
-			case "PAID":
+			case supportmessages.PaymentRequestStatusPAID:
 				paidAt := time.Now()
 				pr.Status = models.PaymentRequestStatusPaid
 				pr.PaidAt = &paidAt
-			case "EDI_ERROR":
+			case supportmessages.PaymentRequestStatusEDIERROR:
 				pr.Status = models.PaymentRequestStatusEDIError
+			case supportmessages.PaymentRequestStatusDEPRECATED:
+				pr.Status = models.PaymentRequestStatusDeprecated
 			case "":
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex
@@ -381,7 +350,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 			newPr := pr
 			var nilEtag string
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag)
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &newPr, nilEtag)
 
 			if err != nil {
 				switch err.(type) {
@@ -403,6 +372,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		v := viper.New()
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
+		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 
 		sshClient, err := cli.InitGEXSSH(v, logger)
 		if err != nil {
@@ -425,17 +396,15 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}()
 
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, *deleteFromSyncada)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, *deleteFromSyncada)
 
-		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, time.Time{}, invoice.NewEDI997Processor())
 		if err != nil {
 			logger.Error("Error reading 997 responses", zap.Error(err))
 		} else {
 			logger.Info("Successfully processed 997 responses")
 		}
-		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor())
 		if err != nil {
 			logger.Error("Error reading 824 responses", zap.Error(err))
 		} else {
@@ -447,4 +416,50 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)
+}
+
+// RecalculatePaymentRequestHandler recalculates a payment request
+type RecalculatePaymentRequestHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestRecalculator
+}
+
+// Handle getting the EDI for a given payment request
+func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.RecalculatePaymentRequestParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+
+	newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID)
+
+	if err != nil {
+		switch e := err.(type) {
+		case *services.BadDataError:
+			return paymentrequestop.NewRecalculatePaymentRequestBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+		case services.NotFoundError:
+			return paymentrequestop.NewRecalculatePaymentRequestNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.ConflictError:
+			return paymentrequestop.NewRecalculatePaymentRequestConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		case services.PreconditionFailedError:
+			return paymentrequestop.NewRecalculatePaymentRequestPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		case services.InvalidCreateInputError:
+			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				// Note we do not expose this detail in the payload
+				logger.Error("Error recalculating payment request", zap.Error(e.Unwrap()))
+			}
+			return paymentrequestop.NewRecalculatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		default:
+			logger.Error(fmt.Sprintf("Error recalculating payment request for ID: %s: %s", paymentRequestID, err))
+			return paymentrequestop.NewRecalculatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+
+	returnPayload := payloads.PaymentRequest(newPaymentRequest)
+
+	return paymentrequestop.NewRecalculatePaymentRequestCreated().WithPayload(returnPayload)
 }

@@ -14,8 +14,8 @@ import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
 import { formatDateForSwagger } from 'shared/dates';
-import { documentSizeLimitMsg } from 'shared/constants';
-import { selectServiceMemberFromLoggedInUser, selectCurrentPPM } from 'store/entities/selectors';
+import { documentSizeLimitMsg, WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
+import { selectCurrentPPM, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
@@ -31,7 +31,6 @@ import WizardHeader from '../WizardHeader';
 import { formatToOrdinal } from 'shared/formatters';
 
 import './PPMPaymentRequest.css';
-import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 
 const nextBtnLabels = {
   SaveAndAddAnother: 'Save & Add Another',
@@ -110,6 +109,8 @@ class WeightTicket extends Component {
         </div>
       );
     }
+    // if there is no trailer, don't show text
+    return undefined;
   };
 
   uploaderWithInvalidState = () => {
@@ -133,15 +134,15 @@ class WeightTicket extends Component {
   };
 
   onAddFile = (uploaderName) => () => {
-    this.setState({
-      uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: false },
-    });
+    this.setState((prevState) => ({
+      uploaderIsIdle: { ...prevState.uploaderIsIdle, [uploaderName]: false },
+    }));
   };
 
   onUploadChange = (uploaderName) => (uploaderIsIdle) => {
-    this.setState({
-      uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
-    });
+    this.setState((prevState) => ({
+      uploaderIsIdle: { ...prevState.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
+    }));
   };
 
   skipHandler = () => {

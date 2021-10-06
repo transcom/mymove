@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --principal interface{} --exclude-main
 
 func configureFlags(api *primeoperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -33,11 +33,25 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// Example:
 	// api.Logger = log.Printf
 
+	api.UseSwaggerUI()
+	// To continue using redoc as your UI, uncomment the following line
+	// api.UseRedoc()
+
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// move_task_order.CreateExcessWeightRecordMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// payment_request.CreateUploadMaxParseMemory = 32 << 20
+
+	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
+		api.MoveTaskOrderCreateExcessWeightRecordHandler = move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateMTOAgentHandler == nil {
 		api.MtoShipmentCreateMTOAgentHandler = mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOAgent has not yet been implemented")
@@ -58,19 +72,24 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentCreateSITExtensionHandler == nil {
+		api.MtoShipmentCreateSITExtensionHandler = mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
+		})
+	}
 	if api.PaymentRequestCreateUploadHandler == nil {
 		api.PaymentRequestCreateUploadHandler = payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreateUpload has not yet been implemented")
 		})
 	}
-	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
-		api.MoveTaskOrderFetchMTOUpdatesHandler = move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
-		})
-	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderListMovesHandler == nil {
+		api.MoveTaskOrderListMovesHandler = move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOAgentHandler == nil {
@@ -98,6 +117,16 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentAddress has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentUpdateMTOShipmentStatusHandler == nil {
+		api.MtoShipmentUpdateMTOShipmentStatusHandler = mto_shipment.UpdateMTOShipmentStatusHandlerFunc(func(params mto_shipment.UpdateMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateReweighHandler == nil {
+		api.MtoShipmentUpdateReweighHandler = mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
+		})
+	}
 
 	api.PreServerShutdown = func() {}
 
@@ -114,18 +143,18 @@ func configureTLS(tlsConfig *tls.Config) {
 // As soon as server is initialized but not run yet, this function will be called.
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
-// scheme value will be set accordingly: "http", "https" or "unix"
+// scheme value will be set accordingly: "http", "https" or "unix".
 func configureServer(s *http.Server, scheme, addr string) {
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
-// The middleware executes after routing but before authentication, binding and validation
+// The middleware executes after routing but before authentication, binding and validation.
 func setupMiddlewares(handler http.Handler) http.Handler {
 	return handler
 }
 
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
-// So this is a good place to plug in a panic handling middleware, logging and metrics
+// So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return handler
 }

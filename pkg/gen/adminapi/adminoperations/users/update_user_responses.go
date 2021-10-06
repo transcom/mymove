@@ -129,6 +129,30 @@ func (o *UpdateUserForbidden) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(403)
 }
 
+// UpdateUserNotFoundCode is the HTTP code returned for type UpdateUserNotFound
+const UpdateUserNotFoundCode int = 404
+
+/*UpdateUserNotFound Not found
+
+swagger:response updateUserNotFound
+*/
+type UpdateUserNotFound struct {
+}
+
+// NewUpdateUserNotFound creates UpdateUserNotFound with default headers values
+func NewUpdateUserNotFound() *UpdateUserNotFound {
+
+	return &UpdateUserNotFound{}
+}
+
+// WriteResponse to the client
+func (o *UpdateUserNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
+}
+
 // UpdateUserUnprocessableEntityCode is the HTTP code returned for type UpdateUserUnprocessableEntity
 const UpdateUserUnprocessableEntityCode int = 422
 

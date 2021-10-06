@@ -30,7 +30,7 @@ type BackupContact struct {
 	CreatedAt       time.Time               `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at" db:"updated_at"`
 	ServiceMemberID uuid.UUID               `json:"service_member_id" db:"service_member_id"`
-	ServiceMember   ServiceMember           `belongs_to:"service_member"`
+	ServiceMember   ServiceMember           `belongs_to:"service_member" fk_id:"service_member_id"`
 	Permission      BackupContactPermission `json:"permission" db:"permission"`
 	Name            string                  `json:"name" db:"name"`
 	Email           string                  `json:"email" db:"email"`

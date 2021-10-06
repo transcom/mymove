@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -24,11 +25,11 @@ type ServiceItem struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// params
-	// Read Only: true
 	Params []*ServiceItemParamsItems0 `json:"params"`
 }
 
@@ -51,7 +52,6 @@ func (m *ServiceItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ServiceItem) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -64,7 +64,6 @@ func (m *ServiceItem) validateID(formats strfmt.Registry) error {
 }
 
 func (m *ServiceItem) validateParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Params) { // not required
 		return nil
 	}
@@ -76,6 +75,51 @@ func (m *ServiceItem) validateParams(formats strfmt.Registry) error {
 
 		if m.Params[i] != nil {
 			if err := m.Params[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this service item based on the context it is used
+func (m *ServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ServiceItem) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Params); i++ {
+
+		if m.Params[i] != nil {
+			if err := m.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
 				}
@@ -112,14 +156,21 @@ func (m *ServiceItem) UnmarshalBinary(b []byte) error {
 type ServiceItemParamsItems0 struct {
 
 	// key
+	// Example: Service Item Parameter Name
 	Key string `json:"key,omitempty"`
 
 	// value
+	// Example: Service Item Parameter Value
 	Value string `json:"value,omitempty"`
 }
 
 // Validate validates this service item params items0
 func (m *ServiceItemParamsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this service item params items0 based on context it is used
+func (m *ServiceItemParamsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

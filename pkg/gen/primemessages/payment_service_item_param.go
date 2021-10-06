@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -22,6 +24,7 @@ type PaymentServiceItemParam struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -33,6 +36,7 @@ type PaymentServiceItemParam struct {
 	Origin ServiceItemParamOrigin `json:"origin,omitempty"`
 
 	// payment service item ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	PaymentServiceItemID strfmt.UUID `json:"paymentServiceItemID,omitempty"`
 
@@ -40,6 +44,7 @@ type PaymentServiceItemParam struct {
 	Type ServiceItemParamType `json:"type,omitempty"`
 
 	// value
+	// Example: 3025
 	Value string `json:"value,omitempty"`
 }
 
@@ -74,7 +79,6 @@ func (m *PaymentServiceItemParam) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItemParam) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -87,7 +91,6 @@ func (m *PaymentServiceItemParam) validateID(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItemParam) validateKey(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Key) { // not required
 		return nil
 	}
@@ -103,7 +106,6 @@ func (m *PaymentServiceItemParam) validateKey(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItemParam) validateOrigin(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Origin) { // not required
 		return nil
 	}
@@ -119,7 +121,6 @@ func (m *PaymentServiceItemParam) validateOrigin(formats strfmt.Registry) error 
 }
 
 func (m *PaymentServiceItemParam) validatePaymentServiceItemID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentServiceItemID) { // not required
 		return nil
 	}
@@ -132,12 +133,95 @@ func (m *PaymentServiceItemParam) validatePaymentServiceItemID(formats strfmt.Re
 }
 
 func (m *PaymentServiceItemParam) validateType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
 
 	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this payment service item param based on the context it is used
+func (m *PaymentServiceItemParam) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateKey(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrigin(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PaymentServiceItemParam) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItemParam) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItemParam) contextValidateKey(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Key.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("key")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItemParam) contextValidateOrigin(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Origin.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("origin")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItemParam) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")
 		}

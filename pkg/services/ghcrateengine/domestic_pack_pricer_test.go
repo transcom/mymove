@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -14,55 +13,55 @@ import (
 
 const (
 	servicesScheduleOrigin = 1
-	weightBilledActual     = 3600
+	weightBilled           = 3600
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemParamsBadData() {
-	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
-		suite.DB(),
-		models.ReServiceCodeDPK,
-		[]testdatagen.CreatePaymentServiceItemParams{
-			{
-				Key:     models.ServiceItemParamNameContractCode,
-				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
-			},
-			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeDate,
-				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "0",
-			},
-			{
-				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(servicesScheduleOrigin),
-			},
-		},
-	)
+	pricer := NewDomesticPackPricer()
 
-	pricer := NewDomesticPackPricer(suite.DB())
+	suite.Run("failure during pricing bubbles up", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDPK,
+			[]testdatagen.CreatePaymentServiceItemParams{
+				{
+					Key:     models.ServiceItemParamNameContractCode,
+					KeyType: models.ServiceItemParamTypeString,
+					Value:   testdatagen.DefaultContractCode,
+				},
+				{
+					Key:     models.ServiceItemParamNameRequestedPickupDate,
+					KeyType: models.ServiceItemParamTypeDate,
+					Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				},
+				{
+					Key:     models.ServiceItemParamNameWeightBilled,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   "0",
+				},
+				{
+					Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   strconv.Itoa(servicesScheduleOrigin),
+				},
+			},
+		)
 
-	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
-		_, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemParams() {
-	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
-	paymentServiceItem := suite.setupDomesticPackServiceItems()
+	pricer := NewDomesticPackPricer()
 
-	pricer := NewDomesticPackPricer(suite.DB())
+	suite.Run("success all params for domestic pack available", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+		paymentServiceItem := suite.setupDomesticPackServiceItems()
 
-	suite.T().Run("success all params for domestic pack available", func(t *testing.T) {
-		cost, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -76,42 +75,46 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemPara
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("validation errors", func(t *testing.T) {
+	suite.Run("validation errors", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+		paymentServiceItem := suite.setupDomesticPackServiceItems()
+
 		// No contract code
-		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
 		// No requested pickup date
 		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(missingRequestedPickupDate)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingRequestedPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
 
 		// No weight
-		missingBilledActualWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, _, err = pricer.PriceUsingParams(missingBilledActualWeight)
+		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledWeight)
 		suite.Error(err)
-		suite.Equal("could not find param with key WeightBilledActual", err.Error())
+		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No service schedule origin
 		missingServicesScheduleOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServicesScheduleOrigin)
-		_, _, err = pricer.PriceUsingParams(missingServicesScheduleOrigin)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingServicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServicesScheduleOrigin", err.Error())
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
-	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+	pricer := NewDomesticPackPricer()
 
-	pricer := NewDomesticPackPricer(suite.DB())
+	suite.Run("success domestic pack cost within peak period", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
-	suite.T().Run("success domestic pack cost within peak period", func(t *testing.T) {
 		cost, _, err := pricer.Price(
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			weightBilledActual,
+			weightBilled,
 			servicesScheduleOrigin,
 		)
 		expectedCost := unit.Cents(5470)
@@ -119,12 +122,15 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Equal(expectedCost, cost)
 	})
 
-	suite.T().Run("success domestic pack cost within non-peak period", func(t *testing.T) {
+	suite.Run("success domestic pack cost within non-peak period", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, _, err := pricer.Price(
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			weightBilledActual,
+			weightBilled,
 			servicesScheduleOrigin,
 		)
 		expectedCost := unit.Cents(4758)
@@ -132,11 +138,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Equal(expectedCost, cost)
 	})
 
-	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
+	suite.Run("failure if contract code bogus", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+
 		_, _, err := pricer.Price(
+			suite.TestAppContext(),
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			weightBilledActual,
+			weightBilled,
 			servicesScheduleOrigin,
 		)
 
@@ -144,11 +153,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Equal("Could not lookup Domestic Other Price: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
-	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
+	suite.Run("failure if move date is outside of contract year", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+
 		_, _, err := pricer.Price(
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			weightBilledActual,
+			weightBilled,
 			servicesScheduleOrigin,
 		)
 
@@ -156,8 +168,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
-	suite.T().Run("weight below minimum", func(t *testing.T) {
+	suite.Run("weight below minimum", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+
 		cost, _, err := pricer.Price(
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unit.Pound(499),
@@ -168,26 +183,28 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
 
-	suite.T().Run("validation errors", func(t *testing.T) {
+	suite.Run("validation errors", func() {
+		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price("", requestedPickupDate, weightBilledActual, servicesScheduleOrigin)
+		_, _, err := pricer.Price(suite.TestAppContext(), "", requestedPickupDate, weightBilled, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No requested pickup date
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, time.Time{}, weightBilledActual, servicesScheduleOrigin)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, time.Time{}, weightBilled, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleOrigin)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service schedule
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, weightBilledActual, 0)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, weightBilled, 0)
 		suite.Error(err)
 		suite.Equal("Service schedule is required", err.Error())
 	})
@@ -209,9 +226,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticPackServiceItems() models.P
 				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(weightBilledActual),
+				Value:   strconv.Itoa(weightBilled),
 			},
 			{
 				Key:     models.ServiceItemParamNameServicesScheduleOrigin,

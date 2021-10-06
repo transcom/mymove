@@ -4,6 +4,8 @@ package iampostgres
 // - https://stackoverflow.com/questions/56355577/using-database-sql-library-and-fetching-password-from-vault-when-a-new-connectio
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"net/url"
@@ -11,10 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"database/sql"
-	"database/sql/driver"
-
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
 	pg "github.com/lib/pq"
@@ -34,6 +34,9 @@ var iamConfig = config{false, "", "", sync.Mutex{}, nil}
 type RDSPostgresDriver struct {
 	*pg.Driver
 }
+
+// CustomPostgres is used to set the driverName to the custom postgres driver
+const CustomPostgres string = "custompostgres"
 
 // GetCurrentPass gets IAM password if needed and will block till valid password is available
 func GetCurrentPass() string {
@@ -150,5 +153,6 @@ func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 }
 
 func init() {
-	sql.Register("custompostgres", &RDSPostgresDriver{&pg.Driver{}})
+	sql.Register(CustomPostgres, &RDSPostgresDriver{&pg.Driver{}})
+	sqlx.BindDriver(CustomPostgres, sqlx.DOLLAR)
 }

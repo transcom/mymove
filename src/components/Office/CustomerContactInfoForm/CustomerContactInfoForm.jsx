@@ -27,9 +27,11 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       .required('Required'),
     customerTelephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
     customerAddress: requiredAddressSchema.required(),
-    name: Yup.string(),
-    email: Yup.string().matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address'),
-    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
+    name: Yup.string().required('Required'),
+    email: Yup.string()
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
+      .required('Required'),
+    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
   });
 
   return (
@@ -56,9 +58,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
               <AddressFields name="customerAddress" />
             </SectionWrapper>
             <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-              <h2 className={styles.sectionHeader}>
-                Backup contact <span className={styles.optional}>Optional</span>
-              </h2>
+              <h2 className={styles.sectionHeader}>Backup contact</h2>
 
               <BackupContactInfoFields />
             </SectionWrapper>

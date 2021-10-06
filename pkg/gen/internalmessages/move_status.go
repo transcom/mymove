@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model MoveStatus
 type MoveStatus string
+
+func NewMoveStatus(value MoveStatus) *MoveStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -34,6 +40,9 @@ const (
 
 	// MoveStatusNEEDSSERVICECOUNSELING captures enum value "NEEDS SERVICE COUNSELING"
 	MoveStatusNEEDSSERVICECOUNSELING MoveStatus = "NEEDS SERVICE COUNSELING"
+
+	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
 )
 
 // for schema
@@ -41,7 +50,7 @@ var moveStatusEnum []interface{}
 
 func init() {
 	var res []MoveStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVED","CANCELED","NEEDS SERVICE COUNSELING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVED","CANCELED","NEEDS SERVICE COUNSELING","APPROVALS REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -68,5 +77,10 @@ func (m MoveStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this move status based on context it is used
+func (m MoveStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

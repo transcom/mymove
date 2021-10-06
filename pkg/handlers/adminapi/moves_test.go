@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -38,7 +39,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		params := moveop.IndexMovesParams{
 			HTTPRequest: req,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexMovesHandler{
 			HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:  query.NewQueryFilter,
@@ -62,6 +63,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		moveListFetcher.On("FetchMoveList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -80,18 +82,9 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	handler := IndexMovesHandler{
-		HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		NewQueryFilter:  query.NewQueryFilter,
-		MoveListFetcher: move.NewMoveListFetcher(queryBuilder),
-		NewPagination:   pagination.NewPagination,
-	}
-
 	suite.T().Run("test filters present", func(t *testing.T) {
-
 		s := `{"locator":"TEST123"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, locatorFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("locator", "=", "TEST123"),
 		}
@@ -103,10 +96,15 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 
 	// Create handler and request:
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMoveHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), builder, mtoserviceitem.NewMTOServiceItemCreator(builder)),
+		movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		),
 	}
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())

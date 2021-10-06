@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
@@ -68,7 +69,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// Create the logger
 	v := viper.New()
 
-	logger, err := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
@@ -104,7 +105,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
 
-	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	certLogger, _, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
@@ -122,12 +123,11 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString(cli.GEXURLFlag),
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString(cli.GEXBasicAuthUsernameFlag),
 		v.GetString(cli.GEXBasicAuthPasswordFlag),
-	).SendToGex(ediString, v.GetString("filename"))
+	).SendToGex(services.GEXChannelInvoice, ediString, v.GetString("filename"))
 
 	if err != nil {
 		logger.Fatal("Gex Sender encountered an error", zap.Error(err))

@@ -69,7 +69,7 @@ type GetPaymentRequestsQueueForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetPaymentRequestsQueueForbidden creates GetPaymentRequestsQueueForbidden with default headers values
@@ -79,13 +79,13 @@ func NewGetPaymentRequestsQueueForbidden() *GetPaymentRequestsQueueForbidden {
 }
 
 // WithPayload adds the payload to the get payment requests queue forbidden response
-func (o *GetPaymentRequestsQueueForbidden) WithPayload(payload interface{}) *GetPaymentRequestsQueueForbidden {
+func (o *GetPaymentRequestsQueueForbidden) WithPayload(payload *ghcmessages.Error) *GetPaymentRequestsQueueForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get payment requests queue forbidden response
-func (o *GetPaymentRequestsQueueForbidden) SetPayload(payload interface{}) {
+func (o *GetPaymentRequestsQueueForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetPaymentRequestsQueueForbidden) SetPayload(payload interface{}) {
 func (o *GetPaymentRequestsQueueForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetPaymentRequestsQueueInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetPaymentRequestsQueueInternalServerError creates GetPaymentRequestsQueueInternalServerError with default headers values
@@ -121,13 +123,13 @@ func NewGetPaymentRequestsQueueInternalServerError() *GetPaymentRequestsQueueInt
 }
 
 // WithPayload adds the payload to the get payment requests queue internal server error response
-func (o *GetPaymentRequestsQueueInternalServerError) WithPayload(payload interface{}) *GetPaymentRequestsQueueInternalServerError {
+func (o *GetPaymentRequestsQueueInternalServerError) WithPayload(payload *ghcmessages.Error) *GetPaymentRequestsQueueInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get payment requests queue internal server error response
-func (o *GetPaymentRequestsQueueInternalServerError) SetPayload(payload interface{}) {
+func (o *GetPaymentRequestsQueueInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,8 +137,10 @@ func (o *GetPaymentRequestsQueueInternalServerError) SetPayload(payload interfac
 func (o *GetPaymentRequestsQueueInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

@@ -1,146 +1,371 @@
 package order
 
 import (
-	"github.com/gobuffalo/pop/v5"
+	"io"
+	"strings"
+	"time"
+
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
-
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type orderUpdater struct {
-	db *pop.Connection
-	orderFetcher
+	moveRouter services.MoveRouter
 }
 
 // NewOrderUpdater creates a new struct with the service dependencies
-func NewOrderUpdater(db *pop.Connection) services.OrderUpdater {
-	return &orderUpdater{db, orderFetcher{db}}
+func NewOrderUpdater(moveRouter services.MoveRouter) services.OrderUpdater {
+	return &orderUpdater{moveRouter}
 }
 
-// UpdateOrder updates the Order model
-func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Order, error) {
-	existingOrder, err := s.orderFetcher.FetchOrder(order.ID)
+// UpdateOrderAsTOO updates an order as permitted by a TOO
+func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
-		return nil, services.NewNotFoundError(order.ID, "while looking for order")
+		return &models.Order{}, uuid.Nil, err
 	}
 
-	existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
+	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return nil, services.NewPreconditionFailedError(order.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
+	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
 
-		if order.ServiceMember.Affiliation != nil {
-			existingOrder.ServiceMember.Affiliation = order.ServiceMember.Affiliation
-			err = tx.Save(&existingOrder.ServiceMember)
-			if err != nil {
-				return err
-			}
+	return f.updateOrderAsTOO(appCtx, orderToUpdate, CheckRequiredFields())
+}
+
+// UpdateOrderAsCounselor updates an order as permitted by a service counselor
+func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
+
+	existingETag := etag.GenerateEtag(order.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	orderToUpdate := orderFromCounselingPayload(*order, payload)
+
+	return f.updateOrder(appCtx, orderToUpdate)
+}
+
+// UpdateAllowanceAsTOO updates an allowance as permitted by a service counselor
+func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
+
+	existingETag := etag.GenerateEtag(order.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	orderToUpdate := allowanceFromTOOPayload(*order, payload)
+
+	return f.updateOrder(appCtx, orderToUpdate)
+}
+
+// UpdateAllowanceAsCounselor updates an allowance as permitted by a service counselor
+func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	order, err := f.findOrder(appCtx, orderID)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
+
+	existingETag := etag.GenerateEtag(order.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
+
+	return f.updateOrder(appCtx, orderToUpdate)
+}
+
+// UploadAmendedOrdersAsCustomer add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(appCtx, orderID)
+	if findErr != nil {
+		return models.Upload{}, "", nil, findErr
+	}
+
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer)
+	if verrs.HasAny() || err != nil {
+		return models.Upload{}, "", verrs, err
+	}
+
+	return userUpload.Upload, url, nil, nil
+}
+
+func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
+	var order models.Order
+	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
+	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		}
+	}
+
+	return &order, nil
+}
+
+func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
+	var order models.Order
+	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
+	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		}
+	}
+
+	return &order, nil
+}
+
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+	order := existingOrder
+
+	// update both order origin duty station and service member duty station
+	if payload.OriginDutyStationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+		order.OriginDutyStationID = &originDutyStationID
+		order.ServiceMember.DutyStationID = &originDutyStationID
+	}
+
+	if payload.NewDutyStationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+		order.NewDutyStationID = newDutyStationID
+	}
+
+	if payload.DepartmentIndicator != nil {
+		departmentIndicator := (*string)(payload.DepartmentIndicator)
+		order.DepartmentIndicator = departmentIndicator
+	}
+
+	if payload.IssueDate != nil {
+		order.IssueDate = time.Time(*payload.IssueDate)
+	}
+
+	if payload.OrdersNumber != nil {
+		order.OrdersNumber = payload.OrdersNumber
+	}
+
+	if payload.OrdersTypeDetail != nil {
+		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
+		order.OrdersTypeDetail = &orderTypeDetail
+	}
+
+	if payload.ReportByDate != nil {
+		order.ReportByDate = time.Time(*payload.ReportByDate)
+	}
+
+	if payload.Sac != nil {
+		order.SAC = payload.Sac
+	}
+
+	if payload.Tac != nil {
+		normalizedTac := strings.ToUpper(*payload.Tac)
+		order.TAC = &normalizedTac
+	}
+
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
+
+	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
+	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
+		acknowledgedAt := time.Now()
+		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
+	}
+
+	return order
+}
+
+func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+
+	// If Order does not have a Document for amended orders uploads, then create a new one
+	var err error
+	savedAmendedOrdersDoc := order.UploadedAmendedOrders
+	if order.UploadedAmendedOrders == nil {
+		amendedOrdersDoc := &models.Document{
+			ServiceMemberID: order.ServiceMemberID,
+		}
+		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(appCtx, amendedOrdersDoc)
+		if err != nil {
+			return models.UserUpload{}, "", nil, err
 		}
 
-		if entitlement := order.Entitlement; entitlement != nil {
-			if entitlement.DBAuthorizedWeight != nil {
-				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
-			}
-
-			if entitlement.DependentsAuthorized != nil {
-				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
-			}
-
-			// TODO - Should we always update? Seems like we should consider fields that are not passed in for this Patch operation...
-			// TODO - Make these fields required since they're not nullable?
-			existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
-			existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
-			existingOrder.Entitlement.RequiredMedicalEquipmentWeight = entitlement.RequiredMedicalEquipmentWeight
-			existingOrder.Entitlement.OrganizationalClothingAndIndividualEquipment = entitlement.OrganizationalClothingAndIndividualEquipment
-
-			var verrs *validate.Errors
-			verrs, err = tx.ValidateAndUpdate(existingOrder.Entitlement)
-			if verrs != nil && verrs.HasAny() {
-				return services.NewInvalidInputError(order.ID, nil, verrs, "")
-			}
-			if err != nil {
-				return err
-			}
+		// save new UploadedAmendedOrdersID (document ID) to orders
+		order.UploadedAmendedOrders = savedAmendedOrdersDoc
+		order.UploadedAmendedOrdersID = &savedAmendedOrdersDoc.ID
+		_, _, err = f.updateOrder(appCtx, order)
+		if err != nil {
+			return models.UserUpload{}, "", nil, err
 		}
+	}
 
-		if order.OriginDutyStationID != existingOrder.OriginDutyStationID {
-			originDutyStation, fetchErr := models.FetchDutyStation(s.db, *order.OriginDutyStationID)
-			if fetchErr != nil {
-				return services.NewInvalidInputError(order.ID, fetchErr, nil, "unable to find origin duty station")
-			}
-			existingOrder.OriginDutyStationID = order.OriginDutyStationID
-			existingOrder.OriginDutyStation = &originDutyStation
+	// Create new user upload for amended order
+	var userUpload *models.UserUpload
+	var verrs *validate.Errors
+	var url string
+	userUpload, url, verrs, err = uploader.CreateUserUploadForDocumentWrapper(
+		appCtx,
+		userID,
+		storer,
+		file,
+		filename,
+		uploader.MaxCustomerUserUploadFileSizeLimit,
+		&savedAmendedOrdersDoc.ID,
+	)
 
-			existingOrder.ServiceMember.DutyStationID = &originDutyStation.ID
-			existingOrder.ServiceMember.DutyStation = originDutyStation
+	if verrs.HasAny() || err != nil {
+		return models.UserUpload{}, "", verrs, err
+	}
 
-			err = tx.Save(&existingOrder.ServiceMember)
+	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *userUpload)
 
-			if err != nil {
-				return err
-			}
-		}
+	return *userUpload, url, nil, nil
+}
 
-		if order.NewDutyStationID != existingOrder.NewDutyStationID {
-			newDutyStation, fetchErr := models.FetchDutyStation(s.db, order.NewDutyStationID)
-			if fetchErr != nil {
-				return services.NewInvalidInputError(order.ID, fetchErr, nil, "unable to find destination duty station")
-			}
-			existingOrder.NewDutyStationID = order.NewDutyStationID
-			existingOrder.NewDutyStation = newDutyStation
-		}
+func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
+	order := existingOrder
 
-		if order.Grade != nil {
-			existingOrder.Grade = order.Grade
+	// update both order origin duty station and service member duty station
+	if payload.OriginDutyStationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+		order.OriginDutyStationID = &originDutyStationID
+		order.ServiceMember.DutyStationID = &originDutyStationID
+	}
 
-			existingOrder.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
+	if payload.NewDutyStationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+		order.NewDutyStationID = newDutyStationID
+	}
 
-			err = tx.Save(&existingOrder.ServiceMember)
+	if payload.IssueDate != nil {
+		order.IssueDate = time.Time(*payload.IssueDate)
+	}
 
-			if err != nil {
-				return err
-			}
-		}
+	if payload.ReportByDate != nil {
+		order.ReportByDate = time.Time(*payload.ReportByDate)
+	}
 
-		if order.OrdersTypeDetail != nil {
-			existingOrder.OrdersTypeDetail = order.OrdersTypeDetail
-		}
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
 
-		if order.TAC != nil {
-			existingOrder.TAC = order.TAC
-		}
+	return order
+}
 
-		if order.SAC != nil {
-			existingOrder.SAC = order.SAC
-		}
+func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
+	order := existingOrder
 
-		if order.OrdersNumber != nil {
-			existingOrder.OrdersNumber = order.OrdersNumber
-		}
+	if payload.ProGearWeight != nil {
+		order.Entitlement.ProGearWeight = int(*payload.ProGearWeight)
+	}
 
-		if order.DepartmentIndicator != nil {
-			existingOrder.DepartmentIndicator = order.DepartmentIndicator
-		}
+	if payload.ProGearWeightSpouse != nil {
+		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
+	}
 
-		existingOrder.IssueDate = order.IssueDate
-		existingOrder.ReportByDate = order.ReportByDate
-		existingOrder.OrdersType = order.OrdersType
+	if payload.RequiredMedicalEquipmentWeight != nil {
+		order.Entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
+	}
 
-		// optimistic locking handled before transaction block
-		verrs, updateErr := tx.ValidateAndUpdate(existingOrder)
+	// branch for service member
+	if payload.Agency != "" {
+		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
+		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+	}
 
-		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(order.ID, err, verrs, "")
-		}
+	// rank
+	if payload.Grade != nil {
+		grade := (*string)(payload.Grade)
+		order.Grade = grade
+	}
 
-		if updateErr != nil {
-			return updateErr
+	if payload.OrganizationalClothingAndIndividualEquipment != nil {
+		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
+	}
+
+	if payload.AuthorizedWeight != nil {
+		dbAuthorizedWeight := swag.Int(int(*payload.AuthorizedWeight))
+		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
+	}
+
+	if payload.DependentsAuthorized != nil {
+		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	}
+
+	return order
+}
+
+func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
+	order := existingOrder
+
+	if payload.ProGearWeight != nil {
+		order.Entitlement.ProGearWeight = int(*payload.ProGearWeight)
+	}
+
+	if payload.ProGearWeightSpouse != nil {
+		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
+	}
+
+	if payload.RequiredMedicalEquipmentWeight != nil {
+		order.Entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
+	}
+
+	// branch for service member
+	if payload.Agency != "" {
+		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
+		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+	}
+
+	// rank
+	if payload.Grade != nil {
+		grade := (*string)(payload.Grade)
+		order.Grade = grade
+	}
+
+	if payload.OrganizationalClothingAndIndividualEquipment != nil {
+		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
+	}
+
+	if payload.DependentsAuthorized != nil {
+		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	}
+
+	return order
+}
+
+func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
+
+	var docID uuid.UUID
+	if doc != nil {
+		docID = doc.ID
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var verrs *validate.Errors
+		var err error
+		verrs, err = txnAppCtx.DB().ValidateAndSave(doc)
+		if e := handleError(docID, verrs, err); e != nil {
+			return e
 		}
 
 		return nil
@@ -150,5 +375,124 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 		return nil, transactionError
 	}
 
-	return existingOrder, err
+	return doc, nil
+}
+
+func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
+	var returnedOrder *models.Order
+	var err error
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		returnedOrder, err = updateOrderInTx(txnAppCtx, order, checks...)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, uuid.Nil, transactionError
+	}
+
+	var moveID uuid.UUID
+	if len(order.Moves) > 0 {
+		moveID = order.Moves[0].ID
+	}
+	return returnedOrder, moveID, nil
+}
+
+func (f *orderUpdater) updateOrderAsTOO(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
+	move := order.Moves[0]
+	var returnedOrder *models.Order
+	var err error
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		returnedOrder, err = updateOrderInTx(txnAppCtx, order, checks...)
+		if err != nil {
+			return err
+		}
+
+		return f.updateMoveInTx(txnAppCtx, move)
+	})
+
+	if transactionError != nil {
+		return nil, uuid.Nil, transactionError
+	}
+
+	return returnedOrder, move.ID, nil
+}
+
+func (f *orderUpdater) updateMoveInTx(appCtx appcontext.AppContext, move models.Move) error {
+	if _, err := f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, error) {
+	var verrs *validate.Errors
+	var err error
+
+	if verr := ValidateOrder(&order, checks...); verr != nil {
+		return nil, verr
+	}
+
+	// update service member
+	if order.Grade != nil {
+		// keep grade and rank in sync
+		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
+	}
+
+	if order.OriginDutyStationID != nil {
+		// TODO refactor to use service objects to fetch duty station
+		var originDutyStation models.DutyStation
+		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+			}
+		}
+		order.OriginDutyStationID = &originDutyStation.ID
+		order.OriginDutyStation = &originDutyStation
+
+		order.ServiceMember.DutyStationID = &originDutyStation.ID
+		order.ServiceMember.DutyStation = originDutyStation
+	}
+
+	if order.Grade != nil || order.OriginDutyStationID != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(&order.ServiceMember)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
+	}
+
+	// update entitlement
+	if order.Entitlement != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
+	}
+
+	if order.NewDutyStationID != uuid.Nil {
+		// TODO refactor to use service objects to fetch duty station
+		var newDutyStation models.DutyStation
+		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+			}
+		}
+		order.NewDutyStationID = newDutyStation.ID
+		order.NewDutyStation = newDutyStation
+	}
+
+	verrs, err = appCtx.DB().ValidateAndUpdate(&order)
+	if e := handleError(order.ID, verrs, err); e != nil {
+		return nil, e
+	}
+
+	return &order, nil
 }

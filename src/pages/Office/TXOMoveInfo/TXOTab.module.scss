@@ -32,6 +32,21 @@
       @include u-padding-left(4);
     }
   }
+
+  .alertWithButton {
+    span:first-child {
+      display: flex;
+      button {
+        padding-left: 0;
+      }
+    }
+    :nth-child(2) {
+      button {
+        padding-right: 0;
+        color: $base-darker;
+      }
+    }
+  }
 }
 
 .container {
@@ -98,4 +113,13 @@
   justify-content: center;
   align-items: center;
   margin: auto 0;
+}
+
+.movePaymentRequests {
+  table-layout: fixed;
+  border: 5px solid red;
+}
+.PaymentRequestDetails_PaymentRequestDetails .table--stacked {
+  table-layout: fixed;
+
 }

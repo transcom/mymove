@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -18,7 +19,7 @@ import (
 func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.ElectronicOrder {
 	return &adminmessages.ElectronicOrder{
 		ID:           handlers.FmtUUID(o.ID),
-		Issuer:       adminmessages.Issuer(o.Issuer),
+		Issuer:       adminmessages.NewIssuer(adminmessages.Issuer(o.Issuer)),
 		OrdersNumber: handlers.FmtString(o.OrdersNumber),
 		CreatedAt:    handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:    handlers.FmtDateTime(o.UpdatedAt),
@@ -36,18 +37,18 @@ type IndexElectronicOrdersHandler struct {
 // Handle returns an index of electronic orders
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, associations, pagination, ordering)
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(queryFilters)
+	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -95,6 +96,7 @@ func translateComparator(s string) string {
 // Handle returns electronic orders totals
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	comparator := ""
 
 	andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
@@ -125,7 +127,7 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 		}
 	}
 
-	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(queryFilters, &andQueryFilters)
+	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCtx, queryFilters, &andQueryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

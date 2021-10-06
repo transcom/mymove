@@ -280,7 +280,7 @@ func (o *CreatePaymentRequestConflict) WriteResponse(rw http.ResponseWriter, pro
 // CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
 const CreatePaymentRequestUnprocessableEntityCode int = 422
 
-/*CreatePaymentRequestUnprocessableEntity The payload was unprocessable.
+/*CreatePaymentRequestUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createPaymentRequestUnprocessableEntity
 */

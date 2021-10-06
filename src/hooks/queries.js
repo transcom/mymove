@@ -7,15 +7,16 @@ import {
   getMTOServiceItems,
   getOrder,
   getMove,
-  getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
+  getShipmentsPaymentSITBalance,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
+import { getPrimeSimulatorAvailableMoves } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -24,13 +25,14 @@ import {
   MOVES,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
-  MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
   USER,
   CUSTOMER,
   SERVICES_COUNSELING_QUEUE,
+  SHIPMENTS_PAYMENT_SIT_BALANCE,
+  PRIME_SIMULATOR_AVAILABLE_MOVES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -82,13 +84,60 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
+  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { data: paymentSITBalances, ...shipmentsPaymentSITBalanceQuery } = useQuery(
+    [SHIPMENTS_PAYMENT_SIT_BALANCE, paymentRequestId],
+    getShipmentsPaymentSITBalance,
+  );
+
+  const shipmentsPaymentSITBalance = paymentSITBalances?.shipmentsPaymentSITBalance;
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    paymentRequestQuery,
+    mtoShipmentQuery,
+    shipmentsPaymentSITBalanceQuery,
+  ]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
+    mtoShipments,
+    shipmentsPaymentSITBalance,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useEditShipmentQueries = (moveCode) => {
+  // Get the orders info
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveId = move?.id;
+  const orderId = move?.ordersId;
+
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
+    enabled: !!orderId,
+  });
+
+  const order = Object.values(orders || {})?.[0];
+
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
+
+  return {
+    move,
+    order,
+    mtoShipments,
     isLoading,
     isError,
     isSuccess,
@@ -104,15 +153,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
     enabled: !!orderId,
   });
 
-  // get move task orders
-  const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-    [MOVE_TASK_ORDERS, orderId],
-    getMoveTaskOrderList,
-    { enabled: !!orderId },
-  );
-
-  const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
-  const mtoID = moveTaskOrder?.id;
+  const mtoID = move?.id;
 
   // get MTO shipments
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
@@ -129,14 +170,13 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
-    moveTaskOrderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
 
   return {
     orders,
-    moveTaskOrders,
+    move,
     mtoShipments,
     mtoServiceItems,
     isLoading,
@@ -159,6 +199,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
   const documentId = order?.uploaded_order_id;
+  const amendedOrderDocumentId = order?.uploadedAmendedOrderID;
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
@@ -175,13 +216,28 @@ export const useOrdersDocumentQueries = (moveCode) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, ordersDocumentsQuery]);
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], getDocument, {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    ordersDocumentsQuery,
+    amendedOrdersDocumentsQuery,
+  ]);
 
   return {
     move,
     orders,
     documents,
+    amendedDocuments,
     upload,
+    amendedUpload,
     isLoading,
     isError,
     isSuccess,
@@ -266,14 +322,23 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     enabled: !!mtoID,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery]);
+  const orderId = move?.ordersId;
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
+    enabled: !!orderId,
+  });
+
+  const order = Object.values(orders || {})?.[0];
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery, orderQuery]);
 
   return {
     paymentRequests: data,
+    order,
     mtoShipments,
     isLoading,
     isError,
     isSuccess,
+    move,
   };
 };
 
@@ -313,6 +378,20 @@ export const useMoveDetailsQueries = (moveCode) => {
     order,
     mtoShipments,
     mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePrimeSimulatorAvailableMovesQueries = () => {
+  const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
+    [PRIME_SIMULATOR_AVAILABLE_MOVES],
+    getPrimeSimulatorAvailableMoves,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
+  return {
+    listMoves: data,
     isLoading,
     isError,
     isSuccess,

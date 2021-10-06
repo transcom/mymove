@@ -7,10 +7,11 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import ordersStyles from '../Orders/Orders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateOrder } from 'services/ghcApi';
+import styles from 'styles/documentViewerWithSidebar.module.scss';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -51,7 +52,7 @@ const MoveAllowances = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -59,22 +60,12 @@ const MoveAllowances = () => {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(ORDERS);
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
       handleClose();
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      // TODO: Handle error some how
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
-      console.log(errorMsg);
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 
@@ -134,14 +125,14 @@ const MoveAllowances = () => {
   };
 
   return (
-    <div className={ordersStyles.sidebar}>
+    <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={ordersStyles.orderDetails}>
-              <div className={ordersStyles.top}>
+            <div className={styles.content}>
+              <div className={styles.top}>
                 <Button
-                  className={ordersStyles.closeButton}
+                  className={styles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -149,16 +140,16 @@ const MoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={ordersStyles.header} data-testid="allowances-header">
+                <h2 className={styles.header} data-testid="allowances-header">
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={ordersStyles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
                     View Orders
                   </Link>
                 </div>
               </div>
-              <div className={ordersStyles.body}>
+              <div className={styles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
@@ -166,8 +157,8 @@ const MoveAllowances = () => {
                   editableAuthorizedWeight
                 />
               </div>
-              <div className={ordersStyles.bottom}>
-                <div className={ordersStyles.buttonGroup}>
+              <div className={styles.bottom}>
+                <div className={styles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>

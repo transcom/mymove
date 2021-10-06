@@ -29,7 +29,7 @@ func NewUpdateOfficeUser(ctx *middleware.Context, handler UpdateOfficeUserHandle
 	return &UpdateOfficeUser{Context: ctx, Handler: handler}
 }
 
-/*UpdateOfficeUser swagger:route PATCH /office_users/{officeUserId} office_users updateOfficeUser
+/* UpdateOfficeUser swagger:route PATCH /office_users/{officeUserId} office_users updateOfficeUser
 
 Updates an office user
 
@@ -42,17 +42,15 @@ type UpdateOfficeUser struct {
 func (o *UpdateOfficeUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdateOfficeUserParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

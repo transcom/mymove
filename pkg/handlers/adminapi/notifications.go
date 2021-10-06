@@ -1,12 +1,11 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -34,24 +33,31 @@ type IndexNotificationsHandler struct {
 	services.NewPagination
 }
 
+var notificationsFilterConverters = map[string]func(string) []services.QueryFilter{
+	"service_member_id": func(content string) []services.QueryFilter {
+		return []services.QueryFilter{query.NewQueryFilter("service_member_id", "=", content)}
+	},
+}
+
 // Handle does the index notification
 func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificationsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	queryFilters := generateQueryFilters(logger, params.Filter, notificationsFilterConverters)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("ServiceMember.User"),
 	}
-	associations := query.NewQueryAssociations(queryAssociations)
+	associations := query.NewQueryAssociationsPreload(queryAssociations)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	var notifications []models.Notification
-	err := h.ListFetcher.FetchRecordList(&notifications, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(appCtx, &notifications, queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalNotificationsCount, err := h.ListFetcher.FetchRecordCount(&notifications, queryFilters)
+	totalNotificationsCount, err := h.ListFetcher.FetchRecordCount(appCtx, &notifications, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -65,29 +71,4 @@ func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificati
 	}
 
 	return notificationsop.NewIndexNotificationsOK().WithContentRange(fmt.Sprintf("notifications %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedNotificationsCount, totalNotificationsCount)).WithPayload(payload)
-}
-
-// generateQueryFilters is helper to convert filter params from a json string
-// of the form `{"search": "example1@example.com"}` to an array of services.QueryFilter
-func (h IndexNotificationsHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
-	type Filter struct {
-		ServiceMemberID string `json:"service_member_id"`
-	}
-	f := Filter{}
-	var queryFilters []services.QueryFilter
-	if filters == nil {
-		return queryFilters
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-	if f.ServiceMemberID != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("service_member_id", "=", f.ServiceMemberID))
-	}
-
-	return queryFilters
 }
