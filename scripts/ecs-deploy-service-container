@@ -32,14 +32,6 @@ readonly RESERVATION_MEM=2048
 # So don't overload `$name` and use it here.
 readonly cluster="app-${environment}"
 
-# Only deploy niprnet services in stg and prd.
-if [[ "${name}" == *"niprnet"* ]]; then
-    if [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]]; then
-        echo "NIPRNet services are only deployed to stg and prd. Exiting."
-        exit 0
-    fi
-fi
-
 check_arn() {
     local arn=$1
     [[ $arn = arn:* ]] || { echo "Error: Bad ARN: ${arn}"; exit 1; }
