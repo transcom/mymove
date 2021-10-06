@@ -13,7 +13,6 @@ import styles from './MovePaymentRequests.module.scss';
 
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
-import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
@@ -77,16 +76,6 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
-  useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
-
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
@@ -135,7 +124,12 @@ const MovePaymentRequests = ({
         <LeftNav className={txoStyles.sidebar}>
           {sections?.map((s) => {
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: s === activeSection })}
+                onClick={() => setActiveSection(s)}
+              >
                 {sectionLabels[`${s}`]}
                 {s === 'payment-requests' && paymentRequests?.length > 0 && (
                   <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
