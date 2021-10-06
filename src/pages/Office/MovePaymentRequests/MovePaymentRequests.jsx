@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useHistory, useLocation } from 'react-router-dom';
+import { queryCache, useMutation } from 'react-query';
+import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -11,9 +12,9 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import { MOVES } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
-import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
@@ -28,6 +29,8 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
+import { updateMTOReviewedBillableWeights } from 'services/ghcApi';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -42,13 +45,25 @@ const MovePaymentRequests = ({
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
+  });
+
+  const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
+    onSuccess: (data, variables) => {
+      const updatedMove = data.moves[variables.moveTaskOrderID];
+      queryCache.setQueryData([MOVES, move.locator], updatedMove);
+      queryCache.invalidateQueries([MOVES, move.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
   });
 
   useEffect(() => {
@@ -77,20 +92,10 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
-  useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
-
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
   const weightRequested = useCalculatedWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
-  const billableWeightsReviewed = useLocation().state?.from === 'review-billable-weights';
+  const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -111,6 +116,11 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+    const payload = {
+      moveTaskOrderID: move?.id,
+      ifMatchETag: move?.eTag,
+    };
+    mutateMoves(payload);
   };
 
   const anyShipmentOverweight = (shipments) => {
@@ -135,7 +145,12 @@ const MovePaymentRequests = ({
         <LeftNav className={txoStyles.sidebar}>
           {sections?.map((s) => {
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: s === activeSection })}
+                onClick={() => setActiveSection(s)}
+              >
                 {sectionLabels[`${s}`]}
                 {s === 'payment-requests' && paymentRequests?.length > 0 && (
                   <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">

@@ -52,6 +52,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
 		Status:                       ghcmessages.MoveStatus(move.Status),
 		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),

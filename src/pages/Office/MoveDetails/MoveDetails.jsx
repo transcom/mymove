@@ -10,7 +10,6 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
-import handleScroll from 'utils/handleScroll';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
@@ -50,16 +49,6 @@ const MoveDetails = ({
   let sections = useMemo(() => {
     return ['orders', 'allowances', 'customer-info'];
   }, []);
-
-  useEffect(() => {
-    // attach scroll listener
-    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-
-    // remove scroll listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
-    };
-  }, [sections, activeSection]);
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
@@ -203,7 +192,12 @@ const MoveDetails = ({
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+              <a
+                key={`sidenav_${s}`}
+                href={`#${s}`}
+                className={classnames({ active: s === activeSection })}
+                onClick={() => setActiveSection(s)}
+              >
                 {sectionLabels[`${s}`]}
                 {s === 'orders' && hasMissingOrdersRequiredInfo && (
                   <Tag className="usa-tag usa-tag--alert">

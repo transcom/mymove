@@ -146,6 +146,11 @@ export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateMTOReviewedBillableWeights({ moveTaskOrderID, ifMatchETag }) {
+  const operationPath = 'moveTaskOrder.UpdateMTOReviewedBillableWeightsAt';
+  return makeGHCRequest(operationPath, { moveTaskOrderID, 'If-Match': ifMatchETag });
+}
+
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
   const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return makeGHCRequest(

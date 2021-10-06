@@ -79,6 +79,7 @@ div.container {
     display: flex;
     flex-direction: column;
     @include u-padding-left(2);
+    @include u-padding-right(2);
     @include u-margin-top(2);
 
     h3 {

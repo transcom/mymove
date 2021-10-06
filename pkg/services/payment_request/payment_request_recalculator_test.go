@@ -39,6 +39,13 @@ const (
 	recalculateTestEscalationCompounded      = 1.04071
 	recalculateTestZip3Distance              = 1234
 	recalculateNumProofOfServiceDocs         = 2
+	recalculateNumberDaysSIT                 = 20
+)
+
+var (
+	recalculateSITEntryDate           = time.Date(testdatagen.GHCTestYear, time.July, 15, 0, 0, 0, 0, time.UTC)
+	recalculateSITPaymentRequestStart = recalculateSITEntryDate.AddDate(0, 0, 1).Format("2006-01-02")
+	recalculateSITPaymentRequestEnd   = recalculateSITEntryDate.AddDate(0, 0, 20).Format("2006-01-02")
 )
 
 func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() {
@@ -138,6 +145,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	strTestOriginalWeight := strconv.Itoa(recalculateTestOriginalWeight.Int())
 	strTestChangedOriginalWeight := strconv.Itoa(recalculateTestNewOriginalWeight.Int())
+	strNumberDaysSIT := strconv.Itoa(recalculateNumberDaysSIT)
 	testServicePriceParams := []struct {
 		isNewPaymentRequest bool
 		paymentRequest      *models.PaymentRequest
@@ -181,6 +189,9 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
+				{models.ServiceItemParamNameSITPaymentRequestStart, recalculateSITPaymentRequestStart},
+				{models.ServiceItemParamNameSITPaymentRequestEnd, recalculateSITPaymentRequestEnd},
+				{models.ServiceItemParamNameNumberDaysSIT, strNumberDaysSIT},
 			},
 		},
 		// New payment request with new prices
@@ -224,6 +235,9 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
+				{models.ServiceItemParamNameSITPaymentRequestStart, recalculateSITPaymentRequestStart},
+				{models.ServiceItemParamNameSITPaymentRequestEnd, recalculateSITPaymentRequestEnd},
+				{models.ServiceItemParamNameNumberDaysSIT, strNumberDaysSIT},
 			},
 		},
 	}
@@ -509,8 +523,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 
 	// DOASIT
 	mtoServiceItemDOASIT := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0])
-	sitEntryDate := time.Date(testdatagen.GHCTestYear, time.July, 15, 0, 0, 0, 0, time.UTC)
-	mtoServiceItemDOASIT.SITEntryDate = &sitEntryDate
+	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 
 	domServiceAreaPriceDOASIT := models.ReDomesticServiceAreaPrice{
@@ -529,11 +542,11 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	doasitPaymentServiceItem.PaymentServiceItemParams = models.PaymentServiceItemParams{
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
-			Value:       sitEntryDate.AddDate(0, 0, 1).Format("2006-01-02"),
+			Value:       recalculateSITPaymentRequestStart,
 		},
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
-			Value:       sitEntryDate.AddDate(0, 0, 20).Format("2006-01-02"),
+			Value:       recalculateSITPaymentRequestEnd,
 		},
 	}
 	paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, doasitPaymentServiceItem)

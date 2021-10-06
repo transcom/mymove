@@ -132,7 +132,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
           );
           schemaKey = newSchemaKey;
         }
-
         return normalizeResponse(response.body, schemaKey);
       }
 
