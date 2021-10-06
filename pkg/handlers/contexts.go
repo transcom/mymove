@@ -24,7 +24,7 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
-	DB() *pop.Connection
+	DBFromContext(ctx context.Context) *pop.Connection
 	AppContextFromRequest(r *http.Request) appcontext.AppContext
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
@@ -104,7 +104,9 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	// use LoggerFromRequest to get the most specific logger
 	return appcontext.WithSession(appcontext.NewAppContext(
-		hctx.db, hctx.LoggerFromRequest(r)), hctx.SessionFromRequest(r))
+		hctx.DBFromContext(r.Context()),
+		hctx.LoggerFromRequest(r)),
+		hctx.SessionFromRequest(r))
 }
 
 func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {
@@ -128,7 +130,7 @@ func (hctx *handlerContext) LoggerFromRequest(r *http.Request) *zap.Logger {
 }
 
 // LoggerFromContext returns the logger from the context. If the
-// context has no logger, the handlerContext logger is returned
+// context has no appCtx.Logger(), the handlerContext logger is returned
 func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
 	logger := logging.FromContextWithoutDefault(ctx)
 	if logger != nil {
@@ -138,8 +140,8 @@ func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
 }
 
 // DB returns a POP db connection for the context
-func (hctx *handlerContext) DB() *pop.Connection {
-	return hctx.db
+func (hctx *handlerContext) DBFromContext(ctx context.Context) *pop.Connection {
+	return hctx.db.WithContext(ctx)
 }
 
 // FileStorer returns the storage to use in the current context

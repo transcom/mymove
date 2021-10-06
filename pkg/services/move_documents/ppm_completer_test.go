@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
-	ppmc := PPMCompleter{suite.DB(), moveDocumentStatusUpdater{}}
+	ppmc := PPMCompleter{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -50,7 +50,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
+	umd, verrs, err := ppmc.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -67,7 +67,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 }
 
 func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyCompleted() {
-	ppmc := PPMCompleter{suite.DB(), moveDocumentStatusUpdater{}}
+	ppmc := PPMCompleter{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -107,7 +107,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	_, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
+	_, verrs, err := ppmc.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)

@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	suite.T().Run("successfully hide fake moves", func(t *testing.T) {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
-			movetaskorder.NewMoveTaskOrderHider(suite.DB()),
+			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
 

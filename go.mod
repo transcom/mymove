@@ -72,23 +72,6 @@ require (
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.9.4
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.opentelemetry.io/contrib/detectors/aws/ecs v0.23.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.23.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.23.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.23.0
-	go.opentelemetry.io/contrib/propagators/aws v0.23.0
-	go.opentelemetry.io/otel v1.0.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.23.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.23.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.0.0-RC3
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.0-RC3
-	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.23.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.0-RC3
-	go.opentelemetry.io/otel/metric v0.23.0
-	go.opentelemetry.io/otel/sdk v1.0.0
-	go.opentelemetry.io/otel/sdk/export/metric v0.23.0
-	go.opentelemetry.io/otel/sdk/metric v0.23.0
-	go.opentelemetry.io/otel/trace v1.0.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210908191846-a5e095526f91
@@ -100,6 +83,26 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2
+)
+
+require (
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
+	go.opentelemetry.io/contrib/propagators/aws v1.0.0
+	go.opentelemetry.io/otel v1.0.1
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.24.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.24.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.0.1
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.1
+	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.24.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.1
+	go.opentelemetry.io/otel/metric v0.24.0
+	go.opentelemetry.io/otel/sdk v1.0.1
+	go.opentelemetry.io/otel/sdk/export/metric v0.24.0
+	go.opentelemetry.io/otel/sdk/metric v0.24.0
+	go.opentelemetry.io/otel/trace v1.0.1
 )
 
 require (
@@ -164,7 +167,6 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/markbates/errx v1.1.0 // indirect

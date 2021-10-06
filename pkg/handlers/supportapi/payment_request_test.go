@@ -22,8 +22,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
@@ -787,7 +785,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 	method := "POST"
 	urlFormat := "/payment-requests/%s/recalculate"
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.TestLogger())
+	appCtx := suite.TestAppContext()
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		samplePaymentRequest := models.PaymentRequest{

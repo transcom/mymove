@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
-	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	stu := StorageExpenseUpdater{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -79,7 +79,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -104,7 +104,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 }
 
 func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() {
-	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	stu := StorageExpenseUpdater{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -171,7 +171,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -196,7 +196,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 }
 
 func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts() {
-	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	stu := StorageExpenseUpdater{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -300,14 +300,14 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 
 	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocOnePayload, originalMoveDocumentOne, session)
+	umd, verrs, err := stu.Update(suite.TestAppContext(), updateMoveDocOnePayload, originalMoveDocumentOne)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 
 	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
-	umd, verrs, err = stu.Update(updateMoveDocTwoPayload, originalMoveDocumentTwo, session)
+	umd, verrs, err = stu.Update(suite.TestAppContext(), updateMoveDocTwoPayload, originalMoveDocumentTwo)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -320,7 +320,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 }
 
 func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride() {
-	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	stu := StorageExpenseUpdater{moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -388,7 +388,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)

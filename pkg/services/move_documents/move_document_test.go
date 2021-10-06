@@ -7,12 +7,18 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type MoveDocumentServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *MoveDocumentServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {

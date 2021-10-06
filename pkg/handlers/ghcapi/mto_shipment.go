@@ -3,10 +3,10 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/notifications"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -35,11 +35,10 @@ type ListMTOShipmentsHandler struct {
 
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	handleError := func(err error) middleware.Responder {
-		logger.Error("ListMTOShipmentsHandler error", zap.Error(err))
+		appCtx.Logger().Error("ListMTOShipmentsHandler error", zap.Error(err))
 		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 		switch err.(type) {
 		case apperror.NotFoundError:
@@ -53,7 +52,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		}
 	}
 
-	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+	if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
 		handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 	}
 
@@ -80,12 +79,11 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.Body
 
 	if payload == nil {
-		logger.Error("Invalid mto shipment: params Body is nil")
+		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
@@ -93,7 +91,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
 
 	if err != nil {
-		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			payload := ghcmessages.Error{
@@ -106,7 +104,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 		default:
@@ -128,12 +126,11 @@ type UpdateShipmentHandler struct {
 
 // Handle updates shipments
 func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	payload := params.Body
 	if payload == nil {
-		logger.Error("Invalid mto shipment: params Body is nil")
+		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
 
 		payload := payloadForValidationError(
 			"Empty body error",
@@ -149,7 +146,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
 
 	if err != nil {
-		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
@@ -162,10 +159,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		}
 	}
 
-	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, session)
+	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, appCtx.Session())
 
 	if err != nil {
-		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
 		return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 			&ghcmessages.Error{Message: &msg},
@@ -185,7 +182,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
 
 	if err != nil {
-		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -207,7 +204,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
 			}
 
 			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
@@ -231,12 +228,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		UpdatedObjectID: updatedMtoShipment.ID,              // ID of the updated logical object
 		MtoID:           updatedMtoShipment.MoveTaskOrderID, // ID of the associated Move
 		Request:         params.HTTPRequest,                 // Pass on the http.Request
-		DBConnection:    h.DB(),                             // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                        // Pass on the pop.Connection
 		HandlerContext:  h,                                  // Pass on the handlerContext
 	})
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
+		appCtx.Logger().Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
@@ -254,18 +251,17 @@ type DeleteShipmentHandler struct {
 
 // Handle soft deletes a shipment
 func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		logger.Error("user is not authenticated with service counselor office role")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		appCtx.Logger().Error("user is not authenticated with service counselor office role")
 		return shipmentops.NewDeleteShipmentForbidden()
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	moveID, err := h.DeleteShipment(appCtx, shipmentID)
 	if err != nil {
-		logger.Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
 
 		switch err.(type) {
 		case apperror.NotFoundError:
@@ -284,13 +280,12 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	// the DB for auditing purposes. When that happens, this code in the handler
 	// will not change. However, we should make sure to add a test in
 	// mto_shipment_test.go that verifies the audit got saved.
-	h.triggerShipmentDeletionEvent(shipmentID, moveID, params)
+	h.triggerShipmentDeletionEvent(appCtx, shipmentID, moveID, params)
 
 	return shipmentops.NewDeleteShipmentNoContent()
 }
 
-func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcDeleteShipmentEndpointKey,
@@ -299,13 +294,13 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    h.DB(),                       // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                  // Pass on the pop.Connection
 		HandlerContext:  h,                            // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.DeleteShipmentHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.DeleteShipmentHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -318,11 +313,10 @@ type ApproveShipmentHandler struct {
 
 // Handle approves a shipment
 func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can approve shipments")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can approve shipments")
 		return shipmentops.NewApproveShipmentForbidden()
 	}
 
@@ -331,7 +325,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 	shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -348,7 +342,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 		}
 	}
 
-	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
@@ -357,8 +351,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
 }
 
-func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveShipmentEndpointKey,
@@ -367,13 +360,13 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 		UpdatedObjectID: shipmentID,                    // ID of the updated logical object
 		MtoID:           moveID,                        // ID of the associated Move
 		Request:         params.HTTPRequest,            // Pass on the http.Request
-		DBConnection:    h.DB(),                        // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                   // Pass on the pop.Connection
 		HandlerContext:  h,                             // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.ApproveShipmentHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -386,11 +379,10 @@ type RequestShipmentDiversionHandler struct {
 
 // Handle Requests a shipment diversion
 func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipmentDiversionParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can Request shipment diversions")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can Request shipment diversions")
 		return shipmentops.NewRequestShipmentDiversionForbidden()
 	}
 
@@ -399,7 +391,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 	shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -416,7 +408,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		}
 	}
 
-	h.triggerRequestShipmentDiversionEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
@@ -425,8 +417,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
 }
 
-func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcRequestShipmentDiversionEndpointKey,
@@ -435,13 +426,13 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(sh
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                            // Pass on the pop.Connection
 		HandlerContext:  h,                                      // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentDiversionHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -454,11 +445,10 @@ type ApproveShipmentDiversionHandler struct {
 
 // Handle approves a shipment diversion
 func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipmentDiversionParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can approve shipment diversions")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can approve shipment diversions")
 		return shipmentops.NewApproveShipmentDiversionForbidden()
 	}
 
@@ -467,7 +457,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 	shipment, err := h.ApproveShipmentDiversion(appCtx, shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -484,7 +474,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		}
 	}
 
-	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
@@ -493,8 +483,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 	return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload)
 }
 
-func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveShipmentDiversionEndpointKey,
@@ -503,13 +492,13 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(s
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                            // Pass on the pop.Connection
 		HandlerContext:  h,                                      // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -521,11 +510,10 @@ type RejectShipmentHandler struct {
 
 // Handle rejects a shipment
 func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can reject shipments")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can reject shipments")
 		return shipmentops.NewRejectShipmentForbidden()
 	}
 
@@ -535,7 +523,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 	shipment, err := h.RejectShipment(appCtx, shipmentID, eTag, rejectionReason)
 
 	if err != nil {
-		logger.Error("ghcapi.RejectShipmentHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RejectShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -552,14 +540,13 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 		}
 	}
 
-	h.triggerShipmentRejectionEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentRejectionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment, nil)
 	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
 }
 
-func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcRejectShipmentEndpointKey,
@@ -568,13 +555,13 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    h.DB(),                       // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                  // Pass on the pop.Connection
 		HandlerContext:  h,                            // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.RejectShipmentHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RejectShipmentHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -587,11 +574,10 @@ type RequestShipmentCancellationHandler struct {
 
 // Handle Requests a shipment diversion
 func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can Request shipment diversions")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can Request shipment diversions")
 		return shipmentops.NewRequestShipmentCancellationForbidden()
 	}
 
@@ -600,7 +586,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 	shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -617,7 +603,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 		}
 	}
 
-	h.triggerRequestShipmentCancellationEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
@@ -626,8 +612,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
 }
 
-func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcRequestShipmentCancellationEndpointKey,
@@ -636,13 +621,13 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 		UpdatedObjectID: shipmentID,                                // ID of the updated logical object
 		MtoID:           moveID,                                    // ID of the associated Move
 		Request:         params.HTTPRequest,                        // Pass on the http.Request
-		DBConnection:    h.DB(),                                    // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                               // Pass on the pop.Connection
 		HandlerContext:  h,                                         // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentCancellationHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -655,11 +640,10 @@ type RequestShipmentReweighHandler struct {
 
 // Handle Requests a shipment reweigh
 func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipmentReweighParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can Request a shipment reweigh")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		appCtx.Logger().Error("Only TOO role can Request a shipment reweigh")
 		return shipmentops.NewRequestShipmentReweighForbidden()
 	}
 
@@ -667,7 +651,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID, models.ReweighRequesterTOO)
 
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -683,14 +667,14 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	}
 
 	moveID := reweigh.Shipment.MoveTaskOrderID
-	h.triggerRequestShipmentReweighEvent(shipmentID, moveID, params)
+	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewReweighRequested(appCtx.DB(), logger, session, moveID, reweigh.Shipment),
+		notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID, reweigh.Shipment),
 	)
 	if err != nil {
-		logger.Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
@@ -700,8 +684,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
 }
 
-func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcRequestShipmentReweighEndpointKey,
@@ -710,13 +693,13 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipme
 		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
 		MtoID:           moveID,                               // ID of the associated Move
 		Request:         params.HTTPRequest,                   // Pass on the http.Request
-		DBConnection:    h.DB(),                               // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                          // Pass on the pop.Connection
 		HandlerContext:  h,                                    // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.RequestShipmentReweighHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.RequestShipmentReweighHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -729,10 +712,9 @@ type ApproveSITExtensionHandler struct {
 
 // Handle ... approves the SIT extension
 func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensionParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	handleError := func(err error) middleware.Responder {
-		logger.Error("error approving SIT extension", zap.Error(err))
+		appCtx.Logger().Error("error approving SIT extension", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return shipmentops.NewApproveSITExtensionNotFound()
@@ -748,7 +730,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 		}
 	}
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
@@ -766,11 +748,11 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	h.triggerApproveSITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params, logger)
+	h.triggerApproveSITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
 	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
 }
 
-func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams, logger *zap.Logger) {
+func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveSITExtensionEndpointKey,
@@ -779,13 +761,13 @@ func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(shipmentID u
 		UpdatedObjectID: shipmentID,                        // ID of the updated logical object
 		MtoID:           moveID,                            // ID of the associated Move
 		Request:         params.HTTPRequest,                // Pass on the http.Request
-		DBConnection:    h.DB(),                            // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                       // Pass on the pop.Connection
 		HandlerContext:  h,                                 // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.ApproveSITExtensionHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveSITExtensionHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -798,10 +780,9 @@ type DenySITExtensionHandler struct {
 
 // Handle ... denies the SIT extension
 func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	handleError := func(err error) middleware.Responder {
-		logger.Error("error denying SIT extension", zap.Error(err))
+		appCtx.Logger().Error("error denying SIT extension", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return shipmentops.NewDenySITExtensionNotFound()
@@ -817,7 +798,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 		}
 	}
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
@@ -834,12 +815,12 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	h.triggerDenySITExtensionEvent(shipmentID, updatedShipment.MoveTaskOrderID, params, logger)
+	h.triggerDenySITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
 
 	return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
 }
 
-func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams, logger *zap.Logger) {
+func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams) {
 
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcDenySITExtensionEndpointKey,
@@ -848,13 +829,13 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(shipmentID uuid.UU
 		UpdatedObjectID: shipmentID,                     // ID of the updated logical object
 		MtoID:           moveID,                         // ID of the associated Move
 		Request:         params.HTTPRequest,             // Pass on the http.Request
-		DBConnection:    h.DB(),                         // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),                    // Pass on the pop.Connection
 		HandlerContext:  h,                              // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.DenySITExtensionHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.DenySITExtensionHandler could not generate the event", zap.Error(err))
 	}
 }
 
@@ -867,13 +848,12 @@ type CreateSITExtensionAsTOOHandler struct {
 
 // Handle creates the approved SIT extension
 func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.Body
 	shipmentID := params.ShipmentID
 
 	handleError := func(err error) middleware.Responder {
-		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			payload := ghcmessages.Error{
@@ -888,7 +868,7 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 			}
 			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
 		case apperror.ForbiddenError:
@@ -904,7 +884,7 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 		return handleError(err)
 	}
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 

@@ -86,13 +86,13 @@ func (_m *HandlerContext) CookieSecret() string {
 	return r0
 }
 
-// DB provides a mock function with given fields:
-func (_m *HandlerContext) DB() *pop.Connection {
-	ret := _m.Called()
+// DBFromContext provides a mock function with given fields: ctx
+func (_m *HandlerContext) DBFromContext(ctx context.Context) *pop.Connection {
+	ret := _m.Called(ctx)
 
 	var r0 *pop.Connection
-	if rf, ok := ret.Get(0).(func() *pop.Connection); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) *pop.Connection); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*pop.Connection)
@@ -220,22 +220,6 @@ func (_m *HandlerContext) IWSPersonLookup() iws.PersonLookup {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(iws.PersonLookup)
-		}
-	}
-
-	return r0
-}
-
-// Logger provides a mock function with given fields:
-func (_m *HandlerContext) Logger() *zap.Logger {
-	ret := _m.Called()
-
-	var r0 *zap.Logger
-	if rf, ok := ret.Get(0).(func() *zap.Logger); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*zap.Logger)
 		}
 	}
 

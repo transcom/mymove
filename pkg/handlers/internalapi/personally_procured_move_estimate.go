@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -23,34 +22,33 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), logger, move)
+	engine := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
 
 	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginZip, destinationZip)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginDutyStationZip, destinationZip)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	costDetails, err := engine.ComputePPMMoveCosts(
@@ -64,7 +62,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		0, // We don't want any SIT charges
 	)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	cost := rateengine.GetWinningCostMove(costDetails)

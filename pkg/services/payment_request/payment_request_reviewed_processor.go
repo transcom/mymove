@@ -199,17 +199,17 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx a
 
 		verrs, err := appCtx.DB().ValidateAndCreate(&ediProcessing)
 		if err != nil {
-			logger.Error("failed to create EDIProcessing record", zap.Error(err))
+			appCtx.Logger().Error("failed to create EDIProcessing record", zap.Error(err))
 		}
 		if verrs.HasAny() {
-			logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+			appCtx.Logger().Error("failed to validate EDIProcessing record", zap.Error(err))
 		}
 	}()
 
 	// Fetch all payment request that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(appCtx)
 	if err != nil {
-		logger.Error("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest", zap.Error(err))
+		appCtx.Logger().Error("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest", zap.Error(err))
 		return
 	}
 
@@ -224,7 +224,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx a
 		err := p.ProcessAndLockReviewedPR(appCtx, pr)
 		if err != nil {
 			// only log the error and keep working, one failure shouldn't stop the processing of others
-			logger.Error(fmt.Sprintf("failed to process payment request id: %s", pr.ID), zap.Error(err))
+			appCtx.Logger().Error(fmt.Sprintf("failed to process payment request id: %s", pr.ID), zap.Error(err))
 		} else {
 			numProcessed++
 		}
