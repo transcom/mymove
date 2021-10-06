@@ -10,6 +10,8 @@ fi
 
 # make sure this is set, as we unset it for most projects
 export NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt
+# needed for go-1.17.1 on x86_64-darwin *sigh*
+export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # install packages

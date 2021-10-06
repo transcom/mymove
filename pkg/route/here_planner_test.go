@@ -79,6 +79,10 @@ func (t *testClient) Get(getURL string) (*http.Response, error) {
 		err = t.routingErr
 	}
 
+	if code == 0 {
+		code = 503
+	}
+
 	recorder.WriteHeader(code)
 	return recorder.Result(), err
 }
