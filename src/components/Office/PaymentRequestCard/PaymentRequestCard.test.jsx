@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -136,7 +137,11 @@ describe('PaymentRequestCard', () => {
     };
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
+        <PaymentRequestCard
+          hasBillableWeightIssues={false}
+          paymentRequest={pendingPaymentRequest}
+          shipmentInfo={shipmentInfo}
+        />
       </MockProviders>,
     );
 
@@ -220,7 +225,11 @@ describe('PaymentRequestCard', () => {
     it('does not have a view documents link', () => {
       render(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={deprecatedPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={deprecatedPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
       expect(screen.queryByText('View documents')).not.toBeInTheDocument();
@@ -229,10 +238,14 @@ describe('PaymentRequestCard', () => {
     it('does not have service item status', () => {
       render(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={deprecatedPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={deprecatedPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
-      fireEvent.click(screen.getByTestId('showRequestDetailsButton'));
+      userEvent.click(screen.getByTestId('showRequestDetailsButton'));
       expect(screen.queryByText('Needs review')).not.toBeInTheDocument();
       expect(screen.getByTestId('deprecated-marker')).toBeInTheDocument();
     });
@@ -295,7 +308,11 @@ describe('PaymentRequestCard', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentInfo={shipmentInfo} />
+        <PaymentRequestCard
+          hasBillableWeightIssues={false}
+          paymentRequest={reviewedPaymentRequest}
+          shipmentInfo={shipmentInfo}
+        />
       </MockProviders>,
     );
 
@@ -336,7 +353,11 @@ describe('PaymentRequestCard', () => {
     it('shows only rejected if no service items are approved', () => {
       const rejected = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={rejectedPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
 
@@ -381,7 +402,11 @@ describe('PaymentRequestCard', () => {
       };
       const sentToGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={sentToGexPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -415,7 +440,11 @@ describe('PaymentRequestCard', () => {
       };
       const receivedByGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={receivedByGexPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
       expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -449,7 +478,11 @@ describe('PaymentRequestCard', () => {
       };
       const paid = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={paidPaymentRequest} shipmentInfo={shipmentInfo} />
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={paidPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
         </MockProviders>,
       );
       expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
