@@ -24,20 +24,28 @@ import (
 )
 
 const (
-	recalculateTestPickupZip            = "30907"
-	recalculateTestDestinationZip       = "78234"
-	recalculateTestMSFee                = unit.Cents(25513)
-	recalculateTestCSFee                = unit.Cents(22399)
-	recalculateTestDLHPrice             = unit.Millicents(6000)
-	recalculateTestFSCPrice             = unit.Millicents(277600)
-	recalculateTestDomOtherPrice        = unit.Cents(2159)
-	recalculateTestDomServiceAreaPrice  = unit.Cents(2359)
-	recalculateTestEstimatedWeight      = unit.Pound(3500)
-	recalculateTestOriginalWeight       = unit.Pound(3652)
-	recalculateTestNewOriginalWeight    = unit.Pound(3412)
-	recalculateTestEscalationCompounded = 1.04071
-	recalculateTestZip3Distance         = 1234
-	recalculateNumProofOfServiceDocs    = 2
+	recalculateTestPickupZip                 = "30907"
+	recalculateTestDestinationZip            = "78234"
+	recalculateTestMSFee                     = unit.Cents(25513)
+	recalculateTestCSFee                     = unit.Cents(22399)
+	recalculateTestDLHPrice                  = unit.Millicents(6000)
+	recalculateTestFSCPrice                  = unit.Millicents(277600)
+	recalculateTestDomOtherPrice             = unit.Cents(2159)
+	recalculateTestDomServiceAreaPriceDOP    = unit.Cents(2359)
+	recalculateTestDomServiceAreaPriceDOASIT = unit.Cents(335)
+	recalculateTestEstimatedWeight           = unit.Pound(3500)
+	recalculateTestOriginalWeight            = unit.Pound(3652)
+	recalculateTestNewOriginalWeight         = unit.Pound(3412)
+	recalculateTestEscalationCompounded      = 1.04071
+	recalculateTestZip3Distance              = 1234
+	recalculateNumProofOfServiceDocs         = 2
+	recalculateNumberDaysSIT                 = 20
+)
+
+var (
+	recalculateSITEntryDate           = time.Date(testdatagen.GHCTestYear, time.July, 15, 0, 0, 0, 0, time.UTC)
+	recalculateSITPaymentRequestStart = recalculateSITEntryDate.AddDate(0, 0, 1).Format("2006-01-02")
+	recalculateSITPaymentRequestEnd   = recalculateSITEntryDate.AddDate(0, 0, 20).Format("2006-01-02")
 )
 
 func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() {
@@ -109,7 +117,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	// Verify some top-level items on the payment requests.
 	suite.Equal(oldPaymentRequest.MoveTaskOrderID, newPaymentRequest.MoveTaskOrderID, "Both payment requests should point to same move")
-	suite.Len(oldPaymentRequest.PaymentServiceItems, 4)
+	suite.Len(oldPaymentRequest.PaymentServiceItems, 5)
 	suite.Equal(len(oldPaymentRequest.PaymentServiceItems), len(newPaymentRequest.PaymentServiceItems), "Both payment requests should have same number of service items")
 	suite.Equal(oldPaymentRequest.Status, models.PaymentRequestStatusDeprecated, "Old payment request status incorrect")
 	suite.Equal(newPaymentRequest.Status, models.PaymentRequestStatusPending, "New payment request status incorrect")
@@ -137,6 +145,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	strTestOriginalWeight := strconv.Itoa(recalculateTestOriginalWeight.Int())
 	strTestChangedOriginalWeight := strconv.Itoa(recalculateTestNewOriginalWeight.Int())
+	strNumberDaysSIT := strconv.Itoa(recalculateNumberDaysSIT)
 	testServicePriceParams := []struct {
 		isNewPaymentRequest bool
 		paymentRequest      *models.PaymentRequest
@@ -173,6 +182,18 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
 			},
 		},
+		{
+			paymentRequest: &oldPaymentRequest,
+			serviceCode:    models.ReServiceCodeDOASIT,
+			priceCents:     unit.Cents(254645),
+			paramsToCheck: []paramMap{
+				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
+				{models.ServiceItemParamNameSITPaymentRequestStart, recalculateSITPaymentRequestStart},
+				{models.ServiceItemParamNameSITPaymentRequestEnd, recalculateSITPaymentRequestEnd},
+				{models.ServiceItemParamNameNumberDaysSIT, strNumberDaysSIT},
+			},
+		},
 		// New payment request with new prices
 		{
 			isNewPaymentRequest: true,
@@ -204,6 +225,19 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
+			},
+		},
+		{
+			isNewPaymentRequest: true,
+			paymentRequest:      newPaymentRequest,
+			serviceCode:         models.ReServiceCodeDOASIT,
+			priceCents:          unit.Cents(237910), // Price same as before since new weight still in same weight bracket
+			paramsToCheck: []paramMap{
+				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
+				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
+				{models.ServiceItemParamNameSITPaymentRequestStart, recalculateSITPaymentRequestStart},
+				{models.ServiceItemParamNameSITPaymentRequestEnd, recalculateSITPaymentRequestEnd},
+				{models.ServiceItemParamNameNumberDaysSIT, strNumberDaysSIT},
 			},
 		},
 	}
@@ -423,6 +457,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 			PickupAddress:        &pickupAddress,
 			DestinationAddressID: &destinationAddress.ID,
 			DestinationAddress:   &destinationAddress,
+			SITDaysAllowance:     swag.Int(90),
 		},
 	})
 
@@ -441,17 +476,17 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		},
 	})
 
-	domServiceAreaPrice := models.ReDomesticServiceAreaPrice{
+	domServiceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
 		ServiceID:             domOriginPriceService.ID,
 		IsPeakPeriod:          false,
 		Contract:              contractYear.Contract,
 		DomesticServiceAreaID: serviceArea.ID,
 		DomesticServiceArea:   serviceArea,
-		PriceCents:            recalculateTestDomServiceAreaPrice,
+		PriceCents:            recalculateTestDomServiceAreaPriceDOP,
 		Service:               domOriginPriceService,
 	}
-	suite.MustSave(&domServiceAreaPrice)
+	suite.MustSave(&domServiceAreaPriceDOP)
 
 	// Domestic Pack
 	dpkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
@@ -485,6 +520,36 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		}
 		paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, newPaymentServiceItem)
 	}
+
+	// DOASIT
+	mtoServiceItemDOASIT := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0])
+	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
+	suite.MustSave(&mtoServiceItemDOASIT)
+
+	domServiceAreaPriceDOASIT := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractYear.Contract.ID,
+		ServiceID:             mtoServiceItemDOASIT.ReServiceID,
+		IsPeakPeriod:          false,
+		DomesticServiceAreaID: serviceArea.ID,
+		PriceCents:            recalculateTestDomServiceAreaPriceDOASIT,
+	}
+	suite.MustSave(&domServiceAreaPriceDOASIT)
+
+	doasitPaymentServiceItem := models.PaymentServiceItem{
+		MTOServiceItemID: mtoServiceItemDOASIT.ID,
+		MTOServiceItem:   mtoServiceItemDOASIT,
+	}
+	doasitPaymentServiceItem.PaymentServiceItemParams = models.PaymentServiceItemParams{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       recalculateSITPaymentRequestStart,
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       recalculateSITPaymentRequestEnd,
+		},
+	}
+	paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, doasitPaymentServiceItem)
 
 	return moveTaskOrder, paymentRequestArg
 }

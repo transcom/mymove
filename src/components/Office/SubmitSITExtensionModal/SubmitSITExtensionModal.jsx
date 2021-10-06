@@ -23,7 +23,7 @@ const reviewSITExtensionSchema = Yup.object().shape({
   officeRemarks: Yup.string().nullable(),
 });
 
-const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
+const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => {
   return (
     <div>
       <Overlay />
@@ -33,6 +33,7 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
           <ModalTitle>
             <h2>Edit SIT authorization</h2>
           </ModalTitle>
+          <div className={styles.summarySITComponent}>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
             <Formik
               validationSchema={reviewSITExtensionSchema}
@@ -46,11 +47,13 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
               {({ isValid }) => {
                 return (
                   <Form>
-                    <DropdownInput
-                      label="Reason for edit"
-                      name="requestReason"
-                      options={dropdownInputOptions(sitExtensionReasons)}
-                    />
+                    <div className={styles.reasonDropdown}>
+                      <DropdownInput
+                        label="Reason for edit"
+                        name="requestReason"
+                        options={dropdownInputOptions(sitExtensionReasons)}
+                      />
+                    </div>
                     <MaskedTextField
                       name="daysApproved"
                       id="daysApproved"
@@ -103,5 +106,6 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit }) => {
 SubmitSITExtensionModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  summarySITComponent: PropTypes.node.isRequired,
 };
 export default SubmitSITExtensionModal;

@@ -54,7 +54,7 @@ div.container {
       }
     }
 
-    .missing {
+    .warning {
       border-left: 4px solid $mm-gold;
       @include u-margin-left(-0.5);
     }
@@ -62,7 +62,6 @@ div.container {
     .remarks {
       display: flex;
       flex-direction: column;
-      @include u-border-bottom(0);
 
       span {
         width: 100%;
@@ -70,12 +69,17 @@ div.container {
         line-height: 1.53;
       }
     }
+
+    .lastRow {
+      @include u-border-bottom(0);
+    }
   }
 
   footer {
     display: flex;
     flex-direction: column;
     @include u-padding-left(2);
+    @include u-padding-right(2);
     @include u-margin-top(2);
 
     h3 {

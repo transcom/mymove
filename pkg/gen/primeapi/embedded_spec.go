@@ -2891,7 +2891,8 @@ func init() {
       "enum": [
         "PRIME",
         "SYSTEM",
-        "PRICER"
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
@@ -2902,7 +2903,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "UpdateMTOServiceItem": {
@@ -6464,7 +6466,8 @@ func init() {
       "enum": [
         "PRIME",
         "SYSTEM",
-        "PRICER"
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
@@ -6475,7 +6478,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ServiceItemParamsItems0": {

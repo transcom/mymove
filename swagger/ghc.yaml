@@ -1424,6 +1424,49 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
+  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order billableWeightsReviewedAt field
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: >-
+        Changes move (move task order) billableWeightsReviewedAt field to a
+        timestamp
+      operationId: UpdateMTOReviewedBillableWeightsAt
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use
@@ -2374,6 +2417,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      billableWeightsReviewedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       contractorId:
         type: string
         format: uuid
@@ -3020,89 +3067,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PaymentServiceItemParam'
-  ServiceItemParamName:
-    type: string
-    enum:
-      - ActualPickupDate
-      - ContractCode
-      - ContractYearName
-      - CubicFeetBilled
-      - CubicFeetCrating
-      - DimensionHeight
-      - DimensionLength
-      - DimensionWidth
-      - DistanceZip3
-      - DistanceZip5
-      - DistanceZipSITDest
-      - DistanceZipSITOrigin
-      - EIAFuelPrice
-      - EscalationCompounded
-      - FSCMultiplier
-      - FSCPriceDifferenceInCents
-      - FSCWeightBasedDistanceMultiplier
-      - IsPeak
-      - MarketDest
-      - MarketOrigin
-      - MTOAvailableToPrimeAt
-      - NumberDaysSIT
-      - PriceAreaDest
-      - PriceAreaIntlDest
-      - PriceAreaIntlOrigin
-      - PriceAreaOrigin
-      - PriceRateOrFactor
-      - PSI_LinehaulDom
-      - PSI_LinehaulDomPrice
-      - PSI_LinehaulShort
-      - PSI_LinehaulShortPrice
-      - PSI_PackingDom
-      - PSI_PackingDomPrice
-      - PSI_PackingHHGIntl
-      - PSI_PackingHHGIntlPrice
-      - PSI_PriceDomDest
-      - PSI_PriceDomDestPrice
-      - PSI_PriceDomOrigin
-      - PSI_PriceDomOriginPrice
-      - PSI_ShippingLinehaulIntlCO
-      - PSI_ShippingLinehaulIntlCOPrice
-      - PSI_ShippingLinehaulIntlOC
-      - PSI_ShippingLinehaulIntlOCPrice
-      - PSI_ShippingLinehaulIntlOO
-      - PSI_ShippingLinehaulIntlOOPrice
-      - RateAreaNonStdDest
-      - RateAreaNonStdOrigin
-      - RequestedPickupDate
-      - ServiceAreaDest
-      - ServiceAreaOrigin
-      - ServicesScheduleDest
-      - ServicesScheduleOrigin
-      - SITPaymentRequestEnd
-      - SITPaymentRequestStart
-      - SITScheduleDest
-      - SITScheduleOrigin
-      - WeightAdjusted
-      - WeightBilled
-      - WeightEstimated
-      - WeightOriginal
-      - WeightReweigh
-      - ZipDestAddress
-      - ZipPickupAddress
-      - ZipSITDestHHGFinalAddress
-      - ZipSITOriginHHGActualAddress
-      - ZipSITOriginHHGOriginalAddress
-  ServiceItemParamOrigin:
-    type: string
-    enum:
-      - PRIME
-      - SYSTEM
-  ServiceItemParamType:
-    type: string
-    enum:
-      - STRING
-      - DATE
-      - INTEGER
-      - DECIMAL
-      - TIMESTAMP
-      - PaymentServiceItemUUID
   PaymentRequestStatus:
     enum:
       - PENDING
@@ -4004,6 +3968,92 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  ServiceItemParamName:
+    type: string
+    enum:
+      - ActualPickupDate
+      - ContractCode
+      - ContractYearName
+      - CubicFeetBilled
+      - CubicFeetCrating
+      - DimensionHeight
+      - DimensionLength
+      - DimensionWidth
+      - DistanceZip3
+      - DistanceZip5
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
+      - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
+      - FSCWeightBasedDistanceMultiplier
+      - IsPeak
+      - MarketDest
+      - MarketOrigin
+      - MTOAvailableToPrimeAt
+      - NumberDaysSIT
+      - PriceAreaDest
+      - PriceAreaIntlDest
+      - PriceAreaIntlOrigin
+      - PriceAreaOrigin
+      - PriceRateOrFactor
+      - PSI_LinehaulDom
+      - PSI_LinehaulDomPrice
+      - PSI_LinehaulShort
+      - PSI_LinehaulShortPrice
+      - PSI_PackingDom
+      - PSI_PackingDomPrice
+      - PSI_PackingHHGIntl
+      - PSI_PackingHHGIntlPrice
+      - PSI_PriceDomDest
+      - PSI_PriceDomDestPrice
+      - PSI_PriceDomOrigin
+      - PSI_PriceDomOriginPrice
+      - PSI_ShippingLinehaulIntlCO
+      - PSI_ShippingLinehaulIntlCOPrice
+      - PSI_ShippingLinehaulIntlOC
+      - PSI_ShippingLinehaulIntlOCPrice
+      - PSI_ShippingLinehaulIntlOO
+      - PSI_ShippingLinehaulIntlOOPrice
+      - RateAreaNonStdDest
+      - RateAreaNonStdOrigin
+      - RequestedPickupDate
+      - ServiceAreaDest
+      - ServiceAreaOrigin
+      - ServicesScheduleDest
+      - ServicesScheduleOrigin
+      - SITPaymentRequestEnd
+      - SITPaymentRequestStart
+      - SITScheduleDest
+      - SITScheduleOrigin
+      - WeightAdjusted
+      - WeightBilled
+      - WeightEstimated
+      - WeightOriginal
+      - WeightReweigh
+      - ZipDestAddress
+      - ZipPickupAddress
+      - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
+  ServiceItemParamType:
+    type: string
+    enum:
+      - STRING
+      - DATE
+      - INTEGER
+      - DECIMAL
+      - TIMESTAMP
+      - PaymentServiceItemUUID
+      - BOOLEAN
+  ServiceItemParamOrigin:
+    type: string
+    enum:
+      - PRIME
+      - SYSTEM
+      - PRICER
+      - PAYMENT_REQUEST
 responses:
   InvalidRequest:
     description: The request payload is invalid

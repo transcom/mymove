@@ -115,8 +115,12 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 	err := appCtx.DB().Q().
 		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Join("re_services", "re_services.id = mto_service_items.re_service_id").
+		Join("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
 		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
-		Where("payment_service_items.status IN ($1, $2, $3, $4) AND mto_service_items.mto_shipment_id = ($5) AND re_services.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, mtoShipment.ID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
+		Where("mto_service_items.mto_shipment_id = ($1)", mtoShipment.ID).
+		Where("payment_requests.status != $2", models.PaymentRequestStatusDeprecated).
+		Where("payment_service_items.status IN ($3, $4, $5, $6)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid).
+		Where("re_services.code IN ($7, $8, $9, $10)", models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
 		All(&mtoShipmentSITPaymentServiceItems)
 	if err != nil {
 		return models.PaymentServiceItems{}, err

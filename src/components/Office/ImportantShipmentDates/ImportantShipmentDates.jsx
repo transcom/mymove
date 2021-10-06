@@ -10,7 +10,7 @@ import DataTableWrapper from 'components/DataTableWrapper/index';
 const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) => {
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
-      <DataTableWrapper>
+      <DataTableWrapper className="table--data-point-group">
         <DataTable
           columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
           dataRow={[requestedPickupDate, scheduledPickupDate]}

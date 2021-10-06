@@ -424,6 +424,68 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order billableWeightsReviewedAt field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
         "description": "Gets entitlements",
@@ -3979,6 +4041,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "billableWeightsReviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractor": {
           "$ref": "#/definitions/Contractor"
         },
@@ -4921,7 +4988,9 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
@@ -4932,7 +5001,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ShipmentPaymentSITBalance": {
@@ -5959,6 +6029,92 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order billableWeightsReviewedAt field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
@@ -10095,6 +10251,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "billableWeightsReviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractor": {
           "$ref": "#/definitions/Contractor"
         },
@@ -11040,7 +11201,9 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER",
+        "PAYMENT_REQUEST"
       ]
     },
     "ServiceItemParamType": {
@@ -11051,7 +11214,8 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PaymentServiceItemUUID"
+        "PaymentServiceItemUUID",
+        "BOOLEAN"
       ]
     },
     "ShipmentPaymentSITBalance": {
