@@ -12,10 +12,16 @@ import { MTOServiceItemShape } from 'types/order';
 import { formatCents, toDollarString } from 'shared/formatters';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
-const ExpandableServiceItemRow = ({ serviceItem, additionalServiceItemData, index, disableExpansion }) => {
+const ExpandableServiceItemRow = ({
+  additionalServiceItemData,
+  disableExpansion,
+  index,
+  paymentIsDeprecated,
+  serviceItem,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
-    return canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED;
+    return canShowExpandableContent && (paymentIsDeprecated || item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED);
   };
   const canShowExpandableContent =
     !disableExpansion && allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
@@ -45,26 +51,32 @@ const ExpandableServiceItemRow = ({ serviceItem, additionalServiceItemData, inde
         aria-expanded={isExpanded}
       >
         <td data-testid="serviceItemName">
-          {canShowExpandableContent && serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
-            <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
-          )}
+          {canShowExpandableContent &&
+            (paymentIsDeprecated || serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED) && (
+              <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
+            )}
           {serviceItem.mtoServiceItemName}
         </td>
         <td data-testid="serviceItemAmount">{toDollarString(formatCents(serviceItem.priceCents))}</td>
         <td data-testid="serviceItemStatus">
-          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
+          {paymentIsDeprecated && (
+            <div>
+              <span data-testid="deprecated-marker">-</span>
+            </div>
+          )}
+          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && !paymentIsDeprecated && (
             <div className={styles.needsReview}>
               <FontAwesomeIcon icon="exclamation-circle" />
               <span>Needs review</span>
             </div>
           )}
-          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
+          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && !paymentIsDeprecated && (
             <div className={styles.accepted}>
               <FontAwesomeIcon icon="check" />
               <span>Accepted</span>
             </div>
           )}
-          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && (
+          {serviceItem.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && !paymentIsDeprecated && (
             <div className={styles.rejected}>
               <FontAwesomeIcon icon="times" />
               <span>Rejected</span>
@@ -93,6 +105,7 @@ ExpandableServiceItemRow.propTypes = {
   index: PropTypes.number.isRequired,
   disableExpansion: PropTypes.bool,
   additionalServiceItemData: MTOServiceItemShape,
+  paymentIsDeprecated: PropTypes.bool.isRequired,
 };
 
 ExpandableServiceItemRow.defaultProps = {
