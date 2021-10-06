@@ -54,7 +54,7 @@ div.container {
       }
     }
 
-    .missing {
+    .warning {
       border-left: 4px solid $mm-gold;
       @include u-margin-left(-0.5);
     }
@@ -62,13 +62,16 @@ div.container {
     .remarks {
       display: flex;
       flex-direction: column;
-      @include u-border-bottom(0);
 
       span {
         width: 100%;
         @include u-padding-top(0);
         line-height: 1.53;
       }
+    }
+
+    .lastRow {
+      @include u-border-bottom(0);
     }
   }
 

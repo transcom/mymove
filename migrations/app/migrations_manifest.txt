@@ -671,3 +671,5 @@
 20210923180711_fix_shuttle_params.up.sql
 20210925020348_add_prime_simulator_role.up.sql
 20210930202639_remove_sandy_and_lynzt_cac_access.up.sql
+20211001151820_add_param_key_origin.up.sql
+20211001153100_update_sit_param_keys_origin.up.sql

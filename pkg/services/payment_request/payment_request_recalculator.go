@@ -76,7 +76,10 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 
 	// Re-create the payment request arg including service items, then call the create service (which should
 	// price it with current inputs).
-	inputPaymentRequest := buildPaymentRequestForRecalculating(oldPaymentRequest)
+	inputPaymentRequest, err := buildPaymentRequestForRecalculating(appCtx, oldPaymentRequest)
+	if err != nil {
+		return nil, err
+	}
 	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
@@ -98,10 +101,16 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 }
 
 // buildPaymentRequestForRecalculating builds up the expected payment request data based upon the old payment request.
-func buildPaymentRequestForRecalculating(oldPaymentRequest models.PaymentRequest) models.PaymentRequest {
+func buildPaymentRequestForRecalculating(appCtx appcontext.AppContext, oldPaymentRequest models.PaymentRequest) (models.PaymentRequest, error) {
 	newPaymentRequest := models.PaymentRequest{
 		IsFinal:         oldPaymentRequest.IsFinal,
 		MoveTaskOrderID: oldPaymentRequest.MoveTaskOrderID,
+	}
+
+	// Get list of all service IDs that have payment-request based parameters (not many yet).
+	paymentRequestServiceIDs, err := getServiceIDsWithPaymentRequestOrigin(appCtx)
+	if err != nil {
+		return models.PaymentRequest{}, err
 	}
 
 	var newPaymentServiceItems models.PaymentServiceItems
@@ -109,6 +118,15 @@ func buildPaymentRequestForRecalculating(oldPaymentRequest models.PaymentRequest
 		newPaymentServiceItem := models.PaymentServiceItem{
 			MTOServiceItemID: oldPaymentServiceItem.MTOServiceItemID,
 			MTOServiceItem:   oldPaymentServiceItem.MTOServiceItem,
+		}
+
+		// If this service item is in the list of payment request service IDs, then we need to add the
+		// params that came in via the payment request to the template payment request we're building.
+		if uuidInSlice(paymentRequestServiceIDs, oldPaymentServiceItem.MTOServiceItem.ReServiceID) {
+			newPaymentServiceItem.PaymentServiceItemParams, err = buildPaymentServiceItemParams(appCtx, oldPaymentServiceItem)
+			if err != nil {
+				return models.PaymentRequest{}, err
+			}
 		}
 
 		newPaymentServiceItems = append(newPaymentServiceItems, newPaymentServiceItem)
@@ -120,7 +138,63 @@ func buildPaymentRequestForRecalculating(oldPaymentRequest models.PaymentRequest
 
 	newPaymentRequest.PaymentServiceItems = newPaymentServiceItems
 
-	return newPaymentRequest
+	return newPaymentRequest, nil
+}
+
+// getServiceIDsWithPaymentRequestOrigin returns all UUIDs of services that have at least one param with
+// a payment request origin.
+func getServiceIDsWithPaymentRequestOrigin(appCtx appcontext.AppContext) ([]uuid.UUID, error) {
+	// Find all the service IDs that have params that originate from the payment request itself.
+	var uuids []uuid.UUID
+	query := `SELECT DISTINCT sp.service_id
+		FROM service_params sp
+		INNER JOIN service_item_param_keys sipk ON sp.service_item_param_key_id = sipk.id
+		WHERE origin = ?`
+	err := appCtx.DB().RawQuery(query, models.ServiceItemParamOriginPaymentRequest).All(&uuids)
+	if err != nil {
+		return nil, services.NewQueryError("ServiceParams", err, fmt.Sprintf("unexpected error while querying for service_params with params of origin %s", models.ServiceItemParamOriginPaymentRequest))
+	}
+
+	return uuids, nil
+}
+
+// uuidInSlice returns true if the given target UUID is in the slice of UUIDs; false otherwise.
+func uuidInSlice(uuids []uuid.UUID, targetUUID uuid.UUID) bool {
+	for _, uuid := range uuids {
+		if uuid == targetUUID {
+			return true
+		}
+	}
+
+	return false
+}
+
+// buildPaymentServiceItemParams builds up any payment service items given as input to the original payment request.
+func buildPaymentServiceItemParams(appCtx appcontext.AppContext, oldPaymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItemParams, error) {
+	// Get the payment service item param values for the specific service code.
+	var paymentServiceItemParams models.PaymentServiceItemParams
+	err := appCtx.DB().
+		EagerPreload("ServiceItemParamKey").
+		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
+		Where("payment_service_item_id = ?", oldPaymentServiceItem.ID).
+		Where("sipk.origin = ?", models.ServiceItemParamOriginPaymentRequest).
+		All(&paymentServiceItemParams)
+	if err != nil {
+		return nil, services.NewQueryError("PaymentServiceItemParams", err, fmt.Sprintf("unexpected error while querying for payment service item params for payment service ID %s", oldPaymentServiceItem.ID))
+	}
+
+	// Create the incoming payment service item param for the new payment request we're going to be creating.
+	var newPaymentServiceItemParams models.PaymentServiceItemParams
+	for _, paymentServiceItemParam := range paymentServiceItemParams {
+		newPaymentServiceItemParam := models.PaymentServiceItemParam{
+			IncomingKey: paymentServiceItemParam.ServiceItemParamKey.Key.String(),
+			Value:       paymentServiceItemParam.Value,
+		}
+
+		newPaymentServiceItemParams = append(newPaymentServiceItemParams, newPaymentServiceItemParam)
+	}
+
+	return newPaymentServiceItemParams, nil
 }
 
 // remapProofOfServiceDocs remaps a set of proof of service doc relationships to a new payment request.

@@ -1,0 +1,179 @@
+package telemetry
+
+import (
+	"context"
+	"time"
+
+	"go.opentelemetry.io/contrib/detectors/aws/ecs"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/propagation"
+	exportmetric "go.opentelemetry.io/otel/sdk/export/metric"
+	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
+	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
+)
+
+// Config defines the config necessary to enable telemetry gathering
+type Config struct {
+	Enabled          bool
+	Endpoint         string
+	UseXrayID        bool
+	SamplingFraction float64
+	CollectSeconds   int
+	ReadEvents       bool
+	WriteEvents      bool
+}
+
+const (
+	defaultCollectSeconds = 30
+	tracerName            = "io.opentelemetry.traces.milmove"
+	metricName            = "io.opentelemetry.metrics.milmove"
+)
+
+var (
+	tracer trace.Tracer
+	meter  metric.Meter
+)
+
+// Init currently the target for distributed tracing / opentelemetry is
+// local development environments, but this may change in the future
+// to include hosted/deployed environments
+func Init(logger *zap.Logger, config *Config) (shutdown func()) {
+	ctx := context.Background()
+	shutdown = func() {}
+
+	if !config.Enabled {
+		tp := trace.NewNoopTracerProvider()
+		otel.SetTracerProvider(tp)
+		global.SetMeterProvider(metric.NoopMeterProvider{})
+		logger.Info("opentelemetry not enabled")
+		return shutdown
+	}
+
+	var spanExporter sdktrace.SpanExporter
+	var metricExporter exportmetric.Exporter
+
+	var err error
+
+	switch config.Endpoint {
+	case "stdout":
+		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		if err != nil {
+			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
+			break
+		}
+		metricExporter, err = stdoutmetric.New(stdoutmetric.WithPrettyPrint())
+		if err != nil {
+			logger.Error("unable to create otel stdout metric exporter", zap.Error(err))
+			break
+		}
+	default:
+		spanClient := otlptracegrpc.NewClient(
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint(config.Endpoint),
+		)
+		spanExporter, err = otlptrace.New(ctx, spanClient)
+		if err != nil {
+			logger.Error("failed to create otel trace exporter", zap.Error(err))
+		}
+		metricClient := otlpmetricgrpc.NewClient(
+			otlpmetricgrpc.WithInsecure(),
+			otlpmetricgrpc.WithEndpoint(config.Endpoint),
+		)
+		metricExporter, err = otlpmetric.New(ctx, metricClient)
+		if err != nil {
+			logger.Error("failed to create otel metric exporter", zap.Error(err))
+		}
+
+	}
+	// Create a tracer provider that processes spans using a
+	// batch-span-processor.
+	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
+
+	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
+	var idGenerator sdktrace.IDGenerator = nil
+	if config.UseXrayID {
+		idGenerator = xray.NewIDGenerator()
+	}
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sampler),
+		sdktrace.WithIDGenerator(idGenerator),
+		sdktrace.WithSpanProcessor(bsp),
+	)
+	// Instantiate a new ECS resource detector
+	ecsResourceDetector := ecs.NewResourceDetector()
+	ecsResource, err := ecsResourceDetector.Detect(ctx)
+	if err != nil {
+		logger.Error("failed to create ECS resource detector", zap.Error(err))
+	}
+
+	// Create pusher for metrics that runs in the background and pushes
+	// metrics periodically.
+	collectSeconds := config.CollectSeconds
+	if collectSeconds == 0 {
+		collectSeconds = defaultCollectSeconds
+	}
+	pusher := controller.New(
+		processor.New(
+			simple.NewWithExactDistribution(),
+			metricExporter,
+		),
+		controller.WithResource(ecsResource),
+		controller.WithExporter(metricExporter),
+		controller.WithCollectPeriod(time.Duration(collectSeconds)*time.Second),
+	)
+	err = pusher.Start(ctx)
+	if err != nil {
+		logger.Error("failed to start the metric controller", zap.Error(err))
+	}
+
+	logger.Info("emit tracing to local opentelemetry collector at " + config.Endpoint)
+	shutdown = func() {
+		if err = spanExporter.Shutdown(ctx); err != nil {
+			logger.Error("shutdown problems with tracing exporter", zap.Error(err))
+		}
+		if err = pusher.Stop(ctx); err != nil {
+			logger.Error("shutdown problems with metrics pusher", zap.Error(err))
+		}
+	}
+
+	otel.SetTracerProvider(tp)
+	global.SetMeterProvider(pusher.MeterProvider())
+	if config.UseXrayID {
+		propagation.NewCompositeTextMapPropagator(
+			xray.Propagator{},
+			propagation.Baggage{},
+			propagation.TraceContext{},
+		)
+	} else {
+		otel.SetTextMapPropagator(
+			propagation.NewCompositeTextMapPropagator(
+				propagation.Baggage{},
+				propagation.TraceContext{},
+			),
+		)
+	}
+
+	tracer = otel.Tracer(tracerName)
+	meter = global.Meter(metricName)
+
+	return shutdown
+}
+
+// DefaultTracer returns the default global tracer
+func DefaultTracer() trace.Tracer {
+	return tracer
+}

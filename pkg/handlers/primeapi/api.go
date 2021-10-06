@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/transcom/mymove/pkg/services/upload"
 
@@ -20,14 +19,15 @@ import (
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	primeops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// NewPrimeAPIHandler returns a handler for the Prime API
-func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
+// NewPrimeAPI returns the Prime API
+func NewPrimeAPI(ctx handlers.HandlerContext) *primeoperations.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 
@@ -153,5 +153,5 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		sitextension.NewSitExtensionCreator(moveRouter),
 	}
 
-	return primeAPI.Serve(nil)
+	return primeAPI
 }

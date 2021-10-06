@@ -21,9 +21,34 @@ export default function ShipmentCard({
   destinationAddress,
   estimatedWeight,
   originalWeight,
+  adjustedWeight,
   reweighRemarks,
   reweighWeight,
+  maxBillableWeight,
+  totalBillableWeight,
 }) {
+  let showOriginalWeightHighlight = false;
+  let showReweighWeightHighlight = false;
+
+  // shipment weight exceeds 110% estimated weight
+  // no need to show yellow highlight if adjusted weight (billable weight cap) exists
+  if (estimatedWeight && !adjustedWeight) {
+    // reweigh and original weight available
+    // determine if yellow highlight needs to show if reweigh weight is over weight
+    if (reweighWeight && originalWeight && reweighWeight <= originalWeight) {
+      // reweigh weight is the shipment weight
+      showReweighWeightHighlight = shipmentIsOverweight(estimatedWeight, reweighWeight);
+    } else {
+      // original weight is the shipment weight
+      showOriginalWeightHighlight = shipmentIsOverweight(estimatedWeight, originalWeight);
+    }
+  }
+
+  // reweigh requested and missing weight, show yellow highlight
+  if (dateReweighRequested && !reweighWeight) {
+    showReweighWeightHighlight = true;
+  }
+
   return (
     <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG} className={styles.container}>
       <header>
@@ -43,8 +68,9 @@ export default function ShipmentCard({
       </header>
       <div className={styles.weights}>
         <div
+          data-testid="estimatedWeightContainer"
           className={classnames(styles.field, {
-            [styles.missing]: !estimatedWeight,
+            [styles.warning]: !estimatedWeight,
           })}
         >
           <strong>Estimated weight</strong>
@@ -53,8 +79,9 @@ export default function ShipmentCard({
           </span>
         </div>
         <div
+          data-testid="originalWeightContainer"
           className={classnames(styles.field, {
-            [styles.missing]: !shipmentIsOverweight(estimatedWeight, billableWeight) && estimatedWeight,
+            [styles.warning]: showOriginalWeightHighlight,
           })}
         >
           <strong>Original weight</strong>
@@ -63,8 +90,9 @@ export default function ShipmentCard({
         {dateReweighRequested && (
           <div>
             <div
+              data-testid="reweighWeightContainer"
               className={classnames(styles.field, {
-                [styles.missing]: !reweighWeight,
+                [styles.warning]: showReweighWeightHighlight,
               })}
             >
               <strong>Reweigh weight</strong>
@@ -72,14 +100,16 @@ export default function ShipmentCard({
                 {reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}
               </span>
             </div>
-            <div className={styles.field}>
+            <div className={reweighRemarks ? styles.field : classnames(styles.field, styles.lastRow)}>
               <strong>Date reweigh requested</strong>
               <span data-testid="dateReweighRequested">{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
             </div>
-            <div className={classnames(styles.field, styles.remarks)}>
-              <strong>Reweigh remarks</strong>
-              <span data-testid="reweighRemarks">{reweighRemarks}</span>
-            </div>
+            {reweighRemarks && (
+              <div className={classnames(styles.field, styles.remarks, styles.lastRow)}>
+                <strong>Reweigh remarks</strong>
+                <span data-testid="reweighRemarks">{reweighRemarks}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -91,6 +121,8 @@ export default function ShipmentCard({
           originalWeight={originalWeight}
           estimatedWeight={estimatedWeight}
           editEntity={editEntity}
+          maxBillableWeight={maxBillableWeight}
+          totalBillableWeight={totalBillableWeight}
         />
       </footer>
     </ShipmentContainer>
@@ -110,6 +142,7 @@ ShipmentCard.propTypes = {
   editEntity: func.isRequired,
   estimatedWeight: number,
   originalWeight: number.isRequired,
+  adjustedWeight: number,
   pickupAddress: shape({
     city: string.isRequired,
     state: string.isRequired,
@@ -117,6 +150,8 @@ ShipmentCard.propTypes = {
   }).isRequired,
   reweighRemarks: string,
   reweighWeight: number,
+  maxBillableWeight: number.isRequired,
+  totalBillableWeight: number,
 };
 
 ShipmentCard.defaultProps = {
@@ -124,6 +159,8 @@ ShipmentCard.defaultProps = {
   billableWeightJustification: '',
   dateReweighRequested: '',
   estimatedWeight: 0,
+  adjustedWeight: null,
   reweighWeight: null,
   reweighRemarks: '',
+  totalBillableWeight: 0,
 };

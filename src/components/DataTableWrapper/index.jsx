@@ -6,7 +6,7 @@ import styles from './index.module.scss';
 
 const DataTableWrapper = ({ children, className, testID }) => {
   return (
-    <div className={classnames(styles.dataTableWrapper, 'table--data-point-group', className)} data-testid={testID}>
+    <div className={classnames(styles.dataTableWrapper, className)} data-testid={testID}>
       {children}
     </div>
   );

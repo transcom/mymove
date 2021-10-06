@@ -1,0 +1,56 @@
+type: string
+description: |
+  This is the full list of service items that can be found on a shipment. Not all service items
+  may be requested by the Prime, but may be returned in a response.
+
+  Documentation of all the service items will be provided.
+enum:
+  - CS
+  - DBHF
+  - DBTF
+  - DCRT
+  - DDASIT
+  - DDDSIT
+  - DDFSIT
+  - DDP
+  - DDSHUT
+  - DLH
+  - DMHF
+  - DNPKF
+  - DOASIT
+  - DOFSIT
+  - DOP
+  - DOPSIT
+  - DOSHUT
+  - DPK
+  - DSH
+  - DUCRT
+  - DUPK
+  - FSC
+  - IBHF
+  - IBTF
+  - ICOLH
+  - ICOUB
+  - ICRT
+  - ICRTSA
+  - IDASIT
+  - IDDSIT
+  - IDFSIT
+  - IDSHUT
+  - IHPK
+  - IHUPK
+  - INPKF
+  - IOASIT
+  - IOCLH
+  - IOCUB
+  - IOFSIT
+  - IOOLH
+  - IOOUB
+  - IOPSIT
+  - IOSHUT
+  - IUBPK
+  - IUBUPK
+  - IUCRT
+  - MS
+  - NSTH
+  - NSTUB
