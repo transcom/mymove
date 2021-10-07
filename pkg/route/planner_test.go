@@ -60,7 +60,7 @@ var realAddressDestination = models.Address{
 func (suite *PlannerFullSuite) TestAddressPlanner() {
 	distance, err := suite.planner.TransitDistance(&realAddressSource, &realAddressDestination)
 	if err != nil {
-		suite.T().Errorf("Failed to get distance from Planner - %v", err)
+		suite.Fail("Failed to get distance from Planner", err)
 	}
 
 	// This test is 'fragile' in that it will begin to fail should trucking routes between the two addresses change.
