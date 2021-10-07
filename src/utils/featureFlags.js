@@ -50,6 +50,9 @@ const environmentFlags = {
 
   demo: {
     ...defaultFlags,
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
     markerIO: true,
   },
 
