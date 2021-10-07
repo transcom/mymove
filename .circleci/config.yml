@@ -2332,9 +2332,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
-          filters:
-            branches:
-              only: master
 
       - push_app_prd:
           requires:
