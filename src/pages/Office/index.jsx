@@ -239,6 +239,20 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
+                    <PrivateRoute
+                      key="primeSimulatorUpdateShipmentPath"
+                      path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
+                      component={() => <div>Update shipment path for prime simulator</div>}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreatePaymentRequestsPath"
+                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST}
+                      component={() => <div>Create payment request path for prime simulator</div>}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
                     {/* PPM & TXO conflicting routes - select based on user role */}
                     {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
