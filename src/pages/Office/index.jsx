@@ -60,6 +60,9 @@ const ServicesCounselingAddShipment = lazy(() =>
 const PrimeSimulatorAvailableMoves = lazy(() =>
   import('pages/PrimeUI/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
 );
+const PrimeSimulatorCreatePaymentRequest = lazy(() =>
+  import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
+);
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -158,6 +161,7 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
+
     return (
       <>
         <div id="app-root">
@@ -230,6 +234,12 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    {/* Prime Simulator */}
+                    <Route
+                      path="/simulator/moves/:moveCode/payment-requests/new"
+                      component={PrimeSimulatorCreatePaymentRequest}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}

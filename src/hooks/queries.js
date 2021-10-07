@@ -16,7 +16,7 @@ import {
   getShipmentsPaymentSITBalance,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
-import { getPrimeSimulatorAvailableMoves } from 'services/primeApi';
+import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -33,6 +33,7 @@ import {
   SERVICES_COUNSELING_QUEUE,
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
+  PRIME_SIMULATOR_MOVE,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -392,6 +393,19 @@ export const usePrimeSimulatorAvailableMovesQueries = () => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
   return {
     listMoves: data,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePrimeSimulatorGetMove = (moveCode) => {
+  const { data, ...primeSimulatorGetMoveQuery } = useQuery([PRIME_SIMULATOR_MOVE, moveCode], getPrimeSimulatorMove);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
+
+  return {
+    data,
     isLoading,
     isError,
     isSuccess,
