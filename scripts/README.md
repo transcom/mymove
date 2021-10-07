@@ -69,8 +69,6 @@ For example, to run in the `exp` environment, you'd run:
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-migrations exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls exp
-DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-niprnet stg
-DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls-niprnet stg
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks exp
 ```
 
@@ -79,8 +77,6 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/d
 | `deploy-app-migrations`         | Deploy the app migrations                                               |
 | `deploy-app`                    | Deploy the app                                                          |
 | `deploy-app-client-tls`         | Deploy the app client-tls                                               |
-| `deploy-app-client-tls-niprnet` | Deploy the app client-tls for NIPRNet                                   |
-| `deploy-app-niprnet`            | Deploy the app for NIPRNet                                              |
 | `deploy-app-tasks`              | Deploy the app tasks                                                    |
 
 ## Pre-commit Scripts

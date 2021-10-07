@@ -338,6 +338,7 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    move,
   };
 };
 

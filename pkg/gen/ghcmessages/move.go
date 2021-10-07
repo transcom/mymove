@@ -23,6 +23,10 @@ type Move struct {
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+	// billable weights reviewed at
+	// Format: date-time
+	BillableWeightsReviewedAt *strfmt.DateTime `json:"billableWeightsReviewedAt,omitempty"`
+
 	// contractor
 	Contractor *Contractor `json:"contractor,omitempty"`
 
@@ -94,6 +98,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBillableWeightsReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateContractor(formats); err != nil {
 		res = append(res, err)
 	}
@@ -154,6 +162,18 @@ func (m *Move) validateAvailableToPrimeAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateBillableWeightsReviewedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.BillableWeightsReviewedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("billableWeightsReviewedAt", "body", "date-time", m.BillableWeightsReviewedAt.String(), formats); err != nil {
 		return err
 	}
 

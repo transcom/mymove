@@ -35,7 +35,7 @@ func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader,
 	move := makeMoveForOrders(orders, db, "S150KB", models.MoveStatusSUBMITTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("68034aa3-831c-4d2d-9fd4-b66bc0cc5130"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -45,7 +45,7 @@ func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, p
 	move := makeMoveForOrders(orders, db, "MED2MB", models.MoveStatusSUBMITTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("4de88d57-9723-446b-904c-cf8d0a834687"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -55,7 +55,7 @@ func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, 
 	move := makeMoveForOrders(orders, db, "LG25MB", models.MoveStatusSUBMITTED)
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func makeServiceMember(db *pop.Connection) models.ServiceMember {
@@ -235,13 +235,13 @@ func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStat
 	return MTOShipment
 }
 
-func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment, db *pop.Connection, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID) {
+func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment, db *pop.Connection, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            paymentRequestID,
 			MoveTaskOrder: move,
 			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+			Status:        status,
 		},
 		Move: move,
 	})
