@@ -31,7 +31,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, primeSimulatorRoutes } from 'constants/routes';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -60,7 +60,6 @@ const ServicesCounselingAddShipment = lazy(() =>
 const PrimeSimulatorAvailableMoves = lazy(() =>
   import('pages/PrimeUI/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
 );
-
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -230,6 +229,14 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    {/* PRIME SIMULATOR */}
+                    <PrivateRoute
+                      key="primeSimulatorMovePath"
+                      path={primeSimulatorRoutes.VIEW_MOVE_PATH}
+                      component={() => <div>View move path for prime simulator</div>}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
