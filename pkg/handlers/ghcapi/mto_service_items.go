@@ -103,7 +103,6 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		UpdatedObjectID: existingMTOServiceItem.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
-		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 

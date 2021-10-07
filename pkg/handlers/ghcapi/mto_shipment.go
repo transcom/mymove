@@ -228,7 +228,6 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		UpdatedObjectID: updatedMtoShipment.ID,              // ID of the updated logical object
 		MtoID:           updatedMtoShipment.MoveTaskOrderID, // ID of the associated Move
 		Request:         params.HTTPRequest,                 // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                        // Pass on the pop.Connection
 		HandlerContext:  h,                                  // Pass on the handlerContext
 	})
 	// If the event trigger fails, just log the error.
@@ -294,7 +293,6 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(appCtx appcontext.Ap
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                  // Pass on the pop.Connection
 		HandlerContext:  h,                            // Pass on the handlerContext
 	})
 
@@ -360,7 +358,6 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.A
 		UpdatedObjectID: shipmentID,                    // ID of the updated logical object
 		MtoID:           moveID,                        // ID of the associated Move
 		Request:         params.HTTPRequest,            // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                   // Pass on the pop.Connection
 		HandlerContext:  h,                             // Pass on the handlerContext
 	})
 
@@ -426,8 +423,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(ap
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                            // Pass on the pop.Connection
-		HandlerContext:  h,                                      // Pass on the handlerContext
+		HandlerContext:  h,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -492,7 +488,6 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(a
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                            // Pass on the pop.Connection
 		HandlerContext:  h,                                      // Pass on the handlerContext
 	})
 
@@ -555,7 +550,6 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.A
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                  // Pass on the pop.Connection
 		HandlerContext:  h,                            // Pass on the handlerContext
 	})
 
@@ -621,7 +615,6 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 		UpdatedObjectID: shipmentID,                                // ID of the updated logical object
 		MtoID:           moveID,                                    // ID of the associated Move
 		Request:         params.HTTPRequest,                        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                               // Pass on the pop.Connection
 		HandlerContext:  h,                                         // Pass on the handlerContext
 	})
 
@@ -693,7 +686,6 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx
 		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
 		MtoID:           moveID,                               // ID of the associated Move
 		Request:         params.HTTPRequest,                   // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                          // Pass on the pop.Connection
 		HandlerContext:  h,                                    // Pass on the handlerContext
 	})
 
@@ -761,7 +753,6 @@ func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(appCtx appco
 		UpdatedObjectID: shipmentID,                        // ID of the updated logical object
 		MtoID:           moveID,                            // ID of the associated Move
 		Request:         params.HTTPRequest,                // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                       // Pass on the pop.Connection
 		HandlerContext:  h,                                 // Pass on the handlerContext
 	})
 
@@ -829,7 +820,6 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.
 		UpdatedObjectID: shipmentID,                     // ID of the updated logical object
 		MtoID:           moveID,                         // ID of the associated Move
 		Request:         params.HTTPRequest,             // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                    // Pass on the pop.Connection
 		HandlerContext:  h,                              // Pass on the handlerContext
 	})
 

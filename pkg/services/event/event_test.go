@@ -82,7 +82,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -101,7 +100,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -124,7 +122,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -142,7 +139,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -158,7 +154,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     "Bad Endpoint Key That Doesn't Exist",
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -180,7 +175,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -221,7 +215,6 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -282,7 +275,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcApproveShipmentEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -342,7 +334,6 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcCreateMTOServiceItemEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 
 		suite.Nil(err)
@@ -373,7 +364,6 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -417,7 +407,6 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		}
 		_, err := TriggerEvent(event)
 		suite.NoError(err)

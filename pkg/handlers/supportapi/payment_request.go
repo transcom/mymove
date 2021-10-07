@@ -141,8 +141,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		UpdatedObjectID: updatedPaymentRequest.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.SupportUpdatePaymentRequestStatusEndpointKey,
-		DBConnection:    appCtx.DB(),
-		HandlerContext:  h,
+		HandlerContext:  h.HandlerContext,
 	})
 	if err != nil {
 		appCtx.Logger().Error("supportapi.UpdatePaymentRequestStatusHandler could not generate the event")

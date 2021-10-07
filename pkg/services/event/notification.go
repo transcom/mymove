@@ -46,8 +46,10 @@ func notificationSave(event *Event, payload *[]byte) error {
 		newNotification.TraceID = &trace
 	}
 
+	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
+
 	// Creates the notification entry in the DB
-	verrs, err := event.DBConnection.ValidateAndCreate(&newNotification)
+	verrs, err := appCtx.DB().ValidateAndCreate(&newNotification)
 	if verrs.Count() > 0 {
 		event.logger.Error("event.notificationSave error", zap.Error(verrs))
 		return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
@@ -65,7 +67,7 @@ func notificationSave(event *Event, payload *[]byte) error {
 // error as well.
 func checkAvailabilityToPrime(event *Event) (bool, error) {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger, nil)
+	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
 	availableToPrime, err := mtoChecker.MTOAvailableToPrime(appCtx, event.MtoID)
 	if err != nil {
 		unknownErr := apperror.NewEventError("Unknown error checking prime availability", err)
@@ -208,7 +210,7 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 // Returns bool indicating whether notification was stored, and error if there was one
 // encountered.
 func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger, nil)
+	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
 
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
@@ -277,7 +279,7 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// case models.Order:
 	var payloadArray []byte
 	var err error
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger, nil)
+	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
 	payloadArray, _ = assembleOrderPayload(appCtx, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB

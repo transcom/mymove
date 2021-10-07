@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -35,9 +34,8 @@ type Event struct {
 	MtoID           uuid.UUID               // This is the ID of the MTO that the object is associated with
 	UpdatedObjectID uuid.UUID               // This is the ID of the object itself (PaymentRequest.ID)
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
-	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          *zap.Logger             // The logger
+	logger          *zap.Logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -188,8 +186,8 @@ func TriggerEvent(event Event) (*Event, error) {
 		err := apperror.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", event.EventKey), nil)
 		return nil, err
 	}
-	// Check that DB and context were passed in
-	if event.DBConnection == nil || event.HandlerContext == nil {
+	// Check that Request and context were passed in
+	if event.Request == nil || event.HandlerContext == nil {
 		err := apperror.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
 		return nil, err
 	}

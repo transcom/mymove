@@ -361,7 +361,6 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -379,7 +378,6 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -397,7 +395,6 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -415,7 +412,6 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -433,7 +429,6 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -451,7 +446,6 @@ func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTI
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -469,7 +463,6 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 		UpdatedObjectID: moveID,                            // ID of the updated logical object
 		MtoID:           moveID,                            // ID of the associated Move
 		Request:         params.HTTPRequest,                // Pass on the http.Request
-		DBConnection:    appCtx.DB(),                       // Pass on the pop.Connection
 		HandlerContext:  h,                                 // Pass on the handlerContext
 	})
 

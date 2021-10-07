@@ -107,7 +107,6 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
-		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
@@ -166,7 +165,6 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey,
-		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
@@ -223,7 +221,6 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOReviewedBillableWeightsEndpointKey,
-		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {

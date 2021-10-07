@@ -73,7 +73,6 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		UpdatedObjectID: updatedPaymentServiceItem.PaymentRequestID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
-		DBConnection:    appCtx.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
