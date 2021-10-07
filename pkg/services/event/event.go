@@ -11,7 +11,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -203,13 +202,8 @@ func TriggerEvent(event Event) (*Event, error) {
 		}
 	}
 
-	// Get logger from HandlerContext
-	clientCert := authentication.ClientCertFromRequestContext(event.Request)
-	if clientCert != nil {
-		event.logger = event.HandlerContext.LoggerFromRequest(event.Request)
-	} else {
-		_, event.logger = event.HandlerContext.SessionAndLoggerFromRequest(event.Request)
-	}
+	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
+	event.logger = appCtx.Logger()
 
 	// Call each registered event handler with the event info and context
 	// Collect errors, this is to avoid one registered handler failure to
