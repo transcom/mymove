@@ -117,7 +117,9 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 			mockHider,
 		}
 
-		mockHider.On("Hide").Return(hiddenMoves, errors.New("MTOs not retrieved"))
+		mockHider.On("Hide",
+			mock.AnythingOfType("*appcontext.appContext"),
+		).Return(hiddenMoves, errors.New("MTOs not retrieved"))
 
 		response := handler.Handle(params)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
@@ -142,7 +144,9 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 			context,
 			mockHider,
 		}
-		mockHider.On("Hide").Return(hiddenMoves, nil)
+		mockHider.On("Hide",
+			mock.AnythingOfType("*appcontext.appContext"),
+		).Return(hiddenMoves, nil)
 
 		response := handler.Handle(params)
 		moveTaskOrdersResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)

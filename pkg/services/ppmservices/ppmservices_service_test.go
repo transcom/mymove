@@ -20,9 +20,9 @@ func (suite *PPMServiceSuite) SetupTest() {
 	suite.FatalNoError(err)
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *PPMServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *PPMServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestPPMServiceSuite(t *testing.T) {

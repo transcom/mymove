@@ -18,7 +18,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("successfully returns default draft move", func(t *testing.T) {
 		expectedMove := testdatagen.MakeDefaultMove(suite.DB())
 
-		actualMove, err := moveFetcher.FetchMove(suite.TestAppContext(), expectedMove.Locator, &defaultSearchParams)
+		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
 
 		suite.Equal(expectedMove.ID, actualMove.ID)
@@ -36,7 +36,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("successfully returns submitted move available to prime", func(t *testing.T) {
 		expectedMove := testdatagen.MakeAvailableMove(suite.DB())
 
-		actualMove, err := moveFetcher.FetchMove(suite.TestAppContext(), expectedMove.Locator, &defaultSearchParams)
+		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
 
 		suite.Equal(expectedMove.ID, actualMove.ID)
@@ -54,7 +54,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
-		_, err := moveFetcher.FetchMove(suite.TestAppContext(), "QX97UY", &defaultSearchParams)
+		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), "QX97UY", &defaultSearchParams)
 		suite.Error(err)
 		suite.True(errors.Is(err, apperror.NotFoundError{}))
 	})
@@ -71,7 +71,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 			IncludeHidden: false,
 		}
 
-		_, err := moveFetcher.FetchMove(suite.TestAppContext(), locator, &searchParams)
+		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), locator, &searchParams)
 
 		suite.Error(err)
 		suite.True(errors.Is(err, apperror.NotFoundError{}))
@@ -89,7 +89,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 			IncludeHidden: true,
 		}
 
-		expectedMove, err := moveFetcher.FetchMove(suite.TestAppContext(), locator, &searchParams)
+		expectedMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), locator, &searchParams)
 
 		suite.FatalNoError(err)
 		suite.Equal(expectedMove.ID, actualMove.ID)

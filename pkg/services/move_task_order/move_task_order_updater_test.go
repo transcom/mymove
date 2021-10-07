@@ -41,7 +41,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	suite.RunWithRollback("MTO status is updated succesfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
-		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.TestAppContext(), expectedMTO.ID, eTag)
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(actualMTO.ID)
@@ -58,7 +58,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		})
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.TestAppContext(), expectedMTO.ID, eTag)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
 
 		suite.IsType(apperror.ConflictError{}, err)
 	})
@@ -71,7 +71,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			Order: expectedOrder,
 		})
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.TestAppContext(), expectedMTO.ID, eTag)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -100,7 +100,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	suite.RunWithRollback("MTO post counseling information is updated succesfully", func() {
 		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
-		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(suite.TestAppContext(), expectedMTO.ID, body, eTag)
+		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, body, eTag)
 
 		suite.NoError(err)
 
@@ -120,7 +120,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	suite.RunWithRollback("Etag is stale", func() {
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.TestAppContext(), expectedMTO.ID, body, eTag)
+		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, body, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -148,7 +148,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move successfully deactivated
 	suite.RunWithRollback("Success - Set show field to false", func() {
 		show = false
-		updatedMove, err := updater.ShowHide(suite.TestAppContext(), move.ID, &show)
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
@@ -159,7 +159,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move successfully activated
 	suite.RunWithRollback("Success - Set show field to true", func() {
 		show = true
-		updatedMove, err := updater.ShowHide(suite.TestAppContext(), move.ID, &show)
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
@@ -170,7 +170,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move UUID not found in DB
 	suite.Run("Fail - Move not found", func() {
 		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		updatedMove, err := updater.ShowHide(suite.TestAppContext(), badMoveID, &show)
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), badMoveID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -180,7 +180,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Show input value is nil, not True or False
 	suite.RunWithRollback("Fail - Nil value in show field", func() {
-		updatedMove, err := updater.ShowHide(suite.TestAppContext(), move.ID, nil)
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, nil)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -198,7 +198,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, apperror.InvalidInputError{})
 
-		updatedMove, err := mockUpdater.ShowHide(suite.TestAppContext(), move.ID, &show)
+		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -214,7 +214,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, apperror.QueryError{})
 
-		updatedMove, err := mockUpdater.ShowHide(suite.TestAppContext(), move.ID, &show)
+		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -233,7 +233,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
@@ -255,7 +255,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		})
 
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
@@ -277,7 +277,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		updatedMove, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, true, true)
+		updatedMove, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		suite.NoError(err)
 		suite.NotNil(updatedMove.AvailableToPrimeAt)
@@ -308,7 +308,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, true, false)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, false)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
@@ -336,7 +336,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, false, true)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, true)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
@@ -361,7 +361,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, false, false)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, false)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.NoError(err)
@@ -386,7 +386,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.TestAppContext(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
@@ -406,7 +406,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		updatedMove, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.TestAppContext(), move.ID, eTag)
+		updatedMove, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.AppContextForTest(), move.ID, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedMove.BillableWeightsReviewedAt)
@@ -425,7 +425,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 		})
 
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.TestAppContext(), move.ID, eTag)
+		_, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.AppContextForTest(), move.ID, eTag)
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})

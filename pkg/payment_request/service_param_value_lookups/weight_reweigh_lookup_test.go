@@ -10,7 +10,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightReweighLookup() {
 
 	suite.Run("reweigh weight is present on MTO Shipment", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
@@ -19,10 +19,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightReweighLookup() {
 		// Set the reweigh weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.NoError(err)
 		suite.Equal("", valueStr)
 	})

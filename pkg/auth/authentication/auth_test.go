@@ -82,8 +82,8 @@ func (suite *AuthSuite) SetupTest() {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *AuthSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *AuthSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestAuthSuite(t *testing.T) {

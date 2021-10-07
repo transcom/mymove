@@ -16,9 +16,9 @@ type ValidatePostalCodeTestSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *ValidatePostalCodeTestSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *ValidatePostalCodeTestSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestValidatePostalCodeTestSuite(t *testing.T) {
@@ -35,7 +35,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_ValidPostalCode
 	postalCode := "30813"
 
 	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.TestAppContext(), postalCode, postalCodeType)
+	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
 
 	suite.True(valid)
 }
@@ -45,7 +45,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_InvalidPostalCo
 	postalCode := "00000"
 
 	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.TestAppContext(), postalCode, postalCodeType)
+	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
 
 	suite.False(valid)
 }

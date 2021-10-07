@@ -27,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 
 	subtestData.move = testdatagen.MakeMove(suite.DB(), assertions)
 
-	subtestData.appCtx = suite.TestAppContext()
+	subtestData.appCtx = suite.AppContextForTest()
 
 	builder := query.NewQueryBuilder()
 	createNewBuilder := func() createMTOShipmentQueryBuilder {

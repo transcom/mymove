@@ -47,7 +47,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		}
 		// Ugh. Use the global logger. All testdatagen methods should
 		// take a logger
-		appCtx := appcontext.NewAppContext(db, zap.L())
+		appCtx := appcontext.NewAppContext(db, zap.L(), nil)
 		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(appCtx, &posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))

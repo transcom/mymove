@@ -531,7 +531,8 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	}
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID).Return(mockedSitCharge, mockedCost, nil).Once()
 	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
@@ -895,11 +896,11 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	moveRouter := moverouter.NewMoveRouter()
 
-	err := moveRouter.Submit(suite.TestAppContext(), &move)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = moveRouter.Approve(suite.TestAppContext(), &move)
+	err = moveRouter.Approve(suite.AppContextForTest(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

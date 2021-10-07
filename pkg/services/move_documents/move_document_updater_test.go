@@ -33,7 +33,7 @@ func setup(suite *MoveDocumentServiceSuite) (*models.MoveDocument, uuid.UUID, ap
 		})
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Require().Nil(err)
-	appCtx := appcontext.WithSession(suite.TestAppContext(), session)
+	appCtx := suite.AppContextForTest(session)
 	return originalMoveDocument, moveDocument.ID, appCtx
 }
 
@@ -59,7 +59,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	_, verrs, err := mdu.Update(suite.TestAppContext(), updateMoveDocPayload, moveDocumentID)
+	_, verrs, err := mdu.Update(appCtx, updateMoveDocPayload, moveDocumentID)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 	weightTicketUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)

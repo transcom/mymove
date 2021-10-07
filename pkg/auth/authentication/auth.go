@@ -652,7 +652,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			filters := []services.QueryFilter{
 				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
 			}
-			appCtx := appcontext.NewAppContext(h.db, h.logger)
+			appCtx := appcontext.NewAppContext(h.db, h.logger, nil)
 			err := queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
@@ -726,7 +726,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	var adminUser models.AdminUser
 	if session.IsAdminApp() {
 		queryBuilder := query.NewQueryBuilder()
-		appCtx := appcontext.NewAppContext(h.db, h.logger)
+		appCtx := appcontext.NewAppContext(h.db, h.logger, nil)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("email", "=", session.Email),
 		}
@@ -752,7 +752,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil {
-			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
+			appCtx := appcontext.NewAppContext(h.db, h.logger, session)
 			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
 			h.logger.Info(
 				"New user account created through Login.gov",

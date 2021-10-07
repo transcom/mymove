@@ -50,7 +50,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := ppmc.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := ppmc.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -107,7 +107,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	_, verrs, err := ppmc.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	_, verrs, err := ppmc.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)

@@ -31,11 +31,11 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		expected := availableToPrimeAt.Format(ghcrateengine.TimestampParamFormat)
 		suite.Equal(expected, valueStr)
@@ -48,7 +48,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		moveTaskOrder.AvailableToPrimeAt = nil
 		suite.MustSave(&moveTaskOrder)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		suite.IsType(&apperror.BadDataError{}, errors.Unwrap(err))
 		expected := fmt.Sprintf("Data received from requester is bad: %s: This move task order is not available to prime", apperror.BadDataCode)
@@ -62,10 +62,10 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	suite.T().Run("bogus MoveTaskOrderID", func(t *testing.T) {
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
-		badParamLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)
+		badParamLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := badParamLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := badParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)

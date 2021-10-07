@@ -39,7 +39,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.AppContextForTest(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 2)
@@ -71,7 +71,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.AppContextForTest(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
@@ -101,7 +101,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.AppContextForTest(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)

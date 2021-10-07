@@ -32,7 +32,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		}
 		sev := int64(newSub.Severity)
 		eTag := etag.GenerateEtag(origSub.UpdatedAt)
-		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, &sev, &eTag)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.AppContextForTest(), &newSub, &sev, &eTag)
 
 		suite.NoError(err)
 		suite.Equal(newSub.CallbackURL, updatedSub.CallbackURL)
@@ -52,7 +52,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			ID:          fakeID,
 			CallbackURL: "/this/is/changed/again"}
 
-		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, nil, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.AppContextForTest(), &newSub, nil, nil)
 
 		suite.Equal(models.RecordNotFoundErrorString, err.Error())
 		suite.Nil(updatedSub)
@@ -71,7 +71,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			CallbackURL:  "/this/is/changed/again",
 		}
 
-		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, nil, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.AppContextForTest(), &newSub, nil, nil)
 
 		suite.Error(err)
 		suite.Nil(updatedSub)
@@ -89,7 +89,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		}
 		sev := int64(newSub.Severity)
 		eTag := etag.GenerateEtag(time.Now())
-		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, &sev, &eTag)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.AppContextForTest(), &newSub, &sev, &eTag)
 
 		suite.Error(err)
 		suite.Nil(updatedSub)

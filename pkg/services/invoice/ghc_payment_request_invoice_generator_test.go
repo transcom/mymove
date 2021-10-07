@@ -35,9 +35,9 @@ type GHCInvoiceSuite struct {
 	icnSequencer sequence.Sequencer
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *GHCInvoiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *GHCInvoiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *GHCInvoiceSuite) SetupTest() {
@@ -286,7 +286,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests
-	result, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
+	result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 	suite.NoError(err)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
@@ -742,7 +742,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 		assertions,
 	)
 
-	_, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
+	_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 	suite.NoError(err)
 }
 
@@ -812,7 +812,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
 		// nolint:errcheck
-		generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+		generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
@@ -826,7 +826,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		blank := ""
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
-		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+		_, err := generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -836,7 +836,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	suite.T().Run("nil TAC returns error", func(t *testing.T) {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
-		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+		_, err := generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -930,7 +930,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		assertions,
 	)
 
-	result, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
+	result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 	suite.Error(err)
 
 	suite.T().Run("Service items that are not approved should be not added to invoice", func(t *testing.T) {

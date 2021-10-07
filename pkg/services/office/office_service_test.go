@@ -16,8 +16,8 @@ type OfficeServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *OfficeServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *OfficeServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestUserSuite(t *testing.T) {

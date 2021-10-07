@@ -79,7 +79,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -214,14 +214,14 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 	}
 	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.TestAppContext(), updateMoveDocOnePayload, originalMoveDocumentOne)
+	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocOnePayload, originalMoveDocumentOne)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 
 	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
-	umd, verrs, err = wtu.Update(suite.TestAppContext(), updateMoveDocTwoPayload, originalMoveDocumentTwo)
+	umd, verrs, err = wtu.Update(suite.AppContextForTest(session), updateMoveDocTwoPayload, originalMoveDocumentTwo)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -301,7 +301,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -395,7 +395,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -493,7 +493,7 @@ func (suite *MoveDocumentServiceSuite) TestMakeAndModelUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.TestAppContext(), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)

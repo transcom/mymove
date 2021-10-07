@@ -597,7 +597,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
@@ -629,7 +629,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false, when no status flag is set", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -655,7 +655,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	})
 
 	suite.T().Run("successful update of a given reviewed payment request", func(t *testing.T) {
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -685,7 +685,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("fail if required send to syncada flag is not set", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -785,8 +785,6 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 	method := "POST"
 	urlFormat := "/payment-requests/%s/recalculate"
 
-	appCtx := suite.TestAppContext()
-
 	suite.T().Run("golden path", func(t *testing.T) {
 		samplePaymentRequest := models.PaymentRequest{
 			ID:                              uuid.Must(uuid.NewV4()),
@@ -799,7 +797,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 
 		mockRecalculator := &mocks.PaymentRequestRecalculator{}
 		mockRecalculator.On("RecalculatePaymentRequest",
-			appCtx,
+			mock.AnythingOfType("*appcontext.appContext"),
 			paymentRequestID,
 		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
@@ -873,7 +871,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		suite.T().Run(testName, func(t *testing.T) {
 			mockRecalculator := &mocks.PaymentRequestRecalculator{}
 			mockRecalculator.On("RecalculatePaymentRequest",
-				appCtx,
+				mock.AnythingOfType("*appcontext.appContext"),
 				paymentRequestID,
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{

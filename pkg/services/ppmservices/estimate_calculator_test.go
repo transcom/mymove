@@ -45,7 +45,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 		"95632",
 	).Return(3200, nil)
 	calculator := NewEstimateCalculator(planner)
-	sitCharge, _, err := calculator.CalculateEstimates(suite.TestAppContext(), &ppm, moveID)
+	sitCharge, _, err := calculator.CalculateEstimates(suite.AppContextForTest(), &ppm, moveID)
 	suite.NoError(err)
 	suite.Equal(int64(171401), sitCharge)
 }
@@ -78,7 +78,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 		"95632",
 	).Return(3200, nil)
 	calculator := NewEstimateCalculator(planner)
-	sitCharge, _, err := calculator.CalculateEstimates(suite.TestAppContext(), &ppm, moveID)
+	sitCharge, _, err := calculator.CalculateEstimates(suite.AppContextForTest(), &ppm, moveID)
 	suite.NoError(err)
 	suite.Equal(int64(0), sitCharge)
 }
@@ -116,7 +116,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	if err != nil {
 		suite.logger.Fatal("failure to get uuid from string")
 	}
-	_, _, err = calculator.CalculateEstimates(suite.TestAppContext(), &ppm, nonExistentMoveID)
+	_, _, err = calculator.CalculateEstimates(suite.AppContextForTest(), &ppm, nonExistentMoveID)
 
 	suite.Error(err)
 }

@@ -71,7 +71,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShimpentSubtestData() (subtes
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
 
-	subtestData.appCtx = suite.TestAppContext()
+	subtestData.appCtx = suite.AppContextForTest()
 
 	return subtestData
 }

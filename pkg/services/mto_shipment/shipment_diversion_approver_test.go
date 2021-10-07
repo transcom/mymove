@@ -30,7 +30,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		divertedShipment, err := approver.ApproveShipmentDiversion(suite.TestAppContext(), shipment.ID, shipmentEtag)
+		divertedShipment, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
@@ -54,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := approver.ApproveShipmentDiversion(suite.TestAppContext(), rejectedShipment.ID, eTag)
+		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -69,7 +69,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 			},
 		})
 
-		_, err := approver.ApproveShipmentDiversion(suite.TestAppContext(), staleShipment.ID, staleETag)
+		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -79,7 +79,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := approver.ApproveShipmentDiversion(suite.TestAppContext(), badShipmentID, eTag)
+		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -102,7 +102,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 
 		shipmentRouter.On("ApproveDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = approver.ApproveShipmentDiversion(suite.TestAppContext(), shipment.ID, eTag)
+		_, err = approver.ApproveShipmentDiversion(suite.AppContextForTest(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "ApproveDiversion", 1)

@@ -35,7 +35,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 
 	// Payment Request 1
-	paymentRequest1, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
+	paymentRequest1, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	// Add a couple of proof of service docs and prime uploads.
@@ -63,7 +63,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	// Create additional payment request for same shipment
 	// Payment Request 2
 	var paymentRequest2 *models.PaymentRequest
-	paymentRequest2, err = creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg2)
+	paymentRequest2, err = creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg2)
 	suite.FatalNoError(err)
 
 	// Add a couple of proof of service docs and prime uploads.
@@ -88,7 +88,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(recalculator)
 
 	var newPaymentRequests *models.PaymentRequests
-	newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), mtoShipment.ID)
+	newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), mtoShipment.ID)
 	suite.NoError(err, "successfully recalculated shipment's payment request")
 	suite.Equal(2, len(*newPaymentRequests))
 
@@ -146,14 +146,14 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	// Setup baseline move/shipment/service items data along with needed rate data.
 	_ /*move*/, paymentRequestArg := suite.setupRecalculateData1()
 
-	paidPaymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
+	paidPaymentRequest, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	suite.T().Run("Fail to find shipment ID", func(t *testing.T) {
 		bogusShipmentID := uuid.Must(uuid.NewV4())
 
 		var returnPaymentRequests *models.PaymentRequests
-		returnPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), bogusShipmentID)
+		returnPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), bogusShipmentID)
 		suite.NoError(err) // Not finding a shipment ID doesn't produce an error. Simply no payment requests are found
 		suite.Nil((*models.PaymentRequests)(nil), returnPaymentRequests)
 	})
@@ -165,7 +165,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 
 		mockPlanner := &mocks.PaymentRequestRecalculator{}
 		mockPlanner.On("RecalculatePaymentRequest",
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			paidPaymentRequest,
 		).Return(nil, apperror.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 
@@ -178,7 +178,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		suite.FatalNoError(err)
 
 		var newPaymentRequests *models.PaymentRequests
-		newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *oldPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
+		newPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), *oldPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
 		suite.NoError(err)
 		suite.Nil((*models.PaymentRequests)(nil), newPaymentRequests)
 	})
@@ -203,7 +203,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 			"PaymentServiceItems.MTOServiceItem")
 		suite.NoError(err)
 
-		returnPaymentRequests, err := shipmentRecalculatorWithMockRecalculate.ShipmentRecalculatePaymentRequest(suite.TestAppContext(), *pendingPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
+		returnPaymentRequests, err := shipmentRecalculatorWithMockRecalculate.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), *pendingPaymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)
 		}

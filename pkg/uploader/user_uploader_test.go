@@ -24,7 +24,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(userUpload.Upload.ContentType, "application/pdf")
@@ -40,7 +40,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(userUpload, "returned an upload when erroring")
@@ -55,7 +55,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -70,7 +70,7 @@ func (suite *UploaderSuite) TestTooLargeUserUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	_, verrs, err := userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: f}, uploader.AllowedTypesAny)
+	_, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -89,7 +89,7 @@ func (suite *UploaderSuite) TestUserUploadStorerCalledWithTags() {
 	tags := "metaDataTag=value"
 
 	// assert tags are passed along to storer
-	_, verrs, err := userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+	_, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -106,14 +106,14 @@ func (suite *UploaderSuite) TestCreateUserUploadNoDocument() {
 	suite.NoError(err)
 
 	// Create file and upload
-	userUpload, verrs, err := userUploader.CreateUserUpload(suite.TestAppContext(), userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	userUpload, verrs, err := userUploader.CreateUserUpload(suite.AppContextForTest(), userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(userUpload, "failed to create upload structure")
 	file.Close()
 
 	// Download file and test size
-	download, err := userUploader.Download(suite.TestAppContext(), userUpload)
+	download, err := userUploader.Download(suite.AppContextForTest(), userUpload)
 	suite.NoError(err)
 	defer download.Close()
 
@@ -130,6 +130,6 @@ func (suite *UploaderSuite) TestCreateUserUploadNoDocument() {
 	suite.NoError(err)
 
 	// Delete file previously uploaded
-	err = userUploader.DeleteUserUpload(suite.TestAppContext(), userUpload)
+	err = userUploader.DeleteUserUpload(suite.AppContextForTest(), userUpload)
 	suite.NoError(err)
 }
