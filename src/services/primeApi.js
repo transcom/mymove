@@ -21,23 +21,28 @@ export async function makePrimeSimulatorRequest(operationPath, params = {}, opti
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
+// TODO: Refactor this after reading through the `react-query` documentation
+// Lines are commented out because they are not necessary for the /moves Prime
+// API endpoint. Currently these arguments aren't being used for this Query but
+// are copied over from other examples here for historical reasons. This must
+// be refactored in the future.
 export async function getPrimeSimulatorAvailableMoves(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+  // { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
 ) {
   const operationPath = 'moveTaskOrder.listMoves';
-  const paramFilters = {};
-  filters.forEach((filter) => {
-    paramFilters[`${filter.id}`] = filter.value;
-  });
+  // const paramFilters = {};
+  // filters.forEach((filter) => {
+  //   paramFilters[`${filter.id}`] = filter.value;
+  // });
   return makePrimeSimulatorRequest(
     operationPath,
     {
-      sort,
-      order,
-      page: currentPage,
-      perPage: currentPageSize,
-      ...paramFilters,
+      // sort,
+      // order,
+      // page: currentPage,
+      // perPage: currentPageSize,
+      // ...paramFilters,
     },
     { schemaKey: 'listMoves', normalize: false },
   );
