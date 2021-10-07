@@ -416,7 +416,7 @@ export const usePrimeSimulatorAvailableMovesQueries = (
   // this case is a simple Array of Prime Available Moves.
   const queueResult = {
     data,
-    page: 0,
+    page: 1,
     perPage: data.length,
     totalCount: data.length,
   };
