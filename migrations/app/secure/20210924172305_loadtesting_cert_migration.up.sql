@@ -1,10 +1,7 @@
 
--- This migration allows a CAC cert to have read/write access to all orders and the prime API.
+-- This migration adds a cert that can access the MilMove Loadtest environment with mTLS.
 -- The Orders API and the Prime API use client certificate authentication. Only certificates
 -- signed by a trusted CA (such as DISA) are allowed which includes CACs.
--- Using a person's CAC as the certificate is a convenient way to permit a
--- single trusted individual to interact with the Orders API and the Prime API. Eventually
--- this CAC certificate should be removed.
 INSERT INTO public.client_certs (
 	id,
 	sha256_digest,
