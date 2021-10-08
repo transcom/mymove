@@ -82,9 +82,8 @@ System (USWDS) which MilMove builds as a foundation. Portions of the application
 will have a similar look and feel as the rest of the MilMove Office application.
 This helps users have a unified visual language when interacting with the Prime
 UI. Engineers contributing to the Prime UI will have a shared understanding of
-how to interact with the Prime API. This leads to having knowledge of the Prime
-API and the Office application shared across different engineering teams and
-practices.
+how to interact with the Prime API. This leads to shared knowledge of the Prime
+API and Office application across different engineering teams and practices.
 
 #### CODEOWNERS design reviews will be optional
 
