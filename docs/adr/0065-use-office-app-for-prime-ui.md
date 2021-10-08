@@ -87,11 +87,10 @@ API and Office application across different engineering teams and practices.
 
 #### CODEOWNERS design reviews will be optional
 
-Due to the reuse of React components, visual design of the application will not
-be necessary as components will be reused from their approved designs.
-Therefore, the designers will not need to be required to review any changes made
+Designers will not need to be required to review any changes made
 to the Prime UI application. Collaboration between design and engineering for
-the Prime UI is encouraged but not required.
+the Prime UI is encouraged but not required. This is enforced by the CODEOWNERS
+file having no reviewers for `src/*/PrimeUI/` directories.
 
 #### Handling Business Logic
 
