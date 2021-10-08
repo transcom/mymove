@@ -8,6 +8,8 @@ A description of the certificates in this directory will helpful:
 | --- | --- |
 | `api.demo.dp3.us.cert` | Certificate for api.demo.dp3.us |
 | `api.demo.dp3.us.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
+| `api.loadtest.dp3.us.crt` | Certificate for api.loadtest.dp3.us |
+| `api.loadtest.dp3.us.chain.der.p7b` | Certificate chain for api.loadtest.dp3.us (non-ATO) |
 | `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
 | `Certificates_PKCS7_v5.11_WCF.pem.p7b` | The collection of certs from which the dod-wcf-* certificates are derived. |
 | `devlocal-ca.key` | Devlocal CA Key |
@@ -146,6 +148,6 @@ CN=localhost,OU=Not Coast Guard Orders,O=Not Coast Guard,L=Washington,ST=DC,C=US
 
 The certificates live in the `client_certs` table for both the MilMove and Orders applications.
 
-## Certs for api.demo.dp3.us
+## Certs for api.demo.dp3.us and api.loadtest.dp3.us
 
 This certificate and chain were made with SSLMate. The key/pair and chain are held in the Engineer Vault for 1Password.
