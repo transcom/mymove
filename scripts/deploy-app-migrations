@@ -16,6 +16,11 @@ readonly environment="${1:-exp}"
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
+  loadtest)
+    compare_host=my.loadtest.dp3.us
+    export AWS_ACCOUNT_ID=469892416004
+    export AWS_PROFILE=transcom-gov-milmove-loadtest
+    ;;
   demo)
     compare_host=my.demo.dp3.us
     export AWS_ACCOUNT_ID=447641181206
@@ -37,7 +42,7 @@ case "${environment}" in
     export AWS_PROFILE=transcom-gov-milmove-prd
     ;;
   *)
-    echo "<environment> must be one of demo, exp, stg, or prd"
+    echo "<environment> must be one of loadtest, demo, exp, stg, or prd"
     exit 1
     ;;
 esac
