@@ -9,8 +9,8 @@
 ## Background
 
 Currently, neither the Government nor the contractor is able to fully test to
-use of the external GHC Prime API without the use of engineers work on
-delivering the project. This means that the Government is not able to do
+use of the external GHC Prime API without the help of engineers who are already
+working on the project. This means that the Government is not able to do
 acceptance of the work being delivered end-to-end and the non-technical member
 of the contracting team are not able to test internally or with users.
 
