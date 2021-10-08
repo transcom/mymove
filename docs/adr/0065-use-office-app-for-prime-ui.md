@@ -78,12 +78,17 @@ Simulator Role` must not exist.
 
 In order to get the benefits of using the Office app, the Prime UI must leverage
 React components of the Office application or the United States Web Design
-System (USWDS) which MilMove builds as a foundation. Portions of the application
-will have a similar look and feel as the rest of the MilMove Office application.
-This helps users have a unified visual language when interacting with the Prime
-UI. Engineers contributing to the Prime UI will have a shared understanding of
-how to interact with the Prime API. This leads to shared knowledge of the Prime
-API and Office application across different engineering teams and practices.
+System (USWDS) which MilMove builds on as a foundation for the design system for
+MilMove applications. Portions of the Prime UI application must have a similar
+look and feel as the rest of the MilMove Office application. This helps users
+have a unified visual language when interacting with the Prime UI. Engineers
+contributing to the Prime UI will have a shared understanding of how to interact
+with the Prime API. This leads to shared knowledge of the Prime API and Office
+application across different engineering teams and practices.
+
+For more clarity, Truss maintains the `React-USWDS` component library that is
+used in MilMove applications. The USWDS is purely a CSS library and while we do
+import it directly for some things, it's not the foundation of the application.
 
 #### CODEOWNERS design reviews will be optional
 
