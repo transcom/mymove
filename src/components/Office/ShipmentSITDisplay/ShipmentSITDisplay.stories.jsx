@@ -3,7 +3,7 @@ import MockDate from 'mockdate';
 import addons from '@storybook/addons';
 import { isHappoRun } from 'happo-plugin-storybook/register';
 
-import ShipmentSITExtensions from './ShipmentSITExtensions';
+import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
   SITExtensions,
   SITStatusOrigin,
@@ -12,7 +12,7 @@ import {
   SITStatusWithPastSITOriginServiceItem,
   SITStatusWithPastSITServiceItems,
   SITExtensionsWithComments,
-} from './ShipmentSITExtensionsTestParams';
+} from './ShipmentSITDisplayTestParams';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
@@ -33,22 +33,22 @@ export default {
   ],
 };
 
-export const AtOriginNoPreviousSIT = () => <ShipmentSITExtensions sitStatus={SITStatusOrigin} shipment={SITShipment} />;
+export const AtOriginNoPreviousSIT = () => <ShipmentSITDisplay sitStatus={SITStatusOrigin} shipment={SITShipment} />;
 
 export const AtDestinationNoPreviousSIT = () => (
-  <ShipmentSITExtensions sitStatus={SITStatusDestination} shipment={SITShipment} />
+  <ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />
 );
 
 export const AtDestinationPreviousSITAtOrigin = () => (
-  <ShipmentSITExtensions sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
+  <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
 );
 
 export const AtDestinationPreviousMulitpleSIT = () => (
-  <ShipmentSITExtensions sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />
+  <ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />
 );
 
 export const AtDestinationPreviousSITAndExtension = () => (
-  <ShipmentSITExtensions
+  <ShipmentSITDisplay
     sitExtensions={SITExtensions}
     sitStatus={SITStatusWithPastSITServiceItems}
     shipment={SITShipment}
@@ -56,7 +56,7 @@ export const AtDestinationPreviousSITAndExtension = () => (
 );
 
 export const AtDestinationPreviousSITAndExtensionWithComments = () => (
-  <ShipmentSITExtensions
+  <ShipmentSITDisplay
     sitExtensions={SITExtensionsWithComments}
     sitStatus={SITStatusWithPastSITServiceItems}
     shipment={SITShipment}

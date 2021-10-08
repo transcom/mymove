@@ -4,7 +4,7 @@ import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { SITStatusOrigin } from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
+import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 export const unapprovedMTOQuery = {
   orders: {
