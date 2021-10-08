@@ -3,9 +3,9 @@ const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
 const NO_INLINE_DISABLE = 'no-inline-disable';
 const messages = {
   [REQUIRES_APPROVAL_MESSAGE_ID]:
-    'Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more information, please visit https://github.com/transcom/mymove/wiki/Guide-to-Static-Analysis-Security-Workflow',
+    'Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more information, please visit https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Security-Workflow',
   [NO_ANNOTATION_MESSAGE_ID]:
-    'Disabling of this rule requires an annotation. Please visit https://github.com/transcom/mymove/wiki/Guide-to-Static-Analysis-Annotations-for-Disabled-Linters',
+    'Disabling of this rule requires an annotation. Please visit https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Annotations-for-Disabled-Linters',
   [NO_INLINE_DISABLE]: 'Please use eslint-disable-next-line instead of eslint-disable-line',
 };
 

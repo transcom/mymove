@@ -37,14 +37,14 @@ const fileChecks = () => {
 
   if (legacyFiles.created) {
     fail(`New files have been created under one of the legacy directories
-(src/shared or src/scenes). Please relocate them according to the file structure described [here](https://github.com/transcom/mymove/wiki/frontend#file-layout--naming).
+(src/shared or src/scenes). Please relocate them according to the file structure described [here](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming).
 
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/docs/adr/0048-frontend-file-org.md) for more information`);
   }
 
   if (legacyFiles.modified) {
     warn(`Files located in legacy directories (src/shared or src/scenes) have
-been edited. Are you sure you don’t want to also relocate them to the new [file structure](https://github.com/transcom/mymove/wiki/frontend#file-layout--naming)?
+been edited. Are you sure you don’t want to also relocate them to the new [file structure](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming)?
 
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/docs/adr/0048-frontend-file-org.md) for more information`);
   }
