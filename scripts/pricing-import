@@ -22,7 +22,7 @@ cat << EOM
 
 To get started, make sure you have cleared all 're_' prefixed tables (rate engine tables), and run the pricing parser on your most recent ghc pricing template.
 
-Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-pricing-import
+Overview of steps is in the wiki at https://transcom.github.io/mymove-docs/docs/dev/contributing/database/ghc-pricing-import
 
 Setup:
   1. make db_dev_reset db_dev_migrate
@@ -112,7 +112,7 @@ mv -v "${path}" "${prod_migration_name}"
 # Display next steps for user
 #
 
-# directions for creating a secure migration: https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations
+# directions for creating a secure migration: https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations
 
 cat << EOM
 Generated migration files:
