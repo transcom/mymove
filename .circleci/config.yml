@@ -22,7 +22,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for demo deploys. See the branch settings below.
-  demo-branch: &demo-branch placeholder_branch_name
+  demo-branch: &demo-branch mb-deploy-to-demo
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
