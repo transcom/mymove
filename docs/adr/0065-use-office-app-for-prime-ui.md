@@ -18,12 +18,12 @@ of the contracting team are not able to test internally or with users.
 
 Leveraging the Office application gives Truss engineers one less application to
 maintain. Users of MilMove applications will interact with the same visual user
-interface (UI) that they are used to with other MilMove applications. It is
-leveraged by using a `Prime Simulator Role` for the Office user. This is set via
-the Admin UI application, covered in [Use Query Builder for Admin
-Interface](035-us-query-builder.md), by assigning the role to Office users.
-Onboarding to Prime UI use can be done by non-engineers. Accessing the Prime UI
-will done without the aid or use of engineers.
+interface (UI) this is used to with other MilMove applications. The Office
+application is leveraged by using a `Prime Simulator Role` for the Office user.
+This is set via the Admin UI application, covered in [Use Query Builder for
+Admin Interface](035-us-query-builder.md), by assigning the role to Office
+users.  Onboarding to Prime UI use can be done by non-engineers. Accessing the
+Prime UI will done without the aid or use of engineers.
 
 ## Considered Alternatives
 
