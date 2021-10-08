@@ -64,9 +64,15 @@ decision's risks will become a problem for the maintenance of this application.
 Due to the nature of the Prime API contract, the Prime UI is an entirely
 internal application that will not be available in production environments. A
 secure migration for the application must be run in the production database
-which is a non-operational (NOOP) migration. This type of migration should be
-used for any environments which may be production-like or where the `Prime
+which is a non-operational (NOOP) migration. This is achieved by having an empty
+migration file with SQL comments. Please read the [documentation on Secure
+Migrations][docusaurus] by searching the Docusaurus site. _A direct
+link is not included here because the documentation site is going a
+restructuring while this ADR is being written_. This type of migration should be
+used for any environments which may be _production-like_ or where the `Prime
 Simulator Role` must not exist.
+
+[docusaurus]: https://transcom.github.io/mymove-docs/
 
 ### USWDS components are used where possible
 
