@@ -95,7 +95,6 @@ file having no reviewers for `src/*/PrimeUI/` directories.
 #### Handling Business Logic
 
 Future decisions will need to be made around how to handle Business Logic that
-the Users may expect to do in a single action that our RESTful API endpoints
-are not capable of doing. This means that either the Support API or Client-side
-data manipulation will have additional work to update or tie data behind the
-scenes.
+Users may expect to do in a single action that our RESTful API endpoints are not
+capable of doing. This means that either the Support API or Client-side data
+manipulation will have additional work to update or tie data behind the scenes.
