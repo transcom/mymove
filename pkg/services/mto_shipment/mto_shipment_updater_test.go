@@ -55,6 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
@@ -63,7 +64,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -710,6 +711,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
@@ -1080,7 +1082,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -1138,7 +1140,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -1258,7 +1260,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("appcontext.AppContext"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()

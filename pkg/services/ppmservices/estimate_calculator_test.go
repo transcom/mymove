@@ -41,6 +41,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		"94540",
 		"95632",
 	).Return(3200, nil)
@@ -74,6 +75,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		"94540",
 		"95632",
 	).Return(3200, nil)
@@ -108,6 +110,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	})
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(3200, nil)

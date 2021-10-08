@@ -186,6 +186,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(0, nil)
@@ -391,6 +392,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, nil)

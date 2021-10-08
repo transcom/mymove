@@ -27,6 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
@@ -134,6 +135,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
@@ -165,7 +167,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 
 		mockPlanner := &mocks.PaymentRequestRecalculator{}
 		mockPlanner.On("RecalculatePaymentRequest",
-			suite.AppContextForTest(),
+			mock.AnythingOfType("*appcontext.appContext"),
 			paidPaymentRequest,
 		).Return(nil, apperror.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 

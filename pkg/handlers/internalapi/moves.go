@@ -291,7 +291,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.Planner())
 	if err != nil {
 		logger.Error("Error calculating obligations ", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
@@ -387,7 +387,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	// Attach move locator to logger
 	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-	summary, err := calculateMoveDatesFromMove(appCtx.DB(), h.Planner(), moveID, moveDate)
+	summary, err := calculateMoveDatesFromMove(appCtx, h.Planner(), moveID, moveDate)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

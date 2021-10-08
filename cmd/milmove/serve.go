@@ -590,12 +590,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v, logger)
+	routePlanner := route.InitRoutePlanner(v)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Create a secondary planner specifically for GHC.
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, routeTLSConfig)
 	if initRouteErr != nil {
 		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
 	}

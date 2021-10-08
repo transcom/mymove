@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	route "github.com/transcom/mymove/pkg/route"
@@ -14,20 +16,20 @@ type Planner struct {
 	mock.Mock
 }
 
-// LatLongTransitDistance provides a mock function with given fields: source, destination
-func (_m *Planner) LatLongTransitDistance(source route.LatLong, destination route.LatLong) (int, error) {
-	ret := _m.Called(source, destination)
+// LatLongTransitDistance provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) LatLongTransitDistance(appCtx appcontext.AppContext, source route.LatLong, destination route.LatLong) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(route.LatLong, route.LatLong) int); ok {
-		r0 = rf(source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, route.LatLong, route.LatLong) int); ok {
+		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(route.LatLong, route.LatLong) error); ok {
-		r1 = rf(source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, route.LatLong, route.LatLong) error); ok {
+		r1 = rf(appCtx, source, destination)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,20 +37,20 @@ func (_m *Planner) LatLongTransitDistance(source route.LatLong, destination rout
 	return r0, r1
 }
 
-// TransitDistance provides a mock function with given fields: source, destination
-func (_m *Planner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
-	ret := _m.Called(source, destination)
+// TransitDistance provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) TransitDistance(appCtx appcontext.AppContext, source *models.Address, destination *models.Address) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(*models.Address, *models.Address) int); ok {
-		r0 = rf(source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Address, *models.Address) int); ok {
+		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.Address, *models.Address) error); ok {
-		r1 = rf(source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.Address, *models.Address) error); ok {
+		r1 = rf(appCtx, source, destination)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,20 +58,20 @@ func (_m *Planner) TransitDistance(source *models.Address, destination *models.A
 	return r0, r1
 }
 
-// Zip3TransitDistance provides a mock function with given fields: source, destination
-func (_m *Planner) Zip3TransitDistance(source string, destination string) (int, error) {
-	ret := _m.Called(source, destination)
+// Zip3TransitDistance provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) Zip3TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string, string) int); ok {
-		r0 = rf(source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
+		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
+		r1 = rf(appCtx, source, destination)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -77,20 +79,20 @@ func (_m *Planner) Zip3TransitDistance(source string, destination string) (int, 
 	return r0, r1
 }
 
-// Zip5TransitDistance provides a mock function with given fields: source, destination
-func (_m *Planner) Zip5TransitDistance(source string, destination string) (int, error) {
-	ret := _m.Called(source, destination)
+// Zip5TransitDistance provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string, string) int); ok {
-		r0 = rf(source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
+		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
+		r1 = rf(appCtx, source, destination)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -98,20 +100,20 @@ func (_m *Planner) Zip5TransitDistance(source string, destination string) (int, 
 	return r0, r1
 }
 
-// Zip5TransitDistanceLineHaul provides a mock function with given fields: source, destination
-func (_m *Planner) Zip5TransitDistanceLineHaul(source string, destination string) (int, error) {
-	ret := _m.Called(source, destination)
+// Zip5TransitDistanceLineHaul provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string, string) int); ok {
-		r0 = rf(source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
+		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
+		r1 = rf(appCtx, source, destination)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -141,6 +141,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	suite.T().Run("planner failure", func(t *testing.T) {
 		errorPlanner := &mocks.Planner{}
 		errorPlanner.On("Zip5TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, errors.New("error with Zip5TransitDistance"))

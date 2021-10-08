@@ -190,6 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.FatalNoError(err)
 
 		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress,
 			createdShipment.DestinationAddress,
 		).Return(500, nil)

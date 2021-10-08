@@ -47,14 +47,17 @@ func (suite *ServiceParamValueLookupsSuite) AppContextForTest() appcontext.AppCo
 func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(defaultZip5Distance, nil)
 	planner.On("Zip3TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(defaultZip3Distance, nil)
 	planner.On("Zip5TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(defaultZip5Distance, nil)
