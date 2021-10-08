@@ -23,7 +23,7 @@ application is leveraged by using a `Prime Simulator Role` for the Office user.
 This is set via the Admin UI application, covered in [Use Query Builder for
 Admin Interface](035-us-query-builder.md), by assigning the role to Office
 users.  Onboarding to Prime UI use can be done by non-engineers. Accessing the
-Prime UI will done without the aid or use of engineers.
+Prime UI will done without the aid or use of engineering effort.
 
 ## Considered Alternatives
 
@@ -36,13 +36,13 @@ Prime UI will done without the aid or use of engineers.
 ### *Leverage the Office Application to have a Prime Simulator Role*
 
 - `+` *Any user is able to able to validate the work that has been completed by the
-    contractor (Truss), without requiring the use of engineers.*
+    contractor (Truss), without requiring the use of engineering effort.*
 
 - `+` *Any user is able to test the system, end-to-end, internally, without requiring
-    the use of engineers.*
+    the use of engineering effort.*
 
 - `+` *Any user is able to demo the system, end-to-end, internally, without requiring
-    the use of engineers.*
+    the use of engineering effort.*
 
 - `+` *Trussel engineers will be exposed more to Prime API functionality and share
     knowledge of the system, end-to-end, internally, without requiring the use
