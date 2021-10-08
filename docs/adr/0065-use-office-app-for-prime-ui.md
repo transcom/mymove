@@ -56,7 +56,7 @@ Prime UI will done without the aid or use of engineering effort.
 This section of the ADR is new addition as this particular ADR does not have any
 other considered alternatives. This section may appear in future ADRs that
 follow a similar process. This decision has some specific risks involved related
-to its technical implementation. Specific guardrails must exist otherwise this
+to its technical implementation. Specific guardrails must exist, otherwise this
 decision's risks will become a problem for the maintenance of this application.
 
 ### Roles restricted to non-production environments
