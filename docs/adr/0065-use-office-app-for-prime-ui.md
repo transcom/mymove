@@ -16,7 +16,7 @@ of the contracting team are not able to test internally or with users.
 
 ### Leveraging the Office app
 
-Leveraging the Office application gives Truss engineers one application less to
+Leveraging the Office application gives Truss engineers one less application to
 maintain. Users of MilMove applications will interact with the same visual user
 interface (UI) that they are used to with other MilMove applications. It is
 leveraged by using a `Prime Simulator Role` for the Office user. This is set via
