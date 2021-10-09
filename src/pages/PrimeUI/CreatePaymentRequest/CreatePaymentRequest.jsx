@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Button, Checkbox } from '@trussworks/react-uswds';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -149,6 +150,8 @@ const CreatePaymentRequest = () => {
                 <dd>{moveTaskOrder.id}</dd>
               </div>
             </dl>
+          </SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Move Service Items</h2>
               {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
@@ -163,6 +166,8 @@ const CreatePaymentRequest = () => {
                 );
               })}
             </dl>
+          </SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Shipments</h2>
               {mtoShipments.map((mtoShipment, index) => {
@@ -173,11 +178,19 @@ const CreatePaymentRequest = () => {
                     {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
                       return (
                         mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                          <ServiceItem
-                            key={mtoServiceItem.id}
-                            serviceItem={mtoServiceItem}
-                            shipmentServiceItemNumber={mtoServiceItemIndex}
-                          />
+                          <SectionWrapper className={formStyles.formSection}>
+                            <Checkbox
+                              label="Add to payment request"
+                              name={`serviceItem${mtoServiceItem.id}`}
+                              onChange={() => {}}
+                              id={mtoServiceItem.id}
+                            />
+                            <ServiceItem
+                              key={mtoServiceItem.id}
+                              serviceItem={mtoServiceItem}
+                              shipmentServiceItemNumber={mtoServiceItemIndex}
+                            />
+                          </SectionWrapper>
                         )
                       );
                     })}
@@ -185,6 +198,9 @@ const CreatePaymentRequest = () => {
                 );
               })}
             </dl>
+            <Button aria-label="Submit Payment Request" onClick={() => {}} type="button">
+              Submit Payment Request
+            </Button>
           </SectionWrapper>
         </div>
       </div>
