@@ -158,7 +158,7 @@ const CreatePaymentRequest = () => {
                 return (
                   MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
                     <ServiceItem
-                      key={mtoServiceItem.id}
+                      key={`moveServiceItem${mtoServiceItem.id}`}
                       serviceItem={mtoServiceItem}
                       shipmentServiceItemNumber={mtoServiceItemIndex}
                     />
@@ -172,29 +172,28 @@ const CreatePaymentRequest = () => {
               <h2>Shipments</h2>
               {mtoShipments.map((mtoShipment, index) => {
                 return (
-                  <>
-                    <Shipment key={mtoShipment.id} shipment={mtoShipment} shipmentNumber={index} />
+                  <div key={mtoShipment.id}>
+                    <Shipment shipment={mtoShipment} shipmentNumber={index} />
                     <h2>Shipment Service Items</h2>
                     {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
                       return (
                         mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                          <SectionWrapper className={formStyles.formSection}>
+                          <SectionWrapper
+                            key={`shipmentServiceItems${mtoServiceItem.id}`}
+                            className={formStyles.formSection}
+                          >
                             <Checkbox
                               label="Add to payment request"
                               name={`serviceItem${mtoServiceItem.id}`}
                               onChange={() => {}}
                               id={mtoServiceItem.id}
                             />
-                            <ServiceItem
-                              key={mtoServiceItem.id}
-                              serviceItem={mtoServiceItem}
-                              shipmentServiceItemNumber={mtoServiceItemIndex}
-                            />
+                            <ServiceItem serviceItem={mtoServiceItem} shipmentServiceItemNumber={mtoServiceItemIndex} />
                           </SectionWrapper>
                         )
                       );
                     })}
-                  </>
+                  </div>
                 );
               })}
             </dl>
