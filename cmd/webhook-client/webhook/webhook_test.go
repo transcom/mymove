@@ -17,6 +17,9 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 
@@ -36,9 +39,14 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   utils.Logger
+	logger   *zap.Logger
 	certPath string
 	keyPath  string
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *WebhookClientTestingSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestWebhookClientTestingSuite(t *testing.T) {
@@ -68,8 +76,6 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 
 	// Create the engine
 	engine := Engine{
-		DB:                  suite.DB(),
-		Logger:              suite.logger,
 		Client:              client,
 		MaxImmediateRetries: 3,
 	}
@@ -105,7 +111,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 		//             Notification would be updated as SENT
 
 		// Call the engine function.
-		err := engine.sendOneNotification(&notification, &subscription)
+		err := engine.sendOneNotification(suite.AppContextForTest(), &notification, &subscription)
 
 		// Check that there was no error
 		suite.Nil(err)
@@ -126,8 +132,6 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		DB:                  suite.DB(),
-		Logger:              suite.logger,
 		Client:              &mockClient,
 		MaxImmediateRetries: 3,
 	}
@@ -185,7 +189,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, nil).Once()
 
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.sendOneNotification(&notification, &subscription)
+		err := engine.sendOneNotification(suite.AppContextForTest(), &notification, &subscription)
 
 		// Check that there was no error
 		suite.Nil(err)
@@ -225,7 +229,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseFail, bodyBytes, nil)
 
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.sendOneNotification(&notification, &subscription)
+		err := engine.sendOneNotification(suite.AppContextForTest(), &notification, &subscription)
 
 		// Check that there was an error returned
 		suite.NotNil(err)
@@ -263,7 +267,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, errors.New("Error due to server down"))
 
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.sendOneNotification(&notification, &subscription)
+		err := engine.sendOneNotification(suite.AppContextForTest(), &notification, &subscription)
 
 		// Check that there was an error returned
 		suite.NotNil(err)
@@ -304,7 +308,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, nil)
 
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.sendOneNotification(&notification, &subscription)
+		err := engine.sendOneNotification(suite.AppContextForTest(), &notification, &subscription)
 
 		// Check that there was no error
 		suite.Nil(err)
@@ -366,7 +370,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 
 	// RUN TEST
 	// Call the engine function. Internally it should call the mocked client
-	err = engine.run()
+	err = engine.run(suite.AppContextForTest())
 
 	// VERIFY RESULTS
 	// Check that there was no error
@@ -440,7 +444,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 
 	// RUN TEST
 	// Call the engine function. Internally it should call the mocked client
-	err = engine.run()
+	err = engine.run(suite.AppContextForTest())
 
 	// VERIFY RESULTS
 	// Check that there was no error
@@ -522,7 +526,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
 
 	// RUN TEST
 	// Call the engine function. Internally it should call the mocked client
-	err = engine.run()
+	err = engine.run(suite.AppContextForTest())
 
 	// VERIFY RESULTS
 	// Check that there was no error
@@ -595,7 +599,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -631,7 +635,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -670,7 +674,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -709,7 +713,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -739,7 +743,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -800,7 +804,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -836,7 +840,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -902,7 +906,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoThresholds() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.run()
+		err := engine.run(suite.AppContextForTest())
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -961,7 +965,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoPending() {
 
 	// RUN TEST
 	// Call the engine function. Internally it should call the mocked client
-	err := engine.run()
+	err := engine.run(suite.AppContextForTest())
 
 	// VERIFY RESULTS
 	// Check that there was no error
@@ -976,8 +980,6 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		DB:                  suite.DB(),
-		Logger:              suite.logger,
 		Client:              &mockClient,
 		MaxImmediateRetries: 3,
 		SeverityThresholds:  []int{1800, 14400},
