@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -56,8 +57,8 @@ func (s SITComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // serviceFeeCents returns the NON-DISCOUNTED rate in millicents with the fee
-func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
+func (re *RateEngine) serviceFeeCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
 	if err != nil {
 		return FeeAndRate{}, err
 	}
@@ -67,13 +68,13 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time)
 }
 
 // fullPackCents Returns the NON-DISCOUNTED rate in millicents with the fee
-func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
+func (re *RateEngine) fullPackCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
 	if err != nil {
 		return FeeAndRate{}, err
 	}
 
-	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(re.db, cwt.ToPounds(), serviceArea.ServicesSchedule, date)
+	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(appCtx.DB(), cwt.ToPounds(), serviceArea.ServicesSchedule, date)
 	if err != nil {
 		return FeeAndRate{}, err
 	}
@@ -82,13 +83,13 @@ func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (
 }
 
 // fullUnpackCents Returns the NON-DISCOUNTED rate in millicents with the fee
-func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
+func (re *RateEngine) fullUnpackCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
 	if err != nil {
 		return FeeAndRate{}, err
 	}
 
-	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(re.db, serviceArea.ServicesSchedule, date)
+	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(appCtx.DB(), serviceArea.ServicesSchedule, date)
 	if err != nil {
 		return FeeAndRate{}, err
 	}
@@ -98,7 +99,7 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 
 // SitCharge calculates the SIT charge based on various factors.
 // Note: Assumes the caller will apply any SIT discount rate as needed (no discounts applied here).
-func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (SITComputation, error) {
+func (re *RateEngine) SitCharge(appCtx appcontext.AppContext, cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (SITComputation, error) {
 	if daysInSIT == 0 {
 		return SITComputation{}, nil
 	} else if daysInSIT < 0 {
@@ -115,7 +116,7 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		}
 	}
 
-	sa, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
+	sa, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
 	if err != nil {
 		return SITComputation{}, err
 	}
@@ -147,13 +148,13 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		//   (185B SIT additional day rate * additional days * CWT) +
 		//   210A SIT PD 30 miles or less for SIT PD schedule of service area +
 		//   225A SIT PD Self/Mini Storage for services schedule of service area
-		rate210A, rate210AErr := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+		rate210A, rate210AErr := models.FetchTariff400ngItemRate(appCtx.DB(), "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 		if rate210AErr != nil {
 			return SITComputation{}, errors.Wrapf(rate210AErr, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 		}
 		sitPart = sitPart.AddCents(rate210A.RateCents)
 
-		rate225A, rate225AErr := models.FetchTariff400ngItemRate(re.db, "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
+		rate225A, rate225AErr := models.FetchTariff400ngItemRate(appCtx.DB(), "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 		if rate225AErr != nil {
 			return SITComputation{}, errors.Wrapf(rate225AErr, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 		}
@@ -185,33 +186,33 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 	}
 
 	zapFields = append(zapFields, zap.Object("sit computation", sitComputation), zap.String("moveLocator", re.move.Locator))
-	re.logger.Info("sit calculation", zapFields...)
+	appCtx.Logger().Info("sit calculation", zapFields...)
 
 	return sitComputation, err
 }
 
-func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (cost NonLinehaulCostComputation, err error) {
+func (re *RateEngine) nonLinehaulChargeComputation(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (cost NonLinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	cost.OriginService, err = re.serviceFeeCents(cwt, originZip3, date)
+	cost.OriginService, err = re.serviceFeeCents(appCtx, cwt, originZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine origin service fee")
 	}
-	cost.DestinationService, err = re.serviceFeeCents(cwt, destinationZip3, date)
+	cost.DestinationService, err = re.serviceFeeCents(appCtx, cwt, destinationZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine destination service fee")
 	}
-	cost.Pack, err = re.fullPackCents(cwt, originZip3, date)
+	cost.Pack, err = re.fullPackCents(appCtx, cwt, originZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine full pack cost")
 	}
-	cost.Unpack, err = re.fullUnpackCents(cwt, destinationZip3, date)
+	cost.Unpack, err = re.fullUnpackCents(appCtx, cwt, destinationZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine full unpack cost")
 	}
 
-	re.logger.Info("Non-Linehaul charge total calculated",
+	appCtx.Logger().Info("Non-Linehaul charge total calculated",
 		zap.String("moveLocator", re.move.Locator),
 		zap.Int("origin service fee", cost.OriginService.Fee.Int()),
 		zap.Int("destination service fee", cost.DestinationService.Fee.Int()),

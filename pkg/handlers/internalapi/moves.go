@@ -282,7 +282,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(appCtx.DB(), logger, *move))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
 	if err != nil {
