@@ -57,7 +57,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	suite.T().Run("run fetcher", func(t *testing.T) {
 		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("run fetcher", "", suite.helperStubEIAData, suite.logger)
 
-		err := newDieselFuelPriceInfo.RunFetcher()
+		err := newDieselFuelPriceInfo.RunFetcher(suite.AppContextForTest())
 		suite.NoError(err)
 
 		suite.Equal("2020-06-22T18:16:52-0400", newDieselFuelPriceInfo.dieselFuelPriceData.lastUpdated)
