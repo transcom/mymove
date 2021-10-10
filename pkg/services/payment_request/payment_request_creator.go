@@ -44,7 +44,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
 
 		// Create the payment request
-		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCtx.DB(), paymentRequestArg, now)
+		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCtx, paymentRequestArg, now)
 
 		if err != nil {
 			var badDataError *apperror.BadDataError
@@ -88,7 +88,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx.DB(), paymentServiceItem, paymentRequestArg, now)
+			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx, paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(apperror.InvalidCreateInputError); ok {
 					return err
@@ -202,7 +202,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 	return paymentRequestArg, nil
 }
 
-func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
 	if paymentRequest.MoveTaskOrderID == uuid.Nil {
 		return nil, apperror.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
@@ -214,9 +214,9 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Also note that we use "FOR NO KEY UPDATE" to allow concurrent mods to other tables that have a
 	// FK to move_task_orders.
 	var moveTaskOrder models.Move
-	sqlString, sqlArgs := tx.Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
+	sqlString, sqlArgs := appCtx.DB().Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
 	sqlString += " FOR NO KEY UPDATE"
-	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
+	err := appCtx.DB().RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 
 	if err != nil {
 		switch err {
@@ -228,7 +228,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	}
 
 	// Verify the Orders on the MTO
-	err = tx.Load(&moveTaskOrder, "Orders")
+	err = appCtx.DB().Load(&moveTaskOrder, "Orders")
 
 	if err != nil {
 		switch err {
@@ -248,7 +248,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
 	}
 	// Verify that ServiceMember is Valid
-	err = tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	err = appCtx.DB().Load(&moveTaskOrder.Orders, "ServiceMember")
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -278,7 +278,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	// Verify that there were no previous requests that were marked as final
 	var finalPaymentRequests models.PaymentRequests
-	count, err := tx.Q().Where("move_id = $1 AND is_final = TRUE AND status <> $2", paymentRequest.MoveTaskOrderID, models.PaymentRequestStatusReviewedAllRejected).Count(&finalPaymentRequests)
+	count, err := appCtx.DB().Q().Where("move_id = $1 AND is_final = TRUE AND status <> $2", paymentRequest.MoveTaskOrderID, models.PaymentRequestStatusReviewedAllRejected).Count(&finalPaymentRequests)
 
 	if err != nil {
 		return nil, apperror.NewQueryError("PaymentRequests", err, fmt.Sprintf("Error while querying final payment request for MTO %s: %s", paymentRequest.MoveTaskOrderID, err.Error()))
@@ -293,7 +293,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	paymentRequest.Status = models.PaymentRequestStatusPending
 	paymentRequest.RequestedAt = requestedAt
 
-	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
+	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(appCtx.DB(), moveTaskOrder)
 	if err != nil {
 		errMsg := fmt.Sprintf("issue creating payment request unique identifier: %s", err.Error())
 		return nil, apperror.NewInvalidCreateInputError(nil, errMsg)
@@ -302,7 +302,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	paymentRequest.SequenceNumber = sequenceNumber
 
 	// Create the payment request for the database
-	verrs, err := tx.ValidateAndCreate(paymentRequest)
+	verrs, err := appCtx.DB().ValidateAndCreate(paymentRequest)
 	if verrs.HasAny() {
 		msg := "validation error creating payment request"
 		return nil, apperror.NewInvalidCreateInputError(verrs, msg)
@@ -314,10 +314,10 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	return paymentRequest, nil
 }
 
-func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, paymentServiceItem models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
+func (p *paymentRequestCreator) createPaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
 	// Verify that the MTO service item ID exists
 	var mtoServiceItem models.MTOServiceItem
-	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
+	err := appCtx.DB().Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -335,7 +335,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
-	verrs, err := tx.ValidateAndCreate(&paymentServiceItem)
+	verrs, err := appCtx.DB().ValidateAndCreate(&paymentServiceItem)
 	if verrs.HasAny() {
 		msg := "validation error creating payment request service item in payment request creation"
 		return paymentServiceItem, mtoServiceItem, apperror.NewInvalidCreateInputError(verrs, msg)
