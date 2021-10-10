@@ -11,6 +11,7 @@ import (
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -22,6 +23,11 @@ type TransitTimeParserSuite struct {
 	tableFromSliceCreator services.TableFromSliceCreator
 	xlsxFilename          string
 	xlsxFile              *xlsx.File
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *TransitTimeParserSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestTransitTimeParserSuite(t *testing.T) {
@@ -36,7 +42,7 @@ func TestTransitTimeParserSuite(t *testing.T) {
 		xlsxFilename: "fixtures/Appendix_C(i)_-_Transit_Time_Tables_Fake_Data.xlsx",
 	}
 
-	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true, false)
+	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(true, false)
 
 	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
 	if err != nil {
@@ -126,43 +132,43 @@ type TestStruct4 struct{ Field1 string }
 type TestStruct5 struct{ Field1 string }
 type TestStruct6 struct{ Field1 string }
 
-var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
+var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) error {
 	return nil
 }
 
-var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
+var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) error {
 	return nil
 }
 
-var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
+var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) error {
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
+var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) error {
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return []TestStruct4{}, nil
 }
 
-var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return []TestStruct5{}, nil
 }
 
-var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	return []TestStruct6{}, nil
 }
 
@@ -282,7 +288,7 @@ func (suite *TransitTimeParserSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator, suite.logger); (err != nil) != tt.wantErr {
+			if err := process(suite.AppContextForTest(), xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

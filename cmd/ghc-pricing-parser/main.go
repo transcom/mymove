@@ -18,6 +18,7 @@ import (
 
 	"github.com/tealeg/xlsx/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
@@ -99,6 +100,8 @@ func main() {
 		}
 	}()
 
+	appCtx := appcontext.NewAppContext(db, logger, nil)
+
 	// Ensure we've been given a spreadsheet to parse
 	if params.XlsxFilename == "" {
 		logger.Fatal("Did not receive an XLSX filename to parse; missing --filename")
@@ -142,7 +145,7 @@ func main() {
 
 	// Now kick off the parsing
 	printDivider("Parsing")
-	err = pricing.Parse(xlsxDataSheets, params, db, logger)
+	err = pricing.Parse(appCtx, xlsxDataSheets, params)
 	if err != nil {
 		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}

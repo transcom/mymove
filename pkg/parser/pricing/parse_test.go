@@ -14,6 +14,7 @@ import (
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -23,6 +24,11 @@ type PricingParserSuite struct {
 	logger       *zap.Logger
 	xlsxFilename string
 	xlsxFile     *xlsx.File
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *PricingParserSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestPricingParserSuite(t *testing.T) {
@@ -283,10 +289,10 @@ func (suite *PricingParserSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.Run(tt.name, func() {
-			tableFromSliceCreator := dbtools.NewTableFromSliceCreator(suite.DB(), suite.logger, true, false)
+			tableFromSliceCreator := dbtools.NewTableFromSliceCreator(true, false)
 
-			err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex,
-				tableFromSliceCreator, suite.logger)
+			err := process(suite.AppContextForTest(), xlsxDataSheets, tt.args.params, tt.args.sheetIndex,
+				tableFromSliceCreator)
 			suite.Equal(err != nil, tt.wantErr, "process() err %v", err)
 		})
 	}
