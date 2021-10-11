@@ -3,7 +3,6 @@ package reweigh
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -21,7 +20,7 @@ type reweighCreator struct {
 }
 
 // NewReweighCreator creates a new struct with the service dependencies
-func NewReweighCreator(db *pop.Connection) services.ReweighCreator {
+func NewReweighCreator() services.ReweighCreator {
 	return &reweighCreator{
 		checks: []reweighValidator{
 			checkShipmentID(),
