@@ -293,7 +293,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.A
 	paymentRequest.Status = models.PaymentRequestStatusPending
 	paymentRequest.RequestedAt = requestedAt
 
-	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(appCtx.DB(), moveTaskOrder)
+	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(appCtx, moveTaskOrder)
 	if err != nil {
 		errMsg := fmt.Sprintf("issue creating payment request unique identifier: %s", err.Error())
 		return nil, apperror.NewInvalidCreateInputError(nil, errMsg)
@@ -481,7 +481,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appconte
 	return &paymentServiceItemParam, nil
 }
 
-func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.Move) (string, int, error) {
+func (p *paymentRequestCreator) makeUniqueIdentifier(appCtx appcontext.AppContext, mto models.Move) (string, int, error) {
 	if mto.ReferenceID == nil || *mto.ReferenceID == "" {
 		errMsg := fmt.Sprintf("MTO %s has missing ReferenceID", mto.ID.String())
 		return "", 0, errors.New(errMsg)
@@ -489,7 +489,7 @@ func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto mod
 	// Get the max sequence number that exists for the payment requests associated with the given MTO.
 	// Since we have a lock to prevent concurrent payment requests for this MTO, this should be safe.
 	var max int
-	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", mto.ID).First(&max)
+	err := appCtx.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", mto.ID).First(&max)
 	if err != nil {
 		return "", 0, fmt.Errorf("max sequence_number for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
