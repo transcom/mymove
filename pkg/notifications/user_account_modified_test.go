@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -23,7 +21,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",
 	}
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &session)
+
 	subject := "[MilMove] User Account Activity Alert"
 	sysAdminEmail := "admin@test.com"
 
@@ -58,11 +56,11 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 		// Loop through and run each test case:
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				emailer, err := tc.newEmailer(appCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
+				emailer, err := tc.newEmailer(suite.AppContextForTest(&session), sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 				suite.Require().NoError(err)
 				suite.Require().NotNil(emailer)
 
-				emails, emailErr := emailer.emails()
+				emails, emailErr := emailer.emails(suite.AppContextForTest(&session))
 				suite.Require().NoError(emailErr)
 				suite.Require().NotNil(emails)
 				suite.Equal(len(emails), 1)
@@ -86,14 +84,13 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Success - User account creation with no user in session", func() {
 		// Test case:   If a user just created their account, their userID information might not be in the session yet.
 		// Expectation: The email should use the modified user ID as the responsible user ID as well.
-		emptySessionCtx := appcontext.NewAppContext(
-			suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
+		emptySessionCtx := suite.AppContextForTest(&auth.Session{})
 
 		emailer, err := NewUserAccountCreated(emptySessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 		suite.Require().NoError(err)
 		suite.Require().NotNil(emailer)
 
-		emails, emailErr := emailer.emails()
+		emails, emailErr := emailer.emails(emptySessionCtx)
 		suite.Require().NoError(emailErr)
 		suite.Require().NotNil(emails)
 
@@ -106,7 +103,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Fail - Session is nil", func() {
 		// Test case:   The session wasn't set in the AppContext, for some reason. Possibly dev error.
 		// Expectation: Initializing the UserAccountModified should return services.ContextError
-		nilSessionCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), nil)
+		nilSessionCtx := suite.AppContextForTest(nil)
 
 		emailer, err := NewUserAccountCreated(nilSessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 		suite.Nil(emailer)
@@ -117,7 +114,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 
 func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
 	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
+	appCtx := suite.AppContextForTest(&auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)
 	suite.Require().NoError(err)
@@ -152,14 +149,14 @@ func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
 </p>
 `
 
-	htmlContent, err := emailer.RenderHTML(emailData)
+	htmlContent, err := emailer.RenderHTML(appCtx, emailData)
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
 }
 
 func (suite *NotificationSuite) TestUserAccountModifiedTextTemplateRender() {
 	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
+	appCtx := suite.AppContextForTest(&auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)
 	suite.Require().NoError(err)
@@ -185,7 +182,7 @@ Activity details:
 Please visit the AWS Console ([instructions](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication)) or the [MilMove Admin Interface](https://admin.move.mil) to see more details about the above activity.
 `
 
-	textContent, err := emailer.RenderText(emailData)
+	textContent, err := emailer.RenderText(appCtx, emailData)
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
 }

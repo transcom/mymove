@@ -770,7 +770,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
-				sendErr := h.sender.SendNotification(email)
+				sendErr := h.sender.SendNotification(appCtx, email)
 				if sendErr != nil {
 					appCtx.Logger().Error("Error sending user creation email", zap.Error(sendErr))
 				}

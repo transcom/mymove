@@ -18,7 +18,6 @@ func (suite *NotificationSuite) createPPMMoves(assertions []testdatagen.Assertio
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
-	db := suite.DB()
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
 	offDate := startDate.AddDate(0, 0, -7)
@@ -28,9 +27,9 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	}
 	ppms := suite.createPPMMoves(moves)
 
-	moveReviewed, err := NewMoveReviewed(db, suite.logger, onDate)
+	moveReviewed, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
+	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), onDate)
 
 	suite.NoError(err)
 	suite.NotNil(emailInfo)
@@ -42,7 +41,6 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
-	db := suite.DB()
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	offDate := startDate.AddDate(0, 0, -7)
 	moves := []testdatagen.Assertions{
@@ -51,32 +49,31 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	}
 	suite.createPPMMoves(moves)
 
-	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(startDate)
+	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
 
 	suite.NoError(err)
 	suite.Len(emailInfo, 0)
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
-	db := suite.DB()
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	moves := []testdatagen.Assertions{
 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
 	}
 	suite.createPPMMoves(moves)
-	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(startDate)
+	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
 	suite.NoError(err)
 	suite.Len(emailInfoBeforeSending, 2)
 
 	// simulate successfully sending an email and then check that this email does not get sent again.
-	err = moveReviewed.OnSuccess(emailInfoBeforeSending[0])("SES_MOVE_ID")
+	err = moveReviewed.OnSuccess(suite.AppContextForTest(nil), emailInfoBeforeSending[0])("SES_MOVE_ID")
 	suite.NoError(err)
-	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(startDate)
+	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
 	suite.NoError(err)
 	suite.Len(emailInfoAfterSending, 1)
 }
@@ -88,9 +85,9 @@ func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
 		ServiceMemberID: sm.ID,
 	}
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	err = moveReviewed.OnSuccess(ei)("SESID")
+	err = moveReviewed.OnSuccess(suite.AppContextForTest(nil), ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
@@ -104,7 +101,7 @@ func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
@@ -119,7 +116,7 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 
 <p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>`
 
-	htmlContent, err := mr.RenderHTML(s)
+	htmlContent, err := mr.RenderHTML(suite.AppContextForTest(nil), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -129,7 +126,7 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 func (suite *NotificationSuite) TestTextTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
@@ -144,7 +141,7 @@ We'll use your feedback to make MilMove better for your fellow service members.
 
 Thank you for your thoughts, and congratulations on your move.`
 
-	textContent, err := mr.RenderText(s)
+	textContent, err := mr.RenderText(suite.AppContextForTest(nil), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
@@ -153,7 +150,7 @@ Thank you for your thoughts, and congratulations on your move.`
 func (suite *NotificationSuite) TestFormatEmails() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
 	email1 := "email1"
 	email2 := "email2"
@@ -179,7 +176,7 @@ func (suite *NotificationSuite) TestFormatEmails() {
 		},
 	}
 
-	formattedEmails, err := mr.formatEmails(emailInfos)
+	formattedEmails, err := mr.formatEmails(suite.AppContextForTest(nil), emailInfos)
 
 	suite.NoError(err)
 	for i, actualEmailContent := range formattedEmails {
@@ -189,9 +186,9 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			OriginDutyStation:      emailInfo.DutyStationName,
 			DestinationDutyStation: emailInfo.NewDutyStationName,
 		}
-		htmlBody, err := mr.RenderHTML(data)
+		htmlBody, err := mr.RenderHTML(suite.AppContextForTest(nil), data)
 		suite.NoError(err)
-		textBody, err := mr.RenderText(data)
+		textBody, err := mr.RenderText(suite.AppContextForTest(nil), data)
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,

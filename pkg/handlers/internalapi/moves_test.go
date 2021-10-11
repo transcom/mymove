@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		}
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
@@ -266,7 +266,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		}
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
@@ -316,7 +316,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		}
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 

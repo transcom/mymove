@@ -6,6 +6,7 @@ import (
 	html "html/template"
 	text "text/template"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gofrs/uuid"
@@ -13,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 )
 
@@ -26,8 +26,6 @@ var (
 
 // PaymentReminder has notification content for approved moves
 type PaymentReminder struct {
-	db            *pop.Connection
-	logger        Logger
 	emailAfter    string
 	noEmailBefore string
 	htmlTemplate  *html.Template
@@ -35,11 +33,9 @@ type PaymentReminder struct {
 }
 
 // NewPaymentReminder returns a new payment reminder notification
-func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, error) {
+func NewPaymentReminder() (*PaymentReminder, error) {
 
 	return &PaymentReminder{
-		db:            db,
-		logger:        logger,
 		emailAfter:    "10 DAYS",
 		noEmailBefore: "2019-06-01",
 		htmlTemplate:  paymentReminderHTMLTemplate,
@@ -66,7 +62,7 @@ type PaymentReminderEmailInfo struct {
 }
 
 // GetEmailInfo fetches payment email information
-func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
+func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentReminderEmailInfos, error) {
 	query := `SELECT sm.id as id, sm.personal_email AS personal_email,
 	COALESCE(ppm.weight_estimate, 0) AS weight_estimate,
 	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
@@ -99,28 +95,28 @@ FROM personally_procured_moves ppm
 	ORDER BY m.locator;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
-	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
+	err := appCtx.DB().RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
 
 	return paymentReminderEmailInfos, err
 }
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m PaymentReminder) emails() ([]emailContent, error) {
-	paymentReminderEmailInfos, err := m.GetEmailInfo()
+func (m PaymentReminder) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
+	paymentReminderEmailInfos, err := m.GetEmailInfo(appCtx)
 	if err != nil {
-		m.logger.Error("error retrieving email info")
+		appCtx.Logger().Error("error retrieving email info")
 		return []emailContent{}, err
 	}
 	if len(paymentReminderEmailInfos) == 0 {
-		m.logger.Info("no emails to be sent")
+		appCtx.Logger().Info("no emails to be sent")
 		return []emailContent{}, nil
 	}
-	return m.formatEmails(paymentReminderEmailInfos)
+	return m.formatEmails(appCtx, paymentReminderEmailInfos)
 }
 
 // formatEmails formats email data using both html and text template
-func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
+func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
 		incentiveTxt := ""
@@ -131,7 +127,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		if PaymentReminderEmailInfo.TOPhone != nil {
 			toPhone = *PaymentReminderEmailInfo.TOPhone
 		}
-		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
+		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
@@ -142,11 +138,11 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			Locator:                PaymentReminderEmailInfo.Locator,
 		})
 		if err != nil {
-			m.logger.Error("error rendering template", zap.Error(err))
+			appCtx.Logger().Error("error rendering template", zap.Error(err))
 			continue
 		}
 		if PaymentReminderEmailInfo.Email == nil {
-			m.logger.Info("no email found for service member",
+			appCtx.Logger().Info("no email found for service member",
 				zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()))
 			continue
 		}
@@ -155,9 +151,9 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
-			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
+			onSuccess:      m.OnSuccess(appCtx, PaymentReminderEmailInfo),
 		}
-		m.logger.Info("generated payment reminder email to service member",
+		appCtx.Logger().Info("generated payment reminder email to service member",
 			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()),
 			zap.String("moveLocator", PaymentReminderEmailInfo.Locator),
 		)
@@ -166,12 +162,12 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 	return emails, nil
 }
 
-func (m PaymentReminder) renderTemplates(data PaymentReminderEmailData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(data)
+func (m PaymentReminder) renderTemplates(appCtx appcontext.AppContext, data PaymentReminderEmailData) (string, string, error) {
+	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(data)
+	textBody, err := m.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -180,17 +176,17 @@ func (m PaymentReminder) renderTemplates(data PaymentReminderEmailData) (string,
 
 // OnSuccess callback passed to be invoked by NewNotificationSender when an email successfully sent
 // saves the svs the email info along with the SES mail id to the notifications table
-func (m PaymentReminder) OnSuccess(PaymentReminderEmailInfo PaymentReminderEmailInfo) func(string) error {
+func (m PaymentReminder) OnSuccess(appCtx appcontext.AppContext, PaymentReminderEmailInfo PaymentReminderEmailInfo) func(string) error {
 	return func(msgID string) error {
 		n := models.Notification{
 			ServiceMemberID:  PaymentReminderEmailInfo.ServiceMemberID,
 			SESMessageID:     msgID,
 			NotificationType: models.MovePaymentReminderEmail,
 		}
-		err := m.db.Create(&n)
+		err := appCtx.DB().Create(&n)
 		if err != nil {
 			dataString := fmt.Sprintf("%#v", n)
-			m.logger.Error("adding notification to notifications table", zap.String("notification", dataString))
+			appCtx.Logger().Error("adding notification to notifications table", zap.String("notification", dataString))
 			return err
 		}
 		return nil
@@ -210,19 +206,19 @@ type PaymentReminderEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m PaymentReminder) RenderHTML(data PaymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderHTML(appCtx appcontext.AppContext, data PaymentReminderEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
-		m.logger.Error("cant render html template ", zap.Error(err))
+		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m PaymentReminder) RenderText(data PaymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderText(appCtx appcontext.AppContext, data PaymentReminderEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
-		m.logger.Error("cant render text template ", zap.Error(err))
+		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
 	return textBuffer.String(), nil

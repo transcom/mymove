@@ -178,8 +178,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveSubmitted(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID),
+	err = h.NotificationSender().SendNotification(appCtx,
+		notifications.NewMoveSubmitted(moveID),
 	)
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))

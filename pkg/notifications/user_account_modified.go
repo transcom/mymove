@@ -26,7 +26,6 @@ var (
 
 // UserAccountModified has notification content for alerting admins when a user account has been modified
 type UserAccountModified struct {
-	logger            Logger
 	sysAdminEmail     string
 	host              string
 	action            string
@@ -85,7 +84,6 @@ func newUserAccountModified(
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	logger := appCtx.Logger()
 	session := appCtx.Session()
 	if session == nil {
 		return nil, apperror.NewContextError("Unable to find Session in Context")
@@ -94,7 +92,6 @@ func newUserAccountModified(
 	host := session.Hostname
 
 	return &UserAccountModified{
-		logger:            logger,
 		sysAdminEmail:     sysAdminEmail,
 		host:              host,
 		action:            action,
@@ -115,7 +112,7 @@ type userAccountModifiedEmailData struct {
 	Timestamp         string
 }
 
-func (m UserAccountModified) emails() ([]emailContent, error) {
+func (m UserAccountModified) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
 	actionSource := url.URL{
@@ -128,7 +125,7 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 		responsibleUserID = m.modifiedUserID
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(userAccountModifiedEmailData{
+	htmlBody, textBody, err := m.renderTemplates(appCtx, userAccountModifiedEmailData{
 		Action:            m.action,
 		ActionSource:      actionSource.String(),
 		ModifiedUserID:    m.modifiedUserID.String(),
@@ -137,7 +134,7 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 	})
 
 	if err != nil {
-		m.logger.Error("error rendering template", zap.Error(err))
+		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
 
 	adminEmail := emailContent{
@@ -147,7 +144,7 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 		textBody:       textBody,
 	}
 
-	m.logger.Info("generated user activity alert email to system admin",
+	appCtx.Logger().Info("generated user activity alert email to system admin",
 		zap.String("responsibleUserID", responsibleUserID.String()),
 		zap.String("modifiedUserID", m.modifiedUserID.String()),
 	)
@@ -155,12 +152,12 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 	return append(emails, adminEmail), nil
 }
 
-func (m UserAccountModified) renderTemplates(data userAccountModifiedEmailData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(data)
+func (m UserAccountModified) renderTemplates(appCtx appcontext.AppContext, data userAccountModifiedEmailData) (string, string, error) {
+	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(data)
+	textBody, err := m.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -168,19 +165,19 @@ func (m UserAccountModified) renderTemplates(data userAccountModifiedEmailData) 
 }
 
 // RenderHTML renders the html for the email
-func (m UserAccountModified) RenderHTML(data userAccountModifiedEmailData) (string, error) {
+func (m UserAccountModified) RenderHTML(appCtx appcontext.AppContext, data userAccountModifiedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
-		m.logger.Error("cant render html template ", zap.Error(err))
+		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m UserAccountModified) RenderText(data userAccountModifiedEmailData) (string, error) {
+func (m UserAccountModified) RenderText(appCtx appcontext.AppContext, data userAccountModifiedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
-		m.logger.Error("cant render text template ", zap.Error(err))
+		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
 	return textBuffer.String(), nil
