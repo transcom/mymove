@@ -108,7 +108,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param models.PaymentServiceItemParam
 				var key, value *string
-				param, key, value, err = p.createPaymentServiceItemParam(txnAppCtx.DB(), paymentServiceItemParam, paymentServiceItem)
+				param, key, value, err = p.createPaymentServiceItemParam(txnAppCtx, paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*apperror.BadDataError); ok {
 						return err
@@ -373,7 +373,7 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppCon
 	return paymentServiceItem, displayParams, nil
 }
 
-func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection, paymentServiceItemParam models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItemParam, *string, *string, error) {
+func (p *paymentRequestCreator) createPaymentServiceItemParam(appCtx appcontext.AppContext, paymentServiceItemParam models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItemParam, *string, *string, error) {
 	/* Note that we are not validating the param key type here.
 	 * For now, invalid params will be caught when they are parsed in lookups.
 	 * In the future we may want to add more validation here to catch things earlier.
@@ -385,7 +385,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 	createParam := false
 	var serviceItemParamKey models.ServiceItemParamKey
 	if paymentServiceItemParam.ServiceItemParamKeyID != uuid.Nil {
-		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
+		err := appCtx.DB().Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -398,7 +398,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		value = paymentServiceItemParam.Value
 		createParam = true
 	} else if paymentServiceItemParam.IncomingKey != "" {
-		err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
+		err := appCtx.DB().Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -421,7 +421,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		paymentServiceItemParam.PaymentServiceItem = paymentServiceItem
 
 		var err error
-		verrs, err := tx.ValidateAndCreate(&paymentServiceItemParam)
+		verrs, err := appCtx.DB().ValidateAndCreate(&paymentServiceItemParam)
 		if verrs.HasAny() {
 			msg := "validation error creating payment service item param in payment request creation"
 			return models.PaymentServiceItemParam{}, nil, nil, apperror.NewInvalidCreateInputError(verrs, msg)
