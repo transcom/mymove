@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -41,6 +42,11 @@ var tablesToTruncate = []string{
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *GHCRateEngineImportSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
@@ -104,7 +110,6 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				Logger:            suite.logger,
 				ContractCode:      testContractCode,
 				ContractName:      testContractName,
 				ContractStartDate: testContractStartDate,
@@ -114,7 +119,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := tt.gre.Import(suite.DB()); (err != nil) != tt.wantErr {
+			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
 				t.Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

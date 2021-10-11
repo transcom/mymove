@@ -13,22 +13,21 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.loadServiceMap(suite.DB())
+		err = gre.loadServiceMap(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticServiceAreaPrices(suite.DB())
+		err = gre.importREDomesticServiceAreaPrices(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyDomesticServiceAreaPrices()
 
@@ -37,7 +36,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 	})
 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
-		err := gre.importREDomesticServiceAreaPrices(suite.DB())
+		err := gre.importREDomesticServiceAreaPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_service_area_prices_unique_key"))
 		}
@@ -55,15 +54,14 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 		suite.NoError(renameErr)
 
 		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
 			ContractCode: testContractCode,
 		}
 
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.NotNil(gre.ContractID)
 
-		err = gre.importREDomesticServiceAreaPrices(suite.DB())
+		err = gre.importREDomesticServiceAreaPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}

@@ -3,16 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(appCtx appcontext.AppContext) error {
 	// Read all the staged prices
 	var stageDomesticLinehaulPrices []models.StageDomesticLinehaulPrice
-	err := dbTx.All(&stageDomesticLinehaulPrices)
+	err := appCtx.DB().All(&stageDomesticLinehaulPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged domestic linehaul prices: %w", err)
 	}
@@ -68,7 +67,7 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 			PriceMillicents:       unit.Millicents(priceMillicents),
 		}
 
-		verrs, err := dbTx.ValidateAndSave(&domesticLinehaulPrice)
+		verrs, err := appCtx.DB().ValidateAndSave(&domesticLinehaulPrice)
 		if verrs.HasAny() {
 			return fmt.Errorf("validation errors when saving domestic linehaul price [%+v]: %w", domesticLinehaulPrice, verrs)
 		}

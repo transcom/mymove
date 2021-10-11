@@ -8,16 +8,15 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	// Prerequisite tables must be loaded.
-	err := gre.importREContract(suite.DB())
+	err := gre.importREContract(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.T().Run("import success", func(t *testing.T) {
-		err = gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyServiceAreaCount(testContractCode)
 		suite.NotNil(gre.serviceAreaToIDMap)
@@ -61,7 +60,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 		zip3ToUpdate.State = "XX"
 		suite.MustSave(&zip3ToUpdate)
 
-		err = gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyServiceAreaCount(testContractCode)
 		suite.NotNil(gre.serviceAreaToIDMap)
@@ -71,16 +70,15 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 	})
 
 	gre2 := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode2,
 	}
 
 	// Prerequisite tables must be loaded.
-	err = gre2.importREContract(suite.DB())
+	err = gre2.importREContract(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
-		err = gre2.importREDomesticServiceArea(suite.DB())
+		err = gre2.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyServiceAreaCount(testContractCode2)
 		suite.NotNil(gre2.serviceAreaToIDMap)

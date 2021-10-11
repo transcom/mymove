@@ -10,12 +10,11 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_loadServiceMap() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("load success", func(t *testing.T) {
-		err := gre.loadServiceMap(suite.DB())
+		err := gre.loadServiceMap(suite.AppContextForTest())
 		suite.NoError(err)
 
 		suite.NotNil(gre.serviceToIDMap)
