@@ -644,7 +644,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 

@@ -52,7 +52,7 @@ func TestGHCInvoiceSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	ts.icnSequencer = sequence.NewDatabaseSequencer(ts.DB(), ediinvoice.ICNSequenceName)
+	ts.icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
@@ -282,7 +282,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	// setup known next value
-	icnErr := suite.icnSequencer.SetVal(122)
+	icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests

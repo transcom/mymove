@@ -188,7 +188,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
@@ -230,7 +230,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
@@ -278,7 +278,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
@@ -486,7 +486,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		prs := suite.createPaymentRequest(2)
 
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
@@ -536,7 +536,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		pr := suite.createPaymentRequest(1)[0]
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
 		sendToSyncada := true
@@ -588,7 +588,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -635,7 +635,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.Run("process reviewed payment request, successfully test init function", func() {
 		// Run init with no issues
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		_, err := InitNewPaymentRequestReviewedProcessor(suite.AppContextForTest(), false, icnSequencer, nil)
 		suite.NoError(err)
 	})
@@ -651,7 +651,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		prs := suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sendToSyncada := true // Call GEXSender but using mock here
 

@@ -48,7 +48,7 @@ func TestInvoiceSuite(t *testing.T) {
 		Viper:        v,
 	}
 
-	hs.icnSequencer = sequence.NewDatabaseSequencer(hs.DB(), ICNSequenceName)
+	hs.icnSequencer = sequence.NewDatabaseSequencer(ICNSequenceName)
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

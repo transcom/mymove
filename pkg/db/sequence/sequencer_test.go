@@ -5,11 +5,17 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type SequenceSuite struct {
 	testingsuite.PopTestSuite
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *SequenceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), nil, nil)
 }
 
 func (suite *SequenceSuite) SetupTest() {

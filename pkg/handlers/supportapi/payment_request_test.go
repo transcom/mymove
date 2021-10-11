@@ -318,7 +318,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	paymentRequestID := paymentServiceItem.PaymentRequestID
 	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
 
-	icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+	icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
@@ -568,7 +568,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 	}
 
-	handler.SetICNSequencer(sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName))
+	handler.SetICNSequencer(sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName))
 
 	urlFormat := "/payment-requests/process-reviewed"
 
