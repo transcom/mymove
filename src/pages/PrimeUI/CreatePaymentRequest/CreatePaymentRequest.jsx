@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, Checkbox } from '@trussworks/react-uswds';
 
+import { shipmentTypeLabels } from '../../../content/shipments';
+import { formatDateFromIso } from '../../../shared/formatters';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -13,10 +16,14 @@ import { AddressShape } from 'types/address';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 
-const ServiceItem = ({ serviceItem, shipmentServiceItemNumber }) => {
+const ServiceItem = ({ serviceItem }) => {
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>Service Item {shipmentServiceItemNumber}</h3>
+      <h3>{`${serviceItem.reServiceName}`}</h3>
+      <div className={descriptionListStyles.row}>
+        <dt>Status:</dt>
+        <dd>{serviceItem.status}</dd>
+      </div>
       <div className={descriptionListStyles.row}>
         <dt>ID:</dt>
         <dd>{serviceItem.id}</dd>
@@ -43,14 +50,18 @@ ServiceItem.propTypes = {
     reServiceCode: PropTypes.string,
     reServiceName: PropTypes.string,
     eTag: PropTypes.string,
+    status: PropTypes.string,
   }).isRequired,
-  shipmentServiceItemNumber: PropTypes.number.isRequired,
 };
 
-const Shipment = ({ shipment, shipmentNumber }) => {
+const Shipment = ({ shipment }) => {
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>Shipment {shipmentNumber}</h3>
+      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+      <div className={descriptionListStyles.row}>
+        <dt>Status:</dt>
+        <dd>{shipment.status}</dd>
+      </div>
       <div className={descriptionListStyles.row}>
         <dt>Shipment ID:</dt>
         <dd>{shipment.id}</dd>
@@ -90,6 +101,14 @@ const Shipment = ({ shipment, shipmentNumber }) => {
           {shipment.destinationAddress.postalCode}
         </dd>
       </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Created at:</dt>
+        <dd>{formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD')}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Approved at:</dt>
+        <dd>{shipment.approvedDate}</dd>
+      </div>
     </dl>
   );
 };
@@ -116,8 +135,9 @@ Shipment.propTypes = {
     reweigh: PropTypes.shape({
       id: PropTypes.string,
     }),
+    createdAt: PropTypes.string,
+    approvedDate: PropTypes.string,
   }).isRequired,
-  shipmentNumber: PropTypes.number.isRequired,
 };
 
 const CreatePaymentRequest = () => {
@@ -157,11 +177,19 @@ const CreatePaymentRequest = () => {
               {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
                 return (
                   MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
-                    <ServiceItem
-                      key={`moveServiceItem${mtoServiceItem.id}`}
-                      serviceItem={mtoServiceItem}
-                      shipmentServiceItemNumber={mtoServiceItemIndex}
-                    />
+                    <SectionWrapper key={`moveServiceItems${mtoServiceItem.id}`} className={formStyles.formSection}>
+                      <Checkbox
+                        label="Add to payment request"
+                        name={`serviceItem${mtoServiceItem.id}`}
+                        onChange={() => {}}
+                        id={mtoServiceItem.id}
+                      />
+                      <ServiceItem
+                        key={`moveServiceItem${mtoServiceItem.id}`}
+                        serviceItem={mtoServiceItem}
+                        shipmentServiceItemNumber={mtoServiceItemIndex}
+                      />
+                    </SectionWrapper>
                   )
                 );
               })}
@@ -170,10 +198,10 @@ const CreatePaymentRequest = () => {
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Shipments</h2>
-              {mtoShipments.map((mtoShipment, index) => {
+              {mtoShipments.map((mtoShipment) => {
                 return (
                   <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} shipmentNumber={index} />
+                    <Shipment shipment={mtoShipment} />
                     <h2>Shipment Service Items</h2>
                     {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
                       return (
