@@ -62,6 +62,8 @@ const PrimeSimulatorAvailableMoves = () => {
         }}
         defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
         defaultHiddenColumns={['eTag']}
+        defaultCanSort
+        disableSortBy={false}
       />
     </GridContainer>
   );
