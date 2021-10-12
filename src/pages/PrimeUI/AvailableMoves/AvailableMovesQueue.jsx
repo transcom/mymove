@@ -57,8 +57,8 @@ const PrimeSimulatorAvailableMoves = () => {
         title="Moves available to Prime"
         columns={columnHeaders()}
         useQueries={usePrimeSimulatorAvailableMovesQueries}
-        handleClick={(row) => {
-          alert(`The Row with an id of ${row.id} and moveCode of ${row.moveCode} has been clicked.`);
+        handleClick={() => {
+          return null;
         }}
         defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
         defaultHiddenColumns={['eTag']}
