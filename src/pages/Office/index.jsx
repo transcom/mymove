@@ -237,9 +237,11 @@ export class OfficeApp extends Component {
                     />
 
                     {/* Prime Simulator */}
-                    <Route
+                    <PrivateRoute
+                      key="primeSimulatorCreatePaymentRequestsPath"
                       path="/simulator/moves/:moveCode/payment-requests/new"
                       component={PrimeSimulatorCreatePaymentRequest}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}

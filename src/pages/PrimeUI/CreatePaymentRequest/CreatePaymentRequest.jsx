@@ -143,19 +143,16 @@ Shipment.propTypes = {
 const CreatePaymentRequest = () => {
   const { moveCode } = useParams();
 
-  const { data, isLoading, isError } = usePrimeSimulatorGetMove(moveCode);
+  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { moveTaskOrders } = data;
-  const moveTaskOrderKeys = Object.keys(moveTaskOrders);
-  const moveTaskOrder = moveTaskOrders[moveTaskOrderKeys[0]];
   const { mtoShipments, mtoServiceItems } = moveTaskOrder;
   const MoveServiceCodes = ['MS', 'CS'];
 
   return (
-    <div className="grid-container usa-prose">
+    <div className="grid-container-desktop-lg usa-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <SectionWrapper className={formStyles.formSection}>

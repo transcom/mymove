@@ -400,12 +400,15 @@ export const usePrimeSimulatorAvailableMovesQueries = () => {
 };
 
 export const usePrimeSimulatorGetMove = (moveCode) => {
-  const { data, ...primeSimulatorGetMoveQuery } = useQuery([PRIME_SIMULATOR_MOVE, moveCode], getPrimeSimulatorMove);
+  const { data: moveTaskOrder, ...primeSimulatorGetMoveQuery } = useQuery(
+    [PRIME_SIMULATOR_MOVE, moveCode],
+    getPrimeSimulatorMove,
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
 
   return {
-    data,
+    moveTaskOrder,
     isLoading,
     isError,
     isSuccess,
