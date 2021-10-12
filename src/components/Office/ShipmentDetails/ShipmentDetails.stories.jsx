@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SITStatusOrigin } from '../ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
+import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetails from './ShipmentDetails';
 
