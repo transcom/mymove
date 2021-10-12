@@ -125,3 +125,8 @@ export const documentSizeLimitMsg = 'Please keep each file under 25MB.';
 
 // new window dimensions in relation to current window
 export const defaultRelativeWindowSize = 2 / 3;
+
+// The date only used to format date strings
+export const DATE_FORMAT_STRING = 'DD MMM YYYY';
+// The date and time used to format date strings
+export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
