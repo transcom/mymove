@@ -1,7 +1,7 @@
 import React from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import styles from './PrimeSimulatorAvailableMoves.module.scss';
+import styles from './AvailableMovesQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
