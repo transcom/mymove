@@ -8,7 +8,7 @@ import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
-import styles from './ShipmentSITExtensions.module.scss';
+import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'shared/formatters';
@@ -17,7 +17,7 @@ import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 
-const ShipmentSITExtensions = ({
+const ShipmentSITDisplay = ({
   sitExtensions,
   sitStatus,
   shipment,
@@ -100,7 +100,7 @@ const ShipmentSITExtensions = ({
 
   return (
     <DataTableWrapper
-      className={classnames('maxw-tablet', styles.mtoShipmentSITExtensions, className)}
+      className={classnames('maxw-tablet', styles.mtoshipmentSITDisplay, className)}
       testID="sitExtensions"
     >
       <div className={styles.title}>
@@ -143,7 +143,7 @@ const ShipmentSITExtensions = ({
   );
 };
 
-ShipmentSITExtensions.propTypes = {
+ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
@@ -153,7 +153,7 @@ ShipmentSITExtensions.propTypes = {
   className: PropTypes.string,
 };
 
-ShipmentSITExtensions.defaultProps = {
+ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
   showReviewSITExtension: undefined,
   showSubmitSITExtension: undefined,
@@ -161,4 +161,4 @@ ShipmentSITExtensions.defaultProps = {
   className: '',
 };
 
-export default ShipmentSITExtensions;
+export default ShipmentSITDisplay;
