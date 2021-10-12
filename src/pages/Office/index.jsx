@@ -31,7 +31,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, primeSimulatorRoutes } from 'constants/routes';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -57,13 +57,10 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
-const PrimeSimulatorAvailableMoves = lazy(() =>
-  import('pages/PrimeUI/PrimeSimulatorAvailableMoves/PrimeSimulatorAvailableMoves'),
-);
+const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
-
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -236,10 +233,24 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
-                    {/* Prime Simulator */}
+                    {/* PRIME SIMULATOR */}
+                    <PrivateRoute
+                      key="primeSimulatorMovePath"
+                      path={primeSimulatorRoutes.VIEW_MOVE_PATH}
+                      component={() => <div>View move path for prime simulator</div>}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorUpdateShipmentPath"
+                      path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
+                      component={() => <div>Update shipment path for prime simulator</div>}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
                     <PrivateRoute
                       key="primeSimulatorCreatePaymentRequestsPath"
-                      path="/simulator/moves/:moveCode/payment-requests/new"
+                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST}
                       component={PrimeSimulatorCreatePaymentRequest}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />

@@ -16,6 +16,11 @@ readonly environment="${1:-exp}"
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
+  loadtest)
+    compare_host=api.loadtest.dp3.us
+    health_check_hosts=api.loadtest.dp3.us,my.loadtest.dp3.us
+    export AWS_ACCOUNT_ID=469892416004
+    ;;
   demo)
     compare_host=api.demo.dp3.us
     health_check_hosts=api.demo.dp3.us,my.demo.dp3.us
@@ -37,7 +42,7 @@ case "${environment}" in
     export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of demo, exp, stg, or prd"
+    echo "<environment> must be one of loadtest, demo, exp, stg, or prd"
     exit 1
     ;;
 esac

@@ -17,6 +17,7 @@ import {
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
+import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -56,7 +57,7 @@ const columns = (isMarineCorpsUser = false) => [
   createHeader(
     'Requested move date',
     (row) => {
-      return formatDateFromIso(row.requestedMoveDate, 'DD MMM YYYY');
+      return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
     },
     {
       id: 'requestedMoveDate',
@@ -68,7 +69,7 @@ const columns = (isMarineCorpsUser = false) => [
   createHeader(
     'Date submitted',
     (row) => {
-      return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
+      return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
     },
     {
       id: 'submittedAt',

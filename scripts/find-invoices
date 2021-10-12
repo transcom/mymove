@@ -19,6 +19,9 @@ function usage() {
 
 environment="${1:-staging}"
 case "$environment" in
+  loadtest)
+    url_env="${environment}."
+    ;;
   demo)
     url_env="${environment}."
     ;;

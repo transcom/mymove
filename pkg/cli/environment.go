@@ -28,6 +28,8 @@ const (
 	EnvironmentDevelopment string = "development"
 	// EnvironmentDemo is the GovCloud demo Environment name
 	EnvironmentDemo string = "demo"
+	// EnvironmentLoadtest is the GovCloud loadtest Environment name
+	EnvironmentLoadtest string = "loadtest"
 	// EnvironmentExp is the GovCloud exp Environment name
 	EnvironmentExp string = "exp"
 	// EnvironmentStg is the GovCloud stg Environment name
@@ -45,6 +47,7 @@ var environments = []string{
 	EnvironmentTest,
 	EnvironmentDevelopment,
 	EnvironmentDemo,
+	EnvironmentLoadtest,
 	EnvironmentExp,
 	EnvironmentStg,
 	EnvironmentPrd,

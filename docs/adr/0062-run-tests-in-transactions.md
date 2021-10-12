@@ -14,7 +14,7 @@ is already done in [PR #6650](https://github.com/transcom/mymove/pull/6650).
 
 As part of configuring go-txdb in PR #6650, we also converted a few packages to
 start running tests in transaction, which serve as examples of how to convert
-the remaining packages. We also have a [Wiki with instructions](https://github.com/transcom/mymove/wiki/Running-server-tests-inside-a-transaction).
+the remaining packages. We also have a [Docs with instructions](https://transcom.github.io/mymove-docs/docs/dev/testing/writing-tests/Running-server-tests-inside-a-transaction).
 
 ## Considered Alternatives
 
