@@ -31,11 +31,11 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 			"AND date_part('month', pub_date) = $2)", currentDate.Year(), int(currentDate.Month()))
 	queryForThisMonthErr := queryForThisMonth.All(&thisMonthPrices)
 	if queryForThisMonthErr != nil {
-		suite.logger.Error(queryForThisMonthErr.Error())
+		suite.Logger().Error(queryForThisMonthErr.Error())
 	}
 	destroyErr := suite.DB().Destroy(&thisMonthPrices)
 	if destroyErr != nil {
-		suite.logger.Error("Error deleting eia diesel price", zap.Error(destroyErr))
+		suite.Logger().Error("Error deleting eia diesel price", zap.Error(destroyErr))
 	}
 
 	numMonthsToVerify := 10
@@ -54,7 +54,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		prePubDatePrices := []models.FuelEIADieselPrice{}
 		err = queryForThisMonth.All(&prePubDatePrices)
 		if err != nil {
-			suite.logger.Error(err.Error())
+			suite.Logger().Error(err.Error())
 		}
 		suite.Empty(&prePubDatePrices)
 	})
@@ -104,7 +104,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		currentMonthPrices := []models.FuelEIADieselPrice{}
 		err = queryForThisMonth.All(&currentMonthPrices)
 		if err != nil {
-			suite.logger.Error(err.Error())
+			suite.Logger().Error(err.Error())
 		}
 		suite.NotEmpty(currentMonthPrices)
 		dbBaselineRate := currentMonthPrices[0].BaselineRate
@@ -122,11 +122,11 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 				"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -3, 0).Year(), int(currentDate.AddDate(0, -3, 0).Month()))
 		err := queryForPriorMonth.All(&priorMonthsToRemove)
 		if err != nil {
-			suite.logger.Error(err.Error())
+			suite.Logger().Error(err.Error())
 		}
 		err = suite.DB().Destroy(&priorMonthsToRemove)
 		if err != nil {
-			suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
+			suite.Logger().Error("Error deleting eia diesel price", zap.Error(err))
 		}
 
 		dieselFuelPriceStorer := NewDieselFuelPriceStorer(testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
@@ -139,14 +139,14 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 
 		err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
 		if err != nil {
-			suite.logger.Error(err.Error())
+			suite.Logger().Error(err.Error())
 		}
 		suite.NotEmpty(&resultingFuelEIADeiselPrices)
 
 		priorMonthPrices := []models.FuelEIADieselPrice{}
 		err = queryForPriorMonth.All(&priorMonthPrices)
 		if err != nil {
-			suite.logger.Error(err.Error())
+			suite.Logger().Error(err.Error())
 		}
 		suite.NotEmpty(&priorMonthPrices)
 		dbBaselineRate := priorMonthPrices[0].BaselineRate

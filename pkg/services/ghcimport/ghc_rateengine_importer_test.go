@@ -2,16 +2,13 @@ package ghcimport
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -41,12 +38,6 @@ var tablesToTruncate = []string{
 
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *GHCRateEngineImportSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
@@ -88,14 +79,8 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &GHCRateEngineImportSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
 	}
 
 	suite.Run(t, hs)

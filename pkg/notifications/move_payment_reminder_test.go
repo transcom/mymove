@@ -112,7 +112,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest(nil))
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.NotNil(emailInfo)
@@ -157,7 +157,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest(nil))
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 
 	suite.NoError(err)
 	suite.Len(emailInfo, 0)
@@ -181,13 +181,13 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest(nil))
+	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.Len(emailInfoBeforeSending, 1)
 
-	err = PaymentReminder.OnSuccess(suite.AppContextForTest(nil), emailInfoBeforeSending[0])("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SESID")
 	suite.NoError(err)
-	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest(nil))
+	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.Len(emailInfoAfterSending, 0)
 }
@@ -200,7 +200,7 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	err = PaymentReminder.OnSuccess(suite.AppContextForTest(nil), ei)("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
@@ -265,7 +265,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
 `
 
-	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(nil), s)
+	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -323,7 +323,7 @@ Request payment within 45 days of your move date or you might not be able to get
 If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.
 `
 
-	textContent, err := pr.RenderText(suite.AppContextForTest(nil), s)
+	textContent, err := pr.RenderText(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
@@ -398,7 +398,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			Locator:              "def456",
 		},
 	}
-	formattedEmails, err := pr.formatEmails(suite.AppContextForTest(nil), emailInfos)
+	formattedEmails, err := pr.formatEmails(suite.AppContextForTest(), emailInfos)
 
 	suite.NoError(err)
 	for i, actualEmailContent := range formattedEmails {
@@ -414,9 +414,9 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			TOPhone:                *emailInfo.TOPhone,
 			Locator:                emailInfo.Locator,
 		}
-		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(nil), data)
+		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
-		textBody, err := pr.RenderText(suite.AppContextForTest(nil), data)
+		textBody, err := pr.RenderText(suite.AppContextForTest(), data)
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,

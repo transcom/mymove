@@ -1,7 +1,6 @@
 package adminapi
 
 import (
-	"log"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -9,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -37,13 +35,8 @@ func (suite *HandlerSuite) AfterTest() {
 
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("adminlocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("adminlocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, hs)

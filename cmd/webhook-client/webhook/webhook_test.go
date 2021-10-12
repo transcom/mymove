@@ -17,9 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 
@@ -30,7 +27,6 @@ import (
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/cmd/webhook-client/utils/mocks"
-	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -39,22 +35,13 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   *zap.Logger
 	certPath string
 	keyPath  string
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *WebhookClientTestingSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
-}
-
 func TestWebhookClientTestingSuite(t *testing.T) {
-	logger, _, _ := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel("debug"))
-
 	ts := &WebhookClientTestingSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
 		certPath:     "../../config/tls/devlocal-mtls.cer",
 		keyPath:      "../../config/tls/devlocal-mtls.key",
 	}

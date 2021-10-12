@@ -6,9 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -181,12 +179,12 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 	suite.MustSave(&tspPerformance1)
 }
 
-func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, distance int, weight unit.Pound, logger *zap.Logger, planner route.Planner) (CostComputation, error) {
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, distance int, weight unit.Pound, planner route.Planner) (CostComputation, error) {
 	move := models.Move{
 		Locator: "ABC123",
 	}
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
-		logger,
+		suite.Logger(),
 		move,
 		originZip,
 		destinationZip,
@@ -241,7 +239,6 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 		Locator: "ABC123",
 	}
 	suite.setupRateEngineTest()
-	logger, _ := zap.NewDevelopment()
 	originZip := "39574"
 	destinationZip := "33633"
 	planner := &mocks.Planner{}
@@ -252,7 +249,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	).Return(1234, nil)
 	distanceMiles := 1044
 	weight := unit.Pound(2000)
-	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, distanceMiles, weight, logger, planner)
+	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, distanceMiles, weight, planner)
 	suite.Require().Nil(err)
 
 	engine := NewRateEngine(move)
@@ -275,7 +272,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
-	logger, _ := zap.NewDevelopment()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -298,7 +294,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			destinationZip,
 			distanceMilesFromOriginPickupZip,
 			weight,
-			logger,
 			planner,
 		)
 		suite.NoError(err)
@@ -308,7 +303,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			destinationZip,
 			distanceMilesFromDutyStationZip,
 			weight,
-			logger,
 			planner,
 		)
 		suite.NoError(err)
@@ -357,7 +351,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			destinationZip,
 			distanceMilesFromOriginPickupZip,
 			weight,
-			logger,
 			planner,
 		)
 		suite.NoError(err)
@@ -367,7 +360,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			destinationZip,
 			distanceMilesFromDutyStationZip,
 			weight,
-			logger,
 			planner,
 		)
 		suite.NoError(err)
@@ -404,21 +396,11 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *RateEngineSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestRateEngineSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger, _ := zap.NewDevelopment()
-
 	hs := &RateEngineSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

@@ -16,11 +16,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -35,13 +33,7 @@ const defaultZip5Distance = 48
 
 type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
-	logger  *zap.Logger
 	planner route.Planner
-}
-
-// TestAppContext returns the AppContext for the test suite
-func (suite *ServiceParamValueLookupsSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestServiceParamValueLookupsSuite(t *testing.T) {
@@ -64,7 +56,6 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
 		planner:      planner,
 	}
 

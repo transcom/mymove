@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 		MoveID:                           strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}

@@ -15,7 +15,7 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	notification := NewReweighRequested(move.ID, shipment)
 	subject := "FYI: Your HHG should be reweighed before it is delivered"
 
-	emails, err := notification.emails(suite.AppContextForTest(&auth.Session{
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
 	}))
@@ -66,7 +66,7 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 <p>If you believe your shipment should be reweighed and has not been, do not accept delivery. Tell your movers that they need to reweigh the shipment before they unload it.</p>
 `
 
-	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(&auth.Session{
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
 	}), s)
@@ -118,7 +118,7 @@ The only reason they can reject a reweigh request is if they get the request aft
 
 If you believe your shipment should be reweighed and has not been, do not accept delivery. Tell your movers that they need to reweigh the shipment before they unload it.
 `
-	textContent, err := notification.RenderText(suite.AppContextForTest(&auth.Session{
+	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          officeUser.ID,
 		ApplicationName: auth.OfficeApp,
 	}), s)

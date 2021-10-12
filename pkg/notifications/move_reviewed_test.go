@@ -29,7 +29,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 
 	moveReviewed, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), onDate)
+	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), onDate)
 
 	suite.NoError(err)
 	suite.NotNil(emailInfo)
@@ -51,7 +51,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 
 	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
+	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
 
 	suite.NoError(err)
 	suite.Len(emailInfo, 0)
@@ -66,14 +66,14 @@ func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
 	suite.createPPMMoves(moves)
 	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
+	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
 	suite.NoError(err)
 	suite.Len(emailInfoBeforeSending, 2)
 
 	// simulate successfully sending an email and then check that this email does not get sent again.
-	err = moveReviewed.OnSuccess(suite.AppContextForTest(nil), emailInfoBeforeSending[0])("SES_MOVE_ID")
+	err = moveReviewed.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SES_MOVE_ID")
 	suite.NoError(err)
-	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(nil), startDate)
+	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
 	suite.NoError(err)
 	suite.Len(emailInfoAfterSending, 1)
 }
@@ -87,7 +87,7 @@ func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	moveReviewed, err := NewMoveReviewed(startDate)
 	suite.NoError(err)
-	err = moveReviewed.OnSuccess(suite.AppContextForTest(nil), ei)("SESID")
+	err = moveReviewed.OnSuccess(suite.AppContextForTest(), ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
@@ -116,7 +116,7 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 
 <p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>`
 
-	htmlContent, err := mr.RenderHTML(suite.AppContextForTest(nil), s)
+	htmlContent, err := mr.RenderHTML(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -141,7 +141,7 @@ We'll use your feedback to make MilMove better for your fellow service members.
 
 Thank you for your thoughts, and congratulations on your move.`
 
-	textContent, err := mr.RenderText(suite.AppContextForTest(nil), s)
+	textContent, err := mr.RenderText(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
@@ -176,7 +176,7 @@ func (suite *NotificationSuite) TestFormatEmails() {
 		},
 	}
 
-	formattedEmails, err := mr.formatEmails(suite.AppContextForTest(nil), emailInfos)
+	formattedEmails, err := mr.formatEmails(suite.AppContextForTest(), emailInfos)
 
 	suite.NoError(err)
 	for i, actualEmailContent := range formattedEmails {
@@ -186,9 +186,9 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			OriginDutyStation:      emailInfo.DutyStationName,
 			DestinationDutyStation: emailInfo.NewDutyStationName,
 		}
-		htmlBody, err := mr.RenderHTML(suite.AppContextForTest(nil), data)
+		htmlBody, err := mr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
-		textBody, err := mr.RenderText(suite.AppContextForTest(nil), data)
+		textBody, err := mr.RenderText(suite.AppContextForTest(), data)
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,

@@ -9,7 +9,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
-	emails, err := notification.emails(suite.AppContextForTest(&auth.Session{
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
 		ApplicationName: auth.MilApp,
 	}))
@@ -136,7 +136,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 <p>Good luck on your move to destDutyStation!</p>
 `
 
-	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(&auth.Session{
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          approver.ID,
 		ApplicationName: auth.OfficeApp,
 	}), s)
@@ -213,7 +213,7 @@ If any information about your move changes at any point during the move, let you
 Good luck on your move to destDutyStation!
 `
 
-	textContent, err := notification.RenderText(suite.AppContextForTest(&auth.Session{
+	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          approver.ID,
 		ApplicationName: auth.OfficeApp,
 	}), s)

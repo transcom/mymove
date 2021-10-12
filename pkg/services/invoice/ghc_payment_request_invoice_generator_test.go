@@ -13,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -21,8 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -31,13 +28,7 @@ const (
 
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
 	icnSequencer sequence.Sequencer
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *GHCInvoiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *GHCInvoiceSuite) SetupTest() {
@@ -50,7 +41,6 @@ func (suite *GHCInvoiceSuite) SetupTest() {
 func TestGHCInvoiceSuite(t *testing.T) {
 	ts := &GHCInvoiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	ts.icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 
@@ -367,7 +357,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("does not error out creating EDI from Invoice858", func(t *testing.T) {
-		_, err := result.EDIString(suite.logger)
+		_, err := result.EDIString(suite.Logger())
 		suite.NoError(err)
 	})
 
