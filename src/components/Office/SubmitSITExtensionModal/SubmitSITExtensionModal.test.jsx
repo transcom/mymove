@@ -2,13 +2,13 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
+import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
 describe('SubmitSITExtensionModal', () => {
   const summarySITExtension = (
-    <ShipmentSITExtensions {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
+    <ShipmentSITDisplay {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
   );
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();

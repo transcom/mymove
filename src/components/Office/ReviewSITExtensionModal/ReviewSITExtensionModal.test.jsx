@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
+import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
@@ -15,7 +15,7 @@ describe('ReviewSITExtensionModal', () => {
   };
 
   const summarySITExtension = (
-    <ShipmentSITExtensions {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
+    <ShipmentSITDisplay {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
   );
 
   it('renders requested days, reason, and contractor remarks', async () => {
