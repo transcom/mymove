@@ -58,7 +58,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	if !config.Enabled {
 		tp := trace.NewNoopTracerProvider()
 		otel.SetTracerProvider(tp)
-		global.SetMeterProvider(metric.NoopMeterProvider{})
+		global.SetMeterProvider(metric.NewNoopMeterProvider())
 		logger.Info("opentelemetry not enabled")
 		return shutdown
 	}
@@ -127,7 +127,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		collectSeconds = defaultCollectSeconds
 	}
 	pusher := controller.New(
-		processor.New(
+		processor.NewFactory(
 			simple.NewWithExactDistribution(),
 			metricExporter,
 		),
@@ -151,7 +151,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 
 	otel.SetTracerProvider(tp)
-	global.SetMeterProvider(pusher.MeterProvider())
+	global.SetMeterProvider(pusher)
 	if config.UseXrayID {
 		propagation.NewCompositeTextMapPropagator(
 			xray.Propagator{},
