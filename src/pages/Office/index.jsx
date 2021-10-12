@@ -58,7 +58,9 @@ const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
-
+const PrimeSimulatorCreatePaymentRequest = lazy(() =>
+  import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -156,6 +158,7 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
+
     return (
       <>
         <div id="app-root">
@@ -248,7 +251,7 @@ export class OfficeApp extends Component {
                     <PrivateRoute
                       key="primeSimulatorCreatePaymentRequestsPath"
                       path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST}
-                      component={() => <div>Create payment request path for prime simulator</div>}
+                      component={PrimeSimulatorCreatePaymentRequest}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
