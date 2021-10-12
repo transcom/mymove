@@ -152,7 +152,7 @@ const checkYarnAudit = () => {
 };
 
 // skip these checks if PR is by dependabot, if we don't have a github object let it run also since we are local
-if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependabot-preview[bot]')) {
+if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependabot[bot]')) {
   githubChecks();
   fileChecks();
   checkYarnAudit();
