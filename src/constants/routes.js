@@ -48,3 +48,12 @@ export const tioRoutes = {
   PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
   BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
 };
+
+// The base path doesn't have prime-simulator due to matching issues with /prime.
+const BASE_PRIME_SIMULATOR_PATH = '/simulator/moves/:moveCode';
+
+export const primeSimulatorRoutes = {
+  VIEW_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/details`,
+  UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
+  CREATE_PAYMENT_REQUEST: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
+};
