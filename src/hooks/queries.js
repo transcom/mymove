@@ -384,28 +384,9 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-// README: This is here for historical reasons in case anyone is wondering why
-// these arguments aren't being set even though this Query is being used by
-// the TableQueue component hasQuery function which expects to be able to
-// send these variables in.
-export const usePrimeSimulatorAvailableMovesQueries = (
-  sort,
-  // order,
-  // filters = [],
-  // currentPage = PAGINATION_PAGE_DEFAULT,
-  // currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
-) => {
+export const usePrimeSimulatorAvailableMovesQueries = () => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [
-      PRIME_SIMULATOR_AVAILABLE_MOVES,
-      {
-        // sort,
-        // order,
-        // filters,
-        // currentPage,
-        // currentPageSize,
-      },
-    ],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
     getPrimeSimulatorAvailableMoves,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
