@@ -171,7 +171,7 @@ const CreatePaymentRequest = () => {
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Move Service Items</h2>
-              {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
+              {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
                 return (
                   MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
                     <SectionWrapper key={`moveServiceItems${mtoServiceItem.id}`} className={formStyles.formSection}>
@@ -195,12 +195,12 @@ const CreatePaymentRequest = () => {
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Shipments</h2>
-              {mtoShipments.map((mtoShipment) => {
+              {mtoShipments?.map((mtoShipment) => {
                 return (
                   <div key={mtoShipment.id}>
                     <Shipment shipment={mtoShipment} />
                     <h2>Shipment Service Items</h2>
-                    {mtoServiceItems.map((mtoServiceItem, mtoServiceItemIndex) => {
+                    {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
                       return (
                         mtoServiceItem.mtoShipmentID === mtoShipment.id && (
                           <SectionWrapper
