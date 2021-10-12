@@ -1,10 +1,10 @@
 import React from 'react';
 
-import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
+import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
-import { SITStatusOrigin } from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
+import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 export default {
   title: 'Office Components/ReviewSITExtensionModal',
@@ -20,7 +20,7 @@ const sitExtension = {
 };
 
 const summarySITExtension = (
-  <ShipmentSITExtensions
+  <ShipmentSITDisplay
     {...{
       sitExtensions: [sitExtension],
       sitStatus: SITStatusOrigin,
