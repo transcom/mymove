@@ -60,7 +60,7 @@ const PrimeSimulatorAvailableMoves = () => {
         handleClick={(row) => {
           alert(`The Row with an id of ${row.id} and moveCode of ${row.moveCode} has been clicked.`);
         }}
-        defaultSortedColumns={[{ id: 'id', desc: false }]}
+        defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
         defaultHiddenColumns={['eTag']}
       />
     </GridContainer>
