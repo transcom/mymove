@@ -1,7 +1,7 @@
 import React from 'react';
 
-import ShipmentSITExtensions from '../ShipmentSITExtensions/ShipmentSITExtensions';
-import { SITStatusOrigin } from '../ShipmentSITExtensions/ShipmentSITExtensionsTestParams';
+import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
+import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
@@ -19,7 +19,7 @@ const sitExtension = {
 };
 
 const summarySITExtension = (
-  <ShipmentSITExtensions
+  <ShipmentSITDisplay
     {...{
       sitExtensions: [sitExtension],
       sitStatus: SITStatusOrigin,

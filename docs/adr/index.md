@@ -69,6 +69,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0062](0062-run-tests-in-transactions.md) - Run tests within transactions
 - [ADR-0063](0063-use-openapi-to-compile-api-specs.md) - Using `openapi` CLI to compile API specs
 - [ADR-0064](0064-use-stateless-services-with-context.md) - Use stateless services with context
+- [ADR-0065](0065-use-office-app-for-prime-ui.md) - Use Office app for Prime UI
 
 <!-- adrlogstop -->
 

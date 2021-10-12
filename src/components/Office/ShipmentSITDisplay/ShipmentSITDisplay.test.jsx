@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentSITExtensions from './ShipmentSITExtensions';
+import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
   SITExtensions,
   SITStatusOrigin,
@@ -13,11 +13,11 @@ import {
   SITExtensionsWithComments,
   SITExtensionPending,
   SITExtensionDenied,
-} from './ShipmentSITExtensionsTestParams';
+} from './ShipmentSITDisplayTestParams';
 
-describe('ShipmentSITExtensions', () => {
+describe('ShipmentSITDisplay', () => {
   it('renders the Shipment SIT Extensions', async () => {
-    render(<ShipmentSITExtensions sitExtensions={SITExtensions} sitStatus={SITStatusOrigin} shipment={SITShipment} />);
+    render(<ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusOrigin} shipment={SITShipment} />);
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
 
     expect(screen.getByText('270 authorized')).toBeInTheDocument();
@@ -34,21 +34,21 @@ describe('ShipmentSITExtensions', () => {
   });
 
   it('renders the Shipment SIT at Destination, no previous SIT', async () => {
-    render(<ShipmentSITExtensions sitStatus={SITStatusDestination} shipment={SITShipment} />);
+    render(<ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />);
 
     expect(screen.getByText('Current location: destination')).toBeInTheDocument();
     expect(screen.getByText('Days in destination SIT')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
-    render(<ShipmentSITExtensions sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />);
+    render(<ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />);
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
     expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, multiple previous SIT', async () => {
-    render(<ShipmentSITExtensions sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />);
+    render(<ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />);
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
     expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
     expect(await screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('renders the approved Shipment SIT Extensions', async () => {
     render(
-      <ShipmentSITExtensions sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
     );
     expect(screen.getByText('SIT extensions')).toBeInTheDocument();
     expect(screen.getByText('30 days added')).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('renders the approved Shipment SIT Extensions with comments', async () => {
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensionsWithComments}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}
@@ -84,11 +84,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('renders the denied Shipment SIT Extensions', async () => {
     render(
-      <ShipmentSITExtensions
-        sitExtensions={SITExtensionDenied}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-      />,
+      <ShipmentSITDisplay sitExtensions={SITExtensionDenied} sitStatus={SITStatusDestination} shipment={SITShipment} />,
     );
     expect(screen.getByText('SIT extensions')).toBeInTheDocument();
     expect(screen.getByText('0 days added')).toBeInTheDocument();
@@ -98,7 +94,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('omits SIT Extension history when there is only a pending SIT Extension', async () => {
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensionPending}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}
@@ -111,7 +107,7 @@ describe('ShipmentSITExtensions', () => {
   it('calls review SIT extension callback when button is clicked', async () => {
     const showReviewSITExtension = jest.fn();
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensionPending}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}
@@ -131,7 +127,7 @@ describe('ShipmentSITExtensions', () => {
   it('calls submit SIT extension callback when button is clicked', async () => {
     const showSubmitSITExtension = jest.fn();
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensions}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}
@@ -150,7 +146,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('hides review pending SIT Extension button when hide prop is true', async () => {
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensionPending}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}
@@ -163,7 +159,7 @@ describe('ShipmentSITExtensions', () => {
 
   it('hides submit new SIT Extension button when hide prop is true', async () => {
     render(
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={SITExtensions}
         sitStatus={SITStatusDestination}
         shipment={SITShipment}

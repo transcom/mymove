@@ -96,7 +96,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
 
 ## Overview
 
-Please check the [Milmove Project Wiki](https://github.com/transcom/mymove/wiki) for details on the project itself.
+Please check the [MilMove Development Documentation](https://transcom.github.io/mymove-docs/docs) for details on the project itself.
 
 ## Supported Browsers
 
@@ -441,7 +441,7 @@ You can confirm that the values exist with:
 This project uses AWS services which means you'll need an account to work with parts of it. AWS credentials are managed
 via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow
 these instructions to
-[finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
+[finish setting up AWS](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication).
 
 #### Setup: Direnv
 
@@ -921,8 +921,8 @@ files.
 There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
-* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
-* `make e2e_test`: Run end-to-end testing suite. [Additional info for running E2E tests](https://github.com/transcom/mymove/wiki/run-e2e-tests)
+* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://transcom.github.io/mymove-docs/docs/dev/testing/running-tests/run-go-tests)
+* `make e2e_test`: Run end-to-end testing suite. [Additional info for running E2E tests](https://transcom.github.io/mymove-docs/docs/dev/testing/running-tests/run-e2e-tests)
   * Note: this will not necessarily reflect the same results as in the CI
   environment, run with caution. One is your `.envrc` is going to
   populate your dev environment with a bunch of values that `make e2e_test_docker`
@@ -958,7 +958,7 @@ In development mode, logs from the `milmove` process are written to `logs/dev.lo
 
 ### Database
 
-* Read [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) to prevent SQL injections! *
+* Read [Querying the Database Safely](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide/#querying-the-database-safely) to prevent SQL injections! *
 
 A few commands exist for starting and stopping the DB docker container:
 
@@ -1014,7 +1014,7 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 
 #### Migrations
 
-To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/Database-Migrations)
+To add new regular and/or secure migrations, see the [database development guide](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations)
 
 Running migrations in local development:
 
@@ -1149,7 +1149,7 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 
 #### Linters & Pre-commit Hooks
 
-We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://github.com/transcom/mymove/wiki/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
+We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
 
 ### Manual Redeploys and Other Helpful Information in an Emergency
 

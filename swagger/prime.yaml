@@ -335,7 +335,7 @@ paths:
 
 
         These restrictions are due to our [optimistic locking/concurrency
-        control](https://github.com/transcom/mymove/wiki/use-optimistic-locking)
+        control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking)
         mechanism.
 
 
