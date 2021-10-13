@@ -72,7 +72,7 @@
     "swagger-ui-dist": "^3.52.4",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
-    "yup": "^0.32.10"
+    "yup": "^0.32.11"
   },
   "resolutions": {
     "babel-loader": "~8.1.0",
