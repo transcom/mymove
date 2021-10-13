@@ -479,16 +479,16 @@ describe('Office App', () => {
       };
 
       it.each([
-        ['PrimeSimulatorMoveDetails', '/simulator/moves/AU67C6/details', '/simulator/moves/:moveCode/details'],
+        ['PrimeSimulatorMoveDetails', '/simulator/moves/AU67C6/details', '/simulator/moves/:moveCodeOrID/details'],
         [
           'PrimeSimulatorUpdateShipment',
           '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c',
-          '/simulator/moves/:moveCode/shipments/:shipmentId',
+          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId',
         ],
         [
           'PrimeSimulatorCreatePaymentRequest',
           '/simulator/moves/AU67C6/payment-requests/new',
-          '/simulator/moves/:moveCode/payment-requests/new',
+          '/simulator/moves/:moveCodeOrID/payment-requests/new',
         ],
       ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
         const app = mount(
