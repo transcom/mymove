@@ -140,7 +140,7 @@ Shipment.propTypes = {
   }).isRequired,
 };
 
-const CreatePaymentRequest = () => {
+const MoveDetails = () => {
   const { moveCodeOrID } = useParams();
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
@@ -232,4 +232,4 @@ const CreatePaymentRequest = () => {
   );
 };
 
-export default CreatePaymentRequest;
+export default MoveDetails;

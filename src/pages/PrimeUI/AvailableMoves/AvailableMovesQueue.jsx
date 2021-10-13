@@ -3,6 +3,7 @@ import { GridContainer } from '@trussworks/react-uswds';
 
 import styles from './AvailableMovesQueue.module.scss';
 
+import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
@@ -46,7 +47,7 @@ const columnHeaders = () => [
   ),
 ];
 
-const PrimeSimulatorAvailableMoves = () => {
+const PrimeSimulatorAvailableMoves = ({ history }) => {
   const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -57,8 +58,8 @@ const PrimeSimulatorAvailableMoves = () => {
         title="Moves available to Prime"
         columns={columnHeaders()}
         useQueries={usePrimeSimulatorAvailableMovesQueries}
-        handleClick={() => {
-          return null;
+        handleClick={(row) => {
+          history.push(`/simulator/moves/${row.id}/details`);
         }}
         defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
         defaultHiddenColumns={['eTag']}
@@ -67,6 +68,10 @@ const PrimeSimulatorAvailableMoves = () => {
       />
     </GridContainer>
   );
+};
+
+PrimeSimulatorAvailableMoves.propTypes = {
+  history: HistoryShape.isRequired,
 };
 
 export default PrimeSimulatorAvailableMoves;
