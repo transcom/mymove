@@ -20,6 +20,7 @@ const TableQueue = ({
   defaultCanSort,
   disableSortBy,
   defaultSortedColumns,
+  defaultHiddenColumns,
   handleClick,
   useQueries,
   showFilters,
@@ -74,7 +75,12 @@ const TableQueue = ({
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { hiddenColumns: ['id'], pageSize: perPage, pageIndex: page - 1, sortBy: defaultSortedColumns },
+      initialState: {
+        hiddenColumns: defaultHiddenColumns,
+        pageSize: perPage,
+        pageIndex: page - 1,
+        sortBy: defaultSortedColumns,
+      },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters: true,
       manualPagination: true,
@@ -156,6 +162,8 @@ TableQueue.propTypes = {
   disableSortBy: PropTypes.bool,
   // defaultSortedColumns is an object of the column id and sort direction
   defaultSortedColumns: SortShape,
+  // defaultHiddenColumns is an array of columns to hide
+  defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
 };
 
 TableQueue.defaultProps = {
@@ -166,6 +174,7 @@ TableQueue.defaultProps = {
   defaultCanSort: false,
   disableSortBy: true,
   defaultSortedColumns: [],
+  defaultHiddenColumns: ['id'],
 };
 
 export default TableQueue;

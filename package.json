@@ -69,10 +69,10 @@
     "regenerator-runtime": "^0.13.9",
     "reselect": "^4.0.0",
     "swagger-client": "^3.16.1",
-    "swagger-ui-dist": "^3.52.3",
+    "swagger-ui-dist": "^3.52.4",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
-    "yup": "^0.32.9"
+    "yup": "^0.32.10"
   },
   "resolutions": {
     "babel-loader": "~8.1.0",
@@ -129,7 +129,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
-    "@testing-library/user-event": "^13.2.1",
+    "@testing-library/user-event": "^13.3.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
     "@zeplin/cli": "1.1.12",
     "@zeplin/cli-connect-react-plugin": "1.1.1",
@@ -137,7 +137,7 @@
     "cypress": "^8.5.0",
     "cypress-audit": "^1.1.0",
     "cypress-wait-until": "^1.7.1",
-    "danger": "^10.6.6",
+    "danger": "^10.7.0",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^10.0.0",
     "enzyme": "^3.11.0",

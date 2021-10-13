@@ -460,5 +460,47 @@ describe('Office App', () => {
         expect(renderedRoute.prop('path')).toEqual(pathToMatch);
       });
     });
+
+    describe('Prime Simulator routes', () => {
+      const loggedInPrimeSimulatorState = {
+        auth: {
+          activeRole: roleTypes.PRIME_SIMULATOR,
+          isLoading: false,
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.PRIME_SIMULATOR }],
+            },
+          },
+        },
+      };
+
+      it.each([
+        ['PrimeSimulatorMoveDetails', '/simulator/moves/AU67C6/details', '/simulator/moves/:moveCodeOrID/details'],
+        [
+          'PrimeSimulatorUpdateShipment',
+          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c',
+          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId',
+        ],
+        [
+          'PrimeSimulatorCreatePaymentRequest',
+          '/simulator/moves/AU67C6/payment-requests/new',
+          '/simulator/moves/:moveCodeOrID/payment-requests/new',
+        ],
+      ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
+        const app = mount(
+          <MockProviders initialState={loggedInPrimeSimulatorState} initialEntries={[initialURL]}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual(pathToMatch);
+      });
+    });
   });
 });

@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import * as PropTypes from 'prop-types';
 
-import ReviewSITExtensionsModal from '../ReviewSITExtensionModal/ReviewSITExtensionModal';
-import SubmitSITExtensionModal from '../SubmitSITExtensionModal/SubmitSITExtensionModal';
 import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
 
 import styles from './ShipmentDetails.module.scss';
@@ -10,7 +8,9 @@ import styles from './ShipmentDetails.module.scss';
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
-import ShipmentSITExtensions from 'components/Office/ShipmentSITExtensions/ShipmentSITExtensions';
+import SubmitSITExtensionModal from 'components/Office/SubmitSITExtensionModal/SubmitSITExtensionModal';
+import ReviewSITExtensionsModal from 'components/Office/ReviewSITExtensionModal/ReviewSITExtensionModal';
+import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
@@ -56,7 +56,7 @@ const ShipmentDetailsMain = ({
 
   const summarySITComponent = useMemo(
     () => (
-      <ShipmentSITExtensions
+      <ShipmentSITDisplay
         sitExtensions={sitExtensions}
         sitStatus={sitStatus}
         storageInTransit={storageInTransit}
@@ -94,7 +94,7 @@ const ShipmentDetailsMain = ({
         />
       )}
       {sitStatus && (
-        <ShipmentSITExtensions
+        <ShipmentSITDisplay
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
           storageInTransit={storageInTransit}
