@@ -29,3 +29,7 @@ export async function getPrimeSimulatorAvailableMoves() {
 export async function getPrimeSimulatorMove(key, locator) {
   return makePrimeSimulatorRequest('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
+
+export async function createPaymentRequest({ serviceItems }) {
+  return makePrimeSimulatorRequest('paymentRequest.createPaymentRequest', { serviceItems });
+}

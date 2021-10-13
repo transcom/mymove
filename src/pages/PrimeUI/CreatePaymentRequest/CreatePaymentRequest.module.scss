@@ -1,0 +1,15 @@
+@import 'shared/styles/basics';
+
+.CreatePaymentRequest {
+
+  .serviceItemInputGroup {
+    @include u-display(flex);
+    justify-content: flex-end;
+
+    label {
+      @include u-margin-top(0);
+      @include u-margin-right(1);
+      width: auto;
+    }
+  }
+}

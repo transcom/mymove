@@ -1,14 +1,21 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
-import { Button, Checkbox } from '@trussworks/react-uswds';
+import * as Yup from 'yup';
+import { Button, Label, FormGroup } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
-import { shipmentTypeLabels } from '../../../content/shipments';
 import { formatDateFromIso } from '../../../shared/formatters';
+import { shipmentTypeLabels } from '../../../content/shipments';
+import { ErrorMessage } from '../../../components/form';
+
+import styles from './CreatePaymentRequest.module.scss';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
@@ -140,6 +147,10 @@ Shipment.propTypes = {
   }).isRequired,
 };
 
+const createPaymentRequestSchema = Yup.object().shape({
+  serviceItems: Yup.array().of(Yup.string()).min(1),
+});
+
 const CreatePaymentRequest = () => {
   const { moveCodeOrID } = useParams();
 
@@ -151,8 +162,14 @@ const CreatePaymentRequest = () => {
   const { mtoShipments, mtoServiceItems } = moveTaskOrder;
   const MoveServiceCodes = ['MS', 'CS'];
 
+  const initialValues = {
+    serviceItems: [],
+  };
+
+  const onSubmit = () => {};
+
   return (
-    <div className="grid-container-desktop-lg usa-prose">
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
       <div className="grid-row">
         <div className="grid-col-12">
           <SectionWrapper className={formStyles.formSection}>
@@ -168,64 +185,90 @@ const CreatePaymentRequest = () => {
               </div>
             </dl>
           </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Move Service Items</h2>
-              {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                return (
-                  MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
-                    <SectionWrapper key={`moveServiceItems${mtoServiceItem.id}`} className={formStyles.formSection}>
-                      <Checkbox
-                        label="Add to payment request"
-                        name={`serviceItem${mtoServiceItem.id}`}
-                        onChange={() => {}}
-                        id={mtoServiceItem.id}
-                      />
-                      <ServiceItem
-                        key={`moveServiceItem${mtoServiceItem.id}`}
-                        serviceItem={mtoServiceItem}
-                        shipmentServiceItemNumber={mtoServiceItemIndex}
-                      />
-                    </SectionWrapper>
-                  )
-                );
-              })}
-            </dl>
-          </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Shipments</h2>
-              {mtoShipments?.map((mtoShipment) => {
-                return (
-                  <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
-                    <h2>Shipment Service Items</h2>
-                    {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                      return (
-                        mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                          <SectionWrapper
-                            key={`shipmentServiceItems${mtoServiceItem.id}`}
-                            className={formStyles.formSection}
-                          >
-                            <Checkbox
-                              label="Add to payment request"
-                              name={`serviceItem${mtoServiceItem.id}`}
-                              onChange={() => {}}
-                              id={mtoServiceItem.id}
-                            />
-                            <ServiceItem serviceItem={mtoServiceItem} shipmentServiceItemNumber={mtoServiceItemIndex} />
-                          </SectionWrapper>
-                        )
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </dl>
-            <Button aria-label="Submit Payment Request" onClick={() => {}} type="button">
-              Submit Payment Request
-            </Button>
-          </SectionWrapper>
+          <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
+            {({ isValid, isSubmitting, errors }) => (
+              <Form className={formStyles.form}>
+                <FormGroup error={errors != null && Object.keys(errors).length > 0}>
+                  {errors != null && errors.serviceItems && (
+                    <ErrorMessage display>
+                      At least 1 service item must be added when creating a payment request
+                    </ErrorMessage>
+                  )}
+                  <SectionWrapper className={formStyles.formSection}>
+                    <dl className={descriptionListStyles.descriptionList}>
+                      <h2>Move Service Items</h2>
+                      {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
+                        return (
+                          MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
+                            <SectionWrapper
+                              key={`moveServiceItems${mtoServiceItem.id}`}
+                              className={formStyles.formSection}
+                            >
+                              <div className={styles.serviceItemInputGroup}>
+                                <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
+                                <Field
+                                  type="checkbox"
+                                  label="Add to payment request"
+                                  name="serviceItems"
+                                  value={mtoServiceItem.id}
+                                  id={mtoServiceItem.id}
+                                />
+                              </div>
+                              <ServiceItem
+                                serviceItem={mtoServiceItem}
+                                shipmentServiceItemNumber={mtoServiceItemIndex}
+                              />
+                            </SectionWrapper>
+                          )
+                        );
+                      })}
+                    </dl>
+                  </SectionWrapper>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <dl className={descriptionListStyles.descriptionList}>
+                      <h2>Shipments</h2>
+                      {mtoShipments?.map((mtoShipment) => {
+                        return (
+                          <div key={mtoShipment.id}>
+                            <Shipment shipment={mtoShipment} />
+                            <h2>Shipment Service Items</h2>
+                            {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
+                              return (
+                                mtoServiceItem.mtoShipmentID === mtoShipment.id && (
+                                  <SectionWrapper
+                                    key={`shipmentServiceItems${mtoServiceItem.id}`}
+                                    className={formStyles.formSection}
+                                  >
+                                    <div className={styles.serviceItemInputGroup}>
+                                      <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
+                                      <Field
+                                        type="checkbox"
+                                        label="Add to payment request"
+                                        name="serviceItems"
+                                        value={mtoServiceItem.id}
+                                        id={mtoServiceItem.id}
+                                      />
+                                    </div>
+                                    <ServiceItem
+                                      serviceItem={mtoServiceItem}
+                                      shipmentServiceItemNumber={mtoServiceItemIndex}
+                                    />
+                                  </SectionWrapper>
+                                )
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                    </dl>
+                    <Button aria-label="Submit Payment Request" type="submit" disabled={isSubmitting || !isValid}>
+                      Submit Payment Request
+                    </Button>
+                  </SectionWrapper>
+                </FormGroup>
+              </Form>
+            )}
+          </Formik>
         </div>
       </div>
     </div>
