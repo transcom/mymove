@@ -110,10 +110,9 @@
   @include u-display(flex);
   @include u-margin-top(2);
   align-items: center;
-  justify-content: space-between;
 
   dl {
-    @include u-margin-right(1);
+    @include u-margin-right(4);
     @include u-margin-y(0);
   }
 
@@ -122,7 +121,7 @@
     font-weight: bold;
 
     &:not(:first-of-type) {
-      @include u-margin-left(1);
+      @include u-margin-left(3);
     }
   }
 
@@ -141,9 +140,9 @@
 }
 
 .toggleDrawer {
- /* @include u-display(flex);
+  @include u-display(flex);
   flex: 1;
-  justify-content: flex-end; */
+  justify-content: flex-end;
 
   svg {
     margin-right: 0.25em;
@@ -151,7 +150,7 @@
 
   button {
     @include u-padding-x(0);
-    width: 164px;
+    width: 170px;
   }
 }
 
