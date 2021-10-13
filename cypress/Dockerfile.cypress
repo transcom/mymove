@@ -1,4 +1,4 @@
-FROM milmove/circleci-docker:milmove-cypress-9cba6d26c1917d7981b04d386e6f74da2aa8e967
+FROM milmove/circleci-docker:milmove-cypress-fb9f5283964524152d84a20fe58df13bb605cb37
 
 # use the WORKDIR from the CI image
 # hadolint ignore=DL3045
