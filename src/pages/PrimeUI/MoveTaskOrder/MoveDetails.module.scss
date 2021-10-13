@@ -1,0 +1,21 @@
+@import 'shared/styles/basics';
+
+.MoveDetails {
+  .moveHeader {
+    @include u-display(flex);
+    align-items: flex-start;
+
+    h2 {
+      flex-grow: 1;
+    }
+  }
+
+  .shipmentHeader {
+    @include u-display(flex);
+    align-items: flex-start;
+
+    h3 {
+      flex-grow: 1;
+    }
+  }
+}

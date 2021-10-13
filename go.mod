@@ -36,14 +36,14 @@ require (
 	github.com/gobuffalo/pop/v5 v5.3.4
 	github.com/gobuffalo/validate/v3 v3.3.0
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
-	github.com/gofrs/uuid v3.4.0+incompatible
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.12
-	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
+	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/jstemmer/go-junit-report v0.9.1
