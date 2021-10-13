@@ -141,9 +141,9 @@ Shipment.propTypes = {
 };
 
 const CreatePaymentRequest = () => {
-  const { moveCode } = useParams();
+  const { moveCodeOrID } = useParams();
 
-  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCode);
+  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -160,7 +160,7 @@ const CreatePaymentRequest = () => {
               <h2>Move</h2>
               <div className={descriptionListStyles.row}>
                 <dt>Move Code:</dt>
-                <dd>{moveCode}</dd>
+                <dd>{moveTaskOrder.moveCode}</dd>
               </div>
               <div className={descriptionListStyles.row}>
                 <dt>Move Id:</dt>
