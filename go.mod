@@ -43,7 +43,7 @@ require (
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.12
-	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
+	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/jstemmer/go-junit-report v0.9.1
