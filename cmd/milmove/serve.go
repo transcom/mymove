@@ -828,8 +828,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			sddcDPSMux.Use(otelmux.Middleware("sddc"))
 		}
 		sddcDPSMux.Handle("/set_cookie",
-			dpsauth.NewSetCookieHandler(logger,
-				dpsAuthSecretKey,
+			dpsauth.NewSetCookieHandler(dpsAuthSecretKey,
 				dpsCookieDomain,
 				dpsCookieSecret,
 				dpsCookieExpires))
