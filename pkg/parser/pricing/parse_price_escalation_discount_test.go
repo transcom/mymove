@@ -51,11 +51,11 @@ func (suite *PricingParserSuite) Test_parsePriceEscalationDiscount() {
 	}
 
 	suite.T().Run("normal operation", func(t *testing.T) {
-		slice, err := parsePriceEscalationDiscount(params, sheetIndex, suite.logger)
+		slice, err := parsePriceEscalationDiscount(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parsePriceEscalationDiscount function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice, suite.logger)
+		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
 		const domesticGoldenFilename string = "18_5b_price_escalation_discount_golden.csv"
@@ -63,7 +63,7 @@ func (suite *PricingParserSuite) Test_parsePriceEscalationDiscount() {
 	})
 
 	suite.T().Run("passing in a bad sheet index", func(t *testing.T) {
-		_, err := parsePriceEscalationDiscount(params, 15, suite.logger)
+		_, err := parsePriceEscalationDiscount(suite.AppContextForTest(), params, 15)
 		if suite.Error(err) {
 			suite.Equal("parsePriceEscalationDiscount expected to process sheet 18, but received sheetIndex 15", err.Error())
 		}

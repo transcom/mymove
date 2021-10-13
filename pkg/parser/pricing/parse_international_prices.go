@@ -3,6 +3,7 @@ package pricing
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -15,7 +16,7 @@ const destinationPriceAreaIDColumn int = 4
 const destinationPriceAreaColumn int = 5
 
 // parseOconusToOconusPrices: parser for 3a) OCONUS to OCONUS Prices
-var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseOconusToOconusPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 10 // 3a) OCONUS TO OCONUS Prices
 
@@ -54,7 +55,7 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 }
 
 // parseConusToOconusPrices: parser for 3b) CONUS to OCONUS Prices
-var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseConusToOconusPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 11 // 3b) CONUS TO OCONUS Prices
 
@@ -93,7 +94,7 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 }
 
 // parseOconusToConusPrices: parser for 3c) OCONUS to CONUS Prices
-var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseOconusToConusPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 12 // 3c) OCONUS TO CONUS Prices
 

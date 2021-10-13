@@ -110,7 +110,7 @@ intentionally are modifying the pattern of how the processing functions are call
 
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(ParamConfig, int, Logger) (interface{}, error)
+type processXlsxSheet func(appcontext.AppContext, ParamConfig, int) (interface{}, error)
 type verifyXlsxSheet func(ParamConfig, int) error
 
 // XlsxDataSheetInfo is the xlsx data sheet info
@@ -434,7 +434,7 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 				}
 
 				callFunc := *p.process
-				slice, err := callFunc(params, sheetIndex, appCtx.Logger())
+				slice, err := callFunc(appCtx, params, sheetIndex)
 				if err != nil {
 					spinner.Fail()
 					appCtx.Logger().Error("process error", zap.String("description", description), zap.Error(err))
@@ -443,7 +443,7 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
-					if err := createCSV(filename, slice, appCtx.Logger()); err != nil {
+					if err := createCSV(appCtx, filename, slice); err != nil {
 						spinner.Fail()
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
@@ -465,7 +465,7 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 	return nil
 }
 
-func createCSV(filename string, slice interface{}, logger *zap.Logger) error {
+func createCSV(appCtx appcontext.AppContext, filename string, slice interface{}) error {
 	// Create file for writing the CSV
 	csvFile, err := os.Create(filename)
 	if err != nil {
@@ -473,7 +473,7 @@ func createCSV(filename string, slice interface{}, logger *zap.Logger) error {
 	}
 	defer func() {
 		if closeErr := csvFile.Close(); closeErr != nil {
-			logger.Fatal("Could not close CSV file", zap.Error(closeErr))
+			appCtx.Logger().Fatal("Could not close CSV file", zap.Error(closeErr))
 		}
 	}()
 

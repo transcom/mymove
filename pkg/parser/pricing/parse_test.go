@@ -3,7 +3,6 @@ package pricing
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,31 +20,20 @@ import (
 
 type PricingParserSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
 	xlsxFilename string
 	xlsxFile     *xlsx.File
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *PricingParserSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
-}
-
 func TestPricingParserSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &PricingParserSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
 	}
 
+	var err error
 	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
 	if err != nil {
-		logger.Panic("could not open XLSX file", zap.Error(err))
+		hs.Logger().Panic("could not open XLSX file", zap.Error(err))
 	}
 
 	suite.Run(t, hs)
@@ -146,27 +134,27 @@ var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) e
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc1 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc2 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc3 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc4 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return []TestStruct4{}, nil
 }
 
-var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc5 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return []TestStruct5{}, nil
 }
 
-var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var testProcessFunc6 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	return []TestStruct6{}, nil
 }
 
