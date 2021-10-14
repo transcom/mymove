@@ -177,9 +177,9 @@ commands:
       - run:
           name: 'Setting up TLS environment variables for exp env'
           command: |
-            echo "export TLS_CERT=$EXP_MOVE_MIL_DOD_TLS_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXP_MOVE_MIL_DOD_TLS_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXP_MOVE_MIL_DOD_TLS_CA" >> $BASH_ENV
+            echo "export TLS_CERT=$EXP_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$EXP_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$EXP_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
   aws_vars_stg:
     steps:
