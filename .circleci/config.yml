@@ -50,7 +50,7 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch exp-env-changes
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
@@ -1709,6 +1709,19 @@ jobs:
     steps:
       - aws_vars_exp
       - deploy_dp3_tasks_steps:
+          ecr_env: exp
+
+  # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
+  deploy_exp_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+    steps:
+      - aws_vars_exp
+      - tls_vars_exp
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want exp to be able to roll back
+          health_check_hosts: api.exp.dp3.us
           ecr_env: exp
 
   # `deploy_exp_app` updates the server-TLS app service in the exp environment
