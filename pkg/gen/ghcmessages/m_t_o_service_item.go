@@ -29,6 +29,7 @@ type MTOServiceItem struct {
 	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -523,6 +524,10 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCustomerContacts(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -552,6 +557,15 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 func (m *MTOServiceItem) contextValidateSITPostalCode(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "SITPostalCode", "body", m.SITPostalCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 

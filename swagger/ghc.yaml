@@ -2467,6 +2467,7 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       submittedAt:
         type: string
         format: date-time
@@ -2838,6 +2839,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2907,6 +2909,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2982,6 +2985,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
     type: object
   PaymentRequests:
     items:
@@ -3001,6 +3005,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       paymentRequestID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3174,6 +3179,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -3523,6 +3529,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -3736,6 +3743,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       filename:
         example: filename.pdf
         type: string
