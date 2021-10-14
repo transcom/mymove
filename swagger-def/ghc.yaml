@@ -640,7 +640,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -1100,7 +1100,7 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+  '/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -1402,7 +1402,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
-  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
+  '/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at':
     patch:
       consumes:
         - application/json
@@ -1411,7 +1411,7 @@ paths:
       parameters:
         - description: ID of move to use
           in: path
-          name: moveTaskOrderID
+          name: moveTaskOrderId
           required: true
           type: string
         - in: header

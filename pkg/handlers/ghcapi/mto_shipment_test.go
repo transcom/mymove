@@ -124,7 +124,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment}
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, requestUser)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
@@ -1999,7 +1999,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		AgentType: string(mtoAgent.MTOAgentType),
 	}}
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/mto-shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
