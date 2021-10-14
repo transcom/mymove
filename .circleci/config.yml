@@ -2164,7 +2164,7 @@ workflows:
 
       - push_app_exp:
           requires:
-            - build_app
+            - build_dp3_app
           filters:
             branches:
               only: *exp-branch
@@ -2178,14 +2178,14 @@ workflows:
 
       - push_tasks_exp:
           requires:
-            - build_tasks
+            - build_dp3_tasks
           filters:
             branches:
               only: *exp-branch
 
       - push_webhook_client_exp:
           requires:
-            - build_webhook_client
+            - build_dp3_webhook_client
           filters:
             branches:
               only: *exp-branch
