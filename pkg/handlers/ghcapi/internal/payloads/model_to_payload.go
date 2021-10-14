@@ -661,8 +661,6 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		ContentType: swag.String(upload.ContentType),
 		URL:         handlers.FmtURI(url),
 		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
