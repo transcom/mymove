@@ -2772,6 +2772,186 @@ func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
+func createApprovedMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+
+	now := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVED,
+			Locator:            "MISHIP",
+			AvailableToPrimeAt: &now,
+		},
+		UserUploader: userUploader,
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+		},
+		Move: move,
+	})
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	firstShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                models.MTOShipmentStatusApproved,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			PickupAddress:         &pickupAddress,
+			PickupAddressID:       &pickupAddress.ID,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeFSC,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	secondShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:                models.MTOShipmentStatusApproved,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeFSC,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDP,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUPK,
+		},
+		MTOShipment: secondShipment,
+		Move:        move,
+	})
+}
+
 func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)

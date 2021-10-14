@@ -153,7 +153,7 @@ const MoveDetails = () => {
               })}
             </dl>
           </SectionWrapper>
-          {paymentRequests?.length && (
+          {paymentRequests?.length > 0 && (
             <SectionWrapper className={formStyles.formSection}>
               <dl className={descriptionListStyles.descriptionList}>
                 <h2>Payment Requests</h2>

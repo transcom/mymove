@@ -201,7 +201,7 @@ const CreatePaymentRequest = () => {
             </dl>
           </SectionWrapper>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
-            {({ isValid, isSubmitting, errors }) => (
+            {({ isValid, dirty, isSubmitting, errors }) => (
               <Form className={formStyles.form}>
                 <FormGroup error={errors != null && Object.keys(errors).length > 0}>
                   {errors != null && errors.serviceItems && (
@@ -276,7 +276,11 @@ const CreatePaymentRequest = () => {
                         );
                       })}
                     </dl>
-                    <Button aria-label="Submit Payment Request" type="submit" disabled={isSubmitting || !isValid}>
+                    <Button
+                      aria-label="Submit Payment Request"
+                      type="submit"
+                      disabled={!dirty || isSubmitting || !isValid}
+                    >
                       Submit Payment Request
                     </Button>
                   </SectionWrapper>
