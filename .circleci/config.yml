@@ -45,7 +45,7 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch exp-env-changes
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
@@ -1702,14 +1702,13 @@ jobs:
           ecr_env: exp
 
   # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
-  # change to deploy_dp3_tasks_steps when exp moves to dp3.us
   deploy_exp_tasks:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
       - aws_vars_exp
-      - deploy_tasks_steps:
+      - deploy_dp3_tasks_steps:
           ecr_env: exp
 
   # `deploy_exp_app` updates the server-TLS app service in the exp environment
