@@ -1,14 +1,16 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { Button, Label, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { useMutation } from 'react-query';
 
 import { formatDateFromIso } from '../../../shared/formatters';
 import { shipmentTypeLabels } from '../../../content/shipments';
 import { ErrorMessage } from '../../../components/form';
+import { createPaymentRequest } from '../../../services/primeApi';
 
 import styles from './CreatePaymentRequest.module.scss';
 
@@ -153,8 +155,16 @@ const createPaymentRequestSchema = Yup.object().shape({
 
 const CreatePaymentRequest = () => {
   const { moveCodeOrID } = useParams();
+  const history = useHistory();
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+
+  const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
+    onSuccess: () => {
+      history.push(`simulator/moves/${moveCodeOrID}/details`);
+    },
+    onError: () => {},
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -166,7 +176,12 @@ const CreatePaymentRequest = () => {
     serviceItems: [],
   };
 
-  const onSubmit = () => {};
+  const onSubmit = (values) => {
+    const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
+      return { id: serviceItem };
+    });
+    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload });
+  };
 
   return (
     <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>

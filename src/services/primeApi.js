@@ -30,6 +30,6 @@ export async function getPrimeSimulatorMove(key, locator) {
   return makePrimeSimulatorRequest('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
 
-export async function createPaymentRequest({ serviceItems }) {
-  return makePrimeSimulatorRequest('paymentRequest.createPaymentRequest', { serviceItems });
+export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
+  return makePrimeSimulatorRequest('paymentRequest.createPaymentRequest', { body: { moveTaskOrderID, serviceItems } });
 }
