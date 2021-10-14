@@ -161,7 +161,7 @@ const CreatePaymentRequest = () => {
 
   const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
     onSuccess: () => {
-      history.push(`simulator/moves/${moveCodeOrID}/details`);
+      history.push(`/simulator/moves/${moveCodeOrID}/details`);
     },
     onError: () => {},
   });

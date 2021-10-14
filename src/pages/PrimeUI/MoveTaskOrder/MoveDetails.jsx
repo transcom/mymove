@@ -117,7 +117,7 @@ const MoveDetails = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments } = moveTaskOrder;
+  const { mtoShipments, paymentRequests } = moveTaskOrder;
 
   return (
     <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
@@ -153,6 +153,16 @@ const MoveDetails = () => {
               })}
             </dl>
           </SectionWrapper>
+          {paymentRequests?.length && (
+            <SectionWrapper className={formStyles.formSection}>
+              <dl className={descriptionListStyles.descriptionList}>
+                <h2>Payment Requests</h2>
+                {paymentRequests?.map((paymentRequest) => {
+                  return <div key={paymentRequest.id}>{paymentRequest.paymentRequestNumber}</div>;
+                })}
+              </dl>
+            </SectionWrapper>
+          )}
         </div>
       </div>
     </div>
