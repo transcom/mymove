@@ -2653,16 +2653,16 @@
     react-lifecycles-compat "^3.0.4"
     react-select "^3.2.0"
 
-"@storybook/addon-links@^6.3.11":
-  version "6.3.11"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.3.11.tgz#d4b024dea43120f24751c2b767659b8e8c4e6755"
-  integrity sha512-VNbOkXLebbu7D6NviB6FZlL3gyfXFo8s+R7GQVV5VHtUIH8R0d1WabIdPwszxlRQcxtFpbyxinnYVFDaTnesCA==
+"@storybook/addon-links@^6.3.12":
+  version "6.3.12"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.3.12.tgz#72a38069913b4e9a19d6f4159bb4846ad560c400"
+  integrity sha512-NfOGEm0+QxIrAXCa05LOXmxLtI+RlcDqHXZ1jNNj8mjeRoG1nX3qhkB8PWWIBbPuz+bktLV9ox8UZj0W6+ZPOQ==
   dependencies:
-    "@storybook/addons" "6.3.11"
-    "@storybook/client-logger" "6.3.11"
-    "@storybook/core-events" "6.3.11"
+    "@storybook/addons" "6.3.12"
+    "@storybook/client-logger" "6.3.12"
+    "@storybook/core-events" "6.3.12"
     "@storybook/csf" "0.0.1"
-    "@storybook/router" "6.3.11"
+    "@storybook/router" "6.3.12"
     "@types/qs" "^6.9.5"
     core-js "^3.8.2"
     global "^4.4.0"
@@ -2956,7 +2956,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/client-logger@6.3.10", "@storybook/client-logger@^6.0.5":
+"@storybook/client-logger@6.3.10":
   version "6.3.10"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.3.10.tgz#dd5156acb7623fa3e656229c36019000f043f4dc"
   integrity sha512-fRwxPiwQBKHK83IJgA5VoFwbaEj9zHLdYGE1wxJXcBYP0hi5h5ZwnGkNumFDntw1xt+RUs5PsGQ16f+rzE3n+w==
@@ -2972,7 +2972,7 @@
     core-js "^3.8.2"
     global "^4.4.0"
 
-"@storybook/client-logger@6.3.12":
+"@storybook/client-logger@6.3.12", "@storybook/client-logger@^6.0.5":
   version "6.3.12"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.3.12.tgz#6585c98923b49fcb25dbceeeb96ef2a83e28e0f4"
   integrity sha512-zNDsamZvHnuqLznDdP9dUeGgQ9TyFh4ray3t1VGO7ZqWVZ2xtVCCXjDvMnOXI2ifMpX5UsrOvshIPeE9fMBmiQ==
@@ -3154,17 +3154,10 @@
   dependencies:
     core-js "^3.8.2"
 
-"@storybook/core-events@6.3.12":
+"@storybook/core-events@6.3.12", "@storybook/core-events@^6.0.5", "@storybook/core-events@^6.3.0":
   version "6.3.12"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.3.12.tgz#73f6271d485ef2576234e578bb07705b92805290"
   integrity sha512-SXfD7xUUMazaeFkB92qOTUV8Y/RghE4SkEYe5slAdjeocSaH7Nz2WV0rqNEgChg0AQc+JUI66no8L9g0+lw4Gw==
-  dependencies:
-    core-js "^3.8.2"
-
-"@storybook/core-events@^6.0.5", "@storybook/core-events@^6.3.0":
-  version "6.3.10"
-  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.3.10.tgz#82b41291b8baf1fae8848c603f0b825b3c42e3b5"
-  integrity sha512-bw3HuqKIMDnEebVf2DG+TdX21D7z7LGFvr5rehNDnUTdnM9+pVLlZZfGkUU6LMRbIzr27CI5dXWdPRTA5kQIZg==
   dependencies:
     core-js "^3.8.2"
 
