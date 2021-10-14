@@ -24,6 +24,7 @@ type PaymentServiceItem struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -228,6 +229,10 @@ func (m *PaymentServiceItem) validateStatus(formats strfmt.Registry) error {
 func (m *PaymentServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -251,6 +256,15 @@ func (m *PaymentServiceItem) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

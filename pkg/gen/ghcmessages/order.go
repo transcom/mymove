@@ -46,6 +46,7 @@ type Order struct {
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlement
@@ -490,6 +491,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -577,6 +582,15 @@ func (m *Order) contextValidateDestinationDutyStation(ctx context.Context, forma
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
 	}
 
 	return nil

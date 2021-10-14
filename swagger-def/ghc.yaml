@@ -1953,6 +1953,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string
@@ -2151,6 +2152,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+        readOnly: true
   UpdateCustomerPayload:
     type: object
     properties:
@@ -2200,6 +2202,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   Entitlements:
     properties:
       id:
@@ -2251,6 +2254,7 @@ definitions:
         type: boolean
       eTag:
         type: string
+        readOnly: true
     type: object
   Error:
     properties:
@@ -2401,8 +2405,10 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
       eTag:
         type: string
+        readOnly: true
   MoveStatus:
     type: string
     enum:
@@ -2551,6 +2557,7 @@ definitions:
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
+        readOnly: true
     type: object
   CounselingUpdateOrderPayload:
     type: object
@@ -2779,6 +2786,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       destinationAddress:
         $ref: '#/definitions/Address'
       pickupAddress:
@@ -2802,6 +2810,7 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
     type: object
   MoveTaskOrders:
     items:
@@ -2828,6 +2837,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -2851,6 +2861,7 @@ definitions:
           - RECEIVING_AGENT
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentRequest:
     properties:
@@ -2890,6 +2901,7 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
       reviewedAt:
         format: date-time
         type: string
@@ -2956,6 +2968,7 @@ definitions:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentServiceItemStatus:
     enum:
@@ -2989,6 +3002,7 @@ definitions:
         $ref: 'definitions/ServiceItemParamOrigin.yaml'
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentServiceItemParams:
     type: array
@@ -3090,6 +3104,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       deletedAt:
         x-nullable: true
         format: date-time
@@ -3184,6 +3199,7 @@ definitions:
         $ref: '#/definitions/SITStatus'
       eTag:
         type: string
+        readOnly: true
       billableWeightCap:
         type: integer
         description: TIO override billable weight to be used for calculations
@@ -3481,6 +3497,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       approvedAt:
         format: date-time
         type: string
@@ -3491,6 +3508,7 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
     required:
       - id
       - moveTaskOrderID
@@ -3598,6 +3616,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        readOnly: true
     type: object
   DocumentPayload:
     type: object
@@ -3639,6 +3658,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       url:
         example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
         format: uri
