@@ -1722,7 +1722,7 @@ jobs:
       - aws_vars_exp
       - deploy_app_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
-          health_check_hosts: my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
+          health_check_hosts: my.exp.dp3.us,office.exp.dp3.us,admin.exp.dp3.us
           ecr_env: exp
 
   # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
@@ -1736,7 +1736,7 @@ jobs:
       - tls_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
-          health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
+          health_check_hosts: gex.exp.dp3.us,orders.exp.dp3.us
           ecr_env: exp
 
   # `deploy_exp_webhook_client` deploys the webhook client to exp
@@ -1954,7 +1954,7 @@ workflows:
             - pre_deps_yarn
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch]
+              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - push_app_gov_dev:
           requires:
@@ -1982,7 +1982,7 @@ workflows:
             - build_tools
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch]
+              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - build_webhook_client:
           requires:
@@ -1990,7 +1990,7 @@ workflows:
             - pre_deps_golang
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch]
+              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - push_tasks_gov_dev:
           requires:
@@ -2003,7 +2003,7 @@ workflows:
             - pre_deps_yarn
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch]
+              only: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - push_app_demo:
           requires:
@@ -2024,7 +2024,7 @@ workflows:
             - build_tools
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch]
+              only: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - push_tasks_demo:
           requires:
@@ -2039,7 +2039,7 @@ workflows:
             - pre_deps_golang
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch]
+              only: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - push_webhook_client_demo:
           requires:
