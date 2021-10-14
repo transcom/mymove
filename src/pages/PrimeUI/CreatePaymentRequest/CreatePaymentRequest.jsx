@@ -3,7 +3,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Label, FormGroup } from '@trussworks/react-uswds';
+import { Button, Label, FormGroup, Checkbox } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
 
@@ -222,8 +222,8 @@ const CreatePaymentRequest = () => {
                               <div className={styles.serviceItemInputGroup}>
                                 <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
                                 <Field
+                                  as={Checkbox}
                                   type="checkbox"
-                                  label="Add to payment request"
                                   name="serviceItems"
                                   value={mtoServiceItem.id}
                                   id={mtoServiceItem.id}
@@ -257,8 +257,8 @@ const CreatePaymentRequest = () => {
                                     <div className={styles.serviceItemInputGroup}>
                                       <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
                                       <Field
+                                        as={Checkbox}
                                         type="checkbox"
-                                        label="Add to payment request"
                                         name="serviceItems"
                                         value={mtoServiceItem.id}
                                         id={mtoServiceItem.id}
