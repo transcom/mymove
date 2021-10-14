@@ -516,7 +516,7 @@ paths:
       description: Updates a move by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move by ID
-  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
+  '/move-task-orders/{moveTaskOrderID}/mto-service-items':
     parameters:
       - description: ID of move for mto service item to use
         in: path
@@ -585,7 +585,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
         in: path

@@ -531,6 +531,89 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-service-items": {
+      "get": {
+        "description": "Gets all line items for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Gets all line items for a move",
+        "operationId": "listMTOServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItems"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move for mto service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
+      "get": {
+        "description": "Gets all shipments for a move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto shipment to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move by ID",
@@ -967,89 +1050,6 @@ func init() {
           "type": "string",
           "description": "Code used to identify a move in the system",
           "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
-      "get": {
-        "description": "Gets all line items for a move",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Gets all line items for a move",
-        "operationId": "listMTOServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItems"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move for mto service item to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
-      "get": {
-        "description": "Gets all shipments for a move task order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Gets all shipments for a move task order",
-        "operationId": "listMTOShipments",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all mto shipments for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOShipments"
-            }
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
           "in": "path",
           "required": true
         }
@@ -6204,6 +6204,110 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-service-items": {
+      "get": {
+        "description": "Gets all line items for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Gets all line items for a move",
+        "operationId": "listMTOServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItems"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move for mto service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
+      "get": {
+        "description": "Gets all shipments for a move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto shipment to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move by ID",
@@ -6778,110 +6882,6 @@ func init() {
           "type": "string",
           "description": "Code used to identify a move in the system",
           "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
-      "get": {
-        "description": "Gets all line items for a move",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Gets all line items for a move",
-        "operationId": "listMTOServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItems"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move for mto service item to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
-      "get": {
-        "description": "Gets all shipments for a move task order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Gets all shipments for a move task order",
-        "operationId": "listMTOShipments",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all mto shipments for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOShipments"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
           "in": "path",
           "required": true
         }
