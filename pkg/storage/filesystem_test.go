@@ -2,15 +2,12 @@ package storage
 
 import (
 	"testing"
-
-	"go.uber.org/zap"
 )
 
 func TestFilesystemPresignedURL(t *testing.T) {
 	fsParams := FilesystemParams{
 		root:    "/home/username",
 		webRoot: "https://example.text/files",
-		logger:  zap.NewNop(),
 	}
 	fs := NewFilesystem(fsParams)
 
