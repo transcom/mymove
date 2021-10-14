@@ -125,7 +125,7 @@
     "@storybook/addon-links": "^6.3.11",
     "@storybook/addons": "^6.3.11",
     "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "6.3.11",
+    "@storybook/react": "6.3.12",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
