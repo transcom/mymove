@@ -20,14 +20,9 @@ func (suite *OrderServiceSuite) TestAppContext() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
-func (suite *OrderServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestOrderServiceSuite(t *testing.T) {
 	ts := &OrderServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
