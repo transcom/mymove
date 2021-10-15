@@ -5,9 +5,10 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 type validator interface {
@@ -36,7 +37,7 @@ func validateMove(appCtx appcontext.AppContext, move models.Move, delta *models.
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(move.ID, nil, verrs, "Invalid input found while validating the move.")
+		result = apperror.NewInvalidInputError(move.ID, nil, verrs, "Invalid input found while validating the move.")
 	}
 	return result
 }
@@ -68,7 +69,7 @@ func checkMoveVisibility() validator {
 
 		if !isVisible {
 			appCtx.Logger().Warn(fmt.Sprintf("Attempt to access deactivated move with ID: %s", move.ID.String()))
-			return services.NewNotFoundError(move.ID, "for move")
+			return apperror.NewNotFoundError(move.ID, "for move")
 		}
 		return nil
 	})
@@ -87,7 +88,7 @@ func checkPrimeAvailability() validator {
 
 		if !isAvailable {
 			appCtx.Logger().Warn(fmt.Sprintf("Attempt to access non-Prime move with ID: %s", move.ID.String()))
-			return services.NewNotFoundError(move.ID, "for move")
+			return apperror.NewNotFoundError(move.ID, "for move")
 		}
 		return nil
 	})

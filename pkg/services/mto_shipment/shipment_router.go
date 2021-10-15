@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -40,7 +41,7 @@ func (router shipmentRouter) Approve(appCtx appcontext.AppContext, shipment *mod
 	// or Approvals Requested, so check and fail early.
 	move := shipment.MoveTaskOrder
 	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		return services.NewConflictError(
+		return apperror.NewConflictError(
 			move.ID,
 			fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
 		)
@@ -128,7 +129,7 @@ func (router shipmentRouter) RequestDiversion(appCtx appcontext.AppContext, ship
 // ApproveDiversion is called when the TOO is approving a shipment that the Prime has marked as being diverted.
 func (router shipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if !shipment.Diversion {
-		return services.NewConflictError(
+		return apperror.NewConflictError(
 			shipment.ID,
 			fmt.Sprintf("Cannot approve the diversion because the shipment with id %s has the Diversion field set to false.", shipment.ID),
 		)

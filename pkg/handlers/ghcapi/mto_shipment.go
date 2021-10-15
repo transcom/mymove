@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -41,11 +42,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		logger.Error("ListMTOShipmentsHandler error", zap.Error(err))
 		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
-		case services.QueryError:
+		case apperror.QueryError:
 			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
 		default:
 			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
@@ -53,7 +54,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	}
 
 	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeServicesCounselor) && !session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
-		handleError(services.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
+		handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 	}
 
 	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
@@ -94,15 +95,15 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if err != nil {
 		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			payload := ghcmessages.Error{
 				Message: handlers.FmtString(err.Error()),
 			}
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
@@ -150,7 +151,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
 		default:
 			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
@@ -187,9 +188,9 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
 				payloadForValidationError(
 					handlers.ValidationErrMessage,
@@ -198,12 +199,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					e.ValidationErrors,
 				),
 			)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
 				&ghcmessages.Error{Message: &msg},
 			)
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
@@ -267,9 +268,9 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 		logger.Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
 
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewDeleteShipmentNotFound()
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return shipmentops.NewDeleteShipmentForbidden()
 		default:
 			return shipmentops.NewDeleteShipmentInternalServerError()
@@ -333,14 +334,14 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 		logger.Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewApproveShipmentNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ConflictError, mtoshipment.ConflictStatusError:
+		case apperror.ConflictError, mtoshipment.ConflictStatusError:
 			return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewApproveShipmentInternalServerError()
@@ -401,12 +402,12 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		logger.Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewRequestShipmentDiversionNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewRequestShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipment.ConflictStatusError:
 			return shipmentops.NewRequestShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -469,12 +470,12 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		logger.Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewApproveShipmentDiversionNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "ApproveShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewApproveShipmentDiversionUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewApproveShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipment.ConflictStatusError:
 			return shipmentops.NewApproveShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -537,12 +538,12 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 		logger.Error("ghcapi.RejectShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewRejectShipmentNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "RejectShipment", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewRejectShipmentUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewRejectShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipment.ConflictStatusError:
 			return shipmentops.NewRejectShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -602,12 +603,12 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 		logger.Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewRequestShipmentCancellationNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewRequestShipmentCancellationPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipment.ConflictStatusError:
 			return shipmentops.NewRequestShipmentCancellationConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -669,12 +670,12 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewRequestShipmentReweighNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload)
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return shipmentops.NewRequestShipmentReweighConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewRequestShipmentReweighInternalServerError()
@@ -733,14 +734,14 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error approving SIT extension", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewApproveSITExtensionNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewApproveSITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return shipmentops.NewApproveSITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewApproveSITExtensionInternalServerError()
@@ -748,7 +749,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
@@ -802,14 +803,14 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error denying SIT extension", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return shipmentops.NewDenySITExtensionNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return shipmentops.NewDenySITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewDenySITExtensionInternalServerError()
@@ -817,7 +818,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
@@ -874,23 +875,23 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 	handleError := func(err error) middleware.Responder {
 		logger.Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			payload := ghcmessages.Error{
 				Message: handlers.FmtString(err.Error()),
 			}
 			return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload)
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceID(), e.ValidationErrors)
 			return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 			}
 			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return shipmentops.NewCreateSITExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
@@ -904,7 +905,7 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)

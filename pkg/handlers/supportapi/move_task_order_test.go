@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -532,7 +533,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		handler.moveTaskOrderCreator = &mockCreator
 
 		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
-		notFoundError := services.NotFoundError{}
+		notFoundError := apperror.NotFoundError{}
 		mockCreator.On("InternalCreateMoveTaskOrder",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,

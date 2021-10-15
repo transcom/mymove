@@ -4,6 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -31,7 +33,7 @@ func (f *shipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipment
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
-		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	err = f.router.Reject(appCtx, shipment, reason)
@@ -41,7 +43,7 @@ func (f *shipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipment
 
 	verrs, err := appCtx.DB().ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while rejecting the shipment.")
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while rejecting the shipment.")
 
 		return nil, invalidInputError
 	}
@@ -54,7 +56,7 @@ func (f *shipmentRejecter) findShipment(appCtx appcontext.AppContext, shipmentID
 	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
 	}

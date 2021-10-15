@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -24,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response
-		err := services.InvalidInputError{}
+		err := apperror.InvalidInputError{}
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 		// ConflictError should generate a Conflict response
-		err := services.ConflictError{}
+		err := apperror.ConflictError{}
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			&mockCreator,
 			mtoChecker,
 		}
-		err := services.NotFoundError{}
+		err := apperror.NotFoundError{}
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -267,7 +267,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			&mockCreator,
 			mtoChecker,
 		}
-		err := services.NotFoundError{}
+		err := apperror.NotFoundError{}
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),

@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -44,7 +46,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 	err = query.All(&moveTaskOrders)
 
 	if err != nil {
-		return models.Moves{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+		return models.Moves{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
 	}
 
 	return moveTaskOrders, nil
@@ -85,7 +87,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Move{}, services.NewNotFoundError(searchParams.MoveTaskOrderID, "")
+			return &models.Move{}, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, err
 		}
@@ -132,7 +134,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	}
 
 	if err != nil {
-		return models.Moves{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+		return models.Moves{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
 	}
 
 	return moveTaskOrders, nil

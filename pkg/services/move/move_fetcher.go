@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -30,7 +31,7 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.Move{}, services.NotFoundError{}
+			return &models.Move{}, apperror.NotFoundError{}
 		default:
 			return &models.Move{}, err
 		}

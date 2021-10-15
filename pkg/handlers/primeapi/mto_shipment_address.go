@@ -5,6 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
@@ -42,22 +44,22 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 		logger.Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressPreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		// Not Found Error -> Not Found Response
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressConflict().WithPayload(
 				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		// QueryError -> Internal Server Error
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				logger.Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
 			}

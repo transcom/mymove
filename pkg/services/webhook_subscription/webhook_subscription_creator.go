@@ -3,6 +3,8 @@ package webhooksubscription
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -21,14 +23,14 @@ func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext
 	// check to see if subscriber exists
 	fetchErr := o.builder.FetchOne(appCtx, &contractor, subscriberIDFilter)
 	if fetchErr != nil {
-		return nil, nil, services.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
+		return nil, nil, apperror.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
 	}
 
 	verrs, err = o.builder.CreateOne(appCtx, subscription)
 	if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {
-		return nil, verrs, services.NewQueryError("unknown", err, "")
+		return nil, verrs, apperror.NewQueryError("unknown", err, "")
 	}
 
 	return subscription, nil, nil
