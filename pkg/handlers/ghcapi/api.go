@@ -85,6 +85,10 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
+	ghcAPI.MoveFlagMoveForFinancialReviewHandler = CreateFinancialReviewFlagHandler{
+		ctx,
+		move.NewFinancialReviewFlagCreator(),
+	}
 
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		ctx,

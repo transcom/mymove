@@ -1536,6 +1536,51 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
+  '/moves/{moveID}/financial-review-flag':
+    parameters:
+      - description: ID of move to flag
+        in: path
+        name: moveID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Flags a move for financial office review
+      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.
+      operationId: flagMoveForFinancialReview
+      tags:
+        - move
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+        - in: body
+          name: body
+          schema:
+            properties:
+              remarks:
+                description: explanation of why the move is being flagged for financial review
+                example: this address is way too far away
+                type: string
+      responses:
+        '200':
+          description: updated Move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed

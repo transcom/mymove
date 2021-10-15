@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -43,4 +45,42 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 	payload := payloads.Move(move)
 	return moveop.NewGetMoveOK().WithPayload(payload)
+}
+
+type CreateFinancialReviewFlagHandler struct {
+	handlers.HandlerContext
+	financialReviewFlagCreator services.MoveFinancialReviewFlagCreator
+}
+
+// Handle handles the getMove by locator request
+func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinancialReviewParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
+	moveID := uuid.FromStringOrNil(params.MoveID.String()) // TODO this doesnt seem great
+
+	if moveID == uuid.Nil {
+		// TODO return a good error message? this should be caught by swagger though so maybe dont need it?
+		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
+	}
+
+	remarks := params.Body.Remarks
+	if remarks == "" {
+		// TODO return a good error message? this should be caught by swagger though so maybe dont need it?
+		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
+	}
+	move, err := h.financialReviewFlagCreator.CreateFinancialReviewFlag(appCtx, moveID, remarks)
+
+	if err != nil {
+		logger.Error("Error flagging move for financial review", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return moveop.NewFlagMoveForFinancialReviewNotFound()
+		default:
+			return moveop.NewGetMoveInternalServerError()
+		}
+	}
+
+	payload := payloads.Move(move)
+	return moveop.NewFlagMoveForFinancialReviewOK().WithPayload(payload)
 }

@@ -92,6 +92,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
 		}),
+		MoveFlagMoveForFinancialReviewHandler: move.FlagMoveForFinancialReviewHandlerFunc(func(params move.FlagMoveForFinancialReviewParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.FlagMoveForFinancialReview has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
@@ -251,6 +254,8 @@ type MymoveAPI struct {
 	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
+	// MoveFlagMoveForFinancialReviewHandler sets the operation handler for the flag move for financial review operation
+	MoveFlagMoveForFinancialReviewHandler move.FlagMoveForFinancialReviewHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
@@ -429,6 +434,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
+	}
+	if o.MoveFlagMoveForFinancialReviewHandler == nil {
+		unregistered = append(unregistered, "move.FlagMoveForFinancialReviewHandler")
 	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
@@ -665,6 +673,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveID}/financial-review-flag"] = move.NewFlagMoveForFinancialReview(o.context, o.MoveFlagMoveForFinancialReviewHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -58,3 +58,7 @@ type MoveExcessWeightUploader interface {
 		uploadType models.UploadType,
 	) (*models.Move, error)
 }
+
+type MoveFinancialReviewFlagCreator interface {
+	CreateFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, remarks string) (*models.Move, error)
+}
