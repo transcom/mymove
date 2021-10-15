@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { Button, Label, FormGroup, Checkbox, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
+import moment from 'moment';
 
 import { formatDateFromIso } from '../../../shared/formatters';
 import { shipmentTypeLabels } from '../../../content/shipments';
@@ -185,11 +186,29 @@ const CreatePaymentRequest = () => {
     },
   });
 
+  const { mtoShipments, mtoServiceItems } = moveTaskOrder || {};
+
+  const groupedServiceItems = useMemo(() => {
+    const serviceItems = { basic: [] };
+    mtoServiceItems?.forEach((mtoServiceItem) => {
+      if (mtoServiceItem.mtoShipmentID == null) {
+        serviceItems.basic.push(mtoServiceItem);
+      } else if (!serviceItems[mtoServiceItem.mtoShipmentID]) {
+        serviceItems[mtoServiceItem.mtoShipmentID] = [mtoServiceItem];
+      } else {
+        serviceItems[mtoServiceItem.mtoShipmentID].push(mtoServiceItem);
+      }
+    });
+    return serviceItems;
+  }, [mtoServiceItems]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, mtoServiceItems } = moveTaskOrder;
-  const MoveServiceCodes = ['MS', 'CS'];
+  // always display the shipments in order of creation date to not disorient the user
+  mtoShipments.sort((firstShipment, secondShipment) => {
+    return moment(firstShipment.createdAt) - moment(secondShipment.createdAt);
+  });
 
   const initialValues = {
     serviceItems: [],
@@ -202,6 +221,27 @@ const CreatePaymentRequest = () => {
     createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
       formik.setSubmitting(false);
     });
+  };
+
+  const handleShipmentSelectAll = (shipmentID, values, setValues, event) => {
+    const shipmentServiceItems = groupedServiceItems[shipmentID];
+    const existingServiceItems = values.serviceItems;
+
+    if (!event.target.checked) {
+      // unselected the select all
+      shipmentServiceItems.forEach((serviceItem) => {
+        // remove the single element in place
+        existingServiceItems.splice(existingServiceItems.indexOf(serviceItem.id), 1);
+      });
+    } else {
+      shipmentServiceItems.forEach((serviceItem) => {
+        // don't add duplicates if one is already selected prior to clicking select all
+        if (!existingServiceItems.includes(serviceItem.id)) {
+          existingServiceItems.push(serviceItem.id);
+        }
+      });
+    }
+    setValues({ serviceItems: existingServiceItems });
   };
 
   return (
@@ -230,7 +270,7 @@ const CreatePaymentRequest = () => {
             </dl>
           </SectionWrapper>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
-            {({ isValid, dirty, isSubmitting, errors }) => (
+            {({ isValid, dirty, isSubmitting, errors, values, setValues }) => (
               <Form className={formStyles.form}>
                 <FormGroup error={errors != null && Object.keys(errors).length > 0}>
                   {errors != null && errors.serviceItems && (
@@ -241,29 +281,24 @@ const CreatePaymentRequest = () => {
                   <SectionWrapper className={formStyles.formSection}>
                     <dl className={descriptionListStyles.descriptionList}>
                       <h2>Move Service Items</h2>
-                      {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
+                      {groupedServiceItems.basic?.map((mtoServiceItem) => {
                         return (
-                          MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
-                            <SectionWrapper
-                              key={`moveServiceItems${mtoServiceItem.id}`}
-                              className={formStyles.formSection}
-                            >
-                              <div className={styles.serviceItemInputGroup}>
-                                <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
-                                <Field
-                                  as={Checkbox}
-                                  type="checkbox"
-                                  name="serviceItems"
-                                  value={mtoServiceItem.id}
-                                  id={mtoServiceItem.id}
-                                />
-                              </div>
-                              <ServiceItem
-                                serviceItem={mtoServiceItem}
-                                shipmentServiceItemNumber={mtoServiceItemIndex}
+                          <SectionWrapper
+                            key={`moveServiceItems${mtoServiceItem.id}`}
+                            className={formStyles.formSection}
+                          >
+                            <div className={styles.serviceItemInputGroup}>
+                              <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
+                              <Field
+                                as={Checkbox}
+                                type="checkbox"
+                                name="serviceItems"
+                                value={mtoServiceItem.id}
+                                id={mtoServiceItem.id}
                               />
-                            </SectionWrapper>
-                          )
+                            </div>
+                            <ServiceItem serviceItem={mtoServiceItem} />
+                          </SectionWrapper>
                         );
                       })}
                     </dl>
@@ -276,29 +311,30 @@ const CreatePaymentRequest = () => {
                           <div key={mtoShipment.id}>
                             <Shipment shipment={mtoShipment} />
                             <h2>Shipment Service Items</h2>
-                            {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
+                            <Checkbox
+                              id={`selectAll-${mtoShipment.id}`}
+                              name={`selectAll-${mtoShipment.id}`}
+                              label="Add all service items"
+                              onClick={(event) => handleShipmentSelectAll(mtoShipment.id, values, setValues, event)}
+                            />
+                            {groupedServiceItems[mtoShipment.id]?.map((mtoServiceItem) => {
                               return (
-                                mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                                  <SectionWrapper
-                                    key={`shipmentServiceItems${mtoServiceItem.id}`}
-                                    className={formStyles.formSection}
-                                  >
-                                    <div className={styles.serviceItemInputGroup}>
-                                      <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
-                                      <Field
-                                        as={Checkbox}
-                                        type="checkbox"
-                                        name="serviceItems"
-                                        value={mtoServiceItem.id}
-                                        id={mtoServiceItem.id}
-                                      />
-                                    </div>
-                                    <ServiceItem
-                                      serviceItem={mtoServiceItem}
-                                      shipmentServiceItemNumber={mtoServiceItemIndex}
+                                <SectionWrapper
+                                  key={`shipmentServiceItems${mtoServiceItem.id}`}
+                                  className={formStyles.formSection}
+                                >
+                                  <div className={styles.serviceItemInputGroup}>
+                                    <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
+                                    <Field
+                                      as={Checkbox}
+                                      type="checkbox"
+                                      name="serviceItems"
+                                      value={mtoServiceItem.id}
+                                      id={mtoServiceItem.id}
                                     />
-                                  </SectionWrapper>
-                                )
+                                  </div>
+                                  <ServiceItem serviceItem={mtoServiceItem} />
+                                </SectionWrapper>
                               );
                             })}
                           </div>
@@ -308,7 +344,7 @@ const CreatePaymentRequest = () => {
                     <Button
                       aria-label="Submit Payment Request"
                       type="submit"
-                      disabled={!dirty || isSubmitting || !isValid}
+                      disabled={values.serviceItems === 0 || !dirty || isSubmitting || !isValid}
                     >
                       Submit Payment Request
                     </Button>
