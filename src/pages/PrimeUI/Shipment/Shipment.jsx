@@ -38,6 +38,10 @@ const Shipment = ({ shipment }) => {
         <dd>{shipment.requestedPickupDate}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Scheduled Pickup Date:</dt>
+        <dd>{shipment.scheduledPickupDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Actual Pickup Date:</dt>
         <dd>{shipment.actualPickupDate}</dd>
       </div>

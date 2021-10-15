@@ -64,28 +64,31 @@ const PrimeUIShipmentForm = () => {
     postal_code: shipment.destinationAddress.postalCode,
   };
 
+  const isValidWeight = (weight) => {
+    if (weight !== 'undefined' && weight && weight > 0) {
+      return true;
+    }
+    return false;
+  };
+
+  const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
+  const editableWeightActualField = true; // !isValidWeight(shipment.primeActualWeight);
+
   const onSubmit = (values) => {
-    /* TODO: requestedPickupDate, make display only not available in update shipment API */
-    const { estimatedWeight, actualWeight, actualPickupDate, pickupAddress, destinationAddress } = values;
+    const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
+      values;
 
     /* TODO this works, but I'd like to null out the address if there is no update, but maybe I shouldn't, right now this works and I think because the address is the same, the API/server is smart enough not to update it. However, I'm not sure if I make the address null if it would work... that might actually cause an issue. */
     console.log('building the body for the call');
     const body = {
-      primeEstimatedWeight: estimatedWeight?.toInteger,
-      primeActualWeight: actualWeight?.toInteger,
+      primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
+      primeActualWeight: parseInt(actualWeight, 10),
+      scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
       actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
       pickupAddress: reformatPrimeApiPickupAddress === pickupAddress ? null : pickupAddress,
       destinationAddress: reformatPrimeApiDestinationAddress === destinationAddress ? null : destinationAddress,
     };
-    /*
-        const body = {
-      primeEstimatedWeight: estimatedWeight?.toInteger,
-      primeActualWeight: actualWeight?.toInteger,
-      actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
-      pickupAddress: shipment.pickupAddress === pickupAddress ? null : pickupAddress,
-      destinationAddress: shipment.destinationAddress === destinationAddress ? null : destinationAddress,
-    };
-     */
+
     console.log(body);
     console.log('calling mutateMTOShipment');
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body });
@@ -95,6 +98,7 @@ const PrimeUIShipmentForm = () => {
     estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
     actualWeight: shipment.primeActualWeight?.toLocaleString(),
     requestedPickupDate: shipment.requestedPickupDate,
+    scheduledPickupDate: shipment.scheduledPickupDate,
     actualPickupDate: shipment.actualPickupDate,
     pickupAddress: reformatPrimeApiPickupAddress,
     destinationAddress: reformatPrimeApiDestinationAddress,
@@ -104,22 +108,34 @@ const PrimeUIShipmentForm = () => {
     pickupAddress: requiredAddressSchema,
     destinationAddress: requiredAddressSchema,
     requestedPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+    scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
   });
 
-  const editableWeightEstimateField = shipment.primeEstimatedWeight === 0;
-  const editableWeightActualField = shipment.primeActualWeight === 0;
-
-  const emptyAddressShape = {
-    street_address_1: '',
-    street_address_2: '',
-    city: '',
-    state: '',
-    postal_code: '',
+  const isEmptyAddress = (address) => {
+    if (address.street_address_1 !== 'undefined' && address.street_address_1) {
+      return false;
+    }
+    if (address.street_address_2 !== 'undefined' && address.street_address_2) {
+      return false;
+    }
+    if (address.street_address_3 !== 'undefined' && address.street_address_3) {
+      return false;
+    }
+    if (address.city !== 'undefined' && address.city) {
+      return false;
+    }
+    if (address.state !== 'undefined' && address.state) {
+      return false;
+    }
+    if (address.postal_code !== 'undefined' && address.postal_code) {
+      return false;
+    }
+    return true;
   };
 
-  const editablePickupAddress = shipment.pickupAddress === emptyAddressShape;
-  const editableDestinationAddress = shipment.destinationAddress === emptyAddressShape;
+  const editablePickupAddress = isEmptyAddress(reformatPrimeApiPickupAddress);
+  const editableDestinationAddress = isEmptyAddress(reformatPrimeApiDestinationAddress);
 
   return (
     <div className={styles.tabContent}>
@@ -141,6 +157,7 @@ const PrimeUIShipmentForm = () => {
                         <h5 className={styles.sectionHeader}>Requested Pickup</h5>
 
                         <>{formatDate(shipment.requestedPickupDate)}</>
+                        <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
                         <DatePickerInput name="actualPickupDate" label="Actual pickup" />
                         <h2 className={styles.sectionHeader}>Shipment Weights</h2>
                         {editableWeightEstimateField && (
