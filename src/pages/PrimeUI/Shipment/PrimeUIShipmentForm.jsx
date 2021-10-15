@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { queryCache, useMutation } from 'react-query';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
 import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import { formatDate, formatWeight, formatSwaggerDate } from '../../../shared/formatters';
+import scrollToTop from '../../../shared/scrollToTop';
 
 import { formatAddress } from 'utils/shipmentDisplay';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -26,6 +27,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { requiredAddressSchema } from 'utils/validation';
 
 const PrimeUIShipmentForm = () => {
+  const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   const mtoShipments = moveTaskOrder?.mtoShipments;
@@ -42,6 +44,41 @@ const PrimeUIShipmentForm = () => {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       handleClose();
+    },
+    onError: (error) => {
+      const {
+        response: { body },
+      } = error;
+
+      if (body) {
+        /*
+        {
+          "detail": "Invalid data found in input",
+          "instance":"00000000-0000-0000-0000-000000000000",
+          "title":"Validation Error",
+          "invalidFields": {
+            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
+          }
+        }
+         */
+        let invalidFieldsStr = '';
+        if (Object.prototype.hasOwnProperty.call(body, 'invalidFields')) {
+          Object.keys(body.invalidFields).forEach((key) => {
+            const value = body.invalidFields[key];
+            invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
+          });
+        }
+        setErrorMessage({
+          title: `${body.title} `,
+          detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred, please check the state of the shipment and values',
+        });
+      }
+      scrollToTop();
     },
   });
 
@@ -146,6 +183,14 @@ const PrimeUIShipmentForm = () => {
         <GridContainer className={styles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
+              {errorMessage?.detail && (
+                <div className={styles.errorContainer}>
+                  <Alert type="error">
+                    <span className={styles.errorTitle}>{errorMessage.title}</span>
+                    <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                  </Alert>
+                </div>
+              )}
               <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
