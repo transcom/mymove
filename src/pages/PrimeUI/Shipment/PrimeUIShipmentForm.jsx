@@ -106,6 +106,15 @@ const PrimeUIShipmentForm = () => {
     };
   };
 
+  const emptyAddress = {
+    street_address_1: '',
+    street_address_2: '',
+    street_address_3: '',
+    city: '',
+    state: '',
+    postal_code: '',
+  };
+
   const isValidWeight = (weight) => {
     if (weight !== 'undefined' && weight && weight > 0) {
       return true;
@@ -165,8 +174,8 @@ const PrimeUIShipmentForm = () => {
     requestedPickupDate: shipment.requestedPickupDate,
     scheduledPickupDate: shipment.scheduledPickupDate,
     actualPickupDate: shipment.actualPickupDate,
-    pickupAddress: reformatPrimeApiPickupAddress,
-    destinationAddress: reformatPrimeApiDestinationAddress,
+    pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+    destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
   };
 
   const validationSchema = Yup.object().shape({
