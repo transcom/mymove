@@ -50,7 +50,7 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch exp-env-changes
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
