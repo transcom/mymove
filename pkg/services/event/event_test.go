@@ -29,14 +29,9 @@ func (suite *EventServiceSuite) TestAppContext() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
-func (suite *EventServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestEventServiceSuite(t *testing.T) {
 	ts := &EventServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
