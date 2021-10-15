@@ -29,3 +29,22 @@ export async function getPrimeSimulatorAvailableMoves() {
 export async function getPrimeSimulatorMove(key, locator) {
   return makePrimeSimulatorRequest('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
+
+export function updatePrimeMTOShipment({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
