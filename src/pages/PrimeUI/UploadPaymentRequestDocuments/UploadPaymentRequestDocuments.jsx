@@ -1,7 +1,9 @@
 import { React, createRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-// import { Grid, Alert } from '@trussworks/react-uswds';
+import { Grid, Alert } from '@trussworks/react-uswds';
+import { useMutation } from 'react-query';
 
+// import { patchPaymentRequest } from 'services/ghcApi';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
@@ -11,12 +13,23 @@ const UploadPaymentRequest = () => {
   const filePondEl = createRef();
   const history = useHistory();
   // const { paymentRequestId } = useParams();
-  // const [serverError, setServerError] = useState(null);
+  const [serverError, setServerError] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleDelete = (uploadId) => {
     setUploadedFiles(uploadedFiles.filter((file) => file.id !== uploadId));
   };
+
+  const [uploadPaymentRequestDocuments] = useMutation('', {
+    onSuccess: () => {
+      // TODO - show flash message?
+      history.push(`/`);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      setServerError(errorMsg);
+    },
+  });
 
   const handleUpload = (file) => {
     setUploadedFiles([
@@ -37,7 +50,9 @@ const UploadPaymentRequest = () => {
     filePondEl.current?.removeFiles();
   };
 
-  const handleSave = () => {};
+  const handleSave = () => {
+    uploadPaymentRequestDocuments();
+  };
 
   const handleCancel = () => {
     history.push('/');
@@ -45,7 +60,6 @@ const UploadPaymentRequest = () => {
 
   return (
     <>
-      {/*
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
@@ -55,7 +69,6 @@ const UploadPaymentRequest = () => {
           </Grid>
         </Grid>
       )}
-      */}
 
       <SectionWrapper>
         <div>
