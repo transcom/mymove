@@ -3,6 +3,8 @@ package mtoagent
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -47,7 +49,7 @@ func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	mtoShipment := &models.MTOShipment{}
 	err := appCtx.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
+		return nil, apperror.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
 	err = validateMTOAgent(appCtx, *mtoAgent, nil, mtoShipment, checks...)
@@ -64,10 +66,10 @@ func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the agent.")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the agent.")
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
-		return nil, services.NewQueryError("MTOAgent", err, "")
+		return nil, apperror.NewQueryError("MTOAgent", err, "")
 	}
 
 	return mtoAgent, nil

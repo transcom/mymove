@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/services/event"
@@ -165,11 +166,11 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if err != nil {
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 		default:
@@ -216,11 +217,11 @@ func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsP
 		logger.Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
 		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewGetShipmentsPaymentSITBalanceNotFound().WithPayload(payload)
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return paymentrequestop.NewGetShipmentsPaymentSITBalanceForbidden().WithPayload(payload)
-		case services.QueryError:
+		case apperror.QueryError:
 			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
 		default:
 			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
@@ -228,7 +229,7 @@ func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsP
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
-		return handleError(services.NewForbiddenError("user is not authorized with the TIO role"))
+		return handleError(apperror.NewForbiddenError("user is not authorized with the TIO role"))
 	}
 
 	shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)

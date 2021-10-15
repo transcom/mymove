@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -23,7 +25,7 @@ func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uu
 	if err := appCtx.DB().Eager().Find(customer, customerID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.ServiceMember{}, services.NewNotFoundError(customerID, "")
+			return &models.ServiceMember{}, apperror.NewNotFoundError(customerID, "")
 		default:
 			return &models.ServiceMember{}, err
 		}

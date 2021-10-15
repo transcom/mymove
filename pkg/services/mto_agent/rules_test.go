@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -254,14 +256,14 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 					ship: &shipment,
 					verf: func(err error) {
 						suite.Error(err, "Unexpectedly no error from checkAgentType with duplicated MTOAgentType")
-						suite.IsType(services.ConflictError{}, err)
+						suite.IsType(apperror.ConflictError{}, err)
 						suite.Contains(err.Error(), models.MTOAgentReceiving)
 					},
 				},
 				"incorrect usage": {
 					ship: nil,
 					verf: func(err error) {
-						suite.IsType(services.ImplementationError{}, err)
+						suite.IsType(apperror.ImplementationError{}, err)
 					},
 				},
 				"maxed out number of agents": {
@@ -272,7 +274,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 					ship: &maxed,
 					verf: func(err error) {
 						suite.Error(err, "Unexpectedly no error from checkAgentType with max number of agents")
-						suite.IsType(services.ConflictError{}, err)
+						suite.IsType(apperror.ConflictError{}, err)
 						suite.Contains(err.Error(), "This shipment already has 2 agents - no more can be added")
 					},
 				},
@@ -328,7 +330,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 					}
 					return
 				}
-				suite.IsType(services.NotFoundError{}, err)
+				suite.IsType(apperror.NotFoundError{}, err)
 			})
 		}
 

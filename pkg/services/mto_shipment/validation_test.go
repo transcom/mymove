@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -72,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				nonPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 				},
 			},
@@ -80,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				hiddenPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 				},
 			},
@@ -88,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				badUUID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), badUUID.String())
 				},
 			},

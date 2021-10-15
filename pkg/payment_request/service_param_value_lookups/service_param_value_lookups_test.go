@@ -18,11 +18,12 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -406,7 +407,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, badMTOServiceItemID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), fmt.Sprintf("id: %s not found looking for MTOServiceItemID", badMTOServiceItemID))
 		var expected *ServiceItemParamKeyData = nil
 		suite.Equal(expected, paramLookup)

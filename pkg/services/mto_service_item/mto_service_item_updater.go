@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -54,7 +55,7 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&serviceItem, serviceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(serviceItemID, "while looking for service item")
+			return nil, apperror.NewNotFoundError(serviceItemID, "while looking for service item")
 		}
 	}
 
@@ -99,7 +100,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		if rejectionReason == nil {
 			verrs := validate.NewErrors()
 			verrs.Add("rejectionReason", "field must be provided when status is set to REJECTED")
-			err := services.NewInvalidInputError(serviceItem.ID, nil, verrs, "Invalid input found in the request.")
+			err := apperror.NewInvalidInputError(serviceItem.ID, nil, verrs, "Invalid input found in the request.")
 			return nil, err
 		}
 		serviceItem.RejectionReason = rejectionReason
@@ -141,7 +142,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err := p.builder.FetchOne(appCtx, &oldServiceItem, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
+		return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 	}
 
 	checker := movetaskorder.NewMoveTaskOrderChecker()
@@ -160,7 +161,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldServiceItem.UpdatedAt)
 	if encodedUpdatedAt != eTag {
-		return nil, services.NewPreconditionFailedError(validServiceItem.ID, nil)
+		return nil, apperror.NewPreconditionFailedError(validServiceItem.ID, nil)
 	}
 
 	// Create address record (if needed) and update service item in a single transaction
@@ -169,11 +170,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 			if validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil {
 				verrs, createErr := p.builder.CreateOne(txnAppCtx, validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
-					return services.NewInvalidInputError(
+					return apperror.NewInvalidInputError(
 						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a final Destination SIT address for service item.")
 				} else if createErr != nil {
 					// If the error is something else (this is unexpected), we create a QueryError
-					return services.NewQueryError("MTOServiceItem", createErr, "")
+					return apperror.NewQueryError("MTOServiceItem", createErr, "")
 				}
 				validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
 			} else {
@@ -181,10 +182,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 				// of creating a new one.
 				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
-					return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
+					return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
 				} else if updateErr != nil {
 					// If the error is something else (this is unexpected), we create a QueryError
-					return services.NewQueryError("MTOServiceItem", updateErr, "")
+					return apperror.NewQueryError("MTOServiceItem", updateErr, "")
 				}
 			}
 		}
@@ -193,10 +194,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 
 		// If there were validation errors create an InvalidInputError type
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating the service item.")
+			return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating the service item.")
 		} else if updateErr != nil {
 			// If the error is something else (this is unexpected), we create a QueryError
-			return services.NewQueryError("MTOServiceItem", updateErr, "")
+			return apperror.NewQueryError("MTOServiceItem", updateErr, "")
 		}
 		return nil
 	})
@@ -209,7 +210,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 	updatedServiceItem := models.MTOServiceItem{}
 	err = p.builder.FetchOne(appCtx, &updatedServiceItem, queryFilters) // using the same queryFilters set at the beginning
 	if err != nil {
-		return nil, services.NewQueryError("MTOServiceItem", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		return nil, apperror.NewQueryError("MTOServiceItem", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 	return &updatedServiceItem, nil
 }

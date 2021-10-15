@@ -7,6 +7,8 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +41,7 @@ func (u *uploadCreator) CreateUpload(
 			if err == uploader.ErrFileSizeLimitExceedsMax {
 				verrs := validate.NewErrors()
 				verrs.Add("file", err.Error())
-				return services.NewInvalidCreateInputError(verrs, "File cannot be uploaded.")
+				return apperror.NewInvalidCreateInputError(verrs, "File cannot be uploaded.")
 			}
 			return err
 		}
@@ -55,9 +57,9 @@ func (u *uploadCreator) CreateUpload(
 
 		newUpload, verrs, err := newUploader.CreateUpload(txnAppCtx, uploader.File{File: aFile}, u.allowedTypes)
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
+			return apperror.NewInvalidCreateInputError(verrs, "Validation errors found while uploading file.")
 		} else if err != nil {
-			return services.NewQueryError("Upload", err, "Failed to upload file")
+			return apperror.NewQueryError("Upload", err, "Failed to upload file")
 		}
 
 		upload = newUpload

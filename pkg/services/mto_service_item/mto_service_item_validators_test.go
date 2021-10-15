@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gobuffalo/validate/v3"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -89,7 +89,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		err := serviceItemData.checkPrimeAvailability(suite.TestAppContext())
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 	})
 
@@ -174,7 +174,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 		suite.Contains(err.Error(), "SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items")
 	})
@@ -208,7 +208,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		err := serviceItemData.checkPaymentRequests(suite.TestAppContext())
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 		suite.Contains(err.Error(), "this service item has an existing payment request and can no longer be updated")
 	})
@@ -240,7 +240,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.True(serviceItemData.verrs.HasAny())
 	})
 

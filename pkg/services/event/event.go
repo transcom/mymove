@@ -9,10 +9,11 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // KeyType is a string representing the event
@@ -130,7 +131,7 @@ var eventModels = map[KeyType]eventModel{
 func IsCreateEvent(e KeyType) (bool, error) {
 	s := strings.Split(string(e), ".")
 	if len(s) != 2 {
-		err := services.NewEventError(fmt.Sprintf("Event Key %s is malformed. Should be of form Object.Action.", e), nil)
+		err := apperror.NewEventError(fmt.Sprintf("Event Key %s is malformed. Should be of form Object.Action.", e), nil)
 		return false, err
 	}
 	if s[1] == "Create" {
@@ -144,7 +145,7 @@ func GetModelFromEvent(e KeyType) (interface{}, error) {
 	eventModel, success := eventModels[e]
 
 	if !success {
-		err := services.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", e), nil)
+		err := apperror.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", e), nil)
 		return nil, err
 	}
 	return eventModel.ModelInstance, nil
@@ -185,19 +186,19 @@ func TriggerEvent(event Event) (*Event, error) {
 	// Check eventKey
 	_, success := eventModels[event.EventKey]
 	if !success {
-		err := services.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", event.EventKey), nil)
+		err := apperror.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", event.EventKey), nil)
 		return nil, err
 	}
 	// Check that DB and context were passed in
 	if event.DBConnection == nil || event.HandlerContext == nil {
-		err := services.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
+		err := apperror.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
 		return nil, err
 	}
 	// Check endpointKey if exists
 	if event.EndpointKey != "" {
 		result := GetEndpointAPI(event.EndpointKey)
 		if result == nil {
-			err := services.NewEventError(fmt.Sprintf("Endpoint Key %s was not found in endpoints. Must use known endpoint key.", event.EndpointKey), nil)
+			err := apperror.NewEventError(fmt.Sprintf("Endpoint Key %s was not found in endpoints. Must use known endpoint key.", event.EndpointKey), nil)
 			return nil, err
 		}
 	}
@@ -220,7 +221,7 @@ func TriggerEvent(event Event) (*Event, error) {
 		}
 	}
 	if len(errorList) > 0 {
-		err := services.NewEventError(consolidateError(errorList), nil)
+		err := apperror.NewEventError(consolidateError(errorList), nil)
 		return &event, err
 	}
 	return &event, nil

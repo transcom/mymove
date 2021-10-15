@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/gofrs/uuid"
@@ -112,11 +113,11 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(appCtx, moveID, params.Move.Show)
 	if err != nil {
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewUpdateMoveNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return moveop.NewUpdateMoveUnprocessableEntity() // todo payload
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("adminapi.UpdateMoveHandler query error", zap.Error(e.Unwrap()))
@@ -157,11 +158,11 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 	if err != nil {
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewGetMoveNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return moveop.NewGetMoveBadRequest()
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("adminapi.GetMoveHandler query error", zap.Error(e.Unwrap()))
