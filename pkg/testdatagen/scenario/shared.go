@@ -2772,7 +2772,7 @@ func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader 
 	})
 }
 
-func createApprovedMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 
 	now := time.Now()
@@ -2797,17 +2797,32 @@ func createApprovedMoveWith2MinimalShipments(appCtx appcontext.AppContext, userU
 
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-
 	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+
+	shipmentFields := models.MTOShipment{
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:         &pickupAddress,
+		PickupAddressID:       &pickupAddress.ID,
+	}
+
+	// Uncomment to create the shipment with a destination address
+	/*
+		destinationAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+		shipmentFields.DestinationAddress = &destinationAddress
+		shipmentFields.DestinationAddressID = &destinationAddress.ID
+	*/
+
+	// Uncomment to create the shipment with an actual weight
+	/*
+		actualWeight := unit.Pound(999)
+		shipmentFields.PrimeActualWeight = &actualWeight
+	*/
+
 	firstShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:                models.MTOShipmentStatusApproved,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			PickupAddress:         &pickupAddress,
-			PickupAddressID:       &pickupAddress.ID,
-		},
-		Move: move,
+		MTOShipment: shipmentFields,
+		Move:        move,
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
@@ -2873,81 +2888,6 @@ func createApprovedMoveWith2MinimalShipments(appCtx appcontext.AppContext, userU
 			Code: models.ReServiceCodeDUPK,
 		},
 		MTOShipment: firstShipment,
-		Move:        move,
-	})
-
-	secondShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:                models.MTOShipmentStatusApproved,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-		Move: move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-		},
-		MTOShipment: secondShipment,
-		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeFSC,
-		},
-		MTOShipment: secondShipment,
-		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
-		},
-		MTOShipment: secondShipment,
-		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDP,
-		},
-		MTOShipment: secondShipment,
-		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDPK,
-		},
-		MTOShipment: secondShipment,
-		Move:        move,
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDUPK,
-		},
-		MTOShipment: secondShipment,
 		Move:        move,
 	})
 }

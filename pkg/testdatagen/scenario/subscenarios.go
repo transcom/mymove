@@ -239,7 +239,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		// without payment service items
 		createMoveWith2ShipmentsAndPaymentRequest(appCtx, userUploader)
 		createMoveWith2MinimalShipments(appCtx, userUploader)
-		createApprovedMoveWith2MinimalShipments(appCtx, userUploader)
+		createApprovedMoveWithMinimalShipment(appCtx, userUploader)
 
 		// Prime API
 		createWebhookSubscriptionForPaymentRequestUpdate(appCtx)

@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Label, FormGroup, Checkbox } from '@trussworks/react-uswds';
+import { Button, Label, FormGroup, Checkbox, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
 
@@ -11,6 +11,8 @@ import { formatDateFromIso } from '../../../shared/formatters';
 import { shipmentTypeLabels } from '../../../content/shipments';
 import { ErrorMessage } from '../../../components/form';
 import { createPaymentRequest } from '../../../services/primeApi';
+import scrollToTop from '../../../shared/scrollToTop';
+import Hint from '../../../components/Hint';
 
 import styles from './CreatePaymentRequest.module.scss';
 
@@ -157,13 +159,30 @@ const CreatePaymentRequest = () => {
   const { moveCodeOrID } = useParams();
   const history = useHistory();
 
+  const [errorMessage, setErrorMessage] = useState();
+
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
     onSuccess: () => {
       history.push(`/simulator/moves/${moveCodeOrID}/details`);
     },
-    onError: () => {},
+    onError: (error) => {
+      const {
+        response: { body },
+      } = error;
+
+      if (body) {
+        setErrorMessage({ title: body.title, detail: body.detail });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail:
+            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+        });
+      }
+      scrollToTop();
+    },
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -176,17 +195,27 @@ const CreatePaymentRequest = () => {
     serviceItems: [],
   };
 
-  const onSubmit = (values) => {
+  const onSubmit = (values, formik) => {
     const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
       return { id: serviceItem };
     });
-    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload });
+    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
+      formik.setSubmitting(false);
+    });
   };
 
   return (
     <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
       <div className="grid-row">
         <div className="grid-col-12">
+          {errorMessage?.detail && (
+            <div className={styles.errorContainer}>
+              <Alert slim type="error">
+                <span className={styles.errorTitle}>{errorMessage.title}</span>
+                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+              </Alert>
+            </div>
+          )}
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Move</h2>
@@ -283,6 +312,9 @@ const CreatePaymentRequest = () => {
                     >
                       Submit Payment Request
                     </Button>
+                    <Hint>
+                      At least one basic service item or shipment service item is required to create a payment request
+                    </Hint>
                   </SectionWrapper>
                 </FormGroup>
               </Form>
