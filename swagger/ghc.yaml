@@ -654,7 +654,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -1122,7 +1122,7 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+  '/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -1424,7 +1424,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
-  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
+  '/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at':
     patch:
       consumes:
         - application/json
@@ -1433,7 +1433,7 @@ paths:
       parameters:
         - description: ID of move to use
           in: path
-          name: moveTaskOrderID
+          name: moveTaskOrderId
           required: true
           type: string
         - in: header
@@ -1985,12 +1985,12 @@ definitions:
       - $ref: '#/definitions/ClientError'
       - type: object
     properties:
-      invalid_fields:
+      invalidFields:
         type: object
         additionalProperties:
           type: string
     required:
-      - invalid_fields
+      - invalidFields
   Address:
     type: object
     properties:
@@ -1998,16 +1998,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -2126,7 +2126,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -2139,11 +2139,11 @@ definitions:
         example: USA
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
       - postal_code
-  BackupContact:
+  backupContact:
     type: object
     properties:
       name:
@@ -2177,10 +2177,10 @@ definitions:
       agency:
         type: string
         title: Agency customer is affilated with
-      first_name:
+      firstName:
         type: string
         example: John
-      last_name:
+      lastName:
         type: string
         example: Doe
       phone:
@@ -2197,14 +2197,14 @@ definitions:
         type: string
         example: Jr.
         x-nullable: true
-      middle_name:
+      middleName:
         type: string
         example: David
         x-nullable: true
-      current_address:
+      currentAddress:
         $ref: '#/definitions/Address'
-      backup_contact:
-        $ref: '#/definitions/BackupContact'
+      backupContact:
+        $ref: '#/definitions/backupContact'
       id:
         type: string
         format: uuid
@@ -2221,10 +2221,10 @@ definitions:
   UpdateCustomerPayload:
     type: object
     properties:
-      first_name:
+      firstName:
         type: string
         example: John
-      last_name:
+      lastName:
         type: string
         example: Doe
       phone:
@@ -2241,14 +2241,14 @@ definitions:
         type: string
         example: Jr.
         x-nullable: true
-      middle_name:
+      middleName:
         type: string
         example: David
         x-nullable: true
-      current_address:
+      currentAddress:
         $ref: '#/definitions/Address'
-      backup_contact:
-        $ref: '#/definitions/BackupContact'
+      backupContact:
+        $ref: '#/definitions/backupContact'
   DutyStation:
     type: object
     properties:
@@ -2259,7 +2259,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2446,14 +2446,14 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
-      excess_weight_qualified_at:
+      excessWeightQualifiedAt:
         type: string
         format: date-time
         description: >-
           Timestamp of when the estimated shipment weights of the move reached
           90% of the weight allowance
         x-nullable: true
-      excess_weight_acknowledged_at:
+      excessWeightAcknowledgedAt:
         type: string
         format: date-time
         description: >-
@@ -2549,11 +2549,11 @@ definitions:
       moveCode:
         type: string
         example: H2XFJF
-      first_name:
+      firstName:
         type: string
         example: John
         readOnly: true
-      last_name:
+      lastName:
         type: string
         example: Doe
         readOnly: true
@@ -2574,7 +2574,7 @@ definitions:
         type: string
       moveTaskOrder:
         $ref: '#/definitions/Move'
-      uploaded_order_id:
+      uploadedOrderId:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -2587,24 +2587,24 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
-      order_number:
+      orderNumber:
         type: string
         x-nullable: true
         example: 030-00362
-      order_type:
+      orderType:
         $ref: '#/definitions/OrdersType'
-      order_type_detail:
+      orderTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
         x-nullable: true
-      date_issued:
+      dateIssued:
         type: string
         format: date
         example: '2020-01-01'
-      report_by_date:
+      reportByDate:
         type: string
         format: date
         example: '2020-01-01'
-      department_indicator:
+      departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       tac:
@@ -2617,11 +2617,11 @@ definitions:
         title: SAC
         example: N002214CSW32Y9
         x-nullable: true
-      has_dependents:
+      hasDependents:
         type: boolean
         example: false
         title: Are dependents included in your orders?
-      spouse_has_pro_gear:
+      spouseHasProGear:
         type: boolean
         example: false
         title: >-
