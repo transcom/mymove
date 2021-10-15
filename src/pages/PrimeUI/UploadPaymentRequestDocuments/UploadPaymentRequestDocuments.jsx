@@ -1,5 +1,5 @@
 import { React, createRef, useState } from 'react';
-// import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 // import { Grid, Alert } from '@trussworks/react-uswds';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -9,7 +9,8 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 
 const UploadPaymentRequest = () => {
   const filePondEl = createRef();
-  // const history = useHistory();
+  const history = useHistory();
+  // const { paymentRequestId } = useParams();
   // const [serverError, setServerError] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
@@ -18,8 +19,17 @@ const UploadPaymentRequest = () => {
   };
 
   const handleUpload = (file) => {
-    // console.log(file);
-    setUploadedFiles([...uploadedFiles, { file, id: file.lastModified }]);
+    setUploadedFiles([
+      ...uploadedFiles,
+      {
+        file,
+        filename: file.name,
+        url: '',
+        bytes: file.size,
+        created_at: new Date().toISOString(),
+        id: `${Date.now()}${file.name}`,
+      },
+    ]);
     return Promise.resolve();
   };
 
@@ -29,7 +39,9 @@ const UploadPaymentRequest = () => {
 
   const handleSave = () => {};
 
-  const handleCancel = () => {};
+  const handleCancel = () => {
+    history.push('/');
+  };
 
   return (
     <>
@@ -46,7 +58,6 @@ const UploadPaymentRequest = () => {
       */}
 
       <SectionWrapper>
-        <UploadsTable uploads={uploadedFiles} onDelete={handleDelete} />
         <div>
           <h2>Upload Payment Request Documents</h2>
           <FileUpload
@@ -58,6 +69,7 @@ const UploadPaymentRequest = () => {
             }
           />
         </div>
+        <UploadsTable uploads={uploadedFiles} onDelete={handleDelete} />
         <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
       </SectionWrapper>
     </>
