@@ -105,6 +105,8 @@ type Move struct {
 	ExcessWeightUpload           *Upload                 `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
 	ExcessWeightAcknowledgedAt   *time.Time              `db:"excess_weight_acknowledged_at"`
 	BillableWeightsReviewedAt    *time.Time              `db:"billable_weights_reviewed_at"`
+	FinancialReviewRequested     bool                    `db:"financial_review_requested"`
+	FinancialReviewRequestedAt   *time.Time              `db:"financial_review_requested_at"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
