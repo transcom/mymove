@@ -51,7 +51,7 @@ const MoveDetails = () => {
               {mtoShipments?.map((mtoShipment) => {
                 return (
                   <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
+                    <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
                   </div>
                 );
               })}

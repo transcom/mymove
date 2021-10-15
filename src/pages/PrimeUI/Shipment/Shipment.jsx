@@ -12,12 +12,12 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 import { AddressShape } from 'types/address';
 
-const Shipment = ({ shipment }) => {
+const Shipment = ({ shipment, moveId }) => {
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
         <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
-        <Link to={`shipments/${shipment.id}`} className="usa-button usa-button-secondary">
+        <Link to={`/simulator/moves/${moveId}/shipments/${shipment.id}`} className="usa-button usa-button-secondary">
           Update Shipment
         </Link>
       </div>
@@ -105,6 +105,7 @@ Shipment.propTypes = {
     createdAt: PropTypes.string,
     approvedDate: PropTypes.string,
   }).isRequired,
+  moveId: PropTypes.string.isRequired,
 };
 
 export default Shipment;

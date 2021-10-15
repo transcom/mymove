@@ -108,7 +108,7 @@ const CreatePaymentRequest = () => {
               {mtoShipments?.map((mtoShipment) => {
                 return (
                   <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
+                    <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
                     <h2>Shipment Service Items</h2>
                     {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
                       return (
