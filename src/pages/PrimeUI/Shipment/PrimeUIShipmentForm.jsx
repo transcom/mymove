@@ -48,20 +48,25 @@ const PrimeUIShipmentForm = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const reformatPrimeApiPickupAddress = {
-    street_address_1: shipment.pickupAddress.streetAddress1,
-    street_address_2: shipment.pickupAddress.streetAddress2,
-    city: shipment.pickupAddress.city,
-    state: shipment.pickupAddress.state,
-    postal_code: shipment.pickupAddress.postalCode,
+  const fromPrimeApiAddressFormat = (address) => {
+    return {
+      street_address_1: address.streetAddress1,
+      street_address_2: address.streetAddress2,
+      street_address_3: address.streetAddress3,
+      city: address.city,
+      state: address.state,
+      postal_code: address.postalCode,
+    };
   };
-
-  const reformatPrimeApiDestinationAddress = {
-    street_address_1: shipment.destinationAddress.streetAddress1,
-    street_address_2: shipment.destinationAddress.streetAddress2,
-    city: shipment.destinationAddress.city,
-    state: shipment.destinationAddress.state,
-    postal_code: shipment.destinationAddress.postalCode,
+  const toPrimeApiAddressFormat = (address) => {
+    return {
+      streetAddress1: address.street_address_1,
+      streetAddress2: address.street_address_2,
+      streetAddress3: address.street_address_3,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
+    };
   };
 
   const isValidWeight = (weight) => {
@@ -74,44 +79,7 @@ const PrimeUIShipmentForm = () => {
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
   const editableWeightActualField = true; // !isValidWeight(shipment.primeActualWeight);
 
-  const onSubmit = (values) => {
-    const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
-      values;
-
-    /* TODO this works, but I'd like to null out the address if there is no update, but maybe I shouldn't, right now this works and I think because the address is the same, the API/server is smart enough not to update it. However, I'm not sure if I make the address null if it would work... that might actually cause an issue. */
-    console.log('building the body for the call');
-    const body = {
-      primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
-      primeActualWeight: parseInt(actualWeight, 10),
-      scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
-      actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
-      pickupAddress: reformatPrimeApiPickupAddress === pickupAddress ? null : pickupAddress,
-      destinationAddress: reformatPrimeApiDestinationAddress === destinationAddress ? null : destinationAddress,
-    };
-
-    console.log(body);
-    console.log('calling mutateMTOShipment');
-    mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body });
-  };
-
-  const initialValues = {
-    estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
-    actualWeight: shipment.primeActualWeight?.toLocaleString(),
-    requestedPickupDate: shipment.requestedPickupDate,
-    scheduledPickupDate: shipment.scheduledPickupDate,
-    actualPickupDate: shipment.actualPickupDate,
-    pickupAddress: reformatPrimeApiPickupAddress,
-    destinationAddress: reformatPrimeApiDestinationAddress,
-  };
-
-  const validationSchema = Yup.object().shape({
-    pickupAddress: requiredAddressSchema,
-    destinationAddress: requiredAddressSchema,
-    requestedPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-    scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-    actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-  });
-
+  // Not the Prime API address format
   const isEmptyAddress = (address) => {
     if (address.street_address_1 !== 'undefined' && address.street_address_1) {
       return false;
@@ -134,8 +102,43 @@ const PrimeUIShipmentForm = () => {
     return true;
   };
 
+  const reformatPrimeApiPickupAddress = fromPrimeApiAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiDestinationAddress = fromPrimeApiAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = isEmptyAddress(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmptyAddress(reformatPrimeApiDestinationAddress);
+
+  const onSubmit = (values) => {
+    const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
+      values;
+
+    const body = {
+      primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
+      primeActualWeight: parseInt(actualWeight, 10),
+      scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
+      actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
+      pickupAddress: editablePickupAddress ? toPrimeApiAddressFormat(pickupAddress) : null,
+      destinationAddress: editableDestinationAddress ? toPrimeApiAddressFormat(destinationAddress) : null,
+    };
+    mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body });
+  };
+
+  const initialValues = {
+    estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
+    actualWeight: shipment.primeActualWeight?.toLocaleString(),
+    requestedPickupDate: shipment.requestedPickupDate,
+    scheduledPickupDate: shipment.scheduledPickupDate,
+    actualPickupDate: shipment.actualPickupDate,
+    pickupAddress: reformatPrimeApiPickupAddress,
+    destinationAddress: reformatPrimeApiDestinationAddress,
+  };
+
+  const validationSchema = Yup.object().shape({
+    pickupAddress: requiredAddressSchema,
+    destinationAddress: requiredAddressSchema,
+    requestedPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+    scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+    actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+  });
 
   return (
     <div className={styles.tabContent}>
