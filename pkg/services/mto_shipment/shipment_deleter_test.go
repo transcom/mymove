@@ -6,8 +6,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -19,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), uuid)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func(t *testing.T) {
@@ -32,7 +33,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
 
 		suite.Error(err)
-		suite.IsType(services.ForbiddenError{}, err)
+		suite.IsType(apperror.ForbiddenError{}, err)
 	})
 
 	suite.T().Run("Soft deletes the shipment when it is found", func(t *testing.T) {
@@ -82,6 +83,6 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 
 		// Try to delete the shipment a second time
 		_, err = shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

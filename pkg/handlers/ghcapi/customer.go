@@ -5,6 +5,8 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -74,12 +76,12 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 	if err != nil {
 		logger.Error("error updating customer", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return customercodeop.NewGetCustomerNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return customercodeop.NewUpdateCustomerInternalServerError()

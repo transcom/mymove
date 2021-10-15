@@ -5,9 +5,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // EIAFuelPriceLookup does lookup on the ghc diesel fuel price
@@ -28,7 +29,7 @@ func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
 	err := db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
 	if err != nil {
-		return "", services.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+		return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
 	}
 
 	value := fmt.Sprintf("%d", ghcDieselFuelPrice.FuelPriceInMillicents.Int())

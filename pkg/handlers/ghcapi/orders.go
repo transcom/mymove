@@ -9,6 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -58,16 +60,16 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateOrderInternalServerError()
@@ -75,7 +77,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
-		return handleError(services.NewForbiddenError("is not a TXO"))
+		return handleError(apperror.NewForbiddenError("is not a TXO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -105,14 +107,14 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateOrderNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewCounselingUpdateOrderInternalServerError()
@@ -120,7 +122,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		return handleError(services.NewForbiddenError("is not a Services Counselor"))
+		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -149,14 +151,14 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewUpdateAllowanceNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateAllowanceInternalServerError()
@@ -164,7 +166,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -193,14 +195,14 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateAllowanceNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewCounselingUpdateAllowanceInternalServerError()
@@ -208,7 +210,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		return handleError(services.NewForbiddenError("is not a Services Counselor"))
+		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -237,14 +239,14 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating max billable weight", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewUpdateBillableWeightNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateBillableWeightInternalServerError()
@@ -252,7 +254,7 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -282,14 +284,14 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating max billable weight", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
@@ -297,7 +299,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
-		return handleError(services.NewForbiddenError("is not a TIO"))
+		return handleError(apperror.NewForbiddenError("is not a TIO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -328,14 +330,14 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error acknowledging excess weight risk", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return orderop.NewAcknowledgeExcessWeightRiskNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ForbiddenError:
+		case apperror.ForbiddenError:
 			return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
@@ -343,7 +345,7 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 	}
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -19,7 +20,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -35,7 +35,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when origin duty station is not found", func(t *testing.T) {
@@ -54,7 +54,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when new duty station is not found", func(t *testing.T) {
@@ -73,7 +73,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -87,7 +87,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
@@ -176,7 +176,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		// check that we get back a validation error
 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
 		suite.Nil(updatedOrder)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
@@ -216,7 +216,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Contains(err.Error(), "TransportationAccountingCode cannot be blank.")
 		suite.Contains(err.Error(), "OrdersNumber cannot be blank.")
 		suite.Nil(updatedOrder)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
 
@@ -232,7 +232,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.TestAppContext(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -246,7 +246,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the order when it is found", func(t *testing.T) {
@@ -298,7 +298,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.TestAppContext(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -312,7 +312,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
@@ -369,7 +369,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -383,7 +383,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
@@ -513,7 +513,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 		var orderInDB models.Order
 		err = suite.DB().EagerPreload("Entitlement").Find(&orderInDB, order.ID)
@@ -549,7 +549,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 		var orderInDB models.Order
 		err = suite.DB().EagerPreload("Entitlement").Find(&orderInDB, order.ID)
@@ -647,7 +647,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			fakeS3)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), "not found while looking for order")
 		suite.NoVerrs(verrs)
 	})

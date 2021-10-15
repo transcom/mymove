@@ -8,6 +8,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -38,7 +40,7 @@ func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, e
 	}
 
 	if move.UpdatedAt != existingMove.UpdatedAt {
-		return nil, services.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
+		return nil, apperror.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
 	}
 	return db.ValidateAndSave(move)
 }

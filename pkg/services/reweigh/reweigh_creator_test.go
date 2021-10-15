@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -48,7 +48,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 
 		suite.Error(err)
 		suite.Nil(createReweigh)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Not Found Error", func(t *testing.T) {
@@ -58,6 +58,6 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
 
 		suite.Nil(createdReweigh)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

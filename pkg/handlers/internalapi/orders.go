@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/uploader"
 
@@ -320,7 +322,7 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 			return ordersop.NewUploadAmendedOrdersInternalServerError()
 		case uploader.ErrFailedToInitUploader:
 			return ordersop.NewUploadAmendedOrdersInternalServerError()
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return ordersop.NewUploadAmendedOrdersNotFound()
 		default:
 			return handlers.ResponseForVErrors(logger, verrs, err)

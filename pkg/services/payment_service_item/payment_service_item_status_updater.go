@@ -8,6 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -49,7 +51,7 @@ func (p *paymentServiceItemUpdater) fetchPaymentServiceItem(appCtx appcontext.Ap
 	if err != nil {
 		// If we don't find a record let's return something that will cause a 404
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return models.PaymentServiceItem{}, nil, services.NewNotFoundError(paymentServiceItemID,
+			return models.PaymentServiceItem{}, nil, apperror.NewNotFoundError(paymentServiceItemID,
 				"while looking for payment service item")
 		}
 		// If it's something else let's still return the error variable (err)

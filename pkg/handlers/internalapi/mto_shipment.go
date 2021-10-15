@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -54,11 +56,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if err != nil {
 		logger.Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
@@ -120,13 +122,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if err != nil {
 		logger.Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("internalapi.UpdateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
