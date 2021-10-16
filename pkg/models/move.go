@@ -107,6 +107,7 @@ type Move struct {
 	BillableWeightsReviewedAt    *time.Time              `db:"billable_weights_reviewed_at"`
 	FinancialReviewRequested     bool                    `db:"financial_review_requested"`
 	FinancialReviewRequestedAt   *time.Time              `db:"financial_review_requested_at"`
+	FinancialReviewRemarks       *string                 `db:"financial_review_remarks"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
