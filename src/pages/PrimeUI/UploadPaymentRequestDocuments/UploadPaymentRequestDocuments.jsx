@@ -1,9 +1,9 @@
 import { React, createRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { Grid, Alert } from '@trussworks/react-uswds';
 import { useMutation } from 'react-query';
 
-// import { patchPaymentRequest } from 'services/ghcApi';
+import { createUpload } from 'services/primeApi';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
@@ -12,7 +12,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 const UploadPaymentRequest = () => {
   const filePondEl = createRef();
   const history = useHistory();
-  // const { paymentRequestId } = useParams();
+  const { paymentRequestId } = useParams();
   const [serverError, setServerError] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
@@ -20,7 +20,7 @@ const UploadPaymentRequest = () => {
     setUploadedFiles(uploadedFiles.filter((file) => file.id !== uploadId));
   };
 
-  const [uploadPaymentRequestDocuments] = useMutation('', {
+  const [mutateUploadPaymentRequestDocuments] = useMutation(createUpload, {
     onSuccess: () => {
       // TODO - show flash message?
       history.push(`/`);
@@ -51,7 +51,9 @@ const UploadPaymentRequest = () => {
   };
 
   const handleSave = () => {
-    uploadPaymentRequestDocuments();
+    uploadedFiles.forEach((uploadedFile) => {
+      mutateUploadPaymentRequestDocuments(paymentRequestId, uploadedFile.file);
+    });
   };
 
   const handleCancel = () => {
