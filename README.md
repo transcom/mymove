@@ -31,7 +31,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Setup: Base Setup](#setup-base-setup)
     * [Homebrew](#homebrew)
     * [Setup: Git](#setup-git)
-    * [Setup: Docker](#setup-docker)
     * [Setup: Project Checkout](#setup-project-checkout)
     * [Setup: Editor Config](#setup-editor-config)
   * [Setup: Nix](#setup-nix)
@@ -39,8 +38,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Nix: Clean Up Local Env](#nix-clean-up-local-env)
     * [Nix: Installing Dependencies](#nix-installing-dependencies)
   * [Setup: Manual](#setup-manual)
-    * [Manual: Bash](#manual-bash)
-    * [Manual: Golang](#manual-golang)
     * [Manual: Prerequisites](#manual-prerequisites)
   * [Setup: Shared](#setup-shared)
     * [Setup: AWS Services](#setup-aws-services)
@@ -153,8 +150,7 @@ There are two main ways we have for setting up local development:
 * Using `nix` with a bit of `homebrew`
 * Using primarily only `homebrew`
 
-Both need a bit of base setup before, but then you can follow whichever path you prefer after that. There are also
-a few parts that may be shared between both setups.
+Both need a bit of base setup before, but then you can follow whichever path you prefer after that. There are also a few parts that may be shared between both setups.
 
 ### Setup: Base Setup
 
@@ -164,11 +160,21 @@ There are a number of things you'll need at a minimum to be able to work with th
 
 We use [Homebrew](https://brew.sh) to manage a few of the packages we need for this project.
 
-To install it, run:
+Whether or not you already have Homebrew installed, you'll need to make sure it's
+up to date and ready to brew:
 
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+SKIP_LOCAL=true /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/trussworks/fresh-brew/main/fresh-press)"
 ```
+
+If you're using the Fish shell, run this command:
+
+```shell
+SKIP_LOCAL=true bash (curl -fsSL https://raw.githubusercontent.com/trussworks/fresh-brew/main/fresh-press | psub)
+```
+
+See the [trussworks/fresh-brew repo](https://github.com/trussworks/fresh-brew)
+for more information.
 
 #### Setup: Git
 
@@ -193,10 +199,6 @@ Note if you want use HTTPS instead of SSH for working with git, since we want 2-
 to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as
 your password.
 
-#### Setup: Docker
-
-Install [Docker](https://www.docker.com/products/docker-desktop).
-
 #### Setup: Project Checkout
 
 You can checkout this repository by running
@@ -205,11 +207,10 @@ You can checkout this repository by running
 git clone git@github.com:transcom/mymove.git
 ```
 
-Please check out the code in a directory like `~/Projects/mymove`. You can check the code out anywhere EXCEPT
-inside your `$GOPATH`. As an example:
+Please check out the code in a directory like `~/Projects/mymove`. You can check the code out anywhere EXCEPT inside your `$GOPATH`. As an example:
 
 ```shell
-mkdir -p ~/Projects
+mkdir -p ~/Projects && cd ~/Projects
 ```
 
 ```shell
@@ -235,14 +236,6 @@ If you need help with this setup, you can ask for help in the
 
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
-1. Set up hosts file. Run
-
-    ```shell
-    make check_hosts
-    ```
-
-    If it tells you to run any commands, do so to set up your hosts file propely.
-
 1. [Install Dependencies](#nix-installing-dependencies)
 1. [Quick Initial Setup](#setup-quick-initial-setup)
 
@@ -308,14 +301,6 @@ other steps necessary which aren't documented here.
 
 ### Setup: Manual
 
-1. [Install bash](#manual-bash)
-1. [Setup golang](#manual-golang)
-1. Install initial repo dependencies by running:
-
-    ```shell
-    brew install aws-vault chamber awscli direnv
-    ```
-
 1. [Set up AWS services](#setup-aws-services)
 1. [Prereqs](#manual-prerequisites)
 1. [Set up direnv](#setup-direnv)
@@ -329,110 +314,14 @@ other steps necessary which aren't documented here.
        [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
 1. [Quick Initial Setup](#setup-quick-initial-setup)
 
-#### Manual: Bash
-
-Ensure you are using the latest version of bash for this project:
-
-1. Install it with Homebrew:
-
-    ```shell
-    brew install bash
-    ```
-
-1. Update list of shells that users can choose from:
-
-    ```shell
-    [[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells
-    ```
-
-1. Optional: If you are using `bash` as your shell (and not `zsh`, `fish`, etc.) and want to use the latest shell as
-   well then change it:
-
-    ```shell
-    chsh -s /usr/local/bin/bash
-    ```
-
-1. Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH`
-    1. To check in, run
-
-        ```shell
-        echo $PATH
-        ```
-
-    1. If you need to modify your path, edit `~/.zshrc` (or your shell's config file) and change the `PATH`.
-    1. Then source your profile/shell config file. E.g.
-
-        ```shell
-        source ~/.zshrc`
-        ```
-
-#### Manual: Golang
-
-When working with `go`, we need to define a path where `go` will download source code and compiled commands will live.
-See [GOPATH environment variable](https://pkg.go.dev/cmd/go#hdr-GOPATH_environment_variable) and
-[GOPATH and modules](https://pkg.go.dev/cmd/go#hdr-GOPATH_and_Modules) for more details.
-
-Golang expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add
-the following to your `.zshrc` (or you shell's config file). This line will set the GOPATH environment variable to the
-value of `go env GOPATH` if it is not already set.
-
-```shell
-export GOPATH=${GOPATH:-$(go env GOPATH)}
-```
-
-You can also define your own path if you'd prefer. For example, if you want your go code to live at `~/code/go`,
-you should add the following like to your `.zshrc` (or your shell's config file):
-
-```shell
-export GOPATH=~/code/go
-```
-
-**Regardless of where your go code is located**, you need to add `$GOPATH/bin` to your `PATH` so that executables
-installed with the go tooling can be found. Add the following to your `.zshrc` (or your shell's config file):
-
-```shell
-export PATH=$(go env GOPATH)/bin:$PATH
-```
-
-Finally to have these changes applied to your shell you must either restart your shell, or `source` the file you added
-the above commands to. E.g.:
-
-```shell
-source ~/.zshrc
-```
-
-You can confirm that the values exist with:
-
-* Verify the `GOPATH` is correct
-
-    ```shell
-    env | grep GOPATH
-    ```
-
-* Verify the `PATH` includes your `GOPATH` bin directory
-
-    ```shell
-    env | grep PATH
-    ```
-
 #### Manual: Prerequisites
 
-1. Run
+1. We have a script that will install all the dependencies for you, as well as
+   configure your shell file with all the required commands:
 
     ```shell
     make prereqs
     ```
-
-    to check which things you do and don't have installed.
-
-2. Install everything it tells you to. Most of the prerequisites can be installed via
-
-    ```shell
-    brew install <package>
-    ```
-
-    * **NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work
-      correctly!
 
 ### Setup: Shared
 
@@ -447,14 +336,13 @@ these instructions to
 
 For managing local environment variables, we're using [direnv](https://direnv.net/).
 
-1. [configure your shell to use direnv](https://direnv.net/docs/hook.html).
 1. Run
 
     ```shell
     direnv allow
     ```
 
-    1. This will to load up the `.envrc` file. It should complain that you have missing variables. We'll fix that next.
+    1. This will load up the `.envrc` file. It should complain that you have missing variables. We'll fix that next.
 
 To fix the missing variables issue, you can do one of the following things:
 
@@ -530,19 +418,15 @@ more details, you can look at the sections under this one, but it's not required
 
 ##### Setup: Pre-Commit
 
-Part of the `pre-commit` setup run by the `make deps` or `make deps_nix` commands. They in turn run
+Part of the `pre-commit` setup run by the `make deps` or `make deps_nix` commands.
+They in turn run
 
 ```shell
 pre-commit install
 ```
 
-to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than
-
-```shell
-brew install pre-commit
-```
-
-and must be done so that the hook will check files you are about to commit to the repository.
+to install a pre-commit hook into `./git/hooks/pre-commit`. This must be done so
+that the hook will check files you are about to commit to the repository.
 
 Next it installs the `pre-commit` hook libraries with
 
@@ -1115,7 +999,6 @@ link to `storybook/index.html` and click on it.
 ### Troubleshooting
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
-* If you happen to have installed pre-commit in a virtual environment not with brew, running `make prereqs` will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
 * If you're having trouble accessing the API docs or the server is otherwise misbehaving, try stopping the server, running `make client_build`, and then running `make client_run` and `make server_run`.
 
 #### Postgres Issues

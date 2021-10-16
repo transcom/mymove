@@ -78,7 +78,7 @@ install_pre_commit:  ## Installs pre-commit hooks
 
 .PHONY: prereqs
 prereqs: .prereqs.stamp ## Check that pre-requirements are installed, includes dependency scripts
-.prereqs.stamp: scripts/prereqs scripts/check-aws-cli-version scripts/check-aws-vault-version scripts/check-bash-version scripts/check-chamber-version scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version scripts/check-opensc-version
+.prereqs.stamp: scripts/prereqs scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version
 	scripts/prereqs
 	touch .prereqs.stamp
 
@@ -104,16 +104,6 @@ check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
 	scripts/check-gopath
 	touch .check_gopath.stamp
 
-.PHONY: check_bash_version
-check_bash_version: .check_bash_version.stamp ## Check that the correct Bash version is installed
-.check_bash_version.stamp: scripts/check-bash-version
-ifndef CIRCLECI
-	scripts/check-bash-version
-else
-	@echo "No need to check bash version on CircleCI"
-endif
-	touch .check_bash_version.stamp
-
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
 .check_node_version.stamp: scripts/check-node-version
@@ -126,6 +116,10 @@ check_docker_size: ## Check the amount of disk space used by docker
 
 .PHONY: deps
 deps: prereqs ensure_pre_commit deps_shared ## Run all checks and install all dependencies
+
+.PHONY: setup
+setup:
+	scripts/setup
 
 .PHONY: deps_nix
 deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
