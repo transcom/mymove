@@ -74,7 +74,7 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 	if err != nil {
 		logger.Error("Error flagging move for financial review", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewFlagMoveForFinancialReviewNotFound()
 		default:
 			return moveop.NewGetMoveInternalServerError()

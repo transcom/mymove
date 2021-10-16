@@ -4,9 +4,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -33,7 +34,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 
 		_, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), wrongUUID, defaultFlagReason)
 		suite.Error(err)
-		suite.Require().True(errors.As(err, &services.NotFoundError{}))
+		suite.Require().True(errors.As(err, &apperror.NotFoundError{}))
 	})
 
 	suite.T().Run("Empty remarks param should result in error", func(t *testing.T) {
@@ -41,7 +42,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 
 		_, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), move.ID, "")
 		suite.Error(err)
-		suite.Require().True(errors.As(err, &services.InvalidInputError{}))
+		suite.Require().True(errors.As(err, &apperror.InvalidInputError{}))
 	})
 
 	suite.T().Run("setting flag after it has already been set should have no effect", func(t *testing.T) {

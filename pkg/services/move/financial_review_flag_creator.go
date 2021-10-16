@@ -3,6 +3,8 @@ package move
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/gofrs/uuid"
@@ -23,14 +25,14 @@ func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.
 	if remarks == "" {
 		verrs := validate.NewErrors()
 		verrs.Add("remarks", "must not be empty")
-		return nil, services.NewInvalidInputError(moveID, nil, verrs, "")
+		return nil, apperror.NewInvalidInputError(moveID, nil, verrs, "")
 	}
 
 	move := &models.Move{}
 	err := appCtx.DB().Find(move, moveID)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "while looking for move")
+		return nil, apperror.NewNotFoundError(moveID, "while looking for move")
 	}
 
 	if move.FinancialReviewRequested {
@@ -46,10 +48,10 @@ func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(move)
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(
+			return apperror.NewInvalidInputError(
 				move.ID, err, verrs, "Validation errors found while setting financial review flag on move")
 		} else if err != nil {
-			return services.NewQueryError("Move", err, "Failed to request financial review for move")
+			return apperror.NewQueryError("Move", err, "Failed to request financial review for move")
 		}
 
 		return nil
