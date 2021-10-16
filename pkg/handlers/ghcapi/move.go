@@ -57,7 +57,7 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	moveID := uuid.FromStringOrNil(params.MoveID.String()) // TODO this doesnt seem great
+	moveID := uuid.FromStringOrNil(params.MoveID.String())
 
 	if moveID == uuid.Nil {
 		// TODO return a good error message? this should be caught by swagger though so maybe dont need it?
