@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -85,6 +86,6 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewDomesticDestinationSITDeliveryPricer(), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
-		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
+		return nil, apperror.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
 	}
 }

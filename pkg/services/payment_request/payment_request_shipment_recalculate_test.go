@@ -8,7 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -166,7 +167,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		mockPlanner.On("RecalculatePaymentRequest",
 			suite.TestAppContext(),
 			paidPaymentRequest,
-		).Return(nil, services.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
+		).Return(nil, apperror.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 
 		var oldPaymentRequest models.PaymentRequest
 		err = suite.DB().

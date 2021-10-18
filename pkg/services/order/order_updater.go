@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -39,7 +41,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
@@ -56,7 +58,7 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)
@@ -73,7 +75,7 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := allowanceFromTOOPayload(*order, payload)
@@ -90,7 +92,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
@@ -118,7 +120,7 @@ func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(orderID, "while looking for order")
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
 		}
 	}
 
@@ -130,7 +132,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(orderID, "while looking for order")
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
 		}
 	}
 
@@ -451,7 +453,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
 		if e := handleError(order.ID, verrs, err); e != nil {
 			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+				return nil, apperror.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
 			}
 		}
 		order.OriginDutyStationID = &originDutyStation.ID
@@ -482,7 +484,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
 		if e := handleError(order.ID, verrs, err); e != nil {
 			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+				return nil, apperror.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
 			}
 		}
 		order.NewDutyStationID = newDutyStation.ID

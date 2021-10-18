@@ -5,6 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,7 +32,7 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
-		return nil, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	var returnedShipment *models.MTOShipment
@@ -70,7 +72,7 @@ func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppC
 
 	err = appCtx.DB().Q().EagerPreload("SITExtensions").Find(&shipment, shipment.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(shipment.ID, "looking for MTOShipment")
+		return nil, apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
 	}
 
 	return &shipment, nil
@@ -81,7 +83,7 @@ func (f *sitExtensionCreatorAsTOO) findShipment(appCtx appcontext.AppContext, sh
 	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
 	}
@@ -91,7 +93,7 @@ func (f *sitExtensionCreatorAsTOO) findShipment(appCtx appcontext.AppContext, sh
 
 func (f *sitExtensionCreatorAsTOO) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
+		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -14,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -60,7 +60,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.TestAppContext(), expectedMTO.ID, eTag)
 
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.RunWithRollback("Etag is stale", func() {
@@ -74,7 +74,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.TestAppContext(), expectedMTO.ID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 }
 
@@ -123,7 +123,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.TestAppContext(), expectedMTO.ID, body, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 }
 
@@ -174,7 +174,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), badMoveID.String())
 	})
 
@@ -184,7 +184,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "The 'show' field must be either True or False - it cannot be empty")
 	})
 
@@ -196,13 +196,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
 			mock.Anything,
-		).Return(nil, services.InvalidInputError{})
+		).Return(nil, apperror.InvalidInputError{})
 
 		updatedMove, err := mockUpdater.ShowHide(suite.TestAppContext(), move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	// Case: Query error encountered while updating the move
@@ -212,13 +212,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
 			mock.Anything,
-		).Return(nil, services.QueryError{})
+		).Return(nil, apperror.QueryError{})
 
 		updatedMove, err := mockUpdater.ShowHide(suite.TestAppContext(), move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
-		suite.IsType(services.QueryError{}, err)
+		suite.IsType(apperror.QueryError{}, err)
 	})
 }
 
@@ -259,7 +259,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.Run("Makes move available to Prime and creates Move management and Service counseling service items when both are specified", func() {
@@ -390,7 +390,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.Nil(fetchedMove.AvailableToPrimeAt)
@@ -427,7 +427,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.TestAppContext(), move.ID, eTag)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 }
 

@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // DimensionHeightLookup does lookup for DimensionHeightLookup
@@ -25,5 +25,5 @@ func (d DimensionHeightLookup) lookup(appCtx appcontext.AppContext, keyData *Ser
 		}
 	}
 
-	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to find height crate dimension")
+	return "", apperror.NewConflictError(keyData.MTOServiceItemID, "unable to find height crate dimension")
 }

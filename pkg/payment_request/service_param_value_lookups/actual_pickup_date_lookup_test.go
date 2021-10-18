@@ -7,8 +7,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -148,7 +149,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.IsType(apperror.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
 
 		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
@@ -173,6 +174,6 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		_, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

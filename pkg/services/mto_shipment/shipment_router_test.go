@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -93,7 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &submittedShipment)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved")
 	})
 }
@@ -292,7 +293,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 		err := shipmentRouter.ApproveDiversion(suite.TestAppContext(), &shipment)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve the diversion")
 	})
 

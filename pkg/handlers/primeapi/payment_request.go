@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/gobuffalo/validate/v3"
@@ -85,7 +86,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
 		switch e := err.(type) {
-		case services.InvalidCreateInputError:
+		case apperror.InvalidCreateInputError:
 			verrs := e.ValidationErrors
 			detail := err.Error()
 			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
@@ -94,32 +95,32 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
-		case services.ConflictError:
+		case apperror.ConflictError:
 			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), &validate.Errors{})
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
 			}
 			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 
-		case *services.BadDataError:
+		case *apperror.BadDataError:
 			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",

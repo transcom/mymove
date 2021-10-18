@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/spf13/viper"
 
@@ -124,11 +125,11 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if err != nil {
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
@@ -216,22 +217,22 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 		switch e := err.(type) {
 
 		// NotFoundError -> Not Found response
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewGetPaymentRequestEDINotFound().
 				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 
 		// InvalidInputError -> Unprocessable Entity response
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
 				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 
 		// ConflictError -> Conflict Error response
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return paymentrequestop.NewGetPaymentRequestEDIConflict().
 				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 
 		// QueryError -> Internal Server error
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				// Note we do not expose this detail in the payload
@@ -354,9 +355,9 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 			if err != nil {
 				switch err.(type) {
-				case services.NotFoundError:
+				case apperror.NotFoundError:
 					return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-				case services.PreconditionFailedError:
+				case apperror.PreconditionFailedError:
 					return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 				default:
 					logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
@@ -434,19 +435,19 @@ func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.Recalcu
 
 	if err != nil {
 		switch e := err.(type) {
-		case *services.BadDataError:
+		case *apperror.BadDataError:
 			return paymentrequestop.NewRecalculatePaymentRequestBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewRecalculatePaymentRequestNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return paymentrequestop.NewRecalculatePaymentRequestConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return paymentrequestop.NewRecalculatePaymentRequestPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-		case services.InvalidCreateInputError:
+		case apperror.InvalidCreateInputError:
 			return paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				// Note we do not expose this detail in the payload

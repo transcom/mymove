@@ -4,9 +4,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -152,14 +153,14 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), newSIT, &shipment)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.Run("checkPrimeAvailability - Failure", func() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, nil)
 		suite.NotNil(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal("not found while looking for Prime-available Shipment", err.Error())
 	})
 

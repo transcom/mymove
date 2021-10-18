@@ -9,6 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -103,7 +105,7 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		switch err {
 		case sql.ErrNoRows:
 			appCtx.Logger().Error("failure finding move", zap.Error(err))
-			return false, services.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+			return false, apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
 		default:
 			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
 			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
@@ -113,13 +115,13 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 	var originDutyStation models.DutyStation
 
 	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID == uuid.Nil {
-		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
+		return false, apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
 	}
 
 	originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 	if err != nil {
 		appCtx.Logger().Error("failure finding the origin duty station", zap.Error(err))
-		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+		return false, apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 	}
 
 	if move.ServiceCounselingCompletedAt != nil {
@@ -395,7 +397,7 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 
 func handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
+		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
 	if err != nil {
 		return err

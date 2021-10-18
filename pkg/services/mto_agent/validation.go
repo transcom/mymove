@@ -3,6 +3,8 @@ package mtoagent
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -52,7 +54,7 @@ func validateMTOAgent(
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(newAgent.ID, nil, verrs, "Invalid input found while validating the agent.")
+		result = apperror.NewInvalidInputError(newAgent.ID, nil, verrs, "Invalid input found while validating the agent.")
 	}
 	return result
 }

@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/fetch"
 
@@ -62,7 +64,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	// check if Move exists
 	err = f.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "for move")
+		return nil, apperror.NewNotFoundError(moveID, "for move")
 	}
 
 	for _, existingShipment := range move.MTOShipments {
@@ -72,7 +74,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		hasNTSRShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && (existingShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
 
 		if hasNTSShipment || hasNTSRShipment {
-			return nil, services.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
+			return nil, apperror.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
 		}
 	}
 
@@ -88,7 +90,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			err = f.builder.FetchOne(appCtx, &reService, queryFilters)
 			if err != nil {
-				return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+				return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 			}
 			// set re service for service item
 			serviceItem.ReServiceID = reService.ID
@@ -96,7 +98,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 			if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 				if shipment.PrimeEstimatedWeight == nil {
-					return nil, services.NewConflictError(
+					return nil, apperror.NewConflictError(
 						serviceItem.ReService.ID,
 						"for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.",
 					)
@@ -117,7 +119,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
 		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
@@ -146,7 +148,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		// check that required items to create shipment are present
 		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
 		//assign status to shipment draft by default
@@ -183,7 +185,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 				for _, agentInList := range agentsList {
 					if agentInList.MTOAgentType == copyOfAgent.MTOAgentType {
-						return services.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
+						return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
 					}
 				}
 
@@ -232,9 +234,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	})
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Unable to create shipment")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Unable to create shipment")
 	} else if err != nil {
-		return nil, services.NewQueryError("unknown", err, "")
+		return nil, apperror.NewQueryError("unknown", err, "")
 	}
 
 	return shipment, transactionError
@@ -281,7 +283,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 	}
 
 	if verrs.HasAny() {
-		return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Fields that cannot be set found while creating new shipment.")
+		return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Fields that cannot be set found while creating new shipment.")
 	}
 
 	return nil

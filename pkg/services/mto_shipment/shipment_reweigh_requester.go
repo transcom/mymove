@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +41,7 @@ func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, sh
 		Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,7 @@ func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, s
 
 	verrs, dbErr := appCtx.DB().ValidateAndSave(&reweigh)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not save the reweigh while requesting the reweigh as a TOO.")
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not save the reweigh while requesting the reweigh as a TOO.")
 
 		return nil, invalidInputError
 	}
