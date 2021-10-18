@@ -60,9 +60,9 @@ func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 
 func (e NotFoundError) Error() string {
 	if e.id == uuid.Nil {
-		return fmt.Sprintf("not found %s", e.message)
+		return fmt.Sprintf("Not found %s", e.message)
 	}
-	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+	return fmt.Sprintf("Id: %s not found %s", e.id.String(), e.message)
 }
 
 // Wrap lets the caller add an error to be wrapped in the NotFoundError
@@ -195,7 +195,7 @@ func (e InvalidCreateInputError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
 	}
-	return fmt.Sprintf("invalid input for id: %s", e.ValidationErrors)
+	return fmt.Sprintf("Invalid input for id: %s", e.ValidationErrors)
 }
 
 //ConflictError is returned when a given struct is not found
@@ -205,7 +205,7 @@ type ConflictError struct {
 }
 
 func (e ConflictError) Error() string {
-	return fmt.Sprintf("id: %s is in a conflicting state %s", e.id.String(), e.message)
+	return fmt.Sprintf("Id: %s is in a conflicting state %s", e.id.String(), e.message)
 }
 
 // NewConflictError returns an error for when a struct can not be found

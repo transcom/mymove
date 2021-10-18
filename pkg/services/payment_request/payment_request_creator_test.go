@@ -412,7 +412,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s not found for Move", badID), err.Error())
+		suite.Equal(fmt.Sprintf("Id: %s not found for Move", badID), err.Error())
 	})
 
 	suite.T().Run("Given no move task order id, the create should fail", func(t *testing.T) {
@@ -448,7 +448,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
 			},
 		},
 		// Orders with blank TAC
@@ -465,7 +465,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
 			},
 		},
 		// Orders with no OriginDutyStation
@@ -482,7 +482,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", ordersID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", ordersID, mtoID)
 			},
 		},
 	}
@@ -520,7 +520,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with blank First Name
@@ -537,7 +537,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with no Last Name
@@ -553,7 +553,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with blank Last Name
@@ -570,7 +570,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with no Rank
@@ -586,7 +586,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with blank Rank
@@ -603,7 +603,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with no Affiliation
@@ -619,7 +619,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
 			},
 		},
 		// ServiceMember with blank Affiliation
@@ -636,7 +636,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
+				return fmt.Sprintf("Id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
 			},
 		},
 	}
@@ -669,7 +669,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(suite.TestAppContext(), &invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s not found for MTO Service Item", badID), err.Error())
+		suite.Equal(fmt.Sprintf("Id: %s not found for MTO Service Item", badID), err.Error())
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -693,7 +693,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(suite.TestAppContext(), &invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s not found Service Item Param Key ID", badID), err.Error())
+		suite.Equal(fmt.Sprintf("Id: %s not found Service Item Param Key ID", badID), err.Error())
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -716,7 +716,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(suite.TestAppContext(), &invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal("not found Service Item Param Key bogus: FETCH_NOT_FOUND", err.Error())
+		suite.Equal("Not found Service Item Param Key bogus: FETCH_NOT_FOUND", err.Error())
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
