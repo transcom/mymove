@@ -117,4 +117,40 @@ describe('CreatePaymentRequestForm', () => {
       expect(screen.getByRole('button', { type: 'submit' })).toBeEnabled();
     });
   });
+
+  it('deselects all service items of the shipment when select all is unchecked', async () => {
+    const handleSelectAll = (shipmentID, values, setValues, event) => {
+      if (!event.target.checked) {
+        setValues({ serviceItems: [] });
+      } else {
+        setValues({ serviceItems: ['4'] });
+      }
+    };
+
+    render(
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={handleSelectAll}
+      />,
+    );
+
+    const shipmentSelectAllInput = screen.getAllByRole('checkbox', { name: 'Add all service items' })[0];
+    await userEvent.click(shipmentSelectAllInput);
+    await userEvent.click(shipmentSelectAllInput);
+
+    await waitFor(() => {
+      const shipmentServiceItemInput = screen.queryAllByRole('checkbox', {
+        name: 'Add to payment request',
+        checked: true,
+      });
+      // all checkboxes are back to being unchecked
+      expect(shipmentServiceItemInput).toHaveLength(0);
+      expect(screen.getByText('At least 1 service item must be added when creating a payment request'));
+      expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
+    });
+  });
 });
