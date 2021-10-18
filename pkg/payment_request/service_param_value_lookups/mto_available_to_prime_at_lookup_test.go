@@ -8,8 +8,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -49,8 +50,8 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.IsType(&services.BadDataError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("Data received from requester is bad: %s: This move task order is not available to prime", services.BadDataCode)
+		suite.IsType(&apperror.BadDataError{}, errors.Unwrap(err))
+		expected := fmt.Sprintf("Data received from requester is bad: %s: This move task order is not available to prime", apperror.BadDataCode)
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 
@@ -66,7 +67,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 
 		valueStr, err := badParamLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.IsType(apperror.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
 	})
 }

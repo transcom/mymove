@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // DimensionLengthLookup does lookup for DimensionLengthLookup
@@ -25,5 +25,5 @@ func (d DimensionLengthLookup) lookup(appCtx appcontext.AppContext, keyData *Ser
 		}
 	}
 
-	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to find length crate dimension")
+	return "", apperror.NewConflictError(keyData.MTOServiceItemID, "unable to find length crate dimension")
 }

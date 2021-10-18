@@ -8,6 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -328,7 +330,7 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 		if err != nil {
 			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
 		} else if verrs.HasAny() {
-			return paymentServiceItemParams, services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+			return paymentServiceItemParams, apperror.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
 		} else {
 			// Append it to a slice of PaymentServiceItemParams to return
 			paymentServiceItemParams = append(paymentServiceItemParams, newParam)

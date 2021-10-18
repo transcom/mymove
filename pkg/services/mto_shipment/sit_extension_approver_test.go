@@ -6,9 +6,10 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -26,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), nonexistentUUID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when SIT extension is not found", func(t *testing.T) {
@@ -39,7 +40,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
@@ -54,7 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), mtoShipment.ID.String())
 	})
 
@@ -71,7 +72,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		_, err := sitExtensionApprover.ApproveSITExtension(suite.TestAppContext(), otherMtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), otherMtoShipment.ID.String())
 	})
 

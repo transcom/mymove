@@ -4,6 +4,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +41,7 @@ func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	err := appCtx.DB().Find(mtoShipment, reweigh.ShipmentID)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
+		return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
 	}
 
 	err = validateReweigh(appCtx, *reweigh, nil, mtoShipment, checks...)
@@ -50,10 +52,10 @@ func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	verrs, err := appCtx.DB().ValidateAndCreate(reweigh)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the reweigh.")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the reweigh.")
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
-		return nil, services.NewQueryError("Reweigh", err, "")
+		return nil, apperror.NewQueryError("Reweigh", err, "")
 	}
 
 	return reweigh, nil

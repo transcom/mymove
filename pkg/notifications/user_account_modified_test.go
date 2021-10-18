@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
@@ -111,7 +111,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 		emailer, err := NewUserAccountCreated(nilSessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 		suite.Nil(emailer)
 		suite.Error(err)
-		suite.IsType(services.ContextError{}, err)
+		suite.IsType(apperror.ContextError{}, err)
 	})
 }
 

@@ -5,9 +5,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
 
-	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -35,7 +36,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), availableHiddenMTO.ID)
 		suite.Error(err)
-		suite.IsType(err, services.NotFoundError{})
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), availableHiddenMTO.ID.String())
 		suite.Equal(availableToPrime, false)
 	})
@@ -50,7 +51,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.Error(err)
-		suite.IsType(err, services.NotFoundError{})
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
 		suite.Equal(availableToPrime, false)
 	})

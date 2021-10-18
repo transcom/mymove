@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -35,7 +36,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appconte
 	var paymentRequest models.PaymentRequest
 	err := appCtx.DB().Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
-		return "", services.NewNotFoundError(paymentRequestID, "")
+		return "", apperror.NewNotFoundError(paymentRequestID, "")
 	}
 
 	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
@@ -51,7 +52,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		newUploader, err := uploader.NewPrimeUploader(p.fileStorer, p.fileSizeLimit)
 		if err != nil {
 			if err == uploader.ErrFileSizeLimitExceedsMax {
-				return services.NewBadDataError(err.Error())
+				return apperror.NewBadDataError(err.Error())
 			}
 			return err
 		}
@@ -71,7 +72,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		var paymentRequest models.PaymentRequest
 		err = txnAppCtx.DB().Find(&paymentRequest, paymentRequestID)
 		if err != nil {
-			return services.NewNotFoundError(paymentRequestID, "")
+			return apperror.NewNotFoundError(paymentRequestID, "")
 		}
 		// create proof of service doc
 		proofOfServiceDoc := models.ProofOfServiceDoc{
@@ -83,13 +84,13 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
 		}
 		if verrs.HasAny() {
-			return services.NewInvalidCreateInputError(verrs, "validation error with creating proof of service doc")
+			return apperror.NewInvalidCreateInputError(verrs, "validation error with creating proof of service doc")
 		}
 
 		posID := &proofOfServiceDoc.ID
 		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(txnAppCtx, posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
 		if verrs.HasAny() {
-			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment request")
+			return apperror.NewInvalidCreateInputError(verrs, "validation error with creating payment request")
 		}
 		if err != nil {
 			return fmt.Errorf("failure creating payment request primeUpload: %w", err) // server err

@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -68,7 +69,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
@@ -78,7 +79,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), badShipmentID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("It calls RequestCancellation on the ShipmentRouter", func(t *testing.T) {

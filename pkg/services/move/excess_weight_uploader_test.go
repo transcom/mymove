@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -62,7 +63,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
-			suite.IsType(services.NotFoundError{}, err)
+			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), notFoundUUID.String())
 		})
 
@@ -139,7 +140,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
-			suite.IsType(services.NotFoundError{}, err)
+			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), move.ID.String())
 		})
 	})

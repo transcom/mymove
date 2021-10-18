@@ -3,6 +3,8 @@ package webhooksubscription
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -52,14 +54,14 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(appCtx appcontext
 	verrs, err := o.builder.UpdateOne(appCtx, &foundSub, eTag)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")
+		return nil, apperror.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")
 	}
 
 	// First check to see if there is an error on the type and return a precondition fail error, if not return the error
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(webhookSubscriptionID, err)
+			return nil, apperror.NewPreconditionFailedError(webhookSubscriptionID, err)
 		default:
 			return nil, err
 		}

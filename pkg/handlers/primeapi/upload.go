@@ -5,6 +5,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
@@ -75,11 +77,11 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 	if err != nil {
 		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {
-		case *services.BadDataError:
+		case *apperror.BadDataError:
 			return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewCreateUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
 			return paymentrequestop.NewCreateUploadInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))

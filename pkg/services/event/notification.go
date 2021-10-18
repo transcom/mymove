@@ -6,12 +6,13 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
@@ -49,10 +50,10 @@ func notificationSave(event *Event, payload *[]byte) error {
 	verrs, err := event.DBConnection.ValidateAndCreate(&newNotification)
 	if verrs.Count() > 0 {
 		event.logger.Error("event.notificationSave error", zap.Error(verrs))
-		return services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+		return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
 		event.logger.Error("event.notificationSave error", zap.Error(err))
-		e := services.NewQueryError("Notification", err, "Unable to save Notification.")
+		e := apperror.NewQueryError("Notification", err, "Unable to save Notification.")
 		return e
 	}
 	return nil
@@ -67,7 +68,7 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger)
 	availableToPrime, err := mtoChecker.MTOAvailableToPrime(appCtx, event.MtoID)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error checking prime availability", err)
+		unknownErr := apperror.NewEventError("Unknown error checking prime availability", err)
 		return false, unknownErr
 	}
 	// No need to store notification to send if not available to prime
@@ -88,7 +89,7 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 		"MTOAgents").Find(&model, updatedObjectID.String())
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOShipment")
+		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
@@ -96,7 +97,7 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 	payload := payloads.MTOShipment(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating MTOShipment payload.", err)
+		unknownErr := apperror.NewEventError("Unknown error creating MTOShipment payload.", err)
 		return nil, unknownErr
 	}
 	return payloadArray, nil
@@ -110,7 +111,7 @@ func assembleMTOPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID)
 	err := appCtx.DB().Find(&model, updatedObjectID)
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveTaskOrder")
+		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MoveTaskOrder")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
@@ -118,7 +119,7 @@ func assembleMTOPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID)
 	payload := MoveTaskOrderModelToPayload(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating MoveTaskOrder payload", err)
+		unknownErr := apperror.NewEventError("Unknown error creating MoveTaskOrder payload", err)
 		return nil, unknownErr
 	}
 
@@ -132,7 +133,7 @@ func assembleMTOServiceItemPayload(appCtx appcontext.AppContext, updatedObjectID
 	err := appCtx.DB().Eager("ReService", "Dimensions", "CustomerContacts").Find(&model, updatedObjectID)
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOServiceItem")
+		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOServiceItem")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
@@ -140,7 +141,7 @@ func assembleMTOServiceItemPayload(appCtx appcontext.AppContext, updatedObjectID
 	payload := payloads.MTOServiceItem(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating MTOServiceItem payload", err)
+		unknownErr := apperror.NewEventError("Unknown error creating MTOServiceItem payload", err)
 		return nil, unknownErr
 	}
 
@@ -156,14 +157,14 @@ func assemblePaymentRequestPayload(appCtx appcontext.AppContext, updatedObjectID
 	// Important to be specific about which addl associations to load to reduce DB hits
 	err := appCtx.DB().Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, updatedObjectID.String())
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for PaymentRequest")
+		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for PaymentRequest")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
 	payload := PaymentRequestModelToPayload(&model)
 	payloadArray, err := payload.MarshalBinary()
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		unknownErr := apperror.NewEventError("Unknown error creating payload", err)
 		return nil, unknownErr
 	}
 	return payloadArray, nil
@@ -185,7 +186,7 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 	}
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for Order")
+		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for Order")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
@@ -193,7 +194,7 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 	payload := payloads.Order(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		unknownErr := apperror.NewEventError("Unknown error creating payload", err)
 		return nil, unknownErr
 	}
 
@@ -236,7 +237,7 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOPayload(appCtx, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
-		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
+		err = apperror.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
 	}
 	if err != nil {
 		return false, err
@@ -245,7 +246,7 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error storing notification", err)
+		unknownErr := apperror.NewEventError("Unknown error storing notification", err)
 		return false, unknownErr
 	}
 
@@ -282,7 +283,7 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error storing notification", err)
+		unknownErr := apperror.NewEventError("Unknown error storing notification", err)
 		return false, unknownErr
 	}
 

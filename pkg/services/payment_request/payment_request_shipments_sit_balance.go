@@ -6,6 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -180,7 +182,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	err := appCtx.DB().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment", "PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").Find(&paymentRequest, paymentRequestID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(paymentRequestID, "no payment request exists with that id")
+			return nil, apperror.NewNotFoundError(paymentRequestID, "no payment request exists with that id")
 		}
 		return nil, err
 	}

@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-openapi/runtime"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -74,7 +76,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	if err != nil {
 		logger.Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
@@ -110,16 +112,16 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 	if err != nil {
 		logger.Error("primeapi.CreateExcessWeightRecord error", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewCreateExcessWeightRecordNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
-		case services.InvalidCreateInputError:
+		case apperror.InvalidCreateInputError:
 			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				logger.Error("primeapi.CreateExcessWeightRecord QueryError", zap.Error(e.Unwrap()))
 			}
@@ -169,13 +171,13 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
