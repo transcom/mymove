@@ -41,7 +41,8 @@ in buildEnv {
       # Descriptive name to make the store path easier to identify
       name = "go-1.17.2";
       url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/nixpkgs-unstable";
+      # Using master branch since 1.17.2 hasn't made it to nixpkgs-unstable yet
+      ref = "refs/heads/master";
       rev = "db3aa421df73f43c03ad266619e22ce7c5354d92";
     }) {}).go_1_17
 
