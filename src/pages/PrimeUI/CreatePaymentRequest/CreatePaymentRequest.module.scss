@@ -16,17 +16,4 @@
     }
 
   }
-
-  .serviceItemInputGroup {
-    @include u-display(flex);
-    justify-content: flex-end;
-
-    label {
-      @include u-margin-top(0);
-      @include u-margin-right(1);
-      @include u-font-size('body', 'xs');
-      @include u-font-weight(normal);
-      width: auto;
-    }
-  }
 }

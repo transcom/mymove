@@ -2,18 +2,20 @@ import { Button, Checkbox, FormGroup, Label } from '@trussworks/react-uswds';
 import { Field, Formik } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import { Form } from '../../form/Form';
 import formStyles from '../../../styles/form.module.scss';
 import { ErrorMessage } from '../../form/ErrorMessage';
 import SectionWrapper from '../../Customer/SectionWrapper';
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
-import styles from '../../../pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest.module.scss';
 import Hint from '../../Hint';
 import { ShipmentShape } from '../../../types/shipment';
 import { MTOServiceItemShape } from '../../../types';
 import ServiceItem from '../ServiceItem/ServiceItem';
 import Shipment from '../Shipment/Shipment';
+
+import styles from './CreatePaymentRequestForm.module.scss';
 
 const CreatePaymentRequestForm = ({
   initialValues,
@@ -25,7 +27,7 @@ const CreatePaymentRequestForm = ({
 }) => (
   <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
     {({ isValid, isSubmitting, errors, values, setValues }) => (
-      <Form className={formStyles.form}>
+      <Form className={classnames(styles.CreatePaymentRequestForm, formStyles.form)}>
         <FormGroup error={errors != null && Object.keys(errors).length > 0}>
           {errors != null && errors.serviceItems && (
             <ErrorMessage display>At least 1 service item must be added when creating a payment request</ErrorMessage>
