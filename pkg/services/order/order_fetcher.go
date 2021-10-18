@@ -107,12 +107,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, 0, apperror.NotFoundError{}
-		default:
-			return []models.Move{}, 0, err
-		}
+		return []models.Move{}, 0, err
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
