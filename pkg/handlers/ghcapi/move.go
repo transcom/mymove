@@ -60,13 +60,11 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
 
 	if moveID == uuid.Nil {
-		// TODO return a good error message? this should be caught by swagger though so maybe dont need it?
 		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
 	}
 
 	remarks := params.Body.Remarks
 	if remarks == "" {
-		// TODO return a good error message? this should be caught by swagger though so maybe dont need it?
 		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
 	}
 	move, err := h.financialReviewFlagCreator.CreateFinancialReviewFlag(appCtx, moveID, remarks)
