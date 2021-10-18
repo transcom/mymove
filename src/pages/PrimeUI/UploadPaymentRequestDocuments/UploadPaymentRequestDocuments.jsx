@@ -52,7 +52,7 @@ const UploadPaymentRequest = () => {
   };
 
   const handleSave = () => {
-    mutateUploadPaymentRequestDocument(paymentRequestId, filesToUpload[0].file);
+    mutateUploadPaymentRequestDocument({ paymentRequestID: paymentRequestId, file: filesToUpload[0].file });
   };
 
   const handleCancel = () => {
