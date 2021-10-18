@@ -75,7 +75,7 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 		case apperror.NotFoundError:
 			return moveop.NewFlagMoveForFinancialReviewNotFound()
 		default:
-			return moveop.NewGetMoveInternalServerError()
+			return moveop.NewFlagMoveForFinancialReviewInternalServerError()
 		}
 	}
 
