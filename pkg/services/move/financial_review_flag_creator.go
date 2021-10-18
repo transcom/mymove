@@ -3,6 +3,9 @@ package move
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/gobuffalo/validate/v3"
@@ -21,7 +24,7 @@ func NewFinancialReviewFlagCreator() services.MoveFinancialReviewFlagCreator {
 	return &financialReviewFlagCreator{}
 }
 
-func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, remarks string) (*models.Move, error) {
+func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
 	if remarks == "" {
 		verrs := validate.NewErrors()
 		verrs.Add("remarks", "must not be empty")
@@ -30,9 +33,13 @@ func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.
 
 	move := &models.Move{}
 	err := appCtx.DB().Find(move, moveID)
-
 	if err != nil {
 		return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+	}
+
+	existingETag := etag.GenerateEtag(move.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	if move.FinancialReviewRequested {
