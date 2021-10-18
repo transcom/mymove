@@ -124,7 +124,7 @@ const CreatePaymentRequest = () => {
             </div>
           )}
           <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
+            <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
               <h2>Move</h2>
               <div className={descriptionListStyles.row}>
                 <dt>Move Code:</dt>
