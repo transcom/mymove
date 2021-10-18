@@ -330,7 +330,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run db_dev_migrate redis_run
 	INTERFACE=localhost \
 		./bin/gin \
 		--build ./cmd/milmove \

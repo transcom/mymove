@@ -44,12 +44,11 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Setup: Direnv](#setup-direnv)
       * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
       * [Troubleshooting direnv & chamber](#troubleshooting-direnv--chamber)
+    * [Setup: Run the app](#setup-run-the-app)
     * [Setup: Dependencies](#setup-dependencies)
       * [Setup: Pre-Commit](#setup-pre-commit)
         * [Pre-Commit Troubleshooting (Manual): Process hanging on install hooks](#pre-commit-troubleshooting-manual-process-hanging-on-install-hooks)
         * [Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED](#pre-commit-troubleshooting-nix-ssl-certificate-verify-failed)
-    * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
-      * [Setup: Build Tools](#setup-build-tools)
       * [Setup: Database](#setup-database)
       * [Setup: Server](#setup-server)
         * [Server Dependencies](#server-dependencies)
@@ -304,24 +303,33 @@ other steps necessary which aren't documented here.
 1. [Set up AWS services](#setup-aws-services)
 1. [Prereqs](#manual-prerequisites)
 1. [Set up direnv](#setup-direnv)
-1. Set up more dependencies by running
-
-    ```shell
-    make deps
-    ```
-
-    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
-       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
-1. [Quick Initial Setup](#setup-quick-initial-setup)
+1. [Run the app](#setup-run-the-app)
 
 #### Manual: Prerequisites
 
 1. We have a script that will install all the dependencies for you, as well as
    configure your shell file with all the required commands:
 
-    ```shell
-    make prereqs
-    ```
+   ```shell
+   make deps
+   ```
+
+   This will install everything listed in `Brewfile.local`, as well as some
+   Mac-specific apps and tools listed in `fresh-brew.local`, and other things
+   like `pre-commit` hooks, `node_modules`, etc. You can see
+   [Setup: Dependencies](#setup-dependencies) for more info.
+
+   **Note**: The script might ask you for your macOS password at certain points,
+   like when installing opensc, or when it needs to write to your `/etc/hosts`
+   file. If this is your very first time setting up this project, or if you
+   made changes that require setting things up again, the script will probably
+   end with a "command not found" error. To allow the rest of the setup to
+   complete, follow these steps:
+   1. Open the Docker app (it was installed by Homebrew) via Spotlight, or
+   double-click on it from your `/Applications` folder, agree to the macOS
+   prompts about opening this app for the first time, and also agree to Docker's
+   Terms of Service.
+   2. Quit and relaunch your terminal (or open a new tab), and run `make deps` again.
 
 ### Setup: Shared
 
@@ -410,6 +418,30 @@ Error: unknown command "env" for "chamber"
 Run 'chamber --help' for usage.
 ```
 
+#### Setup: Run the app
+
+The following commands will get `mymove` running on your machine.
+
+1. Run the backend server
+
+   ```shell
+   make server_run
+   ```
+
+   This command also ensures the database is up and running and that the
+   latest migrations are applied. See [Setup: Database](#setup-database) and
+   [Setup: Server](#setup-server) for more details.
+
+1. Run the frontend client **in a separate terminal tab**
+
+   ```shell
+   make client_run
+   ```
+
+   This will ensure the frontend dependencies are installed and will
+   automatically launch the browser and open the app at milmovelocal:3000.
+   See [Setup: MilMove Local Client](#setup-milmove-local-client) for more details.
+
 #### Setup: Dependencies
 
 This step will check your system for any setup issues. Then it will ensure that you have installed `pre-commit`
@@ -456,22 +488,13 @@ make server_generate client_deps && pre-commit run -a
 
 ###### Pre-Commit Troubleshooting (Manual): Process hanging on install hooks
 
-Since pre-commit uses node to hook things up in both your local repo and its cache folder
-(located at `~/.cache/pre-commit`),it requires a global node install.
+Since pre-commit uses Node to hook things up in both your local repo and its
+cache folder (located at `~/.cache/pre-commit`), it requires specifying the Node
+version, which should match the one in `.node-version`.
 
-If you are using `nodenv` to manage multiple versions of node, you'll need to set a global version to proceed.
-E.g. by running
-
-```shell
-nodenv global 14.17.1
-```
-
-You can find the current supported node version [here (in `.node-version`)](./.node-version). To install the currently
-required version for this project, run:
-
-```shell
-nodenv install
-```
+Make sure the Node version listed at the top of `.pre-commit-config.yaml` matches
+the one in `.node-version`, and make sure you have that version installed by
+running `make deps`.
 
 ###### Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED
 
@@ -488,62 +511,7 @@ E.g.
 NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt pre-commit install-hooks
 ```
 
-#### Setup: Quick Initial Setup
 
-The following commands will get `mymove` running on your machine for the first time.
-This is an abbreviated list that should get you started. Please read the linked sections for explanations/details.
-
-1. Build all tools
-
-    ```shell
-    make build_tools
-    ```
-
-    1. [Setup: Build Tools](#setup-build-tools)
-1. Create and start the development database
-
-    ```shell
-    make db_dev_run
-    ```
-
-    1. [Setup: Database](#setup-database)
-1. Run migrations against development database
-
-    ```shell
-    make db_dev_migrate
-    ```
-
-    1. [Setup: Database](#setup-database)
-1. Start backend server
-
-    ```shell
-    make server_run
-    ```
-
-    1. [Setup: Server](#setup-server)
-1. Install javascript dependencies and build client bundle
-
-    ```shell
-    make client_build
-    ```
-
-    1. [Setup: MilMove Local Client](#setup-milmove-local-client)
-1. Run frontend server
-
-    ```shell
-    make client_run
-    ```
-
-    1. [Setup: MilMove Local Client](#setup-milmove-local-client)
-
-##### Setup: Build Tools
-
-This builds all the server and tool dependencies. These will be needed in future steps to not only generate test data
-but also to interact with the database and more.
-
-```shell
-make build_tools
-```
 
 ##### Setup: Database
 
