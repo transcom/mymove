@@ -55,7 +55,7 @@ type CreateFinancialReviewFlagHandler struct {
 	financialReviewFlagCreator services.MoveFinancialReviewFlagCreator
 }
 
-// Handle handles the getMove by locator request
+// Handle flags a move for financial review
 func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinancialReviewParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
