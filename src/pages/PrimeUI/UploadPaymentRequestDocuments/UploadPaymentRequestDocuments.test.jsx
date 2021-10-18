@@ -25,7 +25,7 @@ describe('Upload Payment Request Documents Page', () => {
   it('renders the page without errors', () => {
     render(<UploadPaymentRequestDocuments />);
 
-    expect(screen.getByText('Upload Payment Request Documents')).toBeInTheDocument();
+    expect(screen.getByText('Upload Payment Request Document')).toBeInTheDocument();
   });
 
   it('navigates the user to the home page when the cancel button is clicked', async () => {

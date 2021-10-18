@@ -14,13 +14,15 @@ const UploadPaymentRequest = () => {
   const history = useHistory();
   const { paymentRequestId } = useParams();
   const [serverError, setServerError] = useState(null);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  // Despite this being named plurarly, only one file is allowed to be uploaded at a time
+  // since the endpoint being called only allows one upload at a time.
+  const [filesToUpload, setFilesToUpload] = useState([]);
 
-  const handleDelete = (uploadId) => {
-    setUploadedFiles(uploadedFiles.filter((file) => file.id !== uploadId));
+  const handleDelete = () => {
+    setFilesToUpload([]);
   };
 
-  const [mutateUploadPaymentRequestDocuments] = useMutation(createUpload, {
+  const [mutateUploadPaymentRequestDocument] = useMutation(createUpload, {
     onSuccess: () => {
       // TODO - show flash message?
       history.push(`/`);
@@ -32,8 +34,7 @@ const UploadPaymentRequest = () => {
   });
 
   const handleUpload = (file) => {
-    setUploadedFiles([
-      ...uploadedFiles,
+    setFilesToUpload([
       {
         file,
         filename: file.name,
@@ -51,9 +52,7 @@ const UploadPaymentRequest = () => {
   };
 
   const handleSave = () => {
-    uploadedFiles.forEach((uploadedFile) => {
-      mutateUploadPaymentRequestDocuments(paymentRequestId, uploadedFile.file);
-    });
+    mutateUploadPaymentRequestDocument(paymentRequestId, filesToUpload[0].file);
   };
 
   const handleCancel = () => {
@@ -74,17 +73,17 @@ const UploadPaymentRequest = () => {
 
       <SectionWrapper>
         <div>
-          <h2>Upload Payment Request Documents</h2>
+          <h2>Upload Payment Request Document</h2>
           <FileUpload
             ref={filePondEl}
             createUpload={handleUpload}
             onChange={onChange}
             labelIdle={
-              'Drag & drop or <span class="filepond--label-action">click to upload payment request documents</span>'
+              'Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
             }
           />
         </div>
-        <UploadsTable uploads={uploadedFiles} onDelete={handleDelete} />
+        <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
         <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
       </SectionWrapper>
     </>
