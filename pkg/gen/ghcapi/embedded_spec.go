@@ -1247,6 +1247,9 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
+              "required": [
+                "remarks"
+              ],
               "properties": {
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",
@@ -7162,6 +7165,9 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
+              "required": [
+                "remarks"
+              ],
               "properties": {
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",

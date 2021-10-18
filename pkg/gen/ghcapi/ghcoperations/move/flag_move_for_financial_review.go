@@ -9,9 +9,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // FlagMoveForFinancialReviewHandlerFunc turns a function with the right signature into a flag move for financial review handler
@@ -67,11 +69,30 @@ type FlagMoveForFinancialReviewBody struct {
 
 	// explanation of why the move is being flagged for financial review
 	// Example: this address is way too far away
-	Remarks string `json:"remarks,omitempty"`
+	// Required: true
+	Remarks *string `json:"remarks"`
 }
 
 // Validate validates this flag move for financial review body
 func (o *FlagMoveForFinancialReviewBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRemarks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *FlagMoveForFinancialReviewBody) validateRemarks(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"remarks", "body", o.Remarks); err != nil {
+		return err
+	}
+
 	return nil
 }
 

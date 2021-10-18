@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
@@ -58,16 +59,16 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
-
 	if moveID == uuid.Nil {
 		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
 	}
 
 	remarks := params.Body.Remarks
-	if remarks == "" {
-		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity()
+	if remarks == nil || *remarks == "" {
+		payload := payloadForValidationError("Unable to flag move for financial review", "missing or empty remarks field", h.GetTraceID(), validate.NewErrors())
+		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity().WithPayload(payload)
 	}
-	move, err := h.financialReviewFlagCreator.CreateFinancialReviewFlag(appCtx, moveID, remarks)
+	move, err := h.financialReviewFlagCreator.CreateFinancialReviewFlag(appCtx, moveID, *remarks)
 
 	if err != nil {
 		logger.Error("Error flagging move for financial review", zap.Error(err))
