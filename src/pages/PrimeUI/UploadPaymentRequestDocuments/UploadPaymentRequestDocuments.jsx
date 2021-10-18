@@ -17,6 +17,7 @@ const UploadPaymentRequest = () => {
   // Despite this being named plurarly, only one file is allowed to be uploaded at a time
   // since the endpoint being called only allows one upload at a time.
   const [filesToUpload, setFilesToUpload] = useState([]);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleDelete = () => {
     setFilesToUpload([]);
@@ -25,7 +26,7 @@ const UploadPaymentRequest = () => {
   const [mutateUploadPaymentRequestDocument] = useMutation(createUpload, {
     onSuccess: () => {
       // TODO - show flash message?
-      history.push(`/`);
+      setUploadSuccess(true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -67,6 +68,14 @@ const UploadPaymentRequest = () => {
             <Alert type="error" heading="An error occurred">
               {serverError}
             </Alert>
+          </Grid>
+        </Grid>
+      )}
+
+      {uploadSuccess && (
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Alert type="success">Upload saved successfully</Alert>
           </Grid>
         </Grid>
       )}
