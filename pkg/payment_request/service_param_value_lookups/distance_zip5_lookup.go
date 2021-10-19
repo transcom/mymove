@@ -35,7 +35,7 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		case sql.ErrNoRows:
 			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return "", err
+			return "", apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 

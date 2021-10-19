@@ -1,10 +1,10 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -56,8 +56,11 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	// Find the shipment, return error if not found
 	err := appCtx.DB().Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(mtoShipmentID, "looking for mtoShipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
 	}
 
@@ -73,8 +76,11 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	// Find the address, return error if not found
 	err = appCtx.DB().Find(&oldAddress, newAddress.ID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(newAddress.ID, "looking for address")
+		default:
+			return nil, apperror.NewQueryError("Address", err, "")
 		}
 	}
 

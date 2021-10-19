@@ -35,7 +35,7 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 			// Not found error expects an id but we're querying by locator
 			return &models.Move{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
 		default:
-			return &models.Move{}, err
+			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
 	}
 

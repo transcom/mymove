@@ -108,7 +108,7 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 			return false, apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
 		default:
 			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
-			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
+			return false, apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
 		}
 	}
 

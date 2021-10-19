@@ -158,7 +158,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		case sql.ErrNoRows:
 			return &models.Order{}, apperror.NewNotFoundError(orderID, "")
 		default:
-			return &models.Order{}, err
+			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
 	}
 

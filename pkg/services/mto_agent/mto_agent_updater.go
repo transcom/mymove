@@ -1,6 +1,7 @@
 package mtoagent
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -50,7 +51,12 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	// Find the agent, return error if not found
 	err := appCtx.DB().Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
+		default:
+			return nil, apperror.NewQueryError("MTOAgent", err, "")
+		}
 	}
 
 	err = validateMTOAgent(appCtx, *mtoAgent, &oldAgent, &oldAgent.MTOShipment, checks...)

@@ -1,6 +1,8 @@
 package mtoagent
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -49,7 +51,12 @@ func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	mtoShipment := &models.MTOShipment{}
 	err := appCtx.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	err = validateMTOAgent(appCtx, *mtoAgent, nil, mtoShipment, checks...)

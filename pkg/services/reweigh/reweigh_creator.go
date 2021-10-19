@@ -1,6 +1,8 @@
 package reweigh
 
 import (
+	"database/sql"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -41,7 +43,12 @@ func (f *reweighCreator) CreateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	err := appCtx.DB().Find(mtoShipment, reweigh.ShipmentID)
 
 	if err != nil {
-		return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	err = validateReweigh(appCtx, *reweigh, nil, mtoShipment, checks...)
