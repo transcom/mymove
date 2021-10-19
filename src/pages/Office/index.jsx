@@ -62,6 +62,9 @@ const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
+const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
+  import('pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -251,8 +254,15 @@ export class OfficeApp extends Component {
 
                     <PrivateRoute
                       key="primeSimulatorCreatePaymentRequestsPath"
-                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST}
+                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST_PATH}
                       component={PrimeSimulatorCreatePaymentRequest}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreatePaymentRequestsPath"
+                      path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
+                      component={PrimeSimulatorUploadPaymentRequestDocuments}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
