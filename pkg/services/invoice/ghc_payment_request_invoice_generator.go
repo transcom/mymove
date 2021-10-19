@@ -2,7 +2,6 @@ package invoice
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"regexp"
 	"strconv"
 
@@ -32,16 +31,10 @@ type ghcPaymentRequestInvoiceGenerator struct {
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
 func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
-	fmt.Printf("\n\n😱😱😱😱\n%v\n",icnSequencer)
-	spew.Dump(icnSequencer)
-	fmt.Printf("\n\n😱😱😱😱\n%v\n",clock)
-	spew.Dump(clock)
-	result := &ghcPaymentRequestInvoiceGenerator{
+	return &ghcPaymentRequestInvoiceGenerator{
 		icnSequencer: icnSequencer,
 		clock:        clock,
 	}
-	spew.Dump(result)
-	return result
 }
 
 const dateFormat = "20060102"
