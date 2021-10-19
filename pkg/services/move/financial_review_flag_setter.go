@@ -42,15 +42,15 @@ func (f financialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontext.AppC
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	if move.FinancialReviewRequested {
+	if move.FinancialReviewFlag {
 		// If the flag has already been set, we do not want to update it
 		return move, nil
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		move.FinancialReviewRequested = true
+		move.FinancialReviewFlag = true
 		currentTime := time.Now()
-		move.FinancialReviewRequestedAt = &currentTime
+		move.FinancialReviewFlagSetAt = &currentTime
 		move.FinancialReviewRemarks = &remarks
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(move)
