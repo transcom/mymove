@@ -579,7 +579,7 @@ If you are using `nodenv` to manage multiple versions of node, you'll need to se
 E.g. by running
 
 ```shell
-nodenv global 14.17.1
+nodenv global 14.18.1
 ```
 
 You can find the current supported node version [here (in `.node-version`)](./.node-version). To install the currently
