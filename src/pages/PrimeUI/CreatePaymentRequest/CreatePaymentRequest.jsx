@@ -3,12 +3,15 @@ import { useParams, useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { useMutation } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 import moment from 'moment';
+import { generatePath } from 'react-router';
 
 import { createPaymentRequest } from '../../../services/primeApi';
 import scrollToTop from '../../../shared/scrollToTop';
 import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
+import { primeSimulatorRoutes } from '../../../constants/routes';
+import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
 
 import styles from './CreatePaymentRequest.module.scss';
 
@@ -32,8 +35,16 @@ const CreatePaymentRequest = () => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
-    onSuccess: () => {
-      history.push(`/simulator/moves/${moveCodeOrID}/details`);
+    onSuccess: (data) => {
+      if (!moveTaskOrder.paymentRequests?.length) {
+        moveTaskOrder.paymentRequests = [];
+      }
+      moveTaskOrder.paymentRequests.push(data);
+
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+
+      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
     onError: (error) => {
       const { response: { body } = {} } = error;

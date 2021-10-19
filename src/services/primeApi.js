@@ -31,5 +31,9 @@ export async function getPrimeSimulatorMove(key, locator) {
 }
 
 export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
-  return makePrimeSimulatorRequest('paymentRequest.createPaymentRequest', { body: { moveTaskOrderID, serviceItems } });
+  return makePrimeSimulatorRequest(
+    'paymentRequest.createPaymentRequest',
+    { body: { moveTaskOrderID, serviceItems } },
+    { normalize: false },
+  );
 }
