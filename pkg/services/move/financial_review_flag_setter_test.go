@@ -13,8 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
-	flagCreator := NewFinancialReviewFlagCreator()
+func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
+	flagCreator := NewFinancialReviewFlagSetter()
 	defaultFlagReason := "destination address is far from duty location"
 
 	suite.T().Run("flag can be set", func(t *testing.T) {
@@ -24,7 +24,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 		suite.Require().Equal(false, move.FinancialReviewRequested)
 		suite.Require().Nil(move.FinancialReviewRequestedAt)
 		suite.Require().Nil(move.FinancialReviewRemarks)
-		m, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, defaultFlagReason)
+		m, err := flagCreator.SetFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, defaultFlagReason)
 		suite.NoError(suite.DB().Reload(&move))
 		suite.Require().NotNil(m)
 		suite.Require().NoError(err)
@@ -36,7 +36,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 	suite.T().Run("Wrong moveID should result in error", func(t *testing.T) {
 		wrongUUID := uuid.Must(uuid.NewV4())
 
-		_, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), wrongUUID, "", defaultFlagReason)
+		_, err := flagCreator.SetFinancialReviewFlag(suite.TestAppContext(), wrongUUID, "", defaultFlagReason)
 		suite.Error(err)
 		suite.Require().True(errors.As(err, &apperror.NotFoundError{}))
 	})
@@ -45,7 +45,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		_, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, "")
+		_, err := flagCreator.SetFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, "")
 		suite.Error(err)
 		suite.Require().True(errors.As(err, &apperror.InvalidInputError{}))
 	})
@@ -59,7 +59,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 		suite.Require().Nil(move.FinancialReviewRemarks)
 
 		// Set the flag once
-		_, err := flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, defaultFlagReason)
+		_, err := flagCreator.SetFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, defaultFlagReason)
 		suite.Require().NoError(err)
 		suite.Require().NoError(suite.DB().Reload(&move))
 		suite.Require().True(move.FinancialReviewRequested)
@@ -71,7 +71,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagCreator() {
 		eTag = etag.GenerateEtag(move.UpdatedAt)
 
 		// Attempt to set it again, and check to make sure nothing has changed
-		_, err = flagCreator.CreateFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, "new reason")
+		_, err = flagCreator.SetFinancialReviewFlag(suite.TestAppContext(), move.ID, eTag, "new reason")
 		suite.Require().NoError(err)
 		suite.Require().NoError(suite.DB().Reload(&move))
 		suite.Require().True(move.FinancialReviewRequested)

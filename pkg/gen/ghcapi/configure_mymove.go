@@ -110,11 +110,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
 		})
 	}
-	if api.MoveFlagMoveForFinancialReviewHandler == nil {
-		api.MoveFlagMoveForFinancialReviewHandler = move.FlagMoveForFinancialReviewHandlerFunc(func(params move.FlagMoveForFinancialReviewParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.FlagMoveForFinancialReview has not yet been implemented")
-		})
-	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -208,6 +203,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentRequestShipmentReweighHandler == nil {
 		api.ShipmentRequestShipmentReweighHandler = shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
+		})
+	}
+	if api.MoveSetFinancialReviewFlagHandler == nil {
+		api.MoveSetFinancialReviewFlagHandler = move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
 		})
 	}
 	if api.TacTacValidationHandler == nil {

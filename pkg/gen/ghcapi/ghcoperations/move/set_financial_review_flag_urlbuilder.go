@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// FlagMoveForFinancialReviewURL generates an URL for the flag move for financial review operation
-type FlagMoveForFinancialReviewURL struct {
+// SetFinancialReviewFlagURL generates an URL for the set financial review flag operation
+type SetFinancialReviewFlagURL struct {
 	MoveID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type FlagMoveForFinancialReviewURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *FlagMoveForFinancialReviewURL) WithBasePath(bp string) *FlagMoveForFinancialReviewURL {
+func (o *SetFinancialReviewFlagURL) WithBasePath(bp string) *SetFinancialReviewFlagURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,12 +34,12 @@ func (o *FlagMoveForFinancialReviewURL) WithBasePath(bp string) *FlagMoveForFina
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *FlagMoveForFinancialReviewURL) SetBasePath(bp string) {
+func (o *SetFinancialReviewFlagURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *FlagMoveForFinancialReviewURL) Build() (*url.URL, error) {
+func (o *SetFinancialReviewFlagURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/moves/{moveID}/financial-review-flag"
@@ -48,7 +48,7 @@ func (o *FlagMoveForFinancialReviewURL) Build() (*url.URL, error) {
 	if moveID != "" {
 		_path = strings.Replace(_path, "{moveID}", moveID, -1)
 	} else {
-		return nil, errors.New("moveId is required on FlagMoveForFinancialReviewURL")
+		return nil, errors.New("moveId is required on SetFinancialReviewFlagURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *FlagMoveForFinancialReviewURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *FlagMoveForFinancialReviewURL) Must(u *url.URL, err error) *url.URL {
+func (o *SetFinancialReviewFlagURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *FlagMoveForFinancialReviewURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *FlagMoveForFinancialReviewURL) String() string {
+func (o *SetFinancialReviewFlagURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *FlagMoveForFinancialReviewURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *SetFinancialReviewFlagURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on FlagMoveForFinancialReviewURL")
+		return nil, errors.New("scheme is required for a full url on SetFinancialReviewFlagURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on FlagMoveForFinancialReviewURL")
+		return nil, errors.New("host is required for a full url on SetFinancialReviewFlagURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *FlagMoveForFinancialReviewURL) BuildFull(scheme, host string) (*url.URL
 }
 
 // StringFull returns the string representation of a complete url
-func (o *FlagMoveForFinancialReviewURL) StringFull(scheme, host string) string {
+func (o *SetFinancialReviewFlagURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

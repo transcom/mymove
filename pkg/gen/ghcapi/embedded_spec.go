@@ -1236,7 +1236,7 @@ func init() {
           "move"
         ],
         "summary": "Flags a move for financial office review",
-        "operationId": "flagMoveForFinancialReview",
+        "operationId": "setFinancialReviewFlag",
         "parameters": [
           {
             "type": "string",
@@ -7154,7 +7154,7 @@ func init() {
           "move"
         ],
         "summary": "Flags a move for financial office review",
-        "operationId": "flagMoveForFinancialReview",
+        "operationId": "setFinancialReviewFlag",
         "parameters": [
           {
             "type": "string",

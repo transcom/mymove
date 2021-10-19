@@ -17,14 +17,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type financialReviewFlagCreator struct {
+type financialReviewFlagSetter struct {
 }
 
-func NewFinancialReviewFlagCreator() services.MoveFinancialReviewFlagCreator {
-	return &financialReviewFlagCreator{}
+func NewFinancialReviewFlagSetter() services.MoveFinancialReviewFlagSetter {
+	return &financialReviewFlagSetter{}
 }
 
-func (f financialReviewFlagCreator) CreateFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
+func (f financialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
 	if remarks == "" {
 		verrs := validate.NewErrors()
 		verrs.Add("remarks", "must not be empty")

@@ -1575,7 +1575,7 @@ paths:
         fincancial office. For example, if the origin or destination address of
         a shipment is far from the duty location and may incur excess costs to
         the customer.
-      operationId: flagMoveForFinancialReview
+      operationId: setFinancialReviewFlag
       tags:
         - move
       consumes:

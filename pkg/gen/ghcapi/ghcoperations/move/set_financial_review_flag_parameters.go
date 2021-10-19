@@ -16,19 +16,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewFlagMoveForFinancialReviewParams creates a new FlagMoveForFinancialReviewParams object
+// NewSetFinancialReviewFlagParams creates a new SetFinancialReviewFlagParams object
 //
 // There are no default values defined in the spec.
-func NewFlagMoveForFinancialReviewParams() FlagMoveForFinancialReviewParams {
+func NewSetFinancialReviewFlagParams() SetFinancialReviewFlagParams {
 
-	return FlagMoveForFinancialReviewParams{}
+	return SetFinancialReviewFlagParams{}
 }
 
-// FlagMoveForFinancialReviewParams contains all the bound params for the flag move for financial review operation
+// SetFinancialReviewFlagParams contains all the bound params for the set financial review flag operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters flagMoveForFinancialReview
-type FlagMoveForFinancialReviewParams struct {
+// swagger:parameters setFinancialReviewFlag
+type SetFinancialReviewFlagParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -40,7 +40,7 @@ type FlagMoveForFinancialReviewParams struct {
 	/*
 	  In: body
 	*/
-	Body FlagMoveForFinancialReviewBody
+	Body SetFinancialReviewFlagBody
 	/*ID of move to flag
 	  Required: true
 	  In: path
@@ -51,8 +51,8 @@ type FlagMoveForFinancialReviewParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewFlagMoveForFinancialReviewParams() beforehand.
-func (o *FlagMoveForFinancialReviewParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewSetFinancialReviewFlagParams() beforehand.
+func (o *SetFinancialReviewFlagParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -63,7 +63,7 @@ func (o *FlagMoveForFinancialReviewParams) BindRequest(r *http.Request, route *m
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body FlagMoveForFinancialReviewBody
+		var body SetFinancialReviewFlagBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
@@ -94,7 +94,7 @@ func (o *FlagMoveForFinancialReviewParams) BindRequest(r *http.Request, route *m
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *FlagMoveForFinancialReviewParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *SetFinancialReviewFlagParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -111,7 +111,7 @@ func (o *FlagMoveForFinancialReviewParams) bindIfMatch(rawData []string, hasKey 
 }
 
 // bindMoveID binds and validates parameter MoveID from path.
-func (o *FlagMoveForFinancialReviewParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *SetFinancialReviewFlagParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -135,7 +135,7 @@ func (o *FlagMoveForFinancialReviewParams) bindMoveID(rawData []string, hasKey b
 }
 
 // validateMoveID carries on validations for parameter MoveID
-func (o *FlagMoveForFinancialReviewParams) validateMoveID(formats strfmt.Registry) error {
+func (o *SetFinancialReviewFlagParams) validateMoveID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveID", "path", "uuid", o.MoveID.String(), formats); err != nil {
 		return err

@@ -50,13 +50,13 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 	return moveop.NewGetMoveOK().WithPayload(payload)
 }
 
-type CreateFinancialReviewFlagHandler struct {
+type SetFinancialReviewFlagHandler struct {
 	handlers.HandlerContext
-	financialReviewFlagCreator services.MoveFinancialReviewFlagCreator
+	financialReviewFlagCreator services.MoveFinancialReviewFlagSetter
 }
 
 // Handle flags a move for financial review
-func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinancialReviewParams) middleware.Responder {
+func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFlagParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
@@ -64,26 +64,26 @@ func (h CreateFinancialReviewFlagHandler) Handle(params moveop.FlagMoveForFinanc
 	if moveID == uuid.Nil {
 		errorMessage := fmt.Sprintf("unable to parse moveID as UUID: %s", params.MoveID.String())
 		payload := payloadForValidationError("Unable to flag move for financial review", errorMessage, h.GetTraceID(), validate.NewErrors())
-		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity().WithPayload(payload)
+		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
 
 	remarks := params.Body.Remarks
 	if remarks == nil || *remarks == "" {
 		payload := payloadForValidationError("Unable to flag move for financial review", "missing or empty remarks field", h.GetTraceID(), validate.NewErrors())
-		return moveop.NewFlagMoveForFinancialReviewUnprocessableEntity().WithPayload(payload)
+		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
-	move, err := h.financialReviewFlagCreator.CreateFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
+	move, err := h.financialReviewFlagCreator.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
 
 	if err != nil {
 		logger.Error("Error flagging move for financial review", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
-			return moveop.NewFlagMoveForFinancialReviewNotFound()
+			return moveop.NewSetFinancialReviewFlagNotFound()
 		default:
-			return moveop.NewFlagMoveForFinancialReviewInternalServerError()
+			return moveop.NewSetFinancialReviewFlagInternalServerError()
 		}
 	}
 
 	payload := payloads.Move(move)
-	return moveop.NewFlagMoveForFinancialReviewOK().WithPayload(payload)
+	return moveop.NewSetFinancialReviewFlagOK().WithPayload(payload)
 }
