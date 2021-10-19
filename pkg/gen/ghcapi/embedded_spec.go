@@ -4145,6 +4145,19 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "financialReviewFlag": {
+          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
+          "type": "boolean",
+          "x-nullable": false,
+          "readOnly": true,
+          "example": false
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "Destination address is too far from duty location"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -10441,6 +10454,19 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "financialReviewFlag": {
+          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
+          "type": "boolean",
+          "x-nullable": false,
+          "readOnly": true,
+          "example": false
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "Destination address is too far from duty location"
         },
         "id": {
           "type": "string",

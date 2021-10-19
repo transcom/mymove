@@ -2513,6 +2513,19 @@ definitions:
         type: string
         example: approved additional weight
         x-nullable: true
+      financialReviewFlag:
+        type: boolean
+        example: false
+        description: >-
+          This flag is set by office users if a move should be reviewed by a
+          Financial Office
+        x-nullable: false
+        readOnly: true
+      financialReviewRemarks:
+        type: string
+        example: Destination address is too far from duty location
+        x-nullable: true
+        readOnly: true
       createdAt:
         type: string
         format: date-time
