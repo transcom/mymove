@@ -17,6 +17,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -25,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
@@ -245,7 +246,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &mtoShipment, eTag)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -861,7 +862,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment3.ID, "REJECTED", nil, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Rejecting a shipment in APPROVED status returns a ConflictStatusError", func(t *testing.T) {
@@ -887,7 +888,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment4.ID, "APPROVED", nil, staleETag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in an invalid status returns a ConflictStatus error", func(t *testing.T) {
@@ -905,7 +906,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), badShipmentID, "APPROVED", nil, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
@@ -958,7 +959,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Nil(updatedShipment)
 		suite.Equal(models.MTOShipmentStatusSubmitted, mtoShipment.Status)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
 	})
 
@@ -1098,7 +1099,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), nonPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, services.NotFoundError{})
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1109,7 +1110,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), hiddenPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, services.NotFoundError{})
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1121,7 +1122,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, services.NotFoundError{})
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
 
 		// Verify that shipment recalculate was handled correctly

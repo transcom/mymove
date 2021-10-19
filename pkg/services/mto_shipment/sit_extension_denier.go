@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -36,12 +38,12 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	}
 
 	if sitExtension.MTOShipmentID != shipment.ID {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for SITExtension's shipment ID")
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for SITExtension's shipment ID")
 	}
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
-		return nil, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	// var updatedShipment models.MTOShipment
@@ -56,7 +58,7 @@ func (f *sitExtensionDenier) findShipment(appCtx appcontext.AppContext, shipment
 	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 	} else if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitE
 	err := appCtx.DB().Q().Find(&sitExtension, sitExtensionID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(sitExtensionID, "while looking for SIT extension")
+		return nil, apperror.NewNotFoundError(sitExtensionID, "while looking for SIT extension")
 	} else if err != nil {
 		return nil, err
 	}
@@ -90,7 +92,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 		}
 
 		if e := txnAppCtx.DB().Q().EagerPreload("SITExtensions").Find(&returnedShipment, shipment.ID); e != nil {
-			return services.NewNotFoundError(shipment.ID, "looking for MTOShipment")
+			return apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
 		}
 
 		return nil
@@ -121,7 +123,7 @@ func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, si
 
 func (f *sitExtensionDenier) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
+		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
 	if err != nil {
 		return err

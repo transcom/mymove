@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/support"
 
@@ -68,13 +70,13 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	if err != nil {
 		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
 		switch typedErr := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailablePreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
@@ -126,7 +128,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
@@ -153,13 +155,13 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	if err != nil {
 		logger.Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))
 		switch typedErr := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
 			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(errPayload)
-		case services.QueryError:
+		case apperror.QueryError:
 			// This error is generated when the validation passed but there was an error in creation
 			// Usually this is due to a more complex dependency like a foreign key constraint
 			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(

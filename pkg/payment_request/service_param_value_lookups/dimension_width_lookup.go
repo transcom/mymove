@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // DimensionWidthLookup does lookup for DimensionWidthLookup
@@ -25,5 +25,5 @@ func (d DimensionWidthLookup) lookup(appCtx appcontext.AppContext, keyData *Serv
 		}
 	}
 
-	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to find width crate dimension")
+	return "", apperror.NewConflictError(keyData.MTOServiceItemID, "unable to find width crate dimension")
 }

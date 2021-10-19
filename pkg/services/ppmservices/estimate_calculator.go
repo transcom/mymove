@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -33,7 +35,7 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	move, err := models.FetchMoveByMoveID(e.db, moveID)
 	if err != nil {
 		if err == models.ErrFetchNotFound {
-			return sitCharge, cost, services.NewNotFoundError(moveID, "Unable to calculate estimate")
+			return sitCharge, cost, apperror.NewNotFoundError(moveID, "Unable to calculate estimate")
 		}
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}

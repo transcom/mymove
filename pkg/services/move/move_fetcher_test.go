@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -55,7 +56,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 
 		_, err := moveFetcher.FetchMove(suite.TestAppContext(), "QX97UY", &defaultSearchParams)
 		suite.Error(err)
-		suite.True(errors.Is(err, services.NotFoundError{}))
+		suite.True(errors.Is(err, apperror.NotFoundError{}))
 	})
 
 	suite.T().Run("Returns not found for a move that is marked hidden in the db", func(t *testing.T) {
@@ -73,7 +74,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		_, err := moveFetcher.FetchMove(suite.TestAppContext(), locator, &searchParams)
 
 		suite.Error(err)
-		suite.True(errors.Is(err, services.NotFoundError{}))
+		suite.True(errors.Is(err, apperror.NotFoundError{}))
 	})
 
 	suite.T().Run("Returns hidden move if explicit param is passed in", func(t *testing.T) {

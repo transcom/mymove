@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -44,7 +46,7 @@ func (f *shipmentDeleter) findShipment(appCtx appcontext.AppContext, shipmentID 
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 		}
 	}
 
@@ -54,7 +56,7 @@ func (f *shipmentDeleter) findShipment(appCtx appcontext.AppContext, shipmentID 
 func (f *shipmentDeleter) verifyShipmentCanBeDeleted(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	move := shipment.MoveTaskOrder
 	if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
-		return services.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+		return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
 	}
 
 	return nil

@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -107,9 +109,9 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 	if err != nil {
 		logger.Error("Error saving webhook subscription", zap.Error(err))
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return webhooksubscriptionop.NewCreateWebhookSubscriptionBadRequest()
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("adminapi.CreateWebhookSubscriptionHandler query error", zap.Error(e.Unwrap()))
@@ -159,7 +161,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
 		}
 		switch err.(type) {
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			logger.Error("Error updating webhookSubscription due to stale eTag")
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionPreconditionFailed()
 		default:
