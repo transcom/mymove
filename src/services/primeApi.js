@@ -37,3 +37,7 @@ export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
     { normalize: false },
   );
 }
+
+export async function createUpload({ paymentRequestID, file }) {
+  return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
+}
