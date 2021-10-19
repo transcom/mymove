@@ -1,13 +1,19 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
+import { createPaymentRequest } from '../../../services/primeApi';
 
 import CreatePaymentRequest from './CreatePaymentRequest';
 
+const mockUseHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89' }),
+  useHistory: () => ({
+    push: mockUseHistoryPush,
+  }),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -147,18 +153,95 @@ describe('CreatePaymentRequest page', () => {
         within(ntsContainer).getByRole('checkbox', { name: 'Add to payment request', checked: false }),
       ).toBeInTheDocument();
     });
+
+    it('displays the submit button and hint text', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      render(<CreatePaymentRequest />);
+
+      expect(screen.getByRole('button', { name: 'Submit Payment Request' })).toBeDisabled();
+      expect(
+        screen.getByText(
+          'At least one basic service item or shipment service item is required to create a payment request',
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('displays the submit button and hint text', async () => {
-    usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+  describe('error alert display', () => {
+    it('displays the error alert when the api submission returns an error', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      createPaymentRequest.mockRejectedValue({ response: { body: { title: 'Error title', detail: 'Error detail' } } });
 
-    render(<CreatePaymentRequest />);
+      render(<CreatePaymentRequest />);
 
-    expect(screen.getByRole('button', { name: 'Submit Payment Request' })).toBeDisabled();
-    expect(
-      screen.getByText(
-        'At least one basic service item or shipment service item is required to create a payment request',
-      ),
-    ).toBeInTheDocument();
+      const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
+      // avoiding linter pitfalls with async for loops
+      await userEvent.click(serviceItemInputs[0]);
+      await userEvent.click(serviceItemInputs[1]);
+      await userEvent.click(serviceItemInputs[2]);
+
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Error title')).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('displays the unknown error when none is provided', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      createPaymentRequest.mockRejectedValue('malformed api error response');
+
+      render(<CreatePaymentRequest />);
+
+      const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
+      await userEvent.click(serviceItemInputs[0]);
+      await userEvent.click(serviceItemInputs[1]);
+      await userEvent.click(serviceItemInputs[2]);
+
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Unexpected error')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('successful submission of form', () => {
+    it('calls history router back to move details', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      createPaymentRequest.mockReturnValue({
+        id: '7',
+        moveTaskOrderID: '1',
+        paymentRequestNumber: '1111-1111-1',
+        status: 'PENDING',
+        paymentServiceItems: [],
+      });
+
+      render(<CreatePaymentRequest />);
+
+      const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
+      await userEvent.click(serviceItemInputs[0]);
+      await userEvent.click(serviceItemInputs[1]);
+      await userEvent.click(serviceItemInputs[2]);
+
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      });
+
+      await waitFor(() => {
+        expect(mockUseHistoryPush).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
+      });
+    });
   });
 });

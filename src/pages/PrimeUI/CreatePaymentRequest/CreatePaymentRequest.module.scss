@@ -2,6 +2,10 @@
 
 .CreatePaymentRequest {
 
+  h2 {
+    @include u-font-size('heading', 'xl')
+  }
+
   .errorContainer {
     @include u-margin-top(3);
 

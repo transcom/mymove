@@ -36,9 +36,7 @@ const CreatePaymentRequest = () => {
       history.push(`/simulator/moves/${moveCodeOrID}/details`);
     },
     onError: (error) => {
-      const {
-        response: { body },
-      } = error;
+      const { response: { body } = {} } = error;
 
       if (body) {
         setErrorMessage({ title: body.title, detail: body.detail });
