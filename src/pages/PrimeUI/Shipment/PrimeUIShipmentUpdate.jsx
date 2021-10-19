@@ -10,23 +10,19 @@ import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
 import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from '../../../constants/routes';
-import { formatDate, formatWeight, formatSwaggerDate } from '../../../shared/formatters';
+import { formatSwaggerDate } from '../../../shared/formatters';
 import scrollToTop from '../../../shared/scrollToTop';
 
-import { formatAddress } from 'utils/shipmentDisplay';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { updatePrimeMTOShipment } from 'services/primeApi';
-import { DatePickerInput } from 'components/form/fields';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
-import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
+import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 
-const PrimeUIShipmentForm = () => {
+const PrimeUIShipmentUpdate = () => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
@@ -209,66 +205,17 @@ const PrimeUIShipmentForm = () => {
                 {({ isValid, isSubmitting, handleSubmit }) => {
                   return (
                     <Form className={formStyles.form}>
-                      <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-                        <h2 className={styles.sectionHeader}>Shipment Dates</h2>
-                        <h5 className={styles.sectionHeader}>Requested Pickup</h5>
-
-                        <>{formatDate(shipment.requestedPickupDate)}</>
-                        <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
-                        <DatePickerInput name="actualPickupDate" label="Actual pickup" />
-                        <h2 className={styles.sectionHeader}>Shipment Weights</h2>
-                        {editableWeightEstimateField && (
-                          <MaskedTextField
-                            data-testid="estimatedWeightInput"
-                            defaultValue="0"
-                            name="estimatedWeight"
-                            label="Estimated weight (lbs)"
-                            id="estimatedWeightInput"
-                            mask={Number}
-                            scale={0} // digits after point, 0 for integers
-                            signed={false} // disallow negative
-                            thousandsSeparator=","
-                            lazy={false} // immediate masking evaluation
-                          />
-                        )}
-                        {!editableWeightEstimateField && (
-                          <>
-                            <dt>
-                              <h5 className={styles.sectionHeader}>Estimated Weight</h5>
-                            </dt>
-                            <dd data-testid="authorizedWeight">{formatWeight(shipment.primeEstimatedWeight)}</dd>
-                          </>
-                        )}
-                        {editableWeightActualField && (
-                          <MaskedTextField
-                            data-testid="actualWeightInput"
-                            defaultValue="0"
-                            name="actualWeight"
-                            label="Actual weight (lbs)"
-                            id="actualWeightInput"
-                            mask={Number}
-                            scale={0} // digits after point, 0 for integers
-                            signed={false} // disallow negative
-                            thousandsSeparator=","
-                            lazy={false} // immediate masking evaluation
-                          />
-                        )}
-                        {!editableWeightActualField && (
-                          <>
-                            <dt>
-                              <h5 className={styles.sectionHeader}>Actual Weight</h5>
-                            </dt>
-                            <dd data-testid="authorizedWeight">{formatWeight(initialValues.actualWeight)}</dd>
-                          </>
-                        )}
-                        <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-                        <h5 className={styles.sectionHeader}>Pickup Address</h5>
-                        {editablePickupAddress && <AddressFields name="pickupAddress" />}
-                        {!editablePickupAddress && formatAddress(initialValues.pickupAddress)}
-                        <h5 className={styles.sectionHeader}>Destination Address</h5>
-                        {editableDestinationAddress && <AddressFields name="destinationAddress" />}
-                        {!editableDestinationAddress && formatAddress(initialValues.destinationAddress)}
-                      </SectionWrapper>
+                      <PrimeUIShipmentUpdateForm
+                        editableWeightEstimateField={editableWeightEstimateField}
+                        editableWeightActualField={editableWeightActualField}
+                        editablePickupAddress={editablePickupAddress}
+                        editableDestinationAddress={editableDestinationAddress}
+                        estimatedWeight={initialValues.estimatedWeight}
+                        actualWeight={initialValues.actualWeight}
+                        requestedPickupDate={initialValues.requestedPickupDate}
+                        pickupAddress={initialValues.pickupAddress}
+                        destinationAddress={initialValues.destinationAddress}
+                      />
                       <div className={formStyles.formActions}>
                         <WizardNavigation
                           editMode
@@ -289,4 +236,4 @@ const PrimeUIShipmentForm = () => {
   );
 };
 
-export default PrimeUIShipmentForm;
+export default PrimeUIShipmentUpdate;

@@ -62,7 +62,7 @@ const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
-const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentForm'));
+const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate'));
 
 export class OfficeApp extends Component {
   constructor(props) {
