@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -79,6 +80,13 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return moveop.NewSetFinancialReviewFlagNotFound()
+		case apperror.PreconditionFailedError:
+			return moveop.NewSetFinancialReviewFlagPreconditionFailed()
+		case apperror.InvalidInputError:
+			var e *apperror.InvalidInputError
+			_ = errors.As(err, &e)
+			payload := payloadForValidationError("Unable to flag move for financial review", err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 		default:
 			return moveop.NewSetFinancialReviewFlagInternalServerError()
 		}
