@@ -86,7 +86,12 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	updatedAgent := models.MTOAgent{}
 	err = appCtx.DB().Find(&updatedAgent, newAgent.ID)
 	if err != nil {
-		return nil, apperror.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(newAgent.ID, "looking for MTOAgent")
+		default:
+			return nil, apperror.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		}
 	}
 	return &updatedAgent, nil
 }

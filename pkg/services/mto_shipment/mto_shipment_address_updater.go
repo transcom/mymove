@@ -110,7 +110,12 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	updatedAddress := models.Address{}
 	err = appCtx.DB().Find(&updatedAddress, newAddress.ID)
 	if err != nil {
-		return nil, apperror.NewQueryError("Address", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(newAddress.ID, "looking for Address")
+		default:
+			return nil, apperror.NewQueryError("Address", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		}
 	}
 	return &updatedAddress, nil
 }

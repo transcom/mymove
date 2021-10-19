@@ -116,7 +116,12 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 	updatedReweigh := models.Reweigh{}
 	err = appCtx.DB().Find(&updatedReweigh, reweigh.ID)
 	if err != nil {
-		return nil, apperror.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ID, "looking for Reweigh")
+		default:
+			return nil, apperror.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		}
 	}
 
 	// Need to pull out this common code. It is from reweigh requester

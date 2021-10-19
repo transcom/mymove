@@ -1,11 +1,13 @@
 package invoice
 
 import (
+	"database/sql"
 	"fmt"
 
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 
@@ -107,7 +109,12 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 			Find(&move, paymentRequest.MoveTaskOrderID)
 		if err != nil {
 			txnAppCtx.Logger().Error("unable to find move with associated payment request", zap.Error(err))
-			return fmt.Errorf("unable to find move with associated payment request: %w", err)
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(paymentRequest.MoveTaskOrderID, "looking for Move")
+			default:
+				return apperror.NewQueryError("Move", err, "")
+			}
 		}
 
 		// The BGN02 Reference Identification field from the 824 stores the payment request number used in the 858.

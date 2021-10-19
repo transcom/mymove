@@ -483,7 +483,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			var move models.Move
 			err := txnAppCtx.DB().Find(&move, dbShipment.MoveTaskOrderID)
 			if err != nil {
-				return err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(dbShipment.MoveTaskOrderID, "looking for Move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
 			}
 
 			existingMoveStatus := move.Status
