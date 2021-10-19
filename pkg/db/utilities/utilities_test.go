@@ -19,7 +19,7 @@ type UtilitiesSuite struct {
 
 func TestUtilitiesSuite(t *testing.T) {
 	hs := &UtilitiesSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

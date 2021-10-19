@@ -23,7 +23,7 @@ func (suite *TSPServiceSuite) TestAppContext() appcontext.AppContext {
 func TestTSPServiceSuite(t *testing.T) {
 
 	ts := &TSPServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
