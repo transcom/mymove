@@ -20,7 +20,7 @@ type InvoiceServiceSuite struct {
 func TestInvoiceSuite(t *testing.T) {
 
 	ts := &InvoiceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service"), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		storer:       storageTest.NewFakeS3Storage(true),
 	}

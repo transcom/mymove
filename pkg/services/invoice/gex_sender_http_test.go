@@ -21,7 +21,7 @@ type GexSuite struct {
 func TestGexSuite(t *testing.T) {
 
 	ts := &GexSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex"), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

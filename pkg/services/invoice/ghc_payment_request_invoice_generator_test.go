@@ -2,7 +2,6 @@ package invoice
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -40,16 +39,9 @@ func (suite *GHCInvoiceSuite) TestAppContext() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
-func (suite *GHCInvoiceSuite) SetupTest() {
-	errTruncateAll := suite.TruncateAll()
-	if errTruncateAll != nil {
-		log.Panicf("failed to truncate database: %#v", errTruncateAll)
-	}
-}
-
 func TestGHCInvoiceSuite(t *testing.T) {
 	ts := &GHCInvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice"), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	ts.icnSequencer = sequence.NewDatabaseSequencer(ts.DB(), ediinvoice.ICNSequenceName)
@@ -746,7 +738,13 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	suite.NoError(err)
 }
 
-func (suite *GHCInvoiceSuite) TestNilValues() {
+type testNilValuesSubtestData struct {
+	generator services.GHCPaymentRequestInvoiceGenerator
+	nilPaymentRequest models.PaymentRequest
+	panicFunc func()
+}
+
+func (suite *GHCInvoiceSuite) makeTestNilValuesSubtestData() *testNilValuesSubtestData {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
@@ -772,10 +770,11 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	var subtestData testNilValuesSubtestData
+	subtestData.generator = NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	subtestData.nilPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: nilMove,
 		PaymentRequest: models.PaymentRequest{
 			IsFinal:         false,
@@ -786,7 +785,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 
 	assertions := testdatagen.Assertions{
 		Move:           nilMove,
-		PaymentRequest: nilPaymentRequest,
+		PaymentRequest: subtestData.nilPaymentRequest,
 		PaymentServiceItem: models.PaymentServiceItem{
 			Status: models.PaymentServiceItemStatusApproved,
 		},
@@ -802,7 +801,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
-	panicFunc := func() {
+	subtestData.panicFunc = func() {
 		//RA Summary: gosec - errcheck - Unchecked return value
 		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
 		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
@@ -812,60 +811,58 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
 		// nolint:errcheck
-		generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+		subtestData.generator.Generate(suite.TestAppContext(), subtestData.nilPaymentRequest, false)
 	}
 
-	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
-		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+	return &subtestData
+}
+
+func (suite *GHCInvoiceSuite) TestNilValues() {
+	suite.RunWithRollback("nil TAC does not cause panic", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
+		subtestData.nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
+		suite.NotPanics(subtestData.panicFunc)
 	})
 
-	suite.T().Run("empty TAC returns error", func(t *testing.T) {
-		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
+	suite.Run("empty TAC returns error", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
 		blank := ""
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
-		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+		subtestData.nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
+		_, err := subtestData.generator.Generate(suite.TestAppContext(), subtestData.nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", subtestData.nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 	})
 
-	suite.T().Run("nil TAC returns error", func(t *testing.T) {
-		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
-		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
+	suite.Run("nil TAC returns error", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
+		subtestData.nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
+		_, err := subtestData.generator.Generate(suite.TestAppContext(),subtestData.nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
-		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", subtestData.nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 	})
 
-	suite.T().Run("nil country for NewDutyStation does not cause panic", func(t *testing.T) {
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = oldCountry
+	suite.Run("nil country for NewDutyStation does not cause panic", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
+		subtestData.nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = nil
+		suite.NotPanics(subtestData.panicFunc)
 	})
 
-	suite.T().Run("nil country for OriginDutyStation does not cause panic", func(t *testing.T) {
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country = oldCountry
+	suite.Run("nil country for OriginDutyStation does not cause panic", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
+		subtestData.nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country = nil
+		suite.NotPanics(subtestData.panicFunc)
 	})
 
-	suite.T().Run("nil reference ID does not cause panic", func(t *testing.T) {
-		oldReferenceID := nilPaymentRequest.MoveTaskOrder.ReferenceID
-		nilPaymentRequest.MoveTaskOrder.ReferenceID = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.ReferenceID = oldReferenceID
+	suite.Run("nil reference ID does not cause panic", func() {
+		subtestData := suite.makeTestNilValuesSubtestData()
+		subtestData.nilPaymentRequest.MoveTaskOrder.ReferenceID = nil
+		suite.NotPanics(subtestData.panicFunc)
 	})
 
 	// TODO: Needs some additional thought since PaymentServiceItems is loaded from the DB in Generate.
-	//suite.T().Run("nil PriceCents does not cause panic", func(t *testing.T) {
+	//suite.Run("nil PriceCents does not cause panic", func() {
 	//	oldPriceCents := nilPaymentRequest.PaymentServiceItems[0].PriceCents
 	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 	//	suite.NotPanics(panicFunc)

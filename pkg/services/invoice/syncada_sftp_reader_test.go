@@ -32,7 +32,7 @@ func (suite *SyncadaSftpReaderSuite) TestAppContext() appcontext.AppContext {
 func TestSyncadaSftpReaderSuite(t *testing.T) {
 
 	ts := &SyncadaSftpReaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_reader")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_reader"),testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

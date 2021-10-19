@@ -37,7 +37,7 @@ func (suite *ProcessEDI824Suite) SetupTest() {
 
 func TestProcessEDI824Suite(t *testing.T) {
 	ts := &ProcessEDI824Suite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 

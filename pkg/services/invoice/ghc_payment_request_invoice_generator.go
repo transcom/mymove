@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"regexp"
 	"strconv"
 
@@ -12,11 +13,10 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 /*
@@ -32,10 +32,16 @@ type ghcPaymentRequestInvoiceGenerator struct {
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
 func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
-	return &ghcPaymentRequestInvoiceGenerator{
+	fmt.Printf("\n\n😱😱😱😱\n%v\n",icnSequencer)
+	spew.Dump(icnSequencer)
+	fmt.Printf("\n\n😱😱😱😱\n%v\n",clock)
+	spew.Dump(clock)
+	result := &ghcPaymentRequestInvoiceGenerator{
 		icnSequencer: icnSequencer,
 		clock:        clock,
 	}
+	spew.Dump(result)
+	return result
 }
 
 const dateFormat = "20060102"

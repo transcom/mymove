@@ -27,7 +27,7 @@ type SyncadaSftpSenderSuite struct {
 func TestSyncadaSftpSenderSuite(t *testing.T) {
 
 	ts := &SyncadaSftpSenderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_sender")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_sender"), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
