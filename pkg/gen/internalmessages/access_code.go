@@ -21,7 +21,7 @@ import (
 type AccessCode struct {
 
 	// when the access code was claimed or used
-	// Example: 2018-04-12T23:20:50.520Z
+	// Example: 2018-04-12T23:20:50.52Z
 	// Format: date-time
 	ClaimedAt *strfmt.DateTime `json:"claimed_at,omitempty"`
 

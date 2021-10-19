@@ -6,7 +6,6 @@
     "@fortawesome/react-fontawesome": "^0.1.16",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
-    "@redocly/openapi-cli": "^1.0.0-beta.62",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer",
     "@trussworks/react-uswds": "^2.1.0",
     "bytes": "^3.0.0",
@@ -108,8 +107,6 @@
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
-    "preview-redoc": "openapi preview-docs",
-    "build-redoc": "openapi bundle -o swagger/",
     "zeplin-connect": "zeplin connect",
     "zeplin-connect-dev-mode": "zeplin connect --dev"
   },
