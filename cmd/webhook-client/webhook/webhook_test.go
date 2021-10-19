@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -45,7 +44,7 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 	logger, _, _ := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel("debug"))
 
 	ts := &WebhookClientTestingSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 		certPath:     "../../config/tls/devlocal-mtls.cer",
 		keyPath:      "../../config/tls/devlocal-mtls.key",
@@ -55,7 +54,6 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 }
 
 func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
-	defer teardownEngineRun(suite)
 
 	// Parse flags from environment
 	v := viper.New()
@@ -122,7 +120,6 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 
 func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 	mockClient := mocks.WebhookRuntimeClient{}
-	defer teardownEngineRun(suite)
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
@@ -336,7 +333,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	// Setup 3 pending notifications notifications, and subscriptions, and the engine
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	var response = http.Response{}
 	var err error
@@ -399,7 +395,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	var response = http.Response{}
 	response.StatusCode = 200
@@ -481,7 +476,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	var response = http.Response{}
 	response.StatusCode = 200
@@ -570,7 +564,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	// We only need 1st notification, delete the others
 	suite.DB().Destroy(&notifications[1])
@@ -777,7 +770,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	var responseSuccess = http.Response{
 		Status:     "200 Success",
@@ -881,7 +873,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoThresholds() {
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
 	engine.SeverityThresholds = []int{}
-	defer teardownEngineRun(suite)
 
 	var responseFail = http.Response{
 		Status:     "400 Not Found Error",
@@ -938,7 +929,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoPending() {
 	// SETUP SCENARIO
 	engine, notifications, _ := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
-	defer teardownEngineRun(suite)
 
 	var response = http.Response{}
 	response.StatusCode = 200
@@ -1026,31 +1016,31 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 	return &engine, notifications, subscriptions
 }
 
-// truncateAllNotifications truncates the notifications table
-func truncateAllNotifications(db *pop.Connection) {
-	notifications := []models.WebhookNotification{}
-	db.All(&notifications)
-	for _, notif := range notifications {
-		copyOfNotify := notif // Make copy to avoid implicit memory aliasing of items from a range statement.
-		db.Destroy(&copyOfNotify)
-	}
-}
-
-// truncateAllSubscriptions truncates the subscriptions table
-func truncateAllSubscriptions(db *pop.Connection) {
-	subscriptions := []models.WebhookSubscription{}
-	db.All(&subscriptions)
-	for _, sub := range subscriptions {
-		copyOfSub := sub // Make copy to avoid implicit memory aliasing of items from a range statement.
-		db.Destroy(&copyOfSub)
-	}
-}
-
-// teardownEngineRun truncates the notifications and subscriptions tables
-func teardownEngineRun(suite *WebhookClientTestingSuite) {
-	truncateAllNotifications(suite.DB())
-	truncateAllSubscriptions(suite.DB())
-}
+//// truncateAllNotifications truncates the notifications table
+//func truncateAllNotifications(db *pop.Connection) {
+//	notifications := []models.WebhookNotification{}
+//	db.All(&notifications)
+//	for _, notif := range notifications {
+//		copyOfNotify := notif // Make copy to avoid implicit memory aliasing of items from a range statement.
+//		db.Destroy(&copyOfNotify)
+//	}
+//}
+//
+////// truncateAllSubscriptions truncates the subscriptions table
+//func truncateAllSubscriptions(db *pop.Connection) {
+//	subscriptions := []models.WebhookSubscription{}
+//	db.All(&subscriptions)
+//	for _, sub := range subscriptions {
+//		copyOfSub := sub // Make copy to avoid implicit memory aliasing of items from a range statement.
+//		db.Destroy(&copyOfSub)
+//	}
+//}
+//
+////// teardownEngineRun truncates the notifications and subscriptions tables
+////func teardownEngineRun(suite *WebhookClientTestingSuite) {
+//	truncateAllNotifications(suite.DB())
+//	truncateAllSubscriptions(suite.DB())
+//}
 
 // convertBodyToPayload is a helper function to convert []byte to a webhookMessage payload
 func convertBodyToPayload(body []byte) supportmessages.WebhookNotification {
