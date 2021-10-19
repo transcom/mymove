@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 
@@ -31,8 +32,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
@@ -53,7 +52,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundUUID)
 	})
 
@@ -66,9 +65,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-		invalidInputError := err.(services.InvalidInputError)
+		invalidInputError := err.(apperror.InvalidInputError)
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "moveTaskOrderID")
 	})
@@ -80,7 +79,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	// Test successful update
@@ -174,7 +173,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	// Test successful Prime validation
@@ -212,7 +211,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	// Test unsuccessful Prime validation - Invalid input
@@ -233,9 +232,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-		invalidInputError := err.(services.InvalidInputError)
+		invalidInputError := err.(apperror.InvalidInputError)
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "status")
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "approvedAt")
@@ -262,7 +261,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	// Test with empty string key (successful Base validation)
@@ -467,7 +466,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
 }

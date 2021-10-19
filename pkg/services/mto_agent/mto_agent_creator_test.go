@@ -6,8 +6,9 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -92,7 +93,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundUUID.String())
 
 	})
@@ -106,7 +107,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Conflict Error", func(t *testing.T) {
@@ -117,7 +118,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Not Found Error, unavailable to Prime", func(t *testing.T) {
@@ -135,7 +136,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 
 	})
 
@@ -150,7 +151,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 	})
 

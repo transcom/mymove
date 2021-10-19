@@ -5,10 +5,11 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -40,7 +41,7 @@ func validateServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOSe
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(serviceItem.ID, nil, verrs, "")
+		result = apperror.NewInvalidInputError(serviceItem.ID, nil, verrs, "")
 	}
 	return result
 }
@@ -63,7 +64,7 @@ func checkETag() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) error {
 		existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		if existingETag != eTag {
-			return services.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+			return apperror.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 		}
 		return nil
 	})

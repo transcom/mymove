@@ -2,18 +2,17 @@ package reweigh
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func (suite *ReweighSuite) TestValidationRules() {
@@ -186,7 +185,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.Reweigh{}, nil, &shipment)
 		suite.NotNil(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(fmt.Sprintf("not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
 	})
 

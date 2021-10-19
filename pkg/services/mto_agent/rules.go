@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -38,7 +40,7 @@ func checkAgentID() mtoAgentValidator {
 			}
 		} else {
 			if newAgent.ID != oldAgent.ID {
-				return services.NewImplementationError(
+				return apperror.NewImplementationError(
 					fmt.Sprintf("the newAgent ID (%s) must match oldAgent ID (%s).", newAgent.ID, oldAgent.ID),
 				)
 			}
@@ -55,7 +57,7 @@ const maxAgents = 2
 func checkAgentType() mtoAgentValidator {
 	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		if shipment == nil {
-			return services.NewImplementationError(
+			return apperror.NewImplementationError(
 				fmt.Sprintf("mtoAgent validation needs the shipment data in order to validate the AgentType for newAgent: %s", newAgent.ID),
 			)
 		}
@@ -67,7 +69,7 @@ func checkAgentType() mtoAgentValidator {
 
 		agents := shipment.MTOAgents
 		if len(agents) >= maxAgents && newAgent.ID == uuid.Nil { // a nil UUID here means we're creating a new agent
-			return services.NewConflictError(
+			return apperror.NewConflictError(
 				shipment.ID, fmt.Sprintf("This shipment already has %d agents - no more can be added.", maxAgents))
 		}
 
@@ -80,7 +82,7 @@ func checkAgentType() mtoAgentValidator {
 			}
 
 			if agent.MTOAgentType == newAgent.MTOAgentType {
-				return services.NewConflictError(
+				return apperror.NewConflictError(
 					newAgent.ID, fmt.Sprintf("There is already an agent with type %s on the shipment", newAgent.MTOAgentType))
 			}
 		}
@@ -132,12 +134,12 @@ func checkContactInfo() mtoAgentValidator {
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) mtoAgentValidator {
 	return mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		if shipment == nil {
-			return services.NewNotFoundError(newAgent.ID, "while looking for Prime-available Shipment")
+			return apperror.NewNotFoundError(newAgent.ID, "while looking for Prime-available Shipment")
 		}
 
 		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
-			return services.NewNotFoundError(
+			return apperror.NewNotFoundError(
 				newAgent.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))
 		}
 		return nil

@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -98,7 +100,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, 0, services.NotFoundError{}
+			return nil, 0, apperror.NotFoundError{}
 		default:
 			return nil, 0, err
 		}
@@ -175,7 +177,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, services.NotFoundError{}
+			return nil, apperror.NotFoundError{}
 		default:
 			return nil, err
 		}

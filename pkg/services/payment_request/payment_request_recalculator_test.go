@@ -11,9 +11,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -309,7 +309,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
-			suite.IsType(services.NotFoundError{}, err)
+			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), bogusPaymentRequestID.String())
 		}
 	})
@@ -323,7 +323,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
-			suite.IsType(services.ConflictError{}, err)
+			suite.IsType(apperror.ConflictError{}, err)
 			suite.Contains(err.Error(), paidPaymentRequest.ID.String())
 			suite.Contains(err.Error(), models.PaymentRequestStatusPaid)
 		}

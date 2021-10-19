@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -195,7 +195,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		mock.Anything,
 		false,
 		false,
-	).Return(nil, services.PreconditionFailedError{})
+	).Return(nil, apperror.PreconditionFailedError{})
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, moveUpdater}

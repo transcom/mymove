@@ -6,9 +6,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // Validator is the interface for the various validations we might want to
@@ -40,7 +41,7 @@ func ValidateOrder(order *models.Order, checks ...Validator) (result error) {
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(order.ID, nil, verrs, "")
+		result = apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 	}
 	return result
 }

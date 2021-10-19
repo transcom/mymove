@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -55,15 +57,15 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 		Find(&oldPaymentRequest, paymentRequestID)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(paymentRequestID, "for PaymentRequest")
+			return nil, apperror.NewNotFoundError(paymentRequestID, "for PaymentRequest")
 		}
-		return nil, services.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
+		return nil, apperror.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
 	}
 	oldPaymentRequestEtag := etag.GenerateEtag(oldPaymentRequest.UpdatedAt)
 
 	// Only pending payment requests can be recalculated.
 	if oldPaymentRequest.Status != models.PaymentRequestStatusPending {
-		return nil, services.NewConflictError(paymentRequestID, fmt.Sprintf("only PENDING payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
+		return nil, apperror.NewConflictError(paymentRequestID, fmt.Sprintf("only PENDING payment requests can be recalculated, but this payment request has status of %s", oldPaymentRequest.Status))
 	}
 
 	// Set the (now) old payment request's status.  Doing this before we recalculate in case the create
@@ -152,7 +154,7 @@ func getServiceIDsWithPaymentRequestOrigin(appCtx appcontext.AppContext) ([]uuid
 		WHERE origin = ?`
 	err := appCtx.DB().RawQuery(query, models.ServiceItemParamOriginPaymentRequest).All(&uuids)
 	if err != nil {
-		return nil, services.NewQueryError("ServiceParams", err, fmt.Sprintf("unexpected error while querying for service_params with params of origin %s", models.ServiceItemParamOriginPaymentRequest))
+		return nil, apperror.NewQueryError("ServiceParams", err, fmt.Sprintf("unexpected error while querying for service_params with params of origin %s", models.ServiceItemParamOriginPaymentRequest))
 	}
 
 	return uuids, nil
@@ -180,7 +182,7 @@ func buildPaymentServiceItemParams(appCtx appcontext.AppContext, oldPaymentServi
 		Where("sipk.origin = ?", models.ServiceItemParamOriginPaymentRequest).
 		All(&paymentServiceItemParams)
 	if err != nil {
-		return nil, services.NewQueryError("PaymentServiceItemParams", err, fmt.Sprintf("unexpected error while querying for payment service item params for payment service ID %s", oldPaymentServiceItem.ID))
+		return nil, apperror.NewQueryError("PaymentServiceItemParams", err, fmt.Sprintf("unexpected error while querying for payment service item params for payment service ID %s", oldPaymentServiceItem.ID))
 	}
 
 	// Create the incoming payment service item param for the new payment request we're going to be creating.
@@ -204,10 +206,10 @@ func remapProofOfServiceDocs(appCtx appcontext.AppContext, proofOfServiceDocs mo
 		copyOfProofOfServiceDoc.PaymentRequestID = newPaymentRequest.ID
 		verrs, err := appCtx.DB().ValidateAndUpdate(&copyOfProofOfServiceDoc)
 		if err != nil {
-			return services.NewQueryError("ProofOfServiceDoc", err, fmt.Sprintf("failed to update proof of service doc for new payment request ID %s", newPaymentRequest.ID))
+			return apperror.NewQueryError("ProofOfServiceDoc", err, fmt.Sprintf("failed to update proof of service doc for new payment request ID %s", newPaymentRequest.ID))
 		}
 		if verrs.HasAny() {
-			return services.NewInvalidInputError(newPaymentRequest.ID, err, verrs, "failed to validate proof of service doc")
+			return apperror.NewInvalidInputError(newPaymentRequest.ID, err, verrs, "failed to validate proof of service doc")
 		}
 
 		newPaymentRequest.ProofOfServiceDocs = append(newPaymentRequest.ProofOfServiceDocs, copyOfProofOfServiceDoc)
@@ -221,10 +223,10 @@ func linkNewToOldPaymentRequest(appCtx appcontext.AppContext, newPaymentRequest 
 	newPaymentRequest.RecalculationOfPaymentRequestID = &oldPaymentRequest.ID
 	verrs, err := appCtx.DB().ValidateAndUpdate(newPaymentRequest)
 	if err != nil {
-		return services.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to link new payment request to old payment request ID %s", oldPaymentRequest.ID))
+		return apperror.NewQueryError("PaymentRequest", err, fmt.Sprintf("failed to link new payment request to old payment request ID %s", oldPaymentRequest.ID))
 	}
 	if verrs.HasAny() {
-		return services.NewInvalidInputError(newPaymentRequest.ID, err, verrs, fmt.Sprintf("failed to validate new payment request when linking to old payment request ID %s", oldPaymentRequest.ID))
+		return apperror.NewInvalidInputError(newPaymentRequest.ID, err, verrs, fmt.Sprintf("failed to validate new payment request when linking to old payment request ID %s", oldPaymentRequest.ID))
 	}
 
 	return nil

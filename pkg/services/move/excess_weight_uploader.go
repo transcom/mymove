@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -38,7 +40,7 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 	move := &models.Move{}
 	err := appCtx.DB().Find(move, moveID)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "while looking for move")
+		return nil, apperror.NewNotFoundError(moveID, "while looking for move")
 	}
 
 	// Run the (read-only) validations
@@ -59,10 +61,10 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(move)
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(
+			return apperror.NewInvalidInputError(
 				move.ID, err, verrs, "Validation errors found while updating excess weight info on move")
 		} else if err != nil {
-			return services.NewQueryError("Move", err, "Failed to update excess weight info on move")
+			return apperror.NewQueryError("Move", err, "Failed to update excess weight info on move")
 		}
 
 		return nil

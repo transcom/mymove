@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -242,7 +244,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
@@ -256,7 +258,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		_, err := approver.ApproveShipment(appCtx, badShipmentID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("It calls Approve on the ShipmentRouter", func(t *testing.T) {
