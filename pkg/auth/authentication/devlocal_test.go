@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
@@ -75,6 +76,12 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	t := suite.T()
+
+	// These roles are created during migrations but our test suite truncates all tables
+	testdatagen.MakePPMOfficeRole(suite.DB())
+	testdatagen.MakeTOORole(suite.DB())
+	testdatagen.MakeTIORole(suite.DB())
+	testdatagen.MakeServicesCounselorRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
@@ -280,6 +287,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
+	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
@@ -450,6 +458,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
+	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
