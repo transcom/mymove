@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/services"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gofrs/uuid"
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	})
 	serviceItems := models.MTOServiceItems{serviceItem}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-service-items", mto.ID.String()), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoserviceitemop.ListMTOServiceItemsParams{
@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/mto-service-items/%s/status",
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 		moveTaskOrderID, serviceItemID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, services.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
+		).Return(nil, apperror.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -277,7 +277,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItem, move := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/mto-service-items/%s/status",
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -318,7 +318,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		availableMoveID := availableMove.ID
 		mtoServiceItemID := mtoServiceItem.ID
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/mto-service-items/%s/status", availableMoveID, mtoServiceItemID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{

@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil, ETag: etag.GenerateEtag(pendingPaymentRequest.UpdatedAt)},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil, ETag: etag.GenerateEtag(pendingPaymentRequest.UpdatedAt)},
 			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 		}
 
@@ -287,7 +287,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED", RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED", RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
 			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 		}
 
@@ -327,7 +327,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			req = suite.AuthenticateOfficeRequest(req, officeUser)
 			params := paymentrequestop.UpdatePaymentRequestStatusParams{
 				HTTPRequest:      req,
-				Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: nonApprovedPRStatus, RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
+				Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: nonApprovedPRStatus, RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
 				PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 			}
 
@@ -361,7 +361,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -397,7 +397,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(availablePaymentRequestID.String()),
 		}
 
@@ -430,7 +430,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -460,7 +460,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -490,7 +490,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -520,7 +520,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &ghcmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
