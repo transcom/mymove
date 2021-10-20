@@ -20,10 +20,10 @@ import (
 type UpdateCustomerPayload struct {
 
 	// backup contact
-	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+	BackupContact *BackupContact `json:"backupContact,omitempty"`
 
 	// current address
-	CurrentAddress *Address `json:"current_address,omitempty"`
+	CurrentAddress *Address `json:"currentAddress,omitempty"`
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
@@ -31,15 +31,15 @@ type UpdateCustomerPayload struct {
 
 	// first name
 	// Example: John
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// last name
 	// Example: Doe
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// middle name
 	// Example: David
-	MiddleName *string `json:"middle_name,omitempty"`
+	MiddleName *string `json:"middleName,omitempty"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -84,7 +84,7 @@ func (m *UpdateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 	if m.BackupContact != nil {
 		if err := m.BackupContact.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_contact")
+				return ve.ValidateName("backupContact")
 			}
 			return err
 		}
@@ -101,7 +101,7 @@ func (m *UpdateCustomerPayload) validateCurrentAddress(formats strfmt.Registry) 
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
+				return ve.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -157,7 +157,7 @@ func (m *UpdateCustomerPayload) contextValidateBackupContact(ctx context.Context
 	if m.BackupContact != nil {
 		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_contact")
+				return ve.ValidateName("backupContact")
 			}
 			return err
 		}
@@ -171,7 +171,7 @@ func (m *UpdateCustomerPayload) contextValidateCurrentAddress(ctx context.Contex
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
+				return ve.ValidateName("currentAddress")
 			}
 			return err
 		}

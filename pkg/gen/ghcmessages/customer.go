@@ -23,15 +23,16 @@ type Customer struct {
 	Agency string `json:"agency,omitempty"`
 
 	// backup contact
-	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+	BackupContact *BackupContact `json:"backupContact,omitempty"`
 
 	// current address
-	CurrentAddress *Address `json:"current_address,omitempty"`
+	CurrentAddress *Address `json:"currentAddress,omitempty"`
 
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// email
@@ -40,7 +41,7 @@ type Customer struct {
 
 	// first name
 	// Example: John
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -49,11 +50,11 @@ type Customer struct {
 
 	// last name
 	// Example: Doe
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// middle name
 	// Example: David
-	MiddleName *string `json:"middle_name,omitempty"`
+	MiddleName *string `json:"middleName,omitempty"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -111,7 +112,7 @@ func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
 	if m.BackupContact != nil {
 		if err := m.BackupContact.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_contact")
+				return ve.ValidateName("backupContact")
 			}
 			return err
 		}
@@ -128,7 +129,7 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
+				return ve.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -197,6 +198,10 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -208,7 +213,7 @@ func (m *Customer) contextValidateBackupContact(ctx context.Context, formats str
 	if m.BackupContact != nil {
 		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_contact")
+				return ve.ValidateName("backupContact")
 			}
 			return err
 		}
@@ -222,10 +227,19 @@ func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats st
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
+				return ve.ValidateName("currentAddress")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
 	}
 
 	return nil

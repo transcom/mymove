@@ -29,7 +29,7 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 	return &UpdateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/* UpdateMTOShipment swagger:route PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID} mtoShipment updateMTOShipment
+/* UpdateMTOShipment swagger:route PATCH /move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID} mtoShipment updateMTOShipment
 
 updateMTOShipment
 

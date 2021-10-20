@@ -37,15 +37,16 @@ type Order struct {
 	// date issued
 	// Example: 2020-01-01
 	// Format: date
-	DateIssued strfmt.Date `json:"date_issued,omitempty"`
+	DateIssued strfmt.Date `json:"dateIssued,omitempty"`
 
 	// department indicator
-	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlement
@@ -54,14 +55,14 @@ type Order struct {
 	// first name
 	// Example: John
 	// Read Only: true
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Example: false
-	HasDependents bool `json:"has_dependents,omitempty"`
+	HasDependents bool `json:"hasDependents,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -71,7 +72,7 @@ type Order struct {
 	// last name
 	// Example: Doe
 	// Read Only: true
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// move code
 	// Example: H2XFJF
@@ -87,13 +88,13 @@ type Order struct {
 
 	// order number
 	// Example: 030-00362
-	OrderNumber *string `json:"order_number,omitempty"`
+	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// order type
-	OrderType OrdersType `json:"order_type,omitempty"`
+	OrderType OrdersType `json:"orderType,omitempty"`
 
 	// order type detail
-	OrderTypeDetail *OrdersTypeDetail `json:"order_type_detail,omitempty"`
+	OrderTypeDetail *OrdersTypeDetail `json:"orderTypeDetail,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -101,7 +102,7 @@ type Order struct {
 	// report by date
 	// Example: 2020-01-01
 	// Format: date
-	ReportByDate strfmt.Date `json:"report_by_date,omitempty"`
+	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 
 	// SAC
 	// Example: N002214CSW32Y9
@@ -109,7 +110,7 @@ type Order struct {
 
 	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
 	// Example: false
-	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
+	SpouseHasProGear bool `json:"spouseHasProGear,omitempty"`
 
 	// TAC
 	// Example: F8J1
@@ -120,10 +121,10 @@ type Order struct {
 	// Format: uuid
 	UploadedAmendedOrderID *strfmt.UUID `json:"uploadedAmendedOrderID,omitempty"`
 
-	// uploaded order id
+	// uploaded order Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
+	UploadedOrderID strfmt.UUID `json:"uploadedOrderId,omitempty"`
 }
 
 // Validate validates this order
@@ -269,7 +270,7 @@ func (m *Order) validateDateIssued(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("date_issued", "body", "date", m.DateIssued.String(), formats); err != nil {
+	if err := validate.FormatOf("dateIssued", "body", "date", m.DateIssued.String(), formats); err != nil {
 		return err
 	}
 
@@ -284,7 +285,7 @@ func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
 	if m.DepartmentIndicator != nil {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("department_indicator")
+				return ve.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -392,7 +393,7 @@ func (m *Order) validateOrderType(formats strfmt.Registry) error {
 
 	if err := m.OrderType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("order_type")
+			return ve.ValidateName("orderType")
 		}
 		return err
 	}
@@ -408,7 +409,7 @@ func (m *Order) validateOrderTypeDetail(formats strfmt.Registry) error {
 	if m.OrderTypeDetail != nil {
 		if err := m.OrderTypeDetail.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("order_type_detail")
+				return ve.ValidateName("orderTypeDetail")
 			}
 			return err
 		}
@@ -439,7 +440,7 @@ func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -463,7 +464,7 @@ func (m *Order) validateUploadedOrderID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("uploaded_order_id", "body", "uuid", m.UploadedOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("uploadedOrderId", "body", "uuid", m.UploadedOrderID.String(), formats); err != nil {
 		return err
 	}
 
@@ -487,6 +488,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -559,7 +564,7 @@ func (m *Order) contextValidateDepartmentIndicator(ctx context.Context, formats 
 	if m.DepartmentIndicator != nil {
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("department_indicator")
+				return ve.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -582,6 +587,15 @@ func (m *Order) contextValidateDestinationDutyStation(ctx context.Context, forma
 	return nil
 }
 
+func (m *Order) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Entitlement != nil {
@@ -598,7 +612,7 @@ func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.R
 
 func (m *Order) contextValidateFirstName(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "first_name", "body", string(m.FirstName)); err != nil {
+	if err := validate.ReadOnly(ctx, "firstName", "body", string(m.FirstName)); err != nil {
 		return err
 	}
 
@@ -621,7 +635,7 @@ func (m *Order) contextValidateGrade(ctx context.Context, formats strfmt.Registr
 
 func (m *Order) contextValidateLastName(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "last_name", "body", string(m.LastName)); err != nil {
+	if err := validate.ReadOnly(ctx, "lastName", "body", string(m.LastName)); err != nil {
 		return err
 	}
 
@@ -646,7 +660,7 @@ func (m *Order) contextValidateOrderType(ctx context.Context, formats strfmt.Reg
 
 	if err := m.OrderType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("order_type")
+			return ve.ValidateName("orderType")
 		}
 		return err
 	}
@@ -659,7 +673,7 @@ func (m *Order) contextValidateOrderTypeDetail(ctx context.Context, formats strf
 	if m.OrderTypeDetail != nil {
 		if err := m.OrderTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("order_type_detail")
+				return ve.ValidateName("orderTypeDetail")
 			}
 			return err
 		}

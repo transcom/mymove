@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
@@ -19,6 +18,8 @@ import (
 	"github.com/gofrs/uuid"
 
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -123,7 +124,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment}
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, requestUser)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
@@ -190,7 +191,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
+		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
 		fmt.Println("failure list fetch test 500")
 		response := handler.Handle(params)
@@ -209,7 +210,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
+		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, services.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
 		fmt.Println("failure list fetch 404")
 		response := handler.Handle(params)
@@ -272,7 +273,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		deleter := &mocks.ShipmentDeleter{}
 
-		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -296,7 +297,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		deleter := &mocks.ShipmentDeleter{}
 
-		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ForbiddenError{})
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, services.ForbiddenError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -410,7 +411,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -437,7 +438,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.ConflictError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.ConflictError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -464,7 +465,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -491,7 +492,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -610,7 +611,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -664,7 +665,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -691,7 +692,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -811,7 +812,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentDiversionApprover{}
 
-		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -865,7 +866,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentDiversionApprover{}
 
-		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -892,7 +893,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		approver := &mocks.ShipmentDiversionApprover{}
 
-		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1018,7 +1019,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.NotFoundError{})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1080,7 +1081,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.PreconditionFailedError{})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1111,7 +1112,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1270,7 +1271,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
-		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1324,7 +1325,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
-		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1351,7 +1352,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
-		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1483,7 +1484,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.NotFoundError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
@@ -1508,7 +1509,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.ConflictError{})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.ConflictError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
@@ -1532,7 +1533,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
-		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
@@ -1998,7 +1999,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		AgentType: string(mtoAgent.MTOAgentType),
 	}}
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/mto-shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)

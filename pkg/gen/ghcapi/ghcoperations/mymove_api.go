@@ -620,7 +620,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -664,7 +664,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -720,11 +720,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto-service-items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto-shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -768,7 +768,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

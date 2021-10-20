@@ -56,7 +56,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtParams) BindRequest(r *http.Request, 
 		res = append(res, err)
 	}
 
-	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
+	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderId")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}

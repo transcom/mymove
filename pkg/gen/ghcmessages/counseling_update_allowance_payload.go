@@ -19,7 +19,7 @@ import (
 // swagger:model CounselingUpdateAllowancePayload
 type CounselingUpdateAllowancePayload struct {
 
-	// the branch that the service member belongs to
+	// agency
 	Agency Branch `json:"agency,omitempty"`
 
 	// dependents authorized

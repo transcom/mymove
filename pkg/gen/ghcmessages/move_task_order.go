@@ -24,6 +24,7 @@ type MoveTaskOrder struct {
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -36,6 +37,7 @@ type MoveTaskOrder struct {
 	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlements
@@ -80,6 +82,7 @@ type MoveTaskOrder struct {
 	TioRemarks *string `json:"tioRemarks,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
@@ -305,7 +308,15 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -317,9 +328,22 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -332,6 +356,15 @@ func (m *MoveTaskOrder) contextValidateDestinationAddress(ctx context.Context, f
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
 	}
 
 	return nil
@@ -360,6 +393,15 @@ func (m *MoveTaskOrder) contextValidatePickupAddress(ctx context.Context, format
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

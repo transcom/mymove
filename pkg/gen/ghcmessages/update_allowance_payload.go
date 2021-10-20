@@ -19,7 +19,7 @@ import (
 // swagger:model UpdateAllowancePayload
 type UpdateAllowancePayload struct {
 
-	// the branch that the service member belongs to
+	// agency
 	Agency Branch `json:"agency,omitempty"`
 
 	// unit is in lbs
