@@ -52,7 +52,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 type SetFinancialReviewFlagHandler struct {
 	handlers.HandlerContext
-	financialReviewFlagCreator services.MoveFinancialReviewFlagSetter
+	services.MoveFinancialReviewFlagSetter
 }
 
 // Handle flags a move for financial review
@@ -67,7 +67,7 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 		payload := payloadForValidationError("Unable to flag move for financial review", "missing remarks field", h.GetTraceID(), validate.NewErrors())
 		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
-	move, err := h.financialReviewFlagCreator.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
+	move, err := h.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
 
 	if err != nil {
 		logger.Error("Error flagging move for financial review", zap.Error(err))
