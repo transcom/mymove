@@ -305,7 +305,7 @@ const ServicesCounselingShipmentForm = ({
                           <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
                         ) : (
                           <p>
-                            We can use the zip of their new duty station:
+                            We can use the zip of their new duty location:
                             <br />
                             <strong>
                               {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
