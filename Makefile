@@ -78,7 +78,6 @@ install_pre_commit:  ## Installs pre-commit hooks
 
 .PHONY: prereqs
 prereqs: ## Check that pre-requirements are installed, includes dependency scripts
-.prereqs.stamp: scripts/prereqs scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version
 	scripts/prereqs
 
 .PHONY: check_hosts
@@ -124,7 +123,7 @@ setup:
 deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
 
 .PHONY: deps_shared
-deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
+deps_shared: client_deps bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -461,7 +460,7 @@ redis_destroy: ## Destroy Redis
 	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
 
 .PHONY: redis_run
-redis_run: ## Run Redis
+redis_run: redis_pull ## Run Redis
 ifndef CIRCLECI
 		@echo "Stopping the Redis brew service in case it's running..."
 		brew services stop redis 2> /dev/null || true

@@ -51,7 +51,7 @@ else
     exit 1
 fi
 
-if ! [[ $SKIP_CHECKS == true ]]; then
+if ! [[ "${SKIP_CHECKS}" == true ]]; then
   # Now check versions are correct for prereqs
   echo
   check-gopath

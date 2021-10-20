@@ -95,6 +95,18 @@ configure_shell_file_for_direnv() {
   fi
 }
 
+cask_is_installed() {
+  brew list -1 --cask | grep -Fqx "$1"
+}
+
+app_is_in_applications_folder() {
+  find "/Applications" -maxdepth 1 -name "$1"
+}
+
+docker_installed_outside_of_brew() {
+  ! cask_is_installed "docker" && app_is_in_applications_folder "Docker"
+}
+
 ##### END OF HELPER FUNCTIONS #####
 
 fancy_echo "Running your customizations from fresh-brew.local ..."

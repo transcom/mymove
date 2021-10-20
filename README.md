@@ -414,7 +414,11 @@ Run 'chamber --help' for usage.
 
 #### Setup: Run the app
 
-The following commands will get `mymove` running on your machine.
+**If this is your very first time setting up this project, you'll need to launch Docker first, follow the prompts to allow macOS to open it, and agree to Docker's terms of service.**
+
+You might also need to launch Docker if you restarted your computer and you configured Docker to not automatically launch after a restart.
+
+Once Docker is up and running, the following commands will get `mymove` running on your machine.
 
 1. Run the backend server
 
