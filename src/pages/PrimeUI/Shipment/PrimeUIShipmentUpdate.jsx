@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { queryCache, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
@@ -13,7 +13,6 @@ import { primeSimulatorRoutes } from '../../../constants/routes';
 import { formatSwaggerDate } from '../../../shared/formatters';
 import scrollToTop from '../../../shared/scrollToTop';
 
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { updatePrimeMTOShipment } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
@@ -37,8 +36,6 @@ const PrimeUIShipmentUpdate = () => {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       handleClose();
     },
     onError: (error) => {
