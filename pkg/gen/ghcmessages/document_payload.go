@@ -29,7 +29,7 @@ type DocumentPayload struct {
 	// The service member this document belongs to
 	// Required: true
 	// Format: uuid
-	ServiceMemberID *strfmt.UUID `json:"service_member_id"`
+	ServiceMemberID *strfmt.UUID `json:"serviceMemberId"`
 
 	// uploads
 	// Required: true
@@ -73,11 +73,11 @@ func (m *DocumentPayload) validateID(formats strfmt.Registry) error {
 
 func (m *DocumentPayload) validateServiceMemberID(formats strfmt.Registry) error {
 
-	if err := validate.Required("service_member_id", "body", m.ServiceMemberID); err != nil {
+	if err := validate.Required("serviceMemberId", "body", m.ServiceMemberID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
+	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 

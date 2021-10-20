@@ -20,10 +20,6 @@ import (
 // swagger:model MTOServiceItem
 type MTOServiceItem struct {
 
-	// s i t postal code
-	// Read Only: true
-	SITPostalCode *string `json:"SITPostalCode,omitempty"`
-
 	// approved at
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
@@ -119,6 +115,10 @@ type MTOServiceItem struct {
 	// sit entry date
 	// Format: date-time
 	SitEntryDate *strfmt.DateTime `json:"sitEntryDate,omitempty"`
+
+	// sit postal code
+	// Read Only: true
+	SitPostalCode *string `json:"sitPostalCode,omitempty"`
 
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
@@ -520,10 +520,6 @@ func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateSITPostalCode(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -540,6 +536,10 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -551,15 +551,6 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOServiceItem) contextValidateSITPostalCode(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "SITPostalCode", "body", m.SITPostalCode); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -599,6 +590,15 @@ func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats 
 func (m *MTOServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSitPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "sitPostalCode", "body", m.SitPostalCode); err != nil {
 		return err
 	}
 

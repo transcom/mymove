@@ -3317,7 +3317,7 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "service_member_id",
+        "serviceMemberId",
         "uploads"
       ],
       "properties": {
@@ -3326,7 +3326,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "title": "The service member this document belongs to"
@@ -3627,11 +3627,6 @@ func init() {
         "description"
       ],
       "properties": {
-        "SITPostalCode": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true
-        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -3731,6 +3726,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -9541,7 +9541,7 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "service_member_id",
+        "serviceMemberId",
         "uploads"
       ],
       "properties": {
@@ -9550,7 +9550,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "title": "The service member this document belongs to"
@@ -9851,11 +9851,6 @@ func init() {
         "description"
       ],
       "properties": {
-        "SITPostalCode": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true
-        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -9955,6 +9950,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
