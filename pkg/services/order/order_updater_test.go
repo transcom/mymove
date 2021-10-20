@@ -29,7 +29,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.UpdateOrderPayload{}
+		payload := ghcmessages.UpdateOrder{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), nonexistentUUID, payload, eTag)
@@ -45,7 +45,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.UpdateOrderPayload{
+		payload := ghcmessages.UpdateOrder{
 			NewDutyStationID:    handlers.FmtUUID(newDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(nonexistentUUID),
 		}
@@ -64,7 +64,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.UpdateOrderPayload{
+		payload := ghcmessages.UpdateOrder{
 			NewDutyStationID:    handlers.FmtUUID(nonexistentUUID),
 			OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 		}
@@ -81,7 +81,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
-		payload := ghcmessages.UpdateOrderPayload{}
+		payload := ghcmessages.UpdateOrder{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
@@ -104,7 +104,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.UpdateOrderPayload{
+		payload := ghcmessages.UpdateOrder{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
@@ -158,7 +158,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.UpdateOrderPayload{
+		payload := ghcmessages.UpdateOrder{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
@@ -198,7 +198,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 
-		payload := ghcmessages.UpdateOrderPayload{
+		payload := ghcmessages.UpdateOrder{
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
@@ -226,7 +226,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.CounselingUpdateOrderPayload{}
+		payload := ghcmessages.CounselingUpdateOrder{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.TestAppContext(), nonexistentUUID, payload, eTag)
@@ -240,7 +240,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
-		payload := ghcmessages.CounselingUpdateOrderPayload{}
+		payload := ghcmessages.CounselingUpdateOrder{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
@@ -260,7 +260,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 
-		body := ghcmessages.CounselingUpdateOrderPayload{
+		body := ghcmessages.CounselingUpdateOrder{
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
@@ -292,7 +292,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.UpdateAllowancePayload{}
+		payload := ghcmessages.UpdateAllowance{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.TestAppContext(), nonexistentUUID, payload, eTag)
@@ -306,7 +306,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
-		payload := ghcmessages.UpdateAllowancePayload{}
+		payload := ghcmessages.UpdateAllowance{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.TestAppContext(), order.ID, payload, eTag)
@@ -329,7 +329,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		rmeWeight := swag.Int64(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.UpdateAllowancePayload{
+		payload := ghcmessages.UpdateAllowance{
 			Agency:               affiliation,
 			AuthorizedWeight:     &newAuthorizedWeight,
 			DependentsAuthorized: swag.Bool(true),
@@ -363,7 +363,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{}
+		payload := ghcmessages.CounselingUpdateAllowance{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), nonexistentUUID, payload, eTag)
@@ -377,7 +377,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{}
+		payload := ghcmessages.CounselingUpdateAllowance{}
 		eTag := ""
 
 		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.TestAppContext(), order.ID, payload, eTag)
@@ -399,7 +399,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := swag.Int64(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{
+		payload := ghcmessages.CounselingUpdateAllowance{
 			Agency:               affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
@@ -448,7 +448,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := swag.Int64(10000)
 		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{
+		payload := ghcmessages.CounselingUpdateAllowance{
 			Agency:               affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
@@ -500,7 +500,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := swag.Int64(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{
+		payload := ghcmessages.CounselingUpdateAllowance{
 			Agency:               affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
@@ -536,7 +536,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := swag.Int64(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		payload := ghcmessages.CounselingUpdateAllowancePayload{
+		payload := ghcmessages.CounselingUpdateAllowance{
 			Agency:               affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,

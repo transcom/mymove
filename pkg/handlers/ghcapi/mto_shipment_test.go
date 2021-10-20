@@ -19,7 +19,7 @@ import (
 
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 
-	"github.com/transcom/mymove/pkg/services"
+	services "github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
 

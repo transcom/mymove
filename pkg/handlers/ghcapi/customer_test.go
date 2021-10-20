@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
-	body := &ghcmessages.UpdateCustomerPayload{
+	body := &ghcmessages.UpdateCustomer{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
 		Phone:     handlers.FmtString("123-455-3399"),

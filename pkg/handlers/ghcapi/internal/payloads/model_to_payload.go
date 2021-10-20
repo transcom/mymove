@@ -587,7 +587,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
-		SITPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
+		SitPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
 		SitEntryDate:     handlers.FmtDateTimePtr(s.SITEntryDate),
 		SitDepartureDate: handlers.FmtDateTimePtr(s.SITDepartureDate),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
