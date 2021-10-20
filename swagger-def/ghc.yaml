@@ -2992,7 +2992,7 @@ definitions:
       key:
         $ref: 'definitions/ServiceItemParamName.yaml'
       value:
-        example: 3025
+        example: '3025'
         type: string
       type:
         $ref: 'definitions/ServiceItemParamType.yaml'

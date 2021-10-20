@@ -4557,7 +4557,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -10781,7 +10781,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
