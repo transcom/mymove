@@ -81,7 +81,19 @@ const PrimeUIShipmentUpdate = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const emptyAddress = {
+    street_address_1: '',
+    street_address_2: '',
+    street_address_3: '',
+    city: '',
+    state: '',
+    postal_code: '',
+  };
+
   const fromPrimeApiAddressFormat = (address) => {
+    if (!address) {
+      return emptyAddress;
+    }
     return {
       street_address_1: address.streetAddress1,
       street_address_2: address.streetAddress2,
@@ -100,15 +112,6 @@ const PrimeUIShipmentUpdate = () => {
       state: address.state,
       postalCode: address.postal_code,
     };
-  };
-
-  const emptyAddress = {
-    street_address_1: '',
-    street_address_2: '',
-    street_address_3: '',
-    city: '',
-    state: '',
-    postal_code: '',
   };
 
   const isValidWeight = (weight) => {
