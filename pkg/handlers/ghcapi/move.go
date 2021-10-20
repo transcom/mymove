@@ -63,8 +63,8 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
 
 	remarks := params.Body.Remarks
-	if remarks == nil || *remarks == "" {
-		payload := payloadForValidationError("Unable to flag move for financial review", "missing or empty remarks field", h.GetTraceID(), validate.NewErrors())
+	if remarks == nil {
+		payload := payloadForValidationError("Unable to flag move for financial review", "missing remarks field", h.GetTraceID(), validate.NewErrors())
 		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
 	move, err := h.financialReviewFlagCreator.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
