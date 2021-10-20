@@ -59,6 +59,8 @@ type MoveExcessWeightUploader interface {
 	) (*models.Move, error)
 }
 
+// MoveFinancialReviewFlagSetter is the exported interface for flagging a move for financial review
+//go:generate mockery --name MoveFinancialReviewFlagSetter --disable-version-string
 type MoveFinancialReviewFlagSetter interface {
 	SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, remarks string) (*models.Move, error)
 }

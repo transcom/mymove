@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -62,11 +61,6 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
-	if moveID == uuid.Nil {
-		errorMessage := fmt.Sprintf("unable to parse moveID as UUID: %s", params.MoveID.String())
-		payload := payloadForValidationError("Unable to flag move for financial review", errorMessage, h.GetTraceID(), validate.NewErrors())
-		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
-	}
 
 	remarks := params.Body.Remarks
 	if remarks == nil || *remarks == "" {
