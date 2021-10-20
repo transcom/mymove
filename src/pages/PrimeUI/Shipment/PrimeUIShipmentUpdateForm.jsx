@@ -35,8 +35,7 @@ const PrimeUIShipmentUpdateForm = ({
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Dates</h2>
       <h5 className={styles.sectionHeader}>Requested Pickup</h5>
-
-      <>{formatDate(requestedPickupDate)}</>
+      {formatDate(requestedPickupDate)}
       <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
       <DatePickerInput name="actualPickupDate" label="Actual pickup" />
       <h2 className={styles.sectionHeader}>Shipment Weights</h2>

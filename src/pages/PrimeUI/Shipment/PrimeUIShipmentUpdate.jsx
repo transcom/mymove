@@ -58,7 +58,7 @@ const PrimeUIShipmentUpdate = () => {
         }
          */
         let invalidFieldsStr = '';
-        if (Object.prototype.hasOwnProperty.call(body, 'invalidFields')) {
+        if (body.invalidFields) {
           Object.keys(body.invalidFields).forEach((key) => {
             const value = body.invalidFields[key];
             invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
@@ -152,7 +152,7 @@ const PrimeUIShipmentUpdate = () => {
   const editablePickupAddress = isEmptyAddress(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmptyAddress(reformatPrimeApiDestinationAddress);
 
-  const onSubmit = (values) => {
+  const onSubmit = (values, { setSubmitting }) => {
     const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
       values;
 
@@ -164,7 +164,9 @@ const PrimeUIShipmentUpdate = () => {
       pickupAddress: editablePickupAddress ? toPrimeApiAddressFormat(pickupAddress) : null,
       destinationAddress: editableDestinationAddress ? toPrimeApiAddressFormat(destinationAddress) : null,
     };
-    mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body });
+    mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
+      setSubmitting(false);
+    });
   };
 
   const initialValues = {
