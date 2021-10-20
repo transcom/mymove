@@ -235,7 +235,8 @@ If you need help with this setup, you can ask for help in the
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
 1. [Install Dependencies](#nix-installing-dependencies)
-1. [Quick Initial Setup](#setup-quick-initial-setup)
+1. [Run the app](#setup-run-the-app)
+
 
 #### Nix: Initial Setup
 

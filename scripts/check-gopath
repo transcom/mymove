@@ -24,7 +24,7 @@ fi
 if [[ "$gpath" == *"$HOME" ]]; then
   if [[ ! ":$PATH:" == *":$gpath/bin:"* ]] && [[ ! ":$PATH:" == *":~${gpath#$HOME}/bin:"* ]]; then
     echo "In order for go dependencies to be runnable, \$GOPATH/bin must be in your \$PATH"
-    echo "Please add $gpath/bin to your \$PATH in your .bash_profile"
+    echo "Please run 'make prereqs' to set your PATH."
     echo "Expected: $gpath/bin"
     echo "Actual: $PATH"
     exit 1
@@ -32,7 +32,7 @@ if [[ "$gpath" == *"$HOME" ]]; then
 else
   if [[ ! ":$PATH:" == *":$gpath/bin:"* ]]; then
     echo "In order for go dependencies to be runnable, \$GOPATH/bin must be in your \$PATH"
-    echo "Please add $gpath/bin to your \$PATH in your .bash_profile"
+    echo "Please run 'make prereqs' to set your PATH."
     echo "Expected: $gpath/bin"
     echo "Actual: $PATH"
     exit 1

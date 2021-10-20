@@ -10,4 +10,8 @@ brew 'nodenv'
 brew 'postgresql'
 brew 'pre-commit'
 brew 'shellcheck'
+brew 'watchman'
 brew 'yarn'
+
+cask 'aws-vault'
+cask 'opensc'

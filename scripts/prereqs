@@ -28,8 +28,9 @@ if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   store_hash=$(nix-store -q --hash "${NIX_PROFILE}")
 
   if ! docker_installed_outside_of_brew; then
-    # Install Docker
-    brew install --cask docker
+  brew bundle --file=- <<EOF
+    cask 'docker'
+EOF
   fi
 
   # The .nix-hash file is created by nix/update.sh

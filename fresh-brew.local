@@ -106,17 +106,9 @@ if [ -f "Brewfile.local" ]; then
   fi
 fi
 
-if [[ $(uname -s) = Darwin ]]; then
+if ! docker_installed_outside_of_brew; then
   brew bundle --file=- <<EOF
-    cask 'aws-vault'
     cask 'docker'
-    cask 'opensc'
-    brew 'watchman'
-EOF
-else
-  # Linux
-  brew bundle --file=- <<EOF
-    brew 'aws-vault'
 EOF
 fi
 

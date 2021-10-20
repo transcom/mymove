@@ -77,10 +77,9 @@ install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install-hooks
 
 .PHONY: prereqs
-prereqs: .prereqs.stamp ## Check that pre-requirements are installed, includes dependency scripts
+prereqs: ## Check that pre-requirements are installed, includes dependency scripts
 .prereqs.stamp: scripts/prereqs scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version
 	scripts/prereqs
-	touch .prereqs.stamp
 
 .PHONY: check_hosts
 check_hosts: .check_hosts.stamp ## Check that hosts are in the /etc/hosts file
@@ -131,7 +130,7 @@ deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-w
 test: client_test server_test e2e_test ## Run all tests
 
 .PHONY: diagnostic
-diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
+diagnostic: check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
 check_log_dir: ## Make sure we have a log directory
