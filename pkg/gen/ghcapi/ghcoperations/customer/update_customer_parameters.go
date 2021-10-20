@@ -45,7 +45,7 @@ type UpdateCustomerParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.UpdateCustomerPayload
+	Body *ghcmessages.UpdateCustomer
 	/*ID of customer to use
 	  Required: true
 	  In: path
@@ -68,7 +68,7 @@ func (o *UpdateCustomerParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.UpdateCustomerPayload
+		var body ghcmessages.UpdateCustomer
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

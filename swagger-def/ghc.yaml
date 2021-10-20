@@ -70,7 +70,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateCustomerPayload'
+            $ref: '#/definitions/UpdateCustomer'
         - in: header
           name: If-Match
           type: string
@@ -148,7 +148,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/CounselingUpdateOrderPayload'
+            $ref: '#/definitions/CounselingUpdateOrder'
         - in: header
           name: If-Match
           type: string
@@ -191,7 +191,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateOrderPayload'
+            $ref: '#/definitions/UpdateOrder'
         - in: header
           name: If-Match
           type: string
@@ -262,7 +262,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateAllowancePayload'
+            $ref: '#/definitions/UpdateAllowance'
         - in: header
           name: If-Match
           type: string
@@ -343,7 +343,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateBillableWeightPayload'
+            $ref: '#/definitions/UpdateBillableWeight'
         - in: header
           name: If-Match
           type: string
@@ -386,7 +386,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIO'
         - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
@@ -426,7 +426,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/CounselingUpdateAllowancePayload'
+            $ref: '#/definitions/CounselingUpdateAllowance'
         - in: header
           name: If-Match
           type: string
@@ -1229,7 +1229,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
+            $ref: '#/definitions/PatchMTOServiceItemStatus'
         - in: header
           name: If-Match
           type: string
@@ -1583,7 +1583,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+            $ref: '#/definitions/UpdatePaymentRequestStatus'
         - in: header
           name: If-Match
           type: string
@@ -1630,7 +1630,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/Document'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2152,7 +2152,7 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  UpdateCustomerPayload:
+  UpdateCustomer:
     type: object
     properties:
       firstName:
@@ -2554,7 +2554,7 @@ definitions:
         type: string
         readOnly: true
     type: object
-  CounselingUpdateOrderPayload:
+  CounselingUpdateOrder:
     type: object
     properties:
       issueDate:
@@ -2583,7 +2583,7 @@ definitions:
       - ordersType
       - originDutyStationId
       - newDutyStationId
-  UpdateOrderPayload:
+  UpdateOrder:
     type: object
     properties:
       issueDate:
@@ -2637,7 +2637,7 @@ definitions:
       - ordersType
       - newDutyStationId
       - originDutyStationId
-  UpdateAllowancePayload:
+  UpdateAllowance:
     type: object
     properties:
       authorizedWeight:
@@ -2680,7 +2680,7 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
-  UpdateBillableWeightPayload:
+  UpdateBillableWeight:
     type: object
     properties:
       authorizedWeight:
@@ -2690,7 +2690,7 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
-  UpdateMaxBillableWeightAsTIOPayload:
+  UpdateMaxBillableWeightAsTIO:
     type: object
     properties:
       authorizedWeight:
@@ -2709,7 +2709,7 @@ definitions:
     required:
       - authorizedWeight
       - tioRemarks
-  CounselingUpdateAllowancePayload:
+  CounselingUpdateAllowance:
     type: object
     properties:
       grade:
@@ -3381,7 +3381,7 @@ definitions:
     required:
       - requestReason
       - approvedDays
-  PatchMTOServiceItemStatusPayload:
+  PatchMTOServiceItemStatus:
     properties:
       status:
         description: Describes all statuses for a MTOServiceItem
@@ -3592,7 +3592,7 @@ definitions:
     required:
       - isValid
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete
@@ -3604,7 +3604,7 @@ definitions:
         type: string
         readOnly: true
     type: object
-  DocumentPayload:
+  Document:
     type: object
     properties:
       id:

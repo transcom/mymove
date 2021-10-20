@@ -45,7 +45,7 @@ type CounselingUpdateAllowanceParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.CounselingUpdateAllowancePayload
+	Body *ghcmessages.CounselingUpdateAllowance
 	/*ID of order to use
 	  Required: true
 	  In: path
@@ -68,7 +68,7 @@ func (o *CounselingUpdateAllowanceParams) BindRequest(r *http.Request, route *mi
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.CounselingUpdateAllowancePayload
+		var body ghcmessages.CounselingUpdateAllowance
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

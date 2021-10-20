@@ -45,7 +45,7 @@ type UpdateBillableWeightParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.UpdateBillableWeightPayload
+	Body *ghcmessages.UpdateBillableWeight
 	/*ID of order to use
 	  Required: true
 	  In: path
@@ -68,7 +68,7 @@ func (o *UpdateBillableWeightParams) BindRequest(r *http.Request, route *middlew
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.UpdateBillableWeightPayload
+		var body ghcmessages.UpdateBillableWeight
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

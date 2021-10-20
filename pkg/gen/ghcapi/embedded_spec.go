@@ -56,7 +56,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+              "$ref": "#/definitions/CounselingUpdateOrder"
             }
           },
           {
@@ -121,7 +121,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+              "$ref": "#/definitions/CounselingUpdateAllowance"
             }
           },
           {
@@ -220,7 +220,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateCustomerPayload"
+              "$ref": "#/definitions/UpdateCustomer"
             }
           },
           {
@@ -293,7 +293,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -882,7 +882,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/PatchMTOServiceItemStatus"
             }
           },
           {
@@ -1322,7 +1322,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateOrderPayload"
+              "$ref": "#/definitions/UpdateOrder"
             }
           },
           {
@@ -1450,7 +1450,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateAllowancePayload"
+              "$ref": "#/definitions/UpdateAllowance"
             }
           },
           {
@@ -1515,7 +1515,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateBillableWeightPayload"
+              "$ref": "#/definitions/UpdateBillableWeight"
             }
           },
           {
@@ -1580,7 +1580,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIO"
             }
           },
           {
@@ -1739,7 +1739,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
             }
           },
           {
@@ -3035,7 +3035,7 @@ func init() {
         }
       }
     },
-    "CounselingUpdateAllowancePayload": {
+    "CounselingUpdateAllowance": {
       "type": "object",
       "properties": {
         "agency": {
@@ -3075,7 +3075,7 @@ func init() {
         }
       }
     },
-    "CounselingUpdateOrderPayload": {
+    "CounselingUpdateOrder": {
       "type": "object",
       "required": [
         "issueDate",
@@ -3311,7 +3311,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -4352,7 +4352,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "PatchMTOServiceItemStatusPayload": {
+    "PatchMTOServiceItemStatus": {
       "properties": {
         "rejectionReason": {
           "description": "Reason the service item was rejected",
@@ -5053,7 +5053,7 @@ func init() {
         }
       }
     },
-    "UpdateAllowancePayload": {
+    "UpdateAllowance": {
       "type": "object",
       "properties": {
         "agency": {
@@ -5103,7 +5103,7 @@ func init() {
         }
       }
     },
-    "UpdateBillableWeightPayload": {
+    "UpdateBillableWeight": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -5116,7 +5116,7 @@ func init() {
         }
       }
     },
-    "UpdateCustomerPayload": {
+    "UpdateCustomer": {
       "type": "object",
       "properties": {
         "backupContact": {
@@ -5157,7 +5157,7 @@ func init() {
         }
       }
     },
-    "UpdateMaxBillableWeightAsTIOPayload": {
+    "UpdateMaxBillableWeightAsTIO": {
       "type": "object",
       "required": [
         "authorizedWeight",
@@ -5181,7 +5181,7 @@ func init() {
         }
       }
     },
-    "UpdateOrderPayload": {
+    "UpdateOrder": {
       "type": "object",
       "required": [
         "issueDate",
@@ -5249,7 +5249,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -5546,7 +5546,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+              "$ref": "#/definitions/CounselingUpdateOrder"
             }
           },
           {
@@ -5626,7 +5626,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+              "$ref": "#/definitions/CounselingUpdateAllowance"
             }
           },
           {
@@ -5755,7 +5755,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateCustomerPayload"
+              "$ref": "#/definitions/UpdateCustomer"
             }
           },
           {
@@ -5849,7 +5849,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -6615,7 +6615,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/PatchMTOServiceItemStatus"
             }
           },
           {
@@ -7202,7 +7202,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateOrderPayload"
+              "$ref": "#/definitions/UpdateOrder"
             }
           },
           {
@@ -7366,7 +7366,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateAllowancePayload"
+              "$ref": "#/definitions/UpdateAllowance"
             }
           },
           {
@@ -7446,7 +7446,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateBillableWeightPayload"
+              "$ref": "#/definitions/UpdateBillableWeight"
             }
           },
           {
@@ -7526,7 +7526,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
+              "$ref": "#/definitions/UpdateMaxBillableWeightAsTIO"
             }
           },
           {
@@ -7731,7 +7731,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
             }
           },
           {
@@ -9249,7 +9249,7 @@ func init() {
         }
       }
     },
-    "CounselingUpdateAllowancePayload": {
+    "CounselingUpdateAllowance": {
       "type": "object",
       "properties": {
         "agency": {
@@ -9292,7 +9292,7 @@ func init() {
         }
       }
     },
-    "CounselingUpdateOrderPayload": {
+    "CounselingUpdateOrder": {
       "type": "object",
       "required": [
         "issueDate",
@@ -9528,7 +9528,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -10569,7 +10569,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "PatchMTOServiceItemStatusPayload": {
+    "PatchMTOServiceItemStatus": {
       "properties": {
         "rejectionReason": {
           "description": "Reason the service item was rejected",
@@ -11273,7 +11273,7 @@ func init() {
         }
       }
     },
-    "UpdateAllowancePayload": {
+    "UpdateAllowance": {
       "type": "object",
       "properties": {
         "agency": {
@@ -11326,7 +11326,7 @@ func init() {
         }
       }
     },
-    "UpdateBillableWeightPayload": {
+    "UpdateBillableWeight": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -11339,7 +11339,7 @@ func init() {
         }
       }
     },
-    "UpdateCustomerPayload": {
+    "UpdateCustomer": {
       "type": "object",
       "properties": {
         "backupContact": {
@@ -11380,7 +11380,7 @@ func init() {
         }
       }
     },
-    "UpdateMaxBillableWeightAsTIOPayload": {
+    "UpdateMaxBillableWeightAsTIO": {
       "type": "object",
       "required": [
         "authorizedWeight",
@@ -11404,7 +11404,7 @@ func init() {
         }
       }
     },
-    "UpdateOrderPayload": {
+    "UpdateOrder": {
       "type": "object",
       "required": [
         "issueDate",
@@ -11472,7 +11472,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
