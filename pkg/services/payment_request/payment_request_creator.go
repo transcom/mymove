@@ -6,6 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -44,21 +46,21 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCtx.DB(), paymentRequestArg, now)
 
 		if err != nil {
-			var badDataError *services.BadDataError
+			var badDataError *apperror.BadDataError
 
-			if _, ok := err.(services.InvalidCreateInputError); ok {
+			if _, ok := err.(apperror.InvalidCreateInputError); ok {
 				return err
 			}
-			if _, ok := err.(services.NotFoundError); ok {
+			if _, ok := err.(apperror.NotFoundError); ok {
 				return err
 			}
-			if _, ok := err.(services.ConflictError); ok {
+			if _, ok := err.(apperror.ConflictError); ok {
 				return err
 			}
-			if _, ok := err.(services.InvalidInputError); ok {
+			if _, ok := err.(apperror.InvalidInputError); ok {
 				return err
 			}
-			if _, ok := err.(services.QueryError); ok {
+			if _, ok := err.(apperror.QueryError); ok {
 				return err
 			}
 			if errors.As(err, &badDataError) {
@@ -87,10 +89,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Create the payment service item
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx.DB(), paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
-				if _, ok := err.(services.InvalidCreateInputError); ok {
+				if _, ok := err.(apperror.InvalidCreateInputError); ok {
 					return err
 				}
-				if _, ok := err.(services.NotFoundError); ok {
+				if _, ok := err.(apperror.NotFoundError); ok {
 					return err
 				}
 
@@ -107,10 +109,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 				var key, value *string
 				param, key, value, err = p.createPaymentServiceItemParam(txnAppCtx.DB(), paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
-					if _, ok := err.(*services.BadDataError); ok {
+					if _, ok := err.(*apperror.BadDataError); ok {
 						return err
 					}
-					if _, ok := err.(services.NotFoundError); ok {
+					if _, ok := err.(apperror.NotFoundError); ok {
 						return err
 					}
 					return fmt.Errorf("failed to create payment service item param [%s]: %w for %s", paymentServiceItemParam.ServiceItemParamKeyID, err, errMessageString)
@@ -202,7 +204,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
 	if paymentRequest.MoveTaskOrderID == uuid.Nil {
-		return nil, services.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+		return nil, apperror.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
 	}
 
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
@@ -218,7 +220,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			msg := "for Move"
-			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
+			return nil, apperror.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
 		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
@@ -227,39 +229,39 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	err = tx.Load(&moveTaskOrder, "Orders")
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing", moveTaskOrder.ID))
+		return nil, apperror.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing", moveTaskOrder.ID))
 	}
 
 	// Verify that the Orders has LOA
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
-		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
 	}
 	// Verify that the Orders have OriginDutyStation
 	if moveTaskOrder.Orders.OriginDutyStationID == nil {
-		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
 	}
 	// Verify that ServiceMember is Valid
 	err = tx.Load(&moveTaskOrder.Orders, "ServiceMember")
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
+		return nil, apperror.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
 	}
 
 	serviceMember := moveTaskOrder.Orders.ServiceMember
 	// Verify First Name
 	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {
-		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
 	}
 	// Verify Last Name
 	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
-		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
 	}
 	// Verify Rank
 	if serviceMember.Rank == nil || *serviceMember.Rank == "" {
-		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
 	}
 	// Verify Affiliation
 	if serviceMember.Affiliation == nil || *serviceMember.Affiliation == "" {
-		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))
+		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))
 	}
 
 	// Verify that there were no previous requests that were marked as final
@@ -267,11 +269,11 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	count, err := tx.Q().Where("move_id = $1 AND is_final = TRUE AND status <> $2", paymentRequest.MoveTaskOrderID, models.PaymentRequestStatusReviewedAllRejected).Count(&finalPaymentRequests)
 
 	if err != nil {
-		return nil, services.NewQueryError("PaymentRequests", err, fmt.Sprintf("Error while querying final payment request for MTO %s: %s", paymentRequest.MoveTaskOrderID, err.Error()))
+		return nil, apperror.NewQueryError("PaymentRequests", err, fmt.Sprintf("Error while querying final payment request for MTO %s: %s", paymentRequest.MoveTaskOrderID, err.Error()))
 	}
 
 	if count != 0 {
-		return nil, services.NewInvalidInputError(moveTaskOrder.ID, nil, nil, fmt.Sprintf("Cannot create PaymentRequest because a final PaymentRequest has already been submitted for MoveTaskOrder (ID: %s)", moveTaskOrder.ID))
+		return nil, apperror.NewInvalidInputError(moveTaskOrder.ID, nil, nil, fmt.Sprintf("Cannot create PaymentRequest because a final PaymentRequest has already been submitted for MoveTaskOrder (ID: %s)", moveTaskOrder.ID))
 	}
 
 	// Update PaymentRequest
@@ -282,7 +284,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
 	if err != nil {
 		errMsg := fmt.Sprintf("issue creating payment request unique identifier: %s", err.Error())
-		return nil, services.NewInvalidCreateInputError(nil, errMsg)
+		return nil, apperror.NewInvalidCreateInputError(nil, errMsg)
 	}
 	paymentRequest.PaymentRequestNumber = uniqueIdentifier
 	paymentRequest.SequenceNumber = sequenceNumber
@@ -291,7 +293,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	verrs, err := tx.ValidateAndCreate(paymentRequest)
 	if verrs.HasAny() {
 		msg := "validation error creating payment request"
-		return nil, services.NewInvalidCreateInputError(verrs, msg)
+		return nil, apperror.NewInvalidCreateInputError(verrs, msg)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failure creating payment request: %w for %s", err, paymentRequest.ID.String())
@@ -307,7 +309,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			msg := "for MTO Service Item"
-			return models.PaymentServiceItem{}, models.MTOServiceItem{}, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
+			return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
 		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not fetch MTOServiceItem with ID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
@@ -323,7 +325,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	verrs, err := tx.ValidateAndCreate(&paymentServiceItem)
 	if verrs.HasAny() {
 		msg := "validation error creating payment request service item in payment request creation"
-		return paymentServiceItem, mtoServiceItem, services.NewInvalidCreateInputError(verrs, msg)
+		return paymentServiceItem, mtoServiceItem, apperror.NewInvalidCreateInputError(verrs, msg)
 	}
 	if err != nil {
 		return paymentServiceItem, mtoServiceItem, fmt.Errorf("failure creating payment service item: %w for MTO Service Item ID <%s>", err, paymentServiceItem.MTOServiceItemID.String())
@@ -337,7 +339,7 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppCon
 	if err != nil {
 		// If a pricer isn't implemented yet, just skip saving any pricing for now.
 		// TODO: Once all pricers are implemented, this should be removed.
-		if _, ok := err.(services.NotImplementedError); ok {
+		if _, ok := err.(apperror.NotImplementedError); ok {
 			return paymentServiceItem, displayParams, nil
 		}
 
@@ -348,7 +350,7 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppCon
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&paymentServiceItem)
 	if verrs.HasAny() {
-		return models.PaymentServiceItem{}, displayParams, services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
+		return models.PaymentServiceItem{}, displayParams, apperror.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
 	}
 	if err != nil {
 		return models.PaymentServiceItem{}, displayParams, fmt.Errorf("could not update payment service item for MTO service item ID %s: %w",
@@ -374,7 +376,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				msg := "Service Item Param Key ID"
-				return models.PaymentServiceItemParam{}, nil, nil, services.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
+				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
 			}
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 		}
@@ -386,7 +388,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				errorString := fmt.Sprintf("Service Item Param Key %s: %s", paymentServiceItemParam.IncomingKey, models.ErrFetchNotFound)
-				return models.PaymentServiceItemParam{}, nil, nil, services.NewNotFoundError(uuid.Nil, errorString)
+				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewNotFoundError(uuid.Nil, errorString)
 			}
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}
@@ -406,7 +408,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		verrs, err := tx.ValidateAndCreate(&paymentServiceItemParam)
 		if verrs.HasAny() {
 			msg := "validation error creating payment service item param in payment request creation"
-			return models.PaymentServiceItemParam{}, nil, nil, services.NewInvalidCreateInputError(verrs, msg)
+			return models.PaymentServiceItemParam{}, nil, nil, apperror.NewInvalidCreateInputError(verrs, msg)
 		}
 		if err != nil {
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("failure creating payment service item param: %w for Payment Service Item ID <%s> Service Item Param Key <%s>", err, paymentServiceItem.ID.String(), serviceItemParamKey.Key)
@@ -453,7 +455,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appconte
 	verrs, err = appCtx.DB().ValidateAndCreate(&paymentServiceItemParam)
 	if verrs.HasAny() {
 		msg := fmt.Sprintf("validation error creating payment service item param: for payment service item ID <%s> and service item key <%s>", paymentServiceItem.ID.String(), serviceParam.ServiceItemParamKey.Key)
-		return nil, services.NewInvalidCreateInputError(verrs, msg)
+		return nil, apperror.NewInvalidCreateInputError(verrs, msg)
 	}
 
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -23,7 +24,7 @@ func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appco
 		Where("status = ?", models.PaymentRequestStatusReviewed).
 		All(&reviewedPaymentRequests)
 	if err != nil {
-		return reviewedPaymentRequests, services.NewQueryError("PaymentRequests", err, fmt.Sprintf("Could not find reviewed payment requests: %s", err))
+		return reviewedPaymentRequests, apperror.NewQueryError("PaymentRequests", err, fmt.Sprintf("Could not find reviewed payment requests: %s", err))
 	}
 	return reviewedPaymentRequests, err
 }

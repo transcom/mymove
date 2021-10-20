@@ -7,6 +7,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -43,7 +45,7 @@ func (o *moveTaskOrderHider) Hide() (services.HiddenMoves, error) {
 		Where("show = ?", swag.Bool(true)).
 		All(&mtos)
 	if err != nil {
-		return nil, services.NewQueryError("Moves", err, fmt.Sprintf("Could not find move task orders: %s", err))
+		return nil, apperror.NewQueryError("Moves", err, fmt.Sprintf("Could not find move task orders: %s", err))
 	}
 
 	var invalidFakeMoves models.Moves
@@ -79,10 +81,10 @@ func (o *moveTaskOrderHider) Hide() (services.HiddenMoves, error) {
 
 		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
 		if verrs != nil && verrs.HasAny() {
-			return nil, services.NewInvalidInputError(mto.ID, err, verrs, "")
+			return nil, apperror.NewInvalidInputError(mto.ID, err, verrs, "")
 		}
 		if updateErr != nil {
-			return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error when saving move: %v", err))
+			return nil, apperror.NewQueryError("Move", err, fmt.Sprintf("Unexpected error when saving move: %v", err))
 		}
 	}
 

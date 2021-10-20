@@ -5,9 +5,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -29,7 +30,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, nonexistentUUID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
@@ -49,7 +50,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), mtoShipment.ID.String())
 	})
 

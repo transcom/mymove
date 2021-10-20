@@ -3,9 +3,10 @@ package sitextension
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // checks business requirements
@@ -38,7 +39,7 @@ func validateSITExtension(
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(sitExtension.ID, nil, verrs, "Invalid input found while validating the sitExtension.")
+		result = apperror.NewInvalidInputError(sitExtension.ID, nil, verrs, "Invalid input found while validating the sitExtension.")
 	}
 	return result
 }

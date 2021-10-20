@@ -5,6 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/event"
 
@@ -40,9 +42,9 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	if err != nil {
 		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return movetaskorderops.NewGetMoveTaskOrderBadRequest()
 		default:
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
@@ -79,14 +81,14 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	if err != nil {
 		logger.Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
@@ -139,14 +141,14 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 	if err != nil {
 		logger.Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
@@ -197,14 +199,14 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 	if err != nil {
 		logger.Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc error", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()

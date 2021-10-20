@@ -6,6 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -53,7 +55,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		err = errors.Wrap(models.ErrInvalidTransition,
 			fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
 
-		return &models.Move{}, services.NewConflictError(move.ID, err.Error())
+		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 	}
 
 	// update field for move
@@ -65,17 +67,17 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
 	if encodedUpdatedAt != eTag {
-		return nil, services.NewPreconditionFailedError(move.ID, err)
+		return nil, apperror.NewPreconditionFailedError(move.ID, err)
 	}
 
 	verrs, err = appCtx.DB().ValidateAndSave(move)
 	if verrs != nil && verrs.HasAny() {
-		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
+		return &models.Move{}, apperror.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(move.ID, err)
+			return nil, apperror.NewPreconditionFailedError(move.ID, err)
 		default:
 			return &models.Move{}, err
 		}
@@ -105,7 +107,7 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 		// Check the If-Match header against existing eTag before updating
 		encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
 		if encodedUpdatedAt != eTag {
-			return services.NewPreconditionFailedError(move.ID, err)
+			return apperror.NewPreconditionFailedError(move.ID, err)
 		}
 
 		err = appCtx.DB().Update(move)
@@ -136,7 +138,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 
 	existingETag := etag.GenerateEtag(move.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Move{}, services.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	if move.AvailableToPrimeAt == nil {
@@ -145,7 +147,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 
 		err = o.moveRouter.Approve(appCtx, move)
 		if err != nil {
-			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
+			return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 		}
 
 		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -186,7 +188,7 @@ func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move mod
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(move.ID, nil, verrs, "")
+		return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
 
 	return err
@@ -207,13 +209,13 @@ func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCtx appcontext.AppC
 
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidTransition) {
-			return services.NewConflictError(move.ID, err.Error())
+			return apperror.NewConflictError(move.ID, err.Error())
 		}
 		return err
 	}
 
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(move.ID, nil, verrs, "")
+		return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
 
 	return nil
@@ -237,7 +239,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 	).Find(&moveTaskOrder, moveTaskOrderID)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
+		return nil, apperror.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
 	}
 
 	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
@@ -246,13 +248,13 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 	verrs, err := o.builder.UpdateOne(appCtx, &moveTaskOrder, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(moveTaskOrder.ID, err, verrs, "")
+		return nil, apperror.NewInvalidInputError(moveTaskOrder.ID, err, verrs, "")
 	}
 
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(moveTaskOrder.ID, err)
+			return nil, apperror.NewPreconditionFailedError(moveTaskOrder.ID, err)
 		default:
 			return nil, err
 		}
@@ -269,25 +271,25 @@ func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uui
 	}
 	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "while fetching the Move")
+		return nil, apperror.NewNotFoundError(moveID, "while fetching the Move")
 	}
 
 	if show == nil {
-		return nil, services.NewInvalidInputError(moveID, nil, nil, "The 'show' field must be either True or False - it cannot be empty")
+		return nil, apperror.NewInvalidInputError(moveID, nil, nil, "The 'show' field must be either True or False - it cannot be empty")
 	}
 
 	move.Show = show
 	verrs, err := appCtx.DB().ValidateAndSave(move)
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
+		return nil, apperror.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
 	} else if err != nil {
-		return nil, services.NewQueryError("Move", err, "")
+		return nil, apperror.NewQueryError("Move", err, "")
 	}
 
 	// Get the updated Move and return
 	updatedMove, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
-		return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		return nil, apperror.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 
 	return updatedMove, nil

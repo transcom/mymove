@@ -14,7 +14,7 @@ if [ "$UNAME_S" == "Linux" ]; then
   /usr/local/bin/swagger validate "${filename}"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40
+  image=milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
   docker pull -q "${image}"
   docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
 fi

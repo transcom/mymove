@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -49,7 +49,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Should update and return no error if the payment request has service items that have all been reviewed", func(t *testing.T) {
@@ -86,7 +86,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 }

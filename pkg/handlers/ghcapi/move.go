@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -32,7 +34,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 	if err != nil {
 		logger.Error("Error retrieving move by locator", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewGetMoveNotFound()
 		default:
 			return moveop.NewGetMoveInternalServerError()

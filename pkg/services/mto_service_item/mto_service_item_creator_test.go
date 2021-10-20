@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -288,7 +289,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemNoMTO)
 		suite.Nil(createdServiceItemsNoMTO)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundID.String())
 	})
 
@@ -306,7 +307,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemBadCode)
 		suite.Nil(createdServiceItemsBadCode)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), fakeCode)
 	})
 
@@ -352,7 +353,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemBadShip)
 		suite.Nil(createdServiceItemsBadShip)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), shipment.ID.String())
 		suite.Contains(err.Error(), move.ID.String())
 	})
@@ -381,7 +382,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemNoWeight)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	// The timeMilitary fields need to be in the correct format.
@@ -411,7 +412,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
-			suite.IsType(services.InvalidInputError{}, err)
+			suite.IsType(apperror.InvalidInputError{}, err)
 			suite.Contains(err.Error(), "timeMilitary")
 		})
 
@@ -422,7 +423,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
-			suite.IsType(services.InvalidInputError{}, err)
+			suite.IsType(apperror.InvalidInputError{}, err)
 			suite.Contains(err.Error(), "timeMilitary")
 			suite.Contains(err.Error(), "hours must be between 00 and 23")
 		})
@@ -434,7 +435,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
-			suite.IsType(services.InvalidInputError{}, err)
+			suite.IsType(apperror.InvalidInputError{}, err)
 			suite.Contains(err.Error(), "timeMilitary")
 			suite.Contains(err.Error(), "minutes must be between 00 and 59")
 		})
@@ -446,7 +447,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
-			suite.IsType(services.InvalidInputError{}, err)
+			suite.IsType(apperror.InvalidInputError{}, err)
 			suite.Contains(err.Error(), "timeMilitary")
 			suite.Contains(err.Error(), "minutes must be between 00 and 59")
 		})
@@ -458,7 +459,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
-			suite.IsType(services.InvalidInputError{}, err)
+			suite.IsType(apperror.InvalidInputError{}, err)
 			suite.Contains(err.Error(), "timeMilitary")
 			suite.Contains(err.Error(), "must end with 'Z'")
 		})
@@ -556,7 +557,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 	})
 
@@ -653,7 +654,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.TestAppContext(), existingServiceItem)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Do not create DOFSIT if one already exists for the shipment", func(t *testing.T) {
@@ -674,7 +675,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Do not create standalone DOPSIT service item", func(t *testing.T) {
@@ -698,7 +699,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 	})
 
@@ -723,7 +724,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func(t *testing.T) {
@@ -747,7 +748,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 }
@@ -789,7 +790,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
 
@@ -844,7 +845,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), "service code")
 	})
 
@@ -889,7 +890,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "timeMilitary")
 	})
 
@@ -955,7 +956,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "A service item with reServiceCode DDFSIT already exists for this move and/or shipment.")
 	})
 
@@ -1001,7 +1002,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), "No matching first-day SIT service item found")
 		suite.Contains(err.Error(), shipmentNoDDFSIT.ID.String())
 	})
@@ -1021,10 +1022,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.TestAppContext(), &serviceItemDDDSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "DDDSIT")
 
-		invalidInputError := err.(services.InvalidInputError)
+		invalidInputError := err.(apperror.InvalidInputError)
 		suite.NotEmpty(invalidInputError.ValidationErrors)
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
 	})

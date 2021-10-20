@@ -1,9 +1,19 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Button, Checkbox } from '@trussworks/react-uswds';
+import React, { useState, useMemo } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
+import * as Yup from 'yup';
+import { Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+import { queryCache, useMutation } from 'react-query';
+import moment from 'moment';
+import { generatePath } from 'react-router';
 
-import Shipment from '../Shipment/Shipment';
+import { createPaymentRequest } from '../../../services/primeApi';
+import scrollToTop from '../../../shared/scrollToTop';
+import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
+import { primeSimulatorRoutes } from '../../../constants/routes';
+import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
+
+import styles from './CreatePaymentRequest.module.scss';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -12,61 +22,118 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 
-const ServiceItem = ({ serviceItem }) => {
-  return (
-    <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${serviceItem.reServiceName}`}</h3>
-      <div className={descriptionListStyles.row}>
-        <dt>Status:</dt>
-        <dd>{serviceItem.status}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>ID:</dt>
-        <dd>{serviceItem.id}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Service Code:</dt>
-        <dd>{serviceItem.reServiceCode}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Service Name:</dt>
-        <dd>{serviceItem.reServiceName}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>eTag:</dt>
-        <dd>{serviceItem.eTag}</dd>
-      </div>
-    </dl>
-  );
-};
-
-ServiceItem.propTypes = {
-  serviceItem: PropTypes.shape({
-    id: PropTypes.string,
-    reServiceCode: PropTypes.string,
-    reServiceName: PropTypes.string,
-    eTag: PropTypes.string,
-    status: PropTypes.string,
-  }).isRequired,
-};
+const createPaymentRequestSchema = Yup.object().shape({
+  serviceItems: Yup.array().of(Yup.string()).min(1),
+});
 
 const CreatePaymentRequest = () => {
   const { moveCodeOrID } = useParams();
+  const history = useHistory();
+
+  const [errorMessage, setErrorMessage] = useState();
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+
+  const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
+    onSuccess: (data) => {
+      if (!moveTaskOrder.paymentRequests?.length) {
+        moveTaskOrder.paymentRequests = [];
+      }
+      moveTaskOrder.paymentRequests.push(data);
+
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+
+      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({ title: body.title, detail: body.detail });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail:
+            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const { mtoShipments, mtoServiceItems } = moveTaskOrder || {};
+
+  const groupedServiceItems = useMemo(() => {
+    const serviceItems = { basic: [] };
+    mtoServiceItems?.forEach((mtoServiceItem) => {
+      if (mtoServiceItem.mtoShipmentID == null) {
+        serviceItems.basic.push(mtoServiceItem);
+      } else if (!serviceItems[mtoServiceItem.mtoShipmentID]) {
+        serviceItems[mtoServiceItem.mtoShipmentID] = [mtoServiceItem];
+      } else {
+        serviceItems[mtoServiceItem.mtoShipmentID].push(mtoServiceItem);
+      }
+    });
+    return serviceItems;
+  }, [mtoServiceItems]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, mtoServiceItems } = moveTaskOrder;
-  const MoveServiceCodes = ['MS', 'CS'];
+  // always display the shipments in order of creation date to not disorient the user
+  mtoShipments.sort((firstShipment, secondShipment) => {
+    return moment(firstShipment.createdAt) - moment(secondShipment.createdAt);
+  });
+
+  const initialValues = {
+    serviceItems: [],
+  };
+
+  const onSubmit = (values, formik) => {
+    const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
+      return { id: serviceItem };
+    });
+    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
+      formik.setSubmitting(false);
+    });
+  };
+
+  const handleShipmentSelectAll = (shipmentID, values, setValues, event) => {
+    const shipmentServiceItems = groupedServiceItems[shipmentID];
+    const existingServiceItems = values.serviceItems;
+
+    if (!event.target.checked) {
+      // unselected the select all
+      shipmentServiceItems.forEach((serviceItem) => {
+        // remove the single element in place
+        existingServiceItems.splice(existingServiceItems.indexOf(serviceItem.id), 1);
+      });
+    } else {
+      shipmentServiceItems.forEach((serviceItem) => {
+        // don't add duplicates if one is already selected prior to clicking select all
+        if (!existingServiceItems.includes(serviceItem.id)) {
+          existingServiceItems.push(serviceItem.id);
+        }
+      });
+    }
+    setValues({ serviceItems: existingServiceItems });
+  };
 
   return (
-    <div className="grid-container-desktop-lg usa-prose">
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
       <div className="grid-row">
         <div className="grid-col-12">
+          {errorMessage?.detail && (
+            <div className={styles.errorContainer}>
+              <Alert slim type="error">
+                <span className={styles.errorTitle}>{errorMessage.title}</span>
+                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+              </Alert>
+            </div>
+          )}
           <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
+            <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
               <h2>Move</h2>
               <div className={descriptionListStyles.row}>
                 <dt>Move Code:</dt>
@@ -78,64 +145,14 @@ const CreatePaymentRequest = () => {
               </div>
             </dl>
           </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Move Service Items</h2>
-              {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                return (
-                  MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
-                    <SectionWrapper key={`moveServiceItems${mtoServiceItem.id}`} className={formStyles.formSection}>
-                      <Checkbox
-                        label="Add to payment request"
-                        name={`serviceItem${mtoServiceItem.id}`}
-                        onChange={() => {}}
-                        id={mtoServiceItem.id}
-                      />
-                      <ServiceItem
-                        key={`moveServiceItem${mtoServiceItem.id}`}
-                        serviceItem={mtoServiceItem}
-                        shipmentServiceItemNumber={mtoServiceItemIndex}
-                      />
-                    </SectionWrapper>
-                  )
-                );
-              })}
-            </dl>
-          </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Shipments</h2>
-              {mtoShipments?.map((mtoShipment) => {
-                return (
-                  <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
-                    <h2>Shipment Service Items</h2>
-                    {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                      return (
-                        mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                          <SectionWrapper
-                            key={`shipmentServiceItems${mtoServiceItem.id}`}
-                            className={formStyles.formSection}
-                          >
-                            <Checkbox
-                              label="Add to payment request"
-                              name={`serviceItem${mtoServiceItem.id}`}
-                              onChange={() => {}}
-                              id={mtoServiceItem.id}
-                            />
-                            <ServiceItem serviceItem={mtoServiceItem} shipmentServiceItemNumber={mtoServiceItemIndex} />
-                          </SectionWrapper>
-                        )
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </dl>
-            <Button aria-label="Submit Payment Request" onClick={() => {}} type="button">
-              Submit Payment Request
-            </Button>
-          </SectionWrapper>
+          <CreatePaymentRequestForm
+            initialValues={initialValues}
+            onSubmit={onSubmit}
+            handleSelectAll={handleShipmentSelectAll}
+            createPaymentRequestSchema={createPaymentRequestSchema}
+            mtoShipments={mtoShipments}
+            groupedServiceItems={groupedServiceItems}
+          />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -40,7 +41,7 @@ func checkReweighID() reweighValidator {
 			}
 		} else {
 			if newReweigh.ID != oldReweigh.ID {
-				return services.NewImplementationError(
+				return apperror.NewImplementationError(
 					fmt.Sprintf("the newReweigh ID (%s) must match oldReweigh ID (%s).", newReweigh.ID, oldReweigh.ID),
 				)
 			}
@@ -89,12 +90,12 @@ func checkRequiredFields() reweighValidator {
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) reweighValidator {
 	return reweighValidatorFunc(func(appCtx appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error {
 		if shipment == nil {
-			return services.NewNotFoundError(newReweigh.ID, "while looking for Prime-available Shipment")
+			return apperror.NewNotFoundError(newReweigh.ID, "while looking for Prime-available Shipment")
 		}
 
 		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
-			return services.NewNotFoundError(
+			return apperror.NewNotFoundError(
 				newReweigh.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))
 		}
 		return nil
