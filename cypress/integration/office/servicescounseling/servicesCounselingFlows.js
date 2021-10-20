@@ -13,8 +13,8 @@ describe('Services counselor user', () => {
     );
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/move-task-orders/**/mto-shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move-task-orders/**/mto-service-items').as('getMTOServiceItems');
     cy.intercept('**/ghc/v1/move-task-orders/**/status/service-counseling-completed').as(
       'patchServiceCounselingCompleted',
     );
