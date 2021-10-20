@@ -3089,8 +3089,7 @@ func init() {
           "description": "The date and time that these orders were cut.",
           "type": "string",
           "format": "date",
-          "title": "Orders date",
-          "example": "2018-04-26"
+          "title": "Orders date"
         },
         "newDutyStationId": {
           "type": "string",
@@ -3109,8 +3108,7 @@ func init() {
           "description": "Report By Date",
           "type": "string",
           "format": "date",
-          "title": "Report-by date",
-          "example": "2018-04-26"
+          "title": "Report-by date"
         }
       }
     },
@@ -3757,8 +3755,7 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "First available date that Prime can deliver SIT service item.",
           "type": "string",
-          "format": "date",
-          "example": "2020-12-31"
+          "format": "date"
         },
         "id": {
           "type": "string",
@@ -4220,8 +4217,7 @@ func init() {
         },
         "dateIssued": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -4287,8 +4283,7 @@ func init() {
         },
         "reportByDate": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "sac": {
           "type": "string",
@@ -5203,8 +5198,7 @@ func init() {
           "description": "The date and time that these orders were cut.",
           "type": "string",
           "format": "date",
-          "title": "Orders date",
-          "example": "2018-04-26"
+          "title": "Orders date"
         },
         "newDutyStationId": {
           "type": "string",
@@ -5237,8 +5231,7 @@ func init() {
           "description": "Report By Date",
           "type": "string",
           "format": "date",
-          "title": "Report-by date",
-          "example": "2018-04-26"
+          "title": "Report-by date"
         },
         "sac": {
           "type": "string",
@@ -9313,8 +9306,7 @@ func init() {
           "description": "The date and time that these orders were cut.",
           "type": "string",
           "format": "date",
-          "title": "Orders date",
-          "example": "2018-04-26"
+          "title": "Orders date"
         },
         "newDutyStationId": {
           "type": "string",
@@ -9333,8 +9325,7 @@ func init() {
           "description": "Report By Date",
           "type": "string",
           "format": "date",
-          "title": "Report-by date",
-          "example": "2018-04-26"
+          "title": "Report-by date"
         }
       }
     },
@@ -9981,8 +9972,7 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "First available date that Prime can deliver SIT service item.",
           "type": "string",
-          "format": "date",
-          "example": "2020-12-31"
+          "format": "date"
         },
         "id": {
           "type": "string",
@@ -10444,8 +10434,7 @@ func init() {
         },
         "dateIssued": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -10511,8 +10500,7 @@ func init() {
         },
         "reportByDate": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "sac": {
           "type": "string",
@@ -11433,8 +11421,7 @@ func init() {
           "description": "The date and time that these orders were cut.",
           "type": "string",
           "format": "date",
-          "title": "Orders date",
-          "example": "2018-04-26"
+          "title": "Orders date"
         },
         "newDutyStationId": {
           "type": "string",
@@ -11467,8 +11454,7 @@ func init() {
           "description": "Report By Date",
           "type": "string",
           "format": "date",
-          "title": "Report-by date",
-          "example": "2018-04-26"
+          "title": "Report-by date"
         },
         "sac": {
           "type": "string",

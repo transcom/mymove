@@ -20,7 +20,6 @@ import (
 type MTOServiceItemCustomerContact struct {
 
 	// First available date that Prime can deliver SIT service item.
-	// Example: 2020-12-31
 	// Format: date
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 

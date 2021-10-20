@@ -25,7 +25,6 @@ type UpdateOrderPayload struct {
 	// Orders date
 	//
 	// The date and time that these orders were cut.
-	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	IssueDate *strfmt.Date `json:"issueDate"`
@@ -59,7 +58,6 @@ type UpdateOrderPayload struct {
 	// Report-by date
 	//
 	// Report By Date
-	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`

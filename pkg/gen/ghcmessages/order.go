@@ -35,7 +35,6 @@ type Order struct {
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
 	// date issued
-	// Example: 2020-01-01
 	// Format: date
 	DateIssued strfmt.Date `json:"dateIssued,omitempty"`
 
@@ -100,7 +99,6 @@ type Order struct {
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
 	// report by date
-	// Example: 2020-01-01
 	// Format: date
 	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 

@@ -2527,11 +2527,9 @@ definitions:
       dateIssued:
         type: string
         format: date
-        example: '2020-01-01'
       reportByDate:
         type: string
         format: date
-        example: '2020-01-01'
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       tac:
@@ -2563,13 +2561,11 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -2594,13 +2590,11 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -3575,7 +3569,6 @@ definitions:
       firstAvailableDeliveryDate:
         format: date
         type: string
-        example: '2020-12-31'
         description: First available date that Prime can deliver SIT service item.
   MTOServiceItemCustomerContacts:
     type: array
