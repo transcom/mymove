@@ -182,7 +182,6 @@ const PrimeUIShipmentUpdate = () => {
   const validationSchema = Yup.object().shape({
     pickupAddress: requiredAddressSchema,
     destinationAddress: requiredAddressSchema,
-    requestedPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
   });
