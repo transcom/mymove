@@ -629,7 +629,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents": {
       "get": {
         "description": "Fetches a list of agents associated with a move task order.",
         "produces": [
@@ -1085,7 +1085,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -6299,7 +6299,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents": {
       "get": {
         "description": "Fetches a list of agents associated with a move task order.",
         "produces": [
@@ -6887,7 +6887,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",

@@ -50,11 +50,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
-		api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler = move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
-		})
-	}
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		api.OrderAcknowledgeExcessWeightRiskHandler = order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
@@ -223,6 +218,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.CustomerUpdateCustomerHandler == nil {
 		api.CustomerUpdateCustomerHandler = customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
+		api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler = move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {

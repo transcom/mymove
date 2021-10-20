@@ -56,9 +56,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
-		}),
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
@@ -161,6 +158,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
+		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
 		}),
@@ -227,8 +227,6 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
-	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
 	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
@@ -297,6 +295,8 @@ type MymoveAPI struct {
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
+	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
+	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -394,9 +394,6 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
-	}
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
@@ -498,6 +495,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
+	}
+	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -617,10 +617,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -664,7 +660,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -757,6 +753,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

@@ -1100,7 +1100,7 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
-  '/move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -1442,7 +1442,7 @@ paths:
       tags:
         - moveTaskOrder
       description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
-      operationId: UpdateMTOReviewedBillableWeightsAt
+      operationId: updateMTOReviewedBillableWeightsAt
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use

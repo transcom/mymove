@@ -29,7 +29,7 @@ func NewFetchMTOAgentList(ctx *middleware.Context, handler FetchMTOAgentListHand
 	return &FetchMTOAgentList{Context: ctx, Handler: handler}
 }
 
-/* FetchMTOAgentList swagger:route GET /move-task-orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents mtoAgent fetchMTOAgentList
+/* FetchMTOAgentList swagger:route GET /move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents mtoAgent fetchMTOAgentList
 
 Fetch move task order agents.
 
