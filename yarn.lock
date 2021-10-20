@@ -2230,12 +2230,12 @@
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"@redocly/openapi-cli@^1.0.0-beta.62":
-  version "1.0.0-beta.62"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.62.tgz#22892c22054af8f611f8538aa58d5ce2fd097fce"
-  integrity sha512-LnP8CnLXy8Xz1uJD2vm3mptMkzFOVGQTBJw2tsLi6KB3H+MpAn2R9PKYk6c2r/oilfnMtGrHnflYg52CP2K7ZA==
+"@redocly/openapi-cli@^1.0.0-beta.64":
+  version "1.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.64.tgz#c18ee977a14c0e08fb2e0209821fe51a461fa541"
+  integrity sha512-ZPFmMZdcRlSmoy0B6yUrsk8D42KaYyvGl9mdI1gCRoQowN6HbZT//Az4E48ffkNdmX669QeFq39BWViaFbyV3A==
   dependencies:
-    "@redocly/openapi-core" "^1.0.0-beta.62"
+    "@redocly/openapi-core" "^1.0.0-beta.64"
     "@types/node" "^14.11.8"
     assert-node-version "^1.0.3"
     chokidar "^3.5.1"
@@ -2243,21 +2243,20 @@
     glob "^7.1.6"
     glob-promise "^3.4.0"
     handlebars "^4.7.6"
-    js-yaml "^3.14.1"
     portfinder "^1.0.26"
     simple-websocket "^9.0.0"
     yargs "17.0.1"
 
-"@redocly/openapi-core@^1.0.0-beta.62":
-  version "1.0.0-beta.62"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.62.tgz#8cf8a343c94d35783e2b15c163c1cdd6f58e2be6"
-  integrity sha512-g4iPB7qpSNFCOpf/FgKiic+QCaCn4mdNQOWVEPuwpN7l72hlQ7J3YUa9cssJomkJXXxZ1zdP4h208s12LkhwVA==
+"@redocly/openapi-core@^1.0.0-beta.64":
+  version "1.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.64.tgz#367840ba888c95b82ce4b932b683c3482ee0e4e3"
+  integrity sha512-pNyA3YVulTehGHlYIv/LVXBuV4FfXFtikJavz/JmZs14uCy+Sujr8/iq904Mwc4YdXPYw3lZKxRwl7PW2q/jsg==
   dependencies:
     "@redocly/ajv" "^8.6.2"
     "@types/node" "^14.11.8"
     colorette "^1.2.0"
     js-levenshtein "^1.1.6"
-    js-yaml "^3.14.1"
+    js-yaml "^4.1.0"
     lodash.isequal "^4.5.0"
     minimatch "^3.0.4"
     node-fetch "^2.6.1"
@@ -12108,7 +12107,7 @@ js-stringify@^1.0.1:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@^3.13.1, js-yaml@^3.14.1:
+js-yaml@^3.13.1:
   version "3.14.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.1.tgz#dae812fdb3825fa306609a8717383c50c36a0537"
   integrity sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==
@@ -16424,10 +16423,10 @@ ra-core@^3.19.0:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-data-simple-rest@^3.18.3:
-  version "3.18.3"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.18.3.tgz#33ae36cfbba5f08ae64ed16f0c5953a0e37c8558"
-  integrity sha512-uGmfh0JDjxt7vKHduZ/7Otx4WxsYCOMPMCZO5nAJjpX/pUBTK/glWuxPKwd2Alfi3oEm60UmqPQUlLF9PmkqnQ==
+ra-data-simple-rest@^3.19.0:
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.0.tgz#c5cc572175d83d6e79b2bdca8c1b000a211644eb"
+  integrity sha512-/2Z8W605aYCAFRDez0rphrNQPu/RJdjG0LRq/h4f50eqDmTgVEdXBMCtVXZTiH+ThEXk9hHAkwUUzx0o8dl2eg==
   dependencies:
     query-string "^5.1.1"
 
