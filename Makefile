@@ -98,8 +98,12 @@ check_go_version: .check_go_version.stamp ## Check that the correct Golang versi
 
 .PHONY: check_gopath
 check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
-.check_gopath.stamp:
+.check_gopath.stamp: scripts/check-gopath
+ifndef CIRCLECI
 	scripts/check-gopath
+else
+	@echo "No need to check go path on CircleCI."
+endif
 	touch .check_gopath.stamp
 
 .PHONY: check_node_version
