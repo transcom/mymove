@@ -10,7 +10,7 @@ if [[ $NODE_VERSION = *$VERSION* ]]; then
   echo "Node $NODE_VERSION installed"
 else
   echo "Node $VERSION_NUMBER is required to run this project! Found $NODE_VERSION"
-  echo "Run 'make setup' to update your dev environment"
+  echo "Run 'make prereqs' to update your dev environment"
   exit 1
 fi
 
