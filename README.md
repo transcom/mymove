@@ -301,35 +301,29 @@ other steps necessary which aren't documented here.
 ### Setup: Manual
 
 1. [Set up AWS services](#setup-aws-services)
-1. [Prereqs](#manual-prerequisites)
+1. [Prerequisites](#manual-prerequisites)
 1. [Set up direnv](#setup-direnv)
 1. [Run the app](#setup-run-the-app)
 
 #### Manual: Prerequisites
 
-1. We have a script that will install all the dependencies for you, as well as
-   configure your shell file with all the required commands:
+We have a script that will install all the dependencies for you, as well as configure your shell file with all the required commands:
 
-   ```shell
-   make deps
-   ```
+```shell
+SKIP_CHECKS=true make deps
+```
 
-   This will install everything listed in `Brewfile.local`, as well as some
-   Mac-specific apps and tools listed in `fresh-brew.local`, and other things
-   like `pre-commit` hooks, `node_modules`, etc. You can see
-   [Setup: Dependencies](#setup-dependencies) for more info.
+This will install everything listed in `Brewfile.local`, as well as Docker, and other things like `pre-commit` hooks, `node_modules`, etc. You can see [Setup: Dependencies](#setup-dependencies) for more info.
 
-   **Note**: The script might ask you for your macOS password at certain points,
-   like when installing opensc, or when it needs to write to your `/etc/hosts`
-   file. If this is your very first time setting up this project, or if you
-   made changes that require setting things up again, the script will probably
-   end with a "command not found" error. To allow the rest of the setup to
-   complete, follow these steps:
-   1. Open the Docker app (it was installed by Homebrew) via Spotlight, or
-   double-click on it from your `/Applications` folder, agree to the macOS
-   prompts about opening this app for the first time, and also agree to Docker's
-   Terms of Service.
-   2. Quit and relaunch your terminal (or open a new tab), and run `make deps` again.
+**Note**: The script might ask you for your macOS password at certain points, like when installing opensc, or when it needs to write to your `/etc/hosts` file. If this is your very first time setting up this project, or if you removed Docker, the script will automatically launch Docker at the end of the installation, and you should follow the prompts to allow macOS to open it.
+
+Once Docker is installed and you've agreed to its terms of service, quit and restart your terminal, and double check the installation with this command:
+
+```shell
+make prereqs
+```
+
+Going forward, feel free to run `make prereqs` or `make deps` as often as you'd like to keep your system up to date. Whenever we update the app to a newer version of Go or Node, all you have to run is `make prereqs` and it will update everything for you.
 
 ### Setup: Shared
 
