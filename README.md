@@ -47,7 +47,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Setup: Run the app](#setup-run-the-app)
     * [Setup: Dependencies](#setup-dependencies)
       * [Setup: Pre-Commit](#setup-pre-commit)
-        * [Pre-Commit Troubleshooting (Manual): Process hanging on install hooks](#pre-commit-troubleshooting-manual-process-hanging-on-install-hooks)
         * [Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED](#pre-commit-troubleshooting-nix-ssl-certificate-verify-failed)
       * [Setup: Database](#setup-database)
       * [Setup: Server](#setup-server)
@@ -486,16 +485,6 @@ or
 make server_generate client_deps && pre-commit run -a
 ```
 
-###### Pre-Commit Troubleshooting (Manual): Process hanging on install hooks
-
-Since pre-commit uses Node to hook things up in both your local repo and its
-cache folder (located at `~/.cache/pre-commit`), it requires specifying the Node
-version, which should match the one in `.node-version`.
-
-Make sure the Node version listed at the top of `.pre-commit-config.yaml` matches
-the one in `.node-version`, and make sure you have that version installed by
-running `make deps`.
-
 ###### Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED
 
 This can happen because of the way certs need to be handled in this project and `nix`. To get around this issue, you
@@ -510,8 +499,6 @@ E.g.
 ```shell
 NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt pre-commit install-hooks
 ```
-
-
 
 ##### Setup: Database
 
@@ -943,7 +930,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.16.6/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.17.2/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:

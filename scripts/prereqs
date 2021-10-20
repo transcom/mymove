@@ -8,6 +8,18 @@ NC='\033[0m' # No Color
 
 prereqs_found=true
 
+cask_is_installed() {
+  brew list -1 --cask | grep -Fqx "$1"
+}
+
+app_is_in_applications_folder() {
+  find "/Applications" -maxdepth 1 -name "$1"
+}
+
+docker_installed_outside_of_brew() {
+  ! cask_is_installed "docker" && app_is_in_applications_folder "Docker"
+}
+
 # if nix is in use
 if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   nix_dir="nix"
@@ -15,8 +27,10 @@ if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   config_hash=$(nix-hash "${nix_dir}")
   store_hash=$(nix-store -q --hash "${NIX_PROFILE}")
 
-  # Install Docker
-  brew install --cask docker
+  if ! docker_installed_outside_of_brew; then
+    # Install Docker
+    brew install --cask docker
+  fi
 
   # The .nix-hash file is created by nix/update.sh
   if [ ! -r .nix-hash ] || ! grep -q "${config_hash}-${store_hash}" .nix-hash; then

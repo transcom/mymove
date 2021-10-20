@@ -3,6 +3,8 @@ package sitextension
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -65,7 +67,7 @@ func checkSITExtensionPending() sitExtensionValidator {
 		}
 
 		if len(emptySITExtensionArray) > 0 {
-			return services.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
+			return apperror.NewConflictError(id, "All SIT extensions must be approved or denied to review this new SIT extension")
 		}
 		return err
 	})
@@ -75,12 +77,12 @@ func checkSITExtensionPending() sitExtensionValidator {
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
 		if shipment == nil {
-			return services.NewNotFoundError(sitExtension.ID, "while looking for Prime-available Shipment")
+			return apperror.NewNotFoundError(sitExtension.ID, "while looking for Prime-available Shipment")
 		}
 
 		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
-			return services.NewNotFoundError(
+			return apperror.NewNotFoundError(
 				sitExtension.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))
 		}
 		return nil

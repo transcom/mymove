@@ -2,8 +2,8 @@ package serviceparamvaluelookups
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // CubicFeetCratingLookup does lookup for CubicFeetCrating
@@ -21,5 +21,5 @@ func (c CubicFeetCratingLookup) lookup(appCtx appcontext.AppContext, keyData *Se
 		}
 	}
 
-	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to calculate crate volume due to missing crate dimensions")
+	return "", apperror.NewConflictError(keyData.MTOServiceItemID, "unable to calculate crate volume due to missing crate dimensions")
 }

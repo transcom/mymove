@@ -8,6 +8,8 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/models"
@@ -51,9 +53,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 			First(&moveTaskOrder)
 		if err != nil {
 			if err.Error() == models.RecordNotFoundErrorString {
-				return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
+				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
 			}
-			return ediinvoice.Invoice858C{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error")
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error")
 		}
 	} else {
 		moveTaskOrder = paymentRequest.MoveTaskOrder
@@ -61,7 +63,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 	// check or load orders
 	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, services.NewConflictError(moveTaskOrder.ID, "Invalid move taskorder. Must have a ReferenceID value")
+		return ediinvoice.Invoice858C{}, apperror.NewConflictError(moveTaskOrder.ID, "Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	if moveTaskOrder.Orders.ID == uuid.Nil {
@@ -69,9 +71,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
 			if err.Error() == models.RecordNotFoundErrorString {
-				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
+				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
 			}
-			return ediinvoice.Invoice858C{}, services.NewQueryError("Orders", err, "Unexpected error")
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("Orders", err, "Unexpected error")
 		}
 	}
 
@@ -82,9 +84,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 		if err != nil {
 			if err.Error() == models.RecordNotFoundErrorString {
-				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
+				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
 			}
-			return ediinvoice.Invoice858C{}, services.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
 		}
 	}
 
@@ -176,9 +178,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		First(&contractCodeServiceItemParam)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return ediinvoice.Invoice858C{}, services.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
+			return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
 		}
-		return ediinvoice.Invoice858C{}, services.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
+		return ediinvoice.Invoice858C{}, apperror.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
 	}
 
 	edi858.Header.ContractCode = edisegment.N9{
@@ -200,9 +202,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		All(&paymentServiceItems)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for payment service items in PaymentRequest")
+			return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(paymentRequest.ID, "for payment service items in PaymentRequest")
 		}
-		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
+		return ediinvoice.Invoice858C{}, apperror.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 	}
 
 	// Add C3 segment here
@@ -212,7 +214,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	}
 
 	if len(paymentServiceItems) == 0 {
-		return ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
+		return ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
@@ -279,7 +281,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return services.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	header.ServiceMemberRank = edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -289,7 +291,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return services.NewConflictError(serviceMember.ID, fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	header.ServiceMemberBranch = edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -317,9 +319,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 		All(&shipments)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+			return apperror.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
 		}
-		return services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
+		return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 	}
 
 	// If no shipments, then just return because we will not have access to the dates.
@@ -368,15 +370,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 		if err != nil {
-			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
 	if err != nil {
-		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
+		return apperror.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
 	}
 
 	// buyer organization name
@@ -404,15 +406,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(appCtx.DB(), orders.NewDutyStationID)
 		if err != nil {
-			return services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
+			return apperror.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return services.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), destinationDutyStation.ID)
 	if err != nil {
-		return services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
+		return apperror.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
 	}
 
 	// destination name
@@ -460,7 +462,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(destPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
 		if digitsErr != nil {
-			return services.NewInvalidInputError(destinationDutyStation.ID, digitsErr, nil, "unable to get destination duty station phone number")
+			return apperror.NewInvalidInputError(destinationDutyStation.ID, digitsErr, nil, "unable to get destination duty station phone number")
 		}
 		destinationPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
@@ -477,15 +479,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 		if err != nil {
-			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
 	if err != nil {
-		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
+		return apperror.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
 
 	header.OriginName = edisegment.N1{
@@ -532,7 +534,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(originPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
 		if digitsErr != nil {
-			return services.NewInvalidInputError(originDutyStation.ID, digitsErr, nil, "unable to get origin duty station phone number")
+			return apperror.NewInvalidInputError(originDutyStation.ID, digitsErr, nil, "unable to get origin duty station phone number")
 		}
 		originPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
@@ -547,7 +549,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) (edisegment.FA1, edisegment.FA2, error) {
 	if orders.TAC == nil || *orders.TAC == "" {
-		return edisegment.FA1{}, edisegment.FA2{}, services.NewConflictError(orders.ID, "Invalid order. Must have a TAC value")
+		return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have a TAC value")
 	}
 	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
@@ -578,9 +580,9 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx a
 		First(&paymentServiceItemParam)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
+			return models.PaymentServiceItemParam{}, apperror.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
 		}
-		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
+		return models.PaymentServiceItemParam{}, apperror.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
 	return paymentServiceItemParam, nil
 }
@@ -669,7 +671,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 	for idx, serviceItem := range paymentServiceItems {
 		var newSegment ediinvoice.ServiceItemSegments
 		if serviceItem.PriceCents == nil {
-			return segments, l3, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
+			return segments, l3, apperror.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
 		}
 		l3.PriceCents += int64(*serviceItem.PriceCents)
 		hierarchicalIDNumber := idx + 1

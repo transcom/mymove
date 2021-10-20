@@ -8,9 +8,10 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -96,7 +97,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			move.Locator,
 			mock.Anything,
-		).Return(&models.Move{}, services.NotFoundError{})
+		).Return(&models.Move{}, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveNotFound{}, response)
@@ -114,7 +115,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			move.Locator,
 			mock.Anything,
-		).Return(&models.Move{}, services.QueryError{})
+		).Return(&models.Move{}, apperror.QueryError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)

@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -115,7 +117,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(appCtx, v.oldServiceItem.MoveTaskOrderID)
 
 	if !isAvailable || err != nil {
-		return services.NewNotFoundError(v.oldServiceItem.ID, "while looking for Prime-available MTOServiceItem")
+		return apperror.NewNotFoundError(v.oldServiceItem.ID, "while looking for Prime-available MTOServiceItem")
 	}
 
 	return nil
@@ -153,7 +155,7 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 		return nil // the service item is a SIT departure service, so we're fine
 	}
 
-	return services.NewConflictError(v.updatedServiceItem.ID,
+	return apperror.NewConflictError(v.updatedServiceItem.ID,
 		"- SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items.")
 }
 
@@ -164,7 +166,7 @@ func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppCon
 	err := appCtx.DB().Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
 
 	if err == nil && paymentServiceItem.ID != uuid.Nil {
-		return services.NewConflictError(v.updatedServiceItem.ID,
+		return apperror.NewConflictError(v.updatedServiceItem.ID,
 			"- this service item has an existing payment request and can no longer be updated.")
 	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
 		return err
@@ -178,7 +180,7 @@ func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppCon
 // Should only be called after the other check methods have been called.
 func (v *updateMTOServiceItemData) getVerrs() error {
 	if v.verrs.HasAny() {
-		return services.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
+		return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
 			"Invalid input found while validating the service item.")
 	}
 

@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -27,7 +29,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 	var reweighWeight *unit.Pound
 	var primeActualWeight *unit.Pound
 	if shipment.Reweigh == nil {
-		return services.BillableWeightInputs{}, services.NewConflictError(shipment.ID, "Invalid shipment, must have Reweigh eager loaded")
+		return services.BillableWeightInputs{}, apperror.NewConflictError(shipment.ID, "Invalid shipment, must have Reweigh eager loaded")
 	}
 	if shipment.Reweigh.ID != uuid.Nil {
 		if shipment.Reweigh.Weight != nil && shipment.PrimeActualWeight != nil {
