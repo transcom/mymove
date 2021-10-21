@@ -29,7 +29,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for loadtest deploys. See the branch settings below.
-  loadtest-branch: &loadtest-branch placeholder_branch_name
+  loadtest-branch: &loadtest-branch MB-9337-get-otel-sidecar-running-in-aws
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
@@ -45,22 +45,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch MB-9337-get-otel-sidecar-running-in-aws
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch MB-9337-get-otel-sidecar-running-in-aws
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch MB-9337-get-otel-sidecar-running-in-aws
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  server-ignore-branch: &server-ignore-branch MB-9337-get-otel-sidecar-running-in-aws
 
 executors:
   av_medium:
@@ -1661,6 +1661,7 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'loadtest'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_loadtest
       - deploy_app_steps:
@@ -1673,6 +1674,7 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'loadtest'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_loadtest
       - tls_vars_loadtest
@@ -1686,6 +1688,7 @@ jobs:
     executor: mymove_small
     environment:
       APP_ENVIRONMENT: 'loadtest'
+      OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - aws_vars_loadtest
       - deploy_webhook_client_steps:
