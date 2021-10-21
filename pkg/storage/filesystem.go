@@ -11,6 +11,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // Filesystem is a storage backend that uses the local filesystem. It is intended only
@@ -18,7 +21,7 @@ import (
 type Filesystem struct {
 	root    string
 	webRoot string
-	logger  Logger
+	logger  *zap.Logger
 	fs      *afero.Afero
 	tempFs  *afero.Afero
 }
@@ -27,11 +30,11 @@ type Filesystem struct {
 type FilesystemParams struct {
 	root    string
 	webRoot string
-	logger  Logger
+	logger  *zap.Logger
 }
 
 // NewFilesystemParams returns FilesystemParams after checking path
-func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger Logger) FilesystemParams {
+func NewFilesystemParams(appCtx appcontext.AppContext, localStorageRoot string, localStorageWebRoot string) FilesystemParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
@@ -42,7 +45,7 @@ func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, lo
 	return FilesystemParams{
 		root:    storagePath,
 		webRoot: webRoot,
-		logger:  logger,
+		logger:  appCtx.Logger(),
 	}
 }
 

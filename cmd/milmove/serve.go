@@ -40,6 +40,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/certs"
@@ -577,7 +578,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := storage.InitStorage(v, session, logger)
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	storer := storage.InitStorage(appCtx, v, session)
 	handlerContext.SetFileStorer(storer)
 
 	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)

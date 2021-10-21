@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -89,10 +90,11 @@ func DetectContentType(data io.ReadSeeker) (string, error) {
 }
 
 // InitStorage initializes the storage backend
-func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileStorer {
+func InitStorage(appCtx appcontext.AppContext, v *viper.Viper, sess *awssession.Session) FileStorer {
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
 	localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+	logger := appCtx.Logger()
 
 	var storer FileStorer
 	if storageBackend == "s3" {
@@ -115,18 +117,18 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 
-		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
+		storer = NewS3(appCtx, awsS3Bucket, awsS3KeyNamespace, sess)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String(cli.LocalStorageWebRootFlag, localStorageWebRoot))
-		fsParams := NewMemoryParams(localStorageRoot, localStorageWebRoot, logger)
+		fsParams := NewMemoryParams(appCtx, localStorageRoot, localStorageWebRoot)
 		storer = NewMemory(fsParams)
 	} else {
 		logger.Info("Using local storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String(cli.LocalStorageWebRootFlag, localStorageWebRoot))
-		fsParams := NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
+		fsParams := NewFilesystemParams(appCtx, localStorageRoot, localStorageWebRoot)
 		storer = NewFilesystem(fsParams)
 	}
 	return storer

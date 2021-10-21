@@ -195,12 +195,6 @@ func main() {
 		}
 		err = tdgs.RunRateEngineScenario2(dbConnection)
 	} else if namedScenario != "" {
-		// Initialize logger
-		logger, newDevelopmentErr := zap.NewDevelopment()
-		if newDevelopmentErr != nil {
-			logger.Fatal("Problem with zap NewDevelopment", zap.Error(newDevelopmentErr))
-		}
-
 		// Initialize storage and uploader
 		var session *awssession.Session
 		storageBackend := v.GetString(cli.StorageBackendFlag)
@@ -216,7 +210,7 @@ func main() {
 
 			session = s
 		}
-		storer := storage.InitStorage(v, session, logger)
+		storer := storage.InitStorage(appCtx, v, session)
 
 		userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 		if uploaderErr != nil {

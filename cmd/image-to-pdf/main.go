@@ -31,11 +31,12 @@ func main() {
 	flag.Parse()
 
 	logger, err := zap.NewDevelopment()
-
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	storer := storage.NewMemory(storage.NewMemoryParams("", "", logger))
+
+	appCtx := appcontext.NewAppContext(nil, logger)
+	storer := storage.NewMemory(storage.NewMemoryParams(appCtx, "", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Fatalf("could not instantiate uploader due to %v", err)
@@ -49,7 +50,6 @@ func main() {
 		log.Fatal("Must specify at least one input file")
 	}
 
-	appCtx := appcontext.NewAppContext(nil, logger)
 	path, err := generator.MergeImagesToPDF(appCtx, inputFiles)
 	if err != nil {
 		log.Fatal(err.Error())

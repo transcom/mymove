@@ -10,27 +10,30 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // S3 implements the file storage API using S3.
 type S3 struct {
 	bucket       string
 	keyNamespace string
-	logger       Logger
+	logger       *zap.Logger
 	client       *s3.S3
 	fs           *afero.Afero
 	tempFs       *afero.Afero
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket, keyNamespace string, logger Logger, session *session.Session) *S3 {
+func NewS3(appCtx appcontext.AppContext, bucket, keyNamespace string, session *session.Session) *S3 {
 	var fs = afero.NewMemMapFs()
 	var tempFs = afero.NewMemMapFs()
 	client := s3.New(session)
 	return &S3{
 		bucket:       bucket,
 		keyNamespace: keyNamespace,
-		logger:       logger,
+		logger:       appCtx.Logger(),
 		client:       client,
 		fs:           &afero.Afero{Fs: fs},
 		tempFs:       &afero.Afero{Fs: tempFs},
