@@ -4749,9 +4749,6 @@ func init() {
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
         },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
-        },
         "shipmentID": {
           "type": "string",
           "format": "uuid",
@@ -10962,9 +10959,6 @@ func init() {
         },
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
         },
         "shipmentID": {
           "type": "string",
