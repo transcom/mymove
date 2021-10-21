@@ -135,7 +135,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 

@@ -1,14 +1,15 @@
 package scenario
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RunRateEngineScenario1 runs... scenario 1.
-func RunRateEngineScenario1(db *pop.Connection) error {
+func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
+	db := appCtx.DB()
+
 	zip3_321 := models.Tariff400ngZip3{
 		Zip3:          "321",
 		BasepointCity: "Crescent City",
@@ -206,7 +207,9 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 }
 
 // RunRateEngineScenario2 runs... scenario 2.
-func RunRateEngineScenario2(db *pop.Connection) error {
+func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
+	db := appCtx.DB()
+
 	zip3_945 := models.Tariff400ngZip3{
 		Zip3:          "945",
 		BasepointCity: "Walnut Creek",

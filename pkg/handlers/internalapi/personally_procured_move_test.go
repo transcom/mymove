@@ -401,7 +401,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
-	scenario.RunRateEngineScenario1(suite.DB())
+	scenario.RunRateEngineScenario1(suite.TestAppContext())
 	suite.setupPersonallyProcuredMoveTest()
 
 	initialWeight := unit.Pound(4100)
@@ -549,7 +549,8 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
-	scenario.RunRateEngineScenario1(suite.DB())
+
+	scenario.RunRateEngineScenario1(suite.TestAppContext())
 
 	suite.setupPersonallyProcuredMoveTest()
 	weight := swag.Int64(4100)

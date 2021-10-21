@@ -19,7 +19,7 @@ import (
 
 func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -52,7 +52,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 
 func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -87,7 +87,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	weightEstimate := unit.Pound(7000)
 
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 

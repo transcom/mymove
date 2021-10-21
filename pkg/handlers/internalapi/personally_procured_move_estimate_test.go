@@ -137,7 +137,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	orderID := uuid.Must(uuid.NewV4())
 
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	orderID := uuid.Must(uuid.NewV4())
 
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestAppContext()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)

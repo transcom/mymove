@@ -15,6 +15,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -361,7 +362,9 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 }
 
 // Run does that data load thing
-func (e bandwidthScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+func (e bandwidthScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
+
 	createOfficeUser(db)
 	createHHGMove150Kb(db, userUploader, primeUploader)
 	createHHGMove2mb(db, userUploader, primeUploader)

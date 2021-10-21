@@ -37,7 +37,7 @@ func (e *errInvalidScenario) Error() string {
 	return fmt.Sprintf("invalid scenario: %s", e.Name)
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 
@@ -169,14 +169,16 @@ func main() {
 	}
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger)
+
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 	namedSubScenario := v.GetString(namedSubScenarioFlag)
+	db := appCtx.DB()
 
 	if scenario == 4 {
-		err = tdgs.RunPPMSITEstimateScenario1(dbConnection)
+		err = tdgs.RunPPMSITEstimateScenario1(appCtx)
 	} else if scenario == 5 {
-		err = tdgs.RunRateEngineScenario1(dbConnection)
+		err = tdgs.RunRateEngineScenario1(appCtx)
 	} else if scenario == 6 {
 		query := `DELETE FROM transportation_service_provider_performances;
 				  DELETE FROM transportation_service_providers;
@@ -189,11 +191,11 @@ func main() {
 				  DELETE FROM tariff400ng_full_pack_rates;
 				  DELETE FROM tariff400ng_full_unpack_rates;`
 
-		err = dbConnection.RawQuery(query).Exec()
+		err = db.RawQuery(query).Exec()
 		if err != nil {
 			logger.Fatal("Failed to run raw query", zap.Error(err))
 		}
-		err = tdgs.RunRateEngineScenario2(dbConnection)
+		err = tdgs.RunRateEngineScenario2(appCtx)
 	} else if namedScenario != "" {
 		// Initialize storage and uploader
 		var session *awssession.Session
@@ -244,7 +246,7 @@ func main() {
 			// Run seed
 			tdgs.DevSeedScenario.Run(logger, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
-			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
+			tdgs.BandwidthScenario.Run(appCtx, userUploader, primeUploader)
 		}
 
 		logger.Info("Success! Created e2e test data.")

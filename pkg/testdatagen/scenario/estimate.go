@@ -1,14 +1,15 @@
 package scenario
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RunPPMSITEstimateScenario1 runs... scenario 1.
-func RunPPMSITEstimateScenario1(db *pop.Connection) error {
+func RunPPMSITEstimateScenario1(appCtx appcontext.AppContext) error {
+	db := appCtx.DB()
+
 	originZip5_779 := models.Tariff400ngZip5RateArea{
 		Zip5:     "77901",
 		RateArea: "US68",
