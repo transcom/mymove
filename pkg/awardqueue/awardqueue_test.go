@@ -16,14 +16,14 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {
@@ -49,7 +49,7 @@ func (suite *AwardQueueSuite) Test_GetTSPsPerBandNoRemainder() {
 
 func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.DB(), suite.logger)
+	queue := NewAwardQueue()
 	tspsToMake := 5
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -77,7 +77,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands()
+	err := queue.assignPerformanceBands(suite.TestAppContext())
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -91,7 +91,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		RateCycleEnd:              lastTSPP.RateCycleEnd,
 	}
 
-	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
+	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(suite.TestAppContext(), perfGroup, mps)
 	if err != nil {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
@@ -152,7 +152,12 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *AwardQueueSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestAwardQueueSuite(t *testing.T) {

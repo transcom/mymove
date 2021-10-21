@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -223,9 +224,10 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 
 // FetchTSPPerformancesForQualityBandAssignment returns TSPPs in the given TSPP grouping in the order
 // that they should be assigned quality bands.
-func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup TSPPerformanceGroup, mps float64) (TransportationServiceProviderPerformances, error) {
+func FetchTSPPerformancesForQualityBandAssignment(appCtx appcontext.AppContext, perfGroup TSPPerformanceGroup, mps float64) (TransportationServiceProviderPerformances, error) {
+	db := appCtx.DB()
 	var perfs TransportationServiceProviderPerformances
-	err := tx.
+	err := db.
 		Select("transportation_service_provider_performances.*").
 		Join("transportation_service_providers AS tsp", "tsp.id = transportation_service_provider_performances.transportation_service_provider_id").
 		Where("traffic_distribution_list_id = ?", perfGroup.TrafficDistributionListID).
@@ -247,7 +249,8 @@ func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup 
 
 // FetchUnbandedTSPPerformanceGroups gets all groupings of TSPPs that have at least one entry with
 // an unassigned quality band.
-func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups, error) {
+func FetchUnbandedTSPPerformanceGroups(appCtx appcontext.AppContext) (TSPPerformanceGroups, error) {
+	db := appCtx.DB()
 	var perfs TransportationServiceProviderPerformances
 	err := db.
 		Select("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
@@ -273,7 +276,8 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 }
 
 // AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
-func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
+func AssignQualityBandToTSPPerformance(appCtx appcontext.AppContext, band int, id uuid.UUID) error {
+	db := appCtx.DB()
 	performance := TransportationServiceProviderPerformance{}
 	if err := db.Find(&performance, id); err != nil {
 		return err

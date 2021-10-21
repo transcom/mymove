@@ -156,7 +156,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	})
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(suite.DB(), band, perf.ID)
+	err := AssignQualityBandToTSPPerformance(suite.TestAppContext(), band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}
@@ -215,7 +215,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	}
 
 	// Fetch TSPs in TDL
-	tspsbb, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
+	tspsbb, err := FetchTSPPerformancesForQualityBandAssignment(suite.TestAppContext(), perfGroup, mps)
 
 	// Then: Expect to find TSPs in TDL
 	if err != nil {
@@ -553,7 +553,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 		RateCycleEnd:              lastTSPP.RateCycleEnd,
 	}
 
-	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
+	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.TestAppContext(), perfGroup, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -605,7 +605,7 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 		RateCycleEnd:              lastTSPP.RateCycleEnd,
 	}
 
-	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
+	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.TestAppContext(), perfGroup, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -690,7 +690,7 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 			SITRate:                         0.3,
 		},
 	})
-	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.DB())
+	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.TestAppContext())
 	if err != nil {
 		t.Fatal(err)
 	}
