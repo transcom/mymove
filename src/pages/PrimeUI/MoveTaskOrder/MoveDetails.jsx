@@ -26,6 +26,9 @@ const Shipment = ({ shipment }) => {
         <Link to={`shipments/${shipment.id}`} className="usa-button usa-button-secondary">
           Update Shipment
         </Link>
+        <Link to={`shipments/${shipment.id}/service-items/new`} className="usa-button usa-button-secondary">
+          Add Service Item
+        </Link>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Status:</dt>
