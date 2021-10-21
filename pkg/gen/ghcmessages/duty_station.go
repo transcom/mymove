@@ -22,13 +22,12 @@ type DutyStation struct {
 	// address
 	Address *Address `json:"address,omitempty"`
 
-	// address Id
+	// address id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	AddressID strfmt.UUID `json:"addressId,omitempty"`
+	AddressID strfmt.UUID `json:"address_id,omitempty"`
 
 	// e tag
-	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -85,7 +84,7 @@ func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("addressId", "body", "uuid", m.AddressID.String(), formats); err != nil {
+	if err := validate.FormatOf("address_id", "body", "uuid", m.AddressID.String(), formats); err != nil {
 		return err
 	}
 
@@ -112,10 +111,6 @@ func (m *DutyStation) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateETag(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -131,15 +126,6 @@ func (m *DutyStation) contextValidateAddress(ctx context.Context, formats strfmt
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *DutyStation) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
-		return err
 	}
 
 	return nil

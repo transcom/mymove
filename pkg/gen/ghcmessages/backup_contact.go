@@ -16,7 +16,7 @@ import (
 
 // BackupContact backup contact
 //
-// swagger:model backupContact
+// swagger:model BackupContact
 type BackupContact struct {
 
 	// email

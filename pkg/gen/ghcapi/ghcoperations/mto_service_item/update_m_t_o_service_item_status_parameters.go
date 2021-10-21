@@ -45,7 +45,7 @@ type UpdateMTOServiceItemStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.PatchMTOServiceItemStatus
+	Body *ghcmessages.PatchMTOServiceItemStatusPayload
 	/*ID of move to use
 	  Required: true
 	  In: path
@@ -73,7 +73,7 @@ func (o *UpdateMTOServiceItemStatusParams) BindRequest(r *http.Request, route *m
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.PatchMTOServiceItemStatus
+		var body ghcmessages.PatchMTOServiceItemStatusPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

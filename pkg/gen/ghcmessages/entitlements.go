@@ -28,7 +28,6 @@ type Entitlements struct {
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// e tag
-	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -99,26 +98,8 @@ func (m *Entitlements) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this entitlements based on the context it is used
+// ContextValidate validates this entitlements based on context it is used
 func (m *Entitlements) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateETag(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *Entitlements) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -45,7 +45,7 @@ type CounselingUpdateOrderParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.CounselingUpdateOrder
+	Body *ghcmessages.CounselingUpdateOrderPayload
 	/*ID of order to update
 	  Required: true
 	  In: path
@@ -68,7 +68,7 @@ func (o *CounselingUpdateOrderParams) BindRequest(r *http.Request, route *middle
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.CounselingUpdateOrder
+		var body ghcmessages.CounselingUpdateOrderPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

@@ -52,7 +52,6 @@ type MTOShipment struct {
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 	// created at
-	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -72,7 +71,6 @@ type MTOShipment struct {
 	Diversion bool `json:"diversion,omitempty"`
 
 	// e tag
-	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -144,7 +142,6 @@ type MTOShipment struct {
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
 	// updated at
-	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
@@ -529,15 +526,7 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -577,10 +566,6 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -596,15 +581,6 @@ func (m *MTOShipment) contextValidateCalculatedBillableWeight(ctx context.Contex
 	return nil
 }
 
-func (m *MTOShipment) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationAddress != nil {
@@ -614,15 +590,6 @@ func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, for
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
-		return err
 	}
 
 	return nil
@@ -740,15 +707,6 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

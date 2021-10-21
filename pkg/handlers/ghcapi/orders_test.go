@@ -1349,7 +1349,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-		suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
+		// suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TIO role", func() {

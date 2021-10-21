@@ -31,9 +31,8 @@ type Upload struct {
 
 	// created at
 	// Required: true
-	// Read Only: true
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// filename
 	// Example: filename.pdf
@@ -52,9 +51,8 @@ type Upload struct {
 
 	// updated at
 	// Required: true
-	// Read Only: true
 	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 
 	// url
 	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -125,7 +123,7 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
@@ -205,7 +203,7 @@ func (m *Upload) validateStatus(formats strfmt.Registry) error {
 
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 
@@ -229,39 +227,8 @@ func (m *Upload) validateURL(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this upload based on the context it is used
+// ContextValidate validates this upload based on context it is used
 func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Upload) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
-		return err
-	}
-
 	return nil
 }
 

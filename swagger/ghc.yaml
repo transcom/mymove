@@ -78,7 +78,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateCustomer'
+            $ref: '#/definitions/UpdateCustomerPayload'
         - in: header
           name: If-Match
           type: string
@@ -156,7 +156,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/CounselingUpdateOrder'
+            $ref: '#/definitions/CounselingUpdateOrderPayload'
         - in: header
           name: If-Match
           type: string
@@ -199,7 +199,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateOrder'
+            $ref: '#/definitions/UpdateOrderPayload'
         - in: header
           name: If-Match
           type: string
@@ -270,7 +270,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateAllowance'
+            $ref: '#/definitions/UpdateAllowancePayload'
         - in: header
           name: If-Match
           type: string
@@ -355,7 +355,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateBillableWeight'
+            $ref: '#/definitions/UpdateBillableWeightPayload'
         - in: header
           name: If-Match
           type: string
@@ -400,7 +400,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMaxBillableWeightAsTIO'
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
         - $ref: '#/parameters/ifMatch'
       responses:
         '200':
@@ -440,7 +440,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/CounselingUpdateAllowance'
+            $ref: '#/definitions/CounselingUpdateAllowancePayload'
         - in: header
           name: If-Match
           type: string
@@ -530,7 +530,7 @@ paths:
       description: Updates a move by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move by ID
-  '/move-task-orders/{moveTaskOrderID}/mto-service-items':
+  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
       - description: ID of move for mto service item to use
         in: path
@@ -599,7 +599,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments':
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
         in: path
@@ -654,7 +654,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}':
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -1122,7 +1122,7 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents':
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -1251,7 +1251,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOServiceItemStatus'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -1466,7 +1466,7 @@ paths:
       description: >-
         Changes move (move task order) billableWeightsReviewedAt field to a
         timestamp
-      operationId: updateMTOReviewedBillableWeightsAt
+      operationId: UpdateMTOReviewedBillableWeightsAt
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use
@@ -1615,7 +1615,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdatePaymentRequestStatus'
+            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -1983,13 +1983,14 @@ definitions:
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
+      - type: object
     properties:
-      invalidFields:
+      invalid_fields:
         type: object
         additionalProperties:
           type: string
     required:
-      - invalidFields
+      - invalid_fields
   Address:
     type: object
     properties:
@@ -1997,16 +1998,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      streetAddress1:
+      street_address_1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      streetAddress2:
+      street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      streetAddress3:
+      street_address_3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -2017,7 +2018,6 @@ definitions:
         title: City
       eTag:
         type: string
-        readOnly: true
       state:
         title: State
         type: string
@@ -2125,7 +2125,7 @@ definitions:
           - WI
           - WV
           - WY
-      postalCode:
+      postal_code:
         type: string
         format: zip
         title: ZIP
@@ -2138,11 +2138,11 @@ definitions:
         example: USA
         default: USA
     required:
-      - streetAddress1
+      - street_address_1
       - city
       - state
-      - postalCode
-  backupContact:
+      - postal_code
+  BackupContact:
     type: object
     properties:
       name:
@@ -2176,10 +2176,10 @@ definitions:
       agency:
         type: string
         title: Agency customer is affilated with
-      firstName:
+      first_name:
         type: string
         example: John
-      lastName:
+      last_name:
         type: string
         example: Doe
       phone:
@@ -2196,14 +2196,14 @@ definitions:
         type: string
         example: Jr.
         x-nullable: true
-      middleName:
+      middle_name:
         type: string
         example: David
         x-nullable: true
-      currentAddress:
+      current_address:
         $ref: '#/definitions/Address'
-      backupContact:
-        $ref: '#/definitions/backupContact'
+      backup_contact:
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -2216,14 +2216,13 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
-        readOnly: true
-  UpdateCustomer:
+  UpdateCustomerPayload:
     type: object
     properties:
-      firstName:
+      first_name:
         type: string
         example: John
-      lastName:
+      last_name:
         type: string
         example: Doe
       phone:
@@ -2240,14 +2239,14 @@ definitions:
         type: string
         example: Jr.
         x-nullable: true
-      middleName:
+      middle_name:
         type: string
         example: David
         x-nullable: true
-      currentAddress:
+      current_address:
         $ref: '#/definitions/Address'
-      backupContact:
-        $ref: '#/definitions/backupContact'
+      backup_contact:
+        $ref: '#/definitions/BackupContact'
   DutyStation:
     type: object
     properties:
@@ -2258,7 +2257,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      addressId:
+      address_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2266,7 +2265,6 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
-        readOnly: true
   Entitlements:
     properties:
       id:
@@ -2318,7 +2316,6 @@ definitions:
         type: boolean
       eTag:
         type: string
-        readOnly: true
     type: object
   Error:
     properties:
@@ -2445,14 +2442,14 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
-      excessWeightQualifiedAt:
+      excess_weight_qualified_at:
         type: string
         format: date-time
         description: >-
           Timestamp of when the estimated shipment weights of the move reached
           90% of the weight allowance
         x-nullable: true
-      excessWeightAcknowledgedAt:
+      excess_weight_acknowledged_at:
         type: string
         format: date-time
         description: >-
@@ -2466,7 +2463,6 @@ definitions:
       createdAt:
         type: string
         format: date-time
-        readOnly: true
       submittedAt:
         type: string
         format: date-time
@@ -2474,10 +2470,8 @@ definitions:
       updatedAt:
         type: string
         format: date-time
-        readOnly: true
       eTag:
         type: string
-        readOnly: true
   MoveStatus:
     type: string
     enum:
@@ -2548,17 +2542,18 @@ definitions:
       moveCode:
         type: string
         example: H2XFJF
-      firstName:
+      first_name:
         type: string
         example: John
         readOnly: true
-      lastName:
+      last_name:
         type: string
         example: Doe
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
       agency:
+        type: string
         $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
@@ -2570,7 +2565,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      uploadedOrderId:
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
+      uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -2583,22 +2580,26 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
-      orderNumber:
+      order_number:
         type: string
         x-nullable: true
         example: 030-00362
-      orderType:
+      order_type:
         $ref: '#/definitions/OrdersType'
-      orderTypeDetail:
+      order_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
-      dateIssued:
+        x-nullable: true
+      date_issued:
         type: string
         format: date
-      reportByDate:
+        example: '2020-01-01'
+      report_by_date:
         type: string
         format: date
-      departmentIndicator:
+        example: '2020-01-01'
+      department_indicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
       tac:
         type: string
         title: TAC
@@ -2609,11 +2610,11 @@ definitions:
         title: SAC
         example: N002214CSW32Y9
         x-nullable: true
-      hasDependents:
+      has_dependents:
         type: boolean
         example: false
         title: Are dependents included in your orders?
-      spouseHasProGear:
+      spouse_has_pro_gear:
         type: boolean
         example: false
         title: >-
@@ -2621,20 +2622,21 @@ definitions:
           occupation (also known as spouse pro-gear)?
       eTag:
         type: string
-        readOnly: true
     type: object
-  CounselingUpdateOrder:
+  CounselingUpdateOrderPayload:
     type: object
     properties:
       issueDate:
         type: string
         description: The date and time that these orders were cut.
         format: date
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -2652,18 +2654,20 @@ definitions:
       - ordersType
       - originDutyStationId
       - newDutyStationId
-  UpdateOrder:
+  UpdateOrderPayload:
     type: object
     properties:
       issueDate:
         type: string
         description: The date and time that these orders were cut.
         format: date
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -2696,6 +2700,7 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
       ordersAcknowledgement:
         description: >-
           Confirmation that the new amended orders were reviewed after
@@ -2708,7 +2713,7 @@ definitions:
       - ordersType
       - newDutyStationId
       - originDutyStationId
-  UpdateAllowance:
+  UpdateAllowancePayload:
     type: object
     properties:
       authorizedWeight:
@@ -2724,6 +2729,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
+        description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
       proGearWeight:
         description: unit is in lbs
@@ -2751,7 +2757,7 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
-  UpdateBillableWeight:
+  UpdateBillableWeightPayload:
     type: object
     properties:
       authorizedWeight:
@@ -2761,7 +2767,7 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
-  UpdateMaxBillableWeightAsTIO:
+  UpdateMaxBillableWeightAsTIOPayload:
     type: object
     properties:
       authorizedWeight:
@@ -2780,7 +2786,7 @@ definitions:
     required:
       - authorizedWeight
       - tioRemarks
-  CounselingUpdateAllowance:
+  CounselingUpdateAllowancePayload:
     type: object
     properties:
       grade:
@@ -2789,6 +2795,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
+        description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
       proGearWeight:
         minimum: 0
@@ -2824,7 +2831,6 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2846,7 +2852,6 @@ definitions:
       updatedAt:
         format: date-time
         type: string
-        readOnly: true
       destinationAddress:
         $ref: '#/definitions/Address'
       pickupAddress:
@@ -2870,7 +2875,6 @@ definitions:
         x-nullable: true
       eTag:
         type: string
-        readOnly: true
     type: object
   MoveTaskOrders:
     items:
@@ -2894,11 +2898,9 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       updatedAt:
         format: date-time
         type: string
-        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -2922,7 +2924,6 @@ definitions:
           - RECEIVING_AGENT
       eTag:
         type: string
-        readOnly: true
     type: object
   PaymentRequest:
     properties:
@@ -2962,7 +2963,6 @@ definitions:
         x-nullable: true
       eTag:
         type: string
-        readOnly: true
       reviewedAt:
         format: date-time
         type: string
@@ -2970,7 +2970,6 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
     type: object
   PaymentRequests:
     items:
@@ -2990,7 +2989,6 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       paymentRequestID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3031,7 +3029,6 @@ definitions:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
-        readOnly: true
     type: object
   PaymentServiceItemStatus:
     enum:
@@ -3057,7 +3054,7 @@ definitions:
       key:
         $ref: '#/definitions/ServiceItemParamName'
       value:
-        example: '3025'
+        example: 3025
         type: string
       type:
         $ref: '#/definitions/ServiceItemParamType'
@@ -3065,7 +3062,6 @@ definitions:
         $ref: '#/definitions/ServiceItemParamOrigin'
       eTag:
         type: string
-        readOnly: true
     type: object
   PaymentServiceItemParams:
     type: array
@@ -3164,11 +3160,9 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       updatedAt:
         format: date-time
         type: string
-        readOnly: true
       deletedAt:
         x-nullable: true
         format: date-time
@@ -3208,12 +3202,16 @@ definitions:
         type: boolean
         example: true
       pickupAddress:
+        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
+        x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string
@@ -3246,6 +3244,8 @@ definitions:
         example: MTO Shipment not good enough
         x-nullable: true
       reweigh:
+        x-nullable: true
+        x-omitempty: true
         $ref: '#/definitions/Reweigh'
       mtoAgents:
         $ref: '#/definitions/MTOAgents'
@@ -3260,7 +3260,6 @@ definitions:
         $ref: '#/definitions/SITStatus'
       eTag:
         type: string
-        readOnly: true
       billableWeightCap:
         type: integer
         description: TIO override billable weight to be used for calculations
@@ -3311,6 +3310,7 @@ definitions:
         x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3465,7 +3465,7 @@ definitions:
     required:
       - requestReason
       - approvedDays
-  PatchMTOServiceItemStatus:
+  PatchMTOServiceItemStatusPayload:
     properties:
       status:
         description: Describes all statuses for a MTOServiceItem
@@ -3507,7 +3507,6 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -3524,7 +3523,7 @@ definitions:
         x-nullable: true
       pickupPostalCode:
         type: string
-      sitPostalCode:
+      SITPostalCode:
         type: string
         readOnly: true
         x-nullable: true
@@ -3568,7 +3567,6 @@ definitions:
       updatedAt:
         format: date-time
         type: string
-        readOnly: true
       approvedAt:
         format: date-time
         type: string
@@ -3579,7 +3577,6 @@ definitions:
         x-nullable: true
       eTag:
         type: string
-        readOnly: true
     required:
       - id
       - moveTaskOrderID
@@ -3655,6 +3652,7 @@ definitions:
       firstAvailableDeliveryDate:
         format: date
         type: string
+        example: '2020-12-31'
         description: First available date that Prime can deliver SIT service item.
   MTOServiceItemCustomerContacts:
     type: array
@@ -3678,7 +3676,7 @@ definitions:
     required:
       - isValid
     type: object
-  UpdatePaymentRequestStatus:
+  UpdatePaymentRequestStatusPayload:
     properties:
       rejectionReason:
         example: documentation was incomplete
@@ -3688,7 +3686,6 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
-        readOnly: true
     type: object
   DocumentPayload:
     type: object
@@ -3697,7 +3694,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      serviceMemberId:
+      service_member_id:
         type: string
         format: uuid
         title: The service member this document belongs to
@@ -3707,7 +3704,7 @@ definitions:
           $ref: '#/definitions/Upload'
     required:
       - id
-      - serviceMemberId
+      - service_member_id
       - uploads
   Upload:
     properties:
@@ -3720,7 +3717,6 @@ definitions:
       createdAt:
         format: date-time
         type: string
-        readOnly: true
       filename:
         example: filename.pdf
         type: string
@@ -3731,7 +3727,6 @@ definitions:
       updatedAt:
         format: date-time
         type: string
-        readOnly: true
       url:
         example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
         format: uri
@@ -3844,8 +3839,6 @@ definitions:
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
   Reweigh:
-    x-nullable: true
-    x-omitempty: true
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -3871,6 +3864,8 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      shipment:
+        $ref: '#/definitions/MTOShipment'
       shipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid

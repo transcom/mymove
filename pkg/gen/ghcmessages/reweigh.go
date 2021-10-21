@@ -31,6 +31,9 @@ type Reweigh struct {
 	// requested by
 	RequestedBy ReweighRequester `json:"requestedBy,omitempty"`
 
+	// shipment
+	Shipment *MTOShipment `json:"shipment,omitempty"`
+
 	// shipment ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -62,6 +65,10 @@ func (m *Reweigh) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedBy(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -118,6 +125,23 @@ func (m *Reweigh) validateRequestedBy(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Reweigh) validateShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.Shipment) { // not required
+		return nil
+	}
+
+	if m.Shipment != nil {
+		if err := m.Shipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Reweigh) validateShipmentID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ShipmentID) { // not required
 		return nil
@@ -150,6 +174,10 @@ func (m *Reweigh) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -163,6 +191,20 @@ func (m *Reweigh) contextValidateRequestedBy(ctx context.Context, formats strfmt
 			return ve.ValidateName("requestedBy")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Reweigh) contextValidateShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Shipment != nil {
+		if err := m.Shipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipment")
+			}
+			return err
+		}
 	}
 
 	return nil

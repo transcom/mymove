@@ -46,7 +46,7 @@ type UpdateMaxBillableWeightAsTIOParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.UpdateMaxBillableWeightAsTIO
+	Body *ghcmessages.UpdateMaxBillableWeightAsTIOPayload
 	/*ID of order to use
 	  Required: true
 	  In: path
@@ -69,7 +69,7 @@ func (o *UpdateMaxBillableWeightAsTIOParams) BindRequest(r *http.Request, route 
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.UpdateMaxBillableWeightAsTIO
+		var body ghcmessages.UpdateMaxBillableWeightAsTIOPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

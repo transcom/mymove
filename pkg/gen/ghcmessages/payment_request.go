@@ -20,12 +20,10 @@ import (
 type PaymentRequest struct {
 
 	// created at
-	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
-	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -246,14 +244,6 @@ func (m *PaymentRequest) validateStatus(formats strfmt.Registry) error {
 func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateETag(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -285,24 +275,6 @@ func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Reg
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PaymentRequest) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PaymentRequest) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
