@@ -147,7 +147,7 @@ export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
 }
 
 export async function updateMTOReviewedBillableWeights({ moveTaskOrderID, ifMatchETag }) {
-  const operationPath = 'moveTaskOrder.updateMTOReviewedBillableWeightsAt';
+  const operationPath = 'moveTaskOrder.UpdateMTOReviewedBillableWeightsAt';
   return makeGHCRequest(operationPath, { moveTaskOrderID, 'If-Match': ifMatchETag });
 }
 

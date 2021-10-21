@@ -1,3 +1,7 @@
+default_language_version:
+  # this should match the version in .node-version at the root of this project
+  node: 14.17.1
+
 repos:
   - repo: local
     hooks:
@@ -144,7 +148,7 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(support|prime|ghc).yaml
+        files: swagger/(support|prime).yaml
         types: [yaml]
 
   - repo: local

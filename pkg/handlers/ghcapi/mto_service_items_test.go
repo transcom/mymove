@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      req,
 		IfMatch:          etag.GenerateEtag(time.Now()),
-		Body:             &ghcmessages.PatchMTOServiceItemStatus{Status: "APPROVED"},
+		Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
 		MoveTaskOrderID:  moveTaskOrderID.String(),
 		MtoServiceItemID: serviceItemID.String(),
 	}
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 			HTTPRequest:      req,
 			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-			Body:             &ghcmessages.PatchMTOServiceItemStatus{Status: "REJECTED", RejectionReason: &rejectionReason},
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "REJECTED", RejectionReason: &rejectionReason},
 			MoveTaskOrderID:  move.ID.String(),
 			MtoServiceItemID: mtoServiceItem.ID.String(),
 		}
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 			HTTPRequest:      req,
 			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-			Body:             &ghcmessages.PatchMTOServiceItemStatus{Status: "APPROVED"},
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
 			MoveTaskOrderID:  availableMoveID.String(),
 			MtoServiceItemID: mtoServiceItemID.String(),
 		}

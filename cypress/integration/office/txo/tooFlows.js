@@ -10,8 +10,8 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/move-task-orders/**/mto-shipments').as('getMTOShipments');
-    cy.intercept('**/ghc/v1/move-task-orders/**/mto-service-items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
     cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
     cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');

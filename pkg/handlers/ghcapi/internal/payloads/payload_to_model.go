@@ -47,7 +47,7 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 }
 
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
-func CustomerToServiceMember(payload ghcmessages.UpdateCustomer) models.ServiceMember {
+func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
 
 	var address models.Address
 	if payload.CurrentAddress != nil {

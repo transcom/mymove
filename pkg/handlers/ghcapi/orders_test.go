@@ -856,13 +856,13 @@ type updateAllowanceHandlerSubtestData struct {
 type updateBillableWeightHandlerSubtestData struct {
 	move  models.Move
 	order models.Order
-	body  *ghcmessages.UpdateBillableWeight
+	body  *ghcmessages.UpdateBillableWeightPayload
 }
 
 type updateMaxBillableWeightAsTIOHandlerSubtestData struct {
 	move  models.Move
 	order models.Order
-	body  *ghcmessages.UpdateMaxBillableWeightAsTIO
+	body  *ghcmessages.UpdateMaxBillableWeightAsTIOPayload
 }
 
 func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData *updateAllowanceHandlerSubtestData) {
@@ -903,7 +903,7 @@ func (suite *HandlerSuite) makeUpdateMaxBillableWeightAsTIOHandlerSubtestData() 
 	newAuthorizedWeight := int64(10000)
 	newRemarks := "TIO remarks"
 
-	subtestData.body = &ghcmessages.UpdateMaxBillableWeightAsTIO{
+	subtestData.body = &ghcmessages.UpdateMaxBillableWeightAsTIOPayload{
 		AuthorizedWeight: &newAuthorizedWeight,
 		TioRemarks:       &newRemarks,
 	}
@@ -920,7 +920,7 @@ func (suite *HandlerSuite) makeUpdateBillableWeightHandlerSubtestData() (subtest
 
 	newAuthorizedWeight := int64(10000)
 
-	subtestData.body = &ghcmessages.UpdateBillableWeight{
+	subtestData.body = &ghcmessages.UpdateBillableWeightPayload{
 		AuthorizedWeight: &newAuthorizedWeight,
 	}
 	return subtestData
@@ -1349,7 +1349,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-		// suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
+		suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TIO role", func() {
