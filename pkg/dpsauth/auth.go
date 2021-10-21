@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -23,7 +24,7 @@ type Claims struct {
 
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger        Logger
+	logger        *zap.Logger
 	secretKey     string
 	cookieDomain  string
 	cookieSecret  []byte
@@ -31,9 +32,9 @@ type SetCookieHandler struct {
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
+func NewSetCookieHandler(appCtx appcontext.AppContext, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
 	return SetCookieHandler{
-		logger:        logger,
+		logger:        appCtx.Logger(),
 		secretKey:     secretKey,
 		cookieDomain:  cookieDomain,
 		cookieSecret:  cookieSecret,

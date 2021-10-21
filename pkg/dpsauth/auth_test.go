@@ -11,7 +11,7 @@ func (suite *dpsAuthSuite) TestSetCookieHandler() {
 	cookieDomain := "sddctest"
 	cookieSecret := []byte("j-7oWD_dOnhVf$PpQLRkMxaLmFDj!aE$")
 	cookieExpires := 240
-	handler := NewSetCookieHandler(suite.logger, secretKey, cookieDomain, cookieSecret, cookieExpires)
+	handler := NewSetCookieHandler(suite.TestAppContext(), secretKey, cookieDomain, cookieSecret, cookieExpires)
 
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/dps_auth/set_cookie", nil)
