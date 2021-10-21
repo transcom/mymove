@@ -66,7 +66,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		var move models.Move
 		err := moveRouter.Submit(suite.AppContextForTest(), &move)
 		suite.Error(err)
-		suite.Contains(err.Error(), "not found looking for move.OrdersID")
+		suite.Contains(err.Error(), "Not found looking for move.OrdersID")
 	})
 
 	suite.Run("returns error when OriginDutyStation is missing", func() {

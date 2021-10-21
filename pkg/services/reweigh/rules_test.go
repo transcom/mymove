@@ -186,7 +186,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), models.Reweigh{}, nil, &shipment)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
+		suite.Equal(fmt.Sprintf("Not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {

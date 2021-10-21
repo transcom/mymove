@@ -174,7 +174,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		// check that we get back a validation error
-		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
+		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. SAC can not be blank.", order.ID))
 		suite.Nil(updatedOrder)
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
@@ -210,7 +210,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), orderWithoutDefaults.ID, payload, eTag)
 
-		suite.Contains(err.Error(), fmt.Sprintf("Invalid input for id: %s.", orderWithoutDefaults.ID))
+		suite.Contains(err.Error(), fmt.Sprintf("Invalid input for ID: %s.", orderWithoutDefaults.ID))
 		suite.Contains(err.Error(), "DepartmentIndicator cannot be blank.")
 		suite.Contains(err.Error(), "OrdersTypeDetail cannot be blank.")
 		suite.Contains(err.Error(), "TransportationAccountingCode cannot be blank.")

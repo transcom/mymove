@@ -411,7 +411,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), fmt.Sprintf("id: %s not found looking for MTOServiceItemID", badMTOServiceItemID))
+		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found looking for MTOServiceItemID", badMTOServiceItemID))
 		var expected *ServiceItemParamKeyData = nil
 		suite.Equal(expected, paramLookup)
 	})
