@@ -12,13 +12,14 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/server"
 )
 
 // InitDoDCertificates initializes the DoD Certificates
-func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x509.CertPool, error) {
-
+func InitDoDCertificates(appCtx appcontext.AppContext, v *viper.Viper) ([]tls.Certificate, *x509.CertPool, error) {
+	logger := appCtx.Logger()
 	tlsCertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
 	tlsCerts := cli.ParseCertificates(tlsCertString)
 	if len(tlsCerts) == 0 {

@@ -228,7 +228,7 @@ func main() {
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
 			// Something is different about our cert config in CI so only running this
 			// for the devseed scenario not e2e_basic for Cypress
-			certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+			certificates, rootCAs, certErr := certs.InitDoDCertificates(appCtx, v)
 			if certificates == nil || rootCAs == nil || certErr != nil {
 				logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
 			}

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -18,7 +19,7 @@ import (
 type certTestSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger Logger
+	logger *zap.Logger
 }
 
 type initFlags func(f *pflag.FlagSet)
@@ -53,6 +54,10 @@ func (suite *certTestSuite) SetViper(v *viper.Viper) {
 	suite.viper = v
 }
 
+func (suite *certTestSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(nil, suite.logger)
+}
+
 func TestCertSuite(t *testing.T) {
 
 	logger, _, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel("debug"))
@@ -76,6 +81,6 @@ func (suite *certTestSuite) TestDODCertificates() {
 	}
 
 	suite.Setup(cli.InitCertFlags, []string{})
-	_, _, err := InitDoDCertificates(suite.viper, suite.logger)
+	_, _, err := InitDoDCertificates(suite.TestAppContext(), suite.viper)
 	suite.NoError(err)
 }

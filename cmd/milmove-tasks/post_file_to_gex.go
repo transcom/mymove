@@ -12,6 +12,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -97,8 +98,6 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	// dbEnv := v.GetString(cli.DbEnvFlag)
-
 	edi := v.GetString("gex-helloworld-file")
 
 	ediString := string(edi[:])
@@ -109,7 +108,8 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
-	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	appCtx := appcontext.NewAppContext(nil, certLogger)
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(appCtx, v)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Error in getting tls certs", zap.Error(err))
 	}

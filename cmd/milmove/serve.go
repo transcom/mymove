@@ -582,7 +582,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	storer := storage.InitStorage(appCtx, v, session)
 	handlerContext.SetFileStorer(storer)
 
-	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
+	certificates, rootCAs, err := certs.InitDoDCertificates(appCtx, v)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}

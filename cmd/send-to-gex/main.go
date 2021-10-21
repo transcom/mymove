@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -120,7 +121,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	certificates, rootCAs, err := certs.InitDoDCertificates(v, certLogger)
+	appCtx := appcontext.NewAppContext(nil, certLogger)
+	certificates, rootCAs, err := certs.InitDoDCertificates(appCtx, v)
 	if certificates == nil || rootCAs == nil || err != nil {
 		log.Fatal("Error in getting tls certs", err)
 	}

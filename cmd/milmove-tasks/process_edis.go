@@ -167,7 +167,6 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 
@@ -200,7 +199,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
-	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	appCtx := appcontext.NewAppContext(nil, certLogger)
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(appCtx, v)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Error in getting tls certs", zap.Error(err))
 	}
