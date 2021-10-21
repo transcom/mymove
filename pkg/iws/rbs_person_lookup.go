@@ -16,6 +16,7 @@ import (
 	"go.mozilla.org/pkcs7"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -260,7 +261,8 @@ func recordFromResponse(data []byte) (Record, error) {
 }
 
 // InitRBSPersonLookup is the RBS Person Lookup service
-func InitRBSPersonLookup(v *viper.Viper, logger Logger) (PersonLookup, error) {
+func InitRBSPersonLookup(appCtx appcontext.AppContext, v *viper.Viper) (PersonLookup, error) {
+	logger := appCtx.Logger()
 	if v.GetBool(cli.IWSRBSEnabledFlag) {
 		logger.Debug("Enabling IWS RBS Person Lookup")
 		rbs, err := NewRBSPersonLookup(

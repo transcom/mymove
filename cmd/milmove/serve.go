@@ -650,7 +650,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := iws.InitRBSPersonLookup(v, logger)
+	rbs, err := iws.InitRBSPersonLookup(appCtx, v)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
