@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*ghcmessages.Document, error) {
+func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*ghcmessages.DocumentPayload, error) {
 	uploads := make([]*ghcmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
@@ -28,7 +28,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 		uploads[i] = uploadPayload
 	}
 
-	documentPayload := &ghcmessages.Document{
+	documentPayload := &ghcmessages.DocumentPayload{
 		ID:              handlers.FmtUUID(document.ID),
 		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,

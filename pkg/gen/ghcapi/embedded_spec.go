@@ -293,7 +293,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/Document"
+              "$ref": "#/definitions/DocumentPayload"
             }
           },
           "400": {
@@ -423,6 +423,68 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "updateMTOReviewedBillableWeightsAt",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order billableWeightsReviewedAt field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
@@ -1042,68 +1104,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/Move"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at": {
-      "patch": {
-        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "operationId": "updateMTOReviewedBillableWeightsAt",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move to use",
-            "name": "moveTaskOrderId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order billableWeightsReviewedAt field",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -3311,7 +3311,7 @@ func init() {
         "CRATE"
       ]
     },
-    "Document": {
+    "DocumentPayload": {
       "type": "object",
       "required": [
         "id",
@@ -4258,9 +4258,6 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
-        },
-        "moveTaskOrder": {
-          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -5849,7 +5846,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/Document"
+              "$ref": "#/definitions/DocumentPayload"
             }
           },
           "400": {
@@ -6036,6 +6033,92 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "updateMTOReviewedBillableWeightsAt",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order billableWeightsReviewedAt field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
@@ -6820,92 +6903,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/Move"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at": {
-      "patch": {
-        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "operationId": "updateMTOReviewedBillableWeightsAt",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move to use",
-            "name": "moveTaskOrderId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order billableWeightsReviewedAt field",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -9528,7 +9525,7 @@ func init() {
         "CRATE"
       ]
     },
-    "Document": {
+    "DocumentPayload": {
       "type": "object",
       "required": [
         "id",
@@ -10475,9 +10472,6 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
-        },
-        "moveTaskOrder": {
-          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",

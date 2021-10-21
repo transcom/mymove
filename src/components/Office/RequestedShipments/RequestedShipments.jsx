@@ -35,6 +35,7 @@ const RequestedShipments = ({
   };
 
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    console.log(shipment);
     return {
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,

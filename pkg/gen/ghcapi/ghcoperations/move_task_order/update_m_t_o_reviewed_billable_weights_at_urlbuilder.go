@@ -40,11 +40,11 @@ func (o *UpdateMTOReviewedBillableWeightsAtURL) SetBasePath(bp string) {
 func (o *UpdateMTOReviewedBillableWeightsAtURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at"
+	var _path = "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {
-		_path = strings.Replace(_path, "{moveTaskOrderId}", moveTaskOrderID, -1)
+		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
 		return nil, errors.New("moveTaskOrderId is required on UpdateMTOReviewedBillableWeightsAtURL")
 	}

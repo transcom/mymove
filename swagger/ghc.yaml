@@ -1424,7 +1424,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
-  '/move-task-orders/{moveTaskOrderId}/billable-weights-reviewed-at':
+  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
     patch:
       consumes:
         - application/json
@@ -1433,7 +1433,7 @@ paths:
       parameters:
         - description: ID of move to use
           in: path
-          name: moveTaskOrderId
+          name: moveTaskOrderID
           required: true
           type: string
         - in: header
@@ -1662,7 +1662,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/Document'
+            $ref: '#/definitions/DocumentPayload'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2570,8 +2570,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveTaskOrder:
-        $ref: '#/definitions/Move'
       uploadedOrderId:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3692,7 +3690,7 @@ definitions:
         type: string
         readOnly: true
     type: object
-  Document:
+  DocumentPayload:
     type: object
     properties:
       id:

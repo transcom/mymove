@@ -15,10 +15,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Document document
+// DocumentPayload document payload
 //
-// swagger:model Document
-type Document struct {
+// swagger:model DocumentPayload
+type DocumentPayload struct {
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -36,8 +36,8 @@ type Document struct {
 	Uploads []*Upload `json:"uploads"`
 }
 
-// Validate validates this document
-func (m *Document) Validate(formats strfmt.Registry) error {
+// Validate validates this document payload
+func (m *DocumentPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -58,7 +58,7 @@ func (m *Document) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Document) validateID(formats strfmt.Registry) error {
+func (m *DocumentPayload) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
@@ -71,7 +71,7 @@ func (m *Document) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Document) validateServiceMemberID(formats strfmt.Registry) error {
+func (m *DocumentPayload) validateServiceMemberID(formats strfmt.Registry) error {
 
 	if err := validate.Required("serviceMemberId", "body", m.ServiceMemberID); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (m *Document) validateServiceMemberID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Document) validateUploads(formats strfmt.Registry) error {
+func (m *DocumentPayload) validateUploads(formats strfmt.Registry) error {
 
 	if err := validate.Required("uploads", "body", m.Uploads); err != nil {
 		return err
@@ -109,8 +109,8 @@ func (m *Document) validateUploads(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this document based on the context it is used
-func (m *Document) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this document payload based on the context it is used
+func (m *DocumentPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateUploads(ctx, formats); err != nil {
@@ -123,7 +123,7 @@ func (m *Document) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	return nil
 }
 
-func (m *Document) contextValidateUploads(ctx context.Context, formats strfmt.Registry) error {
+func (m *DocumentPayload) contextValidateUploads(ctx context.Context, formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.Uploads); i++ {
 
@@ -142,7 +142,7 @@ func (m *Document) contextValidateUploads(ctx context.Context, formats strfmt.Re
 }
 
 // MarshalBinary interface implementation
-func (m *Document) MarshalBinary() ([]byte, error) {
+func (m *DocumentPayload) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -150,8 +150,8 @@ func (m *Document) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Document) UnmarshalBinary(b []byte) error {
-	var res Document
+func (m *DocumentPayload) UnmarshalBinary(b []byte) error {
+	var res DocumentPayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
