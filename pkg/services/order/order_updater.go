@@ -33,7 +33,7 @@ func NewOrderUpdater(moveRouter services.MoveRouter) services.OrderUpdater {
 }
 
 // UpdateOrderAsTOO updates an order as permitted by a TOO
-func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrder, eTag string) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -50,7 +50,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
-func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrder, eTag string) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -67,7 +67,7 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 }
 
 // UpdateAllowanceAsTOO updates an allowance as permitted by a service counselor
-func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowance, eTag string) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -84,7 +84,7 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 }
 
 // UpdateAllowanceAsCounselor updates an allowance as permitted by a service counselor
-func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowance, eTag string) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -139,7 +139,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	return &order, nil
 }
 
-func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrder) models.Order {
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
@@ -244,7 +244,7 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 	return *userUpload, url, nil, nil
 }
 
-func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrder) models.Order {
+func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
@@ -274,7 +274,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	return order
 }
 
-func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateAllowance) models.Order {
+func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -317,7 +317,7 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 	return order
 }
 
-func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowance) models.Order {
+func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {

@@ -254,7 +254,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
-		body := &ghcmessages.UpdateOrder{
+		body := &ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
 			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
@@ -325,7 +325,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		unacknowledgedOrders := false
-		body := &ghcmessages.UpdateOrder{
+		body := &ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
 			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
@@ -370,7 +370,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 type updateOrderHandlerSubtestData struct {
 	move  models.Move
 	order models.Order
-	body  *ghcmessages.UpdateOrder
+	body  *ghcmessages.UpdateOrderPayload
 }
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *updateOrderHandlerSubtestData) {
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
-	subtestData.body = &ghcmessages.UpdateOrder{
+	subtestData.body = &ghcmessages.UpdateOrderPayload{
 		DepartmentIndicator: &deptIndicator,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
@@ -617,7 +617,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	order := move.Orders
 
-	body := &ghcmessages.UpdateOrder{}
+	body := &ghcmessages.UpdateOrderPayload{}
 
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
@@ -659,7 +659,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 type counselingUpdateOrderHandlerSubtestData struct {
 	move  models.Move
 	order models.Order
-	body  *ghcmessages.CounselingUpdateOrder
+	body  *ghcmessages.CounselingUpdateOrderPayload
 }
 
 func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtestData *counselingUpdateOrderHandlerSubtestData) {
@@ -672,7 +672,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	subtestData.body = &ghcmessages.CounselingUpdateOrder{
+	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
@@ -850,7 +850,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 type updateAllowanceHandlerSubtestData struct {
 	move  models.Move
 	order models.Order
-	body  *ghcmessages.UpdateAllowance
+	body  *ghcmessages.UpdateAllowancePayload
 }
 
 type updateBillableWeightHandlerSubtestData struct {
@@ -879,7 +879,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
-	subtestData.body = &ghcmessages.UpdateAllowance{
+	subtestData.body = &ghcmessages.UpdateAllowancePayload{
 		Agency:               affiliation,
 		AuthorizedWeight:     &newAuthorizedWeight,
 		DependentsAuthorized: swag.Bool(true),
@@ -1098,7 +1098,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	order := move.Orders
 
-	body := &ghcmessages.UpdateAllowance{}
+	body := &ghcmessages.UpdateAllowancePayload{}
 
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
@@ -1144,7 +1144,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
-	body := &ghcmessages.CounselingUpdateAllowance{
+	body := &ghcmessages.CounselingUpdateAllowancePayload{
 		Agency:               affiliation,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
