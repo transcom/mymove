@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { Button, Dropdown, Label } from '@trussworks/react-uswds';
 
 import { ShipmentShape } from '../../../types/shipment';
@@ -9,15 +10,17 @@ import Shipment from '../Shipment/Shipment';
 import MaskedTextField from '../../form/fields/MaskedTextField';
 import { Form } from '../../form';
 import { AddressFields } from '../../form/AddressFields/AddressFields';
+import { ZIP_CODE_REGEX } from '../../../utils/validation';
 
-const serviceItemTypeOptions = (
-  <>
-    <option value="MTOServiceItemOriginSIT">Origin SIT</option>
-    <option value="MTOServiceItemDestSIT">Destination SIT</option>
-  </>
-);
+const originSITValidationSchema = Yup.object().shape({
+  reason: Yup.string().required('Required'),
+  sitPostalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+  sitEntryDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
+});
 
-const originSITForm = (shipment) => {
+const originSITForm = (shipment, onSubmit) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -27,10 +30,16 @@ const originSITForm = (shipment) => {
     sitPostalCode: '',
     sitEntryDate: '',
     sitDepartureDate: '',
-    sitHHGActualOrigin: {},
+    sitHHGActualOrigin: {
+      street_address_1: '',
+      street_address_2: '',
+      city: '',
+      state: '',
+      postal_code: '',
+    },
   };
   return (
-    <Formik initialValues={initialValues}>
+    <Formik initialValues={initialValues} validationSchema={originSITValidationSchema} onSubmit={onSubmit}>
       <Form>
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
@@ -53,7 +62,7 @@ const originSITForm = (shipment) => {
   );
 };
 
-const destinationSITForm = (shipment) => {
+const destinationSITForm = (shipment, onSubmit) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -68,7 +77,7 @@ const destinationSITForm = (shipment) => {
     sitDestinationFinalAddress: {},
   };
   return (
-    <Formik initialValues={initialValues}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit}>
       <Form>
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
@@ -99,12 +108,12 @@ const destinationSITForm = (shipment) => {
   );
 };
 
-const populateServiceItemForm = (serviceItemType, shipment) => {
+const populateServiceItemForm = (serviceItemType, shipment, onSubmit) => {
   switch (serviceItemType) {
     case 'MTOServiceItemOriginSIT':
-      return originSITForm(shipment);
+      return originSITForm(shipment, onSubmit);
     case 'MTOServiceItemDestSIT':
-      return destinationSITForm(shipment);
+      return destinationSITForm(shipment, onSubmit);
     default:
       return <></>;
   }
@@ -117,14 +126,19 @@ const CreateShipmentServiceItemForm = ({ shipment }) => {
     setSelectedServiceItemType(event.target.value);
   };
 
+  const onSubmit = () => {};
+
   return (
     <>
       <Shipment shipment={shipment} />
       <Label htmlFor="serviceItemType">Service item type</Label>
       <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
-        {serviceItemTypeOptions}
+        <>
+          <option value="MTOServiceItemOriginSIT">Origin SIT</option>
+          <option value="MTOServiceItemDestSIT">Destination SIT</option>
+        </>
       </Dropdown>
-      {populateServiceItemForm(selectedServiceItemType, shipment)}
+      {populateServiceItemForm(selectedServiceItemType, shipment, onSubmit)}
     </>
   );
 };
