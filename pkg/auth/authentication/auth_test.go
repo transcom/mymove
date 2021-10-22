@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/gob"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 
 	"github.com/transcom/mymove/pkg/notifications"
@@ -26,7 +26,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
@@ -72,26 +71,15 @@ func ApplicationTestServername() auth.ApplicationServername {
 
 type AuthSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
 	gob.Register(auth.Session{})
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *AuthSuite) AppContextForTest(session *auth.Session) appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, session)
-}
-
 func TestAuthSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
 	hs := &AuthSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
@@ -196,8 +184,9 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 	sessionManagers := setupSessionManagers()
 	officeSession := sessionManagers[2]
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
-	handler := officeSession.LoadAndSave(LogoutHandler{authContext, suite.DB()})
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, context))
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -250,7 +239,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 	sessionManager := scs.New()
-	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
+	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.Logger())(handler))
 
 	middleware.ServeHTTP(rr, req)
 
@@ -264,7 +253,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 
 	rr := httptest.NewRecorder()
 	sessionManager := scs.New()
-	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.logger))
+	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger()))
 
 	handler.ServeHTTP(rr, req)
 
@@ -294,7 +283,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	req = req.WithContext(ctx)
 
 	rr := httptest.NewRecorder()
-	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.logger))
+	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger()))
 
 	handler.ServeHTTP(rr, req)
 
@@ -315,7 +304,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	sessionManager := scs.New()
-	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
+	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.Logger())(handler))
 
 	middleware.ServeHTTP(rr, req)
 
@@ -348,7 +337,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 
-	middleware := AdminAuthMiddleware(suite.logger)(handler)
+	middleware := AdminAuthMiddleware(suite.Logger())(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -365,7 +354,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := AdminAuthMiddleware(suite.logger)(handler)
+	middleware := AdminAuthMiddleware(suite.Logger())(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -394,16 +383,17 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated user")
 }
@@ -436,18 +426,19 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	officeSession := sessionManagers[2]
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(officeUserID, session.OfficeUserID)
@@ -473,14 +464,15 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated office user")
 }
@@ -524,18 +516,19 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	officeSession := sessionManagers[2]
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	rr2 := httptest.NewRecorder()
 	officeSession.LoadAndSave(h).ServeHTTP(rr2, req.WithContext(scsContext))
@@ -588,18 +581,19 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	adminSession := sessionManagers[1]
 	scsContext := setupScsSession(ctx, &session, adminSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	// admin app, so should only have admin ID information
 	suite.Equal(userIdentity.ID, session.UserID)
@@ -632,18 +626,19 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	milSession := sessionManagers[0]
 	scsContext := setupScsSession(ctx, &session, milSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUser(suite.DB(), user.ID)
 
@@ -660,7 +655,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	}
 	concurrentCtx := auth.SetSessionInRequestContext(req, &concurrentSession)
 	concurrentScsContext := setupScsSession(concurrentCtx, &concurrentSession, milSession)
-	authorizeKnownUser(suite.AppContextForTest(&concurrentSession), &userIdentity, h, rr, req.WithContext(concurrentScsContext), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&concurrentSession), &userIdentity, h, rr, req.WithContext(concurrentScsContext), "")
 
 	_, existsAfterConcurrentSession, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
 	suite.Equal(existsAfterConcurrentSession, false)
@@ -700,7 +695,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 
 	// Prepare the callback handler
 	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	authContext.SetFeatureFlag(
 		FeatureFlag{
 			Name:   cli.FeatureFlagAccessCode,
@@ -708,9 +703,10 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 		},
 	)
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		mockSender,
 	}
 
@@ -726,7 +722,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	}
 
 	// Call the function under test
-	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(scsContext), h.landingURL(&session))
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), user, h, rr, req.WithContext(scsContext), h.landingURL(&session))
 	mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 
 	// Look up the user and service member in the test DB
@@ -793,14 +789,15 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated admin user")
 }
@@ -829,15 +826,16 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Office user is active")
 }
@@ -864,15 +862,16 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Office user not found")
 }
@@ -907,19 +906,20 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	officeSession := sessionManagers[2]
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), officeUser.Email)
 
@@ -949,15 +949,16 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is active")
 }
@@ -984,15 +985,16 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
 }
@@ -1028,15 +1030,16 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextWithSessionForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
 }
@@ -1071,19 +1074,20 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	adminSession := sessionManagers[1]
 	scsContext := setupScsSession(ctx, &session, adminSession)
 
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
 		authContext,
-		suite.DB(),
+		context,
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(suite.AppContextForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), adminUser.Email)
 
@@ -1117,9 +1121,11 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	sessionManagers := setupSessionManagers()
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := RedirectHandler{
 		authContext,
+		context,
 		false,
 	}
 	rr := httptest.NewRecorder()
