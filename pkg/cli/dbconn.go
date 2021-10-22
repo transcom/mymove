@@ -300,14 +300,6 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	}
 
 	if dbUseInstrumentedDriver {
-		// instead of using pop's instrumentated driver, we want to
-		// use an open telementry compatible driver, so we're going to
-		// fake pop out
-
-		// // register the otelsql driver, which we will then fake pop
-		// // out to use
-		// driverName, err := otelsql.Register(iampg.CustomPostgres, semconv.DBSystemMySQL.Value.AsString())
-
 		// to fake pop out, we need to register the otelsql instrumented
 		// driver under the driverName that pop would use. To do that,
 		// we need to get the otelsql driver.Driver, which is easiest
