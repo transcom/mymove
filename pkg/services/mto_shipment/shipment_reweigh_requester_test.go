@@ -25,15 +25,18 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		fetchedShipment := models.MTOShipment{}
 
 		reweigh, err := requester.RequestShipmentReweigh(suite.TestAppContext(), shipment.ID, models.ReweighRequesterTOO)
-
 		suite.NoError(err)
-		suite.Equal(shipment.MoveTaskOrderID, reweigh.Shipment.MoveTaskOrderID)
+
+		var reweighShipment models.MTOShipment
+		err = suite.DB().Where("id = ?", reweigh.ShipmentID).First(&reweighShipment)
+		suite.NoError(err, "Get shipment associated with reweigh")
+
+		suite.Equal(shipment.MoveTaskOrderID, reweighShipment.MoveTaskOrderID)
 
 		err = suite.DB().Find(&fetchedShipment, shipment.ID)
 		suite.NoError(err)
 
 		suite.Equal(shipment.ID, fetchedShipment.ID)
-		suite.Equal(shipment.ID, reweigh.Shipment.ID)
 		suite.EqualValues(models.ReweighRequesterTOO, reweigh.RequestedBy)
 		suite.WithinDuration(time.Now(), reweigh.RequestedAt, 2*time.Second)
 	})

@@ -250,6 +250,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.UpdateMaxBillableWeightAsTIO has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderUpdateMoveTIORemarksHandler == nil {
+		api.MoveTaskOrderUpdateMoveTIORemarksHandler = move_task_order.UpdateMoveTIORemarksHandlerFunc(func(params move_task_order.UpdateMoveTIORemarksParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTIORemarks has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderUpdateMoveTaskOrderHandler = move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")

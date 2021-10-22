@@ -120,6 +120,39 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 	return move, nil
 }
 
+// UpdateTIORemarks updates the TIORemarks field on the move (move task order)
+func (o moveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
+	var err error
+
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// update field for move
+		move.TIORemarks = &remarks
+
+		// Check the If-Match header against existing eTag before updating
+		encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
+		if encodedUpdatedAt != eTag {
+			return apperror.NewPreconditionFailedError(move.ID, err)
+		}
+
+		err = appCtx.DB().Update(move)
+		return err
+	})
+	if transactionError != nil {
+		return &models.Move{}, transactionError
+	}
+
+	return move, nil
+}
+
 // MakeAvailableToPrime approves a Move, makes it available to prime, and
 // creates Move-level service items (counseling and move management) if the
 // TOO selected them. If the move received service counseling, the counseling

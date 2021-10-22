@@ -191,29 +191,38 @@ const useOrdersDocumentQueriesReturnValue = {
   },
 };
 
+const move = {
+  tioRemarks: 'the prime has already unloaded this move',
+};
+
 const useMovePaymentRequestsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoShipments,
+  move,
 };
 
 const useNonMaxBillableWeightExceededReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockMtoShipments[0]],
+  move,
 };
 
 const useMissingShipmentWeightNoReweighReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoReweighWeightShipment, mockHasAllInformationShipment],
+  move,
 };
 
 const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoPrimeEstimatedWeightShipment, mockHasAllInformationShipment],
+  move,
 };
 
 const noAlertsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockHasAllInformationShipment],
+  move,
 };
 
 const loadingReturnValue = {

@@ -176,6 +176,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderUpdateMaxBillableWeightAsTIOHandler: order.UpdateMaxBillableWeightAsTIOHandlerFunc(func(params order.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateMaxBillableWeightAsTIO has not yet been implemented")
 		}),
+		MoveTaskOrderUpdateMoveTIORemarksHandler: move_task_order.UpdateMoveTIORemarksHandlerFunc(func(params move_task_order.UpdateMoveTIORemarksParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTIORemarks has not yet been implemented")
+		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
 		}),
@@ -307,6 +310,8 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler
 	// OrderUpdateMaxBillableWeightAsTIOHandler sets the operation handler for the update max billable weight as t i o operation
 	OrderUpdateMaxBillableWeightAsTIOHandler order.UpdateMaxBillableWeightAsTIOHandler
+	// MoveTaskOrderUpdateMoveTIORemarksHandler sets the operation handler for the update move t i o remarks operation
+	MoveTaskOrderUpdateMoveTIORemarksHandler move_task_order.UpdateMoveTIORemarksHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
@@ -513,6 +518,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderUpdateMaxBillableWeightAsTIOHandler == nil {
 		unregistered = append(unregistered, "order.UpdateMaxBillableWeightAsTIOHandler")
+	}
+	if o.MoveTaskOrderUpdateMoveTIORemarksHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMoveTIORemarksHandler")
 	}
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderHandler")
@@ -777,6 +785,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{orderID}/update-max-billable-weight/tio"] = order.NewUpdateMaxBillableWeightAsTIO(o.context, o.OrderUpdateMaxBillableWeightAsTIOHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/tio-remarks"] = move_task_order.NewUpdateMoveTIORemarks(o.context, o.MoveTaskOrderUpdateMoveTIORemarksHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

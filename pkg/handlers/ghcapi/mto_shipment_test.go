@@ -1418,11 +1418,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 		handlerContext.SetNotificationSender(suite.TestNotificationSender())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 
 		approveParams := shipmentops.RequestShipmentReweighParams{
@@ -1450,11 +1470,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 		approveParams := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1473,11 +1513,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1497,11 +1557,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1522,11 +1602,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
@@ -1546,11 +1646,31 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveRouter := moverouter.NewMoveRouter()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
+			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
 			HTTPRequest: req,
