@@ -24,4 +24,9 @@
   .flashContainer {
     @include u-margin-top(2);
   }
+
+  .paymentRequestRow {
+    display: flex;
+    justify-content: space-between;
+  }
 }

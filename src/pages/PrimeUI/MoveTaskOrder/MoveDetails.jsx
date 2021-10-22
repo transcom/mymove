@@ -64,7 +64,17 @@ const MoveDetails = () => {
                 <dl className={descriptionListStyles.descriptionList}>
                   <h2>Payment Requests</h2>
                   {paymentRequests?.map((paymentRequest) => {
-                    return <div key={paymentRequest.id}>{paymentRequest.paymentRequestNumber}</div>;
+                    return (
+                      <div className={styles.paymentRequestRow} key={paymentRequest.id}>
+                        <div>{paymentRequest.paymentRequestNumber}</div>
+                        <Link
+                          to={`payment-request/${paymentRequest.id}/upload`}
+                          className="usa-button usa-button-secondary"
+                        >
+                          Upload Document
+                        </Link>
+                      </div>
+                    );
                   })}
                 </dl>
               </SectionWrapper>
