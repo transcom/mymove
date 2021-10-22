@@ -54,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
 	})
 
 	suite.T().Run("When a reweigh already exists for the shipment, returns ConflictError", func(t *testing.T) {
@@ -65,7 +65,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Cannot request a reweigh on a shipment that already has one.", existingShipment.ID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Cannot request a reweigh on a shipment that already has one.", existingShipment.ID), err.Error())
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {

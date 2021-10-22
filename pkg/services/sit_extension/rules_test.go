@@ -161,7 +161,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, nil)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal("not found while looking for Prime-available Shipment", err.Error())
+		suite.Equal("Not found while looking for Prime-available Shipment", err.Error())
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {
