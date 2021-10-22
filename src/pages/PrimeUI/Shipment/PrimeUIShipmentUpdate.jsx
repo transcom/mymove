@@ -87,37 +87,6 @@ const PrimeUIShipmentUpdate = () => {
     postal_code: '',
   };
 
-  const fromPrimeApiAddressFormat = (address) => {
-    if (!address) {
-      return emptyAddress;
-    }
-    return {
-      street_address_1: address.streetAddress1,
-      street_address_2: address.streetAddress2,
-      street_address_3: address.streetAddress3,
-      city: address.city,
-      state: address.state,
-      postal_code: address.postalCode,
-    };
-  };
-  const toPrimeApiAddressFormat = (address) => {
-    return {
-      streetAddress1: address.street_address_1,
-      streetAddress2: address.street_address_2,
-      streetAddress3: address.street_address_3,
-      city: address.city,
-      state: address.state,
-      postalCode: address.postal_code,
-    };
-  };
-
-  const isValidWeight = (weight) => {
-    if (weight !== 'undefined' && weight && weight > 0) {
-      return true;
-    }
-    return false;
-  };
-
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
   const editableWeightActualField = true; // !isValidWeight(shipment.primeActualWeight);
 

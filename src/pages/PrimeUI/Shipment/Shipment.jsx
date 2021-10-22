@@ -1,7 +1,9 @@
 import classnames from 'classnames';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import styles from '../MoveTaskOrder/MoveDetails.module.scss';
@@ -11,6 +13,7 @@ import { formatDateFromIso } from '../../../shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 import { AddressShape } from 'types/address';
+// import { primeSimulatorRoutes } from '../../../constants/routes';
 
 const Shipment = ({ shipment, moveId }) => {
   return (
@@ -59,6 +62,16 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
           {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
         </dd>
+        <dd>
+          {true && (
+            <Link
+              to=""
+              /* generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, { moveCodeOrID: moveId, shipmentId: shipment.id }) */ className="usa-button usa-button-secondary"
+            >
+              Edit Address
+            </Link>
+          )}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
@@ -66,6 +79,17 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.destinationAddress.streetAddress1} {shipment.destinationAddress.streetAddress2}{' '}
           {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
           {shipment.destinationAddress.postalCode}
+        </dd>
+        <dd>
+          {true && (
+            <Button
+              type="button"
+              onClick={() => {} /* handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag) */}
+              unstyled
+            >
+              Edit address
+            </Button>
+          )}
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
