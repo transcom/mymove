@@ -7,6 +7,8 @@ import { createPaymentRequest } from '../../../services/primeApi';
 
 import CreatePaymentRequest from './CreatePaymentRequest';
 
+import { MockProviders } from 'testUtils';
+
 const mockUseHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -18,6 +20,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('hooks/queries', () => ({
   usePrimeSimulatorGetMove: jest.fn(),
+  createPaymentRequest: jest.fn(),
 }));
 
 jest.mock('services/primeApi', () => ({
@@ -72,7 +75,11 @@ describe('CreatePaymentRequest page', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(loadingReturnValue);
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       expect(await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 }));
     });
@@ -80,7 +87,11 @@ describe('CreatePaymentRequest page', () => {
     it('renders the Something Went Wrong component when the query has an error', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(errorReturnValue);
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       expect(await screen.getByText(/Something went wrong./));
     });
@@ -90,7 +101,11 @@ describe('CreatePaymentRequest page', () => {
     it('displays the move information and basic service items', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       const moveHeading = screen.getByRole('heading', { name: 'Move', level: 2 });
       expect(moveHeading).toBeInTheDocument();
@@ -118,7 +133,11 @@ describe('CreatePaymentRequest page', () => {
     it('displays the shipment information and shipment service items', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       const shipmentsHeading = screen.getByRole('heading', { name: 'Shipments', level: 2 });
       expect(shipmentsHeading).toBeInTheDocument();
@@ -157,7 +176,11 @@ describe('CreatePaymentRequest page', () => {
     it('displays the submit button and hint text', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       expect(screen.getByRole('button', { name: 'Submit Payment Request' })).toBeDisabled();
       expect(
@@ -173,7 +196,11 @@ describe('CreatePaymentRequest page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       createPaymentRequest.mockRejectedValue({ response: { body: { title: 'Error title', detail: 'Error detail' } } });
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
       // avoiding linter pitfalls with async for loops
@@ -195,7 +222,11 @@ describe('CreatePaymentRequest page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       createPaymentRequest.mockRejectedValue('malformed api error response');
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
       await userEvent.click(serviceItemInputs[0]);
@@ -228,7 +259,11 @@ describe('CreatePaymentRequest page', () => {
         paymentServiceItems: [],
       });
 
-      render(<CreatePaymentRequest />);
+      render(
+        <MockProviders>
+          <CreatePaymentRequest setFlashMessage={jest.fn()} />
+        </MockProviders>,
+      );
 
       const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
       await userEvent.click(serviceItemInputs[0]);
