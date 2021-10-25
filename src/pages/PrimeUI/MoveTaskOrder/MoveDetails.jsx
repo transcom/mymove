@@ -6,6 +6,7 @@ import Shipment from '../Shipment/Shipment';
 
 import styles from './MoveDetails.module.scss';
 
+import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -27,6 +28,7 @@ const MoveDetails = () => {
     <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
       <div className="grid-row">
         <div className="grid-col-12">
+          <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container" />
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <div className={styles.moveHeader}>
