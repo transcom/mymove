@@ -68,6 +68,7 @@ const PrimeSimulatorAvailableMoves = ({ history }) => {
       defaultCanSort
       disableSortBy={false}
       showFilters
+      manualFilters={false}
     />
   );
 };
