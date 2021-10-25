@@ -27,6 +27,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 // (https://gist.github.com/cb109/8eda798a4179dc21e46922a5fbb98be6) for the additional day SIT value with params
 const createPaymentRequestSchema = Yup.object().shape({
   serviceItems: Yup.array().of(Yup.string()).min(1),
+  params: Yup.object().shape({}),
 });
 
 const CreatePaymentRequest = () => {
@@ -95,17 +96,17 @@ const CreatePaymentRequest = () => {
 
   const onSubmit = (values, formik) => {
     const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
-      if (values.serviceItems[serviceItem]?.params) {
+      if (values.params[serviceItem]?.SITPaymentRequestStart && values.params[serviceItem]?.SITPaymentRequestEnd) {
         return {
           id: serviceItem,
           params: [
             {
               key: 'SITPaymentRequestStart',
-              value: formatDateForSwagger(values.serviceItems[serviceItem].params.SITPaymentRequestStart),
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestStart),
             },
             {
               key: 'SITPaymentRequestEnd',
-              value: formatDateForSwagger(values.serviceItems[serviceItem].params.SITPaymentRequestEnd),
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestEnd),
             },
           ],
         };
