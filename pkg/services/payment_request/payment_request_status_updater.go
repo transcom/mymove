@@ -1,8 +1,9 @@
 package paymentrequest
 
 import (
+	"database/sql"
+
 	"github.com/gobuffalo/validate/v3"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -61,13 +62,16 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, apperror.NewNotFoundError(id, "")
-		}
-
 		switch err.(type) {
 		case query.StaleIdentifierError:
 			return &models.PaymentRequest{}, apperror.NewPreconditionFailedError(id, err)
+		}
+
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(id, "")
+		default:
+			return nil, apperror.NewQueryError("PaymentRequest", err, "")
 		}
 	}
 

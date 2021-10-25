@@ -77,10 +77,8 @@ install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install-hooks
 
 .PHONY: prereqs
-prereqs: .prereqs.stamp ## Check that pre-requirements are installed, includes dependency scripts
-.prereqs.stamp: scripts/prereqs scripts/check-aws-cli-version scripts/check-aws-vault-version scripts/check-bash-version scripts/check-chamber-version scripts/check-go-version scripts/check-gopath scripts/check-hosts-file scripts/check-node-version scripts/check-opensc-version
+prereqs: ## Check that pre-requirements are installed, includes dependency scripts
 	scripts/prereqs
-	touch .prereqs.stamp
 
 .PHONY: check_hosts
 check_hosts: .check_hosts.stamp ## Check that hosts are in the /etc/hosts file
@@ -100,19 +98,13 @@ check_go_version: .check_go_version.stamp ## Check that the correct Golang versi
 
 .PHONY: check_gopath
 check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
-.check_gopath.stamp:
-	scripts/check-gopath
-	touch .check_gopath.stamp
-
-.PHONY: check_bash_version
-check_bash_version: .check_bash_version.stamp ## Check that the correct Bash version is installed
-.check_bash_version.stamp: scripts/check-bash-version
+.check_gopath.stamp: scripts/check-gopath
 ifndef CIRCLECI
-	scripts/check-bash-version
+	scripts/check-gopath
 else
-	@echo "No need to check bash version on CircleCI"
+	@echo "No need to check go path on CircleCI."
 endif
-	touch .check_bash_version.stamp
+	touch .check_gopath.stamp
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
@@ -127,17 +119,21 @@ check_docker_size: ## Check the amount of disk space used by docker
 .PHONY: deps
 deps: prereqs ensure_pre_commit deps_shared ## Run all checks and install all dependencies
 
+.PHONY: setup
+setup:
+	scripts/setup
+
 .PHONY: deps_nix
 deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
 
 .PHONY: deps_shared
-deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
+deps_shared: client_deps bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
 
 .PHONY: diagnostic
-diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
+diagnostic: check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
 check_log_dir: ## Make sure we have a log directory
@@ -336,7 +332,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run db_dev_migrate redis_run
 	INTERFACE=localhost \
 		./bin/gin \
 		--build ./cmd/milmove \
@@ -468,7 +464,7 @@ redis_destroy: ## Destroy Redis
 	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
 
 .PHONY: redis_run
-redis_run: ## Run Redis
+redis_run: redis_pull ## Run Redis
 ifndef CIRCLECI
 		@echo "Stopping the Redis brew service in case it's running..."
 		brew services stop redis 2> /dev/null || true
@@ -1104,8 +1100,8 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-96cac8d8f0103661fc405481147429ddd7432c0d
-	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
+	docker pull milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

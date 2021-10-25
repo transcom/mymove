@@ -73,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				nonPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, apperror.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 				},
 			},
@@ -81,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				hiddenPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, apperror.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 				},
 			},
@@ -89,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				badUUID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, apperror.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), badUUID.String())
 				},
 			},

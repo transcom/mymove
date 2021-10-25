@@ -1,6 +1,7 @@
 package supportmovetaskorder
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -106,7 +107,12 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	err := appCtx.DB().Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
 		appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-		return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
+		default:
+			return nil, apperror.NewQueryError("DutyStation", err, "")
+		}
 	}
 	order.NewDutyStation = destinationDutyStation
 	order.NewDutyStationID = destinationDutyStationID
@@ -118,7 +124,12 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		err = appCtx.DB().Find(originDutyStation, originDutyStationID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-			return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
+			default:
+				return nil, apperror.NewQueryError("DutyStation", err, "")
+			}
 		}
 		order.OriginDutyStation = originDutyStation
 		order.OriginDutyStationID = &originDutyStationID
@@ -132,7 +143,12 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		err = appCtx.DB().Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-			return nil, apperror.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
+			default:
+				return nil, apperror.NewQueryError("Document", err, "")
+			}
 		}
 		order.UploadedOrders = *uploadedOrders
 		order.UploadedOrdersID = uploadedOrdersID
@@ -196,8 +212,7 @@ func createOrGetCustomer(appCtx appcontext.AppContext, f services.CustomerFetche
 		// Find customer and return
 		customer, err := f.FetchCustomer(appCtx, customerID)
 		if err != nil {
-			returnErr := apperror.NewNotFoundError(customerID, "Customer with that ID not found")
-			return nil, returnErr
+			return nil, err
 		}
 		return customer, nil
 	}

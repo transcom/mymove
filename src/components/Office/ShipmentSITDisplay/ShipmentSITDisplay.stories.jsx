@@ -1,7 +1,6 @@
 import React from 'react';
 import MockDate from 'mockdate';
 import addons from '@storybook/addons';
-import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
@@ -20,10 +19,8 @@ export default {
   title: 'Office Components/Shipment SIT',
   decorators: [
     (Story) => {
-      if (isHappoRun()) {
-        MockDate.set(mockedDate);
-        addons.getChannel().on('storyRendered', MockDate.reset);
-      }
+      MockDate.set(mockedDate);
+      addons.getChannel().on('storyRendered', MockDate.reset);
       return (
         <div style={{ padding: '1em', backgroundColor: '#f9f9f9' }}>
           <Story />

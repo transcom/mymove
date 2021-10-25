@@ -15,6 +15,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -157,7 +158,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
 		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), paramsWithBadReference)
 		suite.Error(err)
-		suite.Contains(err.Error(), "no rows in result set")
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
 
