@@ -33,7 +33,7 @@
     "path-to-regexp": "^6.2.0",
     "prop-types": "^15.7.2",
     "query-string": "7",
-    "ra-data-simple-rest": "^3.18.3",
+    "ra-data-simple-rest": "^3.19.0",
     "ra-language-english": "^3.19.0",
     "react": "^17.0.1",
     "react-admin": "^3.19.0",
@@ -82,7 +82,8 @@
     "immer": "^9.0.2",
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
-    "webpack": "4.44.2"
+    "webpack": "4.44.2",
+    "**/ua-parser-js": "0.7.28"
   },
   "name": "client",
   "private": true,

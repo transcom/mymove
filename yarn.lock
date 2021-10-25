@@ -16424,10 +16424,10 @@ ra-core@^3.19.0:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-data-simple-rest@^3.18.3:
-  version "3.18.3"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.18.3.tgz#33ae36cfbba5f08ae64ed16f0c5953a0e37c8558"
-  integrity sha512-uGmfh0JDjxt7vKHduZ/7Otx4WxsYCOMPMCZO5nAJjpX/pUBTK/glWuxPKwd2Alfi3oEm60UmqPQUlLF9PmkqnQ==
+ra-data-simple-rest@^3.19.0:
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.0.tgz#c5cc572175d83d6e79b2bdca8c1b000a211644eb"
+  integrity sha512-/2Z8W605aYCAFRDez0rphrNQPu/RJdjG0LRq/h4f50eqDmTgVEdXBMCtVXZTiH+ThEXk9hHAkwUUzx0o8dl2eg==
   dependencies:
     query-string "^5.1.1"
 
@@ -19716,7 +19716,7 @@ typescript-tuple@^2.2.1:
   dependencies:
     typescript-compare "^0.0.2"
 
-ua-parser-js@^0.7.18:
+ua-parser-js@0.7.28, ua-parser-js@^0.7.18:
   version "0.7.28"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.28.tgz#8ba04e653f35ce210239c64661685bf9121dec31"
   integrity sha512-6Gurc1n//gjp9eQNXjD9O3M/sMwVtN5S8Lv9bvOYBfKfDNiIIhqiyi01vMBO45u4zkDE420w/e0se7Vs+sIg+g==
