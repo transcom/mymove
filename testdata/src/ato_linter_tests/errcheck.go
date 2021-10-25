@@ -1,4 +1,4 @@
-package linter_tests
+package ato_linter_tests
 
 // nolint:errcheck // want "Disabling of linter must have an annotation associated with it. Please visit https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Annotations-for-Disabled-Linters"
 func errcheckShouldHaveAnnotation() {}
