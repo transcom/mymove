@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gobuffalo/validate/v3"
@@ -100,7 +101,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		officeUser, err := fetcher.FetchOfficeUserByID(suite.TestAppContext(), uuid.Nil)
 
 		suite.Error(err)
-		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }

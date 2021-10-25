@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -218,18 +219,24 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := "for Move"
-			return nil, apperror.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(paymentRequest.MoveTaskOrderID, "for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, fmt.Sprintf("could not retrieve Move with ID [%s]", paymentRequest.MoveTaskOrderID))
 		}
-		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
 
 	// Verify the Orders on the MTO
 	err = tx.Load(&moveTaskOrder, "Orders")
 
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing", moveTaskOrder.ID))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing", moveTaskOrder.ID))
+		default:
+			return nil, apperror.NewQueryError("Orders", err, "")
+		}
 	}
 
 	// Verify that the Orders has LOA
@@ -243,7 +250,12 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Verify that ServiceMember is Valid
 	err = tx.Load(&moveTaskOrder.Orders, "ServiceMember")
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
+		default:
+			return nil, apperror.NewQueryError("ServiceMember", err, "")
+		}
 	}
 
 	serviceMember := moveTaskOrder.Orders.ServiceMember
@@ -307,11 +319,12 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	var mtoServiceItem models.MTOServiceItem
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := "for MTO Service Item"
-			return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
+		switch err {
+		case sql.ErrNoRows:
+			return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewNotFoundError(paymentServiceItem.MTOServiceItemID, "for MTO Service Item")
+		default:
+			return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewQueryError("MTOServiceItem", err, fmt.Sprintf("could not fetch MTOServiceItem with ID [%s]", paymentServiceItem.MTOServiceItemID.String()))
 		}
-		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not fetch MTOServiceItem with ID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
 
 	paymentServiceItem.MTOServiceItemID = mtoServiceItem.ID
@@ -374,11 +387,12 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 	if paymentServiceItemParam.ServiceItemParamKeyID != uuid.Nil {
 		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
-			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				msg := "Service Item Param Key ID"
-				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
+			switch err {
+			case sql.ErrNoRows:
+				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, "Service Item Param Key ID")
+			default:
+				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewQueryError("ServiceItemParamKey", err, fmt.Sprintf("could not fetch ServiceItemParamKey with ID [%s]", paymentServiceItemParam.ServiceItemParamKeyID))
 			}
-			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 		}
 		key = serviceItemParamKey.Key.String()
 		value = paymentServiceItemParam.Value
@@ -386,11 +400,13 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 	} else if paymentServiceItemParam.IncomingKey != "" {
 		err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 		if err != nil {
-			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			switch err {
+			case sql.ErrNoRows:
 				errorString := fmt.Sprintf("Service Item Param Key %s: %s", paymentServiceItemParam.IncomingKey, models.ErrFetchNotFound)
 				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewNotFoundError(uuid.Nil, errorString)
+			default:
+				return models.PaymentServiceItemParam{}, nil, nil, apperror.NewQueryError("ServiceItemParamKey", err, fmt.Sprintf("could not retrieve param key [%s]", paymentServiceItemParam.IncomingKey))
 			}
-			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}
 
 		key = paymentServiceItemParam.IncomingKey

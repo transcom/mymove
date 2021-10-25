@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -239,7 +240,12 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 	).Find(&moveTaskOrder, moveTaskOrderID)
 
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
@@ -271,7 +277,7 @@ func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uui
 	}
 	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveID, "while fetching the Move")
+		return nil, err
 	}
 
 	if show == nil {

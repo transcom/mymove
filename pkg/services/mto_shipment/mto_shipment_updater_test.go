@@ -1099,7 +1099,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), nonPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, apperror.NotFoundError{})
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1110,7 +1110,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), hiddenPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, apperror.NotFoundError{})
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1122,7 +1122,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(err, apperror.NotFoundError{})
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), badUUID.String())
 
 		// Verify that shipment recalculate was handled correctly

@@ -30,7 +30,7 @@ func (f moveTaskOrderChecker) MTOAvailableToPrime(appCtx appcontext.AppContext, 
 		case sql.ErrNoRows:
 			return false, apperror.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
 		default:
-			return false, err
+			return false, apperror.NewQueryError("Move", err, "")
 		}
 	}
 

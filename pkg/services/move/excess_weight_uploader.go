@@ -1,6 +1,7 @@
 package move
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 
@@ -40,7 +41,12 @@ func (u *excessWeightUploader) CreateExcessWeightUpload(
 	move := &models.Move{}
 	err := appCtx.DB().Find(move, moveID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	// Run the (read-only) validations
