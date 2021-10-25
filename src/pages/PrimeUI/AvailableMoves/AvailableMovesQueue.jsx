@@ -15,7 +15,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const columnHeaders = () => [
-  createHeader('ID', 'id', {
+  createHeader('Move ID', 'id', {
     id: 'id',
     isFilterable: true,
   }),
