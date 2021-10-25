@@ -14,6 +14,7 @@ import { ShipmentShape } from '../../../types/shipment';
 import { MTOServiceItemShape } from '../../../types';
 import ServiceItem from '../ServiceItem/ServiceItem';
 import Shipment from '../Shipment/Shipment';
+import { DatePickerInput } from '../../form/fields';
 
 import styles from './CreatePaymentRequestForm.module.scss';
 
@@ -85,6 +86,20 @@ const CreatePaymentRequestForm = ({
                             />
                           </div>
                           <ServiceItem serviceItem={mtoServiceItem} />
+                          {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
+                            <>
+                              <DatePickerInput
+                                label="Payment start date"
+                                id={`paymentStart-${mtoServiceItem.id}`}
+                                name={`serviceItems.${mtoServiceItem.id}.params.SITPaymentRequestStart`}
+                              />
+                              <DatePickerInput
+                                label="Payment end date"
+                                id={`paymentEnd-${mtoServiceItem.id}`}
+                                name={`serviceItems.${mtoServiceItem.id}.params.SITPaymentRequestEnd`}
+                              />
+                            </>
+                          )}
                         </SectionWrapper>
                       );
                     })}
