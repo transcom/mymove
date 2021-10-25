@@ -1,11 +1,11 @@
 package order
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -77,8 +77,11 @@ func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderI
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "OriginDutyStation").Find(&order, orderID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
+		default:
+			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 

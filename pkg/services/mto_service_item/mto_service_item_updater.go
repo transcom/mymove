@@ -1,6 +1,7 @@
 package mtoserviceitem
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -54,8 +54,11 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 	var serviceItem models.MTOServiceItem
 	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&serviceItem, serviceItemID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(serviceItemID, "while looking for service item")
+		default:
+			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 
@@ -142,7 +145,12 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err := p.builder.FetchOne(appCtx, &oldServiceItem, queryFilters)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
+		default:
+			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
+		}
 	}
 
 	checker := movetaskorder.NewMoveTaskOrderChecker()

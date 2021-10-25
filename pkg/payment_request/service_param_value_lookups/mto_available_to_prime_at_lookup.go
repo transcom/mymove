@@ -25,7 +25,7 @@ func (m MTOAvailableToPrimeAtLookup) lookup(appCtx appcontext.AppContext, keyDat
 		case sql.ErrNoRows:
 			return "", apperror.NewNotFoundError(moveTaskOrderID, "looking for MoveTaskOrderID")
 		default:
-			return "", err
+			return "", apperror.NewQueryError("Move", err, "")
 		}
 	}
 

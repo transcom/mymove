@@ -464,9 +464,18 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).All(&ediErrors)
 		suite.NoError(err)
 		suite.Len(ediErrors, len(prs))
-		for idx := range ediErrors {
-			suite.Contains(*(ediErrors[idx].Description), "test error")
-			suite.Equal(ediErrors[idx].PaymentRequestID, prs[idx].ID)
+
+		for ediIdx := range ediErrors {
+			suite.Contains(*(ediErrors[ediIdx].Description), "test error")
+			// Loop through other slice since each could be in a different order
+			found := false
+			for prsIdx := range prs {
+				if ediErrors[ediIdx].PaymentRequestID == prs[prsIdx].ID {
+					found = true
+					break
+				}
+			}
+			suite.True(found, "could not find match for payment request ID %s", ediErrors[ediIdx].PaymentRequestID)
 		}
 	})
 

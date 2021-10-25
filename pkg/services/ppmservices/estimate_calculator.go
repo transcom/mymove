@@ -29,10 +29,12 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 	cost := rateengine.CostComputation{}
 	move, err := models.FetchMoveByMoveID(appCtx.DB(), moveID)
 	if err != nil {
-		if err == models.ErrFetchNotFound {
+		switch err {
+		case models.ErrFetchNotFound:
 			return sitCharge, cost, apperror.NewNotFoundError(moveID, "Unable to calculate estimate")
+		default:
+			return sitCharge, cost, apperror.NewQueryError("Move", err, fmt.Sprintf("error calculating estimate: unable to fetch move with ID %s", moveID))
 		}
-		return sitCharge, cost, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}
 
 	re := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
