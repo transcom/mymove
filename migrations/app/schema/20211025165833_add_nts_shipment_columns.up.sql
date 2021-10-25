@@ -20,7 +20,7 @@ ALTER TABLE orders
 ALTER TABLE mto_shipments
 	ADD COLUMN external_vendor boolean DEFAULT false,
 	ADD COLUMN storage_facility_id uuid
-		CONSTRAINT mto_shipments_storage_facility_id REFERENCES storage_facilities,
+		CONSTRAINT mto_shipments_storage_facility_id_fkey REFERENCES storage_facilities,
 	ADD COLUMN service_order_number varchar(255);
 
 CREATE INDEX ON mto_shipments (storage_facility_id);
