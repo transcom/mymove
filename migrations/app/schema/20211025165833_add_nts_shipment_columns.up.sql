@@ -34,11 +34,11 @@ COMMENT ON COLUMN storage_facilities.lot_number IS 'Lot number where goods are s
 COMMENT ON COLUMN storage_facilities.phone IS 'Phone number for contacting storage facility';
 COMMENT ON COLUMN storage_facilities.email IS 'Email address for contacting storage facility';
 
-COMMENT ON COLUMN orders.tac IS '(For HHG shipments) Lines of accounting are specified on the customer''s move orders, issued by their branch of service, and indicate the exact accounting codes the service will use to pay for the move. The Transportation Ordering Officer adds this information to the MTO.'
+COMMENT ON COLUMN orders.tac IS '(For HHG shipments) Lines of accounting are specified on the customer''s move orders, issued by their branch of service, and indicate the exact accounting codes the service will use to pay for the move. The Transportation Ordering Officer adds this information to the MTO.';
 COMMENT ON COLUMN orders.sac IS '(For HHG shipments) Shipment Account Classification - used for accounting';
-COMMENT ON COLUMN orders.nts_tac IS '(For NTS shipments) Lines of accounting are specified on the customer''s move orders, issued by their branch of service, and indicate the exact accounting codes the service will use to pay for the move. The Transportation Ordering Officer adds this information to the MTO.'
+COMMENT ON COLUMN orders.nts_tac IS '(For NTS shipments) Lines of accounting are specified on the customer''s move orders, issued by their branch of service, and indicate the exact accounting codes the service will use to pay for the move. The Transportation Ordering Officer adds this information to the MTO.';
 COMMENT ON COLUMN orders.nts_sac IS '(For NTS shipments) Shipment Account Classification - used for accounting';
 
-COMMENT ON COLUMN mto_shipments.external_vendor IS 'Whether this shipment is handled by an external vendor, or by the prime'
-COMMENT ON COLUMN mto_shipments.storage_facility_id IS 'The storage facility for an NTS shipment where items are stored'
-COMMENT ON COLUMN mto_shipments.service_order_number IS 'The order number for a shipment in TOPS'
+COMMENT ON COLUMN mto_shipments.external_vendor IS 'Whether this shipment is handled by an external vendor, or by the prime';
+COMMENT ON COLUMN mto_shipments.storage_facility_id IS 'The storage facility for an NTS shipment where items are stored';
+COMMENT ON COLUMN mto_shipments.service_order_number IS 'The order number for a shipment in TOPS';
