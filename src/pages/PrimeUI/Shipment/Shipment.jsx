@@ -4,7 +4,6 @@ import React from 'react';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { push } from 'connected-react-router';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import styles from '../MoveTaskOrder/MoveDetails.module.scss';
@@ -12,7 +11,6 @@ import { shipmentTypeLabels } from '../../../content/shipments';
 import { formatDateFromIso } from '../../../shared/formatters';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 
-import { EditButton } from 'components/form';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 import { AddressShape } from 'types/address';
@@ -22,12 +20,6 @@ const Shipment = ({ shipment, moveId }) => {
     moveCodeOrID: moveId,
     shipmentId: shipment.id,
   });
-
-  const handleEditAddressClick = () => {
-    // Prevent this from checking the box after opening the alert.
-    // e.preventDefault();
-    push(editShipmentAddressUrl);
-  };
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
@@ -76,16 +68,16 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
         </dd>
         <dd>
-          {true && (
-            <EditButton
-              className="margin-left-1"
-              disabled={false}
-              outline
-              small
+          {shipment.pickupAddress?.id && (
+            <Button
+              type="button"
               onClick={() => {
                 window.location.href = editShipmentAddressUrl;
               }}
-            />
+              unstyled
+            >
+              Edit
+            </Button>
           )}
         </dd>
       </div>
@@ -97,7 +89,7 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.destinationAddress.postalCode}
         </dd>
         <dd>
-          {true && (
+          {shipment.destinationAddress?.id && (
             <Button
               type="button"
               onClick={() => {
@@ -105,7 +97,7 @@ const Shipment = ({ shipment, moveId }) => {
               }}
               unstyled
             >
-              Edit address
+              Edit
             </Button>
           )}
         </dd>

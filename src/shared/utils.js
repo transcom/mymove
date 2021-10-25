@@ -193,28 +193,12 @@ export function isValidWeight(weight) {
   return false;
 }
 
-// This address format matches the GHC and internal API.
-// This does not match the Prime API format. If working with the
-// Prime API, you can use fromPrimeApiAddressFormat() to return
-// the correct format
-export function isEmptyAddress(address) {
-  if (address.street_address_1 !== 'undefined' && address.street_address_1) {
-    return false;
-  }
-  if (address.street_address_2 !== 'undefined' && address.street_address_2) {
-    return false;
-  }
-  if (address.street_address_3 !== 'undefined' && address.street_address_3) {
-    return false;
-  }
-  if (address.city !== 'undefined' && address.city) {
-    return false;
-  }
-  if (address.state !== 'undefined' && address.state) {
-    return false;
-  }
-  if (address.postal_code !== 'undefined' && address.postal_code) {
-    return false;
-  }
-  return true;
+export function isEmpty(obj) {
+  let empty = true;
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] !== 'undefined' && obj[key]) {
+      empty = false;
+    }
+  });
+  return empty;
 }

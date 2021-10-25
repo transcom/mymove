@@ -19,7 +19,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
-import { isValidWeight, fromPrimeApiAddressFormat, toPrimeApiAddressFormat } from 'shared/utils';
+import { isValidWeight, fromPrimeApiAddressFormat, toPrimeApiAddressFormat, isEmpty } from 'shared/utils';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 
 const PrimeUIShipmentUpdate = () => {
@@ -89,35 +89,11 @@ const PrimeUIShipmentUpdate = () => {
   };
 
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
-  const editableWeightActualField = true; // !isValidWeight(shipment.primeActualWeight);
-
-  // Not the Prime API address format
-  const isEmptyAddress = (address) => {
-    if (address.street_address_1 !== 'undefined' && address.street_address_1) {
-      return false;
-    }
-    if (address.street_address_2 !== 'undefined' && address.street_address_2) {
-      return false;
-    }
-    if (address.street_address_3 !== 'undefined' && address.street_address_3) {
-      return false;
-    }
-    if (address.city !== 'undefined' && address.city) {
-      return false;
-    }
-    if (address.state !== 'undefined' && address.state) {
-      return false;
-    }
-    if (address.postal_code !== 'undefined' && address.postal_code) {
-      return false;
-    }
-    return true;
-  };
-
+  const editableWeightActualField = true;
   const reformatPrimeApiPickupAddress = fromPrimeApiAddressFormat(shipment.pickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeApiAddressFormat(shipment.destinationAddress);
-  const editablePickupAddress = isEmptyAddress(reformatPrimeApiPickupAddress);
-  const editableDestinationAddress = isEmptyAddress(reformatPrimeApiDestinationAddress);
+  const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
+  const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
   const onSubmit = (values, { setSubmitting }) => {
     const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
