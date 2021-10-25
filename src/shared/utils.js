@@ -154,9 +154,17 @@ export function dateSort(field, direction) {
   }
 }
 
+const emptyAddressShape = {
+  street_address_1: '',
+  street_address_2: '',
+  city: '',
+  state: '',
+  postal_code: '',
+};
+
 export function fromPrimeApiAddressFormat(address) {
   if (!address) {
-    return emptyAddress;
+    return emptyAddressShape;
   }
   return {
     street_address_1: address.streetAddress1,
@@ -177,16 +185,36 @@ export function toPrimeApiAddressFormat(address) {
     postalCode: address.postal_code,
   };
 }
-export function isEmpty(obj) {
-  Object.keys(obj).forEach((key) => {
-    if (obj['key'] !== undefined && obj['key']) {
-      return false;
-    }
-  });
-}
+
 export function isValidWeight(weight) {
   if (weight !== 'undefined' && weight && weight > 0) {
     return true;
   }
   return false;
+}
+
+// This address format matches the GHC and internal API.
+// This does not match the Prime API format. If working with the
+// Prime API, you can use fromPrimeApiAddressFormat() to return
+// the correct format
+export function isEmptyAddress(address) {
+  if (address.street_address_1 !== 'undefined' && address.street_address_1) {
+    return false;
+  }
+  if (address.street_address_2 !== 'undefined' && address.street_address_2) {
+    return false;
+  }
+  if (address.street_address_3 !== 'undefined' && address.street_address_3) {
+    return false;
+  }
+  if (address.city !== 'undefined' && address.city) {
+    return false;
+  }
+  if (address.state !== 'undefined' && address.state) {
+    return false;
+  }
+  if (address.postal_code !== 'undefined' && address.postal_code) {
+    return false;
+  }
+  return true;
 }

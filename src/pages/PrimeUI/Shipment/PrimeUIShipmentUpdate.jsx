@@ -19,6 +19,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
+import { isValidWeight, fromPrimeApiAddressFormat, toPrimeApiAddressFormat } from 'shared/utils';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 
 const PrimeUIShipmentUpdate = () => {

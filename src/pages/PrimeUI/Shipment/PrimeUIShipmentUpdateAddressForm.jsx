@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+import { FormGroup } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import classnames from 'classnames';
+
+import SectionWrapper from '../../../components/Customer/SectionWrapper';
+import { ErrorMessage } from '../../../components/form';
+import { ResidentialAddressShape } from '../../../types/address';
+import { AddressFields } from '../../../components/form/AddressFields/AddressFields';
 
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
-import { FormGroup } from '@material-ui/core';
-import SectionWrapper from '../../../components/Customer/SectionWrapper';
-import { ErrorMessage } from '../../../components/form';
-import { ResidentialAddressShape } from '../../../types/address';
-import AddressFields from '../../../components/form/AddressFields/AddressFields';
-import Button from '@material-ui/core/Button';
 
 const PrimeUIShipmentUpdateAddressForm = ({
   initialValues,
@@ -22,10 +24,8 @@ const PrimeUIShipmentUpdateAddressForm = ({
     {({ isValid, isSubmitting, errors, values, setValues }) => (
       /* <Form className={classnames(styles.CreatePaymentRequestForm, formStyles.form)}> */
       <Form className={classnames(formStyles.form)}>
-        <FormGroup error={errors != null && Object.keys(errors).length > 0}>
-          {errors != null /* && errors.serviceItems */ && (
-            <ErrorMessage display>At least 1 service item must be added when creating a payment request</ErrorMessage>
-          )}
+        <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
+          {errors != null && errors.address && <ErrorMessage display>{errors.address}</ErrorMessage>}
           <SectionWrapper className={formStyles.formSection}>
             <h2>{addressLocation}</h2>
             <AddressFields name="address" />

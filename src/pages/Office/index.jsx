@@ -249,10 +249,19 @@ export class OfficeApp extends Component {
                     />
 
                     <PrivateRoute
+                      key="primeSimulatorShipmentUpdateAddressPath"
+                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
+                      component={PrimeUIShipmentUpdateAddress}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      exact
+                    />
+
+                    <PrivateRoute
                       key="primeSimulatorUpdateShipmentPath"
                       path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
                       component={PrimeUIShipmentForm}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      exact
                     />
 
                     <PrivateRoute
@@ -266,13 +275,6 @@ export class OfficeApp extends Component {
                       key="primeSimulatorCreatePaymentRequestsPath"
                       path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
                       component={PrimeSimulatorUploadPaymentRequestDocuments}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
-                    />
-
-                    <PrivateRoute
-                      key="primeSimulatorShipmentUpdateAddressPath"
-                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
-                      component={PrimeUIShipmentUpdateAddress}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 

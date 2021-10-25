@@ -4,18 +4,31 @@ import React from 'react';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { push } from 'connected-react-router';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import styles from '../MoveTaskOrder/MoveDetails.module.scss';
 import { shipmentTypeLabels } from '../../../content/shipments';
 import { formatDateFromIso } from '../../../shared/formatters';
+import { primeSimulatorRoutes } from '../../../constants/routes';
 
+import { EditButton } from 'components/form';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 import { AddressShape } from 'types/address';
-// import { primeSimulatorRoutes } from '../../../constants/routes';
 
 const Shipment = ({ shipment, moveId }) => {
+  const editShipmentAddressUrl = generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, {
+    moveCodeOrID: moveId,
+    shipmentId: shipment.id,
+  });
+
+  const handleEditAddressClick = () => {
+    // Prevent this from checking the box after opening the alert.
+    // e.preventDefault();
+    push(editShipmentAddressUrl);
+  };
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
@@ -64,12 +77,15 @@ const Shipment = ({ shipment, moveId }) => {
         </dd>
         <dd>
           {true && (
-            <Link
-              to=""
-              /* generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, { moveCodeOrID: moveId, shipmentId: shipment.id }) */ className="usa-button usa-button-secondary"
-            >
-              Edit Address
-            </Link>
+            <EditButton
+              className="margin-left-1"
+              disabled={false}
+              outline
+              small
+              onClick={() => {
+                window.location.href = editShipmentAddressUrl;
+              }}
+            />
           )}
         </dd>
       </div>
@@ -84,7 +100,9 @@ const Shipment = ({ shipment, moveId }) => {
           {true && (
             <Button
               type="button"
-              onClick={() => {} /* handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag) */}
+              onClick={() => {
+                window.location.href = editShipmentAddressUrl;
+              }}
               unstyled
             >
               Edit address

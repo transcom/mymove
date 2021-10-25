@@ -60,3 +60,24 @@ export function updatePrimeMTOShipment({
     { schemaKey, normalize },
   );
 }
+
+export function updatePrimeMTOShipmentAddress({
+  mtoShipmentID,
+  ifMatchETag,
+  addressID,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipmentAddress';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      addressID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
