@@ -15,8 +15,14 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const columnHeaders = () => [
-  createHeader('ID', 'id'),
-  createHeader('Move code', 'moveCode'),
+  createHeader('ID', 'id', {
+    id: 'id',
+    isFilterable: true,
+  }),
+  createHeader('Move code', 'moveCode', {
+    id: 'moveCode',
+    isFilterable: true,
+  }),
   createHeader(
     'Created at',
     (row) => {
@@ -61,6 +67,7 @@ const PrimeSimulatorAvailableMoves = ({ history }) => {
       defaultHiddenColumns={['eTag']}
       defaultCanSort
       disableSortBy={false}
+      showFilters
     />
   );
 };
