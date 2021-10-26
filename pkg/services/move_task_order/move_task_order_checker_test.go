@@ -36,7 +36,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), availableHiddenMTO.ID)
 		suite.Error(err)
-		suite.IsType(err, apperror.NotFoundError{})
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), availableHiddenMTO.ID.String())
 		suite.Equal(availableToPrime, false)
 	})
@@ -51,7 +51,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.Error(err)
-		suite.IsType(err, apperror.NotFoundError{})
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), badUUID.String())
 		suite.Equal(availableToPrime, false)
 	})

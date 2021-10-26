@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
@@ -94,7 +95,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), uuid.Nil)
 
 		suite.Error(err)
-		suite.Equal(err.Error(), models.RecordNotFoundErrorString)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(models.PaymentRequest{}, paymentRequest)
 	})
 }
