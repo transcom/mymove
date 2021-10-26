@@ -23,7 +23,7 @@ func (suite *OfficeUserServiceSuite) AppContextForTest() appcontext.AppContext {
 func TestUserSuite(t *testing.T) {
 
 	hs := &OfficeUserServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)

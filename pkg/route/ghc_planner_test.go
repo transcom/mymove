@@ -51,7 +51,7 @@ func TestGHCTestSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	ts := &GHCTestSuite{
 		PopTestSuite: popTs,
 		logger:       logger,

@@ -100,7 +100,10 @@ func (store *PopSuiteTxnStore) TransactionContextOptions(ctx context.Context, op
 // suite using a per test connection that will run inside a transaction
 func (suite *PopTestSuite) openTxnPopConnection() *pop.Connection {
 	packageName := suite.PackageName.String()
-	testName := suite.T().Name()
+	testName := ""
+	if suite.T() != nil {
+		testName = suite.T().Name()
+	}
 
 	s := "postgres://%s:%s@%s:%s/%s?%s"
 	dataSourceName := fmt.Sprintf(s, suite.lowPrivConnDetails.User,

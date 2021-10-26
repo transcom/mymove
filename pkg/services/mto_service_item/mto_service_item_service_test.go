@@ -21,14 +21,9 @@ func (suite *MTOServiceItemServiceSuite) AppContextForTest() appcontext.AppConte
 	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
-func (suite *MTOServiceItemServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestMTOServiceItemServiceSuite(t *testing.T) {
 	ts := &MTOServiceItemServiceSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		zap.NewNop(),
 	}
 	suite.Run(t, ts)

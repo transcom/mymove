@@ -55,8 +55,7 @@ type SetFinancialReviewFlagHandler struct {
 
 // Handle flags a move for financial review
 func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFlagParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
 
@@ -68,7 +67,7 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 	move, err := h.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
 
 	if err != nil {
-		logger.Error("Error flagging move for financial review", zap.Error(err))
+		appCtx.Logger().Error("Error flagging move for financial review", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return moveop.NewSetFinancialReviewFlagNotFound()

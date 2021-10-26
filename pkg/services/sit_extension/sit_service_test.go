@@ -21,14 +21,9 @@ func (suite *SitExtensionServiceSuite) AppContextForTest() appcontext.AppContext
 	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
-func (suite *SitExtensionServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestSitExtensionServiceSuite(t *testing.T) {
 	testService := &SitExtensionServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // no-op logger used during testing
 	}
 	suite.Run(t, testService)

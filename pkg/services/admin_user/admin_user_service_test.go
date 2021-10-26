@@ -24,7 +24,7 @@ func (suite *AdminUserServiceSuite) AppContextForTest(session *auth.Session) app
 func TestUserSuite(t *testing.T) {
 
 	ts := &AdminUserServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

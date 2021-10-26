@@ -20,13 +20,9 @@ func (suite *MTOAgentServiceSuite) AppContextForTest() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
-func (suite *MTOAgentServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
 func TestMTOAgentServiceSuite(t *testing.T) {
 	ts := &MTOAgentServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
