@@ -18,4 +18,8 @@
       flex-grow: 1;
     }
   }
+
+  .flashContainer {
+    @include u-margin-top(2);
+  }
 }
