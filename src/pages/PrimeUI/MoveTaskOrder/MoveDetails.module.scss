@@ -20,8 +20,8 @@
   }
 
   .paymentRequestRow {
+    @include u-margin-bottom(1.5);
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px;
   }
 }

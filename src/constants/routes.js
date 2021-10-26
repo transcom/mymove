@@ -57,5 +57,5 @@ export const primeSimulatorRoutes = {
   VIEW_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/details`,
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
   CREATE_PAYMENT_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
-  UPLOAD_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-request/:paymentRequestId/upload`,
+  UPLOAD_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/:paymentRequestId/upload`,
 };
