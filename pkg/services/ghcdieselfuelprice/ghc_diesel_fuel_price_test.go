@@ -16,17 +16,12 @@ type GHCDieselFuelPriceServiceSuite struct {
 	logger *zap.Logger
 }
 
-func (suite *GHCDieselFuelPriceServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestGHCDieselFuelPriceServiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
 	ts := &GHCDieselFuelPriceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, ts)

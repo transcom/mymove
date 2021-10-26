@@ -34,18 +34,13 @@ type GHCTestSuite struct {
 	logger *zap.Logger
 }
 
-func (suite *GHCTestSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestGHCTestSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	ts := &GHCTestSuite{
 		PopTestSuite: popTs,
 		logger:       logger,

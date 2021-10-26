@@ -17,7 +17,7 @@ type MoveDocumentServiceSuite struct {
 
 func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {
 	ts := &MoveDocumentServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service"), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
