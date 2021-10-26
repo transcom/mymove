@@ -2,11 +2,10 @@ import React from 'react';
 import { act, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import { createPaymentRequest } from '../../../services/primeApi';
-
 import CreatePaymentRequest from './CreatePaymentRequest';
 
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { createPaymentRequest } from 'services/primeApi';
 import { MockProviders } from 'testUtils';
 
 const mockUseHistoryPush = jest.fn();
