@@ -75,7 +75,7 @@ describe('PrimeUI MoveDetails page', () => {
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       render(
-        <MockProviders initialEntries={[`payment-request/${moveTaskOrder.paymentRequests[0].id}/upload`]}>
+        <MockProviders initialEntries={[`payment-requests/${moveTaskOrder.paymentRequests[0].id}/upload`]}>
           <MoveDetails />
         </MockProviders>,
       );
