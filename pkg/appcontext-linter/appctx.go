@@ -1,13 +1,10 @@
 package appcontextlinter
 
 import (
-	"fmt"
+	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
-
-	"go/ast"
-
 	"golang.org/x/tools/go/ast/inspector"
 )
 
@@ -28,31 +25,59 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
-		fmt.Print("⚡⚡⚡️️️")
-		fmt.Print(file)
 
 		for _, node := range file.Decls {
-			t := node.(*ast.GenDecl)
+			t, ok := node.(*ast.GenDecl)
+			if !ok {
+				continue
+			}
+
 			for _, spec := range t.Specs {
-				typeSpec := spec.(*ast.TypeSpec)
-				if structType, ok := typeSpec.Type.(*ast.StructType); ok {
-					for _, structField := range structType.Fields.List {
-						if identifier, ok := structField.Type.(*ast.Ident); ok {
-							if identifier.Name == "Connection" {
-								fmt.Print("IT WORKS!")
-							}
-						}
+				typeSpec, ok := spec.(*ast.TypeSpec)
+				if !ok {
+					continue
+				}
+				structType, ok := typeSpec.Type.(*ast.StructType)
+				if !ok {
+					continue
+				}
+				// Checking the fields of the structs
+				for _, structField := range structType.Fields.List {
+					if checkForPopConnection(structField) {
+						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in models")
 					}
 				}
+
 			}
+
 		}
 	})
+	return nil, nil
+}
 
-	//spew.Dump(file.Decls)
-	//})
+// TODO: Add logic to check if it's in models, add logic to get it to run in circleCI and when run locally
 
-	// NEXT Steps: Find out how we import pop.Connection?, What exactly in file.Decls do we want to look at to find the connection we're looking for, look at AST package to see what tools are available to look for different types in a file.
-	// An ast.Decl can represent any piece of code from imports, variable declarations, structures, functions etc
-
-	return nil, fmt.Errorf("BAHHHHHHHHH")
+func checkForPopConnection(field *ast.Field) bool {
+	// Look for a type called StarExpr where pop Connection might be
+	if identifier, ok := field.Type.(*ast.StarExpr); ok {
+		// Look for a Struct that may contain "pop" and "connection"
+		if findPop, ok := identifier.X.(*ast.SelectorExpr); ok {
+			foundPop := false
+			// Once inside the struct, look for "pop"
+			if popIdentifier, ok := findPop.X.(*ast.Ident); ok {
+				if popIdentifier.Name == "pop" {
+					foundPop = true
+				}
+			}
+			// If "pop" not found, move on
+			if !foundPop {
+				return false
+			}
+			// After pop is found, look for "connection" and report if it's found
+			if findPop.Sel.Name == "Connection" {
+				return true
+			}
+		}
+	}
+	return false
 }
