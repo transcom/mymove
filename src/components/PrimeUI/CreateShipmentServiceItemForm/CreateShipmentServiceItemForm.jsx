@@ -6,6 +6,7 @@ import { ShipmentShape } from '../../../types/shipment';
 import Shipment from '../Shipment/Shipment';
 import { createServiceItemModelTypes } from '../../../constants/prime';
 
+import styles from './CreateShipmentServiceItemForm.module.scss';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 
@@ -18,7 +19,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
   };
 
   return (
-    <>
+    <div className={styles.CreateShipmentServiceItemForm}>
       <Shipment shipment={shipment} />
       <Label htmlFor="serviceItemType">Service item type</Label>
       <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
@@ -33,7 +34,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       {selectedServiceItemType === MTOServiceItemDestSIT && (
         <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
-    </>
+    </div>
   );
 };
 
