@@ -1,14 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 
 import MoveDetails from './MoveDetails';
 
-import { primeSimulatorRoutes } from 'constants/routes';
-import { MockProviders, renderWithRouter } from 'testUtils';
+import { renderWithRouter } from 'testUtils';
 
 const mockUseHistoryPush = jest.fn();
 const mockRequestedMoveCode = 'LN4T89';
@@ -29,10 +27,6 @@ jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
   moveDetails: jest.fn(),
 }));
-
-const primeDetailsUrl = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
-  moveCodeOrID: mockRequestedMoveCode,
-});
 
 const moveTaskOrder = {
   id: '1',
@@ -83,11 +77,7 @@ describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      render(
-        <MockProviders initialEntries={[primeDetailsUrl]}>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithRouter(<MoveDetails />);
 
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
