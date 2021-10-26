@@ -96,7 +96,11 @@ const CreatePaymentRequest = () => {
 
   const onSubmit = (values, formik) => {
     const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
-      if (values.params[serviceItem]?.SITPaymentRequestStart && values.params[serviceItem]?.SITPaymentRequestEnd) {
+      if (
+        values.params &&
+        values.params[serviceItem]?.SITPaymentRequestStart &&
+        values.params[serviceItem]?.SITPaymentRequestEnd
+      ) {
         return {
           id: serviceItem,
           params: [
