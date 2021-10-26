@@ -23,7 +23,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestAppContext() appcontext.AppCon
 func TestWebhookSubscriptionSuite(t *testing.T) {
 
 	ts := &WebhookSubscriptionServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

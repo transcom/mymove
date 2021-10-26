@@ -57,7 +57,7 @@ where uploads.id = $1`
 		case sql.ErrNoRows:
 			return services.UploadInformation{}, apperror.NewNotFoundError(uploadID, "")
 		default:
-			return services.UploadInformation{}, err
+			return services.UploadInformation{}, apperror.NewQueryError("UploadInformation", err, "")
 		}
 	}
 	pop.Debug = false

@@ -24,7 +24,7 @@ func (suite *PaperworkServiceSuite) TestAppContext() appcontext.AppContext {
 func TestPaperworkServiceSuite(t *testing.T) {
 
 	ts := &PaperworkServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(),
 	}
 	suite.Run(t, ts)

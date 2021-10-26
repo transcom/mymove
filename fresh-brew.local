@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+##### START OF HELPER FUNCTIONS #####
+# If asdf stops working, it might be because the setup commands changed.
+# Check the documentation: https://asdf-vm.com/guide/getting-started.html#_3-install-asdf
+configure_shell_file_for_asdf() {
+  if [[ $SHELL == *fish ]]; then
+    # shellcheck disable=SC2154
+    append_to_file "$shell_file" "source (brew --prefix asdf)/libexec/asdf.fish"
+  else
+    # shellcheck disable=SC2154
+    append_to_file "$shell_file" "source $(brew --prefix asdf)/libexec/asdf.sh"
+  fi
+}
+
+install_go_with_asdf() {
+  go_version="$(cat < ".go-version")"
+
+  if ! asdf_plugin_is_installed "golang"; then
+    fancy_echo "Adding golang plugin to asdf..."
+    asdf plugin add golang
+    install_go_version "$go_version"
+  else
+    fancy_echo "Updating asdf golang plugin..."
+    asdf plugin update golang
+    if ! golang_version_is_installed "$go_version"; then
+      install_go_version "$go_version"
+    fi
+  fi
+  fancy_echo "Setting global golang version to $go_version ..."
+  asdf global golang "$go_version"
+}
+
+asdf_plugin_is_installed() {
+  asdf plugin list -1 | grep -Fqx "$1"
+}
+
+install_go_version() {
+  fancy_echo "Installing golang version $1..."
+  asdf install golang "$1"
+}
+
+golang_version_is_installed() {
+  asdf list golang -1 | grep -Fqx "$1"
+}
+
+install_node_with_nodenv() {
+  node_version="$(cat < ".node-version")"
+
+  fancy_echo "Installing node $node_version ..."
+  if nodenv versions | grep "$node_version"; then
+    fancy_echo "node $node_version already installed."
+  else
+    brew upgrade node-build
+    nodenv install "$node_version"
+  fi
+  fancy_echo "Configuring Nodenv..."
+  configure_shell_file_for_nodenv
+}
+
+configure_shell_file_for_nodenv() {
+  if [[ $SHELL == *fish ]]; then
+    append_to_file "$shell_file" 'status --is-interactive; and source (nodenv init -|psub)'
+  else
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'eval "$(nodenv init -)"'
+  fi
+}
+
+configure_shell_file_for_gopath() {
+  if [[ $SHELL == *fish ]]; then
+    append_to_file "$shell_file" "set -x GOPATH (go env GOPATH)"
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'set -g fish_user_paths "$GOPATH/bin" $fish_user_paths'
+  else
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'export GOPATH=${GOPATH:-$(go env GOPATH)}'
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'export PATH=$(go env GOPATH)/bin:$PATH'
+  fi
+}
+
+# If direnv stops working, it might be because the setup commands changed.
+# Check the documentation:
+# https://github.com/direnv/direnv/blob/master/docs/hook.md
+configure_shell_file_for_direnv() {
+  if [[ $SHELL == *fish ]]; then
+    append_to_file "$shell_file" "direnv hook fish | source"
+  elif [[ $SHELL == *zsh ]]; then
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'eval "$(direnv hook zsh)"'
+  elif [[ $SHELL == *bash ]]; then
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'eval "$(direnv hook bash)"'
+  fi
+}
+
+cask_is_installed() {
+  brew list -1 --cask | grep -Fqx "$1"
+}
+
+app_is_in_applications_folder() {
+  find "/Applications" -maxdepth 1 -name "$1"
+}
+
+docker_installed_outside_of_brew() {
+  ! cask_is_installed "docker" && app_is_in_applications_folder "Docker"
+}
+
+##### END OF HELPER FUNCTIONS #####
+
+fancy_echo "Running your customizations from fresh-brew.local ..."
+
+if [ -f "Brewfile.local" ]; then
+  if brew bundle --file="Brewfile.local"; then
+    fancy_echo "All items in Brewfile.local were installed successfully."
+  else
+    fancy_echo "Some items in Brewfile.local were not installed successfully."
+  fi
+fi
+
+if ! docker_installed_outside_of_brew; then
+  brew bundle --file=- <<EOF
+    cask 'docker'
+EOF
+fi
+
+configure_shell_file_for_asdf
+install_go_with_asdf
+install_node_with_nodenv
+configure_shell_file_for_gopath
+# make sure that any functions that write to the shell file appear before this
+# direnv function below because the direnv line has to be at the very end of the
+# shell file.
+configure_shell_file_for_direnv
+
+fancy_echo "******* IMPORTANT **************************************"
+fancy_echo "If you get errors below, quit and restart your terminal,"
+fancy_echo "or open a new tab, and run 'make deps' again."
+fancy_echo "********************************************************"

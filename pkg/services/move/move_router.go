@@ -59,7 +59,12 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move)
 			var ordersForMove models.Order
 			err = txnAppCtx.DB().Find(&ordersForMove, move.OrdersID)
 			if err != nil {
-				return err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(move.OrdersID, "looking for Order")
+				default:
+					return apperror.NewQueryError("Order", err, "")
+				}
 			}
 			// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
 			// in status as 'new orders' that need acknowledging by the TOO.
@@ -108,7 +113,7 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 			return false, apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
 		default:
 			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
-			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
+			return false, apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
 		}
 	}
 
@@ -374,7 +379,12 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders", "MTOShipments.SITExtensions").Find(&move, move.ID)
 	if err != nil {
 		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if approvable(move) {

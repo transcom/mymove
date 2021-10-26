@@ -14,15 +14,10 @@ type PPMServiceSuite struct {
 	logger *zap.Logger
 }
 
-func (suite *PPMServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestPPMServiceSuite(t *testing.T) {
 
 	hs := &PPMServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)

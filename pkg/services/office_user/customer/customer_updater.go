@@ -22,7 +22,7 @@ func NewCustomerUpdater() services.CustomerUpdater {
 func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
 	existingCustomer, err := s.fetchCustomer.FetchCustomer(appCtx, customer.ID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(customer.ID, "while looking for customer")
+		return nil, err
 	}
 
 	existingETag := etag.GenerateEtag(existingCustomer.UpdatedAt)

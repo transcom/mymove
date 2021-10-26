@@ -76,8 +76,6 @@ type AuthSuite struct {
 }
 
 func (suite *AuthSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	gob.Register(auth.Session{})
 }
 
@@ -92,7 +90,7 @@ func TestAuthSuite(t *testing.T) {
 		log.Panic(err)
 	}
 	hs := &AuthSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

@@ -287,6 +287,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
+	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
@@ -457,6 +458,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
+	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
