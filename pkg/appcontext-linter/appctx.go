@@ -3,6 +3,7 @@ package appcontextlinter
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 
@@ -28,31 +29,30 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
 		fmt.Print("⚡⚡⚡️️️")
-		fmt.Print(file)
+		//fmt.Print(file)
 
 		for _, node := range file.Decls {
 			t := node.(*ast.GenDecl)
-				for _, spec := range t.Specs {
-					typeSpec := spec.(*ast.TypeSpec)
+			for _, spec := range t.Specs {
+				if typeSpec, ok := spec.(*ast.TypeSpec); ok {
 					if structType, ok := typeSpec.Type.(*ast.StructType); ok {
 						for _, structField := range structType.Fields.List {
+							spew.Dump(structField)
 							if identifier, ok := structField.Type.(*ast.Ident); ok {
+								fmt.Print("🌈🌈🌈")
+								fmt.Println(identifier)
 								if identifier.Name == "Connection" {
 									fmt.Print("IT WORKS!")
 								}
 							}
-						fmt.Print("🌈🌈🌈")
 						}
 					}
 				}
 			}
+		}
 	})
 
-
-
-
-
-		//spew.Dump(file.Decls)
+	//spew.Dump(file.Decls)
 	//})
 
 	// NEXT Steps: Find out how we import pop.Connection?, What exactly in file.Decls do we want to look at to find the connection we're looking for, look at AST package to see what tools are available to look for different types in a file.
