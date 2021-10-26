@@ -15,11 +15,6 @@ type PPMServiceSuite struct {
 	logger *zap.Logger
 }
 
-func (suite *PPMServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 // AppContextForTest returns the AppContext for the test suite
 func (suite *PPMServiceSuite) AppContextForTest() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)

@@ -40,11 +40,6 @@ func (suite *GHCTestSuite) AppContextForTest() appcontext.AppContext {
 	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
-func (suite *GHCTestSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestGHCTestSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
