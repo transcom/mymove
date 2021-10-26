@@ -1,14 +1,15 @@
 CREATE TABLE storage_facilities (
 	id uuid
 		CONSTRAINT storage_facilities_pkey PRIMARY KEY,
-	created_at timestamp not null,
-    updated_at timestamp not null,
-	facility_name varchar,
+	facility_name varchar(255),
 	address_id uuid
 		CONSTRAINT storage_facilities_address_id_fkey REFERENCES addresses,
 	lot_number varchar(255),
 	phone varchar(255),
-	email varchar(255)
+	email varchar(255),
+	created_at timestamp not null,
+	updated_at timestamp not null
+
 );
 
 CREATE INDEX ON storage_facilities (address_id);
@@ -18,7 +19,7 @@ ALTER TABLE orders
 	ADD COLUMN nts_sac varchar(255);
 
 ALTER TABLE mto_shipments
-	ADD COLUMN external_vendor boolean DEFAULT false,
+	ADD COLUMN external_vendor boolean DEFAULT false NOT NULL,
 	ADD COLUMN storage_facility_id uuid
 		CONSTRAINT mto_shipments_storage_facility_id_fkey REFERENCES storage_facilities,
 	ADD COLUMN service_order_number varchar(255);
