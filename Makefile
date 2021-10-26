@@ -162,7 +162,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
+.client_build.stamp: .check_node_version.stamp $(wildcard src/**/*)
 	yarn build
 	touch .client_build.stamp
 
@@ -300,22 +300,21 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: check_swagger_generate
-check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
-.swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+.PHONY: swagger_generate
+swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
+.swagger_build.stamp: $(wildcard swagger/*.yaml)
+ifndef CIRCLECI
 ifneq ("$(wildcard .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
 endif
-
-.PHONY: swagger_generate
-swagger_generate: check_swagger_generate ## Bundles the API definition files into a complete specification
-	./scripts/openapi bundle -o swagger/
+endif
+	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp swagger_generate pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
+server_generate: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/gen/ ## Generate golang server code from Swagger files
+pkg/gen/: pkg/assets/assets.go $(wildcard swagger/*.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
