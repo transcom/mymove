@@ -149,6 +149,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		}),
+		MoveSetFinancialReviewFlagHandler: move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
+		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
@@ -289,6 +292,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
 	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
 	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
+	// MoveSetFinancialReviewFlagHandler sets the operation handler for the set financial review flag operation
+	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
@@ -486,6 +491,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRequestShipmentReweighHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
+	}
+	if o.MoveSetFinancialReviewFlagHandler == nil {
+		unregistered = append(unregistered, "move.SetFinancialReviewFlagHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
@@ -741,6 +749,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveID}/financial-review-flag"] = move.NewSetFinancialReviewFlag(o.context, o.MoveSetFinancialReviewFlagHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
