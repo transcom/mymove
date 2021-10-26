@@ -4,12 +4,14 @@ import PropTypes from 'prop-types';
 
 import { ShipmentShape } from '../../../types/shipment';
 import Shipment from '../Shipment/Shipment';
+import { createServiceItemModelTypes } from '../../../constants/prime';
 
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
-  const [selectedServiceItemType, setSelectedServiceItemType] = useState('MTOServiceItemOriginSIT');
+  const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT } = createServiceItemModelTypes;
+  const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
 
   const handleServiceItemTypeChange = (event) => {
     setSelectedServiceItemType(event.target.value);
@@ -21,14 +23,14 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       <Label htmlFor="serviceItemType">Service item type</Label>
       <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
         <>
-          <option value="MTOServiceItemOriginSIT">Origin SIT</option>
-          <option value="MTOServiceItemDestSIT">Destination SIT</option>
+          <option value={MTOServiceItemOriginSIT}>Origin SIT</option>
+          <option value={MTOServiceItemDestSIT}>Destination SIT</option>
         </>
       </Dropdown>
-      {selectedServiceItemType === 'MTOServiceItemOriginSIT' && (
+      {selectedServiceItemType === MTOServiceItemOriginSIT && (
         <OriginSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
-      {selectedServiceItemType === 'MTOServiceItemDestSIT' && (
+      {selectedServiceItemType === MTOServiceItemDestSIT && (
         <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
     </>

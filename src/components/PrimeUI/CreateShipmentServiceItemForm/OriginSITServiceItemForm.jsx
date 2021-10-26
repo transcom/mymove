@@ -69,8 +69,8 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
           mask="00000[{-}0000]"
           placeholder="62225"
         />
-        <DatePickerInput label="SIT Entry Date" name="sitEntryDate" />
-        <DatePickerInput label="SIT Departure Date" name="sitDepartureDate" />
+        <DatePickerInput label="SIT entry Date" name="sitEntryDate" />
+        <DatePickerInput label="SIT departure Date" name="sitDepartureDate" />
         <AddressFields legend="SIT HHG actual origin" name="sitHHGActualOrigin" />
         <Button type="submit">Create service item</Button>
       </Form>
