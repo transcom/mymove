@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { addressSchema, ZIP_CODE_REGEX } from '../../../utils/validation';
+import { requiredAddressSchema, ZIP_CODE_REGEX } from '../../../utils/validation';
 import { formatDateForSwagger } from '../../../shared/dates';
 import { formatAddressForPrimeAPI } from '../../../utils/formatters';
 import { Form } from '../../form/Form';
@@ -21,7 +21,7 @@ const originSITValidationSchema = Yup.object().shape({
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
-  sitHHGActualOrigin: addressSchema,
+  sitHHGActualOrigin: requiredAddressSchema,
 });
 
 const OriginSITServiceItemForm = ({ shipment, submission }) => {

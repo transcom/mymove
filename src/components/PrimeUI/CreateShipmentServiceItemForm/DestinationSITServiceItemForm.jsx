@@ -26,7 +26,9 @@ const destinationSITValidationSchema = Yup.object().shape({
   timeMilitary2: Yup.string()
     .matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)')
     .required('Required'),
-  sitEntryDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
+  sitEntryDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
   sitDestinationFinalAddress: addressSchema,
 });
