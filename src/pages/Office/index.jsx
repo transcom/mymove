@@ -262,7 +262,7 @@ export class OfficeApp extends Component {
                     />
 
                     <PrivateRoute
-                      key="primeSimulatorCreatePaymentRequestsPath"
+                      key="primeSimulatorUploadPaymentRequestDocumentsPath"
                       path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
                       component={PrimeSimulatorUploadPaymentRequestDocuments}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}

@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, withRouter } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { queryCache, useMutation } from 'react-query';
 import moment from 'moment';
 import { generatePath } from 'react-router';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
 
 import { createPaymentRequest } from '../../../services/primeApi';
 import scrollToTop from '../../../shared/scrollToTop';
@@ -21,12 +23,13 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const createPaymentRequestSchema = Yup.object().shape({
   serviceItems: Yup.array().of(Yup.string()).min(1),
 });
 
-const CreatePaymentRequest = () => {
+const CreatePaymentRequest = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
   const history = useHistory();
 
@@ -43,6 +46,14 @@ const CreatePaymentRequest = () => {
 
       queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
       queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+
+      setFlashMessage(
+        `MSG_CREATE_PAYMENT_SUCCESS${moveCodeOrID}`,
+        'success',
+        'Successfully created payment request',
+        '',
+        true,
+      );
 
       history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
@@ -159,4 +170,12 @@ const CreatePaymentRequest = () => {
   );
 };
 
-export default CreatePaymentRequest;
+CreatePaymentRequest.propTypes = {
+  setFlashMessage: func.isRequired,
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(CreatePaymentRequest));
