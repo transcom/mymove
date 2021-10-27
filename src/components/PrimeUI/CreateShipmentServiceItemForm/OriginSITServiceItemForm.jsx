@@ -33,7 +33,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
     reason: '',
     sitPostalCode: '',
     sitEntryDate: '',
-    sitDepartureDate: '',
+    sitDepartureDate: '', // The Prime API is currently ignoring origin SIT departure date on creation
     sitHHGActualOrigin: {
       street_address_1: '',
       street_address_2: '',
