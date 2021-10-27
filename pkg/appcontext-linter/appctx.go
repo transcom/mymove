@@ -9,7 +9,7 @@ import (
 )
 
 var AppContextAnalyzer = &analysis.Analyzer{
-	Name:     "appcontext-lint",
+	Name:     "appcontextlint",
 	Doc:      "Make sure appContext is properly used throughout codebase",
 	Run:      run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
