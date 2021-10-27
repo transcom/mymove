@@ -32,7 +32,6 @@ const PrimeUIShipmentUpdateAddressForm = ({
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateShipmentAddressSchema}>
       {({ isValid, isSubmitting, handleSubmit, errors }) => (
-        /* <Form className={classnames(styles.CreatePaymentRequestForm, formStyles.form)}> */
         <Form className={classnames(formStyles.form)}>
           <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
             <SectionWrapper className={formStyles.formSection}>
@@ -47,9 +46,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
               disabled={isSubmitting || !isValid}
               onCancelClick={handleClose}
               onNextClick={handleSubmit}
-            >
-              Update
-            </WizardNavigation>
+            />
           </FormGroup>
         </Form>
       )}
