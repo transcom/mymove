@@ -348,8 +348,12 @@ func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 // AppContextFromRequest builds an AppContext from the http request
 func appContextFromRequest(db *pop.Connection, r *http.Request) appcontext.AppContext {
 	// use LoggerFromRequest to get the most specific logger
+	dbc := db
+	if db != nil {
+		dbc = db.WithContext(r.Context())
+	}
 	return appcontext.NewAppContext(
-		db.WithContext(r.Context()),
+		dbc,
 		logging.FromContext(r.Context()),
 		auth.SessionFromContext(r.Context()))
 }
