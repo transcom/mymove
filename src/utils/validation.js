@@ -31,6 +31,14 @@ export const requiredAddressSchema = Yup.object().shape({
   postal_code: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
+export const addressSchema = Yup.object().shape({
+  street_address_1: Yup.string(),
+  street_address_2: Yup.string(),
+  city: Yup.string(),
+  state: Yup.string().length(2, 'Must use state abbreviation'),
+  postal_code: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
+});
+
 export const phoneSchema = Yup.string().min(12, 'Number must have 10 digits and a valid area code'); // min 12 includes hyphens
 
 export const emailSchema = Yup.string().matches(

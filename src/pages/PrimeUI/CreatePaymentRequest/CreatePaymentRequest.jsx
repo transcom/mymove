@@ -14,6 +14,7 @@ import scrollToTop from '../../../shared/scrollToTop';
 import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
+import { formatDateForSwagger } from '../../../shared/dates';
 
 import styles from './CreatePaymentRequest.module.scss';
 
@@ -25,8 +26,11 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
+// We could ideally specify something like oneOfSchema outlined here
+// (https://gist.github.com/cb109/8eda798a4179dc21e46922a5fbb98be6) for the additional day SIT value with params
 const createPaymentRequestSchema = Yup.object().shape({
   serviceItems: Yup.array().of(Yup.string()).min(1),
+  params: Yup.object().shape({}),
 });
 
 const CreatePaymentRequest = ({ setFlashMessage }) => {
@@ -103,6 +107,25 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const onSubmit = (values, formik) => {
     const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
+      if (
+        values.params &&
+        values.params[serviceItem]?.SITPaymentRequestStart &&
+        values.params[serviceItem]?.SITPaymentRequestEnd
+      ) {
+        return {
+          id: serviceItem,
+          params: [
+            {
+              key: 'SITPaymentRequestStart',
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestStart),
+            },
+            {
+              key: 'SITPaymentRequestEnd',
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestEnd),
+            },
+          ],
+        };
+      }
       return { id: serviceItem };
     });
     createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
