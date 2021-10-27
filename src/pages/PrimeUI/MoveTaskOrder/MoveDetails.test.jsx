@@ -1,11 +1,10 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 
 import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { renderWithRouter } from 'testUtils';
+import { MockProviders, renderWithRouter } from 'testUtils';
 
 const mockUseHistoryPush = jest.fn();
 const mockRequestedMoveCode = 'LN4T89';
@@ -76,26 +75,17 @@ describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      renderWithRouter(<MoveDetails />);
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
 
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
 
       const uploadButton = screen.getByText(/Upload Document/, { selector: 'a.usa-button' });
       expect(uploadButton).toBeInTheDocument();
-    });
-  });
-  describe('details button works', () => {
-    it('can go to uploads page when payment request button clicked', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      const { history } = renderWithRouter(<MoveDetails />);
-
-      const uploadButton = screen.getByText(/Upload Document/, { selector: 'a.usa-button' });
-      await userEvent.click(uploadButton);
-
-      await waitFor(() => {
-        expect(history.location.pathname).toEqual(`/payment-requests/${moveTaskOrder.paymentRequests[0].id}/upload`);
-      });
     });
   });
 });
