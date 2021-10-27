@@ -369,6 +369,7 @@ build_tools: bin/gin \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
+	bin/webhook-client \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
