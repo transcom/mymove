@@ -13,7 +13,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 	suite.T().Run("returns only pending SIT status when there are no previous payments", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Locator:            "PARSIT",
@@ -93,7 +93,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), paymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), paymentRequest.ID)
 		suite.NoError(err)
 
 		suite.Len(sitBalances, 1)
@@ -109,7 +109,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 	suite.T().Run("calculates pending destination SIT balance when origin was invoiced previously", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -255,7 +255,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), pendingPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
 
 		suite.Len(sitBalances, 1)
@@ -272,7 +272,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 	suite.T().Run("ignores including previously denied service items in SIT balance", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -418,7 +418,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), pendingPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
 
 		suite.Len(sitBalances, 1)
@@ -433,7 +433,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 	suite.T().Run("returns nil for reviewed payment request without SIT service items", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -472,14 +472,14 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:           move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), reviewedPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
 		suite.NoError(err)
 		suite.Nil(sitBalances)
 	})
 
 	suite.T().Run("returns nil for pending payment request without SIT service items", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -515,14 +515,14 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:           move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), pendingPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
 		suite.Nil(sitBalances)
 	})
 
 	suite.T().Run("returns zero authorized days for pending payment request shipment without a set SITDaysAllowance", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -612,7 +612,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), pendingPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
 
 		suite.Len(sitBalances, 1)
@@ -627,7 +627,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 	suite.T().Run("returns zero authorized days for reviewed payment request shipment without a set SITDaysAllowance", func(t *testing.T) {
 		availableToPrimeAt := time.Now()
-		db := suite.TestAppContext().DB()
+		db := suite.AppContextForTest().DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -708,7 +708,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.TestAppContext(), reviewedPaymentRequest.ID)
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
 		suite.NoError(err)
 
 		suite.Len(sitBalances, 1)

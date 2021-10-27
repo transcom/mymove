@@ -44,8 +44,8 @@ type UploaderSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *UploaderSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *UploaderSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *UploaderSuite) SetupTest() {
@@ -126,7 +126,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -140,7 +140,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesAny)
+	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -153,7 +153,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -166,7 +166,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	_, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: f}, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -187,7 +187,7 @@ func (suite *UploaderSuite) TestStorerCalledWithTags() {
 		mock.Anything,
 		&tags).Return(&storage.StoreResult{}, nil)
 	// assert tags are passed along to storer
-	_, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -231,14 +231,14 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	suite.NoError(err)
 
 	// Create file and upload
-	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
 	file.Close()
 
 	// Download file and test size
-	download, err := up.Download(suite.TestAppContext(), upload)
+	download, err := up.Download(suite.AppContextForTest(), upload)
 	suite.NoError(err)
 	defer download.Close()
 

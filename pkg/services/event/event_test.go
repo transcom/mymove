@@ -24,9 +24,9 @@ type EventServiceSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *EventServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *EventServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestEventServiceSuite(t *testing.T) {
@@ -77,7 +77,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -96,7 +95,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -119,7 +117,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -137,7 +134,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -153,7 +149,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     "Bad Endpoint Key That Doesn't Exist",
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -175,7 +170,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -216,7 +210,6 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -277,7 +270,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcApproveShipmentEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -337,7 +329,6 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     GhcCreateMTOServiceItemEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 
 		suite.Nil(err)
@@ -368,7 +359,6 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		})
 		suite.Nil(err)
 
@@ -412,7 +402,6 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
 			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
 		}
 		_, err := TriggerEvent(event)
 		suite.NoError(err)

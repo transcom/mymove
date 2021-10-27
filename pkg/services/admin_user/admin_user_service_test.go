@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -15,9 +16,9 @@ type AdminUserServiceSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *AdminUserServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *AdminUserServiceSuite) AppContextForTest(session *auth.Session) appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, session)
 }
 
 func TestUserSuite(t *testing.T) {

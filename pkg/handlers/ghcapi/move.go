@@ -11,7 +11,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -26,8 +25,7 @@ type GetMoveHandler struct {
 
 // Handle handles the getMove by locator request
 func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	locator := params.Locator
 	if locator == "" {
@@ -37,7 +35,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 	move, err := h.FetchMove(appCtx, locator, nil)
 
 	if err != nil {
-		logger.Error("Error retrieving move by locator", zap.Error(err))
+		appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return moveop.NewGetMoveNotFound()
@@ -57,8 +55,7 @@ type SetFinancialReviewFlagHandler struct {
 
 // Handle flags a move for financial review
 func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFlagParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveID := uuid.FromStringOrNil(params.MoveID.String())
 
@@ -70,7 +67,7 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 	move, err := h.SetFinancialReviewFlag(appCtx, moveID, *params.IfMatch, *remarks)
 
 	if err != nil {
-		logger.Error("Error flagging move for financial review", zap.Error(err))
+		appCtx.Logger().Error("Error flagging move for financial review", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return moveop.NewSetFinancialReviewFlagNotFound()

@@ -16,8 +16,8 @@ type AccessCodeServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *AccessCodeServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *AccessCodeServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestAccessCodeServiceSuite(t *testing.T) {

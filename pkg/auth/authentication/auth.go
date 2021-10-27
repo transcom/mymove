@@ -86,57 +86,57 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 	}
 }
 
-func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger *zap.Logger) error {
-	userID := session.UserID
+func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) error {
+	userID := appCtx.Session().UserID
 
-	user, err := models.GetUser(db, userID)
+	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
-	if session.IsAdminUser() {
+	if appCtx.Session().IsAdminUser() {
 		user.CurrentAdminSessionID = sessionID
-	} else if session.IsOfficeUser() {
+	} else if appCtx.Session().IsOfficeUser() {
 		user.CurrentOfficeSessionID = sessionID
-	} else if session.IsServiceMember() {
+	} else if appCtx.Session().IsServiceMember() {
 		user.CurrentMilSessionID = sessionID
 	}
 
-	err = db.Save(user)
+	err = appCtx.DB().Save(user)
 	if err != nil {
-		logger.Error("Updating user's current_x_session_id", zap.String("email", session.Email), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("email", appCtx.Session().Email), zap.Error(err))
 		return err
 	}
 
 	return err
 }
 
-func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger *zap.Logger) error {
-	userID := session.UserID
-	user, err := models.GetUser(db, userID)
+func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
+	userID := appCtx.Session().UserID
+	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
-	if session.IsAdminUser() {
+	if appCtx.Session().IsAdminUser() {
 		user.CurrentAdminSessionID = ""
-	} else if session.IsOfficeUser() {
+	} else if appCtx.Session().IsOfficeUser() {
 		user.CurrentOfficeSessionID = ""
-	} else if session.IsServiceMember() {
+	} else if appCtx.Session().IsServiceMember() {
 		user.CurrentMilSessionID = ""
 	}
-	err = db.Save(user)
+	err = appCtx.DB().Save(user)
 	if err != nil {
-		logger.Error("Updating user's current_x_session_id", zap.String("email", session.Email), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("email", appCtx.Session().Email), zap.Error(err))
 		return err
 	}
 
 	return err
 }
 
-func currentUser(session *auth.Session, db *pop.Connection) (*models.User, error) {
-	userID := session.UserID
-	user, err := models.GetUser(db, userID)
+func currentUser(appCtx appcontext.AppContext) (*models.User, error) {
+	userID := appCtx.Session().UserID
+	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -156,57 +156,57 @@ func currentSessionID(session *auth.Session, user *models.User) string {
 	return ""
 }
 
-func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger *zap.Logger, db *pop.Connection) error {
+func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, sessionManager *scs.SessionManager) error {
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
 	err := sessionManager.RenewToken(ctx)
 	if err != nil {
-		logger.Error("Error renewing session token", zap.Error(err))
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err))
 		return err
 	}
 	sessionID, _, err := sessionManager.Commit(ctx)
 	if err != nil {
-		logger.Error("Failed to write new user session to store", zap.Error(err))
+		appCtx.Logger().Error("Failed to write new user session to store", zap.Error(err))
 		return err
 	}
-	sessionManager.Put(ctx, "session", session)
+	sessionManager.Put(ctx, "session", appCtx.Session())
 
-	user, err := currentUser(session, db)
+	user, err := currentUser(appCtx)
 	if err != nil {
-		logger.Error("Fetching user", zap.String("user_id", session.UserID.String()), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 	// Check to see if sessionID is set on the user, presently
-	existingSessionID := currentSessionID(session, user)
+	existingSessionID := currentSessionID(appCtx.Session(), user)
 	if existingSessionID != "" {
 
 		// Lookup the old session that wasn't logged out
 		_, exists, err := sessionManager.Store.Find(existingSessionID)
 		if err != nil {
-			logger.Error("Error loading previous session", zap.Error(err))
+			appCtx.Logger().Error("Error loading previous session", zap.Error(err))
 			return err
 		}
 
 		if !exists {
-			logger.Info("Session expired")
+			appCtx.Logger().Info("Session expired")
 		} else {
-			logger.Info("Concurrent session detected. Will delete previous session.")
+			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.")
 
 			// We need to delete the concurrent session.
 			err := sessionManager.Store.Delete(existingSessionID)
 			if err != nil {
-				logger.Error("Error deleting previous session", zap.Error(err))
+				appCtx.Logger().Error("Error deleting previous session", zap.Error(err))
 				return err
 			}
 		}
 	}
 
-	updateErr := updateUserCurrentSessionID(session, sessionID, db, logger)
+	updateErr := updateUserCurrentSessionID(appCtx, sessionID)
 	if updateErr != nil {
-		logger.Error("Updating user's current session ID", zap.Error(updateErr))
+		appCtx.Logger().Error("Updating user's current session ID", zap.Error(updateErr))
 		return updateErr
 	}
-	logger.Info("Logged in", zap.Any("session", session))
+	appCtx.Logger().Info("Logged in", zap.Any("session", appCtx.Session()))
 
 	return nil
 }
@@ -308,7 +308,6 @@ func (context Context) sessionManager(session *auth.Session) *scs.SessionManager
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	logger           *zap.Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
@@ -324,7 +323,6 @@ type FeatureFlag struct {
 // NewAuthContext creates an Context
 func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
 	context := Context{
-		logger:           logger,
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
 		sessionManagers:  sessionManagers,
@@ -347,45 +345,54 @@ func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 	return logoutHandler
 }
 
+// AppContextFromRequest builds an AppContext from the http request
+func appContextFromRequest(db *pop.Connection, r *http.Request) appcontext.AppContext {
+	// use LoggerFromRequest to get the most specific logger
+	return appcontext.NewAppContext(
+		db.WithContext(r.Context()),
+		logging.FromContext(r.Context()),
+		auth.SessionFromContext(r.Context()))
+}
+
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
-	if session != nil {
-		redirectURL := h.landingURL(session)
-		if session.IDToken != "" {
+	appCtx := appContextFromRequest(h.db, r)
+	if appCtx.Session() != nil {
+		redirectURL := h.landingURL(appCtx.Session())
+		if appCtx.Session().IDToken != "" {
 			var logoutURL string
 			// All users logged in via devlocal-auth will have this IDToken. We
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
-			if session.IDToken == "devlocal" {
+			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
+				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, appCtx.Session().IDToken)
 			}
-			err := resetUserCurrentSessionID(session, h.db, h.logger)
+			err := resetUserCurrentSessionID(appCtx)
 			if err != nil {
-				h.logger.Error("failed to reset user's current_x_session_id")
+				appCtx.Logger().Error("failed to reset user's current_x_session_id")
 			}
-			err = h.sessionManager(session).Destroy(r.Context())
+			err = h.sessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
-				h.logger.Error("failed to destroy session")
+				appCtx.Logger().Error("failed to destroy session")
 			}
 			auth.DeleteCSRFCookies(w)
-			h.logger.Info("user logged out")
+			appCtx.Logger().Info("user logged out")
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
-			h.logger.Info("session exists but has an empty IDToken")
+			appCtx.Logger().Info("session exists but has an empty IDToken")
 
-			if session.UserID != uuid.Nil {
-				err := resetUserCurrentSessionID(session, h.db, h.logger)
+			if appCtx.Session().UserID != uuid.Nil {
+				err := resetUserCurrentSessionID(appCtx)
 				if err != nil {
-					h.logger.Error("failed to reset user's current_x_session_id")
+					appCtx.Logger().Error("failed to reset user's current_x_session_id")
 				}
 			}
 
-			err := h.sessionManager(session).Destroy(r.Context())
+			err := h.sessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
-				h.logger.Error("failed to destroy session")
+				appCtx.Logger().Error("failed to destroy session")
 			}
 
 			auth.DeleteCSRFCookies(w)
@@ -416,10 +423,11 @@ func StateCookieName(session *auth.Session) string {
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
-	if session != nil && session.UserID != uuid.Nil {
+	appCtx := appContextFromRequest(nil, r)
+
+	if appCtx.Session() != nil && appCtx.Session().UserID != uuid.Nil {
 		// User is already authenticated, redirect to landing page
-		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, h.landingURL(appCtx.Session()), http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -431,14 +439,14 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
 	// Check this when we return from login.gov
-	if session == nil {
-		h.logger.Error("Session is nil, so cannot get hostname for state Cookie")
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("Session is nil, so cannot get hostname for state Cookie")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
 	stateCookie := http.Cookie{
-		Name:     StateCookieName(session),
+		Name:     StateCookieName(appCtx.Session()),
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
 		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
@@ -471,19 +479,19 @@ func NewCallbackHandler(ac Context, db *pop.Connection, sender notifications.Not
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
+	appCtx := appContextFromRequest(h.db, r)
 
-	if session == nil {
-		h.logger.Error("Session missing")
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("Session missing")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	rawLandingURL := h.landingURL(session)
+	rawLandingURL := h.landingURL(appCtx.Session())
 
 	landingURL, err := url.Parse(rawLandingURL)
 	if err != nil {
-		h.logger.Error("Error parsing landing URL")
+		appCtx.Logger().Error("Error parsing landing URL")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
@@ -494,10 +502,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case "access_denied":
 			// The user has either cancelled or declined to authorize the client
 		case "invalid_request":
-			h.logger.Error("INVALID_REQUEST error from login.gov")
+			appCtx.Logger().Error("INVALID_REQUEST error from login.gov")
 			landingQuery.Add("error", "INVALID_REQUEST")
 		default:
-			h.logger.Error("unknown error from login.gov")
+			appCtx.Logger().Error("unknown error from login.gov")
 			landingQuery.Add("error", "UNKNOWN_ERROR")
 		}
 		landingURL.RawQuery = landingQuery.Encode()
@@ -507,9 +515,9 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(StateCookieName(session))
+	stateCookie, err := r.Cookie(StateCookieName(appCtx.Session()))
 	if err != nil {
-		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
+		appCtx.Logger().Error("Getting login.gov state cookie", zap.Error(err))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
@@ -517,18 +525,18 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	hash := stateCookie.Value
 	// case where user has 2 tabs open with different cookies
 	if hash != shaAsString(returnedState) {
-		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
+		appCtx.Logger().Error("State returned from Login.gov does not match state value stored in cookie",
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
 
 		// Delete lg_state cookie
-		auth.DeleteCookie(w, StateCookieName(session))
+		auth.DeleteCookie(w, StateCookieName(appCtx.Session()))
 
 		// This operation will delete all cookies from the session
-		err = h.sessionManager(session).Destroy(r.Context())
+		err = h.sessionManager(appCtx.Session()).Destroy(r.Context())
 		if err != nil {
-			h.logger.Error("Deleting login.gov state cookie", zap.Error(err))
+			appCtx.Logger().Error("Deleting login.gov state cookie", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
@@ -542,109 +550,109 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	provider, err := getLoginGovProviderForRequest(r)
 	if err != nil {
-		h.logger.Error("Get Goth provider", zap.Error(err))
+		appCtx.Logger().Error("Get Goth provider", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
 	// TODO: validate the state is the same (pull from session)
 	openIDSession, err := fetchToken(
-		h.logger,
+		appCtx.Logger(),
 		r.URL.Query().Get("code"),
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
-		h.logger.Error("Reading openIDSession from login.gov", zap.Error(err))
+		appCtx.Logger().Error("Reading openIDSession from login.gov", zap.Error(err))
 		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
 
 	openIDUser, err := provider.FetchUser(openIDSession)
 	if err != nil {
-		h.logger.Error("Login.gov user info request", zap.Error(err))
+		appCtx.Logger().Error("Login.gov user info request", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	session.IDToken = openIDSession.IDToken
-	session.Email = openIDUser.Email
+	appCtx.Session().IDToken = openIDSession.IDToken
+	appCtx.Session().Email = openIDUser.Email
 
-	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
+	appCtx.Logger().Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", appCtx.Session().Hostname))
 
-	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
+	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), openIDUser.UserID)
 	if err == nil { // Someone we know already
-		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		authorizeKnownUser(appCtx, userIdentity, h, w, r, landingURL.String())
 		return
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
+		authorizeUnknownUser(appCtx, openIDUser, h, w, r, landingURL.String())
 		return
 	} else {
-		h.logger.Error("Error loading Identity.", zap.Error(err))
+		appCtx.Logger().Error("Error loading Identity.", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 }
 
-var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models.UserIdentity, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) {
 	if !userIdentity.Active {
-		h.logger.Error("Active user requesting authentication",
-			zap.String("application_name", string(session.ApplicationName)),
-			zap.String("hostname", session.Hostname),
-			zap.String("user_id", session.UserID.String()),
-			zap.String("email", session.Email))
+		appCtx.Logger().Error("Active user requesting authentication",
+			zap.String("application_name", string(appCtx.Session().ApplicationName)),
+			zap.String("hostname", appCtx.Session().Hostname),
+			zap.String("user_id", appCtx.Session().UserID.String()),
+			zap.String("email", appCtx.Session().Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
-	session.Roles = append(session.Roles, userIdentity.Roles...)
-	session.UserID = userIdentity.ID
-	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
-		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
+	appCtx.Session().UserID = userIdentity.ID
+	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
+		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
 	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
-		session.DpsUserID = *(userIdentity.DpsUserID)
+		appCtx.Session().DpsUserID = *(userIdentity.DpsUserID)
 	}
 
-	if session.IsOfficeApp() {
+	if appCtx.Session().IsOfficeApp() {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
-			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
+			appCtx.Logger().Error("Office user is deactivated", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
 		if userIdentity.OfficeUserID != nil {
-			session.OfficeUserID = *(userIdentity.OfficeUserID)
+			appCtx.Session().OfficeUserID = *(userIdentity.OfficeUserID)
 		} else {
 			// In case they managed to login before the office_user record was created
-			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
+			officeUser, err := models.FetchOfficeUserByEmail(appCtx.DB(), appCtx.Session().Email)
 			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				appCtx.Logger().Error("Non-office user authenticated at office site", zap.String("email", appCtx.Session().Email))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
-				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				appCtx.Logger().Error("Checking for office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
-			session.OfficeUserID = officeUser.ID
+			appCtx.Session().OfficeUserID = officeUser.ID
 			officeUser.UserID = &userIdentity.ID
-			err = h.db.Save(officeUser)
+			err = appCtx.DB().Save(officeUser)
 			if err != nil {
-				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
+				appCtx.Logger().Error("Updating office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 		}
 	}
 
-	if session.IsAdminApp() {
+	if appCtx.Session().IsAdminApp() {
 		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
-			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
+			appCtx.Logger().Error("Admin user is deactivated", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
 		if userIdentity.AdminUserID != nil {
-			session.AdminUserID = *(userIdentity.AdminUserID)
-			session.AdminUserRole = userIdentity.AdminUserRole.String()
+			appCtx.Session().AdminUserID = *(userIdentity.AdminUserID)
+			appCtx.Session().AdminUserRole = userIdentity.AdminUserRole.String()
 		} else {
 			// In case they managed to login before the admin_user record was created
 			var adminUser models.AdminUser
@@ -652,42 +660,41 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			filters := []services.QueryFilter{
 				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
 			}
-			appCtx := appcontext.NewAppContext(h.db, h.logger)
 			err := queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				h.logger.Error("No admin user found", zap.String("email", session.Email))
+				appCtx.Logger().Error("No admin user found", zap.String("email", appCtx.Session().Email))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
-				h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+				appCtx.Logger().Error("Checking for admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 
-			session.AdminUserID = adminUser.ID
-			session.AdminUserRole = adminUser.Role.String()
+			appCtx.Session().AdminUserID = adminUser.ID
+			appCtx.Session().AdminUserRole = adminUser.Role.String()
 			adminUser.UserID = &userIdentity.ID
-			verrs, err := h.db.ValidateAndSave(&adminUser)
+			verrs, err := appCtx.DB().ValidateAndSave(&adminUser)
 			if err != nil {
-				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
+				appCtx.Logger().Error("Updating admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 
 			if verrs != nil {
-				h.logger.Error("Admin user validation errors", zap.String("email", session.Email), zap.Error(verrs))
+				appCtx.Logger().Error("Admin user validation errors", zap.String("email", appCtx.Session().Email), zap.Error(verrs))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 		}
 	}
-	session.FirstName = userIdentity.FirstName()
-	session.LastName = userIdentity.LastName()
-	session.Middle = userIdentity.Middle()
+	appCtx.Session().FirstName = userIdentity.FirstName()
+	appCtx.Session().LastName = userIdentity.LastName()
+	appCtx.Session().Middle = userIdentity.Middle()
 
-	sessionManager := h.sessionManager(session)
-	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	sessionManager := h.sessionManager(appCtx.Session())
+	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -696,27 +703,27 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.User, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
 	var user *models.User
 	var err error
 
 	// Loads the User and Roles associations of the office or admin user
-	conn := h.db.Eager("User", "User.Roles")
+	conn := appCtx.DB().Eager("User", "User.Roles")
 
-	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
-		officeUser, err = models.FetchOfficeUserByEmail(conn, session.Email)
+	if appCtx.Session().IsOfficeApp() { // Look to see if we have OfficeUser with this email address
+		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
 		if err == models.ErrFetchNotFound {
-			h.logger.Error("No Office user found", zap.String("email", session.Email))
+			appCtx.Logger().Error("No Office user found", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
-			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+			appCtx.Logger().Error("Checking for office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 		if !officeUser.Active {
-			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
+			appCtx.Logger().Error("Office user is deactivated", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -724,37 +731,35 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	}
 
 	var adminUser models.AdminUser
-	if session.IsAdminApp() {
+	if appCtx.Session().IsAdminApp() {
 		queryBuilder := query.NewQueryBuilder()
-		appCtx := appcontext.NewAppContext(h.db, h.logger)
 		filters := []services.QueryFilter{
-			query.NewQueryFilter("email", "=", session.Email),
+			query.NewQueryFilter("email", "=", appCtx.Session().Email),
 		}
 		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			h.logger.Error("No admin user found", zap.String("email", session.Email))
+			appCtx.Logger().Error("No admin user found", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
-			h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+			appCtx.Logger().Error("Checking for admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 		if !adminUser.Active {
-			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
+			appCtx.Logger().Error("Admin user is deactivated", zap.String("email", appCtx.Session().Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
 		user = &adminUser.User
 	}
 
-	if session.IsMilApp() {
-		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+	if appCtx.Session().IsMilApp() {
+		user, err = models.CreateUser(appCtx.DB(), openIDUser.UserID, openIDUser.Email)
 		if err == nil {
-			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
 			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
-			h.logger.Info(
+			appCtx.Logger().Info(
 				"New user account created through Login.gov",
 				zap.String("newUserID", user.ID.String()),
 				zap.String("sysAdminEmail", sysAdminEmail),
@@ -763,10 +768,10 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			if emailErr == nil {
 				sendErr := h.sender.SendNotification(email)
 				if sendErr != nil {
-					h.logger.Error("Error sending user creation email", zap.Error(sendErr))
+					appCtx.Logger().Error("Error sending user creation email", zap.Error(sendErr))
 				}
 			} else {
-				h.logger.Error("Error creating user creation email", zap.Error(emailErr))
+				appCtx.Logger().Error("Error creating user creation email", zap.Error(emailErr))
 			}
 		}
 		// Create the user's service member now and add the ServiceMemberID to
@@ -782,34 +787,34 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			UserID:             user.ID,
 			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		}
-		smVerrs, smErr := models.SaveServiceMember(h.db, &newServiceMember)
+		smVerrs, smErr := models.SaveServiceMember(appCtx.DB(), &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
-			h.logger.Error("Error creating service member for user", zap.Error(smErr))
+			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		session.ServiceMemberID = newServiceMember.ID
+		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
-		err = models.UpdateUserLoginGovUUID(h.db, user, openIDUser.UserID)
+		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, openIDUser.UserID)
 	}
 
 	if err != nil {
-		h.logger.Error("Error updating/creating user", zap.Error(err))
+		appCtx.Logger().Error("Error updating/creating user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	session.UserID = user.ID
-	if session.IsOfficeApp() && officeUser != nil {
-		session.OfficeUserID = officeUser.ID
-	} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
-		session.AdminUserID = adminUser.ID
+	appCtx.Session().UserID = user.ID
+	if appCtx.Session().IsOfficeApp() && officeUser != nil {
+		appCtx.Session().OfficeUserID = officeUser.ID
+	} else if appCtx.Session().IsAdminApp() && adminUser.ID != uuid.Nil {
+		appCtx.Session().AdminUserID = adminUser.ID
 	}
 
-	session.Roles = append(session.Roles, user.Roles...)
+	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
 
-	sessionManager := h.sessionManager(session)
-	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	sessionManager := h.sessionManager(appCtx.Session())
+	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return

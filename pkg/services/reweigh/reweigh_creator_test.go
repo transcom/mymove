@@ -24,7 +24,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		ShipmentID:  mtoShipment.ID,
 	}
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	suite.T().Run("CreateReweigh - Success", func(t *testing.T) {
 		// Under test:	CreateReweigh

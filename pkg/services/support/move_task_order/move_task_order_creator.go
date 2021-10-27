@@ -27,7 +27,7 @@ type moveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppContext, payload supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppContext, payload supportmessages.MoveTaskOrder) (*models.Move, error) {
 	var moveTaskOrder *models.Move
 	var refID string
 	if payload.Order == nil {
@@ -69,10 +69,10 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(moveTaskOrder)
 
 		if verrs.Count() > 0 {
-			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
+			appCtx.Logger().Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
 			return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 		} else if err != nil {
-			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
+			appCtx.Logger().Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
 			return apperror.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
 		}
 		return nil

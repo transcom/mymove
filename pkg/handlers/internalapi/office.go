@@ -3,7 +3,6 @@ package internalapi
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -24,39 +23,38 @@ type ApproveMoveHandler struct {
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() {
+	if !appCtx.Session().IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	// Don't approve Move if orders are incomplete
-	orders, ordersErr := models.FetchOrder(h.DB(), move.OrdersID)
+	orders, ordersErr := models.FetchOrder(appCtx.DB(), move.OrdersID)
 	if ordersErr != nil {
-		return handlers.ResponseForError(logger, ordersErr)
+		return handlers.ResponseForError(appCtx.Logger(), ordersErr)
 	}
 	if !orders.IsComplete() {
 		return officeop.NewApprovePPMBadRequest()
 	}
 
-	logger = logger.With(zap.String("moveLocator", move.Locator))
+	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 	err = h.MoveRouter.Approve(appCtx, move)
 	if err != nil {
 		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)
 	}
 
-	verrs, err := h.DB().ValidateAndUpdate(move)
+	verrs, err := appCtx.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -78,24 +76,23 @@ type CancelMoveHandler struct {
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() {
+	if !appCtx.Session().IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	logger = logger.With(zap.String("moveLocator", move.Locator))
+	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 	// Canceling move will result in canceled associated PPMs
 	err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
 	if err != nil {
@@ -104,13 +101,13 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(h.DB(), move)
+	verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveCanceled(h.DB(), logger, session, moveID),
+		notifications.NewMoveCanceled(appCtx.DB(), logger, appCtx.Session(), moveID),
 	)
 
 	if err != nil {
@@ -132,19 +129,20 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	if !session.IsOfficeUser() {
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+
+	if !appCtx.Session().IsOfficeUser() {
 		return officeop.NewApprovePPMForbidden()
 	}
 
 	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	moveID := ppm.MoveID
 	var approveDate time.Time
@@ -153,26 +151,26 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	}
 	err = ppm.Approve(approveDate)
 	if err != nil {
-		logger.Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
-		return handlers.ResponseForError(logger, err)
+		appCtx.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	verrs, err := h.DB().ValidateAndUpdate(ppm)
+	verrs, err := appCtx.DB().ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveApproved(h.DB(), logger, session, h.HandlerContext.AppNames().MilServername, moveID),
+		notifications.NewMoveApproved(appCtx.DB(), appCtx.Logger(), appCtx.Session(), h.HandlerContext.AppNames().MilServername, moveID),
 	)
 	if err != nil {
-		logger.Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	return officeop.NewApprovePPMOK().WithPayload(ppmPayload)
 }
@@ -184,31 +182,31 @@ type ApproveReimbursementHandler struct {
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() {
+	if !appCtx.Session().IsOfficeUser() {
 		return officeop.NewApproveReimbursementForbidden()
 	}
 
 	reimbursementID, err := uuid.FromString(params.ReimbursementID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	reimbursement, err := models.FetchReimbursement(h.DB(), session, reimbursementID)
+	reimbursement, err := models.FetchReimbursement(appCtx.DB(), appCtx.Session(), reimbursementID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	err = reimbursement.Approve()
 	if err != nil {
-		logger.Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
-		return handlers.ResponseForError(logger, err)
+		appCtx.Logger().Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	verrs, err := h.DB().ValidateAndUpdate(reimbursement)
+	verrs, err := appCtx.DB().ValidateAndUpdate(reimbursement)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 
 	reimbursementPayload := payloadForReimbursementModel(reimbursement)

@@ -48,7 +48,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 			},
 		)
 
-		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
@@ -61,7 +61,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		suite.setUpDomesticDestinationData()
 		paymentServiceItem := suite.setupDomesticDestinationServiceItems()
 
-		cost, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		cost, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -72,25 +72,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		paymentServiceItem := suite.setupDomesticDestinationServiceItems()
 
 		// No contract code
-		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
 		// No requested pickup date
 		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingRequestedPickupDate)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingRequestedPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
 
 		// No weight
 		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledWeight)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No service area
 		missingServiceAreaDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaDest)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingServiceAreaDest)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServiceAreaDest)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServiceAreaDest", err.Error())
 	})
@@ -103,7 +103,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.setUpDomesticDestinationData()
 
 		cost, displayParams, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -127,7 +127,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, displayParams, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -150,7 +150,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.setUpDomesticDestinationData()
 
 		_, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -165,7 +165,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.setUpDomesticDestinationData()
 
 		_, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -180,7 +180,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.setUpDomesticDestinationData()
 
 		cost, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unit.Pound(499),
@@ -197,22 +197,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price(suite.TestAppContext(), "", requestedPickupDate, ddpTestWeight, ddpTestServiceArea)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, ddpTestWeight, ddpTestServiceArea)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No requested pickup date
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, time.Time{}, ddpTestWeight, ddpTestServiceArea)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, ddpTestWeight, ddpTestServiceArea)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, 0, ddpTestServiceArea)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, ddpTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service area
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, ddpTestWeight, "")
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, ddpTestWeight, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})

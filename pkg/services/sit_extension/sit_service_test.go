@@ -17,8 +17,8 @@ type SitExtensionServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *SitExtensionServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *SitExtensionServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestSitExtensionServiceSuite(t *testing.T) {

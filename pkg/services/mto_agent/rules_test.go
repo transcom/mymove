@@ -32,7 +32,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -55,7 +55,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
@@ -86,7 +86,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -112,7 +112,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(tc.verr, "expected something other than a *validate.Errors type")
@@ -151,7 +151,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.AppContextForTest(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -172,7 +172,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.AppContextForTest(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.True(verr.HasAny())
@@ -220,7 +220,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, tc.oldA, tc.ship)
+					err := checkAgentType().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, tc.ship)
 					suite.NoError(err, "Unexpected error from checkAgentType: %v", err)
 				})
 			}
@@ -282,7 +282,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, nil, tc.ship)
+					err := checkAgentType().Validate(suite.AppContextForTest(), tc.newA, nil, tc.ship)
 					tc.verf(err)
 				})
 			}
@@ -323,7 +323,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				err := checkPrimeAvailability(tc.check).Validate(suite.TestAppContext(), models.MTOAgent{}, nil, tc.ship)
+				err := checkPrimeAvailability(tc.check).Validate(suite.AppContextForTest(), models.MTOAgent{}, nil, tc.ship)
 				if err == nil {
 					if tc.err {
 						suite.Fail("expected error")

@@ -18,7 +18,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher()
 
 		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -42,7 +42,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -78,7 +78,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -92,7 +92,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 	suite.T().Run("if there is an error, we get it with zero payment request", func(t *testing.T) {
 		fetcher := NewPaymentRequestFetcher()
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), uuid.Nil)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), uuid.Nil)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

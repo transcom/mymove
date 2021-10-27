@@ -16,8 +16,8 @@ type MTOAgentServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *MTOAgentServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *MTOAgentServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestMTOAgentServiceSuite(t *testing.T) {

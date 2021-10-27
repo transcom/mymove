@@ -62,7 +62,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		fetcher := NewOfficeUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		officeUser, err := fetcher.FetchOfficeUser(suite.TestAppContext(), filters)
+		officeUser, err := fetcher.FetchOfficeUser(suite.AppContextForTest(), filters)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
@@ -77,7 +77,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		}
 		fetcher := NewOfficeUserFetcher(builder)
 
-		officeUser, err := fetcher.FetchOfficeUser(suite.TestAppContext(), []services.QueryFilter{})
+		officeUser, err := fetcher.FetchOfficeUser(suite.AppContextForTest(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
@@ -90,7 +90,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := NewOfficeUserFetcherPop()
 
-		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.TestAppContext(), officeUser.ID)
+		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
 
 		suite.NoError(err)
 		suite.Equal(officeUser.ID, fetchedUser.ID)
@@ -98,7 +98,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 
 	suite.T().Run("returns zero value office user on error", func(t *testing.T) {
 		fetcher := NewOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchOfficeUserByID(suite.TestAppContext(), uuid.Nil)
+		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

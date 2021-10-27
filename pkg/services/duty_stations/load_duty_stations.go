@@ -10,10 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -80,16 +79,11 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 
 // MigrationBuilder has methods that assist in building a DutyStation INSERT migration
 type MigrationBuilder struct {
-	db     *pop.Connection
-	logger *zap.Logger
 }
 
 // NewMigrationBuilder returns a new instance of a MigrationBuilder
-func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilder {
-	return MigrationBuilder{
-		db,
-		logger,
-	}
+func NewMigrationBuilder() MigrationBuilder {
+	return MigrationBuilder{}
 }
 
 func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutyStations {
@@ -102,9 +96,9 @@ func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutySta
 	return filtered
 }
 
-func (b *MigrationBuilder) findDutyStations(s StationData) models.DutyStations {
+func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s StationData) models.DutyStations {
 	zip := s.Zip
-	stations, err := models.FetchDutyStationsByPostalCode(b.db, zip)
+	stations, err := models.FetchDutyStationsByPostalCode(appCtx.DB(), zip)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -112,13 +106,13 @@ func (b *MigrationBuilder) findDutyStations(s StationData) models.DutyStations {
 	return filteredStations
 }
 
-func (b *MigrationBuilder) addressLatLong(address models.Address) (route.LatLong, error) {
+func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address models.Address) (route.LatLong, error) {
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
 	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	p := route.NewHEREPlannerHP(b.logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	p := route.NewHEREPlannerHP(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 
 	plannerType := reflect.TypeOf(p)
 	for i := 0; i < plannerType.NumMethod(); i++ {
@@ -126,7 +120,7 @@ func (b *MigrationBuilder) addressLatLong(address models.Address) (route.LatLong
 		fmt.Println(method.Name)
 	}
 
-	return p.GetAddressLatLong(&address)
+	return p.GetAddressLatLong(appCtx, &address)
 }
 
 func getCityState(unit string) (string, string) {
@@ -137,12 +131,12 @@ func getCityState(unit string) (string, string) {
 	return strings.Join(lst[:len(lst)-1], " "), lst[len(lst)-1]
 }
 
-func (b *MigrationBuilder) nearestTransportationOffice(address models.Address) (models.TransportationOffice, error) {
-	latLong, err := b.addressLatLong(address)
+func (b *MigrationBuilder) nearestTransportationOffice(appCtx appcontext.AppContext, address models.Address) (models.TransportationOffice, error) {
+	latLong, err := b.addressLatLong(appCtx, address)
 	if err != nil {
 		return models.TransportationOffice{}, err
 	}
-	to, err := models.FetchNearestTransportationOffice(b.db, latLong.Longitude, latLong.Latitude)
+	to, err := models.FetchNearestTransportationOffice(appCtx.DB(), latLong.Longitude, latLong.Latitude)
 	if err != nil {
 		return to, err
 	}
@@ -150,7 +144,7 @@ func (b *MigrationBuilder) nearestTransportationOffice(address models.Address) (
 }
 
 // Build builds a migration for loading duty stations
-func (b *MigrationBuilder) Build(dutyStationsFilePath string) ([]DutyStationMigration, error) {
+func (b *MigrationBuilder) Build(appCtx appcontext.AppContext, dutyStationsFilePath string) ([]DutyStationMigration, error) {
 	stations, err := b.ParseStations(dutyStationsFilePath)
 	if err != nil {
 		return nil, err
@@ -168,10 +162,10 @@ func (b *MigrationBuilder) Build(dutyStationsFilePath string) ([]DutyStationMigr
 			continue
 		}
 
-		dbDutyStations := b.findDutyStations(s)
+		dbDutyStations := b.findDutyStations(appCtx, s)
 		if len(dbDutyStations) == 0 {
 			//fmt.Println("*** missing... add?? ***")
-			to, err := b.nearestTransportationOffice(address)
+			to, err := b.nearestTransportationOffice(appCtx, address)
 			if err != nil {
 				fmt.Println("Error encountered finding nearest transportation office: ", err)
 				continue

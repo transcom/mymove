@@ -53,7 +53,7 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	// Now calculate the distance between zip5s
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
+	distanceMiles, err := planner.Zip5TransitDistance(appCtx, pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}

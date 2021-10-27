@@ -35,7 +35,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 	})
 
 	suite.T().Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func(t *testing.T) {
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.TestAppContext(), officeUser.ID, "ABC123")
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUser.ID, "ABC123")
 
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -77,7 +77,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	})
 
 	suite.T().Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func(t *testing.T) {
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 
 		suite.NoError(err)
@@ -87,7 +87,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	suite.T().Run("Returns payment request matching an arbitrary filter", func(t *testing.T) {
 		// Locator
 		locator := paymentRequest.MoveTaskOrder.Locator
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Locator: &locator})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -102,7 +102,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		suite.NoError(err)
 
 		branch := serviceMember.Affiliation.String()
-		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Branch: &branch})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -149,28 +149,28 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	allPaymentRequests := []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
 
 	suite.T().Run("Returns all payment requests when no status filter is specified", func(t *testing.T) {
-		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.T().Run("Returns all payment requests when all status filters are selected", func(t *testing.T) {
-		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid"}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.T().Run("Returns only those payment requests with the exact status", func(t *testing.T) {
-		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested"}})
 		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
 		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
 
-		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Reviewed"}})
 		reviewed := *reviewedPaymentRequests
 		suite.NoError(err)
@@ -181,14 +181,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 			suite.Contains(reviewedIDs, pr.ID)
 		}
 
-		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Rejected"}})
 		rejected := *rejectedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, rejectedCount)
 		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
-		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Paid"}})
 		paid := *paidPaymentRequests
 		suite.NoError(err)
@@ -246,7 +246,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 	suite.T().Run("returns USMC payment requests", func(t *testing.T) {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUserUSMC.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUserUSMC.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 		paymentRequests := *expectedPaymentRequests
 
@@ -255,7 +255,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 
-		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 		paymentRequests = *expectedPaymentRequests
 
@@ -266,7 +266,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 	suite.T().Run("returns USMC payment requests for move", func(t *testing.T) {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.TestAppContext(), officeUserUSMC.ID, paymentRequestUSMC.MoveTaskOrder.Locator)
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUserUSMC.ID, paymentRequestUSMC.MoveTaskOrder.Locator)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -292,7 +292,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 			},
 		})
 
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 
 		suite.NoError(err)
@@ -305,7 +305,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 
 	suite.T().Run("Error when office user ID does not exist", func(t *testing.T) {
 		nonexistentOfficeUserID := uuid.Must(uuid.NewV4())
-		_, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), nonexistentOfficeUserID,
+		_, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), nonexistentOfficeUserID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 
 		suite.Error(err)
@@ -322,7 +322,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 		testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	}
 
-	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
+	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
 
 	suite.NoError(err)
 	suite.Equal(1, len(*expectedPaymentRequests))
@@ -402,7 +402,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedNameOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -416,7 +416,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		// Sort by service member name
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -430,7 +430,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		// Sort by dodID
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -443,7 +443,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedDodIDOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -454,7 +454,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.T().Run("Sort by status ASC", func(t *testing.T) {
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -465,7 +465,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.T().Run("Sort by status DESC", func(t *testing.T) {
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -477,7 +477,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by age ASC", func(t *testing.T) {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("age"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -489,7 +489,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by age DESC", func(t *testing.T) {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("age"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -501,7 +501,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by submittedAt ASC", func(t *testing.T) {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -513,7 +513,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by submittedAt DESC", func(t *testing.T) {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -525,7 +525,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by locator ASC", func(t *testing.T) {
 		sort.Strings(expectedLocatorOrder)
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -538,7 +538,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedLocatorOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -550,7 +550,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by branch ASC", func(t *testing.T) {
 		sort.Strings(expectedBranchOrder)
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -562,7 +562,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.T().Run("Sort by branch DESC", func(t *testing.T) {
 		sort.Strings(expectedBranchOrder)
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.TestAppContext(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)

@@ -15,7 +15,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 		paymentServiceItem := suite.setupPriceServiceItem()
 		serviceItemPricer := NewServiceItemPricer()
 
-		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), paymentServiceItem)
+		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -30,7 +30,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 			},
 		})
 
-		_, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), badPaymentServiceItem)
+		_, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), badPaymentServiceItem)
 		suite.Error(err)
 	})
 }

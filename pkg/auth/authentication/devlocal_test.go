@@ -231,7 +231,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 		query.NewQueryFilter("email", "=", user.LoginGovEmail),
 	}
 
-	if err := queryBuilder.FetchOne(suite.TestAppContext(), &adminUser, filters); err != nil {
+	if err := queryBuilder.FetchOne(suite.AppContextForTest(nil), &adminUser, filters); err != nil {
 		t.Error("Couldn't find admin user record")
 	}
 

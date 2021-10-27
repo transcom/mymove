@@ -168,7 +168,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 	namedSubScenario := v.GetString(namedSubScenarioFlag)

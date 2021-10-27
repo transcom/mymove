@@ -29,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, shipmentEtag)
+		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, shipmentToBeCanceled.MoveTaskOrderID)
@@ -52,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -66,7 +66,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			},
 		})
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -76,7 +76,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), badShipmentID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -98,7 +98,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 		shipmentRouter.On("RequestCancellation", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, eTag)
+		_, err = requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "RequestCancellation", 1)

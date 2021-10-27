@@ -27,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
-					suite.TestAppContext(),
+					suite.AppContextForTest(),
 					&models.MTOShipment{Status: status},
 					nil,
 				)
@@ -41,7 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkAvailToPrime", func() {
-		appCtx := suite.TestAppContext()
+		appCtx := suite.AppContextForTest()
 
 		now := time.Now()
 		hide := false
