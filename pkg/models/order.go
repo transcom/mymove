@@ -54,6 +54,8 @@ type Order struct {
 	Status                      OrderStatus                        `json:"status" db:"status"`
 	TAC                         *string                            `json:"tac" db:"tac"`
 	SAC                         *string                            `json:"sac" db:"sac"`
+	NtsTAC                      *string                            `json:"nts_tac" db:"nts_tac"`
+	NtsSAC                      *string                            `json:"nts_sac" db:"nts_sac"`
 	DepartmentIndicator         *string                            `json:"department_indicator" db:"department_indicator"`
 	Grade                       *string                            `json:"grade" db:"grade"`
 	Entitlement                 *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
