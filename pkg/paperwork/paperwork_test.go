@@ -25,9 +25,9 @@ type PaperworkSuite struct {
 	filesToClose []afero.File
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *PaperworkSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *PaperworkSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *PaperworkSuite) AfterTest() {

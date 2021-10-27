@@ -42,12 +42,11 @@ type SearchDutyStationsHandler struct {
 
 // Handle returns a list of stations based on the search query
 func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsParams) middleware.Responder {
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	stations, err := models.FindDutyStations(h.DB(), params.Search)
+	stations, err := models.FindDutyStations(appCtx.DB(), params.Search)
 	if err != nil {
-		logger.Error("Finding duty stations", zap.Error(err))
+		appCtx.Logger().Error("Finding duty stations", zap.Error(err))
 		return stationop.NewSearchDutyStationsInternalServerError()
 
 	}

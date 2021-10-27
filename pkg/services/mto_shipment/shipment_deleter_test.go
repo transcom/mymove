@@ -17,7 +17,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		shipmentDeleter := NewShipmentDeleter()
 		uuid := uuid.Must(uuid.NewV4())
 
-		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), uuid)
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), uuid)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -30,7 +30,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		move.Status = models.MoveStatusServiceCounselingCompleted
 		suite.MustSave(&move)
 
-		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 
 		suite.Error(err)
 		suite.IsType(apperror.ForbiddenError{}, err)
@@ -52,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			move.Status = validStatus.status
 			suite.MustSave(&move)
 
-			moveID, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
+			moveID, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 			suite.NoError(err)
 			// Verify that the shipment's Move ID is returned because the
 			// handler needs it to generate the TriggerEvent.
@@ -77,12 +77,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	suite.T().Run("Returns not found error when the shipment is already deleted", func(t *testing.T) {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 
 		suite.NoError(err)
 
 		// Try to delete the shipment a second time
-		_, err = shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
+		_, err = shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

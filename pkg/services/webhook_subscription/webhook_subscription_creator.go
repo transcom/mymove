@@ -1,6 +1,8 @@
 package webhooksubscription
 
 import (
+	"database/sql"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -23,7 +25,12 @@ func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext
 	// check to see if subscriber exists
 	fetchErr := o.builder.FetchOne(appCtx, &contractor, subscriberIDFilter)
 	if fetchErr != nil {
-		return nil, nil, apperror.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
+		switch fetchErr {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
+		default:
+			return nil, nil, apperror.NewQueryError("Contractor", fetchErr, "")
+		}
 	}
 
 	verrs, err = o.builder.CreateOne(appCtx, subscription)

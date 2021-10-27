@@ -14,17 +14,12 @@ type FakeDataSuite struct {
 	logger Logger
 }
 
-func (suite *FakeDataSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestFakeDataSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
 
 	hs := &FakeDataSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

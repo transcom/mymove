@@ -1,9 +1,12 @@
 package paymentrequest
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -29,7 +32,12 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(appCtx appcontext.AppContext
 		"ProofOfServiceDocs").
 		Find(&paymentRequest, paymentRequestID)
 	if err != nil {
-		return models.PaymentRequest{}, err
+		switch err {
+		case sql.ErrNoRows:
+			return models.PaymentRequest{}, apperror.NewNotFoundError(paymentRequestID, "looking for PaymentRequest")
+		default:
+			return models.PaymentRequest{}, apperror.NewQueryError("PaymentRequest", err, "")
+		}
 	}
 
 	// then fetch the uploads separately to omit soft deleted items

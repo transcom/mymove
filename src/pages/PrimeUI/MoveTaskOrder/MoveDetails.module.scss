@@ -12,9 +12,11 @@
 
   .shipmentHeader {
     @include u-display(flex);
-    align-items: flex-start;
+    @include u-margin-y(3);
+    align-items: center;
 
     h3 {
+      @include u-margin-bottom(0);
       flex-grow: 1;
     }
   }
@@ -23,5 +25,9 @@
     @include u-margin-bottom(1.5);
     display: flex;
     justify-content: space-between;
+  }
+
+  .flashContainer {
+    @include u-margin-top(2);
   }
 }

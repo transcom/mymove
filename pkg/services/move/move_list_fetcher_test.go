@@ -60,7 +60,7 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		moves, err := fetcher.FetchMoveList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		moves, err := fetcher.FetchMoveList(suite.AppContextForTest(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, moves[0].ID)
@@ -76,7 +76,7 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 
 		fetcher := NewMoveListFetcher(builder)
 
-		moves, err := fetcher.FetchMoveList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		moves, err := fetcher.FetchMoveList(suite.AppContextForTest(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

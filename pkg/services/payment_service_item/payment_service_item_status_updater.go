@@ -1,12 +1,12 @@
 package paymentserviceitem
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -49,13 +49,14 @@ func (p *paymentServiceItemUpdater) fetchPaymentServiceItem(appCtx appcontext.Ap
 	var paymentServiceItem models.PaymentServiceItem
 	err := appCtx.DB().EagerPreload("PaymentRequest").Find(&paymentServiceItem, paymentServiceItemID)
 	if err != nil {
-		// If we don't find a record let's return something that will cause a 404
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
+			// If we don't find a record let's return something that will cause a 404
 			return models.PaymentServiceItem{}, nil, apperror.NewNotFoundError(paymentServiceItemID,
 				"while looking for payment service item")
+		default:
+			return models.PaymentServiceItem{}, nil, apperror.NewQueryError("PaymentServiceItem", err, "")
 		}
-		// If it's something else let's still return the error variable (err)
-		return models.PaymentServiceItem{}, nil, err
 	}
 	return paymentServiceItem, nil, nil
 }

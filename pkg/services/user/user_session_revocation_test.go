@@ -52,7 +52,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -67,7 +67,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 			RevokeMilSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -90,7 +90,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		}
 
 		updater := NewUserSessionRevocation(builder)
-		_, _, err := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, _, err := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
@@ -126,7 +126,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -141,7 +141,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 			RevokeAdminSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -179,7 +179,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -194,7 +194,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 			RevokeOfficeSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -244,7 +244,7 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 		suite.Equal(officeExistsBefore, true)
 		suite.Equal(milExistsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
 		_, adminExistsAfter, _ := sessionStore.Find(adminSessionID)
 		_, officeExistsAfter, _ := sessionStore.Find(officeSessionID)
 		_, milExistsAfter, _ := sessionStore.Find(milSessionID)

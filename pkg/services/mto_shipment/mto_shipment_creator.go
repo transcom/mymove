@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/gofrs/uuid"
@@ -64,7 +65,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	// check if Move exists
 	err = f.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(moveID, "for move")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "for move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	for _, existingShipment := range move.MTOShipments {
@@ -90,7 +96,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			err = f.builder.FetchOne(appCtx, &reService, queryFilters)
 			if err != nil {
-				return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+				default:
+					return nil, apperror.NewQueryError("ReService", err, "")
+				}
 			}
 			// set re service for service item
 			serviceItem.ReServiceID = reService.ID

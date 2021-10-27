@@ -55,7 +55,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	newReweigh := oldReweigh
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	// Test Success - Reweigh updated
 	suite.T().Run("Updated reweigh - Success", func(t *testing.T) {

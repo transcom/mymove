@@ -14,6 +14,7 @@ import { ShipmentShape } from '../../../types/shipment';
 import { MTOServiceItemShape } from '../../../types';
 import ServiceItem from '../ServiceItem/ServiceItem';
 import Shipment from '../Shipment/Shipment';
+import { DatePickerInput } from '../../form/fields';
 
 import styles from './CreatePaymentRequestForm.module.scss';
 
@@ -57,40 +58,57 @@ const CreatePaymentRequestForm = ({
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
               <h2>Shipments</h2>
-              {mtoShipments?.map((mtoShipment) => {
-                return (
-                  <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
-                    <h2>Shipment Service Items</h2>
-                    <Checkbox
-                      id={`selectAll-${mtoShipment.id}`}
-                      name={`selectAll-${mtoShipment.id}`}
-                      label="Add all service items"
-                      onClick={(event) => handleSelectAll(mtoShipment.id, values, setValues, event)}
-                    />
-                    {groupedServiceItems[mtoShipment.id]?.map((mtoServiceItem) => {
-                      return (
-                        <SectionWrapper
-                          key={`shipmentServiceItems${mtoServiceItem.id}`}
-                          className={formStyles.formSection}
-                        >
-                          <div className={styles.serviceItemInputGroup}>
-                            <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
-                            <Field
-                              as={Checkbox}
-                              type="checkbox"
-                              name="serviceItems"
-                              value={mtoServiceItem.id}
-                              id={mtoServiceItem.id}
-                            />
-                          </div>
-                          <ServiceItem serviceItem={mtoServiceItem} />
-                        </SectionWrapper>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+              <>
+                {mtoShipments?.map((mtoShipment) => {
+                  return (
+                    <div key={mtoShipment.id}>
+                      <Shipment shipment={mtoShipment} />
+                      <h2>Shipment Service Items</h2>
+                      <Checkbox
+                        id={`selectAll-${mtoShipment.id}`}
+                        name={`selectAll-${mtoShipment.id}`}
+                        label="Add all service items"
+                        onClick={(event) => handleSelectAll(mtoShipment.id, values, setValues, event)}
+                      />
+                      {groupedServiceItems[mtoShipment.id]?.map((mtoServiceItem) => {
+                        return (
+                          <SectionWrapper
+                            key={`shipmentServiceItems${mtoServiceItem.id}`}
+                            className={formStyles.formSection}
+                          >
+                            <div className={styles.serviceItemInputGroup}>
+                              <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
+                              <Field
+                                as={Checkbox}
+                                type="checkbox"
+                                name="serviceItems"
+                                value={mtoServiceItem.id}
+                                id={mtoServiceItem.id}
+                              />
+                            </div>
+                            <ServiceItem serviceItem={mtoServiceItem} />
+                            {(mtoServiceItem.reServiceCode === 'DDASIT' ||
+                              mtoServiceItem.reServiceCode === 'DOASIT') && (
+                              <>
+                                <DatePickerInput
+                                  label="Payment start date"
+                                  id={`paymentStart-${mtoServiceItem.id}`}
+                                  name={`params.${mtoServiceItem.id}.SITPaymentRequestStart`}
+                                />
+                                <DatePickerInput
+                                  label="Payment end date"
+                                  id={`paymentEnd-${mtoServiceItem.id}`}
+                                  name={`params.${mtoServiceItem.id}.SITPaymentRequestEnd`}
+                                />
+                              </>
+                            )}
+                          </SectionWrapper>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </>
             </dl>
             <Button
               aria-label="Submit Payment Request"
