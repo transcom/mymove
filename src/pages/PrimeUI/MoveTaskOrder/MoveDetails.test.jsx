@@ -2,10 +2,9 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-
 import MoveDetails from './MoveDetails';
 
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { renderWithRouter } from 'testUtils';
 
 const mockUseHistoryPush = jest.fn();
