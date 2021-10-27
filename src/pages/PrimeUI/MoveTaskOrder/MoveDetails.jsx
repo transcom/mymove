@@ -68,7 +68,7 @@ const MoveDetails = () => {
                       <div className={styles.paymentRequestRow} key={paymentRequest.id}>
                         <div>{paymentRequest.paymentRequestNumber}</div>
                         <Link
-                          to={`payment-request/${paymentRequest.id}/upload`}
+                          to={`payment-requests/${paymentRequest.id}/upload`}
                           className="usa-button usa-button-secondary"
                         >
                           Upload Document
