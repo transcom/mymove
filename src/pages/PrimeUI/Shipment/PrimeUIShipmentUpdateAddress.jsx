@@ -119,7 +119,7 @@ const PrimeUIShipmentUpdateAddress = () => {
                   </Alert>
                 </div>
               )}
-              <h3>Update Shipment&apos;s Existing Addresses</h3>
+              <h3>Update Existing Pickup & Destination Address</h3>
               {editablePickupAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesPickupAddress}
