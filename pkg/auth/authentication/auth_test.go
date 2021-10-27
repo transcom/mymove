@@ -1091,3 +1091,40 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 	suite.NotEqual("", foundUser.CurrentAdminSessionID)
 }
+
+func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	// user is in office_users but has never logged into the app
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+			UserID: &user.ID,
+		},
+		User: user,
+	})
+
+	fakeToken := "some_token"
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          user.ID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov", OfficeTestHost), nil)
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	sessionManagers := setupSessionManagers()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	h := RedirectHandler{
+		authContext,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	req = req.WithContext(ctx)
+	h.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusTemporaryRedirect, rr.Code,
+		"handler returned wrong status code")
+}
