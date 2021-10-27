@@ -42,9 +42,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 	suite.T().Run("lookup GHC diesel fuel price successfully", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
 	})
@@ -88,9 +88,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		paramCache := NewServiceParamsCache()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), serviceItemParamKey1.Key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
 
@@ -109,9 +109,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 	})
 }

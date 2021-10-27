@@ -3,10 +3,10 @@ package internalapi
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -14,11 +14,11 @@ import (
 )
 
 // calculateMoveDates is used on the hhg wizard DatePicker page to show move dates summary
-func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (dates.MoveDatesSummary, error) {
+func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (dates.MoveDatesSummary, error) {
 	var summary dates.MoveDatesSummary
 
 	// FetchMoveForMoveDates will get all the required associations used below.
-	move, err := models.FetchMoveForMoveDates(appCtx.DB(), moveID)
+	move, err := models.FetchMoveForMoveDates(db, moveID)
 	if err != nil {
 		return summary, err
 	}
@@ -37,7 +37,7 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 	var source = move.Orders.ServiceMember.DutyStation.Address
 	var destination = move.Orders.NewDutyStation.Address
 
-	transitDistance, err := planner.TransitDistance(appCtx, &source, &destination)
+	transitDistance, err := planner.TransitDistance(&source, &destination)
 	if err != nil {
 		return summary, err
 	}

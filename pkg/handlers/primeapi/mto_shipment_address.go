@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -22,7 +23,8 @@ type UpdateMTOShipmentAddressHandler struct {
 
 // Handle updates an address on a shipment
 func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOShipmentAddressParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	// Get the params and payload
 	payload := params.Body
@@ -39,7 +41,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		appCtx.Logger().Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.PreconditionFailedError:
@@ -59,7 +61,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		// Unknown -> Internal Server Error

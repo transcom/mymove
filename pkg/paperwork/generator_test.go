@@ -59,19 +59,19 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	err = suite.DB().Load(&document, "UserUploads.Upload")
@@ -98,7 +98,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 		suite.FatalNil(err)
 	}
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.TestAppContext(), images)
 	suite.FatalNil(err, "failed to generate pdf")
 	aferoFile, err := generator.fs.Open(generatedPath)
 	suite.FatalNil(err, "afero failed to open pdf")
@@ -160,7 +160,7 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.TestAppContext(), images)
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
@@ -181,7 +181,7 @@ func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
 	_, err = suite.openLocalFile(images[1].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.TestAppContext(), images)
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
@@ -191,7 +191,7 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads)
+	paths, err := generator.ConvertUploadsToPDF(suite.TestAppContext(), uploads)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
@@ -202,7 +202,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	file, err := generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads)
+	file, err := generator.CreateMergedPDFUpload(suite.TestAppContext(), uploads)
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
@@ -220,7 +220,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	_, err = generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads)
+	_, err = generator.CreateMergedPDFUpload(suite.TestAppContext(), uploads)
 	suite.FatalNil(err)
 
 	//RA Summary: gosec - errcheck - Unchecked return value
@@ -231,7 +231,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
 	// nolint:errcheck
-	generator.Cleanup(suite.AppContextForTest())
+	generator.Cleanup(suite.TestAppContext())
 
 	fs := suite.userUploader.FileSystem()
 	exists, existsErr := fs.DirExists(generator.workDir)

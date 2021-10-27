@@ -16,7 +16,6 @@ const TableQueue = ({
   title,
   columns,
   manualSortBy,
-  manualFilters,
   disableMultiSort,
   defaultCanSort,
   disableSortBy,
@@ -83,7 +82,7 @@ const TableQueue = ({
         sortBy: defaultSortedColumns,
       },
       defaultColumn, // Be sure to pass the defaultColumn option
-      manualFilters,
+      manualFilters: true,
       manualPagination: true,
       pageCount,
       manualSortBy,
@@ -155,8 +154,6 @@ TableQueue.propTypes = {
   showPagination: PropTypes.bool,
   // manualSortBy should be enabled if doing sorting on the server side
   manualSortBy: PropTypes.bool,
-  // manualFilters should be enabled if doing filtering on the server side
-  manualFilters: PropTypes.bool,
   // disableMultiSort turns off keyboard selecting multiple columns to sort by
   disableMultiSort: PropTypes.bool,
   // defaultCanSort determines if all columns are by default sortable
@@ -173,7 +170,6 @@ TableQueue.defaultProps = {
   showFilters: false,
   showPagination: false,
   manualSortBy: false,
-  manualFilters: true,
   disableMultiSort: false,
   defaultCanSort: false,
   disableSortBy: true,

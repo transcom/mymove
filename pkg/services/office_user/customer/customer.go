@@ -27,7 +27,7 @@ func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uu
 		case sql.ErrNoRows:
 			return &models.ServiceMember{}, apperror.NewNotFoundError(customerID, "")
 		default:
-			return &models.ServiceMember{}, apperror.NewQueryError("ServiceMember", err, "")
+			return &models.ServiceMember{}, err
 		}
 	}
 	return customer, nil

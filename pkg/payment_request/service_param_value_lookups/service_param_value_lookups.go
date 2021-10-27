@@ -50,7 +50,7 @@ func ServiceParamLookupInitialize(
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
+			return nil, err
 		}
 	}
 
@@ -120,7 +120,7 @@ func ServiceParamLookupInitialize(
 			case sql.ErrNoRows:
 				return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 			default:
-				return nil, apperror.NewQueryError("MTOShipment", err, "")
+				return nil, err
 			}
 		}
 

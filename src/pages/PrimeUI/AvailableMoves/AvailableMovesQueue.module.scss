@@ -1,0 +1,10 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.PrimeSimulatorAvailableMoves {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+
+  background-color: $bg-gray;
+}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -50,14 +51,15 @@ type UpdateMTOServiceItemStatusHandler struct {
 
 // Handle handler that handles the handling for updating service item status
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.UpdateMTOServiceItemStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	existingMTOServiceItem := models.MTOServiceItem{}
 
 	mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
 	// return parsing errors
 	if err != nil {
 		parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
-		appCtx.Logger().Error(parsingError)
+		logger.Error(parsingError)
 		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
 
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
@@ -68,14 +70,14 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	err = h.Fetcher.FetchRecord(appCtx, &existingMTOServiceItem, filter)
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound()
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&existingMTOServiceItem, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(&existingMTOServiceItem, nil, logger, session, params.HTTPRequest)
 	if err != nil {
-		appCtx.Logger().Error("Auditing service error for service item update.", zap.Error(err))
+		logger.Error("Auditing service error for service item update.", zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
 
@@ -91,7 +93,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		default:
-			appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
+			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
 	}
@@ -103,11 +105,12 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		UpdatedObjectID: existingMTOServiceItem.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
+		DBConnection:    h.DB(),
 		HandlerContext:  h,
 	})
 
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
+		logger.Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
 	}
 
 	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
@@ -123,13 +126,14 @@ type ListMTOServiceItemsHandler struct {
 
 // Handle handler that lists mto service items for the move task order
 func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
 	if err != nil {
 		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
-		appCtx.Logger().Error(parsingError)
+		logger.Error(parsingError)
 		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
 
 		return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
@@ -143,7 +147,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	moveTaskOrder := &models.Move{}
 	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 	if err != nil {
-		appCtx.Logger().Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
+		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
 		return mtoserviceitemop.NewListMTOServiceItemsNotFound()
 	}
@@ -161,7 +165,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	err = h.ListFetcher.FetchRecordList(appCtx, &serviceItems, queryFilters, queryAssociations, nil, nil)
 	// return any errors
 	if err != nil {
-		appCtx.Logger().Error("Error fetching mto service items: ", zap.Error(err))
+		logger.Error("Error fetching mto service items: ", zap.Error(err))
 
 		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}

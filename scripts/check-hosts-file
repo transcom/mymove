@@ -8,9 +8,22 @@ function check_host () {
   host=$1
   host_line=$(grep "$host" /etc/hosts || true)
 
+  declare -A host_docs
+  host_docs=(
+    ["milmovelocal"]="setup-milmove-local-client"
+    ["officelocal"]="setup-office-local-client"
+    ["adminlocal"]="setup-admin-local-client"
+    ["orderslocal"]="setup-orders-gateway"
+    ["primelocal"]="setup-prime-api"
+  )
+
   if [ -z "${host_line}" ]; then
     # shellcheck disable=SC1117
-    echo "127.0.0.1 ${host}" | sudo tee -a /etc/hosts
+    echo -e "\033[0;33mPlease add ${host} to your hosts file using the command:\033[0m 'echo \"127.0.0.1 ${host}\" | sudo tee -a /etc/hosts'"
+    if [ "${host}" != engadminlocal ]; then
+      echo "More information at https://github.com/transcom/mymove#${host_docs[${host}]}"
+    fi
+    exit 1
   fi
 }
 

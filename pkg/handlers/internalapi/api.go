@@ -49,10 +49,10 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{ctx}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{ctx}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.DB(), ctx.Planner())}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{ctx}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{ctx}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.DB(), ctx.Planner())}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{ctx}
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{ctx}
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{ctx}
@@ -86,7 +86,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{ctx}
 	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{ctx,
-		movedocument.NewMoveDocumentUpdater(),
+		movedocument.NewMoveDocumentUpdater(ctx.DB()),
 	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{ctx}
 	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{ctx}
@@ -130,7 +130,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		ctx,
-		postalcodeservice.NewPostalCodeValidator(),
+		postalcodeservice.NewPostalCodeValidator(ctx.DB()),
 	}
 
 	// Access Codes

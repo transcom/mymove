@@ -35,7 +35,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
-	appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 	queryBuilder := query.NewQueryBuilder()
 
 	loginGovUUID := uuid.Must(uuid.NewV4())

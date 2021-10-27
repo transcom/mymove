@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 
 	"github.com/gobuffalo/validate/v3"
-	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -326,9 +326,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// happy path
 	returnedMoveDocument := models.MoveDocument{ID: moveDocument.ID}
 	moveDocumentUpdateHandler.On("Update",
-		mock.AnythingOfType("*appcontext.appContext"),
 		updateMoveDocPayload,
 		moveDocument.ID,
+		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
 	).Return(&returnedMoveDocument, validate.NewErrors(), nil).Once()
 
 	response := handler.Handle(updateMoveDocParams)
@@ -341,9 +341,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	expectedError := models.ErrFetchForbidden
 	returnedMoveDocument = models.MoveDocument{ID: moveDocument.ID}
 	moveDocumentUpdateHandler.On("Update",
-		mock.AnythingOfType("*appcontext.appContext"),
 		updateMoveDocPayload,
 		moveDocument.ID,
+		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
 	).Return(&returnedMoveDocument, validate.NewErrors(), expectedError).Once()
 
 	response = handler.Handle(updateMoveDocParams)

@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestMoveValidation() {
-	appCtx := suite.AppContextForTest()
+	appCtx := suite.TestAppContext()
 
 	suite.Run("checkMoveVisibility", func() {
 		show := true

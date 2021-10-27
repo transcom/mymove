@@ -78,10 +78,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		},
 	})
 
-	mtoHider := NewMoveTaskOrderHider()
+	mtoHider := NewMoveTaskOrderHider(suite.DB())
 
 	suite.RunWithRollback("valid MTO, none to hide", func() {
-		result, err := mtoHider.Hide(suite.AppContextForTest())
+		result, err := mtoHider.Hide()
 		suite.NoError(err)
 
 		suite.Len(result, 0)
@@ -92,7 +92,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		mtoAgent.FirstName = swag.String("Beyonce")
 		suite.MustSave(&mtoAgent)
 
-		result, err := mtoHider.Hide(suite.AppContextForTest())
+		result, err := mtoHider.Hide()
 		suite.NoError(err)
 
 		if suite.Len(result, 1) {

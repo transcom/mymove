@@ -17,8 +17,8 @@ type MoveTaskOrderServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *MoveTaskOrderServiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+func (suite *MoveTaskOrderServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestMoveTaskOrderServiceSuite(t *testing.T) {

@@ -71,17 +71,17 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	})
 
 	suite.T().Run("lookup origin ServicesSchedule", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), originKey)
 		suite.FatalNoError(err)
 		suite.Equal(strconv.Itoa(originDomesticServiceArea.ServicesSchedule), valueStr)
 	})
 
 	suite.T().Run("lookup dest ServicesSchedule", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), destKey)
 		suite.FatalNoError(err)
 		suite.Equal(strconv.Itoa(destDomesticServiceArea.ServicesSchedule), valueStr)
 	})
@@ -94,9 +94,9 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
 		expected := fmt.Sprintf(" with error unable to find domestic service area for 902 under contract code %s", ghcrateengine.DefaultContractCode)
@@ -111,9 +111,9 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
 		expected := fmt.Sprintf(" with error unable to find domestic service area for 945 under contract code %s", ghcrateengine.DefaultContractCode)

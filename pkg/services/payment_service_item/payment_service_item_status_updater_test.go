@@ -19,7 +19,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 
-		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
 			paymentServiceItem.ID, models.PaymentServiceItemStatusApproved, nil, eTag)
 
 		suite.NoError(err)
@@ -37,7 +37,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 
-		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
 			paymentServiceItem.ID, models.PaymentServiceItemStatusDenied, swag.String("reasons"), eTag)
 
 		suite.NoError(err)
@@ -56,7 +56,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		updater := NewPaymentServiceItemStatusUpdater()
 		wrongUUID, _ := uuid.NewV4()
 
-		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
 			wrongUUID, models.PaymentServiceItemStatusApproved, nil, eTag)
 
 		suite.Error(err)
@@ -69,7 +69,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		badETag := etag.GenerateEtag(testdatagen.DateInsidePerformancePeriod)
 		updater := NewPaymentServiceItemStatusUpdater()
 
-		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
 			paymentServiceItem.ID, models.PaymentServiceItemStatusApproved, nil, badETag)
 
 		suite.Error(err)
@@ -81,7 +81,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 
-		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+		_, _, err := updater.UpdatePaymentServiceItemStatus(suite.TestAppContext(),
 			paymentServiceItem.ID, models.PaymentServiceItemStatusDenied, nil, eTag)
 
 		suite.Error(err)

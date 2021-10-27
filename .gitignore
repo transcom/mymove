@@ -21,8 +21,8 @@ cypress/cypress
 /tmp
 /log
 
-# Ignore all compiled binary directories found anywhere in the project
-bin/
+# All compiled binaries
+/bin/
 
 # Ignore
 /docs/packages.txt
@@ -89,12 +89,3 @@ storybook-static
 .nix-disable
 .npmglobal
 .gopath
-
-# fresh-brew
-# The first two files are meant to be updated in the trussworks/fresh-brew repo
-# The lock files can be helpful to troubleshoot homebrew issues. They will
-# represent the last known good state.
-Brewfile
-pour.sh
-Brewfile.local.lock.json
-Brewfile.lock.json

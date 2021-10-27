@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -28,7 +29,8 @@ type IndexWebhookSubscriptionsHandler struct {
 
 // Handle retrieves a list of webhook subscriptions
 func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.IndexWebhookSubscriptionsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
@@ -38,12 +40,12 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	var webhookSubscriptions models.WebhookSubscriptions
 	err := h.ListFetcher.FetchRecordList(appCtx, &webhookSubscriptions, queryFilters, nil, pagination, ordering)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	totalWebhookSubscriptionsCount, err := h.ListFetcher.FetchRecordCount(appCtx, &webhookSubscriptions, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	queriedWebhookSubscriptionsCount := len(webhookSubscriptions)
@@ -66,14 +68,15 @@ type GetWebhookSubscriptionHandler struct {
 
 // Handle retrieves a webhook subscription
 func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWebhookSubscriptionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	webhookSubscriptionID := uuid.FromStringOrNil(params.WebhookSubscriptionID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 
 	webhookSubscription, err := h.WebhookSubscriptionFetcher.FetchWebhookSubscription(appCtx, queryFilters)
 
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := payloads.WebhookSubscriptionPayload(webhookSubscription)
@@ -89,7 +92,8 @@ type CreateWebhookSubscriptionHandler struct {
 
 // Handle creates an admin user
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	subscription := payloads.WebhookSubscriptionModelFromCreate(params.WebhookSubscription)
 	subscriberIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", subscription.SubscriberID),
@@ -98,19 +102,19 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(appCtx, subscription, subscriberIDFilter)
 
 	if verrs != nil {
-		appCtx.Logger().Error("Error saving webhook subscription", zap.Error(verrs))
+		logger.Error("Error saving webhook subscription", zap.Error(verrs))
 		return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
 	}
 
 	if err != nil {
-		appCtx.Logger().Error("Error saving webhook subscription", zap.Error(err))
+		logger.Error("Error saving webhook subscription", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return webhooksubscriptionop.NewCreateWebhookSubscriptionBadRequest()
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("adminapi.CreateWebhookSubscriptionHandler query error", zap.Error(e.Unwrap()))
+				logger.Error("adminapi.CreateWebhookSubscriptionHandler query error", zap.Error(e.Unwrap()))
 			}
 			return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
 		default:
@@ -131,7 +135,8 @@ type UpdateWebhookSubscriptionHandler struct {
 
 // Handle updates a webhook subscription
 func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.UpdateWebhookSubscriptionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.WebhookSubscription
 
 	// Checks that ID in body matches ID in query
@@ -152,16 +157,16 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	// Return error response if not successful
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			appCtx.Logger().Error("Error finding webhookSubscription to update")
+			logger.Error("Error finding webhookSubscription to update")
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
 		}
 		switch err.(type) {
 		case apperror.PreconditionFailedError:
-			appCtx.Logger().Error("Error updating webhookSubscription due to stale eTag")
+			logger.Error("Error updating webhookSubscription due to stale eTag")
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionPreconditionFailed()
 		default:
-			appCtx.Logger().Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-			return handlers.ResponseForError(appCtx.Logger(), err)
+			logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	}
 

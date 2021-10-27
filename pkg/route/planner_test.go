@@ -8,19 +8,13 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type PlannerSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *PlannerSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(nil, suite.logger, nil)
+	logger Logger
 }
 
 type PlannerFullSuite struct {
@@ -64,7 +58,7 @@ var realAddressDestination = models.Address{
 
 // TestAddressPlanner is an expensive test which calls out to the Bing API.
 func (suite *PlannerFullSuite) TestAddressPlanner() {
-	distance, err := suite.planner.TransitDistance(suite.AppContextForTest(), &realAddressSource, &realAddressDestination)
+	distance, err := suite.planner.TransitDistance(&realAddressSource, &realAddressDestination)
 	if err != nil {
 		suite.Fail("Failed to get distance from Planner", err)
 	}
@@ -94,7 +88,7 @@ func (suite *PlannerFullSuite) TestZip5DistanceLineHaul() {
 		{zip1: fillmoreCAZip, zip2: venturaCAZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
-		distance, err := suite.planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), ts.zip1, ts.zip2)
+		distance, err := suite.planner.Zip5TransitDistanceLineHaul(ts.zip1, ts.zip2)
 		if ts.distanceMax < 50 {
 			suite.NotNil(err, "Should get error from Zip5 not number")
 		} else {
@@ -122,7 +116,7 @@ func (suite *PlannerFullSuite) TestZip3Distance() {
 		{zip1: "902101234", zip2: caZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
-		distance, err := suite.planner.Zip3TransitDistance(suite.AppContextForTest(), ts.zip1, ts.zip2)
+		distance, err := suite.planner.Zip3TransitDistance(ts.zip1, ts.zip2)
 		if len(ts.zip1) > 5 {
 			suite.Error(err)
 			suite.Equal(distance, 0)

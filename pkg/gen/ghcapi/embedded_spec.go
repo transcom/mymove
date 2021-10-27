@@ -1223,78 +1223,6 @@ func init() {
         }
       ]
     },
-    "/moves/{moveID}/financial-review-flag": {
-      "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "move"
-        ],
-        "summary": "Flags a move for financial office review",
-        "operationId": "setFinancialReviewFlag",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "required": [
-                "remarks"
-              ],
-              "properties": {
-                "remarks": {
-                  "description": "explanation of why the move is being flagged for financial review",
-                  "type": "string",
-                  "example": "this address is way too far away"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated Move",
-            "schema": {
-              "$ref": "#/definitions/Move"
-            }
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move to flag",
-          "name": "moveID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -4144,19 +4072,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
-        },
-        "financialReviewFlag": {
-          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
-          "type": "boolean",
-          "x-nullable": false,
-          "readOnly": true,
-          "example": false
-        },
-        "financialReviewRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "Destination address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -7154,93 +7069,6 @@ func init() {
         }
       ]
     },
-    "/moves/{moveID}/financial-review-flag": {
-      "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "move"
-        ],
-        "summary": "Flags a move for financial office review",
-        "operationId": "setFinancialReviewFlag",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "required": [
-                "remarks"
-              ],
-              "properties": {
-                "remarks": {
-                  "description": "explanation of why the move is being flagged for financial review",
-                  "type": "string",
-                  "example": "this address is way too far away"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated Move",
-            "schema": {
-              "$ref": "#/definitions/Move"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move to flag",
-          "name": "moveID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -10454,19 +10282,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
-        },
-        "financialReviewFlag": {
-          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
-          "type": "boolean",
-          "x-nullable": false,
-          "readOnly": true,
-          "example": false
-        },
-        "financialReviewRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "Destination address is too far from duty location"
         },
         "id": {
           "type": "string",

@@ -35,7 +35,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 		}
 
 		updater := NewAdminUserUpdater(builder)
-		_, verrs, err := updater.UpdateAdminUser(suite.AppContextForTest(nil), newUUID, payload)
+		_, verrs, err := updater.UpdateAdminUser(suite.TestAppContext(), newUUID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 	})
@@ -56,7 +56,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 		}
 
 		updater := NewAdminUserUpdater(builder)
-		_, _, err := updater.UpdateAdminUser(suite.AppContextForTest(nil), newUUID, payload)
+		_, _, err := updater.UpdateAdminUser(suite.TestAppContext(), newUUID, payload)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 

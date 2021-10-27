@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
@@ -18,7 +17,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher()
 
 		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -42,7 +41,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -78,7 +77,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -92,10 +91,10 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 	suite.T().Run("if there is an error, we get it with zero payment request", func(t *testing.T) {
 		fetcher := NewPaymentRequestFetcher()
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), uuid.Nil)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), uuid.Nil)
 
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(err.Error(), models.RecordNotFoundErrorString)
 		suite.Equal(models.PaymentRequest{}, paymentRequest)
 	})
 }

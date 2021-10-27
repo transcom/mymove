@@ -55,14 +55,13 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	paymentRequest, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
+	paymentRequest, err := creator.CreatePaymentRequest(suite.TestAppContext(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	// Add a few proof of service docs and prime uploads.
@@ -100,7 +99,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Recalculate the payment request created above.
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
-	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
+	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
 	// Fetch the old payment request again -- status should have changed and it should no longer
@@ -296,7 +295,6 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("Zip3TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
@@ -308,7 +306,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), bogusPaymentRequestID)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -322,7 +320,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 				Status: models.PaymentRequestStatusPaid,
 			},
 		})
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paidPaymentRequest.ID)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.TestAppContext(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(apperror.ConflictError{}, err)
@@ -343,7 +341,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
+		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)
@@ -363,7 +361,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockStatusUpdater := NewPaymentRequestRecalculator(creator, mockStatusUpdater)
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
+		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.TestAppContext(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)

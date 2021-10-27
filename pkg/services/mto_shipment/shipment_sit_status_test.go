@@ -14,7 +14,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	suite.T().Run("returns nil when the shipment has no service items", func(t *testing.T) {
 		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), submittedShipment)
 		suite.Nil(sitStatus)
 	})
 
@@ -26,7 +26,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 		})
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 		suite.Nil(sitStatus)
 	})
 
@@ -51,7 +51,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{futureSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 		suite.Nil(sitStatus)
 	})
 
@@ -81,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
@@ -116,7 +116,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.NotNil(sitStatus)
 
@@ -169,7 +169,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDOPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.NotNil(sitStatus)
 
@@ -224,7 +224,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.NotNil(sitStatus)
 
@@ -279,7 +279,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.NotNil(sitStatus)
 
@@ -334,7 +334,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.TestAppContext(), approvedShipment)
 
 		suite.Nil(sitStatus)
 	})

@@ -40,7 +40,6 @@ func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(nex
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
-			dbc := db.WithContext(r.Context())
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
 				logger.Info("Unauthenticated")
@@ -52,7 +51,7 @@ func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(nex
 			hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 			hashString := hex.EncodeToString(hash[:])
 
-			clientCert, err := models.FetchClientCert(dbc, hashString)
+			clientCert, err := models.FetchClientCert(db, hashString)
 			if err != nil {
 				// This is not a known client certificate at all
 				logger.Info("Unknown / unregistered client certificate")

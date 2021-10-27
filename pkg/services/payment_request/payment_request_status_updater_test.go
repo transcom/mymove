@@ -21,7 +21,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(suite.AppContextForTest(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -47,7 +47,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(suite.AppContextForTest(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 	})
@@ -74,7 +74,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(suite.AppContextForTest(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -84,7 +84,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(suite.AppContextForTest(), &paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})

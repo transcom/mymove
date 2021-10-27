@@ -77,12 +77,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)

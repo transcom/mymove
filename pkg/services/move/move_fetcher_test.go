@@ -1,6 +1,7 @@
 package move
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -17,7 +18,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("successfully returns default draft move", func(t *testing.T) {
 		expectedMove := testdatagen.MakeDefaultMove(suite.DB())
 
-		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
+		actualMove, err := moveFetcher.FetchMove(suite.TestAppContext(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
 
 		suite.Equal(expectedMove.ID, actualMove.ID)
@@ -35,7 +36,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("successfully returns submitted move available to prime", func(t *testing.T) {
 		expectedMove := testdatagen.MakeAvailableMove(suite.DB())
 
-		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
+		actualMove, err := moveFetcher.FetchMove(suite.TestAppContext(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
 
 		suite.Equal(expectedMove.ID, actualMove.ID)
@@ -53,9 +54,9 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
-		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), "QX97UY", &defaultSearchParams)
+		_, err := moveFetcher.FetchMove(suite.TestAppContext(), "QX97UY", &defaultSearchParams)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.True(errors.Is(err, apperror.NotFoundError{}))
 	})
 
 	suite.T().Run("Returns not found for a move that is marked hidden in the db", func(t *testing.T) {
@@ -70,10 +71,10 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 			IncludeHidden: false,
 		}
 
-		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), locator, &searchParams)
+		_, err := moveFetcher.FetchMove(suite.TestAppContext(), locator, &searchParams)
 
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.True(errors.Is(err, apperror.NotFoundError{}))
 	})
 
 	suite.T().Run("Returns hidden move if explicit param is passed in", func(t *testing.T) {
@@ -88,7 +89,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 			IncludeHidden: true,
 		}
 
-		expectedMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), locator, &searchParams)
+		expectedMove, err := moveFetcher.FetchMove(suite.TestAppContext(), locator, &searchParams)
 
 		suite.FatalNoError(err)
 		suite.Equal(expectedMove.ID, actualMove.ID)

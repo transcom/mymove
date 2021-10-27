@@ -1,19 +1,21 @@
 package movedocument
 
 import (
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // moveDocumentUpdater implementation of MoveDocumentUpdater
 type moveDocumentUpdater struct {
+	db                    *pop.Connection
 	weightTicketUpdater   Updater
 	storageExpenseUpdater Updater
 	ppmCompleter          Updater
@@ -24,17 +26,18 @@ type moveDocumentUpdater struct {
 //Updater interface for individual document updaters
 //go:generate mockery --name Updater --disable-version-string
 type Updater interface {
-	Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error)
+	Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
 
 //NewMoveDocumentUpdater create NewMoveDocumentUpdater including expected updaters
-func NewMoveDocumentUpdater() services.MoveDocumentUpdater {
+func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 	mdsu := moveDocumentStatusUpdater{}
-	wtu := WeightTicketUpdater{mdsu}
-	su := StorageExpenseUpdater{mdsu}
-	ppmc := PPMCompleter{}
-	gu := GenericUpdater{}
+	wtu := WeightTicketUpdater{db, mdsu}
+	su := StorageExpenseUpdater{db, mdsu}
+	ppmc := PPMCompleter{db, mdsu}
+	gu := GenericUpdater{db, mdsu}
 	return &moveDocumentUpdater{
+		db:                        db,
 		weightTicketUpdater:       wtu,
 		storageExpenseUpdater:     su,
 		ppmCompleter:              ppmc,
@@ -44,7 +47,7 @@ func NewMoveDocumentUpdater() services.MoveDocumentUpdater {
 }
 
 //Update dispatches the various types of move documents to the appropriate Updater
-func (m moveDocumentUpdater) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID) (*models.MoveDocument, *validate.Errors, error) {
+func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	if moveDocumentPayload.MoveDocumentType == nil {
@@ -52,19 +55,19 @@ func (m moveDocumentUpdater) Update(appCtx appcontext.AppContext, moveDocumentPa
 	}
 	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
-	originalMoveDocument, err := models.FetchMoveDocument(appCtx.DB(), appCtx.Session(), moveDocID, false)
+	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID, false)
 	if err != nil {
 		return nil, returnVerrs, models.ErrFetchNotFound
 	}
 	switch {
 	case newType == models.MoveDocumentTypeEXPENSE && newExpenseType == models.MovingExpenseTypeSTORAGE:
-		return m.storageExpenseUpdater.Update(appCtx, moveDocumentPayload, originalMoveDocument)
+		return m.storageExpenseUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	case newType == models.MoveDocumentTypeWEIGHTTICKETSET:
-		return m.weightTicketUpdater.Update(appCtx, moveDocumentPayload, originalMoveDocument)
+		return m.weightTicketUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	case newType == models.MoveDocumentTypeSHIPMENTSUMMARY:
-		return m.ppmCompleter.Update(appCtx, moveDocumentPayload, originalMoveDocument)
+		return m.ppmCompleter.Update(moveDocumentPayload, originalMoveDocument, session)
 	default:
-		return m.genericUpdater.Update(appCtx, moveDocumentPayload, originalMoveDocument)
+		return m.genericUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	}
 }
 
@@ -73,7 +76,7 @@ type moveDocumentStatusUpdater struct {
 
 //UpdateMoveDocumentStatus attempt to transition a move document from one status to another.
 // Returns and error if the status transition is invalid
-func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	if moveDocumentPayload.MoveDocumentType == nil {
 		return nil, returnVerrs, errors.New("missing required field: MoveDocumentType")
@@ -94,9 +97,9 @@ func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(appCtx appcontext.
 	return moveDoc, returnVerrs, nil
 }
 
-func mergeMoveDocuments(appCtx appcontext.AppContext, ppmID uuid.UUID, moveDoc *models.MoveDocument, moveDocumentType models.MoveDocumentType, status models.MoveDocumentStatus) (models.MoveDocuments, error) {
+func mergeMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, moveDoc *models.MoveDocument, moveDocumentType models.MoveDocumentType, status models.MoveDocumentStatus) (models.MoveDocuments, error) {
 	// get all documents excluding new document merge in new updated document if status is correct
-	moveDocuments, err := models.FetchMoveDocuments(appCtx.DB(), appCtx.Session(), ppmID, &status, moveDocumentType, false)
+	moveDocuments, err := models.FetchMoveDocuments(db, session, ppmID, &status, moveDocumentType, false)
 	if err != nil {
 		return models.MoveDocuments{}, errors.New("mergeDocuments: unable to fetch move documents")
 	}

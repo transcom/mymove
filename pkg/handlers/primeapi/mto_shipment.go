@@ -32,12 +32,13 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	payload := params.Body
 
 	if payload == nil {
-		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
@@ -51,7 +52,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			verrs := validate.NewErrors()
 			verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
 
-			appCtx.Logger().Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
+			logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
 				detailErr, h.GetTraceID(), verrs))
 		}
@@ -62,7 +63,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
 	if verrs != nil && verrs.HasAny() {
-		appCtx.Logger().Error("Error validating mto service item list: ", zap.Error(verrs))
+		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
 		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
 			"The MTO service item list is invalid.", h.GetTraceID(), nil))
@@ -74,14 +75,14 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if mtoAvailableToPrime {
 		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, mtoServiceItemsList)
 	} else if err == nil {
-		appCtx.Logger().Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
+		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
 			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
 	}
 
 	// Could be the error from MTOAvailableToPrime or CreateMTOShipment:
 	if err != nil {
-		appCtx.Logger().Error("primeapi.CreateMTOShipmentHandler error", zap.Error(err))
+		logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -90,7 +91,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
@@ -109,12 +110,13 @@ type UpdateMTOShipmentHandler struct {
 
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
 
 	// Get the associated shipment from the database
 	var dbShipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("PickupAddress",
+	err := h.DB().EagerPreload("PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
@@ -126,7 +128,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	// Validate further prime restrictions on model
 	mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(appCtx, mtoShipment, &dbShipment)
 	if validationErrs != nil && validationErrs.HasAny() {
-		appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
 		errPayload := payloads.ValidationError("Invalid data found in input",
 			h.GetTraceID(), validationErrs)
@@ -134,10 +136,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
 	}
 
-	appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 	mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(appCtx, mtoShipment, params.IfMatch)
 	if err != nil {
-		appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -272,13 +274,14 @@ type UpdateMTOShipmentStatusHandler struct {
 
 // Handle handler that updates a mto shipment's status
 func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
 	availableToPrime, err := h.checker.MTOShipmentsMTOAvailableToPrime(appCtx, shipmentID)
 	if err != nil {
-		appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
@@ -295,7 +298,7 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 
 	shipment, err := h.updater.UpdateMTOShipmentStatus(appCtx, shipmentID, status, nil, eTag)
 	if err != nil {
-		appCtx.Logger().Error("UpdateMTOShipmentStatusStatus error: ", zap.Error(err))
+		logger.Error("UpdateMTOShipmentStatusStatus error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:

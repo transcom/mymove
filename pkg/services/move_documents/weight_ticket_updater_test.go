@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
-	wtu := WeightTicketUpdater{moveDocumentStatusUpdater{}}
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -79,7 +79,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -105,7 +105,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 }
 
 func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() {
-	wtu := WeightTicketUpdater{moveDocumentStatusUpdater{}}
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -214,14 +214,14 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 	}
 	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocOnePayload, originalMoveDocumentOne)
+	umd, verrs, err := wtu.Update(updateMoveDocOnePayload, originalMoveDocumentOne, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 
 	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
-	umd, verrs, err = wtu.Update(suite.AppContextForTest(session), updateMoveDocTwoPayload, originalMoveDocumentTwo)
+	umd, verrs, err = wtu.Update(updateMoveDocTwoPayload, originalMoveDocumentTwo, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -234,7 +234,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 }
 
 func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
-	wtu := WeightTicketUpdater{moveDocumentStatusUpdater{}}
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -301,7 +301,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -327,7 +327,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 }
 
 func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
-	wtu := WeightTicketUpdater{moveDocumentStatusUpdater{}}
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -395,7 +395,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -421,7 +421,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 }
 
 func (suite *MoveDocumentServiceSuite) TestMakeAndModelUpdate() {
-	wtu := WeightTicketUpdater{moveDocumentStatusUpdater{}}
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -493,7 +493,7 @@ func (suite *MoveDocumentServiceSuite) TestMakeAndModelUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)

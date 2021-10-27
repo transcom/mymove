@@ -128,7 +128,7 @@ type DatesSuite struct {
 func TestDatesSuite(t *testing.T) {
 
 	hs := &DatesSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

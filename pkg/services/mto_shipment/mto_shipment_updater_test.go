@@ -55,7 +55,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
@@ -64,7 +63,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("appcontext.AppContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -181,7 +180,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		})
 
-		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(suite.AppContextForTest(), existingShipment.ID)
+		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(suite.TestAppContext(), existingShipment.ID)
 
 		suite.NoError(err)
 
@@ -231,7 +230,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				},
 			})
 
-			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.TestAppContext(), &shipment, &session)
 
 			suite.NoError(err)
 
@@ -245,7 +244,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &mtoShipment, eTag)
+		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &mtoShipment, eTag)
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		// Verify that shipment recalculate was handled correctly
@@ -254,7 +253,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &mtoShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &mtoShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -279,7 +278,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Updater can handle optional queries set as nil", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &mtoShipment2, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &mtoShipment2, eTag)
 
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
@@ -308,7 +307,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
 		}
 
-		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), updatedShipment, eTag)
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
@@ -359,7 +358,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CounselorRemarks:                 &counselorRemarks,
 		}
 
-		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &updatedShipment, eTag)
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
@@ -415,7 +414,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CounselorRemarks:         &counselorRemarks,
 		}
 
-		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &updatedShipment, eTag)
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
@@ -465,7 +464,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -512,7 +511,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -548,7 +547,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Diversion: true,
 		}
 
-		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &shipmentInput, eTag)
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.TestAppContext(), &shipmentInput, eTag)
 
 		suite.Require().NotNil(updatedShipment)
 		suite.NoError(err)
@@ -606,7 +605,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
 		}
 
-		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &updatedShipment, eTag)
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
@@ -711,14 +710,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.TestAppContext()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -817,7 +815,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 		})
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipmentHeavy.ID, status, nil, shipmentHeavyEtag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipmentHeavy.ID, status, nil, shipmentHeavyEtag)
 		suite.NoError(err)
 		serviceItems := models.MTOServiceItems{}
 		_ = suite.DB().All(&serviceItems)
@@ -833,7 +831,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// or the Prime. This happens in the internal and prime API in the CreateMTOShipmentHandler. In that case,
 		// the handlers will call ShipmentRouter.Submit().
 		eTag = etag.GenerateEtag(draftShipment.UpdatedAt)
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), draftShipment.ID, "SUBMITTED", nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), draftShipment.ID, "SUBMITTED", nil, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -847,7 +845,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Rejecting a shipment in SUBMITTED status with a rejection reason should return no error", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment2.UpdatedAt)
 		rejectionReason := "Rejection reason"
-		returnedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment2.ID, "REJECTED", &rejectionReason, eTag)
+		returnedShipment, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment2.ID, "REJECTED", &rejectionReason, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(returnedShipment)
@@ -861,7 +859,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Rejecting a shipment with no rejection reason returns an InvalidInputError", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment3.UpdatedAt)
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment3.ID, "REJECTED", nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment3.ID, "REJECTED", nil, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -870,7 +868,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Rejecting a shipment in APPROVED status returns a ConflictStatusError", func(t *testing.T) {
 		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 		rejectionReason := "Rejection reason"
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), approvedShipment.ID, "REJECTED", &rejectionReason, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), approvedShipment.ID, "REJECTED", &rejectionReason, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -878,7 +876,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Approving a shipment in REJECTED status returns a ConflictStatusError", func(t *testing.T) {
 		eTag = etag.GenerateEtag(rejectedShipment.UpdatedAt)
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), rejectedShipment.ID, "APPROVED", nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), rejectedShipment.ID, "APPROVED", nil, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -887,7 +885,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
 		staleETag := etag.GenerateEtag(time.Now())
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment4.ID, "APPROVED", nil, staleETag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment4.ID, "APPROVED", nil, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -896,7 +894,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Passing in an invalid status returns a ConflictStatus error", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment4.UpdatedAt)
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment4.ID, "invalid", nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment4.ID, "invalid", nil, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -905,7 +903,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), badShipmentID, "APPROVED", nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), badShipmentID, "APPROVED", nil, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -922,7 +920,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		suite.Nil(shipment5.ApprovedDate)
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
 
 		suite.NoError(err)
 		suite.DB().Find(&shipment5, shipment5.ID)
@@ -942,7 +940,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		suite.Nil(shipment6.ApprovedDate)
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment6.ID, models.MTOShipmentStatusRejected, &rejectionReason, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), shipment6.ID, models.MTOShipmentStatusRejected, &rejectionReason, eTag)
 
 		suite.NoError(err)
 		suite.DB().Find(&shipment6, shipment6.ID)
@@ -955,7 +953,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mtoShipment := submittedMTO.MTOShipments[0]
 		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), mtoShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(suite.TestAppContext(), mtoShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
 		suite.DB().Find(&mtoShipment, mtoShipment.ID)
 
 		suite.Nil(updatedShipment)
@@ -975,7 +973,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(approvedShipment2.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), approvedShipment2.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
+			suite.TestAppContext(), approvedShipment2.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
 		suite.DB().Find(&approvedShipment2, approvedShipment2.ID)
 
 		suite.NoError(err)
@@ -994,7 +992,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(cancellationRequestedShipment.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), cancellationRequestedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+			suite.TestAppContext(), cancellationRequestedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
 		suite.DB().Find(&cancellationRequestedShipment, cancellationRequestedShipment.ID)
 
 		suite.NoError(err)
@@ -1007,7 +1005,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), approvedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+			suite.TestAppContext(), approvedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
 		suite.DB().Find(&approvedShipment, approvedShipment.ID)
 
 		suite.Error(err)
@@ -1026,7 +1024,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(shipmentToDivert.UpdatedAt)
 
 		_, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), shipmentToDivert.ID, models.MTOShipmentStatusDiversionRequested, nil, eTag)
+			suite.TestAppContext(), shipmentToDivert.ID, models.MTOShipmentStatusDiversionRequested, nil, eTag)
 		suite.DB().Find(&shipmentToDivert, shipmentToDivert.ID)
 
 		suite.NoError(err)
@@ -1046,7 +1044,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(diversionRequestedShipment.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), diversionRequestedShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+			suite.TestAppContext(), diversionRequestedShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedShipment)
@@ -1082,14 +1080,14 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("appcontext.AppContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
 	updater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
-		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.AppContextForTest(), primeShipment.ID)
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), primeShipment.ID)
 		suite.True(isAvailable)
 		suite.NoError(err)
 
@@ -1098,10 +1096,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	})
 
 	suite.T().Run("Shipment exists but is not available to Prime - failure", func(t *testing.T) {
-		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.AppContextForTest(), nonPrimeShipment.ID)
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), nonPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1109,10 +1107,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	})
 
 	suite.T().Run("Shipment exists, is available, but move is disabled - failure", func(t *testing.T) {
-		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.AppContextForTest(), hiddenPrimeShipment.ID)
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), hiddenPrimeShipment.ID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1121,10 +1119,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 
 	suite.T().Run("Shipment does not exist - failure", func(t *testing.T) {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.AppContextForTest(), badUUID)
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.False(isAvailable)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
 
 		// Verify that shipment recalculate was handled correctly
@@ -1140,7 +1138,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("appcontext.AppContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -1169,7 +1167,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 		suite.Equal(models.MoveStatusAPPROVED, primeShipment.MoveTaskOrder.Status)
 
-		_, err := updater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := updater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		err = suite.DB().Reload(&primeShipment.MoveTaskOrder)
@@ -1208,7 +1206,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
-		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
@@ -1242,7 +1240,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
-		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
@@ -1260,7 +1258,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("appcontext.AppContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
@@ -1286,7 +1284,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		primeShipment.Status = ""
 		primeShipment.PrimeActualWeight = &actualWeight
 
-		_, err := updater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := updater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&primeShipment)
@@ -1325,7 +1323,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
 
-		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")
@@ -1357,7 +1355,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		primeShipment.Status = ""
 		primeShipment.PrimeActualWeight = &actualWeight
 
-		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.AppContextForTest(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(suite.TestAppContext(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(t, "CheckAutoReweigh")

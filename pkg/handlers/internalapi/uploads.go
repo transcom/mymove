@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -41,20 +42,24 @@ type CreateUploadHandler struct {
 
 // Handle creates a new UserUpload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+
+	ctx := params.HTTPRequest.Context()
+
+	session, logger := h.SessionAndLoggerFromContext(ctx)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
-		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	appCtx.Logger().Info(
+	logger.Info(
 		"File uploader and size",
-		zap.String("userID", appCtx.Session().UserID.String()),
-		zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
-		zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
-		zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+		zap.String("userID", session.UserID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
 		zap.Int64("size", file.Header.Size),
 	)
 
@@ -62,21 +67,21 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	if params.DocumentID != nil {
 		documentID, err := uuid.FromString(params.DocumentID.String())
 		if err != nil {
-			appCtx.Logger().Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+			logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 			return uploadop.NewCreateUploadBadRequest()
 		}
 
 		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
+		document, docErr := models.FetchDocument(h.DB(), session, documentID, true)
 		if docErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), docErr)
+			return handlers.ResponseForError(logger, docErr)
 		}
 		docID = &document.ID
 	}
 
 	newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
 		appCtx,
-		appCtx.Session().UserID,
+		session.UserID,
 		h.FileStorer(),
 		file,
 		file.Header.Filename,
@@ -85,7 +90,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	)
 
 	if verrs.HasAny() || createErr != nil {
-		appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+		logger.Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 		switch createErr.(type) {
 		case uploaderpkg.ErrTooLarge:
 			return uploadop.NewCreateUploadRequestEntityTooLarge()
@@ -94,7 +99,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		case uploaderpkg.ErrFailedToInitUploader:
 			return uploadop.NewCreateUploadInternalServerError()
 		default:
-			return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr)
+			return handlers.ResponseForVErrors(logger, verrs, createErr)
 		}
 	}
 
@@ -109,20 +114,21 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
+	userUpload, err := models.FetchUserUploadFromUploadID(h.DB(), session, uploadID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
 	if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -136,21 +142,22 @@ type DeleteUploadsHandler struct {
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
 
 	for _, uploadID := range params.UploadIds {
 		uploadUUID, _ := uuid.FromString(uploadID.String())
-		userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadUUID)
+		userUpload, err := models.FetchUserUploadFromUploadID(h.DB(), session, uploadUUID)
 		if err != nil {
-			return handlers.ResponseForError(appCtx.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 
 		if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
-			return handlers.ResponseForError(appCtx.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 	}
 

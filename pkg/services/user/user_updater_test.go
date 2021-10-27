@@ -45,7 +45,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	builder := query.NewQueryBuilder()
 	officeUserUpdater := officeUser.NewOfficeUserUpdater(builder)
 	adminUserUpdater := adminUser.NewAdminUserUpdater(builder)
-	appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 
 	active := true
 	inactive := false

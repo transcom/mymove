@@ -4,8 +4,6 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appcontext "github.com/transcom/mymove/pkg/appcontext"
-
 	services "github.com/transcom/mymove/pkg/services"
 )
 
@@ -14,13 +12,13 @@ type MoveTaskOrderHider struct {
 	mock.Mock
 }
 
-// Hide provides a mock function with given fields: appCtx
-func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.HiddenMoves, error) {
-	ret := _m.Called(appCtx)
+// Hide provides a mock function with given fields:
+func (_m *MoveTaskOrderHider) Hide() (services.HiddenMoves, error) {
+	ret := _m.Called()
 
 	var r0 services.HiddenMoves
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) services.HiddenMoves); ok {
-		r0 = rf(appCtx)
+	if rf, ok := ret.Get(0).(func() services.HiddenMoves); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(services.HiddenMoves)
@@ -28,8 +26,8 @@ func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidde
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
-		r1 = rf(appCtx)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

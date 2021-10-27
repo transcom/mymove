@@ -1,7 +1,6 @@
 package invoice
 
 import (
-	"database/sql"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -53,12 +52,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
-			default:
-				return ediinvoice.Invoice858C{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error")
 			}
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error")
 		}
 	} else {
 		moveTaskOrder = paymentRequest.MoveTaskOrder
@@ -73,12 +70,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		err := appCtx.DB().
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
-			default:
-				return ediinvoice.Invoice858C{}, apperror.NewQueryError("Orders", err, "Unexpected error")
 			}
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("Orders", err, "Unexpected error")
 		}
 	}
 
@@ -88,12 +83,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 			Load(&moveTaskOrder.Orders, "ServiceMember")
 
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
-			default:
-				return ediinvoice.Invoice858C{}, apperror.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
 			}
+			return ediinvoice.Invoice858C{}, apperror.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
 		}
 	}
 
@@ -184,12 +177,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if err.Error() == models.RecordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
-		default:
-			return ediinvoice.Invoice858C{}, apperror.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
 		}
+		return ediinvoice.Invoice858C{}, apperror.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
 	}
 
 	edi858.Header.ContractCode = edisegment.N9{
@@ -210,12 +201,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		Where("status = ?", models.PaymentServiceItemStatusApproved).
 		All(&paymentServiceItems)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if err.Error() == models.RecordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(paymentRequest.ID, "for payment service items in PaymentRequest")
-		default:
-			return ediinvoice.Invoice858C{}, apperror.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 		}
+		return ediinvoice.Invoice858C{}, apperror.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 	}
 
 	// Add C3 segment here
@@ -329,12 +318,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 		Order("msi.created_at").
 		All(&shipments)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if err.Error() == models.RecordNotFoundErrorString {
 			return apperror.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
-		default:
-			return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 		}
+		return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 	}
 
 	// If no shipments, then just return because we will not have access to the dates.
@@ -592,12 +579,10 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx a
 		Where("sk.key = ?", key).
 		First(&paymentServiceItemParam)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if err.Error() == models.RecordNotFoundErrorString {
 			return models.PaymentServiceItemParam{}, apperror.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
-		default:
-			return models.PaymentServiceItemParam{}, apperror.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 		}
+		return models.PaymentServiceItemParam{}, apperror.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
 	return paymentServiceItemParam, nil
 }

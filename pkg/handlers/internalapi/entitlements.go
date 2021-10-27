@@ -52,21 +52,21 @@ type ValidateEntitlementHandler struct {
 
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Fetch move, orders, serviceMember and PPM
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, orders.ServiceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
@@ -87,10 +87,10 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 
 	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	if weightEstimate > int64(smEntitlement) {
-		return handlers.ResponseForConflictErrors(appCtx.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
+		return handlers.ResponseForConflictErrors(logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
 
 	return entitlementop.NewValidateEntitlementOK()

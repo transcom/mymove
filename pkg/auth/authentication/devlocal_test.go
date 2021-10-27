@@ -231,7 +231,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 		query.NewQueryFilter("email", "=", user.LoginGovEmail),
 	}
 
-	if err := queryBuilder.FetchOne(suite.AppContextForTest(nil), &adminUser, filters); err != nil {
+	if err := queryBuilder.FetchOne(suite.TestAppContext(), &adminUser, filters); err != nil {
 		t.Error("Couldn't find admin user record")
 	}
 
@@ -287,7 +287,6 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
-	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
@@ -458,7 +457,6 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
-	testdatagen.MakePPMOfficeRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234

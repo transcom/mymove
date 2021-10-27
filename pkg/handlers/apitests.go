@@ -46,9 +46,9 @@ func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *BaseHandlerTestSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+// TestAppContext returns the AppContext for the test suite
+func (suite *BaseHandlerTestSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests

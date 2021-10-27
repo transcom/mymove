@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -22,36 +23,37 @@ type ShowPPMIncentiveHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	if !appCtx.Session().IsOfficeUser() {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
+	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	engine := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
+	engine := rateengine.NewRateEngine(h.DB(), logger, move)
 
 	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginZip, destinationZip)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginZip, destinationZip)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyStationZip, destinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginDutyStationZip, destinationZip)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	costDetails, err := engine.ComputePPMMoveCosts(
@@ -65,7 +67,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		0, // We don't want any SIT charges
 	)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	cost := rateengine.GetWinningCostMove(costDetails)

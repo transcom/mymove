@@ -19,27 +19,28 @@ type GetOrdersByIssuerAndOrdersNumHandler struct {
 func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.GetOrdersByIssuerAndOrdersNumParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+
+	logger := h.LoggerFromContext(ctx)
 
 	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
 	}
 	if !verifyOrdersReadAccess(models.Issuer(params.Issuer), clientCert) {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read orders from this issuer"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read orders from this issuer"))
 	}
 
-	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(appCtx.DB(), params.Issuer, params.OrdersNum)
+	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(h.DB(), params.Issuer, params.OrdersNum)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	return ordersoperations.NewGetOrdersByIssuerAndOrdersNumOK().WithPayload(ordersPayload)

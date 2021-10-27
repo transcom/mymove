@@ -3,8 +3,6 @@ package move
 import (
 	"database/sql"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -33,9 +31,9 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.Move{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+			return &models.Move{}, apperror.NotFoundError{}
 		default:
-			return &models.Move{}, apperror.NewQueryError("Move", err, "")
+			return &models.Move{}, err
 		}
 	}
 

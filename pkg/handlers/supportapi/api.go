@@ -53,7 +53,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler = HideNonFakeMoveTaskOrdersHandlerFunc{
 		ctx,
-		movetaskorder.NewMoveTaskOrderHider(),
+		movetaskorder.NewMoveTaskOrderHider(ctx.DB()),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
@@ -97,7 +97,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(),
 		// Unable to get logger to pass in for the instantiation of
-		// paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx.DB(), appCtx.Logger(), true),
+		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
 		// This limitation has come up a few times
 		// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
 		// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600

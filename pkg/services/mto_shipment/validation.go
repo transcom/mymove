@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/gobuffalo/validate/v3"
@@ -63,12 +62,10 @@ func checkAvailToPrime() validator {
 			Where("show = TRUE").
 			First(&move)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+			if err.Error() == models.RecordNotFoundErrorString {
 				return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
-			default:
-				return apperror.NewQueryError("Move", err, "Unexpected error")
 			}
+			return apperror.NewQueryError("mtoShipments", err, "Unexpected error")
 		}
 		return nil
 	})

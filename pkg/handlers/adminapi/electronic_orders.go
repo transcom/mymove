@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -35,7 +36,8 @@ type IndexElectronicOrdersHandler struct {
 
 // Handle returns an index of electronic orders
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
@@ -43,12 +45,12 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 
 	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCtx, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	queriedOfficeUsersCount := len(electronicOrders)
@@ -93,7 +95,8 @@ func translateComparator(s string) string {
 
 // Handle returns electronic orders totals
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	comparator := ""
 
 	andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
@@ -126,7 +129,7 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 
 	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCtx, queryFilters, &andQueryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	payload := adminmessages.ElectronicOrdersTotals{}
 	for key, count := range counts {

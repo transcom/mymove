@@ -114,7 +114,7 @@ func main() {
 	}
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
 	edi858c, err := generator.Generate(appCtx, paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

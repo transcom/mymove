@@ -60,7 +60,3 @@ export function updatePrimeMTOShipment({
     { schemaKey, normalize },
   );
 }
-
-export function createServiceItem({ body }) {
-  return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
-}

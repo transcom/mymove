@@ -15,9 +15,13 @@ type ReweighSuite struct {
 	logger *zap.Logger
 }
 
+func (suite *ReweighSuite) SetupTest() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
+}
 func TestReweighServiceSuite(t *testing.T) {
 	ts := &ReweighSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

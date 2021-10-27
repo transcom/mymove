@@ -60,8 +60,6 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
 		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
 		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
-		FinancialReviewFlag:          move.FinancialReviewFlag,
-		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 	}
 
 	return payload

@@ -43,7 +43,7 @@ func TestInvoiceSuite(t *testing.T) {
 	v.AutomaticEnv()
 
 	hs := &InvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		Viper:        v,
 	}

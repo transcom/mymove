@@ -16,7 +16,7 @@ if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   PKCS11=/nix/var/nix/profiles/mymove/bin/pkcs11-tool
   PKCS15=/nix/var/nix/profiles/mymove/bin/pkcs15-tool
 else
-  INSTALL_MSG="make prereqs"
+  INSTALL_MSG="brew install --cask opensc"
   PKCS11=/usr/local/bin/pkcs11-tool
   PKCS15=/usr/local/bin/pkcs15-tool
 fi

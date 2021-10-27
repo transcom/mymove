@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -34,8 +36,9 @@ type Event struct {
 	MtoID           uuid.UUID               // This is the ID of the MTO that the object is associated with
 	UpdatedObjectID uuid.UUID               // This is the ID of the object itself (PaymentRequest.ID)
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
+	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          *zap.Logger
+	logger          *zap.Logger             // The logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -186,8 +189,8 @@ func TriggerEvent(event Event) (*Event, error) {
 		err := apperror.NewEventError(fmt.Sprintf("Event Key %s was not found in eventModels. Must use known event key.", event.EventKey), nil)
 		return nil, err
 	}
-	// Check that Request and context were passed in
-	if event.Request == nil || event.HandlerContext == nil {
+	// Check that DB and context were passed in
+	if event.DBConnection == nil || event.HandlerContext == nil {
 		err := apperror.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
 		return nil, err
 	}
@@ -200,8 +203,13 @@ func TriggerEvent(event Event) (*Event, error) {
 		}
 	}
 
-	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
-	event.logger = appCtx.Logger()
+	// Get logger from HandlerContext
+	clientCert := authentication.ClientCertFromRequestContext(event.Request)
+	if clientCert != nil {
+		event.logger = event.HandlerContext.LoggerFromRequest(event.Request)
+	} else {
+		_, event.logger = event.HandlerContext.SessionAndLoggerFromRequest(event.Request)
+	}
 
 	// Call each registered event handler with the event info and context
 	// Collect errors, this is to avoid one registered handler failure to

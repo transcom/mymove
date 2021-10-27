@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,25 +20,26 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	appCtx.Logger().Info("got ppm id: ", zap.Any("id", ppmID))
+	logger.Info("got ppm id: ", zap.Any("id", ppmID))
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	err = appCtx.DB().Load(ppm, "Move.Orders.UploadedOrders.UserUploads.Upload")
+	err = h.DB().Load(ppm, "Move.Orders.UploadedOrders.UserUploads.Upload")
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	moveDocs, err := ppm.FetchMoveDocumentsForTypes(appCtx.DB(), params.DocTypes)
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.DB(), params.DocTypes)
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
@@ -45,24 +47,24 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Init our tools
 	loader, err := uploader.NewUserUploader(h.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 	if err != nil {
-		appCtx.Logger().Error("could not instantiate uploader", zap.Error(err))
+		logger.Error("could not instantiate uploader", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 	generator, err := paperwork.NewGenerator(loader.Uploader())
 	if err != nil {
-		appCtx.Logger().Error("failed to initialize generator", zap.Error(err))
+		logger.Error("failed to initialize generator", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 	defer func() {
 		if cleanupErr := generator.Cleanup(appCtx); cleanupErr != nil {
-			appCtx.Logger().Error("failed to cleanup", zap.Error(cleanupErr))
+			logger.Error("failed to cleanup", zap.Error(cleanupErr))
 		}
 	}()
 
 	// Start with uploaded orders info
-	uploads, err := models.UploadsFromUserUploads(appCtx.DB(), ppm.Move.Orders.UploadedOrders.UserUploads)
+	uploads, err := models.UploadsFromUserUploads(h.DB(), ppm.Move.Orders.UploadedOrders.UserUploads)
 	if err != nil {
-		appCtx.Logger().Error("failed to get uploads for Orders.UploadedOrders", zap.Error(err))
+		logger.Error("failed to get uploads for Orders.UploadedOrders", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsFailedDependency()
 	}
 
@@ -70,7 +72,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	for _, moveDoc := range moveDocs {
 		moveDocUploads, moveDocUploadsErr := models.UploadsFromUserUploadsNoDatabase(moveDoc.Document.UserUploads)
 		if moveDocUploadsErr != nil {
-			appCtx.Logger().Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(moveDocUploadsErr))
+			logger.Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(moveDocUploadsErr))
 			return ppmop.NewCreatePPMAttachmentsFailedDependency()
 		}
 		uploads = append(uploads, moveDocUploads...)
@@ -82,7 +84,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Convert to PDF and merge into single PDF
 	mergedPdf, err := generator.CreateMergedPDFUpload(appCtx, uploads)
 	if err != nil {
-		appCtx.Logger().Error("failed to merge PDF files", zap.Error(err))
+		logger.Error("failed to merge PDF files", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
@@ -90,19 +92,19 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
 	// UserUpload merged PDF to S3 and return UserUpload object
-	pdfUpload, verrs, err := loader.CreateUserUpload(appCtx, appCtx.Session().UserID, file, uploader.AllowedTypesPDF)
+	pdfUpload, verrs, err := loader.CreateUserUpload(appCtx, session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:
 			return ppmop.NewCreatePPMAttachmentsRequestEntityTooLarge()
 		default:
-			return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			return handlers.ResponseForVErrors(logger, verrs, err)
 		}
 	}
 
 	url, err := loader.PresignedURL(appCtx, pdfUpload)
 	if err != nil {
-		appCtx.Logger().Error("failed to get presigned url", zap.Error(err))
+		logger.Error("failed to get presigned url", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 

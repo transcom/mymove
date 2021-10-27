@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -29,10 +30,11 @@ type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("user is not authenticated with TOO office role")
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("user is not authenticated with TOO office role")
 		return queues.NewGetMovesQueueForbidden()
 	}
 
@@ -61,12 +63,12 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	moves, count, err := h.OrderFetcher.ListOrders(
 		appCtx,
-		appCtx.Session().OfficeUserID,
+		session.OfficeUserID,
 		&ListOrderParams,
 	)
 
 	if err != nil {
-		appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
+		logger.Error("error fetching list of moves for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
@@ -91,9 +93,10 @@ type GetPaymentRequestsQueueHandler struct {
 // Handle returns the paginated list of payment requests for the TIO user
 func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+	if !session.Roles.HasRole(roles.RoleTypeTIO) {
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
@@ -123,11 +126,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 
 	paymentRequests, count, err := h.FetchPaymentRequestList(
 		appCtx,
-		appCtx.Session().OfficeUserID,
+		session.OfficeUserID,
 		&listPaymentRequestParams,
 	)
 	if err != nil {
-		appCtx.Logger().Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
+		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
 		return queues.NewGetPaymentRequestsQueueInternalServerError()
 	}
 
@@ -151,10 +154,11 @@ type GetServicesCounselingQueueHandler struct {
 
 // Handle returns the paginated list of moves for the TOO user
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		appCtx.Logger().Error("user is not authenticated with an office role")
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		logger.Error("user is not authenticated with an office role")
 		return queues.NewGetServicesCounselingQueueForbidden()
 	}
 
@@ -191,12 +195,12 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 
 	moves, count, err := h.OrderFetcher.ListOrders(
 		appCtx,
-		appCtx.Session().OfficeUserID,
+		session.OfficeUserID,
 		&ListOrderParams,
 	)
 
 	if err != nil {
-		appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
+		logger.Error("error fetching list of moves for office user", zap.Error(err))
 		return queues.NewGetServicesCounselingQueueInternalServerError()
 	}
 

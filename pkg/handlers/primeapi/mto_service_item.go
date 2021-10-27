@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
@@ -41,7 +42,8 @@ type CreateMTOServiceItemHandler struct {
 
 // Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	// restrict creation to a list
 	if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
@@ -51,7 +53,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
 
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
+		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			detailErr, h.GetTraceID(), verrs))
 	}
@@ -75,7 +77,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
 		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
 	} else if err == nil {
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
+		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
 			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
 	}
@@ -87,7 +89,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	// Could be the error from MTOAvailableToPrime or CreateMTOServiceItem:
 	if err != nil {
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
+		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -98,7 +100,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
@@ -118,7 +120,8 @@ type UpdateMTOServiceItemHandler struct {
 
 // Handle handler that updates an MTOServiceItem. Only a limited number of service items and fields may be updated.
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
 	if verrs != nil && verrs.HasAny() {
@@ -130,7 +133,7 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, eTag)
 
 	if err != nil {
-		appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -143,7 +146,7 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.UpdateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:

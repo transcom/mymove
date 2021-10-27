@@ -1288,31 +1288,28 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "94535").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
+	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"90210", "90211").Return(3, nil).Times(7)
+	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(5)
+	planner.On("Zip3TransitDistance", "90210", "90211").Return(348, nil).Times(5)
 
 	// called for domestic origin SIT pickup service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "90210").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -1719,17 +1716,14 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)
 	planner.On("Zip3TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(910, nil)
 	planner.On("Zip5TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)

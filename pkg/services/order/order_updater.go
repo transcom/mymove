@@ -1,7 +1,6 @@
 package order
 
 import (
-	"database/sql"
 	"io"
 	"strings"
 	"time"
@@ -9,6 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -119,11 +119,8 @@ func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
-		default:
-			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 
@@ -134,11 +131,8 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
-		default:
-			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 
@@ -457,12 +451,9 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		// TODO refactor to use service objects to fetch duty station
 		var originDutyStation models.DutyStation
 		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 				return nil, apperror.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
-			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
 		order.OriginDutyStationID = &originDutyStation.ID
@@ -491,12 +482,9 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		// TODO refactor to use service objects to fetch duty station
 		var newDutyStation models.DutyStation
 		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
+		if e := handleError(order.ID, verrs, err); e != nil {
+			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 				return nil, apperror.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
-			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
 		order.NewDutyStationID = newDutyStation.ID

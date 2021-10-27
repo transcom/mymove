@@ -25,7 +25,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", subscriber.ID)}
 
 		creator := NewWebhookSubscriptionCreator(queryBuilder)
-		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo, filter)
+		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.TestAppContext(), &webhookSubscriptionInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(webhookSubscription.ID)
@@ -38,7 +38,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
 
 		creator := NewWebhookSubscriptionCreator(queryBuilder)
-		_, _, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo, filter)
+		_, _, err := creator.CreateWebhookSubscription(suite.TestAppContext(), &webhookSubscriptionInfo, filter)
 		suite.Error(err)
 		suite.Contains(err.Error(), "not found while looking for SubscriberID")
 	})

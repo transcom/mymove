@@ -16,15 +16,15 @@ type PaperworkServiceSuite struct {
 	logger *zap.Logger
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *PaperworkServiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+// TestAppContext returns the AppContext for the test suite
+func (suite *PaperworkServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestPaperworkServiceSuite(t *testing.T) {
 
 	ts := &PaperworkServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(),
 	}
 	suite.Run(t, ts)

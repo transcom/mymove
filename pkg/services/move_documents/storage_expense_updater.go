@@ -3,12 +3,13 @@ package movedocument
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -16,16 +17,17 @@ import (
 
 // StorageExpenseUpdater updates storage expenses
 type StorageExpenseUpdater struct {
+	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
 // Update updates the storage expense documents
-func (seu StorageExpenseUpdater) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	if moveDocumentPayload.MoveDocumentType == nil {
 		return nil, nil, errors.New("missing required field: MoveDocumentType")
 	}
 	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
-	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(appCtx, moveDocumentPayload, moveDoc)
+	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document status")
 	}
@@ -57,25 +59,25 @@ func (seu StorageExpenseUpdater) Update(appCtx appcontext.AppContext, moveDocume
 	updatedMoveDoc.MovingExpenseDocument.StorageEndDate = storageEndDate
 	updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = receiptMissing
 
-	updatedMoveDoc, returnVerrs, err = seu.updatePPMSIT(appCtx, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = seu.updatePPMSIT(updatedMoveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document ppm")
 	}
-	updatedMoveDoc, returnVerrs, err = seu.updateMovingExpense(appCtx, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = seu.updateMovingExpense(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document")
 	}
 	return updatedMoveDoc, returnVerrs, nil
 }
 
-func (seu StorageExpenseUpdater) updatePPMSIT(appCtx appcontext.AppContext, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	ppm := &moveDoc.PersonallyProcuredMove
 	if moveDoc.PersonallyProcuredMoveID == nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: no PPM loaded for move doc")
 	}
 	okStatus := models.MoveDocumentStatusOK
-	mergedMoveDocuments, err := mergeMoveDocuments(appCtx, ppm.ID, moveDoc, models.MoveDocumentTypeEXPENSE, okStatus)
+	mergedMoveDocuments, err := mergeMoveDocuments(seu.db, session, ppm.ID, moveDoc, models.MoveDocumentTypeEXPENSE, okStatus)
 	if err != nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: unable to merge move documents")
 	}
@@ -95,12 +97,12 @@ func (seu StorageExpenseUpdater) updatePPMSIT(appCtx appcontext.AppContext, move
 	return moveDoc, returnVerrs, nil
 }
 
-func (seu StorageExpenseUpdater) updateMovingExpense(appCtx appcontext.AppContext, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	var saveWeightTicketAction models.MoveWeightTicketSetDocumentSaveAction
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
 	}
-	returnVerrs, err := models.SaveMoveDocument(appCtx.DB(), moveDoc, models.MoveDocumentSaveActionSAVEEXPENSEMODEL, saveWeightTicketAction)
+	returnVerrs, err := models.SaveMoveDocument(seu.db, moveDoc, models.MoveDocumentSaveActionSAVEEXPENSEMODEL, saveWeightTicketAction)
 	if err != nil || returnVerrs.HasAny() {
 		return &models.MoveDocument{}, returnVerrs, err
 	}

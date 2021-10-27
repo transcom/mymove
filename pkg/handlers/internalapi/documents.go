@@ -43,36 +43,36 @@ type CreateDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	newDocument := models.Document{
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	verrs, err := appCtx.DB().ValidateAndCreate(&newDocument)
+	verrs, err := h.DB().ValidateAndCreate(&newDocument)
 	if err != nil {
-		appCtx.Logger().Info("DB Insertion", zap.Error(err))
+		logger.Info("DB Insertion", zap.Error(err))
 		return documentop.NewCreateDocumentInternalServerError()
 	} else if verrs.HasAny() {
-		appCtx.Logger().Error("Could not save document", zap.String("errors", verrs.Error()))
+		logger.Error("Could not save document", zap.String("errors", verrs.Error()))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	appCtx.Logger().Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
+	logger.Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -84,21 +84,21 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
+	document, err := models.FetchDocument(h.DB(), session, documentID, false)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

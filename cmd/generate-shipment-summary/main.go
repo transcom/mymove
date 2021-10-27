@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -120,8 +119,6 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-
 	moveID := v.GetString(moveIDFlag)
 	if moveID == "" {
 		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
@@ -150,14 +147,14 @@ func main() {
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger, move))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, planner)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}

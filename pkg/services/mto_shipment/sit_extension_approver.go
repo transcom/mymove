@@ -1,11 +1,11 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -53,13 +53,10 @@ func (f *sitExtensionApprover) findShipment(appCtx appcontext.AppContext, shipme
 	var shipment models.MTOShipment
 	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
 	}
 
 	return &shipment, nil
@@ -69,13 +66,10 @@ func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, si
 	var sitExtension models.SITExtension
 	err := appCtx.DB().Q().Find(&sitExtension, sitExtensionID)
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(sitExtensionID, "while looking for SIT extension")
-		default:
-			return nil, apperror.NewQueryError("SITExtension", err, "")
-		}
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, apperror.NewNotFoundError(sitExtensionID, "while looking for SIT extension")
+	} else if err != nil {
+		return nil, err
 	}
 
 	return &sitExtension, nil
@@ -139,12 +133,7 @@ func (f *sitExtensionApprover) updateSitDaysAllowance(appCtx appcontext.AppConte
 
 	err = appCtx.DB().Q().EagerPreload("SITExtensions").Find(&shipment, shipment.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+		return nil, apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
 	}
 
 	return &shipment, nil

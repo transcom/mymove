@@ -83,24 +83,25 @@ type ShowMoveHandler struct {
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewShowMoveOK().WithPayload(movePayload)
 }
@@ -112,18 +113,18 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -135,7 +136,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		move.SelectedMoveType = &stringSelectedMoveType
 	}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(move)
+	verrs, err := h.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -155,14 +156,15 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 	err = h.MoveRouter.Submit(appCtx, move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -173,13 +175,13 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	certificateParams.HTTPRequest = params.HTTPRequest
 	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, appCtx.Session().UserID)
+	verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveSubmitted(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID),
+		notifications.NewMoveSubmitted(h.DB(), logger, session, moveID),
 	)
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
@@ -196,6 +198,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
 func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+	logger := appCtx.Logger()
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -261,7 +264,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 		return responseVErrors, transactionErr
 	}
 
-	appCtx.Logger().Info("signedCertification created",
+	logger.Info("signedCertification created",
 		zap.String("id", newSignedCertification.ID.String()),
 		zap.String("moveId", newSignedCertification.MoveID.String()),
 		zap.String("createdAt", newSignedCertification.CreatedAt.String()),
@@ -273,25 +276,25 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 
 // Handle returns a generated PDF
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(appCtx.DB(), logger, *move))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), logger, *move))
 
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	if err != nil {
 		logger.Error("Error fetching data for SSW", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.Planner())
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
 		logger.Error("Error calculating obligations ", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
@@ -310,14 +313,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
 
 	if err != nil {
-		appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page1Reader := bytes.NewReader(page1Template)
 	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
 	if err != nil {
-		appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
+		logger.Error("Error appending page 1 to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -326,14 +329,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
 
 	if err != nil {
-		appCtx.Logger().Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page2Reader := bytes.NewReader(page2Template)
 	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 	if err != nil {
-		appCtx.Logger().Error("Error appending 2 page to PDF", zap.Error(err))
+		logger.Error("Error appending 2 page to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -342,21 +345,21 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
 
 	if err != nil {
-		appCtx.Logger().Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page3Reader := bytes.NewReader(page3Template)
 	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 	if err != nil {
-		appCtx.Logger().Error("Error appending page 3 to PDF", zap.Error(err))
+		logger.Error("Error appending page 3 to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	buf := new(bytes.Buffer)
 	err = formFiller.Output(buf)
 	if err != nil {
-		appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
+		logger.Error("Error writing out PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -373,21 +376,21 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Attach move locator to logger
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+	logger.With(zap.String("moveLocator", move.Locator))
 
-	summary, err := calculateMoveDatesFromMove(appCtx, h.Planner(), moveID, moveDate)
+	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -419,16 +422,17 @@ type SubmitAmendedOrdersHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
 	err = h.MoveRouter.Submit(appCtx, move)
 	if err != nil {
@@ -438,7 +442,7 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	if verrs, saveErr := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
 		responseVErrors.Append(verrs)
 		responseError = errors.Wrap(saveErr, "Error Saving Move")
 	}

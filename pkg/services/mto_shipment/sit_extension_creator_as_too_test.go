@@ -27,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, nonexistentUUID, eTag)
+		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, nonexistentUUID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -47,7 +47,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -70,7 +70,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 			Status:        models.SITExtensionStatusApproved,
 		}
 
-		updatedShipment, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		updatedShipment, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.TestAppContext(), &sitExtensionToSave, mtoShipment.ID, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment

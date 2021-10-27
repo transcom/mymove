@@ -23,9 +23,9 @@ type ProcessEDI824Suite struct {
 	logger *zap.Logger
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *ProcessEDI824Suite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+// TestAppContext returns the AppContext for the test suite
+func (suite *ProcessEDI824Suite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *ProcessEDI824Suite) SetupTest() {
@@ -69,7 +69,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.NoError(err)
 	})
 
@@ -85,7 +85,7 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber)
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
@@ -96,7 +96,7 @@ GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 GE*1*1
 IEA*1*000000995
 `
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
@@ -113,7 +113,7 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 
@@ -138,7 +138,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.NotNil(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
 	})
@@ -157,7 +157,7 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.Contains(err.Error(), "unable to parse EDI824")
 	})
 
@@ -182,7 +182,7 @@ IEA*1*000000996
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -206,7 +206,7 @@ IEA*1*00000005
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.NotNil(err)
 
 		var updatedPR models.PaymentRequest
@@ -237,7 +237,7 @@ IEA*1*000000997
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.NoError(err)
 
 		var ediErrors models.EdiErrors
@@ -282,7 +282,7 @@ IEA*1*000000001
 			},
 		})
 
-		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		err := edi824Processor.ProcessFile(suite.TestAppContext(), "", sample824EDIString)
 		suite.Error(err, "fail to process 824")
 		errString := err.Error()
 		actualErrors := strings.Split(errString, "\n")

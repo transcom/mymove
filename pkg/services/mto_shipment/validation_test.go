@@ -27,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
-					suite.AppContextForTest(),
+					suite.TestAppContext(),
 					&models.MTOShipment{Status: status},
 					nil,
 				)
@@ -41,7 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkAvailToPrime", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.TestAppContext()
 
 		now := time.Now()
 		hide := false
@@ -73,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				nonPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(apperror.NotFoundError{}, err)
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 				},
 			},
@@ -81,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				hiddenPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(apperror.NotFoundError{}, err)
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 				},
 			},
@@ -89,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				badUUID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(apperror.NotFoundError{}, err)
+					suite.IsType(err, apperror.NotFoundError{})
 					suite.Contains(err.Error(), badUUID.String())
 				},
 			},

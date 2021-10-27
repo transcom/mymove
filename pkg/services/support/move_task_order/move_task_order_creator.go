@@ -1,7 +1,6 @@
 package supportmovetaskorder
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -27,7 +26,7 @@ type moveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppContext, payload supportmessages.MoveTaskOrder) (*models.Move, error) {
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppContext, payload supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
 	var moveTaskOrder *models.Move
 	var refID string
 	if payload.Order == nil {
@@ -69,10 +68,10 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(moveTaskOrder)
 
 		if verrs.Count() > 0 {
-			appCtx.Logger().Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
+			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
 			return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 		} else if err != nil {
-			appCtx.Logger().Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
+			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
 			return apperror.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
 		}
 		return nil
@@ -107,12 +106,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	err := appCtx.DB().Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
 		appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
-		default:
-			return nil, apperror.NewQueryError("DutyStation", err, "")
-		}
+		return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 	}
 	order.NewDutyStation = destinationDutyStation
 	order.NewDutyStationID = destinationDutyStationID
@@ -124,12 +118,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		err = appCtx.DB().Find(originDutyStation, originDutyStationID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
-			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
-			}
+			return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 		}
 		order.OriginDutyStation = originDutyStation
 		order.OriginDutyStationID = &originDutyStationID
@@ -143,12 +132,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		err = appCtx.DB().Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
-			default:
-				return nil, apperror.NewQueryError("Document", err, "")
-			}
+			return nil, apperror.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
 		}
 		order.UploadedOrders = *uploadedOrders
 		order.UploadedOrdersID = uploadedOrdersID
@@ -212,7 +196,8 @@ func createOrGetCustomer(appCtx appcontext.AppContext, f services.CustomerFetche
 		// Find customer and return
 		customer, err := f.FetchCustomer(appCtx, customerID)
 		if err != nil {
-			return nil, err
+			returnErr := apperror.NewNotFoundError(customerID, "Customer with that ID not found")
+			return nil, returnErr
 		}
 		return customer, nil
 	}

@@ -41,7 +41,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		}
 
 		officeUser := &models.OfficeUser{}
-		err = fetcher.FetchRecord(suite.AppContextForTest(), officeUser, filters)
+		err = fetcher.FetchRecord(suite.TestAppContext(), officeUser, filters)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
@@ -58,7 +58,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		fetcher := NewFetcher(builder)
 
 		officeUser := &models.OfficeUser{}
-		err := fetcher.FetchRecord(suite.AppContextForTest(), officeUser, []services.QueryFilter{})
+		err := fetcher.FetchRecord(suite.TestAppContext(), officeUser, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Resource not found: Fetch error")
@@ -76,12 +76,12 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		fetcher := NewFetcher(builder)
 
 		officeUser := models.OfficeUser{}
-		err := fetcher.FetchRecord(suite.AppContextForTest(), officeUser, []services.QueryFilter{})
+		err := fetcher.FetchRecord(suite.TestAppContext(), officeUser, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), query.FetchOneReflectionMessage)
 
-		err = fetcher.FetchRecord(suite.AppContextForTest(), 1, []services.QueryFilter{})
+		err = fetcher.FetchRecord(suite.TestAppContext(), 1, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), query.FetchOneReflectionMessage)

@@ -7,14 +7,12 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // See: pkg/route/planner.go for more info on this interface
 type distanceCalculator interface {
-	Zip5TransitDistanceLineHaul(appcontext.AppContext, string, string) (int, error)
-	TransitDistance(appcontext.AppContext, *Address, *Address) (int, error)
+	Zip5TransitDistanceLineHaul(string, string) (int, error)
+	TransitDistance(*Address, *Address) (int, error)
 }
 
 // DistanceCalculation represents a distance calculation in miles between an origin and destination address
@@ -30,15 +28,15 @@ type DistanceCalculation struct {
 }
 
 // NewDistanceCalculation performs a distance calculation and returns the resulting DistanceCalculation model
-func NewDistanceCalculation(appCtx appcontext.AppContext, planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
+func NewDistanceCalculation(planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
 
 	var distanceMiles int
 	var err error
 
 	if useZipOnly {
-		distanceMiles, err = planner.Zip5TransitDistanceLineHaul(appCtx, origin.PostalCode, destination.PostalCode)
+		distanceMiles, err = planner.Zip5TransitDistanceLineHaul(origin.PostalCode, destination.PostalCode)
 	} else {
-		distanceMiles, err = planner.TransitDistance(appCtx, &origin, &destination)
+		distanceMiles, err = planner.TransitDistance(&origin, &destination)
 	}
 	if err != nil {
 		return DistanceCalculation{}, err

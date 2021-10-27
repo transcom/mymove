@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -44,12 +43,11 @@ func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
 	address2 := testdatagen.MakeStubbedAddress(suite.DB())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		address1.PostalCode,
 		address2.PostalCode,
 	).Return(1044, nil)
 	useZipOnlyForDistance := true
-	distanceCalculation, err := models.NewDistanceCalculation(suite.AppContextForTest(), planner, address1, address2, useZipOnlyForDistance)
+	distanceCalculation, err := models.NewDistanceCalculation(planner, address1, address2, useZipOnlyForDistance)
 
 	suite.NoError(err)
 	suite.Equal(distanceCalculation.DistanceMiles, 1044)

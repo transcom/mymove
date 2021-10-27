@@ -29,11 +29,12 @@ type GetOrdersHandler struct {
 
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	orderID, _ := uuid.FromString(params.OrderID.String())
 	order, err := h.FetchOrder(appCtx, orderID)
 	if err != nil {
-		appCtx.Logger().Error("fetching order", zap.Error(err))
+		logger.Error("fetching order", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return orderop.NewGetOrderNotFound()
@@ -54,9 +55,10 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
+		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
@@ -74,7 +76,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
 		return handleError(apperror.NewForbiddenError("is not a TXO"))
 	}
 
@@ -99,10 +101,11 @@ type CounselingUpdateOrderHandler struct {
 
 // Handle ... updates an order as requested by a services counselor
 func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
+		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateOrderNotFound()
@@ -118,7 +121,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 	}
 
@@ -143,9 +146,10 @@ type UpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order allowance", zap.Error(err))
+		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewUpdateAllowanceNotFound()
@@ -161,7 +165,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
@@ -186,9 +190,10 @@ type CounselingUpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order allowance", zap.Error(err))
+		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateAllowanceNotFound()
@@ -204,7 +209,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 	}
 
@@ -229,9 +234,10 @@ type UpdateBillableWeightHandler struct {
 
 // Handle ... updates the authorized weight
 func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
+		logger.Error("error updating max billable weight", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewUpdateBillableWeightNotFound()
@@ -247,7 +253,7 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
@@ -273,9 +279,10 @@ type UpdateMaxBillableWeightAsTIOHandler struct {
 
 // Handle ... updates the authorized weight
 func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
+		logger.Error("error updating max billable weight", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
@@ -291,7 +298,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		return handleError(apperror.NewForbiddenError("is not a TIO"))
 	}
 
@@ -318,9 +325,10 @@ type AcknowledgeExcessWeightRiskHandler struct {
 
 // Handle ... updates the authorized weight
 func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExcessWeightRiskParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error acknowledging excess weight risk", zap.Error(err))
+		logger.Error("error acknowledging excess weight risk", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return orderop.NewAcknowledgeExcessWeightRiskNotFound()
@@ -336,7 +344,7 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
@@ -361,6 +369,7 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -378,6 +387,7 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -395,6 +405,7 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -412,6 +423,7 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -429,6 +441,7 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -446,6 +459,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTI
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
@@ -463,6 +477,7 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 		UpdatedObjectID: moveID,                            // ID of the updated logical object
 		MtoID:           moveID,                            // ID of the associated Move
 		Request:         params.HTTPRequest,                // Pass on the http.Request
+		DBConnection:    appCtx.DB(),                       // Pass on the pop.Connection
 		HandlerContext:  h,                                 // Pass on the handlerContext
 	})
 

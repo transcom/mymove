@@ -19,7 +19,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchAccessCode() {
 	}
 	suite.MustSave(&accessCode)
 	fetchAccessCode := NewAccessCodeFetcher()
-	ac, _ := fetchAccessCode.FetchAccessCode(suite.AppContextForTest(), *serviceMemberID)
+	ac, _ := fetchAccessCode.FetchAccessCode(suite.TestAppContext(), *serviceMemberID)
 
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE12")
 }
@@ -28,7 +28,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchNotFound() {
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMemberID := &user.ID
 	fetchAccessCode := NewAccessCodeFetcher()
-	_, err := fetchAccessCode.FetchAccessCode(suite.AppContextForTest(), *serviceMemberID)
+	_, err := fetchAccessCode.FetchAccessCode(suite.TestAppContext(), *serviceMemberID)
 	suite.Error(err)
 	suite.Equal(sql.ErrNoRows, err)
 }

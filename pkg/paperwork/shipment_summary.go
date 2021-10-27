@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -32,7 +31,7 @@ func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 type ObligationType int
 
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppContext, ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
 	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
 	if err != nil {
 		return models.Obligations{}, err
@@ -41,12 +40,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	originDutyStationZip := ssfd.CurrentDutyStation.Address.PostalCode
 	destDutyStationZip := ssfd.Order.NewDutyStation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, *firstPPM.PickupPostalCode, destDutyStationZip)
+	distanceMilesFromPickupZip, err := planner.Zip5TransitDistanceLineHaul(*firstPPM.PickupPostalCode, destDutyStationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	distanceMilesFromDutyStationZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, originDutyStationZip, destDutyStationZip)
+	distanceMilesFromDutyStationZip, err := planner.Zip5TransitDistanceLineHaul(originDutyStationZip, destDutyStationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}

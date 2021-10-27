@@ -47,16 +47,16 @@ type CreateMovingExpenseDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.CreateMovingExpenseDocumentPayload
@@ -73,9 +73,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
 		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
-		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(h.DB(), session, convertedUploadID)
 		if fetchUploadErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
+			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
 		userUploads = append(userUploads, userUpload)
 	}
@@ -85,9 +85,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
+		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(h.DB(), session, id)
 		if fetchPPMErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
+			return handlers.ResponseForError(logger, fetchPPMErr)
 		}
 		if ppm.MoveID != moveID {
 			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
@@ -115,10 +115,10 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		movingExpenseDocument.MovingExpenseType = models.MovingExpenseType(*payload.MovingExpenseType)
 	}
 	if payload.MoveDocumentType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
+		return handlers.ResponseForError(logger, errors.New("missing required field: MoveDocumentType"))
 	}
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
-		appCtx.DB(),
+		h.DB(),
 		userUploads,
 		ppmID,
 		models.MoveDocumentType(*payload.MoveDocumentType),
@@ -129,12 +129,12 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
 }

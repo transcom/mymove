@@ -23,35 +23,35 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	ctx := params.HTTPRequest.Context()
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromContext(ctx)
 
 	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
 	}
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	orders, err := models.FetchElectronicOrderByID(appCtx.DB(), id)
+	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	if !verifyOrdersWriteAccess(orders.Issuer, clientCert) {
-		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
 	}
 
 	for _, r := range orders.Revisions {
 		// SeqNum collision
 		if r.SeqNum == int(*params.Revision.SeqNum) {
 			return handlers.ResponseForError(
-				appCtx.Logger(),
+				logger,
 				errors.WithMessage(
 					models.ErrWriteConflict,
 					fmt.Sprintf("Cannot POST Revision with SeqNum %d to Orders %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, params.UUID)))
@@ -59,16 +59,16 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 	}
 
 	newRevision := toElectronicOrdersRevision(orders, params.Revision)
-	verrs, err := appCtx.DB().ValidateAndCreate(newRevision)
+	verrs, err := h.DB().ValidateAndCreate(newRevision)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	orders.Revisions = append(orders.Revisions, *newRevision)
 
 	orderPayload, err := payloadForElectronicOrderModel(orders)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersoperations.NewPostRevisionToOrdersCreated().WithPayload(orderPayload)
 }

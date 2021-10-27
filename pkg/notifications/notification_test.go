@@ -15,11 +15,16 @@ type NotificationSuite struct {
 	logger Logger
 }
 
+func (suite *NotificationSuite) SetupTest() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
+}
+
 func TestNotificationSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	ns := &NotificationSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, ns)

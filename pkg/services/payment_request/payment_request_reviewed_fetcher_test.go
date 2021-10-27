@@ -27,7 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchReviewedPaymentRequest() {
 	})
 
 	suite.T().Run("check for reviewed payment requests", func(t *testing.T) {
-		result, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
+		result, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
 		suite.NoError(err)
 		suite.Equal(1, len(result))
 	})

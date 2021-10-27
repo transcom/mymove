@@ -1,7 +1,6 @@
 package mtoagent
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -51,12 +50,7 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	// Find the agent, return error if not found
 	err := appCtx.DB().Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
-		default:
-			return nil, apperror.NewQueryError("MTOAgent", err, "")
-		}
+		return nil, apperror.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
 	err = validateMTOAgent(appCtx, *mtoAgent, &oldAgent, &oldAgent.MTOShipment, checks...)
@@ -86,12 +80,7 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 	updatedAgent := models.MTOAgent{}
 	err = appCtx.DB().Find(&updatedAgent, newAgent.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(newAgent.ID, "looking for MTOAgent")
-		default:
-			return nil, apperror.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
-		}
+		return nil, apperror.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 	return &updatedAgent, nil
 }

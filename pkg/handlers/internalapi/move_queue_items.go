@@ -95,18 +95,18 @@ func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if !appCtx.Session().IsOfficeUser() {
+	if !session.IsOfficeUser() {
 		return queueop.NewShowQueueForbidden()
 	}
 
 	lifecycleState := params.QueueType
 
-	MoveQueueItems, err := models.GetMoveQueueItems(appCtx.DB(), lifecycleState)
+	MoveQueueItems, err := models.GetMoveQueueItems(h.DB(), lifecycleState)
 	if err != nil {
-		appCtx.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Sorting the slice by LastModifiedDate so that the API results follow suit.

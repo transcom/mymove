@@ -16,14 +16,14 @@ type WebhookSubscriptionServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *WebhookSubscriptionServiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+func (suite *WebhookSubscriptionServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestWebhookSubscriptionSuite(t *testing.T) {
 
 	ts := &WebhookSubscriptionServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

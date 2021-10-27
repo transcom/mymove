@@ -60,7 +60,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.AppContextForTest(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
@@ -76,7 +76,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.AppContextForTest(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

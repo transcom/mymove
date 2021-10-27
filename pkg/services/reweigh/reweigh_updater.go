@@ -1,9 +1,10 @@
 package reweigh
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -62,24 +63,14 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 	// Find the reweigh, return error if not found
 	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
-		default:
-			return nil, apperror.NewQueryError("Reweigh", err, "")
-		}
+		return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
 	}
 
 	shipment := models.MTOShipment{}
 	// Find the shipment, return error if not found
 	err = appCtx.DB().Find(&shipment, reweigh.ShipmentID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+		return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Shipment")
 	}
 	oldReweigh.Shipment = shipment
 
@@ -116,12 +107,7 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 	updatedReweigh := models.Reweigh{}
 	err = appCtx.DB().Find(&updatedReweigh, reweigh.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(reweigh.ID, "looking for Reweigh")
-		default:
-			return nil, apperror.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
-		}
+		return nil, apperror.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 
 	// Need to pull out this common code. It is from reweigh requester
@@ -129,13 +115,10 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 		Eager("Reweigh").
 		Find(&shipment, reweigh.ShipmentID)
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("Shipment", err, "")
-		}
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
 	}
 
 	// Recalculate payment request for the shipment, if the reweigh weight changed

@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-
-curl --remote-name https://raw.githubusercontent.com/trussworks/fresh-brew/main/pour.sh
-curl --remote-name https://raw.githubusercontent.com/trussworks/fresh-brew/main/Brewfile
-# shellcheck disable=SC1091
-source pour.sh 2>&1 | tee ~/fresh-brew.log

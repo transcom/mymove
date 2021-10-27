@@ -42,8 +42,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	mockedCost := rateengine.CostComputation{}
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showEstimateHandler.Handle(params)
 
@@ -81,8 +80,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		mockedCost := rateengine.CostComputation{}
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
@@ -108,8 +106,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		mockedCost := rateengine.CostComputation{}
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
@@ -133,8 +130,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		mockedCost := rateengine.CostComputation{}
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
@@ -158,8 +154,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		mockedCost := rateengine.CostComputation{}
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
@@ -188,8 +183,7 @@ func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails
 	estimateCalculator := &mocks.EstimateCalculator{}
 	mockedError := errors.New("this is an error")
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, mockedError).Once()
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, mockedError).Once()
 	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showHandler.Handle(params)
 

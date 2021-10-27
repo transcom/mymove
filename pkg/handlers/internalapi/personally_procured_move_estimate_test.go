@@ -158,7 +158,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
@@ -200,7 +199,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)

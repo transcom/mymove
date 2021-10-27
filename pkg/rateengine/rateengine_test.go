@@ -244,7 +244,6 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	destinationZip := "33633"
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		originZip,
 		destinationZip,
 	).Return(1234, nil)
@@ -275,7 +274,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	logger, _ := zap.NewDevelopment()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1234, nil)

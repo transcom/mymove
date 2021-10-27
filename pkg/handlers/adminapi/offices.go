@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -42,22 +43,22 @@ var officesFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle retrieves a list of office users
 func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officesFilterConverters)
+	queryFilters := generateQueryFilters(logger, params.Filter, officesFilterConverters)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	offices, err := h.OfficeListFetcher.FetchOfficeList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	totalOfficesCount, err := h.OfficeListFetcher.FetchOfficeCount(appCtx, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	queriedOfficesCount := len(offices)

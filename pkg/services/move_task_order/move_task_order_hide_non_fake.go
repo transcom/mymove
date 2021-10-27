@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -17,18 +17,19 @@ import (
 type invalidReasonsType map[string]string
 
 type moveTaskOrderHider struct {
+	db *pop.Connection
 }
 
 // NewMoveTaskOrderHider creates a new struct with the service dependencies
-func NewMoveTaskOrderHider() services.MoveTaskOrderHider {
-	return &moveTaskOrderHider{}
+func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
+	return &moveTaskOrderHider{db}
 }
 
 // Hide hides any MTO that isn't using valid fake data
-func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.HiddenMoves, error) {
+func (o *moveTaskOrderHider) Hide() (services.HiddenMoves, error) {
 	invalidMoves := services.HiddenMoves{}
 	var mtos models.Moves
-	err := appCtx.DB().Q().
+	err := o.db.Q().
 		// Note: We may be able to save some queries if we load on demand, but we'll need to
 		// refactor the methods that check for valid fake data to pass in the DB connection.
 		Eager(
@@ -78,7 +79,7 @@ func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidden
 		// Take the address of the slice element to avoid implicit memory aliasing of items from a range statement.
 		mto := invalidFakeMoves[i]
 
-		verrs, updateErr := appCtx.DB().ValidateAndUpdate(&mto)
+		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
 		if verrs != nil && verrs.HasAny() {
 			return nil, apperror.NewInvalidInputError(mto.ID, err, verrs, "")
 		}

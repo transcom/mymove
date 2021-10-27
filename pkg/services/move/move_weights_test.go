@@ -32,7 +32,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 		estimatedWeight := unit.Pound(7200)
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, approvedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -61,7 +61,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 		estimatedWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, approvedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -99,7 +99,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		})
 
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, approvedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -137,7 +137,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		})
 
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, approvedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -167,7 +167,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 		estimatedWeight := unit.Pound(7200)
 		unapprovedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, unapprovedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, unapprovedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -204,7 +204,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 		updatedEstimatedWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &updatedEstimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, approvedShipment)
 
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -224,7 +224,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		err := suite.DB().Save(&approvedMove.Orders)
 		suite.NoError(err)
 
-		_, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, models.MTOShipment{})
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, models.MTOShipment{})
 		suite.Nil(verrs)
 		suite.EqualError(err, "could not determine excess weight entitlement without grade")
 	})
@@ -236,7 +236,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)
 		suite.NoError(err)
 
-		_, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, models.MTOShipment{})
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.TestAppContext(), approvedMove.ID, models.MTOShipment{})
 		suite.Nil(verrs)
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
 	})
@@ -261,7 +261,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		actualWeight := unit.Pound(7200)
 		approvedShipment.PrimeActualWeight = &actualWeight
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 
@@ -291,7 +291,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		actualWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &actualWeight
-		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		_, err := mockedWeightService.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 		suite.Equal(uuid.Nil, approvedShipment.Reweigh.ID)
@@ -325,7 +325,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		})
 
 		approvedShipment.PrimeActualWeight = &actualWeight
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 
@@ -372,7 +372,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		})
 
 		approvedShipment.PrimeActualWeight = &actualWeight
-		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		_, err := mockedWeightService.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 
@@ -428,7 +428,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		})
 
 		approvedShipment.PrimeActualWeight = &actualWeight
-		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		_, err := mockedWeightService.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 
@@ -446,7 +446,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		err := suite.DB().Save(&approvedMove.Orders)
 		suite.NoError(err)
 
-		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
+		_, err = moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "could not determine excess weight entitlement without grade")
 	})
 
@@ -457,7 +457,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)
 		suite.NoError(err)
 
-		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
+		_, err = moveWeights.CheckAutoReweigh(suite.TestAppContext(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
 	})
 }

@@ -35,6 +35,14 @@ func (suite *HandlerSuite) AuthenticateClientCertRequest(req *http.Request, cert
 	return req.WithContext(ctx)
 }
 
+// SetupTest sets up the test suite by preparing the DB
+func (suite *HandlerSuite) SetupTest() {
+	errTruncateAll := suite.TruncateAll()
+	if errTruncateAll != nil {
+		log.Panicf("failed to truncate database: %#v", errTruncateAll)
+	}
+}
+
 // AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {
@@ -50,7 +58,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage()),
 	}
 
 	suite.Run(t, hs)

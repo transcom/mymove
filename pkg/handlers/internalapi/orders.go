@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/uploader"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
@@ -111,41 +112,41 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	payload := params.CreateOrders
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	newDutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	newDutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	originDutyStation := serviceMember.DutyStation
 	grade := (*string)(serviceMember.Rank)
 
 	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
 	if entitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
+		return handlers.ResponseForError(logger, entitlementErr)
 	}
 	entitlement := models.Entitlement{
 		DependentsAuthorized: payload.HasDependents,
 		DBAuthorizedWeight:   models.IntPointer(weight),
 	}
 
-	if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr)
+	if saveEntitlementErr := h.DB().Save(&entitlement); saveEntitlementErr != nil {
+		return handlers.ResponseForError(logger, saveEntitlementErr)
 	}
 
 	var deptIndicator *string
@@ -155,10 +156,10 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	}
 
 	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
 	}
 	newOrder, verrs, err := serviceMember.CreateOrder(
-		appCtx.DB(),
+		h.DB(),
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
 		*payload.OrdersType,
@@ -174,22 +175,22 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		&entitlement,
 	)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	moveOptions := models.MoveOptions{
 		SelectedType: nil,
 		Show:         swag.Bool(true),
 	}
-	newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
+	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), moveOptions)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
@@ -201,20 +202,20 @@ type ShowOrdersHandler struct {
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
@@ -226,28 +227,30 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
@@ -266,14 +269,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 	}
 
-	verrs, err := models.SaveOrder(appCtx.DB(), &order)
+	verrs, err := models.SaveOrder(h.DB(), &order)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }
@@ -286,28 +289,30 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
+	session, logger := h.SessionAndLoggerFromContext(ctx)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
-		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
-		return handlers.ResponseForError(appCtx.Logger(), nil)
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return handlers.ResponseForError(logger, nil)
 	}
 
-	appCtx.Logger().Info(
+	logger.Info(
 		"File uploader and size",
-		zap.String("userID", appCtx.Session().UserID.String()),
-		zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
-		zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
-		zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+		zap.String("userID", session.UserID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
 		zap.Int64("size", file.Header.Size),
 	)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
-	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
 
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
@@ -320,13 +325,13 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 		case apperror.NotFoundError:
 			return ordersop.NewUploadAmendedOrdersNotFound()
 		default:
-			return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			return handlers.ResponseForVErrors(logger, verrs, err)
 		}
 	}
 
 	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
 }

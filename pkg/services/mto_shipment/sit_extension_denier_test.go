@@ -23,7 +23,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), nonexistentUUID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -35,7 +35,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), mtoShipment.ID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -49,7 +49,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -65,7 +65,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), otherMtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -86,7 +86,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		updatedShipment, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -120,7 +120,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeDenied.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.TestAppContext(), mtoShipment.ID, sitExtensionToBeDenied.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment

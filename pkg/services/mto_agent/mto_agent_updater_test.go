@@ -27,7 +27,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		notFoundAgent := newAgent
 		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &notFoundAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &notFoundAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -40,7 +40,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		invalidAgent := newAgent
 		invalidAgent.MTOShipmentID = newAgent.ID
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &invalidAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &invalidAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -53,7 +53,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, "bloop") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -71,7 +71,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		newAgent.Email = &email
 		newAgent.Phone = nil // should keep the phone number from oldAgent
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, eTag) // base validation
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)

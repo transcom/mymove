@@ -16,14 +16,19 @@ type MTOServiceItemServiceSuite struct {
 	logger *zap.Logger
 }
 
-// AppContextForTest returns the AppContext for the test suite
-func (suite *MTOServiceItemServiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+// TestAppContext returns the AppContext for the test suite
+func (suite *MTOServiceItemServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
+}
+
+func (suite *MTOServiceItemServiceSuite) SetupTest() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestMTOServiceItemServiceSuite(t *testing.T) {
 	ts := &MTOServiceItemServiceSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		zap.NewNop(),
 	}
 	suite.Run(t, ts)

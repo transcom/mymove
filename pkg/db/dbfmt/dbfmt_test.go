@@ -16,7 +16,7 @@ type DBFmtSuite struct {
 
 func TestDBFmtSuite(t *testing.T) {
 	hs := &DBFmtSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

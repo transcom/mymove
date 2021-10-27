@@ -24,7 +24,15 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
+	DB() *pop.Connection
+	Logger() *zap.Logger
 	AppContextFromRequest(r *http.Request) appcontext.AppContext
+	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
+	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
+	SessionFromRequest(r *http.Request) *auth.Session
+	SessionFromContext(ctx context.Context) *auth.Session
+	LoggerFromContext(ctx context.Context) *zap.Logger
+	LoggerFromRequest(r *http.Request) *zap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -96,23 +104,33 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 // AppContextFromRequest builds an AppContext from the http request
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	// use LoggerFromRequest to get the most specific logger
-	return appcontext.NewAppContext(
-		hctx.dBFromContext(r.Context()),
-		hctx.loggerFromRequest(r),
-		hctx.sessionFromRequest(r))
+	return appcontext.WithSession(appcontext.NewAppContext(
+		hctx.db, hctx.LoggerFromRequest(r)), hctx.SessionFromRequest(r))
 }
 
-func (hctx *handlerContext) sessionFromRequest(r *http.Request) *auth.Session {
+func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {
+	return hctx.SessionAndLoggerFromContext(r.Context())
+}
+
+func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger) {
+	return auth.SessionFromContext(ctx), hctx.LoggerFromContext(ctx)
+}
+
+func (hctx *handlerContext) SessionFromRequest(r *http.Request) *auth.Session {
 	return auth.SessionFromContext(r.Context())
 }
 
-func (hctx *handlerContext) loggerFromRequest(r *http.Request) *zap.Logger {
-	return hctx.loggerFromContext(r.Context())
+func (hctx *handlerContext) SessionFromContext(ctx context.Context) *auth.Session {
+	return auth.SessionFromContext(ctx)
+}
+
+func (hctx *handlerContext) LoggerFromRequest(r *http.Request) *zap.Logger {
+	return hctx.LoggerFromContext(r.Context())
 }
 
 // LoggerFromContext returns the logger from the context. If the
-// context has no appCtx.Logger(), the handlerContext logger is returned
-func (hctx *handlerContext) loggerFromContext(ctx context.Context) *zap.Logger {
+// context has no logger, the handlerContext logger is returned
+func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
 	logger := logging.FromContextWithoutDefault(ctx)
 	if logger != nil {
 		return logger
@@ -120,9 +138,13 @@ func (hctx *handlerContext) loggerFromContext(ctx context.Context) *zap.Logger {
 	return hctx.logger
 }
 
-// dBFromContext returns a POP db connection for the context
-func (hctx *handlerContext) dBFromContext(ctx context.Context) *pop.Connection {
-	return hctx.db.WithContext(ctx)
+func (hctx *handlerContext) Logger() *zap.Logger {
+	return hctx.logger
+}
+
+// DB returns a POP db connection for the context
+func (hctx *handlerContext) DB() *pop.Connection {
+	return hctx.db
 }
 
 // FileStorer returns the storage to use in the current context

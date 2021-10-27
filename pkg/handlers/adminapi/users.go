@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -40,13 +41,14 @@ type GetUserHandler struct {
 
 // Handle retrieves a specific user
 func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	userID := uuid.FromStringOrNil(params.UserID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID)}
 	user, err := h.UserFetcher.FetchUser(appCtx, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	payload := payloadForUserModel(user)
 	return userop.NewGetUserOK().WithPayload(payload)
@@ -71,10 +73,11 @@ var usersFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle lists all users
 func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, usersFilterConverters)
+	queryFilters := generateQueryFilters(logger, params.Filter, usersFilterConverters)
 
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
@@ -82,12 +85,12 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 	var users models.Users
 	err := h.ListFetcher.FetchRecordList(appCtx, &users, queryFilters, nil, pagination, ordering)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	totalUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &users, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	queriedUsersCount := len(users)
@@ -111,19 +114,20 @@ type UpdateUserHandler struct {
 
 // Handle updates a user's Active status and/or their sessions
 func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.User
 
 	// Check that the uuid provided is valid and get user model
 	userID, err := uuid.FromString(params.UserID.String())
 	if err != nil {
-		appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("Could not parse ID: %s", params.UserID.String())))
+		logger.Error("updateUserHandler Error", zap.Error(fmt.Errorf("Could not parse ID: %s", params.UserID.String())))
 		return userop.NewUpdateUserUnprocessableEntity()
 	}
 	dbUser := models.User{}
-	err = appCtx.DB().Find(&dbUser, userID)
+	err = h.DB().Find(&dbUser, userID)
 	if err != nil {
-		appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("No user found for ID: %s", params.UserID.String())))
+		logger.Error("updateUserHandler Error", zap.Error(fmt.Errorf("No user found for ID: %s", params.UserID.String())))
 		return userop.NewUpdateUserNotFound()
 	}
 
@@ -133,13 +137,13 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	// Also we need to retrieve the user's original status from the db to correctly create the update model
 	user, err := payloads.UserModel(payload, userID, dbUser.Active)
 	if err != nil {
-		appCtx.Logger().Error("updateUserHandler Error", zap.Error(err))
+		logger.Error("updateUserHandler Error", zap.Error(err))
 		return userop.NewUpdateUserUnprocessableEntity()
 	}
 
 	_, verrs, err := h.UpdateUser(appCtx, userID, user)
 	if verrs != nil || err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}
 	// We don't return because we should still try to revoke sessions
 
@@ -154,25 +158,25 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 		payload.RevokeMilSession = &revoke
 	}
 
-	sessionStore := h.SessionManager(appCtx.Session()).Store
+	sessionStore := h.SessionManager(session).Store
 	updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, sessionStore)
 	if revokeErr != nil || validationErrors != nil {
 		fmt.Printf("%#v", validationErrors)
-		appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr))
+		logger.Error("Error revoking user session", zap.Error(revokeErr))
 		return userop.NewUpdateUserInternalServerError()
 	}
 
 	// Log if the account was enabled or disabled (POAM requirement)
 	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(updatedUser, *payload.Active, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+		_, err = audit.CaptureAccountStatus(updatedUser, *payload.Active, logger, session, params.HTTPRequest)
 		if err != nil {
-			appCtx.Logger().Error("Error capturing account status audit record in UpdateUserHandler", zap.Error(err))
+			logger.Error("Error capturing account status audit record in UpdateUserHandler", zap.Error(err))
 		}
 	}
 
-	_, err = audit.Capture(updatedUser, params.User, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(updatedUser, params.User, logger, session, params.HTTPRequest)
 	if err != nil {
-		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+		logger.Error("Error capturing audit record", zap.Error(err))
 	}
 
 	returnPayload := payloadForUserModel(*updatedUser)

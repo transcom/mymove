@@ -1,8 +1,6 @@
 package sitextension
 
 import (
-	"database/sql"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,12 +35,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	err := appCtx.DB().Find(shipment, sitExtension.MTOShipmentID)
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+		return nil, apperror.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
 	}
 
 	// Set status to pending if none is provided
@@ -70,12 +63,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 		var move models.Move
 		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
-			default:
-				return nil, apperror.NewQueryError("Move", err, "")
-			}
+			return nil, err
 		}
 
 		existingMoveStatus := move.Status

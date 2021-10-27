@@ -17,6 +17,11 @@ type FuelPriceServiceSuite struct {
 	storer storage.FileStorer
 }
 
+func (suite *FuelPriceServiceSuite) SetupTest() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
+}
+
 func TestFuelPriceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
@@ -24,7 +29,7 @@ func TestFuelPriceSuite(t *testing.T) {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	ts := &FuelPriceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		storer:       fakeS3,
 	}

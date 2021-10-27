@@ -49,7 +49,7 @@ func main() {
 		log.Fatal("Must specify at least one input file")
 	}
 
-	appCtx := appcontext.NewAppContext(nil, logger, nil)
+	appCtx := appcontext.NewAppContext(nil, logger)
 	path, err := generator.MergeImagesToPDF(appCtx, inputFiles)
 	if err != nil {
 		log.Fatal(err.Error())

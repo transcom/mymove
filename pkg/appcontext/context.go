@@ -26,20 +26,26 @@ type appContext struct {
 }
 
 // NewAppContext creates a new AppContext
-func NewAppContext(db *pop.Connection, logger *zap.Logger, session *auth.Session) AppContext {
+func NewAppContext(db *pop.Connection, logger *zap.Logger) AppContext {
 	return &appContext{
-		db:      db,
-		logger:  logger,
+		db:     db,
+		logger: logger,
+	}
+}
+
+// WithSession sets the session in the copy of an AppContext
+func WithSession(appCtx AppContext, session *auth.Session) AppContext {
+	return &appContext{
+		db:      appCtx.DB(),
+		logger:  appCtx.Logger(),
 		session: session,
 	}
 }
 
-// DB returns the db connection
 func (ac *appContext) DB() *pop.Connection {
 	return ac.db
 }
 
-// Logger returns the logger
 func (ac *appContext) Logger() *zap.Logger {
 	return ac.logger
 }
@@ -51,7 +57,7 @@ func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
 		return fn(ac)
 	}
 	return ac.db.Transaction(func(tx *pop.Connection) error {
-		txnAppCtx := NewAppContext(tx, ac.logger, ac.session)
+		txnAppCtx := NewAppContext(tx, ac.logger)
 		return fn(txnAppCtx)
 	})
 }

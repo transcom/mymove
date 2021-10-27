@@ -19,7 +19,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	mtoChecker := NewMoveTaskOrderChecker()
 
 	suite.RunWithRollback("MTO is available and visible - success", func() {
-		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), availableMTO.ID)
+		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), availableMTO.ID)
 		suite.Equal(availableToPrime, true)
 		suite.NoError(err)
 	})
@@ -34,24 +34,24 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 			},
 		})
 
-		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), availableHiddenMTO.ID)
+		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), availableHiddenMTO.ID)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), availableHiddenMTO.ID.String())
 		suite.Equal(availableToPrime, false)
 	})
 
 	suite.RunWithRollback("MTO is not available - no failure, but returns false", func() {
-		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), notAvailableMTO.ID)
+		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), notAvailableMTO.ID)
 		suite.Equal(availableToPrime, false)
 		suite.NoError(err)
 	})
 
 	suite.RunWithRollback("MTO ID is not valid - failure", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), badUUID)
+		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.TestAppContext(), badUUID)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(err, apperror.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
 		suite.Equal(availableToPrime, false)
 	})

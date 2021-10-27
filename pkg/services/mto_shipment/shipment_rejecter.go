@@ -1,9 +1,8 @@
 package mtoshipment
 
 import (
-	"database/sql"
-
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -56,13 +55,10 @@ func (f *shipmentRejecter) findShipment(appCtx appcontext.AppContext, shipmentID
 	var shipment models.MTOShipment
 	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
 	}
 
 	return &shipment, nil

@@ -19,21 +19,21 @@ type TacValidationHandler struct {
 
 // Handle accepts the TAC value and returns a payload showing if it is valid
 func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if appCtx.Session() == nil {
+	if session == nil {
 		return tacop.NewTacValidationUnauthorized()
 	}
 
-	if !appCtx.Session().IsOfficeApp() || !appCtx.Session().IsOfficeUser() {
+	if !session.IsOfficeApp() || !session.IsOfficeUser() {
 		return tacop.NewTacValidationForbidden()
 	}
 
-	db := appCtx.DB()
+	db := h.DB()
 	isValid, err := db.Where("tac = $1", strings.ToUpper(params.Tac)).Exists(&models.TransportationAccountingCode{})
 
 	if err != nil {
-		appCtx.Logger().Error("Error looking for transportation accounting code", zap.Error(err))
+		logger.Error("Error looking for transportation accounting code", zap.Error(err))
 		return tacop.NewTacValidationInternalServerError()
 	}
 

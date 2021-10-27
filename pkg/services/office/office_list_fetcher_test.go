@@ -60,7 +60,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		offices, err := fetcher.FetchOfficeList(suite.AppContextForTest(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		offices, err := fetcher.FetchOfficeList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, offices[0].ID)
@@ -76,7 +76,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 
 		fetcher := NewOfficeListFetcher(builder)
 
-		offices, err := fetcher.FetchOfficeList(suite.AppContextForTest(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		offices, err := fetcher.FetchOfficeList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

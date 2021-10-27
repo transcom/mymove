@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -48,18 +49,19 @@ type GetUploadHandler struct {
 
 // Handle retrieves a specific upload
 func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	uploadID := uuid.FromStringOrNil(params.UploadID.String())
 	uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 	if err != nil {
 		switch err.(type) {
 		case apperror.NotFoundError:
-			appCtx.Logger().Error("adminapi.GetUploadHandler not found error:", zap.Error(err))
+			logger.Error("adminapi.GetUploadHandler not found error:", zap.Error(err))
 			return uploadop.NewGetUploadNotFound()
 		default:
-			appCtx.Logger().Error("adminapi.GetUploadHandler error:", zap.Error(err))
-			return handlers.ResponseForError(appCtx.Logger(), err)
+			logger.Error("adminapi.GetUploadHandler error:", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	}
 	payload := payloadForUpload(uploadInformation)

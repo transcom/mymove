@@ -414,7 +414,6 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	}
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1125, nil)
@@ -486,7 +485,6 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	}
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1125, nil)
@@ -599,7 +597,6 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1044, nil)

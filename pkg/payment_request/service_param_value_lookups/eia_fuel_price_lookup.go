@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/gofrs/uuid"
@@ -30,12 +29,7 @@ func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
 	err := db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
-		default:
-			return "", apperror.NewQueryError("GHCDieselFuelPrice", err, "")
-		}
+		return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
 	}
 
 	value := fmt.Sprintf("%d", ghcDieselFuelPrice.FuelPriceInMillicents.Int())

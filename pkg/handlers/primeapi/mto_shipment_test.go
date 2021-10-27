@@ -334,7 +334,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -776,7 +775,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -922,7 +920,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -1390,7 +1387,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)

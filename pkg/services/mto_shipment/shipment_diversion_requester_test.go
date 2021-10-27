@@ -29,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		divertedShipment, err := requester.RequestShipmentDiversion(suite.AppContextForTest(), shipment.ID, shipmentEtag)
+		divertedShipment, err := requester.RequestShipmentDiversion(suite.TestAppContext(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
@@ -52,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := requester.RequestShipmentDiversion(suite.AppContextForTest(), rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -66,7 +66,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			},
 		})
 
-		_, err := requester.RequestShipmentDiversion(suite.AppContextForTest(), staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -76,7 +76,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentDiversion(suite.AppContextForTest(), badShipmentID, eTag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -98,7 +98,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 
 		shipmentRouter.On("RequestDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentDiversion(suite.AppContextForTest(), shipment.ID, eTag)
+		_, err = requester.RequestShipmentDiversion(suite.TestAppContext(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "RequestDiversion", 1)

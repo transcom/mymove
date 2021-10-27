@@ -1,7 +1,6 @@
 package move
 
 import (
-	"database/sql"
 	"errors"
 	"time"
 
@@ -37,12 +36,7 @@ func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, e
 	var existingMove models.Move
 	err := db.Find(&existingMove, move.ID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
-		default:
-			return nil, apperror.NewQueryError("Move", err, "")
-		}
+		return nil, err
 	}
 
 	if move.UpdatedAt != existingMove.UpdatedAt {
@@ -84,12 +78,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	var move models.Move
 	err := db.EagerPreload("MTOShipments", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(moveID, "looking for Move")
-		default:
-			return nil, nil, apperror.NewQueryError("Move", err, "")
-		}
+		return nil, nil, err
 	}
 
 	if move.Orders.Grade == nil {
@@ -149,12 +138,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	var move models.Move
 	err := db.Eager("MTOShipments", "MTOShipments.Reweigh", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveID, "looking for Move")
-		default:
-			return nil, apperror.NewQueryError("Move", err, "")
-		}
+		return nil, err
 	}
 
 	if move.Orders.Grade == nil {

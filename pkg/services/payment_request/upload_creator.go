@@ -1,7 +1,6 @@
 package paymentrequest
 
 import (
-	"database/sql"
 	"fmt"
 	"io"
 	"path"
@@ -37,12 +36,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appconte
 	var paymentRequest models.PaymentRequest
 	err := appCtx.DB().Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(paymentRequestID, "")
-		default:
-			return "", apperror.NewQueryError("PaymentRequest", err, "")
-		}
+		return "", apperror.NewNotFoundError(paymentRequestID, "")
 	}
 
 	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
@@ -78,12 +72,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		var paymentRequest models.PaymentRequest
 		err = txnAppCtx.DB().Find(&paymentRequest, paymentRequestID)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return apperror.NewNotFoundError(paymentRequestID, "")
-			default:
-				return apperror.NewQueryError("PaymentRequest", err, "")
-			}
+			return apperror.NewNotFoundError(paymentRequestID, "")
 		}
 		// create proof of service doc
 		proofOfServiceDoc := models.ProofOfServiceDoc{

@@ -383,7 +383,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(900, nil)
@@ -495,7 +494,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(mileage, nil)
@@ -533,8 +531,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	}
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID).Return(mockedSitCharge, mockedCost, nil).Once()
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
@@ -597,7 +594,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(900, nil)
@@ -899,11 +895,11 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	moveRouter := moverouter.NewMoveRouter()
 
-	err := moveRouter.Submit(suite.AppContextForTest(), &move)
+	err := moveRouter.Submit(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = moveRouter.Approve(suite.AppContextForTest(), &move)
+	err = moveRouter.Approve(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

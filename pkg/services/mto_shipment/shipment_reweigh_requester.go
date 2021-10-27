@@ -1,10 +1,10 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -40,13 +40,10 @@ func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, sh
 		Eager("Reweigh").
 		Find(&shipment, shipmentID)
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
 	}
 
 	return &shipment, nil

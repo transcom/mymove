@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useHistory, useParams, withRouter } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { useMutation } from 'react-query';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
-import { func } from 'prop-types';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
@@ -22,9 +20,8 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
-import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
+const PrimeUIShipmentUpdate = () => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
@@ -39,7 +36,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
-      setFlashMessage(`MSG_CREATE_PAYMENT_SUCCESS${shipmentId}`, 'success', `Successfully updated shipment`, '', true);
       handleClose();
     },
     onError: (error) => {
@@ -241,16 +237,4 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   );
 };
 
-PrimeUIShipmentUpdate.propTypes = {
-  setFlashMessage: func,
-};
-
-PrimeUIShipmentUpdate.defaultProps = {
-  setFlashMessage: () => {},
-};
-
-const mapDispatchToProps = {
-  setFlashMessage: setFlashMessageAction,
-};
-
-export default withRouter(connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdate));
+export default PrimeUIShipmentUpdate;

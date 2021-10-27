@@ -28,7 +28,7 @@ func (suite *MTOShipmentServiceSuite) createRouterApproveSubtestData() (subtestD
 		Stub: true,
 	})
 
-	subtestData.appContext = suite.AppContextForTest()
+	subtestData.appContext = suite.TestAppContext()
 
 	return subtestData
 }
@@ -113,7 +113,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Submit(suite.TestAppContext(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
@@ -135,7 +135,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Submit(suite.TestAppContext(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -159,7 +159,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Cancel(suite.TestAppContext(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusCanceled, shipment.Status)
@@ -181,7 +181,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Cancel(suite.TestAppContext(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -206,7 +206,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
+			err := shipmentRouter.Reject(suite.TestAppContext(), &shipment, &rejectionReason)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusRejected, shipment.Status)
@@ -229,7 +229,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
+			err := shipmentRouter.Reject(suite.TestAppContext(), &shipment, &rejectionReason)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -253,7 +253,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestDiversion(suite.TestAppContext(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status)
@@ -275,7 +275,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestDiversion(suite.TestAppContext(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -290,7 +290,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	shipmentRouter := NewShipmentRouter()
 
 	suite.Run("fails when the Diversion field is false", func() {
-		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.ApproveDiversion(suite.TestAppContext(), &shipment)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -308,7 +308,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 			shipment.Status = validStatus.status
 			shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.ApproveDiversion(suite.TestAppContext(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -331,7 +331,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 			shipment.Status = invalidStatus.status
 			shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.ApproveDiversion(suite.TestAppContext(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -355,7 +355,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestCancellation(suite.TestAppContext(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusCancellationRequested, shipment.Status)
@@ -377,7 +377,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestCancellation(suite.TestAppContext(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)

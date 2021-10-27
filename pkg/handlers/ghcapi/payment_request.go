@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -34,24 +35,25 @@ type GetPaymentRequestForMoveHandler struct {
 
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
 func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		appCtx.Logger().Error("user is not authenticated with TIO office role")
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
 		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
 	}
 
 	locator := params.Locator
 
-	paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, appCtx.Session().OfficeUserID, locator)
+	paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, session.OfficeUserID, locator)
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
 	returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError()
 	}
 
@@ -66,29 +68,30 @@ type GetPaymentRequestHandler struct {
 
 // Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		appCtx.Logger().Error("user is not authenticated with TIO office role")
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
 		return paymentrequestop.NewGetPaymentRequestForbidden()
 	}
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
 	paymentRequest, err := h.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
 	if reflect.DeepEqual(paymentRequest, models.PaymentRequest{}) {
-		appCtx.Logger().Info(fmt.Sprintf("Could not find a Payment Request with ID: %s", params.PaymentRequestID.String()))
+		logger.Info(fmt.Sprintf("Could not find a Payment Request with ID: %s", params.PaymentRequestID.String()))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
@@ -111,17 +114,18 @@ type UpdatePaymentRequestStatusHandler struct {
 
 // Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		appCtx.Logger().Error("user is not authenticated with TIO office role")
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
 		return paymentrequestop.NewUpdatePaymentRequestStatusForbidden()
 	}
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
@@ -129,7 +133,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
@@ -151,9 +155,9 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&existingPaymentRequest, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(&existingPaymentRequest, nil, logger, session, params.HTTPRequest)
 	if err != nil {
-		appCtx.Logger().Error("Auditing service error for payment request update.", zap.Error(err))
+		logger.Error("Auditing service error for payment request update.", zap.Error(err))
 		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 	}
 
@@ -170,7 +174,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 		default:
-			appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
+			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 		}
 	}
@@ -181,10 +185,11 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		UpdatedObjectID: updatedPaymentRequest.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentRequestStatusEndpointKey,
+		DBConnection:    h.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
+		logger.Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
 	}
 
 	returnPayload, err := payloads.PaymentRequest(updatedPaymentRequest, h.FileStorer())
@@ -203,12 +208,13 @@ type ShipmentsSITBalanceHandler struct {
 
 // Handle handles the getShipmentsPaymentSITBalance request
 func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
 
 	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
+		logger.Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
 		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 		switch err.(type) {
 		case apperror.NotFoundError:
@@ -222,7 +228,7 @@ func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsP
 		}
 	}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		return handleError(apperror.NewForbiddenError("user is not authorized with the TIO role"))
 	}
 

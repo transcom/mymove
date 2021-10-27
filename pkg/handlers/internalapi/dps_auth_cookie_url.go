@@ -31,7 +31,6 @@ type DPSAuthGetCookieURLHandler struct {
 
 // Handle generates the URL to redirect to that begins the authentication process for DPS
 func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	// TODO: Currently, only whitelisted DPS users can access this endpoint because
 	//   1. The /dps_cookie page is ungated on the front-end. The restriction here will prevent
 	//      people from actually doing anything useful with that page.
@@ -40,14 +39,15 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	// launch this feature, all service members should be able to access this endpoint.
 	// Important: Only DPS users should ever be allowed to set parameters though (for testing).
 	// Service members should never be allowed to set params and only be allowed to use the default params.
-	if !appCtx.Session().IsDpsUser() {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	if !session.IsDpsUser() {
 		return dps_auth.NewGetCookieURLForbidden()
 	}
 
 	dpsParams := h.DPSAuthParams()
 	url, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, dpsParams.SDDCPort, dpsauth.SetCookiePath))
 	if err != nil {
-		appCtx.Logger().Error("Parsing cookie URL", zap.Error(err))
+		logger.Error("Parsing cookie URL", zap.Error(err))
 		return dps_auth.NewGetCookieURLInternalServerError()
 	}
 
@@ -55,9 +55,9 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissing:
-			appCtx.Logger().Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
+			logger.Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
 		default:
-			appCtx.Logger().Error("Generating token for cookie URL", zap.Error(err))
+			logger.Error("Generating token for cookie URL", zap.Error(err))
 		}
 
 		return dps_auth.NewGetCookieURLInternalServerError()
@@ -72,7 +72,6 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 }
 
 func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLParams) (string, error) {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	dpsParams := h.DPSAuthParams()
 	cookieName := dpsParams.CookieName
 	if params.CookieName != nil {
@@ -84,9 +83,10 @@ func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLPa
 		dpsRedirectURL = *params.DpsRedirectURL
 	}
 
-	user, err := models.GetUser(appCtx.DB(), appCtx.Session().UserID)
+	session := h.SessionFromRequest(params.HTTPRequest)
+	user, err := models.GetUser(h.DB(), session.UserID)
 	if err != nil {
-		return "", &errUserMissing{userID: appCtx.Session().UserID}
+		return "", &errUserMissing{userID: session.UserID}
 	}
 
 	return dpsauth.GenerateToken(user.LoginGovUUID.String(), cookieName, dpsRedirectURL, h.DPSAuthParams().SecretKey)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/models"
 
@@ -25,7 +26,8 @@ type UpdateMTOServiceItemStatusHandler struct {
 
 // Handle updates mto server item statuses
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	mtoServiceItemID := uuid.FromStringOrNil(params.MtoServiceItemID)
 	status := models.MTOServiceItemStatus(params.Body.Status)
@@ -35,7 +37,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 	mtoServiceItem, err := h.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, status, reason, eTag)
 
 	if err != nil {
-		appCtx.Logger().Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
+		logger.Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:

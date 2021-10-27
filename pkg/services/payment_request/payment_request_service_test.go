@@ -21,8 +21,8 @@ type PaymentRequestServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *PaymentRequestServiceSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
+func (suite *PaymentRequestServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestPaymentRequestServiceSuite(t *testing.T) {

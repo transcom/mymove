@@ -60,7 +60,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.AppContextForTest(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, tspps[0].ID)
@@ -87,7 +87,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.AppContextForTest(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Len(tspps, 2)
@@ -103,7 +103,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 		fetcher := NewTransportationServiceProviderPerformanceListFetcher(builder)
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.AppContextForTest(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
@@ -130,7 +130,7 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.AppContextForTest(), filters)
+		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.TestAppContext(), filters)
 
 		suite.NoError(err)
 		suite.Equal(2, count)
@@ -146,7 +146,7 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 
 		fetcher := NewTransportationServiceProviderPerformanceListFetcher(builder)
 
-		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.AppContextForTest(), []services.QueryFilter{})
+		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.TestAppContext(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

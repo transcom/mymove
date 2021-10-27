@@ -73,11 +73,10 @@ const ShipmentSITDisplay = ({
     </>
   );
 
-  // data-happo-hide is in place to compensate for mockDate being ignored in Storybook
   const daysRemainingAndEndDate = (
     <>
       <p>{sitStatus.totalDaysRemaining} remaining</p>
-      <p data-happo-hide>{sitEndDate}</p>
+      <p>{sitEndDate}</p>
     </>
   );
 

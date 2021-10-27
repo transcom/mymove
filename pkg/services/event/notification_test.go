@@ -111,7 +111,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.T().Run("Success with MTOServiceItemDOFSIT", func(t *testing.T) {
 		data := &primemessages.MTOServiceItemOriginSIT{}
 
-		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOFSIT.ID)
+		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.TestAppContext(), mtoServiceItemDOFSIT.ID)
 
 		unmarshalErr := data.UnmarshalJSON(payload)
 
@@ -126,7 +126,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.T().Run("Success with MTOServiceItemDDFSIT", func(t *testing.T) {
 		data := &primemessages.MTOServiceItemDestSIT{}
 
-		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDDFSIT.ID)
+		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.TestAppContext(), mtoServiceItemDDFSIT.ID)
 
 		unmarshalErr := data.UnmarshalJSON(payload)
 
@@ -143,7 +143,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.T().Run("Success with MTOServiceItemDCRT", func(t *testing.T) {
 		data := &primemessages.MTOServiceItemDomesticCrating{}
 
-		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDCRT.ID)
+		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.TestAppContext(), mtoServiceItemDCRT.ID)
 
 		unmarshalErr := data.UnmarshalJSON(payload)
 
@@ -160,7 +160,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.T().Run("Success with MTOServiceItemDOSHUT", func(t *testing.T) {
 		data := &primemessages.MTOServiceItemShuttle{}
 
-		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOSHUT.ID)
+		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.TestAppContext(), mtoServiceItemDOSHUT.ID)
 
 		unmarshalErr := data.UnmarshalJSON(payload)
 
@@ -178,7 +178,7 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 
 	suite.T().Run("Success with default Order", func(t *testing.T) {
-		payload, err := assembleOrderPayload(suite.AppContextForTest(), order.ID)
+		payload, err := assembleOrderPayload(suite.TestAppContext(), order.ID)
 
 		data := &primemessages.Order{}
 		unmarshalErr := data.UnmarshalBinary(payload)

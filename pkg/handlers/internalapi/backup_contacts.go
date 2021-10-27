@@ -35,26 +35,27 @@ type CreateBackupContactHandler struct {
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
 
-	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
 
+	// User should always be populated by middleware
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	if params.CreateBackupContactPayload.Permission == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: Permission"))
+		return handlers.ResponseForError(logger, errors.New("missing required field: Permission"))
 	}
 
-	newContact, verrs, err := serviceMember.CreateBackupContact(appCtx.DB(),
+	newContact, verrs, err := serviceMember.CreateBackupContact(h.DB(),
 		*params.CreateBackupContactPayload.Name,
 		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
 		models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -68,12 +69,12 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -95,12 +96,11 @@ type ShowBackupContactHandler struct {
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
+	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -115,11 +115,11 @@ type UpdateBackupContactHandler struct {
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
+	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
@@ -129,8 +129,8 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 		contact.Permission = models.BackupContactPermission(*params.UpdateServiceMemberBackupContactPayload.Permission)
 	}
 
-	if verrs, err := appCtx.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)

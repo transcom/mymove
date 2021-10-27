@@ -20,7 +20,7 @@ type ReceiveWebhookNotificationHandler struct {
 
 // Handle receipt of message
 func (h ReceiveWebhookNotificationHandler) Handle(params webhookops.ReceiveWebhookNotificationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 	notif := params.Body
 
 	objectID := "<empty>"
@@ -32,7 +32,7 @@ func (h ReceiveWebhookNotificationHandler) Handle(params webhookops.ReceiveWebho
 		mtoID = notif.MoveTaskOrderID.String()
 	}
 
-	appCtx.Logger().Info("Received Webhook Notification: ",
+	logger.Info("Received Webhook Notification: ",
 		zap.String("id", notif.ID.String()),
 		zap.String("eventKey", notif.EventKey),
 		zap.String("createdAt", notif.CreatedAt.String()),
@@ -49,7 +49,7 @@ type CreateWebhookNotificationHandler struct {
 
 // Handle handles the endpoint request to the createWebhookNotification handler
 func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhookNotificationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.Body
 
 	var err error
@@ -66,16 +66,16 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 	// Convert to model and create in DB
 	notification, verrs := payloads.WebhookNotificationModel(payload, h.GetTraceID())
 	if verrs == nil {
-		verrs, err = appCtx.DB().ValidateAndCreate(notification)
+		verrs, err = h.DB().ValidateAndCreate(notification)
 	}
 	if verrs != nil && verrs.HasAny() {
-		appCtx.Logger().Error("Error validating WebhookNotification: ", zap.Error(verrs))
+		logger.Error("Error validating WebhookNotification: ", zap.Error(verrs))
 
 		return webhookops.NewCreateWebhookNotificationUnprocessableEntity().WithPayload(payloads.ValidationError(
 			"The notification definition is invalid.", h.GetTraceID(), verrs))
 	}
 	if err != nil {
-		appCtx.Logger().Error("Error creating WebhookNotification: ", zap.Error(err))
+		logger.Error("Error creating WebhookNotification: ", zap.Error(err))
 		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), h.GetTraceID()))
 	}
 

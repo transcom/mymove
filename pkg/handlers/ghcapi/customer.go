@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -28,11 +29,12 @@ type GetCustomerHandler struct {
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	customerID, _ := uuid.FromString(params.CustomerID.String())
 	customer, err := h.FetchCustomer(appCtx, customerID)
 	if err != nil {
-		appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
+		logger.Error("Loading Customer Info", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return customercodeop.NewGetCustomerNotFound()
@@ -52,16 +54,17 @@ type UpdateCustomerHandler struct {
 
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		appCtx.Logger().Error("user is not authenticated with service counselor office role")
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		logger.Error("user is not authenticated with service counselor office role")
 		return customercodeop.NewUpdateCustomerForbidden()
 	}
 
 	customerID, err := uuid.FromString(params.CustomerID.String())
 	if err != nil {
-		appCtx.Logger().Error("unable to parse customer id param to uuid", zap.Error(err))
+		logger.Error("unable to parse customer id param to uuid", zap.Error(err))
 		return customercodeop.NewUpdateCustomerBadRequest()
 	}
 
@@ -71,7 +74,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 	updatedCustomer, err := h.customerUpdater.UpdateCustomer(appCtx, params.IfMatch, newCustomer)
 
 	if err != nil {
-		appCtx.Logger().Error("error updating customer", zap.Error(err))
+		logger.Error("error updating customer", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return customercodeop.NewGetCustomerNotFound()

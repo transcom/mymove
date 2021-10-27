@@ -34,7 +34,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
-	appCtx := suite.AppContextForTest(&auth.Session{})
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 	queryBuilder := query.NewQueryBuilder()
 
 	loginGovUUID := uuid.Must(uuid.NewV4())

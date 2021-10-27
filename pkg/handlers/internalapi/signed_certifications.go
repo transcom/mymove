@@ -41,8 +41,8 @@ type CreateSignedCertificationHandler struct {
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	payload := params.CreateSignedCertificationPayload
 
@@ -50,9 +50,9 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	if payload.PersonallyProcuredMoveID != nil {
 		ppmID, err := uuid.FromString((*payload.PersonallyProcuredMoveID).String())
 		if err == nil {
-			_, err = models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			_, err = models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 	}
@@ -63,20 +63,20 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		ptrCertType = &certType
 	}
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	newSignedCertification, verrs, err := move.CreateSignedCertification(appCtx.DB(),
-		appCtx.Session().UserID,
+	newSignedCertification, verrs, err := move.CreateSignedCertification(h.DB(),
+		session.UserID,
 		*payload.CertificationText,
 		*payload.Signature,
 		(time.Time)(*payload.Date),
 		ppmID,
 		ptrCertType)
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	signedCertificationPayload := payloadForSignedCertificationModel(*newSignedCertification)
 	stringCertType := ""
@@ -84,7 +84,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		stringCertType = string(*signedCertificationPayload.CertificationType)
 	}
 
-	appCtx.Logger().Info("signedCertification created",
+	logger.Info("signedCertification created",
 		zap.String("id", signedCertificationPayload.ID.String()),
 		zap.String("moveId", signedCertificationPayload.MoveID.String()),
 		zap.String("createdAt", signedCertificationPayload.CreatedAt.String()),
@@ -102,21 +102,21 @@ type IndexSignedCertificationsHandler struct {
 
 // Handle gets a list of SignedCertifications for a move
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	_, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+	_, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), appCtx.Session(), moveID)
+	signedCertifications, err := models.FetchSignedCertifications(h.DB(), session, moveID)
 	var signedCertificationsPayload internalmessages.SignedCertifications
 	for _, sc := range signedCertifications {
 		signedCertificationsPayload = append(signedCertificationsPayload, payloadForSignedCertificationModel(*sc))
 	}
 	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return certop.NewIndexSignedCertificationOK().WithPayload(signedCertificationsPayload)
 }

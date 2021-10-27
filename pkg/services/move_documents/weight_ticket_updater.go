@@ -3,29 +3,31 @@ package movedocument
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // WeightTicketUpdater updates weight tickets
 type WeightTicketUpdater struct {
+	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
 // Update updates the weight ticket documents
-func (wtu WeightTicketUpdater) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	if moveDocumentPayload.MoveDocumentType == nil {
 		return nil, nil, errors.New("missing required field: MoveDocumentType")
 	}
 	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	var emptyWeight, fullWeight *unit.Pound
-	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(appCtx, moveDocumentPayload, moveDoc)
+	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating move document status")
 	}
@@ -92,18 +94,18 @@ func (wtu WeightTicketUpdater) Update(appCtx appcontext.AppContext, moveDocument
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketSetType = models.WeightTicketSetType(*moveDocumentPayload.WeightTicketSetType)
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketDate = weightTicketDate
 	updatedMoveDoc.WeightTicketSetDocument.TrailerOwnershipMissing = trailerOwnershipMissing
-	updatedMoveDoc, returnVerrs, err = wtu.updatePPMNetWeight(appCtx, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = wtu.updatePPMNetWeight(updatedMoveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating weight ticket ppm")
 	}
-	updatedMoveDoc, returnVerrs, err = wtu.updateWeightTicket(appCtx, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = wtu.updateWeightTicket(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating weight ticket")
 	}
 	return updatedMoveDoc, returnVerrs, nil
 }
 
-func (wtu WeightTicketUpdater) updatePPMNetWeight(appCtx appcontext.AppContext, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) updatePPMNetWeight(moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	// weight tickets require that we save the ppm again to
 	// reflect updated net weight derived from the updated weight tickets
 	returnVerrs := validate.NewErrors()
@@ -112,7 +114,7 @@ func (wtu WeightTicketUpdater) updatePPMNetWeight(appCtx appcontext.AppContext, 
 		return &models.MoveDocument{}, returnVerrs, errors.New("weightticketupdater.updateppmnetweight: no PPM loaded for move doc")
 	}
 	okStatus := models.MoveDocumentStatusOK
-	mergedMoveDocuments, err := mergeMoveDocuments(appCtx, ppm.ID, moveDoc, models.MoveDocumentTypeWEIGHTTICKETSET, okStatus)
+	mergedMoveDocuments, err := mergeMoveDocuments(wtu.db, session, ppm.ID, moveDoc, models.MoveDocumentTypeWEIGHTTICKETSET, okStatus)
 	if err != nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("weightticketupdater.updateppmnetweight: unable to merge move documents")
 	}
@@ -127,12 +129,12 @@ func (wtu WeightTicketUpdater) updatePPMNetWeight(appCtx appcontext.AppContext, 
 	return moveDoc, returnVerrs, nil
 }
 
-func (wtu WeightTicketUpdater) updateWeightTicket(appCtx appcontext.AppContext, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) updateWeightTicket(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 	if moveDoc.MovingExpenseDocument != nil {
 		saveExpenseAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
 	}
-	returnVerrs, err := models.SaveMoveDocument(appCtx.DB(), moveDoc, saveExpenseAction, models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL)
+	returnVerrs, err := models.SaveMoveDocument(wtu.db, moveDoc, saveExpenseAction, models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL)
 	if err != nil || returnVerrs.HasAny() {
 		return &models.MoveDocument{}, returnVerrs, err
 	}

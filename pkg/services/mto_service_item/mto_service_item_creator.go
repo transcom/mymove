@@ -1,7 +1,6 @@
 package mtoserviceitem
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -44,12 +43,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// check if Move exists
 	err = o.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(moveID, "in Moves")
-		default:
-			return nil, nil, apperror.NewQueryError("Move", err, "")
-		}
+		return nil, nil, apperror.NewNotFoundError(moveID, "in Moves")
 	}
 
 	// Service items can only be created if a Move's status is either Approved
@@ -69,12 +63,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
-		default:
-			return nil, nil, apperror.NewQueryError("ReService", err, "")
-		}
+		return nil, nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
 	// set re service fields for service item
 	serviceItem.ReServiceID = reService.ID
@@ -116,12 +105,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
-		default:
-			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+		return nil, nil, apperror.NewNotFoundError(mtoShipmentID,
+			fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
@@ -335,12 +320,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	}
 	err := o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
-		default:
-			return nil, apperror.NewQueryError("ReService", err, "")
-		}
+		return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
 	}
 
 	extraServiceItem := models.MTOServiceItem{
@@ -417,12 +397,8 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appconte
 	err := o.builder.FetchOne(appCtx, &validReService, queryFilter)
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
-		default:
-			return nil, apperror.NewQueryError("ReService", err, "")
-		}
+		err = apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
+		return nil, err
 	}
 
 	mtoServiceItemQueryFilter := []services.QueryFilter{
@@ -433,12 +409,8 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appconte
 	err = o.builder.FetchOne(appCtx, &mtoServiceItem, mtoServiceItemQueryFilter)
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
-		default:
-			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
-		}
+		err = apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
+		return nil, err
 	}
 
 	verrs := validate.NewErrors()

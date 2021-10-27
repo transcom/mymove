@@ -13,6 +13,8 @@ import (
 )
 
 func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	ppms := make([]models.PersonallyProcuredMove, 0)
 	estimateMin := unit.Cents(1000)
 	estimateMax := unit.Cents(2000)

@@ -60,7 +60,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		adminUsers, err := fetcher.FetchAdminUserList(suite.AppContextForTest(nil), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		adminUsers, err := fetcher.FetchAdminUserList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, adminUsers[0].ID)
@@ -76,7 +76,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 
 		fetcher := NewAdminUserListFetcher(builder)
 
-		adminUsers, err := fetcher.FetchAdminUserList(suite.AppContextForTest(nil), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		adminUsers, err := fetcher.FetchAdminUserList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

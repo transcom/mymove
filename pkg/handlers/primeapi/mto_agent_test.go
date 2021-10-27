@@ -373,7 +373,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		payload := subtestData.receivingAgent
 		// set up the shipment and agent as already associated with
 		// each other
-		_, err := subtestData.handler.MTOAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), payloads.MTOAgentModel(payload))
+		_, err := subtestData.handler.MTOAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), payloads.MTOAgentModel(payload))
 		suite.NoError(err)
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   subtestData.req,

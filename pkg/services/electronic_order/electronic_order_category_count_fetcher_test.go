@@ -38,7 +38,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCou
 			query.NewQueryFilter("issuer", "=", models.IssuerArmy),
 		}
 
-		counts, err := fetcher.FetchElectronicOrderCategoricalCounts(suite.AppContextForTest(), filters, nil)
+		counts, err := fetcher.FetchElectronicOrderCategoricalCounts(suite.TestAppContext(), filters, nil)
 		suite.NoError(err)
 		suite.Equal(3, counts[models.IssuerArmy])
 	})
@@ -57,7 +57,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCou
 			query.NewQueryFilter("issuer", "=", models.IssuerArmy),
 		}
 
-		counts, err := fetcher.FetchElectronicOrderCategoricalCounts(suite.AppContextForTest(), filters, nil)
+		counts, err := fetcher.FetchElectronicOrderCategoricalCounts(suite.TestAppContext(), filters, nil)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
