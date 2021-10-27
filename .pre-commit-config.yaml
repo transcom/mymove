@@ -80,9 +80,14 @@ repos:
     hooks:
       - id: appcontext-linter
         name: appcontext-linter
-        entry: appcontext-linter
+        entry: go/bin/appcontext-linter
         files: \.go$
         language: golang
+        exclude: >
+          (?x)^(
+            pkg/models/|
+            pkg/appcontext/
+          )
 
   - repo: local
     hooks:
