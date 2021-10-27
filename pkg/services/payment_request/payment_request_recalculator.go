@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"database/sql"
 	"fmt"
 	"sort"
 
@@ -56,10 +57,12 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 		).
 		Find(&oldPaymentRequest, paymentRequestID)
 	if err != nil {
-		if err.Error() == models.RecordNotFoundErrorString {
+		switch err {
+		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(paymentRequestID, "for PaymentRequest")
+		default:
+			return nil, apperror.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
 		}
-		return nil, apperror.NewQueryError("PaymentRequest", err, fmt.Sprintf("unexpected error while querying for payment request ID %s", paymentRequestID))
 	}
 	oldPaymentRequestEtag := etag.GenerateEtag(oldPaymentRequest.UpdatedAt)
 

@@ -24,7 +24,7 @@ type HiddenMoves []HiddenMove
 // MoveTaskOrderHider is the service object interface for Hide
 //go:generate mockery --name MoveTaskOrderHider --disable-version-string
 type MoveTaskOrderHider interface {
-	Hide() (HiddenMoves, error)
+	Hide(appCtx appcontext.AppContext) (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder

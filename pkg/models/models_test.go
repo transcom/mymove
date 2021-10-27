@@ -24,8 +24,8 @@ func (suite *ModelSuite) SetupTest() {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *ModelSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *ModelSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {

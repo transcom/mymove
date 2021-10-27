@@ -71,7 +71,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShimpentSubtestData() (subtes
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
 
-	subtestData.appCtx = suite.TestAppContext()
+	subtestData.appCtx = suite.AppContextForTest()
 
 	return subtestData
 }
@@ -190,6 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.FatalNoError(err)
 
 		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress,
 			createdShipment.DestinationAddress,
 		).Return(500, nil)

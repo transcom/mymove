@@ -15,6 +15,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -39,7 +40,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
-		priceCents, displayParams, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 
@@ -51,13 +52,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
-		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
@@ -70,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
-		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), paramsWithBelowMinimumWeight)
+		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		if suite.Error(err) {
 			suite.Equal("Weight must be a minimum of 500", err.Error())
 			suite.Equal(unit.Cents(0), priceCents)
@@ -78,34 +79,34 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	})
 
 	suite.Run("FSC is negative if fuel price from EIA is below $2.50", func() {
-		priceCents, _, err := fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
 
 	suite.Run("Price validation errors", func() {
 		// No actual pickup date
-		_, _, err := fuelSurchargePricer.Price(suite.TestAppContext(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
 		suite.Error(err)
 		suite.Equal("ActualPickupDate is required", err.Error())
 
 		// No distance
-		_, _, err = fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, _, err = fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice)
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("Weight must be a minimum of %d", minDomesticWeight), err.Error())
 
 		// No weight based distance multiplier
-		_, _, err = fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice)
 		suite.Error(err)
 		suite.Equal("WeightBasedDistanceMultiplier is required", err.Error())
 
 		// No EIA fuel price
-		_, _, err = fuelSurchargePricer.Price(suite.TestAppContext(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0)
 		suite.Error(err)
 		suite.Equal("EIAFuelPrice is required", err.Error())
 	})
@@ -121,25 +122,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 
 		// No ActualPickupDate
 		missingActualPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameActualPickupDate)
-		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingActualPickupDate)
+		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), missingActualPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key ActualPickupDate", err.Error())
 
 		// No WeightBilled
 		missingWeightBilled := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingWeightBilled)
+		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), missingWeightBilled)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No FSCWeightBasedDistanceMultiplier
 		missingFSCWeightBasedDistanceMultiplier := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
-		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingFSCWeightBasedDistanceMultiplier)
+		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), missingFSCWeightBasedDistanceMultiplier)
 		suite.Error(err)
 		suite.Equal("could not find param with key FSCWeightBasedDistanceMultiplier", err.Error())
 
 		// No EIAFuelPrice
 		missingEIAFuelPrice := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameEIAFuelPrice)
-		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), missingEIAFuelPrice)
+		_, _, err = fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), missingEIAFuelPrice)
 		suite.Error(err)
 		suite.Equal("could not find param with key EIAFuelPrice", err.Error())
 	})
@@ -155,9 +156,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 
 		paramsWithBadReference := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
-		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.TestAppContext(), paramsWithBadReference)
+		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference)
 		suite.Error(err)
-		suite.Contains(err.Error(), "no rows in result set")
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
 

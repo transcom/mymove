@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -65,7 +67,12 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 	var paymentServiceItem models.PaymentServiceItem
 	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 	if err != nil {
-		return unit.Cents(0), nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
+		default:
+			return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
+		}
 	}
 
 	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment

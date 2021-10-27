@@ -15,19 +15,14 @@ type UsersRolesServiceSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *UsersRolesServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
-}
-
-func (suite *UsersRolesServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *UsersRolesServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestUsersRolesServiceSuite(t *testing.T) {
 	ts := &UsersRolesServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

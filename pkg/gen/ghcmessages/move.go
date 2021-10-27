@@ -49,6 +49,16 @@ type Move struct {
 	// Format: date-time
 	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excess_weight_qualified_at,omitempty"`
 
+	// This flag is set by office users if a move should be reviewed by a Financial Office
+	// Example: false
+	// Read Only: true
+	FinancialReviewFlag bool `json:"financialReviewFlag,omitempty"`
+
+	// financial review remarks
+	// Example: Destination address is too far from duty location
+	// Read Only: true
+	FinancialReviewRemarks *string `json:"financialReviewRemarks,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -345,6 +355,14 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateFinancialReviewFlag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateFinancialReviewRemarks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -368,6 +386,24 @@ func (m *Move) contextValidateContractor(ctx context.Context, formats strfmt.Reg
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateFinancialReviewFlag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "financialReviewFlag", "body", bool(m.FinancialReviewFlag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateFinancialReviewRemarks(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "financialReviewRemarks", "body", m.FinancialReviewRemarks); err != nil {
+		return err
 	}
 
 	return nil

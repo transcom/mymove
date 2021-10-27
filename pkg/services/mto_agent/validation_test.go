@@ -132,7 +132,7 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 
 	for name, tc := range testCases {
 		suite.Run(name, func() {
-			tc.verf(validateMTOAgent(suite.TestAppContext(), na, &oa, &sh, tc.checks...))
+			tc.verf(validateMTOAgent(suite.AppContextForTest(), na, &oa, &sh, tc.checks...))
 		})
 	}
 }

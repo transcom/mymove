@@ -16,7 +16,7 @@ type PaginationServiceSuite struct {
 
 func TestPaginationSuite(t *testing.T) {
 	ts := &PaginationServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(),
 	}
 

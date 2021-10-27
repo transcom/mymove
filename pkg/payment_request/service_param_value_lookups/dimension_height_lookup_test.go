@@ -46,10 +46,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionHeightLookup() {
 		})
 		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
 		suite.MustSave(&mtoServiceItem)
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		stringValue, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		stringValue, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 
 		suite.Equal("96", stringValue)
@@ -58,10 +58,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionHeightLookup() {
 
 	suite.T().Run("missing dimension should error", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "unable to find height crate dimension")

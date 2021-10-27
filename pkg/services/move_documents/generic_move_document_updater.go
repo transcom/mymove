@@ -1,31 +1,29 @@
 package movedocument
 
 import (
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // GenericUpdater is a genertic document updater
 type GenericUpdater struct {
-	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
 // Update updates the generic (non-special case) move documents
-func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (gu GenericUpdater) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	if moveDocumentPayload.MoveDocumentType == nil {
 		return nil, nil, errors.New("missing required field: MoveDocumentType")
 	}
 
 	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
-	updatedMoveDoc, returnVerrs, err := gu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
+	updatedMoveDoc, returnVerrs, err := gu.UpdateMoveDocumentStatus(appCtx, moveDocumentPayload, moveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "update: error updating move document status")
 	}
@@ -67,7 +65,7 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
 	}
-	returnVerrs, err = models.SaveMoveDocument(gu.db, updatedMoveDoc, saveExpenseAction, saveWeightTicketAction)
+	returnVerrs, err = models.SaveMoveDocument(appCtx.DB(), updatedMoveDoc, saveExpenseAction, saveWeightTicketAction)
 	if err != nil || returnVerrs.HasAny() {
 		return &models.MoveDocument{}, returnVerrs, err
 	}

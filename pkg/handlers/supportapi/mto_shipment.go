@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
@@ -28,8 +27,7 @@ type UpdateMTOShipmentStatusHandlerFunc struct {
 
 // Handle updates the status of a MTO Shipment
 func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 	status := models.MTOShipmentStatus(params.Body.Status)
@@ -39,7 +37,7 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 	shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, eTag)
 
 	if err != nil {
-		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
+		appCtx.Logger().Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
