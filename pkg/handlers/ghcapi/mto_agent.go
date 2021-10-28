@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -27,14 +26,13 @@ type ListMTOAgentsHandler struct {
 
 //Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	mtoShipmentID, err := uuid.FromString(params.ShipmentID.String())
 	// Return parsing sadness
 	if err != nil {
 		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MTOShipmentID", err).Error()
-		logger.Error(parsingError)
+		appCtx.Logger().Error(parsingError)
 		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
 		return mtoagentop.NewFetchMTOAgentListUnprocessableEntity().WithPayload(payload)
 	}
@@ -48,10 +46,10 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 	// return errors
 	if err != nil {
 		if err.Error() == "FETCH_NOT_FOUND" {
-			logger.Error(fmt.Sprintf("Error while fetching mto agents. Could not find record with mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
+			appCtx.Logger().Error(fmt.Sprintf("Error while fetching mto agents. Could not find record with mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
 			return mtoagentop.NewFetchMTOAgentListNotFound()
 		}
-		logger.Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
+		appCtx.Logger().Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
 		return mtoagentop.NewFetchMTOAgentListInternalServerError()
 	}
 

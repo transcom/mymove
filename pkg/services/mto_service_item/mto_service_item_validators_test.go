@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gobuffalo/validate/v3"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -32,7 +32,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.TestAppContext())
+		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -50,7 +50,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.TestAppContext())
+		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -72,7 +72,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability(suite.TestAppContext())
+		err := serviceItemData.checkPrimeAvailability(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -86,10 +86,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability(suite.TestAppContext())
+		err := serviceItemData.checkPrimeAvailability(suite.AppContextForTest())
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 	})
 
@@ -100,7 +100,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -119,7 +119,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -136,7 +136,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -157,7 +157,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldDDDSIT,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -171,10 +171,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 		suite.Contains(err.Error(), "SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items")
 	})
@@ -186,7 +186,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.TestAppContext())
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -205,10 +205,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.TestAppContext())
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 		suite.Contains(err.Error(), "this service item has an existing payment request and can no longer be updated")
 	})
@@ -220,8 +220,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.TestAppContext()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.NoError(err)
@@ -235,12 +235,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.TestAppContext()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.True(serviceItemData.verrs.HasAny())
 	})
 

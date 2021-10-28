@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -53,9 +55,9 @@ where uploads.id = $1`
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return services.UploadInformation{}, services.NewNotFoundError(uploadID, "")
+			return services.UploadInformation{}, apperror.NewNotFoundError(uploadID, "")
 		default:
-			return services.UploadInformation{}, err
+			return services.UploadInformation{}, apperror.NewQueryError("UploadInformation", err, "")
 		}
 	}
 	pop.Debug = false

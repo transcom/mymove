@@ -1,10 +1,12 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,10 +40,13 @@ func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, sh
 		Eager("Reweigh").
 		Find(&shipment, shipmentID)
 
-	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
-	} else if err != nil {
-		return nil, err
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil
@@ -61,15 +66,13 @@ func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, s
 
 	verrs, dbErr := appCtx.DB().ValidateAndSave(&reweigh)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not save the reweigh while requesting the reweigh as a TOO.")
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not save the reweigh while requesting the reweigh as a TOO.")
 
 		return nil, invalidInputError
 	}
 	if dbErr != nil {
 		return nil, dbErr
 	}
-
-	reweigh.Shipment = *shipment
 
 	return &reweigh, nil
 }

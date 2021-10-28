@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-4b09540d82b4496c79089a3228ced3142ed83c40 as builder
+FROM milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93 as builder
 
 # Prepare public DOD certificates.
 # hadolint ignore=DL3002
@@ -14,6 +14,10 @@ RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.demo.dp3.us.p7b -out /us
 # Loadtesting Environment Certs
 COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /tmp/api.loadtest.dp3.us.chain.der.p7b
 RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.loadtest.dp3.us.chain.der.p7b -out /usr/local/share/ca-certificates/api.loadtest.dp3.us.chain.der.crt
+# Exp Environment Certs
+COPY config/tls/api.exp.dp3.us.chain.der.p7b /tmp/api.exp.dp3.us.chain.der.p7b
+RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.exp.dp3.us.chain.der.p7b -out /usr/local/share/ca-certificates/api.exp.dp3.us.chain.der.crt
+
 
 RUN update-ca-certificates
 

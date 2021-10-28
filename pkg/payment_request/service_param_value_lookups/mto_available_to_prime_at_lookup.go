@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
@@ -23,15 +23,15 @@ func (m MTOAvailableToPrimeAtLookup) lookup(appCtx appcontext.AppContext, keyDat
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", services.NewNotFoundError(moveTaskOrderID, "looking for MoveTaskOrderID")
+			return "", apperror.NewNotFoundError(moveTaskOrderID, "looking for MoveTaskOrderID")
 		default:
-			return "", err
+			return "", apperror.NewQueryError("Move", err, "")
 		}
 	}
 
 	availableToPrimeAt := moveTaskOrder.AvailableToPrimeAt
 	if availableToPrimeAt == nil {
-		return "", services.NewBadDataError("This move task order is not available to prime")
+		return "", apperror.NewBadDataError("This move task order is not available to prime")
 	}
 
 	return (*availableToPrimeAt).Format(ghcrateengine.TimestampParamFormat), nil

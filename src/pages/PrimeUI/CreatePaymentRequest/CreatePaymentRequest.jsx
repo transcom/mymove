@@ -1,166 +1,177 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Button, Checkbox } from '@trussworks/react-uswds';
+import React, { useState, useMemo } from 'react';
+import { useParams, useHistory, withRouter } from 'react-router-dom';
+import * as Yup from 'yup';
+import { Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+import { queryCache, useMutation } from 'react-query';
+import moment from 'moment';
+import { generatePath } from 'react-router';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
 
-import { shipmentTypeLabels } from '../../../content/shipments';
-import { formatDateFromIso } from '../../../shared/formatters';
+import { createPaymentRequest } from '../../../services/primeApi';
+import scrollToTop from '../../../shared/scrollToTop';
+import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
+import { primeSimulatorRoutes } from '../../../constants/routes';
+import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
+import { formatDateForSwagger } from '../../../shared/dates';
+
+import styles from './CreatePaymentRequest.module.scss';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
-import { ShipmentOptionsOneOf } from 'types/shipment';
-import { AgentShape } from 'types/agent';
-import { AddressShape } from 'types/address';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-const ServiceItem = ({ serviceItem }) => {
-  return (
-    <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${serviceItem.reServiceName}`}</h3>
-      <div className={descriptionListStyles.row}>
-        <dt>Status:</dt>
-        <dd>{serviceItem.status}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>ID:</dt>
-        <dd>{serviceItem.id}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Service Code:</dt>
-        <dd>{serviceItem.reServiceCode}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Service Name:</dt>
-        <dd>{serviceItem.reServiceName}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>eTag:</dt>
-        <dd>{serviceItem.eTag}</dd>
-      </div>
-    </dl>
-  );
-};
+// We could ideally specify something like oneOfSchema outlined here
+// (https://gist.github.com/cb109/8eda798a4179dc21e46922a5fbb98be6) for the additional day SIT value with params
+const createPaymentRequestSchema = Yup.object().shape({
+  serviceItems: Yup.array().of(Yup.string()).min(1),
+  params: Yup.object().shape({}),
+});
 
-ServiceItem.propTypes = {
-  serviceItem: PropTypes.shape({
-    id: PropTypes.string,
-    reServiceCode: PropTypes.string,
-    reServiceName: PropTypes.string,
-    eTag: PropTypes.string,
-    status: PropTypes.string,
-  }).isRequired,
-};
+const CreatePaymentRequest = ({ setFlashMessage }) => {
+  const { moveCodeOrID } = useParams();
+  const history = useHistory();
 
-const Shipment = ({ shipment }) => {
-  return (
-    <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
-      <div className={descriptionListStyles.row}>
-        <dt>Status:</dt>
-        <dd>{shipment.status}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Shipment ID:</dt>
-        <dd>{shipment.id}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Shipment eTag:</dt>
-        <dd>{shipment.eTag}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Requested Pickup Date:</dt>
-        <dd>{shipment.requestedPickupDate}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Actual Pickup Date:</dt>
-        <dd>{shipment.actualPickupDate}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Estimated Weight:</dt>
-        <dd>{shipment.primeEstimatedWeight}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Actual Weight:</dt>
-        <dd>{shipment.primeActualWeight}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Pickup Address:</dt>
-        <dd>
-          {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
-          {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
-        </dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Destination Address:</dt>
-        <dd>
-          {shipment.destinationAddress.streetAddress1} {shipment.destinationAddress.streetAddress2}{' '}
-          {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
-          {shipment.destinationAddress.postalCode}
-        </dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Created at:</dt>
-        <dd>{formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD')}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Approved at:</dt>
-        <dd>{shipment.approvedDate}</dd>
-      </div>
-    </dl>
-  );
-};
+  const [errorMessage, setErrorMessage] = useState();
 
-Shipment.propTypes = {
-  shipment: PropTypes.shape({
-    id: PropTypes.string,
-    eTag: PropTypes.string,
-    shipmentType: ShipmentOptionsOneOf,
-    requestedPickupDate: PropTypes.string,
-    scheduledPickupDate: PropTypes.string,
-    actualPickupDate: PropTypes.string,
-    pickupAddress: AddressShape,
-    secondaryPickupAddress: AddressShape,
-    destinationAddress: AddressShape,
-    secondaryDeliveryAddress: AddressShape,
-    agents: PropTypes.arrayOf(AgentShape),
-    primeEstimatedWeight: PropTypes.number,
-    primeActualWeight: PropTypes.number,
-    diversion: PropTypes.bool,
-    counselorRemarks: PropTypes.string,
-    customerRemarks: PropTypes.string,
-    status: PropTypes.string,
-    reweigh: PropTypes.shape({
-      id: PropTypes.string,
-    }),
-    createdAt: PropTypes.string,
-    approvedDate: PropTypes.string,
-  }).isRequired,
-};
+  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-const CreatePaymentRequest = () => {
-  const { moveCode } = useParams();
+  const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
+    onSuccess: (data) => {
+      if (!moveTaskOrder.paymentRequests?.length) {
+        moveTaskOrder.paymentRequests = [];
+      }
+      moveTaskOrder.paymentRequests.push(data);
 
-  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCode);
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+
+      setFlashMessage(
+        `MSG_CREATE_PAYMENT_SUCCESS${moveCodeOrID}`,
+        'success',
+        'Successfully created payment request',
+        '',
+        true,
+      );
+
+      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({ title: body.title, detail: body.detail });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail:
+            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const { mtoShipments, mtoServiceItems } = moveTaskOrder || {};
+
+  const groupedServiceItems = useMemo(() => {
+    const serviceItems = { basic: [] };
+    mtoServiceItems?.forEach((mtoServiceItem) => {
+      if (mtoServiceItem.mtoShipmentID == null) {
+        serviceItems.basic.push(mtoServiceItem);
+      } else if (!serviceItems[mtoServiceItem.mtoShipmentID]) {
+        serviceItems[mtoServiceItem.mtoShipmentID] = [mtoServiceItem];
+      } else {
+        serviceItems[mtoServiceItem.mtoShipmentID].push(mtoServiceItem);
+      }
+    });
+    return serviceItems;
+  }, [mtoServiceItems]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, mtoServiceItems } = moveTaskOrder;
-  const MoveServiceCodes = ['MS', 'CS'];
+  // always display the shipments in order of creation date to not disorient the user
+  mtoShipments.sort((firstShipment, secondShipment) => {
+    return moment(firstShipment.createdAt) - moment(secondShipment.createdAt);
+  });
+
+  const initialValues = {
+    serviceItems: [],
+  };
+
+  const onSubmit = (values, formik) => {
+    const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
+      if (
+        values.params &&
+        values.params[serviceItem]?.SITPaymentRequestStart &&
+        values.params[serviceItem]?.SITPaymentRequestEnd
+      ) {
+        return {
+          id: serviceItem,
+          params: [
+            {
+              key: 'SITPaymentRequestStart',
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestStart),
+            },
+            {
+              key: 'SITPaymentRequestEnd',
+              value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestEnd),
+            },
+          ],
+        };
+      }
+      return { id: serviceItem };
+    });
+    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
+      formik.setSubmitting(false);
+    });
+  };
+
+  const handleShipmentSelectAll = (shipmentID, values, setValues, event) => {
+    const shipmentServiceItems = groupedServiceItems[shipmentID];
+    const existingServiceItems = values.serviceItems;
+
+    if (!event.target.checked) {
+      // unselected the select all
+      shipmentServiceItems.forEach((serviceItem) => {
+        // remove the single element in place
+        existingServiceItems.splice(existingServiceItems.indexOf(serviceItem.id), 1);
+      });
+    } else {
+      shipmentServiceItems.forEach((serviceItem) => {
+        // don't add duplicates if one is already selected prior to clicking select all
+        if (!existingServiceItems.includes(serviceItem.id)) {
+          existingServiceItems.push(serviceItem.id);
+        }
+      });
+    }
+    setValues({ serviceItems: existingServiceItems });
+  };
 
   return (
-    <div className="grid-container-desktop-lg usa-prose">
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
       <div className="grid-row">
         <div className="grid-col-12">
+          {errorMessage?.detail && (
+            <div className={styles.errorContainer}>
+              <Alert slim type="error">
+                <span className={styles.errorTitle}>{errorMessage.title}</span>
+                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+              </Alert>
+            </div>
+          )}
           <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
+            <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
               <h2>Move</h2>
               <div className={descriptionListStyles.row}>
                 <dt>Move Code:</dt>
-                <dd>{moveCode}</dd>
+                <dd>{moveTaskOrder.moveCode}</dd>
               </div>
               <div className={descriptionListStyles.row}>
                 <dt>Move Id:</dt>
@@ -168,68 +179,26 @@ const CreatePaymentRequest = () => {
               </div>
             </dl>
           </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Move Service Items</h2>
-              {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                return (
-                  MoveServiceCodes.includes(mtoServiceItem.reServiceCode) && (
-                    <SectionWrapper key={`moveServiceItems${mtoServiceItem.id}`} className={formStyles.formSection}>
-                      <Checkbox
-                        label="Add to payment request"
-                        name={`serviceItem${mtoServiceItem.id}`}
-                        onChange={() => {}}
-                        id={mtoServiceItem.id}
-                      />
-                      <ServiceItem
-                        key={`moveServiceItem${mtoServiceItem.id}`}
-                        serviceItem={mtoServiceItem}
-                        shipmentServiceItemNumber={mtoServiceItemIndex}
-                      />
-                    </SectionWrapper>
-                  )
-                );
-              })}
-            </dl>
-          </SectionWrapper>
-          <SectionWrapper className={formStyles.formSection}>
-            <dl className={descriptionListStyles.descriptionList}>
-              <h2>Shipments</h2>
-              {mtoShipments?.map((mtoShipment) => {
-                return (
-                  <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
-                    <h2>Shipment Service Items</h2>
-                    {mtoServiceItems?.map((mtoServiceItem, mtoServiceItemIndex) => {
-                      return (
-                        mtoServiceItem.mtoShipmentID === mtoShipment.id && (
-                          <SectionWrapper
-                            key={`shipmentServiceItems${mtoServiceItem.id}`}
-                            className={formStyles.formSection}
-                          >
-                            <Checkbox
-                              label="Add to payment request"
-                              name={`serviceItem${mtoServiceItem.id}`}
-                              onChange={() => {}}
-                              id={mtoServiceItem.id}
-                            />
-                            <ServiceItem serviceItem={mtoServiceItem} shipmentServiceItemNumber={mtoServiceItemIndex} />
-                          </SectionWrapper>
-                        )
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </dl>
-            <Button aria-label="Submit Payment Request" onClick={() => {}} type="button">
-              Submit Payment Request
-            </Button>
-          </SectionWrapper>
+          <CreatePaymentRequestForm
+            initialValues={initialValues}
+            onSubmit={onSubmit}
+            handleSelectAll={handleShipmentSelectAll}
+            createPaymentRequestSchema={createPaymentRequestSchema}
+            mtoShipments={mtoShipments}
+            groupedServiceItems={groupedServiceItems}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default CreatePaymentRequest;
+CreatePaymentRequest.propTypes = {
+  setFlashMessage: func.isRequired,
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(CreatePaymentRequest));

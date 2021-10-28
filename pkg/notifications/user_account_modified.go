@@ -8,11 +8,11 @@ import (
 	text "text/template"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/assets"
 )
@@ -88,7 +88,7 @@ func newUserAccountModified(
 	logger := appCtx.Logger()
 	session := appCtx.Session()
 	if session == nil {
-		return nil, services.NewContextError("Unable to find Session in Context")
+		return nil, apperror.NewContextError("Unable to find Session in Context")
 	}
 	responsibleUserID := session.UserID
 	host := session.Hostname

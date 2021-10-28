@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	dutyStations "github.com/transcom/mymove/pkg/services/duty_stations"
@@ -157,8 +158,10 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	builder := dutyStations.NewMigrationBuilder(dbConnection, logger)
-	insertions, err := builder.Build(dutyStationsFilename)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
+	builder := dutyStations.NewMigrationBuilder()
+	insertions, err := builder.Build(appCtx, dutyStationsFilename)
 	if err != nil {
 		logger.Panic("Error while building migration", zap.Error(err))
 	}

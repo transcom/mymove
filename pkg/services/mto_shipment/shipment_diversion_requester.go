@@ -1,8 +1,11 @@
 package mtoshipment
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -31,7 +34,7 @@ func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
-		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	err = f.router.RequestDiversion(appCtx, shipment)
@@ -41,7 +44,7 @@ func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.
 
 	verrs, err := appCtx.DB().ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while requesting the diversion.")
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while requesting the diversion.")
 
 		return nil, invalidInputError
 	}
@@ -53,10 +56,13 @@ func (f *shipmentDiversionRequester) findShipment(appCtx appcontext.AppContext, 
 	var shipment models.MTOShipment
 	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
-	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
-	} else if err != nil {
-		return nil, err
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil

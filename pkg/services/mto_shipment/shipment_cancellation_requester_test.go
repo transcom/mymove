@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -28,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, shipmentEtag)
+		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, shipmentToBeCanceled.MoveTaskOrderID)
@@ -51,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -65,20 +66,20 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			},
 		})
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentCancellation(suite.TestAppContext(), badShipmentID, eTag)
+		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), badShipmentID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("It calls RequestCancellation on the ShipmentRouter", func(t *testing.T) {
@@ -97,7 +98,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 		shipmentRouter.On("RequestCancellation", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentCancellation(suite.TestAppContext(), shipment.ID, eTag)
+		_, err = requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "RequestCancellation", 1)

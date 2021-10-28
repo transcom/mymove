@@ -381,7 +381,7 @@ describe('RequestedShipments', () => {
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(5);
   });
 
-  it('uses the duty station postal code if there is no destination address', () => {
+  it('uses the duty location postal code if there is no destination address', () => {
     const wrapper = mount(requestedShipmentsComponent);
     // The first shipment has a destination address so will not use the duty station postal code
     const destination = shipments[0].destinationAddress;

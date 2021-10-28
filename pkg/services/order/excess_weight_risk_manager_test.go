@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/uploader"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -26,10 +26,10 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), nonexistentUUID, &newAuthorizedWeight, eTag)
+		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -39,10 +39,10 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), order.ID.String())
 	})
 
@@ -57,7 +57,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(12345)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -106,7 +106,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -133,7 +133,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -159,7 +159,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -190,7 +190,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -216,10 +216,10 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), nonexistentUUID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, &newTIOremarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -230,10 +230,10 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), order.ID.String())
 	})
 
@@ -249,7 +249,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -300,7 +300,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -329,7 +329,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -357,7 +357,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -390,7 +390,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		newTIOremarks := "TIO remarks"
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		updatedOrder, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -415,10 +415,10 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		eTag := ""
 
-		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), nonexistentUUID, eTag)
+		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), nonexistentUUID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
@@ -428,10 +428,10 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		order := move.Orders
 		eTag := ""
 
-		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), move.ID.String())
 	})
 
@@ -445,7 +445,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		order := move.Orders
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 		suite.NoError(err)
 
 		var moveInDB models.Move
@@ -489,7 +489,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		order := approvalsRequestedMove.Orders
 		eTag := etag.GenerateEtag(approvalsRequestedMove.UpdatedAt)
 
-		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 		suite.NoError(err)
 
 		var moveInDB models.Move
@@ -509,7 +509,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		order := move.Orders
 
-		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 		suite.NoError(err)
 
 		var moveInDB models.Move
@@ -529,7 +529,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		order := move.Orders
 
-		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 		suite.NoError(err)
 
 		var moveInDB models.Move
@@ -556,7 +556,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		order := move.Orders
 
-		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 		suite.NoError(err)
 
 		var moveInDB models.Move

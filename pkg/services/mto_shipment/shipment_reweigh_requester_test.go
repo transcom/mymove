@@ -7,8 +7,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -23,16 +24,20 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		})
 		fetchedShipment := models.MTOShipment{}
 
-		reweigh, err := requester.RequestShipmentReweigh(suite.TestAppContext(), shipment.ID, models.ReweighRequesterTOO)
+		reweigh, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), shipment.ID, models.ReweighRequesterTOO)
 
 		suite.NoError(err)
-		suite.Equal(shipment.MoveTaskOrderID, reweigh.Shipment.MoveTaskOrderID)
+
+		var reweighShipment models.MTOShipment
+		err = suite.DB().Where("id = ?", reweigh.ShipmentID).First(&reweighShipment)
+		suite.NoError(err, "Get shipment associated with reweigh")
+
+		suite.Equal(shipment.MoveTaskOrderID, reweighShipment.MoveTaskOrderID)
 
 		err = suite.DB().Find(&fetchedShipment, shipment.ID)
 		suite.NoError(err)
 
 		suite.Equal(shipment.ID, fetchedShipment.ID)
-		suite.Equal(shipment.ID, reweigh.Shipment.ID)
 		suite.EqualValues(models.ReweighRequesterTOO, reweigh.RequestedBy)
 		suite.WithinDuration(time.Now(), reweigh.RequestedAt, 2*time.Second)
 	})
@@ -46,30 +51,30 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 			},
 		})
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), rejectedShipment.ID, models.ReweighRequesterTOO)
+		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), rejectedShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
 	})
 
 	suite.T().Run("When a reweigh already exists for the shipment, returns ConflictError", func(t *testing.T) {
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		existingShipment := reweigh.Shipment
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), existingShipment.ID, models.ReweighRequesterTOO)
+		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), existingShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Cannot request a reweigh on a shipment that already has one.", existingShipment.ID), err.Error())
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Cannot request a reweigh on a shipment that already has one.", existingShipment.ID), err.Error())
 	})
 
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), badShipmentID, models.ReweighRequesterTOO)
+		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), badShipmentID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

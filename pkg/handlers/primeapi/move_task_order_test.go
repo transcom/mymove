@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -16,8 +17,6 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
@@ -364,7 +363,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, services.NotFoundError{})
+		).Return(nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
@@ -387,7 +386,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, services.NewInvalidInputError(mto.ID, nil, validate.NewErrors(), ""))
+		).Return(nil, apperror.NewInvalidInputError(mto.ID, nil, validate.NewErrors(), ""))
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)

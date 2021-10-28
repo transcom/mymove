@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func (suite *MoveServiceSuite) TestMoveValidation() {
-	appCtx := suite.TestAppContext()
+	appCtx := suite.AppContextForTest()
 
 	suite.Run("checkMoveVisibility", func() {
 		show := true
@@ -40,7 +40,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 					Show: &hide,
 				},
 				delta:  nil,
-				result: services.NotFoundError{},
+				result: apperror.NotFoundError{},
 			},
 			"Fail - Move is being deactivated": {
 				move: models.Move{
@@ -49,7 +49,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 				delta: &models.Move{
 					Show: &hide,
 				},
-				result: services.NotFoundError{},
+				result: apperror.NotFoundError{},
 			},
 		}
 		for name, test := range testCases {
@@ -88,7 +88,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 					AvailableToPrimeAt: &time.Time{},
 				},
 				delta:  nil,
-				result: services.NotFoundError{},
+				result: apperror.NotFoundError{},
 			},
 			"Fail - Move is being made unavailable to the Prime": {
 				move: models.Move{
@@ -97,7 +97,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 				delta: &models.Move{
 					AvailableToPrimeAt: &time.Time{},
 				},
-				result: services.NotFoundError{},
+				result: apperror.NotFoundError{},
 			},
 		}
 		for name, test := range testCases {

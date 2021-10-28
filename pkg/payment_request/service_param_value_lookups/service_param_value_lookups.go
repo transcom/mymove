@@ -6,10 +6,11 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
@@ -47,9 +48,9 @@ func ServiceParamLookupInitialize(
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return nil, err
+			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 
@@ -111,28 +112,28 @@ func ServiceParamLookupInitialize(
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+			return nil, apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 		}
 		err = appCtx.DB().Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+				return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 			default:
-				return nil, err
+				return nil, apperror.NewQueryError("MTOShipment", err, "")
 			}
 		}
 
 		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
 			if mtoShipment.PickupAddressID == nil {
-				return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+				return nil, apperror.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
 			}
 			pickupAddress = *mtoShipment.PickupAddress
 		}
 
 		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
 			if mtoShipment.DestinationAddressID == nil {
-				return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+				return nil, apperror.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
 			}
 			destinationAddress = *mtoShipment.DestinationAddress
 		}

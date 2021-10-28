@@ -4,7 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -21,8 +21,7 @@ type CreateSITExtensionHandler struct {
 
 // Handle created a sit extension for a shipment
 func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensionParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the new extension model
 	SITExtension := payloads.SITExtensionModel(params.Body, params.MtoShipmentID)
@@ -32,25 +31,25 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		logger.Error("primeapi.CreateSITExtensionHandler", zap.Error(err))
+		appCtx.Logger().Error("primeapi.CreateSITExtensionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		// NotFoundError -> Not Found Response
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewCreateSITExtensionNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 			// ConflictError -> Conflict Response
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return mtoshipmentops.NewCreateSITExtensionConflict().WithPayload(
 				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewCreateSITExtensionUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		// QueryError -> Internal Server Error
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				logger.Error("primeapi.CreateSITExtensionHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.CreateSITExtensionHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateSITExtensionInternalServerError().WithPayload(
 				payloads.InternalServerError(nil, h.GetTraceID()))

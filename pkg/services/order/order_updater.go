@@ -1,6 +1,7 @@
 package order
 
 import (
+	"database/sql"
 	"io"
 	"strings"
 	"time"
@@ -8,7 +9,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -39,7 +41,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
@@ -56,7 +58,7 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)
@@ -73,7 +75,7 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := allowanceFromTOOPayload(*order, payload)
@@ -90,7 +92,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
@@ -117,8 +119,11 @@ func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
+		default:
+			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 
@@ -129,8 +134,11 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
+		default:
+			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 
@@ -449,9 +457,12 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		// TODO refactor to use service objects to fetch duty station
 		var originDutyStation models.DutyStation
 		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
-		if e := handleError(order.ID, verrs, err); e != nil {
-			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+			default:
+				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
 		order.OriginDutyStationID = &originDutyStation.ID
@@ -480,9 +491,12 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		// TODO refactor to use service objects to fetch duty station
 		var newDutyStation models.DutyStation
 		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
-		if e := handleError(order.ID, verrs, err); e != nil {
-			if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
-				return nil, services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+			default:
+				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
 		order.NewDutyStationID = newDutyStation.ID

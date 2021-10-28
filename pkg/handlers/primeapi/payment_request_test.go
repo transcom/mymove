@@ -9,12 +9,13 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/go-openapi/swag"
@@ -373,7 +374,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				"violation": {"invalid value"},
 			},
 		}
-		err := services.NewInvalidCreateInputError(verrs, "can't create payment request for MTO ID 1234")
+		err := apperror.NewInvalidCreateInputError(verrs, "can't create payment request for MTO ID 1234")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
@@ -413,7 +414,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 
 		ordersID, _ := uuid.FromString("2b8b141a-7c44-45f2-9114-bb0831cc5db3")
-		err := services.NewConflictError(ordersID, "incomplete orders")
+		err := apperror.NewConflictError(ordersID, "incomplete orders")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -451,7 +452,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.Run("failed create payment request due to bad data", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 
-		err := services.NewBadDataError("sent some bad data, foo!")
+		err := apperror.NewBadDataError("sent some bad data, foo!")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -653,14 +654,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip5Distance, nil)
 		planner.On("Zip3TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip3Distance, nil)
 		planner.On("Zip5TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
 		).Return(defaultZip5Distance, nil)
@@ -723,14 +727,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip5Distance, nil)
 		planner.On("Zip3TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip3Distance, nil)
 		planner.On("Zip5TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
 		).Return(defaultZip5Distance, nil)
@@ -782,14 +789,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip5Distance, nil)
 		planner.On("Zip3TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(defaultZip3Distance, nil)
 		planner.On("Zip5TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
 		).Return(defaultZip5Distance, nil)

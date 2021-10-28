@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,7 +15,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 		paymentServiceItem := suite.setupPriceServiceItem()
 		serviceItemPricer := NewServiceItemPricer()
 
-		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), paymentServiceItem)
+		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -29,7 +30,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 			},
 		})
 
-		_, _, err := serviceItemPricer.PriceServiceItem(suite.TestAppContext(), badPaymentServiceItem)
+		_, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), badPaymentServiceItem)
 		suite.Error(err)
 	})
 }
@@ -77,7 +78,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 
 		_, err := serviceItemPricer.getPricer("BOGUS")
 		suite.Error(err)
-		suite.IsType(services.NotImplementedError{}, err)
+		suite.IsType(apperror.NotImplementedError{}, err)
 	})
 }
 

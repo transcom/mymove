@@ -15,8 +15,8 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyStatio
     current_station: Yup.object()
       .required('Required')
       .test(
-        'existing and new duty station should not match',
-        'You entered the same duty station for your origin and destination. Please change one of them.',
+        'existing and new duty location should not match',
+        'You entered the same duty location for your origin and destination. Please change one of them.',
         (value) => value?.id !== newDutyStation?.id,
       ),
   });
@@ -26,10 +26,10 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyStatio
       {({ isValid, handleSubmit, isSubmitting }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Current duty station</h1>
+            <h1>Current duty location</h1>
             <SectionWrapper className={formStyles.formSection}>
               <DutyStationInput
-                label="What is your current duty station?"
+                label="What is your current duty location?"
                 name="current_station"
                 id="current_station"
                 required

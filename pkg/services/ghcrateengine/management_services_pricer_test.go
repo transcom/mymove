@@ -21,7 +21,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		paymentServiceItem := suite.setupManagementServicesItem()
 		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -36,7 +36,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, _, err := managementServicesPricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		priceCents, _, err := managementServicesPricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -45,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
@@ -53,7 +53,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.Price(suite.TestAppContext(), "BOGUS", msAvailableToPrimeAt)
+		_, _, err := managementServicesPricer.Price(suite.AppContextForTest(), "BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

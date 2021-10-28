@@ -146,7 +146,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 			ExcessWeightUpload:         &upload,
 		}
 
-		excessWeightRecord := ExcessWeightRecord(suite.TestAppContext(), fakeFileStorer, &move)
+		excessWeightRecord := ExcessWeightRecord(suite.AppContextForTest(), fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt).String(), excessWeightRecord.MoveExcessWeightQualifiedAt.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessWeightAcknowledgedAt.String())
@@ -158,7 +158,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	suite.T().Run("Success - some nil data, but no errors", func(t *testing.T) {
 		move := models.Move{ID: id}
 
-		excessWeightRecord := ExcessWeightRecord(suite.TestAppContext(), fakeFileStorer, &move)
+		excessWeightRecord := ExcessWeightRecord(suite.AppContextForTest(), fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
 		suite.Nil(excessWeightRecord.MoveExcessWeightQualifiedAt)
 		suite.Nil(excessWeightRecord.MoveExcessWeightAcknowledgedAt)
@@ -169,7 +169,7 @@ func (suite *PayloadsSuite) TestUpload() {
 	fakeFileStorer := test.NewFakeS3Storage(true)
 	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 
-	uploadPayload := Upload(suite.TestAppContext(), fakeFileStorer, &upload)
+	uploadPayload := Upload(suite.AppContextForTest(), fakeFileStorer, &upload)
 	suite.Equal(upload.ID.String(), uploadPayload.ID.String())
 	suite.Equal(strfmt.DateTime(upload.CreatedAt), uploadPayload.CreatedAt)
 	suite.Equal(strfmt.DateTime(upload.UpdatedAt), uploadPayload.UpdatedAt)

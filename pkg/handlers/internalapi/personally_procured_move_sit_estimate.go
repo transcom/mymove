@@ -26,36 +26,35 @@ type ShowPPMSitEstimateHandler struct {
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	var originalMoveDate = time.Time(params.OriginalMoveDate)
 	if originalMoveDate.IsZero() {
-		logger.Error("original move date invalid")
+		appCtx.Logger().Error("original move date invalid")
 		return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
 	}
 
 	if params.WeightEstimate == 0 {
-		logger.Error("weight estimate required")
+		appCtx.Logger().Error("weight estimate required")
 		return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
 	}
 	weightEstimate := unit.Pound(params.WeightEstimate)
@@ -67,9 +66,9 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	estimatedPPM.DaysInStorage = &params.DaysInStorage
 	estimatedPPM.WeightEstimate = &weightEstimate
 
-	sitCharge, _, err := h.CalculateEstimates(&estimatedPPM, move.ID, logger)
+	sitCharge, _, err := h.CalculateEstimates(appCtx, &estimatedPPM, move.ID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	ppmSitEstimate := internalmessages.PPMSitEstimate{
 		Estimate: &sitCharge,

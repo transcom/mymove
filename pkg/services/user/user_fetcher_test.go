@@ -45,7 +45,7 @@ func (suite *UserServiceSuite) TestFetchUser() {
 		fetcher := NewUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		user, err := fetcher.FetchUser(suite.TestAppContext(), filters)
+		user, err := fetcher.FetchUser(suite.AppContextForTest(), filters)
 
 		suite.NoError(err)
 		suite.Equal(id, user.ID)
@@ -60,7 +60,7 @@ func (suite *UserServiceSuite) TestFetchUser() {
 		}
 		fetcher := NewUserFetcher(builder)
 
-		user, err := fetcher.FetchUser(suite.TestAppContext(), []services.QueryFilter{})
+		user, err := fetcher.FetchUser(suite.AppContextForTest(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

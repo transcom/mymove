@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -30,7 +32,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -53,7 +55,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
@@ -84,7 +86,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -110,7 +112,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(tc.verr, "expected something other than a *validate.Errors type")
@@ -149,7 +151,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.AppContextForTest(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -170,7 +172,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.AppContextForTest(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.True(verr.HasAny())
@@ -218,7 +220,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, tc.oldA, tc.ship)
+					err := checkAgentType().Validate(suite.AppContextForTest(), tc.newA, tc.oldA, tc.ship)
 					suite.NoError(err, "Unexpected error from checkAgentType: %v", err)
 				})
 			}
@@ -254,14 +256,14 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 					ship: &shipment,
 					verf: func(err error) {
 						suite.Error(err, "Unexpectedly no error from checkAgentType with duplicated MTOAgentType")
-						suite.IsType(services.ConflictError{}, err)
+						suite.IsType(apperror.ConflictError{}, err)
 						suite.Contains(err.Error(), models.MTOAgentReceiving)
 					},
 				},
 				"incorrect usage": {
 					ship: nil,
 					verf: func(err error) {
-						suite.IsType(services.ImplementationError{}, err)
+						suite.IsType(apperror.ImplementationError{}, err)
 					},
 				},
 				"maxed out number of agents": {
@@ -272,7 +274,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 					ship: &maxed,
 					verf: func(err error) {
 						suite.Error(err, "Unexpectedly no error from checkAgentType with max number of agents")
-						suite.IsType(services.ConflictError{}, err)
+						suite.IsType(apperror.ConflictError{}, err)
 						suite.Contains(err.Error(), "This shipment already has 2 agents - no more can be added")
 					},
 				},
@@ -280,7 +282,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, nil, tc.ship)
+					err := checkAgentType().Validate(suite.AppContextForTest(), tc.newA, nil, tc.ship)
 					tc.verf(err)
 				})
 			}
@@ -321,14 +323,14 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				err := checkPrimeAvailability(tc.check).Validate(suite.TestAppContext(), models.MTOAgent{}, nil, tc.ship)
+				err := checkPrimeAvailability(tc.check).Validate(suite.AppContextForTest(), models.MTOAgent{}, nil, tc.ship)
 				if err == nil {
 					if tc.err {
 						suite.Fail("expected error")
 					}
 					return
 				}
-				suite.IsType(services.NotFoundError{}, err)
+				suite.IsType(apperror.NotFoundError{}, err)
 			})
 		}
 

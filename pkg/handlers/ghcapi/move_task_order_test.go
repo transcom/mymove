@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -195,7 +195,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		mock.Anything,
 		false,
 		false,
-	).Return(nil, services.PreconditionFailedError{})
+	).Return(nil, apperror.PreconditionFailedError{})
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, moveUpdater}
@@ -325,5 +325,70 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
+	order := testdatagen.MakeDefaultOrder(suite.DB())
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusNeedsServiceCounseling,
+		},
+		Order: order,
+	})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/tio-remarks", nil)
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	handler := UpdateMoveTIORemarksHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+	}
+
+	remarks := "Reweigh requested"
+	suite.T().Run("Successfully update the Move's TIORemarks field", func(t *testing.T) {
+		params := move_task_order.UpdateMoveTIORemarksParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			Body:            &ghcmessages.Move{TioRemarks: &remarks},
+			IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTIORemarksOK)
+		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		suite.Assertions.IsType(&move_task_order.UpdateMoveTIORemarksOK{}, response)
+		updatedMove := models.Move{}
+		suite.DB().Find(&updatedMove, moveTaskOrderPayload.ID)
+		suite.Equal(moveTaskOrderPayload.TioRemarks, updatedMove.TIORemarks)
+	})
+
+	suite.T().Run("Unsuccessful move TIO Remarks, eTag does not match", func(t *testing.T) {
+		params := move_task_order.UpdateMoveTIORemarksParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			Body:            &ghcmessages.Move{TioRemarks: &remarks},
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&move_task_order.UpdateMoveTIORemarksPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Unsuccessful move TIO Remarks update, not found", func(t *testing.T) {
+		params := move_task_order.UpdateMoveTIORemarksParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: uuid.FromStringOrNil("").String(),
+			Body:            &ghcmessages.Move{TioRemarks: &remarks},
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&move_task_order.UpdateMoveTIORemarksNotFound{}, response)
 	})
 }

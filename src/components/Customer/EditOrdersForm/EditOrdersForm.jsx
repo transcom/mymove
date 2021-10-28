@@ -43,7 +43,7 @@ const EditOrdersForm = ({
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
-          'You entered the same duty station for your origin and destination. Please change one of them.',
+          'You entered the same duty location for your origin and destination. Please change one of them.',
         ),
       })
       .nullable()
@@ -117,7 +117,7 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty station" displayAddress={false} />
+              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
               <div>

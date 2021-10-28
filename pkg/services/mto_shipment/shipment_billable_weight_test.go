@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -126,7 +127,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 
 		_, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Eagerly loaded reweigh where a reweigh exists", func(t *testing.T) {

@@ -1,0 +1,23 @@
+@import 'shared/styles/basics';
+
+.CreatePaymentRequest {
+
+  h2 {
+    @include u-font-size('heading', 'xl')
+  }
+
+  .errorContainer {
+    @include u-margin-top(3);
+
+    .errorTitle {
+      @include u-display(block);
+      @include u-margin-top(0);
+      @include u-font-size('heading', 'lg')
+    }
+
+    .errorDetail {
+      @include u-display(block)
+    }
+
+  }
+}

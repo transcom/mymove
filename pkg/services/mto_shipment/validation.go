@@ -1,13 +1,15 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 type validator interface {
@@ -36,7 +38,7 @@ func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipment, o
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while updating the shipment.")
+		result = apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while updating the shipment.")
 	}
 	return result
 }
@@ -61,10 +63,12 @@ func checkAvailToPrime() validator {
 			Where("show = TRUE").
 			First(&move)
 		if err != nil {
-			if err.Error() == models.RecordNotFoundErrorString {
-				return services.NewNotFoundError(newer.ID, "for mtoShipment")
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
+			default:
+				return apperror.NewQueryError("Move", err, "Unexpected error")
 			}
-			return services.NewQueryError("mtoShipments", err, "Unexpected error")
 		}
 		return nil
 	})
@@ -73,10 +77,10 @@ func checkAvailToPrime() validator {
 func checkReweighAllowed() validator {
 	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
-			return services.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
+			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}
 		if newer.Reweigh.RequestedBy != "" {
-			return services.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
+			return apperror.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
 		}
 		return nil
 	})

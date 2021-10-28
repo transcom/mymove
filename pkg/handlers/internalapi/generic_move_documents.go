@@ -42,16 +42,16 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -65,9 +65,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
 		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
-		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(h.DB(), session, convertedUploadID)
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
 		if fetchUploadErr != nil {
-			return handlers.ResponseForError(logger, fetchUploadErr)
+			return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
 		}
 		userUploads = append(userUploads, userUpload)
 	}
@@ -77,9 +77,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(h.DB(), session, id)
+		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
 		if fetchPPMErr != nil {
-			return handlers.ResponseForError(logger, fetchPPMErr)
+			return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
 		}
 		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
@@ -89,9 +89,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	}
 
 	if payload.MoveDocumentType == nil {
-		return handlers.ResponseForError(logger, errors.New("missing required field: MoveDocumentType"))
+		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
 	}
-	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
+	newMoveDocument, verrs, err := move.CreateMoveDocument(appCtx.DB(),
 		userUploads,
 		ppmID,
 		models.MoveDocumentType(*payload.MoveDocumentType),
@@ -100,12 +100,12 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		*move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

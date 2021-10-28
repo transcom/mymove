@@ -1,7 +1,11 @@
 package mtoshipment
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +24,12 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	var move models.Move
 	err := appCtx.DB().Find(&move, moveID)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveID, "move not found")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "move not found")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	var shipments []models.MTOShipment

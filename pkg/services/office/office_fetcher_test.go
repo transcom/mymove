@@ -37,7 +37,7 @@ func (suite *OfficeServiceSuite) TestFetchOffice() {
 		fetcher := NewOfficeFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		office, err := fetcher.FetchOffice(suite.TestAppContext(), filters)
+		office, err := fetcher.FetchOffice(suite.AppContextForTest(), filters)
 
 		suite.NoError(err)
 		suite.Equal(id, office.ID)
@@ -52,7 +52,7 @@ func (suite *OfficeServiceSuite) TestFetchOffice() {
 		}
 		fetcher := NewOfficeFetcher(builder)
 
-		office, err := fetcher.FetchOffice(suite.TestAppContext(), []services.QueryFilter{})
+		office, err := fetcher.FetchOffice(suite.AppContextForTest(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

@@ -22,7 +22,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 		paymentServiceItem := suite.setupCounselingServicesItem()
 
-		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 
@@ -36,7 +36,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, csAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -44,12 +44,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		_, _, err := counselingServicesPricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := counselingServicesPricer.Price(suite.TestAppContext(), "BOGUS", csAvailableToPrimeAt)
+		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), "BOGUS", csAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

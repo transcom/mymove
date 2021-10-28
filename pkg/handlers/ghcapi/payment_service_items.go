@@ -3,7 +3,7 @@ package ghcapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -29,27 +29,26 @@ type UpdatePaymentServiceItemStatusHandler struct {
 
 // Handle handles the handling for UpdatePaymentServiceItemStatusHandler
 func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemOp.UpdatePaymentServiceItemStatusParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	paymentServiceItemID, err := uuid.FromString(params.PaymentServiceItemID)
 	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
 
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error parsing payment service item id: %s", params.PaymentServiceItemID), zap.Error(err))
+		appCtx.Logger().Error(fmt.Sprintf("Error parsing payment service item id: %s", params.PaymentServiceItemID), zap.Error(err))
 	}
 
 	updatedPaymentServiceItem, verrs, err := h.PaymentServiceItemStatusUpdater.UpdatePaymentServiceItemStatus(appCtx,
 		paymentServiceItemID, newStatus, params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
-		logger.Error("Error updating payment service item status", zap.Error(err))
+		appCtx.Logger().Error("Error updating payment service item status", zap.Error(err))
 
 		switch e := err.(type) {
 		case query.StaleIdentifierError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), e.ValidationErrors)
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		default:
@@ -62,9 +61,9 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&updatedPaymentServiceItem, nil, logger, session, params.HTTPRequest)
+	_, err = audit.Capture(&updatedPaymentServiceItem, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
 	if err != nil {
-		logger.Error("Auditing service error for payment service item status change.", zap.Error(err))
+		appCtx.Logger().Error("Auditing service error for payment service item status change.", zap.Error(err))
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()
 	}
 
@@ -74,11 +73,10 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		UpdatedObjectID: updatedPaymentServiceItem.PaymentRequestID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
-		DBConnection:    h.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
-		logger.Error("ghcapi.UpdatePaymentServiceItemStatusHandler could not generate the event")
+		appCtx.Logger().Error("ghcapi.UpdatePaymentServiceItemStatusHandler could not generate the event")
 	}
 
 	// Make the payload and return it with a 200

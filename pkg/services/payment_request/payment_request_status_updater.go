@@ -1,8 +1,11 @@
 package paymentrequest
 
 import (
+	"database/sql"
+
 	"github.com/gobuffalo/validate/v3"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -42,7 +45,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 		}
 
 		if len(paymentServiceItems) > 0 {
-			return nil, services.NewConflictError(id, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
+			return nil, apperror.NewConflictError(id, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
 		}
 	}
 
@@ -55,17 +58,20 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 	}
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(id, err, verrs, "")
+		return nil, apperror.NewInvalidInputError(id, err, verrs, "")
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(id, "")
-		}
-
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return &models.PaymentRequest{}, services.NewPreconditionFailedError(id, err)
+			return &models.PaymentRequest{}, apperror.NewPreconditionFailedError(id, err)
+		}
+
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(id, "")
+		default:
+			return nil, apperror.NewQueryError("PaymentRequest", err, "")
 		}
 	}
 

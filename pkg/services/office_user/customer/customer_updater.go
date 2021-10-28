@@ -2,6 +2,7 @@ package customer
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -21,12 +22,12 @@ func NewCustomerUpdater() services.CustomerUpdater {
 func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
 	existingCustomer, err := s.fetchCustomer.FetchCustomer(appCtx, customer.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(customer.ID, "while looking for customer")
+		return nil, err
 	}
 
 	existingETag := etag.GenerateEtag(existingCustomer.UpdatedAt)
 	if existingETag != eTag {
-		return nil, services.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -41,7 +42,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
 			if verrs != nil && verrs.HasAny() {
-				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+				return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
 			if dbErr != nil {
 				return dbErr
@@ -55,7 +56,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupContacts)
 			if verrs != nil && verrs.HasAny() {
-				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+				return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
 			if dbErr != nil {
 				return dbErr
@@ -98,7 +99,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(existingCustomer)
 
 		if verrs != nil && verrs.HasAny() {
-			return services.NewInvalidInputError(customer.ID, err, verrs, "")
+			return apperror.NewInvalidInputError(customer.ID, err, verrs, "")
 		}
 
 		if updateErr != nil {

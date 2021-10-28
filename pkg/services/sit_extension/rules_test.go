@@ -4,9 +4,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -15,13 +16,13 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkShipmentID", func() {
 		suite.Run("success", func() {
 			sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
-			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, nil)
+			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, nil)
 			suite.NilOrNoVerrs(err)
 		})
 
 		suite.Run("failure", func() {
 			var sit models.SITExtension
-			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, nil)
+			err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.True(verr.HasAny())
@@ -49,7 +50,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 				},
 			})
 
-			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sitExtension, nil)
+			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sitExtension, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -60,7 +61,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		suite.Run("failure", func() {
 			var sit models.SITExtension
-			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, nil)
+			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.True(verr.HasAny())
@@ -77,7 +78,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
 		})
-		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, &shipment)
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, &shipment)
 
 		suite.NoError(err)
 	})
@@ -101,7 +102,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		})
 		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
-		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, &shipment)
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, &shipment)
 
 		suite.NoError(err)
 	})
@@ -124,7 +125,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		})
 		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
-		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), sit, &shipment)
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), sit, &shipment)
 
 		suite.NoError(err)
 	})
@@ -149,18 +150,18 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		// Object we are trying to add to DB
 		newSIT := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
 
-		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), newSIT, &shipment)
+		err := checkSITExtensionPending().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), newSIT, &shipment)
 
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.Run("checkPrimeAvailability - Failure", func() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, nil)
+		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), models.SITExtension{}, nil)
 		suite.NotNil(err)
-		suite.IsType(services.NotFoundError{}, err)
-		suite.Equal("not found while looking for Prime-available Shipment", err.Error())
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal("Not found while looking for Prime-available Shipment", err.Error())
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {
@@ -168,7 +169,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.SITExtension{}, &shipment)
+		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), models.SITExtension{}, &shipment)
 		suite.NoError(err)
 	})
 }

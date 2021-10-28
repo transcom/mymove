@@ -202,7 +202,7 @@ describe('Orders page', () => {
       userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction
-      await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+      await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
       const selectedOption = await screen.findByText(/Luke/);
       userEvent.click(selectedOption);
 

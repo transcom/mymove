@@ -97,8 +97,8 @@ const columns = (isMarineCorpsUser = false) => [
     isFilterable: isMarineCorpsUser,
     disableSortBy: !isMarineCorpsUser,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
-  createHeader('Destination duty station', 'destinationDutyStation.name', {
-    id: 'destinationDutyStation',
+  createHeader('Destination duty location', 'destinationDutyStation.name', {
+    id: 'destinationDutyLocation',
     isFilterable: true,
   }),
 ];

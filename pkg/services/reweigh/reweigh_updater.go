@@ -1,10 +1,11 @@
 package reweigh
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
@@ -61,14 +62,24 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 	// Find the reweigh, return error if not found
 	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Reweigh")
+		default:
+			return nil, apperror.NewQueryError("Reweigh", err, "")
+		}
 	}
 
 	shipment := models.MTOShipment{}
 	// Find the shipment, return error if not found
 	err = appCtx.DB().Find(&shipment, reweigh.ShipmentID)
 	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ID, "while looking for Shipment")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 	oldReweigh.Shipment = shipment
 
@@ -87,7 +98,7 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	if encodedUpdatedAt != eTag {
-		return nil, services.NewPreconditionFailedError(reweigh.ID, nil)
+		return nil, apperror.NewPreconditionFailedError(reweigh.ID, nil)
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
@@ -95,17 +106,22 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(reweigh.ID, err, verrs, "Invalid input found while updating the reweigh.")
+		return nil, apperror.NewInvalidInputError(reweigh.ID, err, verrs, "Invalid input found while updating the reweigh.")
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
-		return nil, services.NewQueryError("Reweigh", err, "")
+		return nil, apperror.NewQueryError("Reweigh", err, "")
 	}
 
 	// Get the updated reweigh and return
 	updatedReweigh := models.Reweigh{}
 	err = appCtx.DB().Find(&updatedReweigh, reweigh.ID)
 	if err != nil {
-		return nil, services.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ID, "looking for Reweigh")
+		default:
+			return nil, apperror.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+		}
 	}
 
 	// Need to pull out this common code. It is from reweigh requester
@@ -113,10 +129,13 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 		Eager("Reweigh").
 		Find(&shipment, reweigh.ShipmentID)
 
-	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
-	} else if err != nil {
-		return nil, err
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
+		default:
+			return nil, apperror.NewQueryError("Shipment", err, "")
+		}
 	}
 
 	// Recalculate payment request for the shipment, if the reweigh weight changed

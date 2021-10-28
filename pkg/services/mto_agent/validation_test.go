@@ -6,9 +6,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func (suite *MTOAgentServiceSuite) TestMergeAgent() {
@@ -119,11 +120,11 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 			func(err error) {
 				suite.Error(err)
 				switch e := err.(type) {
-				case services.InvalidInputError:
+				case apperror.InvalidInputError:
 					suite.True(e.ValidationErrors.HasAny())
 					suite.Contains(e.ValidationErrors.Keys(), "forceVERR")
 				default:
-					suite.IsType(services.InvalidInputError{}, err)
+					suite.IsType(apperror.InvalidInputError{}, err)
 				}
 			},
 		},
@@ -131,7 +132,7 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 
 	for name, tc := range testCases {
 		suite.Run(name, func() {
-			tc.verf(validateMTOAgent(suite.TestAppContext(), na, &oa, &sh, tc.checks...))
+			tc.verf(validateMTOAgent(suite.AppContextForTest(), na, &oa, &sh, tc.checks...))
 		})
 	}
 }

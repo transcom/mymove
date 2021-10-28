@@ -10,6 +10,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -105,12 +107,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, 0, services.NotFoundError{}
-		default:
-			return []models.Move{}, 0, err
-		}
+		return []models.Move{}, 0, err
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
@@ -159,9 +156,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Order{}, services.NewNotFoundError(orderID, "")
+			return &models.Order{}, apperror.NewNotFoundError(orderID, "")
 		default:
-			return &models.Order{}, err
+			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
 	}
 

@@ -1,10 +1,11 @@
 package paymentrequest
 
 import (
+	"database/sql"
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/gofrs/uuid"
 
@@ -179,10 +180,12 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	// items
 	err := appCtx.DB().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment", "PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").Find(&paymentRequest, paymentRequestID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(paymentRequestID, "no payment request exists with that id")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(paymentRequestID, "no payment request exists with that id")
+		default:
+			return nil, apperror.NewQueryError("PaymentRequest", err, "")
 		}
-		return nil, err
 	}
 
 	// Check for SIT payment service items, if there are none we don't need to return the SIT balance

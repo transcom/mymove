@@ -29,3 +29,38 @@ export async function getPrimeSimulatorAvailableMoves() {
 export async function getPrimeSimulatorMove(key, locator) {
   return makePrimeSimulatorRequest('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
+
+export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
+  return makePrimeSimulatorRequest(
+    'paymentRequest.createPaymentRequest',
+    { body: { moveTaskOrderID, serviceItems } },
+    { normalize: false },
+  );
+}
+
+export async function createUpload({ paymentRequestID, file }) {
+  return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
+}
+
+export function updatePrimeMTOShipment({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function createServiceItem({ body }) {
+  return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
+}
