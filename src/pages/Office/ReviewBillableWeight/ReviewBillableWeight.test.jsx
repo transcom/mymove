@@ -268,6 +268,7 @@ describe('ReviewBillableWeight', () => {
       render(<ReviewBillableWeight />);
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Document viewer text')).toBeInTheDocument();
+      expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
 
     it('renders weight summary', () => {
@@ -294,6 +295,7 @@ describe('ReviewBillableWeight', () => {
       userEvent.click(screen.getByText('Edit'));
       expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
+      expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
   });
 

@@ -107,7 +107,11 @@ export default function ReviewBillableWeight() {
   const [mutateMoves] = useMutation(updateTIORemarks, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
-      queryCache.setQueryData([MOVES, move.locator], updatedMove);
+      queryCache.setQueryData([MOVES, variables.moveTaskOrderID], {
+        moves: {
+          [`${variables.moveTaskOrderID}`]: updatedMove,
+        },
+      });
       queryCache.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
@@ -123,7 +127,6 @@ export default function ReviewBillableWeight() {
         ifMatchETag: order.eTag,
         body: {
           authorizedWeight: Number(formValues.billableWeight),
-          tioRemarks: formValues.billableWeightJustification,
         },
       };
       const movePayload = {
