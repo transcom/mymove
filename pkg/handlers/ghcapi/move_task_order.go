@@ -229,3 +229,56 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 
 	return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload)
 }
+
+// UpdateMoveTIORemarksHandlerFunc updates a Move's (MoveTaskOrder's) TIORemarks field
+type UpdateMoveTIORemarksHandlerFunc struct {
+	handlers.HandlerContext
+	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
+}
+
+// Handle updates a Move's (MoveTaskOrder's) TIORemarks field
+func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMoveTIORemarksParams) middleware.Responder {
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+
+	eTag := params.IfMatch
+
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	remarks := params.Body.TioRemarks
+
+	mto, err := h.moveTaskOrderStatusUpdater.UpdateTIORemarks(appCtx, moveTaskOrderID, eTag, *remarks)
+
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateMoveTIORemarksHandlerFunc error", zap.Error(err))
+		switch err.(type) {
+		case apperror.NotFoundError:
+			return movetaskorderops.NewUpdateMoveTIORemarksNotFound()
+		case apperror.PreconditionFailedError:
+			return movetaskorderops.NewUpdateMoveTIORemarksPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
+		}
+	}
+
+	moveTaskOrderPayload := payloads.Move(mto)
+
+	// Audit
+	_, err = audit.Capture(mto, moveTaskOrderPayload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	if err != nil {
+		appCtx.Logger().Error("Auditing service error updating the move's TioRemarks field.", zap.Error(err))
+		return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
+	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MoveTaskOrderUpdateEventKey,
+		MtoID:           mto.ID,
+		UpdatedObjectID: mto.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdateMoveTIORemarksEndpointKey,
+		HandlerContext:  h,
+	})
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateMoveTIORemarksHandlerFunc could not generate the event")
+	}
+
+	return movetaskorderops.NewUpdateMoveTIORemarksOK().WithPayload(moveTaskOrderPayload)
+}

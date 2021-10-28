@@ -148,11 +148,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	var moveCode string
 	var moveTaskOrderID strfmt.UUID
-	var moveTaskOrder models.Move
 	if order.Moves != nil && len(order.Moves) > 0 {
 		moveCode = order.Moves[0].Locator
 		moveTaskOrderID = strfmt.UUID(order.Moves[0].ID.String())
-		moveTaskOrder = order.Moves[0]
 	}
 
 	payload := ghcmessages.Order{
@@ -180,7 +178,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                    moveCode,
 		MoveTaskOrderID:             moveTaskOrderID,
-		MoveTaskOrder:               Move(&moveTaskOrder),
 	}
 
 	return &payload
@@ -816,7 +813,6 @@ func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *
 		VerificationReason:     reweigh.VerificationReason,
 		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
 		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
-		Shipment:               MTOShipment(&reweigh.Shipment, sitStatusPayload),
 		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
 	}
 
