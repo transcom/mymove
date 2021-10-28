@@ -46,8 +46,20 @@ const moveTaskOrder = {
       id: '4',
       shipmentType: 'HHG',
       requestedPickupDate: '2021-12-01',
-      pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
-      destinationAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
+      pickupAddress: {
+        id: '1',
+        streetAddress1: '800 Madison Avenue',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10002',
+      },
+      destinationAddress: {
+        id: '2',
+        streetAddress1: '100 1st Avenue',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10001',
+      },
     },
   ],
 };
@@ -59,12 +71,21 @@ const moveReturnValue = {
 };
 
 const noDestinationAddressReturnValue = {
-  ...moveTaskOrder,
   moveTaskOrder: {
-    id: 'LN4T89',
+    id: '1',
+    moveCode: 'LN4T89',
     mtoShipments: [
       {
         id: '4',
+        shipmentType: 'HHG',
+        requestedPickupDate: '2021-12-01',
+        pickupAddress: {
+          id: '1',
+          streetAddress1: '800 Madison Avenue',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10002',
+        },
         destinationAddress: null,
       },
     ],
@@ -74,13 +95,22 @@ const noDestinationAddressReturnValue = {
 };
 
 const noPickupAddressReturnValue = {
-  ...moveTaskOrder,
   moveTaskOrder: {
-    id: 'LN4T89',
+    id: '1',
+    moveCode: 'LN4T89',
     mtoShipments: [
       {
         id: '4',
+        shipmentType: 'HHG',
+        requestedPickupDate: '2021-12-01',
         pickupAddress: null,
+        destinationAddress: {
+          id: '2',
+          streetAddress1: '100 1st Avenue',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10001',
+        },
       },
     ],
   },
@@ -131,72 +161,6 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       });
       expect(pageHeading).toBeInTheDocument();
 
-      /*
-      const locations = ['Pickup address', 'Destination address'];
-
-      for (let i=0; i<locations.length; i+=1) {
-        const addressHeader = screen.getByRole('heading', { name: locations[i], level: 2 });
-        console.log(`${locations[i]} count `);
-        console.log(i);
-        expect(addressHeader).toBeInTheDocument();
-        const headerContainer = addressHeader.parentElement;
-        expect(headerContainer).toBeInTheDocument();
-
-
-        await waitFor(() => {
-          expect(within(headerContainer).screen.getByLabelText(/Address 1/)).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByLabelText('City')).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByLabelText('State')).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByLabelText('ZIP')).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByRole('button', {name: 'Save'})).toBeEnabled();
-          // address is filled in based on return values
-          expect(within(headerContainer).screen.getByText(/800 Madison Avenue/)).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByText(/New York/)).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByText(/NY/)).toBeInTheDocument();
-          expect(within(headerContainer).screen.getByText(/10002/)).toBeInTheDocument();
-        });
-      }
-       */
-
-      /*
-      const pickupHeader = await screen.getByRole('heading', { name: /Pickup address/, level: 2 });
-      expect(pickupHeader).toBeInTheDocument();
-      const pickupHeaderContainer = pickupHeader.parentElement;
-
-      await waitFor(() => {
-        expect(within(pickupHeaderContainer).screen.getByLabelText('Address 1')).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByLabelText('Address 2')).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByLabelText('City')).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByLabelText('State')).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByLabelText('ZIP')).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByRole('button', {name: 'Save'})).toBeEnabled();
-        // address is filled in based on return values
-        expect(within(pickupHeaderContainer).screen.getByText(/800 Madison Avenue/)).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByText(/New York/)).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByText(/NY/)).toBeInTheDocument();
-        expect(within(pickupHeaderContainer).screen.getByText(/10002/)).toBeInTheDocument();
-      });
-
-      const destinationHeader = await screen.getByRole('heading', { name: 'Destination address', level: 2 });
-      expect(destinationHeader).toBeInTheDocument();
-      const destinationHeaderContainer = destinationHeader.parentElement;
-      await waitFor(() => {
-        expect(within(destinationHeaderContainer).screen.getByLabelText('Address 1')).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByLabelText('Address 2')).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByLabelText('City')).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByLabelText('State')).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByLabelText('ZIP')).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-        // address is filled in based on return values
-        expect(within(destinationHeaderContainer).screen.getByText(/100 1st Avenue/)).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByText(/New York/)).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByText(/NY/)).toBeInTheDocument();
-        expect(within(destinationHeaderContainer).screen.getByText(/10001/)).toBeInTheDocument();
-      });
-
-       */
-
       const { shipmentId } = useParams();
       const shipmentIndex = moveTaskOrder.mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
@@ -216,6 +180,64 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue(shipment.destinationAddress.postalCode);
       });
     });
+
+    it('displays only pickup address form', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(noDestinationAddressReturnValue);
+
+      render(<PrimeUIShipmentUpdateAddress />);
+
+      const pageHeading = await screen.getByRole('heading', {
+        name: 'Update Existing Pickup & Destination Address',
+        level: 1,
+      });
+      expect(pageHeading).toBeInTheDocument();
+
+      const { shipmentId } = useParams();
+      const shipmentIndex = noDestinationAddressReturnValue.moveTaskOrder.mtoShipments.findIndex(
+        (mtoShipment) => mtoShipment.id === shipmentId,
+      );
+      const shipment = noDestinationAddressReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: /Pickup address/, level: 2 }));
+        expect(screen.getAllByLabelText('Address 1').length).toBe(1);
+        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.pickupAddress.streetAddress1);
+        expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.pickupAddress.city);
+        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.pickupAddress.state);
+        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.pickupAddress.postalCode);
+        expect(shipment.destinationAddress).toBeNull();
+      });
+    });
+
+    it('displays only destination address form', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(noPickupAddressReturnValue);
+
+      render(<PrimeUIShipmentUpdateAddress />);
+
+      const pageHeading = await screen.getByRole('heading', {
+        name: 'Update Existing Pickup & Destination Address',
+        level: 1,
+      });
+      expect(pageHeading).toBeInTheDocument();
+
+      const { shipmentId } = useParams();
+      const shipmentIndex = noPickupAddressReturnValue.moveTaskOrder.mtoShipments.findIndex(
+        (mtoShipment) => mtoShipment.id === shipmentId,
+      );
+      const shipment = noPickupAddressReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
+
+      await waitFor(() => {
+        expect(shipment.pickupAddress).toBeNull();
+        expect(screen.getByRole('heading', { name: /Destination address/, level: 2 }));
+        expect(screen.getAllByLabelText('Address 1').length).toBe(1);
+        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
+        expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.destinationAddress.city);
+        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.destinationAddress.state);
+        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.destinationAddress.postalCode);
+      });
+    });
   });
 
   describe('error alert display', () => {
@@ -226,11 +248,6 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       });
 
       render(<PrimeUIShipmentUpdateAddress />);
-
-      /*
-      await act(async () => {
-      });
-       */
 
       await waitFor(() => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);

@@ -93,14 +93,14 @@ const PrimeUIShipmentUpdateAddress = () => {
   const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
 
   const initialValuesPickupAddress = {
-    addressID: shipment.pickupAddress.id,
+    addressID: shipment.pickupAddress?.id,
     address: reformatPrimeApiPickupAddress,
-    eTag: shipment.pickupAddress.eTag,
+    eTag: shipment.pickupAddress?.eTag,
   };
   const initialValuesDestinationAddress = {
-    addressID: shipment.destinationAddress.id,
+    addressID: shipment.destinationAddress?.id,
     address: reformatPrimeApiDestinationAddress,
-    eTag: shipment.destinationAddress.eTag,
+    eTag: shipment.destinationAddress?.eTag,
   };
 
   return (

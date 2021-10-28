@@ -103,7 +103,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   });
 
   it('disables the submit button when the zip is bad', async () => {
-    const { getByLabelText, findByTestId } = render(
+    render(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValues}
         updateShipmentAddressSchema={updateAddressSchema}
@@ -114,27 +114,8 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
     await waitFor(() => {
       userEvent.clear(screen.getByLabelText('ZIP'));
-      // userEvent.type(screen.getByLabelText('ZIP'), '12');
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(screen.getByText('alert', { name: 'Must be valid zip code' })).toBeInTheDocument();
-
-      /*
-      expect(screen.getAllByRole('alert', { name: 'Must be valid zip code' })).toBeInTheDocument();
-
-       */
-
-      /*
-      const input = getByLabelText('ZIP');
-
-      // Call blur without inputting anything which should trigger a validation error
-      fireEvent.blur(input);
-
-      // const validationErrors = findByTestId(`errors-${fieldName}`);
-      const validationErrors = findByTestId('errorMessage');
-      // expect(validationErrors.innerHTML).toBe("Required.");
-      expect(validationErrors.innerHTML).toBe("Must be valid zip code");
-
-       */
     });
   });
 
