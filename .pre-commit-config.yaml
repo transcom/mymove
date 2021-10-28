@@ -60,7 +60,7 @@ repos:
     hooks:
       - id: ato-linter-be
         name: ato-linter-be
-        entry: ato-linter
+        entry: go run ./cmd/ato-linter
         files: \.go$
         language: golang
 
