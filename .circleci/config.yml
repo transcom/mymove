@@ -44,7 +44,7 @@ references:
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
-  acceptance-branch: &acceptance-branch testing-otel-logging-in-loadtest
+  acceptance-branch: &acceptance-branch placeholder_branch_name
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
