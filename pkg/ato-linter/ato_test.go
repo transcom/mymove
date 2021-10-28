@@ -15,5 +15,5 @@ func TestAll(t *testing.T) {
 	}
 
 	testdata := filepath.Join(filepath.Dir(filepath.Dir(wd)), "testdata")
-	analysistest.Run(t, testdata, ATOAnalyzer, "linter_tests")
+	analysistest.Run(t, testdata, ATOAnalyzer, "ato_linter_tests")
 }
