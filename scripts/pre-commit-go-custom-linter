@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+#
+# Pre-commit hook to run `swagger validate` that is different based on environment
+#
+
+set -eu -o pipefail
+
+hook="$1"; shift
+
+go run ./cmd/"$hook"/main.go -- "$@"
