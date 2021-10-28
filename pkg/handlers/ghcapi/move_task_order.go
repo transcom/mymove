@@ -260,13 +260,8 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTIORemarksNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
-			return movetaskorderops.NewUpdateMoveTIORemarksUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTIORemarksPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ConflictError:
-			return movetaskorderops.NewUpdateMoveTIORemarksConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
 		}
@@ -277,8 +272,8 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 	// Audit
 	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
 	if err != nil {
-		logger.Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
-		return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
+		logger.Error("Auditing service error updating the move's TioRemarks field.", zap.Error(err))
+		return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
 	}
 
 	_, err = event.TriggerEvent(event.Event{
@@ -286,13 +281,13 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 		MtoID:           mto.ID,
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
-		EndpointKey:     event.GhcUpdateMTOReviewedBillableWeightsEndpointKey,
+		EndpointKey:     event.GhcUpdateMoveTIORemarksEndpointKey,
 		DBConnection:    h.DB(),
 		HandlerContext:  h,
 	})
 	if err != nil {
-		logger.Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc could not generate the event")
+		logger.Error("ghcapi.UpdateMoveTIORemarksHandlerFunc could not generate the event")
 	}
 
-	return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload)
+	return movetaskorderops.NewUpdateMoveTIORemarksOK().WithPayload(moveTaskOrderPayload)
 }
