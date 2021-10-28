@@ -36,7 +36,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		Status:       models.MoveStatusDRAFT,
 		Locator:      models.GenerateLocator(),
 	}
-	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(suite.TestAppContext(), &newMto)
+	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(suite.AppContextForTest(), &newMto)
 	suite.NoError(err)
 	suite.Empty(verrs)
 

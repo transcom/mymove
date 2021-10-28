@@ -32,7 +32,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.TestAppContext())
+		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -50,7 +50,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.TestAppContext())
+		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -72,7 +72,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability(suite.TestAppContext())
+		err := serviceItemData.checkPrimeAvailability(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -86,7 +86,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability(suite.TestAppContext())
+		err := serviceItemData.checkPrimeAvailability(suite.AppContextForTest())
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -100,7 +100,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -119,7 +119,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -136,7 +136,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -157,7 +157,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldDDDSIT,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -171,7 +171,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture(suite.TestAppContext())
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -186,7 +186,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.TestAppContext())
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -205,7 +205,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.TestAppContext())
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -220,8 +220,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.TestAppContext()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.NoError(err)
@@ -235,8 +235,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.TestAppContext()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.TestAppContext())
+		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)

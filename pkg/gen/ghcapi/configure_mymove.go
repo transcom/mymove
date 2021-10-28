@@ -205,6 +205,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		})
 	}
+	if api.MoveSetFinancialReviewFlagHandler == nil {
+		api.MoveSetFinancialReviewFlagHandler = move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
+		})
+	}
 	if api.TacTacValidationHandler == nil {
 		api.TacTacValidationHandler = tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")

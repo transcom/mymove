@@ -232,7 +232,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 		roles.RoleTypeTOO,
 		roles.RoleTypeTIO,
 	}
-	_, err = userRoles.UpdateUserRoles(suite.TestAppContext(), *multiRoleUser.UserID, updateToRoles)
+	_, err = userRoles.UpdateUserRoles(suite.AppContextForTest(), *multiRoleUser.UserID, updateToRoles)
 	suite.NoError(err)
 
 	// re-fetch user identity and check roles

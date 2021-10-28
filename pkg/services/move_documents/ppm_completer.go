@@ -3,24 +3,22 @@ package movedocument
 import (
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // PPMCompleter completes PPMs
 type PPMCompleter struct {
-	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
 // Update moves ppm status to complete when ssw is uploaded
-func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (ppmc PPMCompleter) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	if moveDocumentPayload.MoveDocumentType == nil {
 		return nil, nil, errors.New("missing required field: MoveDocumentType")
 	}
@@ -28,7 +26,7 @@ func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocume
 	moveDoc.Title = *moveDocumentPayload.Title
 	moveDoc.Notes = moveDocumentPayload.Notes
 	moveDoc.MoveDocumentType = newType
-	updatedMoveDoc, returnVerrs, err := ppmc.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
+	updatedMoveDoc, returnVerrs, err := ppmc.UpdateMoveDocumentStatus(appCtx, moveDocumentPayload, moveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "ppmcompleter.update: error updating move document status")
 	}
@@ -47,7 +45,7 @@ func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocume
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
 	}
-	returnVerrs, err = models.SaveMoveDocument(ppmc.db, updatedMoveDoc, saveExpenseAction, saveWeightTicketAction)
+	returnVerrs, err = models.SaveMoveDocument(appCtx.DB(), updatedMoveDoc, saveExpenseAction, saveWeightTicketAction)
 	return moveDoc, returnVerrs, err
 }
 

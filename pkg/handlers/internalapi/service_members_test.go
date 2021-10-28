@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.TestAppContext(), &move)
+	moveRouter.Submit(suite.AppContextForTest(), &move)
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()

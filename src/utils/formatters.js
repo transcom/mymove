@@ -56,3 +56,14 @@ export const formatDaysInTransit = (days) => {
   }
   return '0 days';
 };
+
+export const formatAddressForPrimeAPI = (address) => {
+  return {
+    streetAddress1: address.street_address_1,
+    streetAddress2: address.street_address_2,
+    streetAddress3: address.street_address_3,
+    city: address.city,
+    state: address.state,
+    postalCode: address.postal_code,
+  };
+};

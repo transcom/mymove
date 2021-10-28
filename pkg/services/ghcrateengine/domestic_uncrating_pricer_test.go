@@ -28,7 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticUncratingServiceItem()
-		priceCents, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ducrtTestPriceCents, priceCents)
 
@@ -43,28 +43,28 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
 
-		priceCents, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, ducrtTestRequestedPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ducrtTestRequestedPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.NoError(err)
 		suite.Equal(ducrtTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
-		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid crating volume", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
 		badVolume := unit.CubicFeet(-50.0)
-		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, ducrtTestRequestedPickupDate, badVolume, ducrtTestServiceSchedule)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ducrtTestRequestedPickupDate, badVolume, ducrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "crate must be billed for a minimum of 4 cubic feet")
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
-		_, _, err := pricer.Price(suite.TestAppContext(), "BOGUS", ducrtTestRequestedPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", ducrtTestRequestedPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
@@ -72,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
 		twoYearsLaterPickupDate := ducrtTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})

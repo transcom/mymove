@@ -66,7 +66,7 @@ export const HelperSubmittedMove = () => (
         >
           Learn more
         </ExternalLink>{' '}
-        about your new duty station
+        about your new duty location
       </li>
     </ul>
   </Helper>

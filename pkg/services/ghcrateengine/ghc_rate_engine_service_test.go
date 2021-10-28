@@ -20,8 +20,8 @@ type GHCRateEngineServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *GHCRateEngineServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *GHCRateEngineServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {

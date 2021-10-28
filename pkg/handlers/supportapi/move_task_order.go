@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -28,8 +27,7 @@ type ListMTOsHandler struct {
 
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
@@ -42,7 +40,7 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(appCtx, &searchParams)
 
 	if err != nil {
-		logger.Error("Unable to fetch records:", zap.Error(err))
+		appCtx.Logger().Error("Unable to fetch records:", zap.Error(err))
 		return movetaskorderops.NewListMTOsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 
@@ -59,8 +57,7 @@ type MakeMoveTaskOrderAvailableHandlerFunc struct {
 
 // Handle updates the prime availability of a MoveTaskOrder
 func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.MakeMoveTaskOrderAvailableParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
@@ -68,7 +65,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag, false, false)
 
 	if err != nil {
-		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
+		appCtx.Logger().Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
@@ -97,11 +94,11 @@ type HideNonFakeMoveTaskOrdersHandlerFunc struct {
 
 // Handle hides any mto that doesnt have valid fake data
 func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	hiddenMTOs, err := h.Hide()
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	hiddenMTOs, err := h.Hide(appCtx)
 	if err != nil {
-		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
+		appCtx.Logger().Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
 		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
 	payload := payloads.MTOHideMovesResponse(hiddenMTOs)
@@ -117,8 +114,7 @@ type GetMoveTaskOrderHandlerFunc struct {
 
 // Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   true,
@@ -126,7 +122,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	}
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
-		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
+		appCtx.Logger().Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
@@ -147,13 +143,12 @@ type CreateMoveTaskOrderHandler struct {
 
 // Handle updates to move task order post-counseling
 func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTaskOrderParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(appCtx, *params.Body, logger)
+	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(appCtx, *params.Body)
 
 	if err != nil {
-		logger.Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))
+		appCtx.Logger().Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(

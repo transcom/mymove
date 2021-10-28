@@ -24,11 +24,6 @@ type TransitTimeParserSuite struct {
 	xlsxFile              *xlsx.File
 }
 
-func (suite *TransitTimeParserSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestTransitTimeParserSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -36,7 +31,7 @@ func TestTransitTimeParserSuite(t *testing.T) {
 	}
 
 	hs := &TransitTimeParserSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 		xlsxFilename: "fixtures/Appendix_C(i)_-_Transit_Time_Tables_Fake_Data.xlsx",
 	}

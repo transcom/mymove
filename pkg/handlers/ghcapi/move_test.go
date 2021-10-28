@@ -122,3 +122,106 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	})
 
 }
+
+func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+	defaultRemarks := "destination address is on the moon"
+	fakeEtag := ""
+	params := moveops.SetFinancialReviewFlagParams{
+		HTTPRequest: req,
+		IfMatch:     &fakeEtag,
+		Body: moveops.SetFinancialReviewFlagBody{
+			Remarks: &defaultRemarks,
+		},
+		MoveID: *handlers.FmtUUID(move.ID),
+	}
+
+	suite.T().Run("Successful flag", func(t *testing.T) {
+		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
+		handler := SetFinancialReviewFlagHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFinancialReviewFlagSetter: &mockFlagSetter,
+		}
+		mockFlagSetter.On("SetFinancialReviewFlag",
+			mock.AnythingOfType("*appcontext.appContext"),
+			move.ID,
+			mock.Anything,
+			defaultRemarks,
+		).Return(&move, nil)
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SetFinancialReviewFlagOK{}, response)
+	})
+
+	suite.T().Run("Unsuccessful flag - missing remarks", func(t *testing.T) {
+		paramsNilRemarks := moveops.SetFinancialReviewFlagParams{
+			HTTPRequest: req,
+			IfMatch:     &fakeEtag,
+			Body: moveops.SetFinancialReviewFlagBody{
+				Remarks: nil,
+			},
+			MoveID: *handlers.FmtUUID(move.ID),
+		}
+		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
+		handler := SetFinancialReviewFlagHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFinancialReviewFlagSetter: &mockFlagSetter,
+		}
+
+		response := handler.Handle(paramsNilRemarks)
+		suite.IsType(&moveops.SetFinancialReviewFlagUnprocessableEntity{}, response)
+	})
+	suite.T().Run("Unsuccessful flag - move not found", func(t *testing.T) {
+		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
+		handler := SetFinancialReviewFlagHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFinancialReviewFlagSetter: &mockFlagSetter,
+		}
+		mockFlagSetter.On("SetFinancialReviewFlag",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			defaultRemarks,
+		).Return(&models.Move{}, apperror.NotFoundError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SetFinancialReviewFlagNotFound{}, response)
+	})
+	suite.T().Run("Unsuccessful flag - internal server error", func(t *testing.T) {
+		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
+		handler := SetFinancialReviewFlagHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFinancialReviewFlagSetter: &mockFlagSetter,
+		}
+		mockFlagSetter.On("SetFinancialReviewFlag",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			defaultRemarks,
+		).Return(&models.Move{}, apperror.QueryError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SetFinancialReviewFlagInternalServerError{}, response)
+	})
+
+	suite.T().Run("Unsuccessful flag - bad etag", func(t *testing.T) {
+		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
+		handler := SetFinancialReviewFlagHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFinancialReviewFlagSetter: &mockFlagSetter,
+		}
+		mockFlagSetter.On("SetFinancialReviewFlag",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			defaultRemarks,
+		).Return(&models.Move{}, apperror.PreconditionFailedError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SetFinancialReviewFlagPreconditionFailed{}, response)
+	})
+}

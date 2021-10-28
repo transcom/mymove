@@ -12,7 +12,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 
 	suite.Run("estimated and original are the same", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
@@ -20,7 +20,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	suite.Run("estimated is greater than original", func() {
 		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1024", valueStr)
 	})
@@ -29,7 +29,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		// Set the original weight to exactly 110% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("110", valueStr)
 	})
@@ -38,7 +38,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1481", valueStr)
 	})
@@ -47,7 +47,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		// Set the original weight only; no estimated, reweigh, or adjusted weight.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithOriginalWeightOnly(unit.Pound(1755), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1755", valueStr)
 	})
@@ -56,7 +56,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1450", valueStr)
 	})
@@ -65,7 +65,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		// Set the original weight to less than the reweigh weight. Lower weight (original) should win.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1500), unit.Pound(1480), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1480", valueStr)
 	})
@@ -75,7 +75,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		adjustedWeight := unit.Pound(1400)
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithAdjustedWeight(&adjustedWeight, unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1400", valueStr)
 	})
@@ -126,7 +126,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 			// Set the original weight to below minimum
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
-			valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+			valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 			suite.FatalNoError(err)
 			suite.Equal(data.expectedMinimum, valueStr)
 		})
@@ -139,10 +139,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find actual weight for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
@@ -156,10 +156,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		mtoShipment.PrimeEstimatedWeight = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.NoError(err)
 		suite.Equal("500", valueStr)
 	})
@@ -170,7 +170,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 
 	suite.Run("estimated and original are the same", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
@@ -178,7 +178,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 	suite.Run("estimated is greater than original", func() {
 		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1024", valueStr)
 	})
@@ -187,7 +187,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1357", valueStr)
 	})
@@ -196,7 +196,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		// Set the weights so that a fraction of a pound is returned
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1235), unit.Pound(1482), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1359", valueStr)
 	})
@@ -224,7 +224,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 			// Set the original weight to below minimum
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
-			valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+			valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 			suite.FatalNoError(err)
 			suite.Equal(data.expectedMinimum, valueStr)
 		})
@@ -236,10 +236,10 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		mtoServiceItem.ActualWeight = nil
 		suite.MustSave(&mtoServiceItem)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find actual weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
 		suite.Contains(err.Error(), expected)
@@ -252,10 +252,10 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		mtoServiceItem.EstimatedWeight = nil
 		suite.MustSave(&mtoServiceItem)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find estimated weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
 		suite.Contains(err.Error(), expected)

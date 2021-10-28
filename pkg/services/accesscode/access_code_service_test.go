@@ -16,18 +16,13 @@ type AccessCodeServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *AccessCodeServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
-}
-
-func (suite *AccessCodeServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+func (suite *AccessCodeServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestAccessCodeServiceSuite(t *testing.T) {
 	ts := &AccessCodeServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(),
 	}
 	suite.Run(t, ts)

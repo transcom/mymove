@@ -28,7 +28,7 @@ describe('Duty Station page', () => {
 
   it('renders the CurrentDutyStationForm', async () => {
     render(<DutyStation {...testProps} />);
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Current duty station');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Current duty location');
   });
 
   it('back button goes to the Contact Info step', async () => {

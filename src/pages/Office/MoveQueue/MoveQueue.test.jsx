@@ -88,7 +88,7 @@ describe('MoveQueue', () => {
     expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
     expect(firstMove.find({ 'data-testid': 'branch-0' }).text()).toBe('Air Force');
     expect(firstMove.find({ 'data-testid': 'shipmentsCount-0' }).text()).toBe('2');
-    expect(firstMove.find({ 'data-testid': 'destinationDutyStation-0' }).text()).toBe('Area 51');
+    expect(firstMove.find({ 'data-testid': 'destinationDutyLocation-0' }).text()).toBe('Area 51');
     expect(firstMove.find({ 'data-testid': 'originGBLOC-0' }).text()).toBe('EEEE');
 
     const secondMove = moves.at(1);
@@ -98,7 +98,7 @@ describe('MoveQueue', () => {
     expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
     expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Marine Corps');
     expect(secondMove.find({ 'data-testid': 'shipmentsCount-1' }).text()).toBe('1');
-    expect(secondMove.find({ 'data-testid': 'destinationDutyStation-1' }).text()).toBe('Los Alamos');
+    expect(secondMove.find({ 'data-testid': 'destinationDutyLocation-1' }).text()).toBe('Los Alamos');
     expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');
   });
 

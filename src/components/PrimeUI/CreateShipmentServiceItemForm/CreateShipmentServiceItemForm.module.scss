@@ -1,0 +1,8 @@
+@import 'shared/styles/basics';
+
+.CreateShipmentServiceItemForm {
+  form :global .usa-label {
+    @include u-display(flex);
+    justify-content: space-between;
+  }
+}

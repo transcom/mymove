@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	services "github.com/transcom/mymove/pkg/services"
 )
 
@@ -12,20 +14,20 @@ type PostalCodeValidator struct {
 	mock.Mock
 }
 
-// ValidatePostalCode provides a mock function with given fields: postalCode, postalCodeType
-func (_m *PostalCodeValidator) ValidatePostalCode(postalCode string, postalCodeType services.PostalCodeType) (bool, error) {
-	ret := _m.Called(postalCode, postalCodeType)
+// ValidatePostalCode provides a mock function with given fields: appCtx, postalCode, postalCodeType
+func (_m *PostalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, postalCode string, postalCodeType services.PostalCodeType) (bool, error) {
+	ret := _m.Called(appCtx, postalCode, postalCodeType)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string, services.PostalCodeType) bool); ok {
-		r0 = rf(postalCode, postalCodeType)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, services.PostalCodeType) bool); ok {
+		r0 = rf(appCtx, postalCode, postalCodeType)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, services.PostalCodeType) error); ok {
-		r1 = rf(postalCode, postalCodeType)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, services.PostalCodeType) error); ok {
+		r1 = rf(appCtx, postalCode, postalCodeType)
 	} else {
 		r1 = ret.Error(1)
 	}

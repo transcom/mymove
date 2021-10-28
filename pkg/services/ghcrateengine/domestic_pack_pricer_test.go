@@ -48,7 +48,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemPara
 			},
 		)
 
-		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
@@ -61,7 +61,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemPara
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 		paymentServiceItem := suite.setupDomesticPackServiceItems()
 
-		cost, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -80,25 +80,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemPara
 		paymentServiceItem := suite.setupDomesticPackServiceItems()
 
 		// No contract code
-		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
 		// No requested pickup date
 		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingRequestedPickupDate)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingRequestedPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
 
 		// No weight
 		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledWeight)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No service schedule origin
 		missingServicesScheduleOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServicesScheduleOrigin)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingServicesScheduleOrigin)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServicesScheduleOrigin", err.Error())
 	})
@@ -111,7 +111,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
 		cost, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			weightBilled,
@@ -127,7 +127,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			weightBilled,
@@ -142,7 +142,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
 		_, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			weightBilled,
@@ -157,7 +157,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
 		_, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			weightBilled,
@@ -172,7 +172,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
 		cost, _, err := pricer.Price(
-			suite.TestAppContext(),
+			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unit.Pound(499),
@@ -189,22 +189,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price(suite.TestAppContext(), "", requestedPickupDate, weightBilled, servicesScheduleOrigin)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, weightBilled, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No requested pickup date
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, time.Time{}, weightBilled, servicesScheduleOrigin)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, weightBilled, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleOrigin)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleOrigin)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service schedule
-		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, weightBilled, 0)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, weightBilled, 0)
 		suite.Error(err)
 		suite.Equal("Service schedule is required", err.Error())
 	})

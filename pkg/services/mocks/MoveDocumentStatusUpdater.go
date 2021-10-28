@@ -3,9 +3,10 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
-	auth "github.com/transcom/mymove/pkg/auth"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+
+	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -17,13 +18,13 @@ type MoveDocumentStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMoveDocumentStatus provides a mock function with given fields: moveDocumentPayload, moveDocument, session
-func (_m *MoveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocument *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	ret := _m.Called(moveDocumentPayload, moveDocument, session)
+// UpdateMoveDocumentStatus provides a mock function with given fields: appCtx, moveDocumentPayload, moveDocument
+func (_m *MoveDocumentStatusUpdater) UpdateMoveDocumentStatus(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocument *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+	ret := _m.Called(appCtx, moveDocumentPayload, moveDocument)
 
 	var r0 *models.MoveDocument
-	if rf, ok := ret.Get(0).(func(*internalmessages.MoveDocumentPayload, *models.MoveDocument, *auth.Session) *models.MoveDocument); ok {
-		r0 = rf(moveDocumentPayload, moveDocument, session)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *internalmessages.MoveDocumentPayload, *models.MoveDocument) *models.MoveDocument); ok {
+		r0 = rf(appCtx, moveDocumentPayload, moveDocument)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MoveDocument)
@@ -31,8 +32,8 @@ func (_m *MoveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayloa
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*internalmessages.MoveDocumentPayload, *models.MoveDocument, *auth.Session) *validate.Errors); ok {
-		r1 = rf(moveDocumentPayload, moveDocument, session)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *internalmessages.MoveDocumentPayload, *models.MoveDocument) *validate.Errors); ok {
+		r1 = rf(appCtx, moveDocumentPayload, moveDocument)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -40,8 +41,8 @@ func (_m *MoveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayloa
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*internalmessages.MoveDocumentPayload, *models.MoveDocument, *auth.Session) error); ok {
-		r2 = rf(moveDocumentPayload, moveDocument, session)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *internalmessages.MoveDocumentPayload, *models.MoveDocument) error); ok {
+		r2 = rf(appCtx, moveDocumentPayload, moveDocument)
 	} else {
 		r2 = ret.Error(2)
 	}

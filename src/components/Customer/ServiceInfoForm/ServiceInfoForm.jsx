@@ -33,8 +33,8 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
     current_station: Yup.object()
       .required('Required')
       .test(
-        'existing and new duty station should not match',
-        'You entered the same duty station for your origin and destination. Please change one of them.',
+        'existing and new duty location should not match',
+        'You entered the same duty location for your origin and destination. Please change one of them.',
         (value) => value?.id !== newDutyStation?.id,
       ),
   });
@@ -96,7 +96,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
                 </Grid>
               </Grid>
 
-              <DutyStationInput label="Current duty station" name="current_station" id="current_station" required />
+              <DutyStationInput label="Current duty location" name="current_station" id="current_station" required />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

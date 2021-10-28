@@ -21,8 +21,8 @@ cypress/cypress
 /tmp
 /log
 
-# All compiled binaries
-/bin/
+# Ignore all compiled binary directories found anywhere in the project
+bin/
 
 # Ignore
 /docs/packages.txt

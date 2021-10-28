@@ -37,7 +37,7 @@ func (suite *TSPServiceSuite) TestFetchTransportationServiceProviderPerformance(
 		fetcher := NewTransportationServiceProviderPerformanceFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		tspp, err := fetcher.FetchTransportationServiceProviderPerformance(suite.TestAppContext(), filters)
+		tspp, err := fetcher.FetchTransportationServiceProviderPerformance(suite.AppContextForTest(), filters)
 
 		suite.NoError(err)
 		suite.Equal(id, tspp.ID)
@@ -52,7 +52,7 @@ func (suite *TSPServiceSuite) TestFetchTransportationServiceProviderPerformance(
 		}
 		fetcher := NewTransportationServiceProviderPerformanceFetcher(builder)
 
-		tspp, err := fetcher.FetchTransportationServiceProviderPerformance(suite.TestAppContext(), []services.QueryFilter{})
+		tspp, err := fetcher.FetchTransportationServiceProviderPerformance(suite.AppContextForTest(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

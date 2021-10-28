@@ -460,7 +460,7 @@ describe('MoveDetails page', () => {
         render(mockedComponent);
 
         expect(await screen.findByRole('heading', { name: 'Orders', level: 2 })).toBeInTheDocument();
-        expect(screen.getByText('Current duty station')).toBeInTheDocument();
+        expect(screen.getByText('Current duty location')).toBeInTheDocument();
       });
 
       it('renders the Allowances Table', async () => {

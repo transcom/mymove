@@ -217,8 +217,8 @@ describe('TOO user', () => {
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
-    cy.get('[data-testid="currentDutyStation"]').contains('Fort Irwin');
-    cy.get('[data-testid="newDutyStation"]').contains('JB Lewis-McChord');
+    cy.get('[data-testid="currentDutyLocation"]').contains('Fort Irwin');
+    cy.get('[data-testid="newDutyLocation"]').contains('JB Lewis-McChord');
     cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
     cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
     cy.get('[data-testid="departmentIndicator"]').contains('Army');

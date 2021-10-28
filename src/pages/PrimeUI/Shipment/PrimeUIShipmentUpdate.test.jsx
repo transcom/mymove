@@ -3,13 +3,18 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { MockProviders } from '../../../testUtils';
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import { updatePrimeMTOShipment } from '../../../services/primeApi';
-
 import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 
+import { primeSimulatorRoutes } from 'constants/routes';
+import { MockProviders } from 'testUtils';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { updatePrimeMTOShipment } from 'services/primeApi';
+// import MOVE_STATUSES from 'constants/moves';
+// import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
+
+// import { shipmentStatuses } from 'constants/shipments';
+
+// const mockRequestedMoveCode = 'LR4T8V';
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
@@ -249,7 +254,7 @@ const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveC
 
 const mockedComponent = (
   <MockProviders initialEntries={[updateShipmentURL]}>
-    <PrimeUIShipmentUpdate />
+    <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
   </MockProviders>
 );
 
@@ -306,7 +311,11 @@ describe('Update Shipment Page', () => {
   it('navigates the user to the home page when the cancel button is clicked', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     userEvent.click(cancel);
@@ -321,7 +330,11 @@ describe('Displays the shipment information to update', () => {
   it('displays the shipment information', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const shipmentDatesHeader = screen.getByRole('heading', { name: 'Shipment Dates', level: 2 });
     expect(shipmentDatesHeader).toBeInTheDocument();
@@ -361,7 +374,11 @@ expect(
   it('displays the submit button active', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -375,7 +392,11 @@ describe('successful submission of form', () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
     updatePrimeMTOShipment.mockReturnValue({});
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
     userEvent.type(actualPickupDateInput, '2021-10-20');

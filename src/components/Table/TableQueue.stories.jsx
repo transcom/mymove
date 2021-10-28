@@ -69,7 +69,7 @@ const columns = (isFilterable = false) => [
     Filter: (props) => <SelectFilter options={BRANCH_OPTIONS} {...props} />,
   }),
   createHeader('# of shipments', 'col6', { isFilterable }),
-  createHeader('Destination duty station', 'col7', { isFilterable }),
+  createHeader('Destination duty location', 'col7', { isFilterable }),
   createHeader('Origin GBLOC', 'col8', { isFilterable }),
   createHeader('Last modified by', 'col9', { isFilterable, Filter: DateSelectFilter }),
 ];

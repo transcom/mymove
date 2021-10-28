@@ -40,15 +40,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tiaguinho/gosoap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // DTODPlannerMileage is the interface for connecting to DTOD SOAP service and requesting distance mileage
 type DTODPlannerMileage interface {
-	DTODZip5Distance(pickup string, destination string) (int, error)
+	DTODZip5Distance(appCtx appcontext.AppContext, pickup string, destination string) (int, error)
 }
 
 type dtodZip5DistanceInfo struct {
-	logger     Logger
 	username   string
 	password   string
 	soapClient SoapCaller
@@ -65,9 +66,8 @@ type processRequestResult struct {
 }
 
 // NewDTODZip5Distance returns a new DTOD Planner Mileage interface
-func NewDTODZip5Distance(logger Logger, username string, password string, soapClient SoapCaller) DTODPlannerMileage {
+func NewDTODZip5Distance(username string, password string, soapClient SoapCaller) DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
-		logger:     logger,
 		username:   username,
 		password:   password,
 		soapClient: soapClient,
@@ -75,7 +75,7 @@ func NewDTODZip5Distance(logger Logger, username string, password string, soapCl
 }
 
 // DTODZip5Distance returns the distance in miles between the pickup and destination zips
-func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip string) (int, error) {
+func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pickupZip string, destinationZip string) (int, error) {
 	distance := 0
 
 	// set custom envelope
@@ -124,7 +124,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
 	distance = int(distanceFloat + 0.5)
 
-	d.logger.Debug("dtod result", zap.Any("processRequestResponse", r), zap.Int("distance", distance))
+	appCtx.Logger().Debug("dtod result", zap.Any("processRequestResponse", r), zap.Int("distance", distance))
 
 	return distance, nil
 }

@@ -6,8 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -23,8 +21,7 @@ type CreateSITExtensionHandler struct {
 
 // Handle created a sit extension for a shipment
 func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensionParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the new extension model
 	SITExtension := payloads.SITExtensionModel(params.Body, params.MtoShipmentID)
@@ -34,7 +31,7 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		logger.Error("primeapi.CreateSITExtensionHandler", zap.Error(err))
+		appCtx.Logger().Error("primeapi.CreateSITExtensionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		// NotFoundError -> Not Found Response
@@ -52,7 +49,7 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				logger.Error("primeapi.CreateSITExtensionHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.CreateSITExtensionHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateSITExtensionInternalServerError().WithPayload(
 				payloads.InternalServerError(nil, h.GetTraceID()))

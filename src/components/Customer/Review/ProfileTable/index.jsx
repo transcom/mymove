@@ -67,7 +67,7 @@ const ProfileTable = ({
           </tr>
           <tr>
             <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
-              Current duty station
+              Current duty location
             </th>
             <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
               {currentDutyStationName}

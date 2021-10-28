@@ -71,7 +71,7 @@ describe('ResidentialAddress page', () => {
     });
   });
 
-  it('back button goes to the Current duty station step', async () => {
+  it('back button goes to the Current duty location step', async () => {
     const testProps = generateTestProps(blankAddress);
 
     render(<ResidentialAddress {...testProps} />);

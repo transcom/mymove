@@ -63,7 +63,7 @@ let EditProfileForm = (props) => {
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
                   <SwaggerField fieldName="edipi" swagger={schema} required />
-                  <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
+                  <Field name="current_station" title="Current duty location" component={DutyStationSearchBox} />
                 </>
               )}
               {!moveIsInDraft && (

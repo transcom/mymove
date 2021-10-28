@@ -63,7 +63,7 @@ function renderOrdersDetailForm(props) {
 describe('OrdersDetailForm', () => {
   it('renders the Form', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
 
     // hidden fields are default visible
     expect(screen.getByLabelText('Department indicator')).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('OrdersDetailForm', () => {
     });
 
     // fields are visible
-    expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
 
     // fields are hidden
     expect(screen.queryByLabelText('Department indicator')).not.toBeInTheDocument();

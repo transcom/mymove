@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -26,8 +25,7 @@ type CreateMTOAgentHandler struct {
 
 // Handle created an MTO Agent for a shipment
 func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the mtoShipmentID and payload
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
@@ -43,7 +41,7 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		logger.Error("primeapi.CreateMTOAgentHandler", zap.Error(err))
+		appCtx.Logger().Error("primeapi.CreateMTOAgentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		// NotFoundError -> Not Found Response
@@ -61,7 +59,7 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				logger.Error("primeapi.CreateMTOAgentHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.CreateMTOAgentHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOAgentInternalServerError().WithPayload(
 				payloads.InternalServerError(nil, h.GetTraceID()))
@@ -85,8 +83,7 @@ type UpdateMTOAgentHandler struct {
 
 // Handle updates an MTO Agent for a shipment
 func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the params and payload
 	payload := params.Body
@@ -107,7 +104,7 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOAgentHandler", zap.Error(err))
+		appCtx.Logger().Error("primeapi.UpdateMTOAgentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		// PreconditionFailedError -> Precondition Failed Response
@@ -125,7 +122,7 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				logger.Error("primeapi.UpdateMTOAgentHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.UpdateMTOAgentHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewUpdateMTOAgentInternalServerError().WithPayload(
 				payloads.InternalServerError(nil, h.GetTraceID()))
