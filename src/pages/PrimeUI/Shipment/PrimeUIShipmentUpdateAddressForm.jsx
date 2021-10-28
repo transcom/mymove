@@ -14,7 +14,6 @@ import { primeSimulatorRoutes } from '../../../constants/routes';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { requiredAddressSchema } from 'utils/validation';
 
 const PrimeUIShipmentUpdateAddressForm = ({
   initialValues,
@@ -43,7 +42,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
               className={formStyles.formActions}
               aria-label="Update Shipment Address"
               type="submit"
-              disabled={isSubmitting || !isValid}
+              disableNext={isSubmitting || !isValid}
               onCancelClick={handleClose}
               onNextClick={handleSubmit}
             />
@@ -57,12 +56,14 @@ const PrimeUIShipmentUpdateAddressForm = ({
 PrimeUIShipmentUpdateAddressForm.propTypes = {
   initialValues: PropTypes.shape({
     address: ResidentialAddressShape,
-    addressID: PropTypes.string.isRequired,
-    eTag: PropTypes.string.isRequired,
+    addressID: PropTypes.string,
+    eTag: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   updateShipmentAddressSchema: PropTypes.shape({
-    address: requiredAddressSchema,
+    address: ResidentialAddressShape,
+    addressID: PropTypes.string,
+    eTag: PropTypes.string,
   }).isRequired,
   addressLocation: PropTypes.string.isRequired,
 };

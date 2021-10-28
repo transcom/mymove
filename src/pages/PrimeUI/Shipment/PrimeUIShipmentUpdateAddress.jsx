@@ -46,9 +46,7 @@ const PrimeUIShipmentUpdateAddress = () => {
       handleClose();
     },
     onError: (error) => {
-      const {
-        response: { body },
-      } = error;
+      const { response: { body } = {} } = error;
 
       if (body) {
         setErrorMessage({
@@ -58,7 +56,7 @@ const PrimeUIShipmentUpdateAddress = () => {
       } else {
         setErrorMessage({
           title: 'Unexpected error',
-          detail: 'An unknown error has occurred, please check the state of the shipment and values',
+          detail: 'An unknown error has occurred, please check the address values used',
         });
       }
       scrollToTop();
@@ -119,14 +117,13 @@ const PrimeUIShipmentUpdateAddress = () => {
                   </Alert>
                 </div>
               )}
-              <h3>Update Existing Pickup & Destination Address</h3>
+              <h1>Update Existing Pickup & Destination Address</h1>
               {editablePickupAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesPickupAddress}
                   onSubmit={onSubmit}
                   updateShipmentAddressSchema={updateAddressSchema}
                   addressLocation="Pickup address"
-                  address={shipment.pickupAddress}
                 />
               )}
               {editableDestinationAddress && (
@@ -135,7 +132,6 @@ const PrimeUIShipmentUpdateAddress = () => {
                   onSubmit={onSubmit}
                   updateShipmentAddressSchema={updateAddressSchema}
                   addressLocation="Destination address"
-                  address={shipment.destinationAddress}
                 />
               )}
             </Grid>

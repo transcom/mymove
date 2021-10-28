@@ -40,9 +40,7 @@ const PrimeUIShipmentUpdate = () => {
       handleClose();
     },
     onError: (error) => {
-      const {
-        response: { body },
-      } = error;
+      const { response: { body } = {} } = error;
 
       if (body) {
         /*
