@@ -374,7 +374,7 @@ class MtoShipmentForm extends Component {
                                 />
                               ) : (
                                 <p>
-                                  We can use the zip of your new duty station.
+                                  We can use the zip of your new duty location.
                                   <br />
                                   <strong>
                                     {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}

@@ -144,7 +144,7 @@ export const DutyStationSearchBoxComponent = (props) => {
           loadOptions={loadOptions}
           onChange={selectOption}
           onInputChange={changeInputText}
-          placeholder="Start typing a duty station..."
+          placeholder="Start typing a duty location..."
           value={hasStation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={customStyles}
@@ -178,7 +178,7 @@ DutyStationSearchBoxContainer.propTypes = {
 
 DutyStationSearchBoxContainer.defaultProps = {
   displayAddress: true,
-  title: 'Name of Duty Station:',
+  title: 'Name of Duty Location:',
   errorMsg: '',
   input: {
     name: '',

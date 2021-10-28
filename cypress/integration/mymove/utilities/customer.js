@@ -51,7 +51,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // duty station
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
-  cy.selectDutyStation('Fort Carson', 'current_station');
+  cy.selectDutyStation('Fort Carson', 'current_location');
 
   cy.nextPage();
   cy.location().should((loc) => {
@@ -109,7 +109,7 @@ export function customerFillsOutOrdersInformation() {
 
   cy.get('input[name="report_by_date"]').last().type('8/9/2018{enter}').blur();
 
-  cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
+  cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_location');
 
   cy.nextPage();
 

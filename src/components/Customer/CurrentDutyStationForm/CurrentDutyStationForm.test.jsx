@@ -15,7 +15,7 @@ describe('CurrentDutyStationForm component', () => {
       />,
     );
     await waitFor(() => {
-      expect(getByLabelText('What is your current duty station?')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('What is your current duty location?')).toBeInstanceOf(HTMLInputElement);
     });
   });
 
@@ -62,7 +62,7 @@ describe('CurrentDutyStationForm component', () => {
     await waitFor(() => {
       expect(submitBtn).toHaveAttribute('disabled');
       expect(
-        getAllByText('You entered the same duty station for your origin and destination. Please change one of them.')
+        getAllByText('You entered the same duty location for your origin and destination. Please change one of them.')
           .length,
       ).toBe(1);
     });

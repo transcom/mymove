@@ -56,7 +56,7 @@ const ServiceInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>Current duty station</dt>
+            <dt>Current duty location</dt>
             <dd>{originDutyStationName}</dd>
           </div>
         </dl>

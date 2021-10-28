@@ -193,7 +193,7 @@ describe('EditOrdersForm component', () => {
       ['Report-by date', true, HTMLInputElement],
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
-      ['New duty station', false, HTMLInputElement],
+      ['New duty location', false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
       render(<EditOrdersForm {...testProps} />);
 
@@ -228,7 +228,7 @@ describe('EditOrdersForm component', () => {
     });
   });
 
-  it('validates the new duty station against the current duty station', async () => {
+  it('validates the new duty location against the current duty location', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
       <EditOrdersForm
@@ -258,8 +258,8 @@ describe('EditOrdersForm component', () => {
     userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
-    // Test Duty Station Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    // Test duty station Search Box interaction
+    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);
 
@@ -272,7 +272,9 @@ describe('EditOrdersForm component', () => {
     expect(submitButton).toBeDisabled();
 
     expect(
-      screen.getByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+      screen.getByText(
+        'You entered the same duty location for your origin and destination. Please change one of them.',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -321,7 +323,7 @@ describe('EditOrdersForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);
 
@@ -439,7 +441,7 @@ describe('EditOrdersForm component', () => {
       ['Orders Type', 'orders_type', ''],
       ['Orders Date', 'issue_date', ''],
       ['Report By Date', 'report_by_date', ''],
-      ['Duty Station', 'new_duty_station', null],
+      ['Duty Location', 'new_duty_station', null],
       ['Uploaded Orders', 'uploaded_orders', []],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {

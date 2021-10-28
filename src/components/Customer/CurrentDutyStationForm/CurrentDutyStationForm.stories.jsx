@@ -3,7 +3,7 @@ import React from 'react';
 import CurrentDutyStationForm from './CurrentDutyStationForm';
 
 export default {
-  title: 'Customer Components / Forms / Current Duty Station Form',
+  title: 'Customer Components / Forms / Current Duty Location Form',
   component: CurrentDutyStationForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
