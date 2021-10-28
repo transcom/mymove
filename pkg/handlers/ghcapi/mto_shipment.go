@@ -662,6 +662,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 
 	shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
 	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
@@ -674,18 +676,18 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		}
 	}
 
-	moveID := reweigh.Shipment.MoveTaskOrderID
+	moveID := shipment.MoveTaskOrderID
 	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID, reweigh.Shipment),
+		notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID, *shipment),
 	)
 	if err != nil {
 		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.Reweigh(reweigh, sitStatusPayload)
