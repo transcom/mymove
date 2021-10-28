@@ -62,6 +62,7 @@ repos:
         name: ato-linter-be
         entry: scripts/pre-commit-go-custom-linter ato-linter
         files: \.go$
+        pass_filenames: false
         language: script
         exclude: >
           (?x)^(
