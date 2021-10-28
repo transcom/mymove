@@ -63,6 +63,10 @@ repos:
         entry: scripts/pre-commit-go-custom-linter ato-linter
         files: \.go$
         language: script
+        exclude: >
+          (?x)^(
+            testdata
+          )
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.29.0
