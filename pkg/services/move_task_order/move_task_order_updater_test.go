@@ -431,6 +431,52 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 	})
 }
 
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_TIORemarks() {
+	remarks := "Reweigh requested"
+	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
+	suite.Run("Service item creator is not called if move fails to get approved", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		updatedMove, err := mtoUpdater.UpdateTIORemarks(suite.TestAppContext(), move.ID, eTag, remarks)
+
+		suite.NoError(err)
+		suite.NotNil(updatedMove.TIORemarks)
+	})
+
+	suite.Run("When ETag is stale", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		})
+
+		eTag := etag.GenerateEtag(time.Now())
+		_, err := mtoUpdater.UpdateTIORemarks(suite.TestAppContext(), move.ID, eTag, remarks)
+		suite.Error(err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
+	})
+
+	suite.Run("Fail - Move not found", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		})
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+		_, err := mtoUpdater.UpdateTIORemarks(suite.TestAppContext(), badMoveID, eTag, remarks)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), badMoveID.String())
+	})
+}
+
 func (suite *MoveTaskOrderServiceSuite) containsServiceCode(items models.MTOServiceItems, target models.ReServiceCode) bool {
 	for _, si := range items {
 		if si.ReService.Code == target {
