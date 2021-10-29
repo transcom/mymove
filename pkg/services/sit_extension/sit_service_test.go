@@ -17,18 +17,13 @@ type SitExtensionServiceSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *SitExtensionServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
-}
-
-func (suite *SitExtensionServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+func (suite *SitExtensionServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestSitExtensionServiceSuite(t *testing.T) {
 	testService := &SitExtensionServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // no-op logger used during testing
 	}
 	suite.Run(t, testService)

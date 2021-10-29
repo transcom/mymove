@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -230,7 +231,12 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
-		return nil, apperror.NewNotFoundError(mtoShipmentID, "Shipment not found")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoShipmentID, "Shipment not found")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil
@@ -277,7 +283,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext
 func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
 	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
+		return nil, err
 	}
 
 	// run the (read-only) validations
@@ -477,7 +483,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			var move models.Move
 			err := txnAppCtx.DB().Find(&move, dbShipment.MoveTaskOrderID)
 			if err != nil {
-				return err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(dbShipment.MoveTaskOrderID, "looking for Move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
 			}
 
 			existingMoveStatus := move.Status
@@ -787,7 +798,12 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	err := builder.FetchOne(appCtx, &shipment, queryFilters)
 
 	if err != nil {
-		return &shipment, apperror.NewNotFoundError(shipmentID, "Shipment not found")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "Shipment not found")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil
@@ -886,7 +902,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
 
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.TransitDistance(&pickupAddress, &destinationAddress)
+	distance, err := planner.TransitDistance(appCtx, &pickupAddress, &destinationAddress)
 	if err != nil {
 		return nil, err
 	}

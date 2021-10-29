@@ -89,7 +89,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		case sql.ErrNoRows:
 			return &models.Move{}, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
-			return &models.Move{}, err
+			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
 	}
 

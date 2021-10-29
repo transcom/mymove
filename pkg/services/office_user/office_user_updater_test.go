@@ -35,7 +35,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
 		}
 
-		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(suite.TestAppContext(), officeUser.ID, payload)
+		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.Equal(updatedOfficeUser.ID.String(), officeUser.ID.String())
@@ -48,7 +48,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	suite.T().Run("If we are provided an office user that doesn't exist, the create should fail", func(t *testing.T) {
 		payload := &adminmessages.OfficeUserUpdatePayload{}
 
-		_, _, err := updater.UpdateOfficeUser(suite.TestAppContext(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
+		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
@@ -59,7 +59,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}
 
-		_, _, err := updater.UpdateOfficeUser(suite.TestAppContext(), officeUser.ID, payload)
+		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})

@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -34,9 +35,9 @@ type GHCTestSuite struct {
 	logger *zap.Logger
 }
 
-func (suite *GHCTestSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *GHCTestSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestGHCTestSuite(t *testing.T) {
@@ -45,7 +46,7 @@ func TestGHCTestSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	ts := &GHCTestSuite{
 		PopTestSuite: popTs,
 		logger:       logger,
@@ -71,8 +72,8 @@ func (suite *GHCTestSuite) TestTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		planner.TransitDistance(&sourceAddress, &destinationAddress)
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner.TransitDistance(suite.AppContextForTest(), &sourceAddress, &destinationAddress)
 	}
 	suite.Panics(panicFunc)
 }
@@ -89,8 +90,8 @@ func (suite *GHCTestSuite) TestLatLongTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		planner.LatLongTransitDistance(sourceLatLong, destinationLatLong)
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner.LatLongTransitDistance(suite.AppContextForTest(), sourceLatLong, destinationLatLong)
 	}
 	suite.Panics(panicFunc)
 }
@@ -100,8 +101,8 @@ func (suite *GHCTestSuite) TestZip5TransitDistanceLineHaul() {
 	destinationZip5 := "78234"
 
 	panicFunc := func() {
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		planner.Zip5TransitDistanceLineHaul(sourceZip5, destinationZip5)
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), sourceZip5, destinationZip5)
 	}
 	suite.Panics(panicFunc)
 }
@@ -114,8 +115,8 @@ func (suite *GHCTestSuite) TestZip5TransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), nil)
 
-		planner := NewGHCPlanner(suite.logger, suite.DB(), testSoapClient, fakeUsername, fakePassword)
-		distance, err := planner.Zip5TransitDistance("30907", "30301")
+		planner := NewGHCPlanner(testSoapClient, fakeUsername, fakePassword)
+		distance, err := planner.Zip5TransitDistance(suite.AppContextForTest(), "30907", "30301")
 		suite.NoError(err)
 		suite.Equal(150, distance)
 	})
@@ -127,8 +128,8 @@ func (suite *GHCTestSuite) TestZip5TransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), errors.New("some error"))
 
-		planner := NewGHCPlanner(suite.logger, suite.DB(), testSoapClient, fakeUsername, fakePassword)
-		distance, err := planner.Zip5TransitDistance("30907", "30301")
+		planner := NewGHCPlanner(testSoapClient, fakeUsername, fakePassword)
+		distance, err := planner.Zip5TransitDistance(suite.AppContextForTest(), "30907", "30301")
 		suite.Error(err)
 		suite.Equal(0, distance)
 	})
@@ -147,15 +148,15 @@ func (suite *GHCTestSuite) TestZip3TransitDistance() {
 	})
 
 	suite.T().Run("no error on a valid zip5", func(t *testing.T) {
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		distance, err := planner.Zip3TransitDistance("30902", "78223")
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		distance, err := planner.Zip3TransitDistance(suite.AppContextForTest(), "30902", "78223")
 		suite.NoError(err)
 		suite.Equal(42, distance)
 	})
 
 	suite.T().Run("error on a invalid zip", func(t *testing.T) {
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		distance, err := planner.Zip3TransitDistance("30902", "78223")
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		distance, err := planner.Zip3TransitDistance(suite.AppContextForTest(), "30902", "78223")
 		suite.NoError(err)
 		suite.Equal(42, distance)
 	})
@@ -172,8 +173,8 @@ func (suite *GHCTestSuite) TestZip3TransitDistance() {
 			},
 		})
 
-		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-		distance, err := planner.Zip3TransitDistance(sourceZip5short, destinationZip5short)
+		planner := NewGHCPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		distance, err := planner.Zip3TransitDistance(suite.AppContextForTest(), sourceZip5short, destinationZip5short)
 		suite.NoError(err)
 		suite.Equal(424, distance)
 	})

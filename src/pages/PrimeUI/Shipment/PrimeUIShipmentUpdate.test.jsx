@@ -1,20 +1,20 @@
 import React from 'react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { MockProviders } from '../../../testUtils';
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import { updatePrimeMTOShipment } from '../../../services/primeApi';
-import MOVE_STATUSES from '../../../constants/moves';
-import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
-
 import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 
-import { shipmentStatuses } from 'constants/shipments';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { MockProviders } from 'testUtils';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { updatePrimeMTOShipment } from 'services/primeApi';
+// import MOVE_STATUSES from 'constants/moves';
+// import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
-const mockRequestedMoveCode = 'LR4T8V';
+// import { shipmentStatuses } from 'constants/shipments';
+
+// const mockRequestedMoveCode = 'LR4T8V';
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
@@ -224,26 +224,6 @@ const approvedMoveTaskOrder = {
   },
 };
 
-const missingPrimeUpdates = {
-  ...approvedMoveTaskOrder,
-  moveTaskOrder: {
-    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-    ordersId: '1',
-    status: MOVE_STATUSES.APPROVED,
-    mtoShipments: [
-      {
-        id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-        moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-        destinationAddress: null,
-        primeEstimatedWeight: 0,
-        primeActualWeight: 0,
-        scheduledPickupDate: null,
-        actualPickupDate: null,
-      },
-    ],
-  },
-};
-
 /*
 const tooApprovedMoveDetailsQuery = {
   ...newMoveDetailsQuery,
@@ -272,17 +252,9 @@ const updateShipmentURL = generatePath(primeSimulatorRoutes.UPDATE_SHIPMENT_PATH
 });
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
 
-const renderMockedComponent = () => {
-  return render(
-    <MockProviders initialEntries={[updateShipmentURL]}>
-      <PrimeUIShipmentUpdate />
-    </MockProviders>,
-  );
-};
-
 const mockedComponent = (
   <MockProviders initialEntries={[updateShipmentURL]}>
-    <PrimeUIShipmentUpdate />
+    <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
   </MockProviders>
 );
 
@@ -305,74 +277,6 @@ const errorReturnValue = {
   isLoading: false,
   isError: true,
   isSuccess: false,
-};
-
-const returnPayload = {
-  mtoShipments: {
-    'c865e3c9-734e-4769-af70-72a52a5720ff': {
-      actualPickupDate: '2020-03-16',
-      agents: [
-        {
-          agentType: 'RELEASING_AGENT',
-          createdAt: '2021-10-18T18:24:42.671Z',
-          eTag: 'MjAyMS0xMC0yMFQxNDoyMzoxOC4xODIyNDla',
-          email: 'test@test.email.com',
-          firstName: 'Test',
-          id: 'fb4f192f-3731-438d-a2f6-6e23f7e4a1ca',
-          lastName: 'Agent',
-          mtoShipmentID: 'c865e3c9-734e-4769-af70-72a52a5720ff',
-          phone: '202-555-9301',
-          updatedAt: '2021-10-20T14:23:18.182Z',
-        },
-      ],
-      approvedDate: '2021-10-18',
-      createdAt: '2021-10-18T18:24:42.530Z',
-      customerRemarks: 'Please treat gently',
-      destinationAddress: {
-        city: 'Fairfield',
-        country: 'US',
-        eTag: 'MjAyMS0xMC0yMFQxNDoyMzoxOC4xODIyNDha',
-        id: 'b7d93542-ae63-42b6-8000-f6b7c120f860',
-        postalCode: '94535',
-      },
-      eTag: 'MjAyMS0xMC0yMFQxNDoyMzoxOC4xODIyNDla',
-      firstAvailableDeliveryDate: null,
-      id: 'c865e3c9-734e-4769-af70-72a52a5720ff',
-      moveTaskOrderID: 'f0f5aa92-a146-41b3-9a07-bd164c7c484a',
-      mtoServiceItems: [
-        {
-          0: {
-            eTag: 'MjAyMS0xMC0xOFQxODoyNDo0Mi42Nzk4NDla',
-            id: 'b00f5fd4-b8cb-43ff-aa27-8f39615ea086',
-            modelType: 'MTOServiceItemBasic',
-            moveTaskOrderID: 'f0f5aa92-a146-41b3-9a07-bd164c7c484a',
-            mtoShipmentID: 'c865e3c9-734e-4769-af70-72a52a5720ff',
-            reServiceCode: 'STEST',
-            reServiceName: 'Test Service',
-            status: 'APPROVED',
-          },
-        },
-      ],
-      pickupAddress: {
-        city: 'Beverly Hills',
-        country: 'US',
-        eTag: 'MjAyMS0xMC0yMFQxNDoyMzoxOC4xODU3Njha',
-        id: '5e98f9eb-89dd-40a2-bab5-bdd82b8ecb9d',
-        postalCode: '90210',
-      },
-      primeActualWeight: 10000,
-      primeEstimatedWeight: 1400,
-      primeEstimatedWeightRecordedDate: null,
-      requestedPickupDate: '2020-03-15',
-      requiredDeliveryDate: '2020-03-28',
-      scheduledPickupDate: '2020-03-16',
-      secondaryDeliveryAddress: { city: null, postalCode: null, state: null, streetAddress1: null },
-      secondaryPickupAddress: { city: null, postalCode: null, state: null, streetAddress1: null },
-      shipmentType: 'HHG_LONGHAUL_DOMESTIC',
-      status: 'SUBMITTED',
-      updatedAt: '2021-10-20T14:23:18.182Z',
-    },
-  },
 };
 
 describe('Update Shipment Page', () => {
@@ -407,7 +311,11 @@ describe('Update Shipment Page', () => {
   it('navigates the user to the home page when the cancel button is clicked', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     userEvent.click(cancel);
@@ -422,7 +330,11 @@ describe('Displays the shipment information to update', () => {
   it('displays the shipment information', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const shipmentDatesHeader = screen.getByRole('heading', { name: 'Shipment Dates', level: 2 });
     expect(shipmentDatesHeader).toBeInTheDocument();
@@ -462,7 +374,11 @@ expect(
   it('displays the submit button active', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -476,7 +392,11 @@ describe('successful submission of form', () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
     updatePrimeMTOShipment.mockReturnValue({});
 
-    render(<PrimeUIShipmentUpdate />);
+    render(
+      <MockProviders>
+        <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+      </MockProviders>,
+    );
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
     userEvent.type(actualPickupDateInput, '2021-10-20');

@@ -65,12 +65,13 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(10, nil)
-	_, err1 := ppmComputer.ComputeObligations(noPPM, planner)
-	_, err2 := ppmComputer.ComputeObligations(missingZip, planner)
-	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, planner)
+	_, err1 := ppmComputer.ComputeObligations(suite.AppContextForTest(), noPPM, planner)
+	_, err2 := ppmComputer.ComputeObligations(suite.AppContextForTest(), missingZip, planner)
+	_, err3 := ppmComputer.ComputeObligations(suite.AppContextForTest(), missingActualMoveDate, planner)
 
 	suite.NotNil(err1)
 	suite.Equal("missing ppm", err1.Error())
@@ -88,6 +89,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	ppmRemainingEntitlement := unit.Pound(2000)
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(miles, nil)
@@ -175,7 +177,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			Date:                                  origMoveDate,
 			DaysInSIT:                             0,
 		}
-		cost, err := ppmComputer.ComputeObligations(params, planner)
+		cost, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
 
 		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
@@ -198,7 +200,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			costDetails: costDetails,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-		obligations, err := ppmComputer.ComputeObligations(params, planner)
+		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
 
 		suite.NoError(err)
 		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
@@ -234,7 +236,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			Order:                   order,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
+		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), shipmentSummaryFormParams, planner)
 
 		suite.NoError(err)
 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)
@@ -243,7 +245,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	suite.Run("TestCalcError", func() {
 		mockComputer := mockPPMComputer{err: errors.New("ERROR")}
 		ppmComputer := SSWPPMComputer{&mockComputer}
-		_, err := ppmComputer.ComputeObligations(params, planner)
+		_, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
 
 		suite.NotNil(err)
 	})

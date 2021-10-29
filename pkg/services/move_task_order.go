@@ -24,7 +24,7 @@ type HiddenMoves []HiddenMove
 // MoveTaskOrderHider is the service object interface for Hide
 //go:generate mockery --name MoveTaskOrderHider --disable-version-string
 type MoveTaskOrderHider interface {
-	Hide() (HiddenMoves, error)
+	Hide(appCtx appcontext.AppContext) (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder
@@ -48,6 +48,7 @@ type MoveTaskOrderUpdater interface {
 	UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
 	UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateReviewedBillableWeightsAt(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
+	UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error)
 	ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
 }
 

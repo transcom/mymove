@@ -43,7 +43,7 @@ const OrdersTable = ({
             <td>{reportByDate}</td>
           </tr>
           <tr>
-            <th scope="row">New duty station</th>
+            <th scope="row">New duty location</th>
             <td>{newDutyStationName}</td>
           </tr>
           <tr>

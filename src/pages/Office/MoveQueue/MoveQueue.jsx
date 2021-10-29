@@ -61,8 +61,8 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-  createHeader('Destination duty station', 'destinationDutyStation.name', {
-    id: 'destinationDutyStation',
+  createHeader('Destination duty location', 'destinationDutyStation.name', {
+    id: 'destinationDutyLocation',
     isFilterable: true,
   }),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),

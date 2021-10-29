@@ -187,28 +187,28 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveID, err := uuid.FromString(params.MoveID.String())
 
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB(), false)
+	moveDocs, err := move.FetchAllMoveDocumentsForMove(appCtx.DB(), false)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
-			return handlers.ResponseForError(logger, err)
+			return handlers.ResponseForError(appCtx.Logger(), err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -225,17 +225,16 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
-	moveDoc, verrs, err := h.moveDocumentUpdater.Update(params.UpdateMoveDocument, moveDocID, session)
+	moveDoc, verrs, err := h.moveDocumentUpdater.Update(appCtx, params.UpdateMoveDocument, moveDocID)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }
@@ -247,19 +246,18 @@ type DeleteMoveDocumentHandler struct {
 
 // Handle ... deletes a move document
 func (h DeleteMoveDocumentHandler) Handle(params movedocop.DeleteMoveDocumentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 	// for now, only delete if weight ticket set or expense
-	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID, false)
+	moveDoc, err := models.FetchMoveDocument(appCtx.DB(), appCtx.Session(), moveDocID, false)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	err = models.DeleteMoveDocument(h.DB(), moveDoc)
+	err = models.DeleteMoveDocument(appCtx.DB(), moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	return movedocop.NewDeleteMoveDocumentNoContent()
 

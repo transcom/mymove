@@ -20,7 +20,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 	suite.Require().NoError(fileErr)
 
 	suite.T().Run("Success - Upload is created", func(t *testing.T) {
-		upload, err := uploadCreator.CreateUpload(suite.TestAppContext(), testFile, testFileName, models.UploadTypePRIME)
+		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, testFileName, models.UploadTypePRIME)
 		suite.NoError(err)
 		suite.Require().NotNil(upload)
 
@@ -31,7 +31,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 	})
 
 	suite.T().Run("Fail - Upload with invalid type causes an error", func(t *testing.T) {
-		upload, err := uploadCreator.CreateUpload(suite.TestAppContext(), testFile, testFileName, "INVALID")
+		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, testFileName, "INVALID")
 		suite.Nil(upload)
 		suite.Require().Error(err)
 	})

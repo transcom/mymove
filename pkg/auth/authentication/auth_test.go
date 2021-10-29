@@ -76,14 +76,12 @@ type AuthSuite struct {
 }
 
 func (suite *AuthSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	gob.Register(auth.Session{})
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *AuthSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *AuthSuite) AppContextForTest(session *auth.Session) appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, session)
 }
 
 func TestAuthSuite(t *testing.T) {
@@ -92,7 +90,7 @@ func TestAuthSuite(t *testing.T) {
 		log.Panic(err)
 	}
 	hs := &AuthSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)
@@ -403,7 +401,8 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
+
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated user")
 }
@@ -447,7 +446,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(officeUserID, session.OfficeUserID)
@@ -480,7 +479,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated office user")
 }
@@ -535,7 +534,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	rr2 := httptest.NewRecorder()
 	officeSession.LoadAndSave(h).ServeHTTP(rr2, req.WithContext(scsContext))
@@ -599,7 +598,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	// admin app, so should only have admin ID information
 	suite.Equal(userIdentity.ID, session.UserID)
@@ -643,7 +642,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUser(suite.DB(), user.ID)
 
@@ -660,7 +659,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	}
 	concurrentCtx := auth.SetSessionInRequestContext(req, &concurrentSession)
 	concurrentScsContext := setupScsSession(concurrentCtx, &concurrentSession, milSession)
-	authorizeKnownUser(&userIdentity, h, &concurrentSession, rr, req.WithContext(concurrentScsContext), "")
+	authorizeKnownUser(suite.AppContextForTest(&concurrentSession), &userIdentity, h, rr, req.WithContext(concurrentScsContext), "")
 
 	_, existsAfterConcurrentSession, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
 	suite.Equal(existsAfterConcurrentSession, false)
@@ -726,7 +725,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	}
 
 	// Call the function under test
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), h.landingURL(&session))
+	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(scsContext), h.landingURL(&session))
 	mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 
 	// Look up the user and service member in the test DB
@@ -800,7 +799,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated admin user")
 }
@@ -837,7 +836,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Office user is active")
 }
@@ -872,7 +871,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Office user not found")
 }
@@ -919,7 +918,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(gothUser, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), officeUser.Email)
 
@@ -957,7 +956,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is active")
 }
@@ -992,7 +991,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), user, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
 }
@@ -1036,7 +1035,7 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
+	authorizeKnownUser(suite.AppContextForTest(&session), &userIdentity, h, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
 }
@@ -1083,7 +1082,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(gothUser, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(suite.AppContextForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), adminUser.Email)
 
@@ -1091,4 +1090,41 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 	suite.NotEqual("", foundUser.CurrentAdminSessionID)
+}
+
+func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	// user is in office_users but has never logged into the app
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+			UserID: &user.ID,
+		},
+		User: user,
+	})
+
+	fakeToken := "some_token"
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          user.ID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov", OfficeTestHost), nil)
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	sessionManagers := setupSessionManagers()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	h := RedirectHandler{
+		authContext,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	req = req.WithContext(ctx)
+	h.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusTemporaryRedirect, rr.Code,
+		"handler returned wrong status code")
 }

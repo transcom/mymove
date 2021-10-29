@@ -170,7 +170,7 @@ describe('ServiceInfoForm', () => {
     expect(rankInput).toBeInstanceOf(HTMLSelectElement);
     expect(rankInput).toBeRequired();
 
-    expect(await screen.findByLabelText('Current duty station')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('Current duty location')).toBeInstanceOf(HTMLInputElement);
   });
 
   it('validates the DOD ID number on blur', async () => {
@@ -184,7 +184,7 @@ describe('ServiceInfoForm', () => {
     expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
   });
 
-  it('validates the new duty station against the current duty station', async () => {
+  it('validates the new duty location against the current duty location', async () => {
     render(
       <ServiceInfoForm
         {...testProps}
@@ -193,7 +193,7 @@ describe('ServiceInfoForm', () => {
     );
 
     // Test Duty Station Search Box interaction
-    const dutyStationInput = await screen.getByLabelText('Current duty station');
+    const dutyStationInput = await screen.getByLabelText('Current duty location');
     fireEvent.change(dutyStationInput, { target: { value: 'AFB' } });
     await selectEvent.select(dutyStationInput, /Luke/);
 
@@ -204,7 +204,7 @@ describe('ServiceInfoForm', () => {
     expect(await screen.findByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
     expect(
       await screen.findByText(
-        'You entered the same duty station for your origin and destination. Please change one of them.',
+        'You entered the same duty location for your origin and destination. Please change one of them.',
       ),
     ).toBeInTheDocument();
   });
@@ -230,8 +230,8 @@ describe('ServiceInfoForm', () => {
     userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
     userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
     userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
-    fireEvent.change(screen.getByLabelText('Current duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(screen.getByLabelText('Current duty station'), /Luke/);
+    fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
+    await selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/);
 
     expect(screen.getByRole('form')).toHaveFormValues({
       current_station: 'Luke AFB',

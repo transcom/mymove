@@ -23,7 +23,7 @@ const MoveDocumentWrapper = () => {
     exact: true,
   });
 
-  const documentsForViewer = Object.values(upload).concat(Object.values(amendedUpload || {}));
+  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 
   return (
     <div className={styles.DocumentWrapper}>

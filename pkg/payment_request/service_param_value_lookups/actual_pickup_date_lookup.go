@@ -30,7 +30,7 @@ func (r ActualPickupDateLookup) lookup(appCtx appcontext.AppContext, keyData *Se
 		case sql.ErrNoRows:
 			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return "", err
+			return "", apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 

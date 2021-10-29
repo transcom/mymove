@@ -82,6 +82,9 @@ const GhcUpdateMoveTaskOrderStatusEndpointKey = "Ghc.UpdateMoveTaskOrderStatus"
 // GhcUpdateMTOReviewedBillableWeightsEndpointKey is the key for the UpdateMTOReviewedBillableWeights endpoint in ghc
 const GhcUpdateMTOReviewedBillableWeightsEndpointKey = "Ghc.UpdateMTOReviewedBillableWeightss"
 
+// GhcUpdateMoveTIORemarksEndpointKey is the key for the UpdateMoveTIORemarks endpoint in ghc
+const GhcUpdateMoveTIORemarksEndpointKey = "Ghc.UpdateMoveTIORemarks"
+
 // GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey is the key for the updateMTOStatusServiceCounselingCompleted endpoint in ghc
 const GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey = "Ghc.UpdateMTOStatusServiceCounselingCompleted"
 

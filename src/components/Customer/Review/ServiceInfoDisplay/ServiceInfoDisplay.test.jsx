@@ -48,7 +48,7 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(dodId.nextElementSibling.textContent).toBe(testProps.edipi);
 
-    const currentDutyStation = screen.getByText('Current duty station');
+    const currentDutyStation = screen.getByText('Current duty location');
 
     expect(currentDutyStation).toBeInTheDocument();
 

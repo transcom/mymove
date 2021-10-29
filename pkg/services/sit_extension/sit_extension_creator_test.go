@@ -18,7 +18,7 @@ import (
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	// Create move router for SitExtension Createor
 	moveRouter := moverouter.NewMoveRouter()

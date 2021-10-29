@@ -30,7 +30,7 @@ func TestErrorsSuite(t *testing.T) {
 	zap.ReplaceGlobals(logger)
 
 	hs := &ErrorsSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

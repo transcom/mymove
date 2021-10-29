@@ -45,13 +45,13 @@ type ShowAddressHandler struct {
 
 // Handle returns a address given an addressId
 func (h ShowAddressHandler) Handle(params addressop.ShowAddressParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	addressID, err := uuid.FromString(params.AddressID.String())
 
-	address := models.FetchAddressByID(h.DB(), &addressID)
 	if err != nil {
-		logger.Error("Finding address", zap.Error(err))
+		appCtx.Logger().Error("Finding address", zap.Error(err))
 	}
+	address := models.FetchAddressByID(appCtx.DB(), &addressID)
 
 	addressPayload := payloads.Address(address)
 	return addressop.NewShowAddressOK().WithPayload(addressPayload)

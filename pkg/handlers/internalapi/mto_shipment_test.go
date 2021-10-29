@@ -400,6 +400,7 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)

@@ -191,29 +191,38 @@ const useOrdersDocumentQueriesReturnValue = {
   },
 };
 
+const move = {
+  tioRemarks: 'the prime has already unloaded this move',
+};
+
 const useMovePaymentRequestsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoShipments,
+  move,
 };
 
 const useNonMaxBillableWeightExceededReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockMtoShipments[0]],
+  move,
 };
 
 const useMissingShipmentWeightNoReweighReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoReweighWeightShipment, mockHasAllInformationShipment],
+  move,
 };
 
 const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoPrimeEstimatedWeightShipment, mockHasAllInformationShipment],
+  move,
 };
 
 const noAlertsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockHasAllInformationShipment],
+  move,
 };
 
 const loadingReturnValue = {
@@ -259,6 +268,7 @@ describe('ReviewBillableWeight', () => {
       render(<ReviewBillableWeight />);
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Document viewer text')).toBeInTheDocument();
+      expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
 
     it('renders weight summary', () => {
@@ -285,6 +295,7 @@ describe('ReviewBillableWeight', () => {
       userEvent.click(screen.getByText('Edit'));
       expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
+      expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
   });
 

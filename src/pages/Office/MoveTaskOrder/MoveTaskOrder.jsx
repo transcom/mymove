@@ -179,11 +179,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     onSuccess: (data, variables) => {
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
-      queryCache.setQueryData([MTO_SHIPMENTS, data.shipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
 
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, data.shipment.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, move.id]);
 
       setIsReweighModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
