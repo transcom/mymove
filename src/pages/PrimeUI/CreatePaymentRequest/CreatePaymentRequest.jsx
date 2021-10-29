@@ -74,7 +74,6 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const groupedServiceItems = useMemo(() => {
     const serviceItems = { basic: [] };
-    const additionalDaySIT = [];
     mtoServiceItems?.forEach((mtoServiceItem) => {
       if (mtoServiceItem.mtoShipmentID == null) {
         serviceItems.basic.push(mtoServiceItem);
@@ -82,10 +81,6 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
         serviceItems[mtoServiceItem.mtoShipmentID] = [mtoServiceItem];
       } else {
         serviceItems[mtoServiceItem.mtoShipmentID].push(mtoServiceItem);
-      }
-
-      if (mtoServiceItem.reServiceCode === 'DOASIT' || mtoServiceItem.reServiceCode === 'DDASIT') {
-        additionalDaySIT.push(mtoServiceItem.id);
       }
     });
     return serviceItems;
