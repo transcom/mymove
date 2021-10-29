@@ -6,22 +6,15 @@
   overflow-y: auto;
   max-height: 90vh;
 
-  .summarySITComponent {
-    @include u-margin-bottom(3);
+  .RemarksLabelDisabled {
+    color: color("base");
   }
 
-  .ApprovedDaysInput {
-    max-width: 3rem;
-  }
-
-  .ModalPanel {
-    @include u-border('base-lighter');
-    @include u-border('1px');
-    @include u-radius('05');
-    @include u-padding(3);
-
-    .reasonDropdown label {
-      @include u-margin-top(0);
+  .RemarksField {
+    &:disabled {
+      background: color("base-lighter");
+      color: color("base-lighter");
+      border-color: color("base");
     }
   }
 
