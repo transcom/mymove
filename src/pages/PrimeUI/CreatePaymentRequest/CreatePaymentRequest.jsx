@@ -9,15 +9,15 @@ import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import { createPaymentRequest } from '../../../services/primeApi';
 import scrollToTop from '../../../shared/scrollToTop';
 import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
-import { formatDateForSwagger } from '../../../shared/dates';
 
 import styles from './CreatePaymentRequest.module.scss';
 
+import { createPaymentRequest } from 'services/primeApi';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
+import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -25,13 +25,6 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-
-// We could ideally specify something like oneOfSchema outlined here
-// (https://gist.github.com/cb109/8eda798a4179dc21e46922a5fbb98be6) for the additional day SIT value with params
-const createPaymentRequestSchema = Yup.object().shape({
-  serviceItems: Yup.array().of(Yup.string()).min(1),
-  params: Yup.object().shape({}),
-});
 
 const CreatePaymentRequest = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -81,6 +74,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const groupedServiceItems = useMemo(() => {
     const serviceItems = { basic: [] };
+    const additionalDaySIT = [];
     mtoServiceItems?.forEach((mtoServiceItem) => {
       if (mtoServiceItem.mtoShipmentID == null) {
         serviceItems.basic.push(mtoServiceItem);
@@ -88,6 +82,10 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
         serviceItems[mtoServiceItem.mtoShipmentID] = [mtoServiceItem];
       } else {
         serviceItems[mtoServiceItem.mtoShipmentID].push(mtoServiceItem);
+      }
+
+      if (mtoServiceItem.reServiceCode === 'DOASIT' || mtoServiceItem.reServiceCode === 'DDASIT') {
+        additionalDaySIT.push(mtoServiceItem.id);
       }
     });
     return serviceItems;
@@ -103,6 +101,40 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const initialValues = {
     serviceItems: [],
+    /* Setting initial values was supposed to change formik behavior but it made no difference
+    params: additionalDaySITItems.reduce(
+      (acc, curr) => ({ ...acc, [curr]: { SITPaymentRequestStart: '', SITPaymentRequestEnd: '' } }),
+      {},
+      ),
+    */
+  };
+
+  const dateValidationSchema = Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required');
+
+  // We could ideally specify something like oneOfSchema outlined here
+  // (https://gist.github.com/cb109/8eda798a4179dc21e46922a5fbb98be6) for the additional day SIT value with params
+  // The behavior of Formik <FieldArray> is for dynamic lists not sparse lists as we have laid out
+  const createPaymentRequestSchema = Yup.object().shape({
+    serviceItems: Yup.array().of(Yup.string()).min(1),
+  });
+
+  const validateSITDate = async (id, fieldName, value, formValues, setFieldError, setFieldTouched) => {
+    let error;
+    // only validate service items that are being added to the payment request
+    if (formValues.serviceItems?.find((serviceItem) => serviceItem === id)) {
+      // The field won't be touched (and won't show the error) if the user tries to submit before editing the dates
+      // even though formik says it touches all fields on submission if they are in initialValues I found this not to
+      // be true.
+      setFieldTouched(`params.${id}.${fieldName}`, true, false);
+      await dateValidationSchema.validate(value).catch((err) => {
+        error = err.message;
+        // this is a way to get touched set without having to worry about other fields
+        setFieldError(`params.${id}.${fieldName}`, error);
+      });
+    }
+    return error;
   };
 
   const onSubmit = (values, formik) => {
@@ -183,6 +215,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
             initialValues={initialValues}
             onSubmit={onSubmit}
             handleSelectAll={handleShipmentSelectAll}
+            handleValidateDate={validateSITDate}
             createPaymentRequestSchema={createPaymentRequestSchema}
             mtoShipments={mtoShipments}
             groupedServiceItems={groupedServiceItems}

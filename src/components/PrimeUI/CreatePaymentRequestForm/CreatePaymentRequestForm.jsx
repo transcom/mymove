@@ -6,30 +6,32 @@ import classnames from 'classnames';
 
 import { Form } from '../../form/Form';
 import formStyles from '../../../styles/form.module.scss';
-import { ErrorMessage } from '../../form/ErrorMessage';
 import SectionWrapper from '../../Customer/SectionWrapper';
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import Hint from '../../Hint';
-import { ShipmentShape } from '../../../types/shipment';
-import { MTOServiceItemShape } from '../../../types';
 import ServiceItem from '../ServiceItem/ServiceItem';
 import Shipment from '../Shipment/Shipment';
 import { DatePickerInput } from '../../form/fields';
 
 import styles from './CreatePaymentRequestForm.module.scss';
 
+import { MTOServiceItemShape } from 'types';
+import { ShipmentShape } from 'types/shipment';
+import { ErrorMessage } from 'components/form';
+
 const CreatePaymentRequestForm = ({
   initialValues,
   onSubmit,
   handleSelectAll,
+  handleValidateDate,
   createPaymentRequestSchema,
   mtoShipments,
   groupedServiceItems,
 }) => (
   <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
-    {({ isValid, isSubmitting, errors, values, setValues }) => (
+    {({ isValid, isSubmitting, errors, values, setValues, setFieldError, setFieldTouched }) => (
       <Form className={classnames(styles.CreatePaymentRequestForm, formStyles.form)}>
-        <FormGroup error={errors != null && Object.keys(errors).length > 0}>
+        <FormGroup error={errors != null && errors.serviceItems}>
           {errors != null && errors.serviceItems && (
             <ErrorMessage display>At least 1 service item must be added when creating a payment request</ErrorMessage>
           )}
@@ -94,11 +96,31 @@ const CreatePaymentRequestForm = ({
                                   label="Payment start date"
                                   id={`paymentStart-${mtoServiceItem.id}`}
                                   name={`params.${mtoServiceItem.id}.SITPaymentRequestStart`}
+                                  validate={(fieldValue) =>
+                                    handleValidateDate(
+                                      mtoServiceItem.id,
+                                      'SITPaymentRequestStart',
+                                      fieldValue,
+                                      values,
+                                      setFieldError,
+                                      setFieldTouched,
+                                    )
+                                  }
                                 />
                                 <DatePickerInput
                                   label="Payment end date"
                                   id={`paymentEnd-${mtoServiceItem.id}`}
                                   name={`params.${mtoServiceItem.id}.SITPaymentRequestEnd`}
+                                  validate={(fieldValue) =>
+                                    handleValidateDate(
+                                      mtoServiceItem.id,
+                                      'SITPaymentRequestEnd',
+                                      fieldValue,
+                                      values,
+                                      setFieldError,
+                                      setFieldTouched,
+                                    )
+                                  }
                                 />
                               </>
                             )}
@@ -133,6 +155,7 @@ CreatePaymentRequestForm.propTypes = {
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   handleSelectAll: PropTypes.func.isRequired,
+  handleValidateDate: PropTypes.func.isRequired,
   createPaymentRequestSchema: PropTypes.shape({
     serviceItems: PropTypes.node,
   }).isRequired,
