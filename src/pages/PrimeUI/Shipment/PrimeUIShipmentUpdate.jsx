@@ -8,13 +8,12 @@ import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
-import SomethingWentWrong from '../../../shared/SomethingWentWrong';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { formatSwaggerDate } from '../../../shared/formatters';
-import scrollToTop from '../../../shared/scrollToTop';
-
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { formatSwaggerDate } from 'shared/formatters';
+import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipment } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
