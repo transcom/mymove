@@ -22,7 +22,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/aws/aws-sdk-go/service/ssm"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -393,7 +392,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(filepath.Clean(variablesFile))
 		if readFileErr != nil {
-			log.Fatal(errors.New("error reading variables file"))
+			log.Fatal(fmt.Errorf("error reading variables file"))
 		}
 
 		// Adds variables from file into context
@@ -662,7 +661,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		newTaskDefArn := *newTaskDefOutput.TaskDefinition.TaskDefinitionArn
 		logger.Println(newTaskDefArn)
 	} else {
-		quit(logger, flag, errors.New(fmt.Sprintf("Please provide either %q or %q flags when running", dryRunFlag, registerFlag)))
+		quit(logger, flag, fmt.Errorf("Please provide either %q or %q flags when running", dryRunFlag, registerFlag))
 	}
 
 	return nil

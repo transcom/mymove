@@ -12,7 +12,6 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -79,16 +78,16 @@ func checkPutTargetsConfig(v *viper.Viper) error {
 
 	awsAccountID := v.GetString(awsAccountIDFlag)
 	if len(awsAccountID) == 0 {
-		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
+		return fmt.Errorf("%q is invalid: %w", awsAccountIDFlag, &errInvalidAccountID{AwsAccountID: awsAccountID})
 	}
 
 	region, err := cli.CheckAWSRegion(v)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid", cli.AWSRegionFlag))
+		return fmt.Errorf("'%q' is invalid: %w", cli.AWSRegionFlag, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
+		return fmt.Errorf("'%q' is invalid for service %s: %w", cli.AWSRegionFlag, cloudwatchevents.ServiceName, err)
 	}
 
 	environmentName := v.GetString(environmentFlag)
@@ -186,7 +185,7 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 		Rule: aws.String(ruleName),
 	})
 	if err != nil {
-		quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
+		quit(logger, nil, fmt.Errorf("error retrieving targets for rule: %w", err))
 	}
 
 	currentTarget := targetsOutput.Targets[0]
@@ -224,7 +223,7 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 		}
 		logger.Println(putTargetsOutput)
 	} else {
-		quit(logger, flag, errors.New(fmt.Sprintf("Please provide either %q or %q flags when running", dryRunFlag, putTargetFlag)))
+		quit(logger, flag, fmt.Errorf("Please provide either %q or %q flags when running", dryRunFlag, putTargetFlag))
 	}
 
 	return nil
