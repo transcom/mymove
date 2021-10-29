@@ -96,11 +96,8 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     );
     await userEvent.clear(screen.getByLabelText('ZIP'));
     await userEvent.type(screen.getByLabelText('ZIP'), '1');
-    // await userEvent.clear(getByLabelText('ZIP'));
     (await screen.getByLabelText('ZIP')).blur();
     await waitFor(() => {
-      // expect(getByText('Required')).toBeInTheDocument();
-      // expect(getByText('Save')).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(screen.getByText('Must be valid zip code')).toBeInTheDocument();
     });
