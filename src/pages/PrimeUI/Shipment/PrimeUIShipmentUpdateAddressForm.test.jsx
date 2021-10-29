@@ -38,25 +38,6 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     eTag: shipmentAddress.eTag,
   };
 
-  const emptyAddress = {
-    id: '',
-    streetAddress1: '',
-    streetAddress2: '',
-    streetAddress3: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: '',
-    eTag: '',
-  };
-
-  const reformatPrimeApiShipmentAddressEmpty = fromPrimeApiAddressFormat(emptyAddress);
-  const initialValuesEmpty = {
-    addressID: shipmentAddress.id,
-    address: reformatPrimeApiShipmentAddressEmpty,
-    eTag: shipmentAddress.eTag,
-  };
-
   const updateAddressSchema = Yup.object().shape({
     addressID: Yup.string(),
     address: requiredAddressSchema,
@@ -97,9 +78,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     userEvent.type(screen.getByLabelText('Address 1'), '23 City Str');
     userEvent.type(screen.getByLabelText('City'), 'City');
     userEvent.type(screen.getByLabelText('ZIP'), '90210');
-    const submitBtn = screen.getByRole('button', { name: 'Save' });
-    expect(submitBtn).toBeEnabled();
-    userEvent.click(submitBtn);
+    await waitFor(() => {
+      const submitBtn = screen.getByRole('button', { name: 'Save' });
+      expect(submitBtn).toBeEnabled();
+      userEvent.click(submitBtn);
+    });
   });
 
   it('disables the submit button when the zip is bad', async () => {
@@ -111,11 +94,15 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         onSubmit={jest.fn()}
       />,
     );
-
+    await userEvent.clear(screen.getByLabelText('ZIP'));
+    await userEvent.type(screen.getByLabelText('ZIP'), '1');
+    // await userEvent.clear(getByLabelText('ZIP'));
+    (await screen.getByLabelText('ZIP')).blur();
     await waitFor(() => {
-      userEvent.clear(screen.getByLabelText('ZIP'));
+      // expect(getByText('Required')).toBeInTheDocument();
+      // expect(getByText('Save')).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('alert', { name: 'Must be valid zip code' })).toBeInTheDocument();
+      expect(screen.getByText('Must be valid zip code')).toBeInTheDocument();
     });
   });
 
@@ -128,11 +115,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         onSubmit={jest.fn()}
       />,
     );
-
+    await userEvent.clear(screen.getByLabelText('Address 1'));
+    (await screen.getByLabelText('Address 1')).blur();
     await waitFor(() => {
-      userEvent.clear(screen.getByLabelText('Address 1'));
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getAllByRole('alert', { name: 'Required' })).toBeInTheDocument();
+      expect(screen.getByText('Required')).toBeInTheDocument();
     });
   });
 
@@ -145,26 +132,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         onSubmit={jest.fn()}
       />,
     );
-
-    await waitFor(() => {
-      userEvent.clear(screen.getByLabelText('City'));
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getAllByRole('alert', { name: 'Required' })).toBeInTheDocument();
-    });
-  });
-
-  it('empty address', async () => {
-    render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesEmpty}
-        updateShipmentAddressSchema={updateAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-      />,
-    );
-
+    userEvent.clear(screen.getByLabelText('City'));
+    (await screen.getByLabelText('City')).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.getByText('Required')).toBeInTheDocument();
     });
   });
 });
