@@ -5,7 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/models"
 
@@ -24,8 +25,7 @@ type UpdateMTOServiceItemStatusHandler struct {
 
 // Handle updates mto server item statuses
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemStatusParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	mtoServiceItemID := uuid.FromStringOrNil(params.MtoServiceItemID)
 	status := models.MTOServiceItemStatus(params.Body.Status)
@@ -35,16 +35,16 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 	mtoServiceItem, err := h.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, status, reason, eTag)
 
 	if err != nil {
-		logger.Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
+		appCtx.Logger().Error("ApproveOrRejectServiceItem error: ", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloads.ValidationError("The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:

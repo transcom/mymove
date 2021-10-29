@@ -61,7 +61,7 @@ func (suite *FetchServiceSuite) TestFetchRecordList() {
 		}
 
 		var officeUsers models.OfficeUsers
-		err = fetcher.FetchRecordList(suite.TestAppContext(), &officeUsers, filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		err = fetcher.FetchRecordList(suite.AppContextForTest(), &officeUsers, filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -78,7 +78,7 @@ func (suite *FetchServiceSuite) TestFetchRecordList() {
 		fetcher := NewListFetcher(builder)
 
 		var officeUsers models.OfficeUsers
-		err := fetcher.FetchRecordList(suite.TestAppContext(), &officeUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		err := fetcher.FetchRecordList(suite.AppContextForTest(), &officeUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
@@ -97,7 +97,7 @@ func (suite *FetchServiceSuite) TestFetchRecordCount() {
 	fetcher := NewListFetcher(builder)
 
 	var officeUsers models.OfficeUsers
-	count, err := fetcher.FetchRecordCount(suite.TestAppContext(), &officeUsers, []services.QueryFilter{})
+	count, err := fetcher.FetchRecordCount(suite.AppContextForTest(), &officeUsers, []services.QueryFilter{})
 	suite.NoError(err)
 	suite.Equal(5, count)
 }

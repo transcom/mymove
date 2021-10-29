@@ -32,7 +32,7 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
+		ui, err := uif.FetchUploadInformation(suite.AppContextForTest(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.ServiceMemberID)
@@ -49,7 +49,7 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
+		ui, err := uif.FetchUploadInformation(suite.AppContextForTest(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.OfficeUserID)

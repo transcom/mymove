@@ -25,18 +25,17 @@ type PostRevisionHandler struct {
 func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	logger := h.LoggerFromContext(ctx)
-
-	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
+	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil {
-		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
+		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
+		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
 	}
 	if !verifyOrdersWriteAccess(models.Issuer(params.Issuer), clientCert) {
-		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
+		return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
 	}
 
 	var edipi string
@@ -50,7 +49,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 		matchReasonCode, edipiNum, _, _, err := rbsPersonLookup.GetPersonUsingSSN(iwsParams)
 		if err != nil {
-			return handlers.ResponseForError(logger, err)
+			return handlers.ResponseForError(appCtx.Logger(), err)
 		}
 		switch matchReasonCode {
 		case iws.MatchReasonCodeLimited:
@@ -61,10 +60,10 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			edipi = fmt.Sprintf("%010d", edipiNum)
 		case iws.MatchReasonCodeMultiple:
 			// more than one EDIPI for this SSN! Uhh... how to choose? FWIW it's unlikely but not impossible to encounter this in the wild
-			return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched multiple EDIPIs for this SSN"))
+			return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched multiple EDIPIs for this SSN"))
 		case iws.MatchReasonCodeNone:
 			// No match: fail
-			return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched no EDIPI for this SSN"))
+			return handlers.ResponseForError(appCtx.Logger(), errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched no EDIPI for this SSN"))
 		}
 	} else if len(params.MemberID) == 10 {
 		edipi = params.MemberID
@@ -74,7 +73,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	}
 
 	// Is there already a Revision matching these Orders? (same ordersNum and issuer)
-	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(h.DB(), params.Issuer, params.OrdersNum)
+	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(appCtx.DB(), params.Issuer, params.OrdersNum)
 
 	var newRevision *models.ElectronicOrdersRevision
 	var verrs *validate.Errors
@@ -87,12 +86,12 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			Revisions:    []models.ElectronicOrdersRevision{},
 		}
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
-		verrs, err = models.CreateElectronicOrderWithRevision(h.DB(), orders, newRevision)
+		verrs, err = models.CreateElectronicOrderWithRevision(appCtx.DB(), orders, newRevision)
 	} else if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	} else if orders.Edipi != edipi {
 		return handlers.ResponseForError(
-			logger,
+			appCtx.Logger(),
 			errors.WithMessage(
 				models.ErrWriteConflict,
 				fmt.Sprintf("Cannot POST Revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi)))
@@ -102,7 +101,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			// SeqNum collision
 			if r.SeqNum == int(*params.Revision.SeqNum) {
 				return handlers.ResponseForError(
-					logger,
+					appCtx.Logger(),
 					errors.WithMessage(
 						models.ErrWriteConflict,
 						fmt.Sprintf("Cannot POST Revision with SeqNum %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, edipi, params.OrdersNum, params.Issuer)))
@@ -110,16 +109,16 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
-		verrs, err = h.DB().ValidateAndCreate(newRevision)
+		verrs, err = appCtx.DB().ValidateAndCreate(newRevision)
 	}
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 	orders.Revisions = append(orders.Revisions, *newRevision)
 
 	orderPayload, err := payloadForElectronicOrderModel(orders)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	return ordersoperations.NewPostRevisionCreated().WithPayload(orderPayload)
 }

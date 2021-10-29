@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
@@ -23,7 +23,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",
 	}
-	appCtx := appcontext.WithSession(appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger)), &session)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &session)
 	subject := "[MilMove] User Account Activity Alert"
 	sysAdminEmail := "admin@test.com"
 
@@ -86,8 +86,8 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Success - User account creation with no user in session", func() {
 		// Test case:   If a user just created their account, their userID information might not be in the session yet.
 		// Expectation: The email should use the modified user ID as the responsible user ID as well.
-		emptySessionCtx := appcontext.WithSession(appcontext.NewAppContext(
-			suite.DB(), suite.logger.(*zap.Logger)), &auth.Session{})
+		emptySessionCtx := appcontext.NewAppContext(
+			suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
 
 		emailer, err := NewUserAccountCreated(emptySessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 		suite.Require().NoError(err)
@@ -106,18 +106,18 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Fail - Session is nil", func() {
 		// Test case:   The session wasn't set in the AppContext, for some reason. Possibly dev error.
 		// Expectation: Initializing the UserAccountModified should return services.ContextError
-		nilSessionCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger))
+		nilSessionCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), nil)
 
 		emailer, err := NewUserAccountCreated(nilSessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
 		suite.Nil(emailer)
 		suite.Error(err)
-		suite.IsType(services.ContextError{}, err)
+		suite.IsType(apperror.ContextError{}, err)
 	})
 }
 
 func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
 	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	appCtx := appcontext.WithSession(appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger)), &auth.Session{})
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)
 	suite.Require().NoError(err)
@@ -159,7 +159,7 @@ func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
 
 func (suite *NotificationSuite) TestUserAccountModifiedTextTemplateRender() {
 	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	appCtx := appcontext.WithSession(appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger)), &auth.Session{})
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger.(*zap.Logger), &auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)
 	suite.Require().NoError(err)

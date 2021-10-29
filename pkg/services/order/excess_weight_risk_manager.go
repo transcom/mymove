@@ -1,11 +1,13 @@
 package order
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -33,7 +35,7 @@ func (f *excessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontext
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.updateMaxBillableWeightWithTIORemarks(appCtx, *order, weight, remarks, CheckRequiredFields())
@@ -48,7 +50,7 @@ func (f *excessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.Ap
 
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.updateBillableWeight(appCtx, *order, weight, CheckRequiredFields())
@@ -65,7 +67,7 @@ func (f *excessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.
 
 	existingETag := etag.GenerateEtag(move.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Move{}, services.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.acknowledgeRiskAndApproveMove(appCtx, *order)
@@ -75,8 +77,11 @@ func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderI
 	var order models.Order
 	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "OriginDutyStation").Find(&order, orderID)
 	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
+		default:
+			return nil, apperror.NewQueryError("Order", err, "")
 		}
 	}
 
@@ -216,7 +221,7 @@ func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppC
 
 func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
+		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
 	if err != nil {
 		return err

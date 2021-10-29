@@ -7,9 +7,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -32,16 +33,16 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return "", err
+			return "", apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 
 	// Make sure there's an MTOShipment since that's nullable
 	mtoShipmentID := mtoServiceItem.MTOShipmentID
 	if mtoShipmentID == nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+		return "", apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 	}
 
 	mtoShipment := mtoServiceItem.MTOShipment
@@ -52,16 +53,16 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	// Now calculate the distance between zip5s
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
+	distanceMiles, err := planner.Zip5TransitDistance(appCtx, pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}
 
 	if len(pickupZip) < 5 {
-		return "", services.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid pickup zipcode. Received: %s", pickupZip), nil, fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip))
+		return "", apperror.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid pickup zipcode. Received: %s", pickupZip), nil, fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip))
 	}
 	if len(destinationZip) < 5 {
-		return "", services.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid destination zipcode. Received: %s", destinationZip), nil, fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip))
+		return "", apperror.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid destination zipcode. Received: %s", destinationZip), nil, fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip))
 	}
 
 	pickupZip3 := pickupZip[:3]

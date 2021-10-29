@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -26,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
-					suite.TestAppContext(),
+					suite.AppContextForTest(),
 					&models.MTOShipment{Status: status},
 					nil,
 				)
@@ -40,7 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkAvailToPrime", func() {
-		appCtx := suite.TestAppContext()
+		appCtx := suite.AppContextForTest()
 
 		now := time.Now()
 		hide := false
@@ -72,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				nonPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), nonPrimeShipment.ID.String())
 				},
 			},
@@ -80,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				hiddenPrimeShipment.ID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
 				},
 			},
@@ -88,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				badUUID,
 				func(err error) {
 					suite.Require().Error(err)
-					suite.IsType(err, services.NotFoundError{})
+					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), badUUID.String())
 				},
 			},

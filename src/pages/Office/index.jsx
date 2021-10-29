@@ -58,9 +58,16 @@ const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
+const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
+const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate'));
+
+const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
+  import('pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments'),
+);
+const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -237,21 +244,36 @@ export class OfficeApp extends Component {
                     <PrivateRoute
                       key="primeSimulatorMovePath"
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
-                      component={() => <div>View move path for prime simulator</div>}
+                      component={PrimeSimulatorMoveDetails}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
                     <PrivateRoute
                       key="primeSimulatorUpdateShipmentPath"
                       path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
-                      component={() => <div>Update shipment path for prime simulator</div>}
+                      exact
+                      component={PrimeUIShipmentForm}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
                     <PrivateRoute
                       key="primeSimulatorCreatePaymentRequestsPath"
-                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST}
+                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST_PATH}
                       component={PrimeSimulatorCreatePaymentRequest}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorUploadPaymentRequestDocumentsPath"
+                      path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
+                      component={PrimeSimulatorUploadPaymentRequestDocuments}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreateServiceItem"
+                      path={primeSimulatorRoutes.CREATE_SERVICE_ITEM_PATH}
+                      component={PrimeSimulatorCreateServiceItem}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 

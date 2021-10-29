@@ -15,9 +15,9 @@ type MoveServiceSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *MoveServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *MoveServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestMoveServiceSuite(t *testing.T) {

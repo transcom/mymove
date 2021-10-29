@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
@@ -228,7 +231,12 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoShipmentID, "Shipment not found")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoShipmentID, "Shipment not found")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil
@@ -275,7 +283,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext
 func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
 	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
+		return nil, err
 	}
 
 	// run the (read-only) validations
@@ -296,7 +304,7 @@ func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mto
 	if err != nil {
 		switch err.(type) {
 		case StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(mtoShipment.ID, err)
+			return nil, apperror.NewPreconditionFailedError(mtoShipment.ID, err)
 		default:
 			return nil, err
 		}
@@ -475,7 +483,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			var move models.Move
 			err := txnAppCtx.DB().Find(&move, dbShipment.MoveTaskOrderID)
 			if err != nil {
-				return err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(dbShipment.MoveTaskOrderID, "looking for Move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
 			}
 
 			existingMoveStatus := move.Status
@@ -531,9 +544,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 	if transactionError != nil {
 		// Two possible types of transaction errors to handle
 		if t, ok := transactionError.(StaleIdentifierError); ok {
-			return services.NewPreconditionFailedError(dbShipment.ID, t)
+			return apperror.NewPreconditionFailedError(dbShipment.ID, t)
 		}
-		return services.NewQueryError("mtoShipment", transactionError, "")
+		return apperror.NewQueryError("mtoShipment", transactionError, "")
 	}
 
 	if len(autoReweighShipments) > 0 {
@@ -715,14 +728,14 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(shipment.ID, err)
+			return nil, apperror.NewPreconditionFailedError(shipment.ID, err)
 		default:
 			return nil, err
 		}
 	}
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+		return nil, apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 	}
 
 	// after updating shipment
@@ -748,7 +761,7 @@ func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.
 		_, verrs, err := o.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
 
 		if verrs != nil && verrs.HasAny() {
-			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
+			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
 			return invalidInputError
 		}
 
@@ -785,7 +798,12 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	err := builder.FetchOne(appCtx, &shipment, queryFilters)
 
 	if err != nil {
-		return &shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "Shipment not found")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	return &shipment, nil
@@ -884,7 +902,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
 
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.TransitDistance(&pickupAddress, &destinationAddress)
+	distance, err := planner.TransitDistance(appCtx, &pickupAddress, &destinationAddress)
 	if err != nil {
 		return nil, err
 	}

@@ -6,8 +6,9 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -53,7 +54,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Set up:		Use established valid shipment and valid receiving agent
 		// Expected:	New MTOAgent of type RECEIVING_AGENT is successfully created
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), receivingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), receivingAgent)
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
@@ -69,7 +70,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use established valid shipment and valid releasing agent
 		// Expected:	New MTOAgent of type RELEASING_AGENT is successfully created
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), releasingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), releasingAgent)
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
@@ -88,11 +89,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		releasingAgent.MTOShipmentID = notFoundUUID
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), releasingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), releasingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundUUID.String())
 
 	})
@@ -102,22 +103,22 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Set up:		Use same valid relesing agent and mtoShipmentID.
 		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
 		releasingAgent.MTOShipmentID = mtoShipment.ID
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), releasingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), releasingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Conflict Error", func(t *testing.T) {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use same valid receiving agent and mtoShipmentID.
 		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), receivingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), receivingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 
 	suite.T().Run("Not Found Error, unavailable to Prime", func(t *testing.T) {
@@ -131,11 +132,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		agent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 		agent.MTOShipmentID = unavailableShipment.ID
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), &agent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), &agent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 
 	})
 
@@ -146,11 +147,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 			MTOShipmentID: mtoShipment.ID,
 		}
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), invalidAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(suite.AppContextForTest(), invalidAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
 	})
 

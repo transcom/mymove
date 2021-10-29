@@ -5,7 +5,8 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -27,12 +28,11 @@ type GetCustomerHandler struct {
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	customerID, _ := uuid.FromString(params.CustomerID.String())
 	customer, err := h.FetchCustomer(appCtx, customerID)
 	if err != nil {
-		logger.Error("Loading Customer Info", zap.Error(err))
+		appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return customercodeop.NewGetCustomerNotFound()
@@ -52,17 +52,16 @@ type UpdateCustomerHandler struct {
 
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		logger.Error("user is not authenticated with service counselor office role")
+	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		appCtx.Logger().Error("user is not authenticated with service counselor office role")
 		return customercodeop.NewUpdateCustomerForbidden()
 	}
 
 	customerID, err := uuid.FromString(params.CustomerID.String())
 	if err != nil {
-		logger.Error("unable to parse customer id param to uuid", zap.Error(err))
+		appCtx.Logger().Error("unable to parse customer id param to uuid", zap.Error(err))
 		return customercodeop.NewUpdateCustomerBadRequest()
 	}
 
@@ -72,14 +71,14 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 	updatedCustomer, err := h.customerUpdater.UpdateCustomer(appCtx, params.IfMatch, newCustomer)
 
 	if err != nil {
-		logger.Error("error updating customer", zap.Error(err))
+		appCtx.Logger().Error("error updating customer", zap.Error(err))
 		switch err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return customercodeop.NewGetCustomerNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return customercodeop.NewUpdateCustomerInternalServerError()

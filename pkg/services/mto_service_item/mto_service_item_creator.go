@@ -1,12 +1,15 @@
 package mtoserviceitem
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -41,13 +44,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// check if Move exists
 	err = o.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(moveID, "in Moves")
+		default:
+			return nil, nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	// Service items can only be created if a Move's status is either Approved
 	// or Approvals Requested, so check and fail early.
 	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		return nil, nil, services.NewConflictError(
+		return nil, nil, apperror.NewConflictError(
 			move.ID,
 			fmt.Sprintf("Cannot create service items before a move has been approved. The current status for the move with ID %s is %s", move.ID, move.Status),
 		)
@@ -61,7 +69,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+		default:
+			return nil, nil, apperror.NewQueryError("ReService", err, "")
+		}
 	}
 	// set re service fields for service item
 	serviceItem.ReServiceID = reService.ID
@@ -103,13 +116,17 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 	err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(mtoShipmentID,
-			fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
+		default:
+			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, verrs, services.NewConflictError(mtoShipmentID, fmt.Sprintf("The associated MTOShipment (%s) must have a valid PrimeEstimatedWeight to create this service item.", mtoShipmentID))
+			return nil, verrs, apperror.NewConflictError(mtoShipmentID, fmt.Sprintf("The associated MTOShipment (%s) must have a valid PrimeEstimatedWeight to create this service item.", mtoShipmentID))
 		}
 	}
 
@@ -133,14 +150,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary)
 		if err != nil {
-			return nil, nil, services.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
+			return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
 		}
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
-		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
@@ -157,7 +174,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			if serviceItem.SITOriginHHGActualAddress == nil {
 				verrs = validate.NewErrors()
 				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
-				return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+				return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
@@ -240,7 +257,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				createDimension.MTOServiceItemID = requestedServiceItem.ID
 				verrs, err = o.builder.CreateOne(txnAppCtx, createDimension)
 				if verrs != nil && verrs.HasAny() {
-					return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
+					return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
 				}
 				if err != nil {
 					return fmt.Errorf("%e", err)
@@ -278,7 +295,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	} else if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {
-		return nil, verrs, services.NewQueryError("unknown", err, "")
+		return nil, verrs, apperror.NewQueryError("unknown", err, "")
 	}
 
 	return &createdServiceItems, nil, nil
@@ -300,7 +317,7 @@ func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(appCtx appcontext.App
 	// We DON'T want to find this service item:
 	err := o.builder.FetchOne(appCtx, &duplicateServiceItem, queryFilters)
 	if err == nil && duplicateServiceItem.ID != uuid.Nil {
-		return services.NewConflictError(duplicateServiceItem.ID,
+		return apperror.NewConflictError(duplicateServiceItem.ID,
 			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
 	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
 		return err
@@ -318,7 +335,12 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	}
 	err := o.builder.FetchOne(appCtx, &reService, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
+		default:
+			return nil, apperror.NewQueryError("ReService", err, "")
+		}
 	}
 
 	extraServiceItem := models.MTOServiceItem{
@@ -395,8 +417,12 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appconte
 	err := o.builder.FetchOne(appCtx, &validReService, queryFilter)
 
 	if err != nil {
-		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
+		default:
+			return nil, apperror.NewQueryError("ReService", err, "")
+		}
 	}
 
 	mtoServiceItemQueryFilter := []services.QueryFilter{
@@ -407,8 +433,12 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appconte
 	err = o.builder.FetchOne(appCtx, &mtoServiceItem, mtoServiceItemQueryFilter)
 
 	if err != nil {
-		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
+		default:
+			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
+		}
 	}
 
 	verrs := validate.NewErrors()
@@ -423,7 +453,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(appCtx appconte
 	}
 
 	if verrs.HasAny() {
-		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+		return nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("There was invalid input in the standalone service item %s", serviceItem.ID))
 
 	}
@@ -462,7 +492,7 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	}
 
 	if verrs.HasAny() {
-		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+		return nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("There was invalid input in the service item %s", serviceItem.ID))
 	}
 
@@ -477,7 +507,7 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	default:
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
-		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+		return nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code))
 
 	}

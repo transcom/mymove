@@ -1288,28 +1288,31 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Times(2)
+	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Times(5)
+	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
-	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		"94535", "94535").Return(348, nil).Once()
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
+	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Times(7)
+	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", "90210", "90211").Return(348, nil).Times(5)
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(5)
 
 	// called for domestic origin SIT pickup service item
-	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		"94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -1716,14 +1719,17 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)
 	planner.On("Zip3TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(910, nil)
 	planner.On("Zip5TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)
@@ -2769,6 +2775,126 @@ func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader 
 			RequestedPickupDate: &requestedPickupDate,
 		},
 		Move: move,
+	})
+}
+
+func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+
+	now := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVED,
+			Locator:            "MISHIP",
+			AvailableToPrimeAt: &now,
+		},
+		UserUploader: userUploader,
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+		},
+		Move: move,
+	})
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+
+	shipmentFields := models.MTOShipment{
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:         &pickupAddress,
+		PickupAddressID:       &pickupAddress.ID,
+	}
+
+	// Uncomment to create the shipment with a destination address
+	/*
+		destinationAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+		shipmentFields.DestinationAddress = &destinationAddress
+		shipmentFields.DestinationAddressID = &destinationAddress.ID
+	*/
+
+	// Uncomment to create the shipment with an actual weight
+	/*
+		actualWeight := unit.Pound(999)
+		shipmentFields.PrimeActualWeight = &actualWeight
+	*/
+
+	firstShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: shipmentFields,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeFSC,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
 	})
 }
 

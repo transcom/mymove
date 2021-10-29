@@ -3,10 +3,11 @@ package ppmservices
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -15,30 +16,28 @@ import (
 )
 
 type estimateCalculator struct {
-	db *pop.Connection
-	//TODO: add logger back once we are able to pass a logger in through internalapi (see https://dp3.atlassian.net/browse/MB-2352)
-	//logger  Logger
 	planner route.Planner
 }
 
 // NewEstimateCalculator returns a new estimateCalculator
-func NewEstimateCalculator(db *pop.Connection, planner route.Planner) services.EstimateCalculator {
-	return &estimateCalculator{db: db, planner: planner}
+func NewEstimateCalculator(planner route.Planner) services.EstimateCalculator {
+	return &estimateCalculator{planner: planner}
 }
 
-func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID, logger *zap.Logger) (int64, rateengine.CostComputation, error) {
-	// temporarily passing in logger here until fix listed above in service struct
+func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (int64, rateengine.CostComputation, error) {
 	var sitCharge int64
 	cost := rateengine.CostComputation{}
-	move, err := models.FetchMoveByMoveID(e.db, moveID)
+	move, err := models.FetchMoveByMoveID(appCtx.DB(), moveID)
 	if err != nil {
-		if err == models.ErrFetchNotFound {
-			return sitCharge, cost, services.NewNotFoundError(moveID, "Unable to calculate estimate")
+		switch err {
+		case models.ErrFetchNotFound:
+			return sitCharge, cost, apperror.NewNotFoundError(moveID, "Unable to calculate estimate")
+		default:
+			return sitCharge, cost, apperror.NewQueryError("Move", err, fmt.Sprintf("error calculating estimate: unable to fetch move with ID %s", moveID))
 		}
-		return sitCharge, cost, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}
 
-	re := rateengine.NewRateEngine(e.db, logger, move)
+	re := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
@@ -47,12 +46,12 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
 	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
 
-	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(*ppm.PickupPostalCode, destinationDutyStationZip)
+	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, *ppm.PickupPostalCode, destinationDutyStationZip)
 	if err != nil {
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistanceLineHaul(originDutyStationZip, destinationDutyStationZip)
+	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, originDutyStationZip, destinationDutyStationZip)
 	if err != nil {
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
 	}

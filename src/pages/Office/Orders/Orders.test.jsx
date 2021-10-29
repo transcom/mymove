@@ -134,7 +134,7 @@ describe('Orders page', () => {
           <Orders />
         </MockProviders>,
       );
-      expect(await screen.findByLabelText('Current duty station')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
     });
   });
 });

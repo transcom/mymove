@@ -22,12 +22,11 @@ type ValidatePostalCodeWithRateDataHandler struct {
 // Handle should call the service validator and rescue expected errors and return false to valid
 func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	postalCode := params.PostalCode
 	postalCodeType := params.PostalCodeType
 
-	valid, err := h.validatePostalCode.ValidatePostalCode(
+	valid, err := h.validatePostalCode.ValidatePostalCode(appCtx,
 		postalCode,
 		services.PostalCodeType(postalCodeType),
 	)
@@ -36,13 +35,13 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 	if err != nil {
 		switch {
 		case latLongErrorRegex.MatchString(err.Error()):
-			logger.Error("We don't have latlong for postal code", zap.Error(err))
+			appCtx.Logger().Error("We don't have latlong for postal code", zap.Error(err))
 		case err == models.ErrFetchNotFound && postalCodeType == "origin":
-			logger.Error("We do not have rate area data for origin postal code", zap.Error(err))
+			appCtx.Logger().Error("We do not have rate area data for origin postal code", zap.Error(err))
 		case err == models.ErrFetchNotFound && postalCodeType == "destination":
-			logger.Error("We do not have region rate data for destination postal code", zap.Error(err))
+			appCtx.Logger().Error("We do not have region rate data for destination postal code", zap.Error(err))
 		default:
-			logger.Error("Validate postal code", zap.Error(err))
+			appCtx.Logger().Error("Validate postal code", zap.Error(err))
 			return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest()
 		}
 	}

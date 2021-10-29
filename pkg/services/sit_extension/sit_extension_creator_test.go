@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,7 +18,7 @@ import (
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	// Create move router for SitExtension Createor
 	moveRouter := moverouter.NewMoveRouter()
@@ -72,7 +74,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 		suite.Error(err)
 		suite.Nil(createdSITExtension)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Failure - Not Found Error", func(t *testing.T) {
@@ -86,7 +88,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
 
 		suite.Nil(createdSITExtension)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Success - CreateSITExtension with status passed in ", func(t *testing.T) {

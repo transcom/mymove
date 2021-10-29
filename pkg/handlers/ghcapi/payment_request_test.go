@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -449,7 +449,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	suite.T().Run("unsuccessful status update of payment request, not found (404)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything, mock.Anything).Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
+			mock.Anything, mock.Anything).Return(nil, apperror.NewNotFoundError(paymentRequest.ID, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -479,7 +479,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	suite.T().Run("unsuccessful status update of payment request, precondition failed (412)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything, mock.Anything).Return(nil, services.PreconditionFailedError{}).Once()
+			mock.Anything, mock.Anything).Return(nil, apperror.PreconditionFailedError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -509,7 +509,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	suite.T().Run("unsuccessful status update of payment request, validation errors (422)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything, mock.Anything).Return(nil, services.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
+			mock.Anything, mock.Anything).Return(nil, apperror.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),

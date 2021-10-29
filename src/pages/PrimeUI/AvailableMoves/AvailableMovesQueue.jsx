@@ -1,8 +1,6 @@
 import React from 'react';
-import { GridContainer } from '@trussworks/react-uswds';
 
-import styles from './AvailableMovesQueue.module.scss';
-
+import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
@@ -17,8 +15,14 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const columnHeaders = () => [
-  createHeader('ID', 'id'),
-  createHeader('Move code', 'moveCode'),
+  createHeader('Move ID', 'id', {
+    id: 'id',
+    isFilterable: true,
+  }),
+  createHeader('Move code', 'moveCode', {
+    id: 'moveCode',
+    isFilterable: true,
+  }),
   createHeader(
     'Created at',
     (row) => {
@@ -46,27 +50,31 @@ const columnHeaders = () => [
   ),
 ];
 
-const PrimeSimulatorAvailableMoves = () => {
+const PrimeSimulatorAvailableMoves = ({ history }) => {
   const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.gridContainer}>
-      <TableQueue
-        title="Moves available to Prime"
-        columns={columnHeaders()}
-        useQueries={usePrimeSimulatorAvailableMovesQueries}
-        handleClick={() => {
-          return null;
-        }}
-        defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
-        defaultHiddenColumns={['eTag']}
-        defaultCanSort
-        disableSortBy={false}
-      />
-    </GridContainer>
+    <TableQueue
+      title="Moves available to Prime"
+      columns={columnHeaders()}
+      useQueries={usePrimeSimulatorAvailableMovesQueries}
+      handleClick={(row) => {
+        history.push(`/simulator/moves/${row.id}/details`);
+      }}
+      defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
+      defaultHiddenColumns={['eTag']}
+      defaultCanSort
+      disableSortBy={false}
+      showFilters
+      manualFilters={false}
+    />
   );
+};
+
+PrimeSimulatorAvailableMoves.propTypes = {
+  history: HistoryShape.isRequired,
 };
 
 export default PrimeSimulatorAvailableMoves;

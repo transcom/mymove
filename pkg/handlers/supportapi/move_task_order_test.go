@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -78,7 +79,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	suite.T().Run("successfully hide fake moves", func(t *testing.T) {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
-			movetaskorder.NewMoveTaskOrderHider(suite.DB()),
+			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
 
@@ -116,7 +117,9 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 			mockHider,
 		}
 
-		mockHider.On("Hide").Return(hiddenMoves, errors.New("MTOs not retrieved"))
+		mockHider.On("Hide",
+			mock.AnythingOfType("*appcontext.appContext"),
+		).Return(hiddenMoves, errors.New("MTOs not retrieved"))
 
 		response := handler.Handle(params)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
@@ -141,7 +144,9 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 			context,
 			mockHider,
 		}
-		mockHider.On("Hide").Return(hiddenMoves, nil)
+		mockHider.On("Hide",
+			mock.AnythingOfType("*appcontext.appContext"),
+		).Return(hiddenMoves, nil)
 
 		response := handler.Handle(params)
 		moveTaskOrdersResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
@@ -532,7 +537,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		handler.moveTaskOrderCreator = &mockCreator
 
 		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
-		notFoundError := services.NotFoundError{}
+		notFoundError := apperror.NotFoundError{}
 		mockCreator.On("InternalCreateMoveTaskOrder",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,

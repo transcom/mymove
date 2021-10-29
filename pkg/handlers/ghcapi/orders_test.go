@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -14,8 +15,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/swag"
 
@@ -543,7 +542,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -574,7 +573,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -605,7 +604,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -780,7 +779,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -810,7 +809,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -840,7 +839,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		}
 
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -1026,7 +1025,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -1056,7 +1055,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1086,7 +1085,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -1249,7 +1248,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -1278,7 +1277,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1307,7 +1306,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		}
 
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -1350,7 +1349,6 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-		suite.Equal(body.TioRemarks, ordersPayload.MoveTaskOrder.TioRemarks)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TIO role", func() {
@@ -1409,7 +1407,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		tioRemarks := params.Body.TioRemarks
 
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -1441,7 +1439,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		tioRemarks := params.Body.TioRemarks
 
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1473,7 +1471,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		tioRemarks := params.Body.TioRemarks
 
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -1573,7 +1571,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -1604,7 +1602,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1635,7 +1633,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 
@@ -1777,7 +1775,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		}
 
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, params.IfMatch).Return(nil, services.NotFoundError{})
+			order.ID, params.IfMatch).Return(nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 
@@ -1808,7 +1806,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		}
 
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, params.IfMatch).Return(nil, services.PreconditionFailedError{})
+			order.ID, params.IfMatch).Return(nil, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 
@@ -1839,7 +1837,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		}
 
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, params.IfMatch).Return(nil, services.InvalidInputError{})
+			order.ID, params.IfMatch).Return(nil, apperror.InvalidInputError{})
 
 		response := handler.Handle(params)
 

@@ -9,6 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -57,7 +59,12 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move)
 			var ordersForMove models.Order
 			err = txnAppCtx.DB().Find(&ordersForMove, move.OrdersID)
 			if err != nil {
-				return err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(move.OrdersID, "looking for Order")
+				default:
+					return apperror.NewQueryError("Order", err, "")
+				}
 			}
 			// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
 			// in status as 'new orders' that need acknowledging by the TOO.
@@ -103,23 +110,23 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		switch err {
 		case sql.ErrNoRows:
 			appCtx.Logger().Error("failure finding move", zap.Error(err))
-			return false, services.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+			return false, apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
 		default:
 			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
-			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
+			return false, apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
 		}
 	}
 
 	var originDutyStation models.DutyStation
 
 	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID == uuid.Nil {
-		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
+		return false, apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
 	}
 
 	originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 	if err != nil {
 		appCtx.Logger().Error("failure finding the origin duty station", zap.Error(err))
-		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+		return false, apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 	}
 
 	if move.ServiceCounselingCompletedAt != nil {
@@ -372,7 +379,12 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders", "MTOShipments.SITExtensions").Find(&move, move.ID)
 	if err != nil {
 		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if approvable(move) {
@@ -395,7 +407,7 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 
 func handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
-		return services.NewInvalidInputError(modelID, nil, verrs, "")
+		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
 	if err != nil {
 		return err

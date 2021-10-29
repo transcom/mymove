@@ -85,6 +85,10 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
+	ghcAPI.MoveSetFinancialReviewFlagHandler = SetFinancialReviewFlagHandler{
+		ctx,
+		move.NewFinancialReviewFlagSetter(),
+	}
 
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		ctx,
@@ -208,12 +212,6 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
-		ctx,
-		mtoshipment.NewShipmentReweighRequester(),
-		shipmentSITStatus,
-	}
-
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
 			ctx.GHCPlanner(),
@@ -222,6 +220,21 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
+
+	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
+		ctx,
+		mtoshipment.NewShipmentReweighRequester(),
+		shipmentSITStatus,
+		mtoshipment.NewMTOShipmentUpdater(
+			queryBuilder,
+			fetch.NewFetcher(queryBuilder),
+			ctx.Planner(),
+			moveRouter,
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			ctx.NotificationSender(),
+			paymentRequestShipmentRecalculator,
+		),
+	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		ctx,

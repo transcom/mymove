@@ -5,46 +5,19 @@ set -eu -o pipefail
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-GOVERSION='1.17.1'
 
 prereqs_found=true
 
-function has() {
-    local tool=$1
-    local tool_install_direction=$2
-    tool_location=$(type -p "${tool}" || true)
-    if [[ -n ${tool_location} ]]; then
-        if [[ -L ${tool_location} ]]; then
-          # In the case of the aws-vault-wrapper being used we want to specifically
-          # check that the tool exists in /usr/local/bin
-          symtool=$(readlink "${tool_location}")
-          if [[ "${symtool}" == "aws-vault-wrapper" ]]; then
-            has "/usr/local/bin/${tool}" "${tool_install_direction}"
-          else
-            # A symlink that is not aws-vault-wrapper
-            echo "${tool} installed."
-          fi
-        else
-          # Not a symlink
-          echo "${tool} installed."
-        fi
-    else
-        echo -e "${YELLOW}WARNING: ${tool} not found, install via: ${tool_install_direction}${NC}"
-        prereqs_found=false
-    fi
+cask_is_installed() {
+  brew list -1 --cask | grep -Fqx "$1"
 }
 
-function has_path() {
-  local match=$1
-  local install_direction=$2
-  case $PATH in
-    *${match}*)
-      echo "${match} was found in path";;
-    *)
-      echo -e "${YELLOW}WARNING: PATH did not contain ${match}, fix by running: ${install_direction}${NC}"
-      prereqs_found=false
-    ;;
-  esac
+app_is_in_applications_folder() {
+  find "/Applications" -maxdepth 1 -name "$1"
+}
+
+docker_installed_outside_of_brew() {
+  ! cask_is_installed "docker" && app_is_in_applications_folder "Docker"
 }
 
 # if nix is in use
@@ -54,6 +27,12 @@ if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   config_hash=$(nix-hash "${nix_dir}")
   store_hash=$(nix-store -q --hash "${NIX_PROFILE}")
 
+  if ! docker_installed_outside_of_brew; then
+  brew bundle --file=- <<EOF
+    cask 'docker'
+EOF
+  fi
+
   # The .nix-hash file is created by nix/update.sh
   if [ ! -r .nix-hash ] || ! grep -q "${config_hash}-${store_hash}" .nix-hash; then
     echo -e "${YELLOW}WARNING: nix packages out of date Run ${nix_dir}/update.sh${NC}"
@@ -62,44 +41,8 @@ if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
     echo "nix dependencies installed"
   fi
 else # things only required without nix
-  has asdf "brew install asdf; # then add 'source /usr/local/opt/asdf/asdf.sh' to your shell rc file"
-  has_path ".asdf/shims" "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
-  has nodenv "brew install nodenv"
-  has_path ".nodenv/shims" "nodenv init"
+  make setup
 fi
-
-has aws "brew install awscli"
-has bash "brew install bash"
-has chamber "brew install chamber"
-has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
-has jq "brew install jq"
-has go "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
-has yarn "brew install yarn"
-has pre-commit "brew install pre-commit"
-has shellcheck "brew install shellcheck"
-has psql "brew install postgresql"
-has node "nodenv local 14.17.1"
-
-# not on CircleCI
-if [[ -z ${CIRCLECI-} ]]; then
-  # CAC tools
-  has pkcs11-tool "brew install --cask opensc"
-  has pkcs15-tool "brew install --cask opensc"
-
-  has circleci "brew install circleci"
-  has direnv "brew install direnv"
-  has entr "brew install entr"
-
-  if [[ $(uname -s) = Darwin ]]; then
-    # macOS only
-    has aws-vault "brew cask install aws-vault"
-    has watchman "brew install watchman"
-  else
-    # Linux
-    has aws-vault "brew install aws-vault"
-  fi
-fi
-
 
 if [[ $prereqs_found == "true" ]]; then
     echo "OK: all prereqs found"
@@ -108,18 +51,11 @@ else
     exit 1
 fi
 
-# Ensure CAC prereqs are installed
-# This script should have no output
-cac-prereqs
-
-# Now check versions are correct for prereqs
-echo
-check-aws-cli-version
-check-aws-vault-version
-check-bash-version
-check-chamber-version
-check-go-version
-check-gopath
-check-hosts-file
-check-node-version
-check-opensc-version
+if [ -z "${SKIP_CHECKS:-}" ]; then
+  # Now check versions are correct for prereqs
+  echo
+  check-gopath
+  check-go-version
+  check-hosts-file
+  check-node-version
+fi

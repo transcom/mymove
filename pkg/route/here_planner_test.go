@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -55,6 +56,11 @@ type HereFullSuite struct {
 type HereTestSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *HereTestSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 type testClient struct {
@@ -100,7 +106,7 @@ func (suite *HereTestSuite) setupTestPlanner(client testClient) Planner {
 	testAppID := "appID"
 	testAppCode := "appCode"
 
-	return NewHEREPlanner(suite.logger, &client, fmtHostname(geocodeHostname), fmtHostname(routingHostname), testAppID, testAppCode)
+	return NewHEREPlanner(&client, fmtHostname(geocodeHostname), fmtHostname(routingHostname), testAppID, testAppCode)
 }
 
 // Sets up a REAL http client for actually hitting HERE
@@ -116,7 +122,7 @@ func (suite *HereFullSuite) SetupTest() {
 
 	client := &http.Client{Timeout: time.Duration(15) * time.Second}
 
-	suite.planner = NewHEREPlanner(suite.logger, client, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	suite.planner = NewHEREPlanner(client, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 }
 
 func (suite *HereTestSuite) TestGeocodeResponses() {
@@ -128,7 +134,7 @@ func (suite *HereTestSuite) TestGeocodeResponses() {
 	})
 
 	// Known errors should be returned
-	_, err := planner.TransitDistance(&address1, &address2)
+	_, err := planner.TransitDistance(suite.AppContextForTest(), &address1, &address2)
 	suite.checkErrorCode(err, AddressLookupError)
 
 	// Given a HERE server that returns 500 geo codes
@@ -137,7 +143,7 @@ func (suite *HereTestSuite) TestGeocodeResponses() {
 	})
 
 	// Unknown errors should be returned
-	_, err = planner.TransitDistance(&address1, &address2)
+	_, err = planner.TransitDistance(suite.AppContextForTest(), &address1, &address2)
 	suite.checkErrorCode(err, UnknownError)
 
 	// Given a HERE server that returns a 200 with bad geo response
@@ -146,7 +152,7 @@ func (suite *HereTestSuite) TestGeocodeResponses() {
 	})
 
 	// Decoding errors should be returned
-	_, err = planner.TransitDistance(&address1, &address2)
+	_, err = planner.TransitDistance(suite.AppContextForTest(), &address1, &address2)
 	suite.checkErrorCode(err, GeocodeResponseDecodingError)
 
 	// Given a HERE server that returns an error
@@ -155,7 +161,7 @@ func (suite *HereTestSuite) TestGeocodeResponses() {
 	})
 
 	// Some error should be returned
-	_, err = planner.TransitDistance(&address1, &address2)
+	_, err = planner.TransitDistance(suite.AppContextForTest(), &address1, &address2)
 	suite.Error(err)
 }
 
@@ -171,7 +177,7 @@ func (suite *HereTestSuite) TestRoutingResponses() {
 	})
 
 	// Known errors should be returned
-	_, err := planner.LatLongTransitDistance(l1, l2)
+	_, err := planner.LatLongTransitDistance(suite.AppContextForTest(), l1, l2)
 	suite.checkErrorCode(err, UnroutableRoute)
 
 	// Given a HERE server that returns 500 routing codes
@@ -182,7 +188,7 @@ func (suite *HereTestSuite) TestRoutingResponses() {
 	})
 
 	// Unknown errors should be returned
-	_, err = planner.LatLongTransitDistance(l1, l2)
+	_, err = planner.LatLongTransitDistance(suite.AppContextForTest(), l1, l2)
 	suite.checkErrorCode(err, UnknownError)
 
 	// Given a HERE server that returns 200 with a bad routing response
@@ -193,7 +199,7 @@ func (suite *HereTestSuite) TestRoutingResponses() {
 	})
 
 	// Decoding errors should be returned
-	_, err = planner.LatLongTransitDistance(l1, l2)
+	_, err = planner.LatLongTransitDistance(suite.AppContextForTest(), l1, l2)
 	suite.checkErrorCode(err, RoutingResponseDecodingError)
 
 	// Given a HERE server that returns a routing error
@@ -204,7 +210,7 @@ func (suite *HereTestSuite) TestRoutingResponses() {
 	})
 
 	// Some error is returned
-	_, err = planner.LatLongTransitDistance(l1, l2)
+	_, err = planner.LatLongTransitDistance(suite.AppContextForTest(), l1, l2)
 	suite.Error(err)
 }
 
@@ -216,11 +222,11 @@ func (suite *HereTestSuite) TestZipLookups() {
 	planner := suite.setupTestPlanner(testClient{})
 
 	// Postal code errors should be returned
-	_, err := planner.Zip5TransitDistanceLineHaul(badZip, goodZip)
+	_, err := planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), badZip, goodZip)
 	suite.checkErrorCode(err, UnsupportedPostalCode)
 
 	// Postal code errors should be returned
-	_, err = planner.Zip3TransitDistance(badZip, goodZip)
+	_, err = planner.Zip3TransitDistance(suite.AppContextForTest(), badZip, goodZip)
 	suite.checkErrorCode(err, UnsupportedPostalCode)
 }
 
@@ -231,7 +237,7 @@ func TestHereTestSuite(t *testing.T) {
 	}
 
 	hs := &HereTestSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger,
 	}
 	suite.Run(t, hs)

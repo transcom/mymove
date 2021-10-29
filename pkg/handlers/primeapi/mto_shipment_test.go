@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
@@ -16,8 +17,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
@@ -254,7 +253,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			creator,
 			mtoChecker,
 		}
-		err := services.NotFoundError{}
+		err := apperror.NotFoundError{}
 
 		mockCreator.On("CreateMTOShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -335,6 +334,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -776,6 +776,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -921,6 +922,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
@@ -1388,6 +1390,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)

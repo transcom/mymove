@@ -1,12 +1,15 @@
 package move
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -34,11 +37,16 @@ func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, e
 	var existingMove models.Move
 	err := db.Find(&existingMove, move.ID)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if move.UpdatedAt != existingMove.UpdatedAt {
-		return nil, services.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
+		return nil, apperror.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
 	}
 	return db.ValidateAndSave(move)
 }
@@ -76,7 +84,12 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	var move models.Move
 	err := db.EagerPreload("MTOShipments", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {
-		return nil, nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(moveID, "looking for Move")
+		default:
+			return nil, nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if move.Orders.Grade == nil {
@@ -136,7 +149,12 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	var move models.Move
 	err := db.Eager("MTOShipments", "MTOShipments.Reweigh", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if move.Orders.Grade == nil {

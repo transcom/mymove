@@ -5,7 +5,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -38,13 +39,12 @@ type CreateUploadHandler struct {
 
 // Handle creates uploads
 func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	var contractorID uuid.UUID
-	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())
+	contractor, err := models.FetchGHCPrimeTestContractor(appCtx.DB())
 	if err != nil {
-		logger.Error("error getting TEST GHC Prime Contractor", zap.Error(err))
+		appCtx.Logger().Error("error getting TEST GHC Prime Contractor", zap.Error(err))
 		// Setting a custom message so we don't reveal the SQL error:
 		return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceID()))
@@ -52,7 +52,7 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 	if contractor != nil {
 		contractorID = contractor.ID
 	} else {
-		logger.Error("error with TEST GHC Prime Contractor value is nil")
+		appCtx.Logger().Error("error with TEST GHC Prime Contractor value is nil")
 		// Same message as before (same base issue):
 		return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceID()))
@@ -60,26 +60,26 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
-		logger.Error("error creating uuid from string", zap.Error(err))
+		appCtx.Logger().Error("error creating uuid from string", zap.Error(err))
 		return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(
 			"The payment request ID must be a valid UUID.", h.GetTraceID(), nil))
 	}
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
-		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return paymentrequestop.NewCreateUploadInternalServerError()
 	}
 
 	createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename)
 	if err != nil {
-		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
+		appCtx.Logger().Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {
-		case *services.BadDataError:
+		case *apperror.BadDataError:
 			return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return paymentrequestop.NewCreateUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
 			return paymentrequestop.NewCreateUploadInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))

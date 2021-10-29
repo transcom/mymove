@@ -1,7 +1,11 @@
 package sitextension
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -33,7 +37,12 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	err := appCtx.DB().Find(shipment, sitExtension.MTOShipmentID)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(sitExtension.MTOShipmentID, "while looking for MTOShipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
 	}
 
 	// Set status to pending if none is provided
@@ -49,9 +58,9 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	verrs, err := appCtx.DB().ValidateAndCreate(sitExtension)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the SIT extension.")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the SIT extension.")
 	} else if err != nil {
-		return nil, services.NewQueryError("SITExtension", err, "")
+		return nil, apperror.NewQueryError("SITExtension", err, "")
 	}
 
 	// If the status is set to pending, then the TOO needs to review the sit extensions
@@ -61,7 +70,12 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 		var move models.Move
 		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
 		if err != nil {
-			return nil, err
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
+			default:
+				return nil, apperror.NewQueryError("Move", err, "")
+			}
 		}
 
 		existingMoveStatus := move.Status

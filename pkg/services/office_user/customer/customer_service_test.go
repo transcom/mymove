@@ -15,19 +15,14 @@ type CustomerServiceSuite struct {
 	logger *zap.Logger
 }
 
-// TestAppContext returns the AppContext for the test suite
-func (suite *CustomerServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
-}
-
-func (suite *CustomerServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+// AppContextForTest returns the AppContext for the test suite
+func (suite *CustomerServiceSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestCustomerServiceSuite(t *testing.T) {
 	ts := &CustomerServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)

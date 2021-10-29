@@ -88,8 +88,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.TestAppContext(), &ppm.Move)
-	moveRouter.Approve(suite.TestAppContext(), &ppm.Move)
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())

@@ -5,9 +5,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/etag"
 
-	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -26,11 +27,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		notFoundAgent := newAgent
 		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &notFoundAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &notFoundAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundUUID)
 	})
 
@@ -39,24 +40,24 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		invalidAgent := newAgent
 		invalidAgent.MTOShipmentID = newAgent.ID
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &invalidAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &invalidAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-		invalidInputError := err.(services.InvalidInputError)
+		invalidInputError := err.(apperror.InvalidInputError)
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "mtoShipmentID")
 	})
 
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, "bloop") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	// Test successful update
@@ -70,7 +71,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		newAgent.Email = &email
 		newAgent.Phone = nil // should keep the phone number from oldAgent
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, eTag) // base validation
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)

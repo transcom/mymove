@@ -20,7 +20,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -31,8 +31,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
@@ -146,7 +144,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, not found (404)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.NewNotFoundError(paymentRequest.ID, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
@@ -175,7 +173,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, precondition failed (412)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, services.PreconditionFailedError{}).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.PreconditionFailedError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
@@ -203,7 +201,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 	suite.T().Run("unsuccessful status update of payment request, conflict error (409)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, services.ConflictError{}).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.ConflictError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
@@ -376,7 +374,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
+		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
 			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -398,7 +396,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequestID, "conflict error"))
+		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequestID, "conflict error"))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
 			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -599,7 +597,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
@@ -631,7 +629,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false, when no status flag is set", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -657,7 +655,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	})
 
 	suite.T().Run("successful update of a given reviewed payment request", func(t *testing.T) {
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -687,7 +685,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("fail if required send to syncada flag is not set", func(t *testing.T) {
 		// Ensure that there are reviewed payment requests
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -787,8 +785,6 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 	method := "POST"
 	urlFormat := "/payment-requests/%s/recalculate"
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.TestLogger())
-
 	suite.T().Run("golden path", func(t *testing.T) {
 		samplePaymentRequest := models.PaymentRequest{
 			ID:                              uuid.Must(uuid.NewV4()),
@@ -801,7 +797,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 
 		mockRecalculator := &mocks.PaymentRequestRecalculator{}
 		mockRecalculator.On("RecalculatePaymentRequest",
-			appCtx,
+			mock.AnythingOfType("*appcontext.appContext"),
 			paymentRequestID,
 		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
@@ -837,31 +833,31 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		responseType interface{}
 	}{
 		{
-			services.NewBadDataError("test"),
+			apperror.NewBadDataError("test"),
 			paymentrequestop.NewRecalculatePaymentRequestBadRequest(),
 		},
 		{
-			services.NewNotFoundError(paymentRequestID, "test"),
+			apperror.NewNotFoundError(paymentRequestID, "test"),
 			paymentrequestop.NewRecalculatePaymentRequestNotFound(),
 		},
 		{
-			services.NewConflictError(paymentRequestID, "test"),
+			apperror.NewConflictError(paymentRequestID, "test"),
 			paymentrequestop.NewRecalculatePaymentRequestConflict(),
 		},
 		{
-			services.NewPreconditionFailedError(paymentRequestID, errors.New("test")),
+			apperror.NewPreconditionFailedError(paymentRequestID, errors.New("test")),
 			paymentrequestop.NewRecalculatePaymentRequestPreconditionFailed(),
 		},
 		{
-			services.NewInvalidInputError(paymentRequestID, errors.New("test"), validate.NewErrors(), "test"),
+			apperror.NewInvalidInputError(paymentRequestID, errors.New("test"), validate.NewErrors(), "test"),
 			paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity(),
 		},
 		{
-			services.NewInvalidCreateInputError(validate.NewErrors(), "test"),
+			apperror.NewInvalidCreateInputError(validate.NewErrors(), "test"),
 			paymentrequestop.NewRecalculatePaymentRequestUnprocessableEntity(),
 		},
 		{
-			services.NewQueryError("TestObject", errors.New("test"), "test"),
+			apperror.NewQueryError("TestObject", errors.New("test"), "test"),
 			paymentrequestop.NewRecalculatePaymentRequestInternalServerError(),
 		},
 		{
@@ -875,7 +871,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		suite.T().Run(testName, func(t *testing.T) {
 			mockRecalculator := &mocks.PaymentRequestRecalculator{}
 			mockRecalculator.On("RecalculatePaymentRequest",
-				appCtx,
+				mock.AnythingOfType("*appcontext.appContext"),
 				paymentRequestID,
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{

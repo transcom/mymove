@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -55,7 +55,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	newReweigh := oldReweigh
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger)
+	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	// Test Success - Reweigh updated
 	suite.T().Run("Updated reweigh - Success", func(t *testing.T) {
@@ -78,7 +78,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundUUID)
 	})
 	// PreconditionFailedError
@@ -87,6 +87,6 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 }

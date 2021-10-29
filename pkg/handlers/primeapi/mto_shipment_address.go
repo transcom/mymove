@@ -5,7 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -21,8 +22,7 @@ type UpdateMTOShipmentAddressHandler struct {
 
 // Handle updates an address on a shipment
 func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOShipmentAddressParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the params and payload
 	payload := params.Body
@@ -39,27 +39,27 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
+		appCtx.Logger().Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressPreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		// Not Found Error -> Not Found Response
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
-		case services.ConflictError:
+		case apperror.ConflictError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressConflict().WithPayload(
 				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		// QueryError -> Internal Server Error
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
-				logger.Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		// Unknown -> Internal Server Error

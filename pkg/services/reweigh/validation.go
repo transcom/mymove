@@ -3,6 +3,8 @@ package reweigh
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -42,7 +44,7 @@ func validateReweigh(
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(newReweigh.ID, nil, verrs, "Invalid input found while validating the reweigh.")
+		result = apperror.NewInvalidInputError(newReweigh.ID, nil, verrs, "Invalid input found while validating the reweigh.")
 	}
 	return result
 }

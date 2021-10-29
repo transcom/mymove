@@ -9,7 +9,7 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
-import { updateMTOShipment, updateMaxBillableWeightAsTIO } from 'services/ghcApi';
+import { updateMTOShipment, updateMaxBillableWeightAsTIO, updateTIORemarks } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { tioRoutes } from 'constants/routes';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -50,7 +50,7 @@ export default function ReviewBillableWeight() {
   const history = useHistory();
   let documentsForViewer = [];
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const { order, mtoShipments } = useMovePaymentRequestsQueries(moveCode);
+  const { order, mtoShipments, move } = useMovePaymentRequestsQueries(moveCode);
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
   const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
   const isLastShipment = selectedShipmentIndex === filteredShipments?.length - 1;
@@ -104,17 +104,40 @@ export default function ReviewBillableWeight() {
     },
   });
 
+  const [mutateMoves] = useMutation(updateTIORemarks, {
+    onSuccess: (data, variables) => {
+      const updatedMove = data.moves[variables.moveTaskOrderID];
+      queryCache.setQueryData([MOVES, variables.moveTaskOrderID], {
+        moves: {
+          [`${variables.moveTaskOrderID}`]: updatedMove,
+        },
+      });
+      queryCache.invalidateQueries([MOVES, move.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
   const editEntity = (formValues) => {
     if (sidebarType === 'MAX') {
-      const payload = {
+      const orderPayload = {
         orderID: order.id,
         ifMatchETag: order.eTag,
         body: {
           authorizedWeight: Number(formValues.billableWeight),
+        },
+      };
+      const movePayload = {
+        moveTaskOrderID: move.id,
+        ifMatchETag: move.eTag,
+        body: {
           tioRemarks: formValues.billableWeightJustification,
         },
       };
-      mutateOrders(payload);
+      mutateOrders(orderPayload);
+      mutateMoves(movePayload);
     } else {
       const payload = {
         body: {
@@ -172,7 +195,7 @@ export default function ReviewBillableWeight() {
                 maxBillableWeight={maxBillableWeight}
                 weightAllowance={weightAllowance}
                 editEntity={editEntity}
-                billableWeightJustification={order.moveTaskOrder.tioRemarks}
+                billableWeightJustification={move.tioRemarks}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>

@@ -17,8 +17,8 @@ type PaymentRequestHelperSuite struct {
 }
 
 // TestAppContext returns the AppContext for the test suite
-func (suite *PaymentRequestHelperSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+func (suite *PaymentRequestHelperSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestPaymentRequestHelperSuite(t *testing.T) {

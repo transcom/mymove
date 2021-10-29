@@ -3,7 +3,7 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/gofrs/uuid"
@@ -62,11 +62,10 @@ var locatorFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle retrieves a list of moves/MTOs
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	queryFilters := generateQueryFilters(logger, params.Filter, locatorFilterConverters)
+	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, locatorFilterConverters)
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("Orders.ServiceMember"),
 	}
@@ -75,13 +74,13 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	associations := query.NewQueryAssociationsPreload(queryAssociations)
 	moves, err := h.MoveListFetcher.FetchMoveList(appCtx, queryFilters, associations, pagination, ordering)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	movesCount := len(moves)
 
 	totalMoveCount, err := h.MoveListFetcher.FetchMoveCount(appCtx, queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
 	payload := make(adminmessages.Moves, movesCount)
@@ -100,26 +99,25 @@ type UpdateMoveHandler struct {
 
 // Handle updates a given move
 func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		logger.Error(fmt.Sprintf("adminapi.UpdateMoveHandler error - Bad MoveID passed in: %s", params.MoveID), zap.Error(err))
+		appCtx.Logger().Error(fmt.Sprintf("adminapi.UpdateMoveHandler error - Bad MoveID passed in: %s", params.MoveID), zap.Error(err))
 		return moveop.NewUpdateMoveBadRequest()
 	}
 
 	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(appCtx, moveID, params.Move.Show)
 	if err != nil {
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewUpdateMoveNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return moveop.NewUpdateMoveUnprocessableEntity() // todo payload
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("adminapi.UpdateMoveHandler query error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("adminapi.UpdateMoveHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError()
 		default:
@@ -127,13 +125,13 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 		}
 	}
 
-	_, err = audit.Capture(updatedMove, params.Move, logger, session, params.HTTPRequest)
+	_, err = audit.Capture(updatedMove, params.Move, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
 	if err != nil {
-		logger.Error("Error capturing audit record", zap.Error(err))
+		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}
 
 	if updatedMove == nil {
-		logger.Debug(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
+		appCtx.Logger().Debug(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
 		return moveop.NewUpdateMoveInternalServerError()
 	}
 
@@ -149,22 +147,22 @@ type GetMoveHandler struct {
 
 // Handle retrieves a given move by move id
 func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	move := models.Move{}
 	// Returns move by id and associated order and the service memeber associated with the order
-	err := h.DB().Eager("Orders", "Orders.ServiceMember").Find(&move, params.MoveID.String())
+	err := appCtx.DB().Eager("Orders", "Orders.ServiceMember").Find(&move, params.MoveID.String())
 
 	if err != nil {
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return moveop.NewGetMoveNotFound()
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return moveop.NewGetMoveBadRequest()
-		case services.QueryError:
+		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("adminapi.GetMoveHandler query error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("adminapi.GetMoveHandler query error", zap.Error(e.Unwrap()))
 			}
 			return moveop.NewGetMoveInternalServerError()
 		default:

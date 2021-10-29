@@ -1,7 +1,6 @@
 package paymentrequest
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -96,12 +95,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 
 	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, 0, services.NotFoundError{}
-		default:
-			return nil, 0, err
-		}
+		return nil, 0, err
 	}
 
 	// Get the count
@@ -173,12 +167,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 
 	err := query.All(&paymentRequests)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, services.NotFoundError{}
-		default:
-			return nil, err
-		}
+		return nil, err
 	}
 
 	return &paymentRequests, nil

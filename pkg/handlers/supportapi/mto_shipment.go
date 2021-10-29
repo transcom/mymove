@@ -4,7 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
@@ -26,8 +27,7 @@ type UpdateMTOShipmentStatusHandlerFunc struct {
 
 // Handle updates the status of a MTO Shipment
 func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 	status := models.MTOShipmentStatus(params.Body.Status)
@@ -37,15 +37,15 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 	shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, eTag)
 
 	if err != nil {
-		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
+		appCtx.Logger().Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
 		switch e := err.(type) {
-		case services.NotFoundError:
+		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
+		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(
 				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors))
-		case services.PreconditionFailedError:
+		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case mtoshipment.ConflictStatusError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))

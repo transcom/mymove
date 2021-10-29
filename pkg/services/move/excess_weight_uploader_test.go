@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,7 +33,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			}()
 
 			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypeUSER)
+				suite.AppContextForTest(), move.ID, testFile, testFileName, models.UploadTypeUSER)
 			suite.NoError(err)
 			suite.Require().NotNil(updatedMove)
 
@@ -58,11 +59,11 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), notFoundUUID, testFile, testFileName, models.UploadTypeUSER)
+				suite.AppContextForTest(), notFoundUUID, testFile, testFileName, models.UploadTypeUSER)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
-			suite.IsType(services.NotFoundError{}, err)
+			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), notFoundUUID.String())
 		})
 
@@ -86,7 +87,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			suite.Greater(numUploadsBefore, 0) // should have at least 1, likely 2 from the test data
 
 			updatedMove, err := defaultUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypeUSER)
+				suite.AppContextForTest(), move.ID, testFile, testFileName, models.UploadTypeUSER)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
@@ -112,7 +113,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			primeMove := testdatagen.MakeAvailableMove(suite.DB())
 
 			updatedMove, err := primeUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), primeMove.ID, testFile, testFileName, models.UploadTypePRIME)
+				suite.AppContextForTest(), primeMove.ID, testFile, testFileName, models.UploadTypePRIME)
 			suite.NoError(err)
 			suite.Require().NotNil(updatedMove)
 
@@ -135,11 +136,11 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 			}()
 
 			updatedMove, err := primeUploader.CreateExcessWeightUpload(
-				suite.TestAppContext(), move.ID, testFile, testFileName, models.UploadTypePRIME)
+				suite.AppContextForTest(), move.ID, testFile, testFileName, models.UploadTypePRIME)
 			suite.Nil(updatedMove)
 			suite.Require().Error(err)
 
-			suite.IsType(services.NotFoundError{}, err)
+			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), move.ID.String())
 		})
 	})

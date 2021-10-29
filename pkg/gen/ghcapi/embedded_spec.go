@@ -927,6 +927,76 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/tio-remarks": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "updateMoveTIORemarks",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order tioRemarks field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move/{locator}": {
       "get": {
         "description": "Returns a given move for a unique alphanumeric locator string",
@@ -1218,6 +1288,78 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/financial-review-flag": {
+      "post": {
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Flags a move for financial office review",
+        "operationId": "setFinancialReviewFlag",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "remarks"
+              ],
+              "properties": {
+                "remarks": {
+                  "description": "explanation of why the move is being flagged for financial review",
+                  "type": "string",
+                  "example": "this address is way too far away"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move to flag",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -4073,6 +4215,19 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "financialReviewFlag": {
+          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
+          "type": "boolean",
+          "x-nullable": false,
+          "readOnly": true,
+          "example": false
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "Destination address is too far from duty location"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4274,9 +4429,6 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
-        },
-        "moveTaskOrder": {
-          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -4764,9 +4916,6 @@ func init() {
         },
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
         },
         "shipmentID": {
           "type": "string",
@@ -6695,6 +6844,100 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/tio-remarks": {
+      "patch": {
+        "description": "Changes move (move task order) billableWeightsReviewedAt field to a timestamp",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "operationId": "updateMoveTIORemarks",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order tioRemarks field",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move/{locator}": {
       "get": {
         "description": "Returns a given move for a unique alphanumeric locator string",
@@ -7064,6 +7307,93 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/financial-review-flag": {
+      "post": {
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Flags a move for financial office review",
+        "operationId": "setFinancialReviewFlag",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "remarks"
+              ],
+              "properties": {
+                "remarks": {
+                  "description": "explanation of why the move is being flagged for financial review",
+                  "type": "string",
+                  "example": "this address is way too far away"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move to flag",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -10283,6 +10613,19 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "financialReviewFlag": {
+          "description": "This flag is set by office users if a move should be reviewed by a Financial Office",
+          "type": "boolean",
+          "x-nullable": false,
+          "readOnly": true,
+          "example": false
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "Destination address is too far from duty location"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -10484,9 +10827,6 @@ func init() {
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
-        },
-        "moveTaskOrder": {
-          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -10974,9 +11314,6 @@ func init() {
         },
         "requestedBy": {
           "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipment": {
-          "$ref": "#/definitions/MTOShipment"
         },
         "shipmentID": {
           "type": "string",

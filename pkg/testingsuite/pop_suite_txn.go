@@ -47,22 +47,7 @@ func (store *PopSuiteTxnStore) Rollback() error {
 
 // Transaction starts a pop.Transaction
 func (store *PopSuiteTxnStore) Transaction() (*pop.Tx, error) {
-	tx, err := store.DB.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("could not create new transaction %w", err)
-	}
-	t := &pop.Tx{
-		ID: seededRand.Int(),
-		Tx: tx,
-	}
-	store.txList = append(store.txList, t)
-	// Fake out POP!
-	// Because we are using go-txdb to manage the transactions, we can
-	// handle nested transactions. Setting TX on the pop connection
-	// means the connection can only have a single TX, which breaks
-	// some tests
-	store.popConn.TX = nil
-	return t, nil
+	return store.TransactionContext(context.Background())
 }
 
 // Close closes any open transactions and db connections
@@ -87,22 +72,38 @@ func (store *PopSuiteTxnStore) Close() error {
 }
 
 // TransactionContext returns the current pop.Transaction
-// Needed to implement the pop.store interface, but won't actually be called
 func (store *PopSuiteTxnStore) TransactionContext(ctx context.Context) (*pop.Tx, error) {
-	return nil, nil
+	return store.TransactionContextOptions(ctx, nil)
 }
 
 // TransactionContextOptions returns the current pop.Transaction
-// Needed to implement the pop.store interface, but won't actually be called
-func (store *PopSuiteTxnStore) TransactionContextOptions(ctx context.Context, _ *sql.TxOptions) (*pop.Tx, error) {
-	return nil, nil
+func (store *PopSuiteTxnStore) TransactionContextOptions(ctx context.Context, opts *sql.TxOptions) (*pop.Tx, error) {
+	tx, err := store.DB.BeginTxx(ctx, opts)
+	if err != nil {
+		return nil, fmt.Errorf("could not create new transaction %w", err)
+	}
+	t := &pop.Tx{
+		ID: seededRand.Int(),
+		Tx: tx,
+	}
+	store.txList = append(store.txList, t)
+	// Fake out POP!
+	// Because we are using go-txdb to manage the transactions, we can
+	// handle nested transactions. Setting TX on the pop connection
+	// means the connection can only have a single TX, which breaks
+	// some tests
+	store.popConn.TX = nil
+	return t, nil
 }
 
 // openTxnPopConnection sets up the pop Connection for this test
 // suite using a per test connection that will run inside a transaction
 func (suite *PopTestSuite) openTxnPopConnection() *pop.Connection {
 	packageName := suite.PackageName.String()
-	testName := suite.T().Name()
+	testName := ""
+	if suite.T() != nil {
+		testName = suite.T().Name()
+	}
 
 	s := "postgres://%s:%s@%s:%s/%s?%s"
 	dataSourceName := fmt.Sprintf(s, suite.lowPrivConnDetails.User,

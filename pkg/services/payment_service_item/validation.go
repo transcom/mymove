@@ -5,10 +5,11 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -39,7 +40,7 @@ func validatePaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem
 		}
 	}
 	if verrs.HasAny() {
-		result = services.NewInvalidInputError(paymentServiceItem.ID, nil, verrs, "")
+		result = apperror.NewInvalidInputError(paymentServiceItem.ID, nil, verrs, "")
 	}
 	return result
 }
@@ -49,7 +50,7 @@ func checkETag() validator {
 		_ models.PaymentServiceItemStatus, rejectionReason *string, eTag string) error {
 		existingETag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		if existingETag != eTag {
-			return services.NewPreconditionFailedError(paymentServiceItem.ID,
+			return apperror.NewPreconditionFailedError(paymentServiceItem.ID,
 				query.StaleIdentifierError{StaleIdentifier: eTag})
 		}
 		return nil

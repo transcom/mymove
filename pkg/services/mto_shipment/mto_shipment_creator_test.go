@@ -5,9 +5,10 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -26,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 
 	subtestData.move = testdatagen.MakeMove(suite.DB(), assertions)
 
-	subtestData.appCtx = suite.TestAppContext()
+	subtestData.appCtx = suite.AppContextForTest()
 
 	builder := query.NewQueryBuilder()
 	createNewBuilder := func() createMTOShipmentQueryBuilder {
@@ -61,8 +62,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
-		invalidErr := err.(services.InvalidInputError)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		invalidErr := err.(apperror.InvalidInputError)
 		suite.NotNil(invalidErr.ValidationErrors)
 		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
@@ -85,7 +86,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		_, err := creator.CreateMTOShipment(appCtx, hhgShipmentFailClear, nil)
 
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "RequestedPickupDate")
 	})
 
@@ -244,7 +245,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("If the move already has a submitted NTSr shipment, it should return a validation error", func() {
@@ -275,7 +276,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("422 Validation Error - only one mto agent of each type", func() {
@@ -318,7 +319,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("Move status transitions when a new shipment is created and SUBMITTED", func() {

@@ -11,7 +11,7 @@ const QueueTable = () => (
           <th>Status</th>
           <th>Confirmation</th>
           <th>Branch</th>
-          <th>Original duty station</th>
+          <th>Original duty location</th>
           <th>Last modified by</th>
         </tr>
       </thead>
