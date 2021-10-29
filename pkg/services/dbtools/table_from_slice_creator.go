@@ -87,12 +87,12 @@ func (c tableFromSliceCreator) executeSQL(tx *pop.Connection, tableName string, 
 	if c.dropIfExists {
 		err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
 		if err != nil {
-			return fmt.Errorf("Error dropping table: '%s' %w", tableName, err)
+			return fmt.Errorf("Error dropping table: '%s': %w", tableName, err)
 		}
 	}
 	err := tx.RawQuery(createTableQuery).Exec()
 	if err != nil {
-		return fmt.Errorf("Error creating table: '%s' %w", tableName, err)
+		return fmt.Errorf("Error creating table: '%s': %w", tableName, err)
 	}
 
 	// Put data into the table
