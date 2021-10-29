@@ -13,7 +13,7 @@ import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Mo
 
 const financialReviewSchema = Yup.object().shape({
   remarks: Yup.string().required('Required'),
-  reviewCheckbox: Yup.boolean().oneOf([true], 'Must click needs review checkbox'),
+  reviewCheckbox: Yup.bool().oneOf([true], 'Must click needs review checkbox'),
 });
 
 const FinancialReviewModal = ({ onClose, onSubmit }) => {
@@ -66,7 +66,7 @@ const FinancialReviewModal = ({ onClose, onSubmit }) => {
                       className={styles.RemarksField}
                     />
                     <ModalActions>
-                      <Button type="submit" disabled={isValid}>
+                      <Button data-testid="modalSaveButton" type="submit" disabled={isValid} onClick={() => onSubmit()}>
                         Save
                       </Button>
                       <Button
