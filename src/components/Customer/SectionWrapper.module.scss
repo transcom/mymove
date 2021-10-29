@@ -7,7 +7,6 @@
 :global(.usa-alert) + .sectionWrapper {
   @include u-margin-top(3);
 }
-
 .sectionWrapper {
   @media (min-width: $tablet) {
     @include u-bg('white');
@@ -16,6 +15,10 @@
     @include u-border('1px');
     @include u-padding(5);
     @include u-margin-bottom(4);
+
+    :global(.usa-form-group:nth-child(1)) {
+      margin-top:0;
+    }
 
     hr {
       color: $base-lighter;
