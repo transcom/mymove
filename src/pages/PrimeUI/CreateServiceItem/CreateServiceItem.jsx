@@ -5,15 +5,15 @@ import { useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
-import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import styles from '../CreatePaymentRequest/CreatePaymentRequest.module.scss';
-import CreateShipmentServiceItemForm from '../../../components/PrimeUI/CreateShipmentServiceItemForm/CreateShipmentServiceItemForm';
-import { createServiceItem } from '../../../services/primeApi';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import scrollToTop from '../../../shared/scrollToTop';
 
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import CreateShipmentServiceItemForm from 'components/PrimeUI/CreateShipmentServiceItemForm/CreateShipmentServiceItemForm';
+import { createServiceItem } from 'services/primeApi';
+import { primeSimulatorRoutes } from 'constants/routes';
+import scrollToTop from 'shared/scrollToTop';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 
 const CreateServiceItem = () => {

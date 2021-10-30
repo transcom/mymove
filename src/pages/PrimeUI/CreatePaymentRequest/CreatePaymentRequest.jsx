@@ -9,15 +9,14 @@ import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import { createPaymentRequest } from '../../../services/primeApi';
-import scrollToTop from '../../../shared/scrollToTop';
-import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
-import { formatDateForSwagger } from '../../../shared/dates';
-
 import styles from './CreatePaymentRequest.module.scss';
 
+import { createPaymentRequest } from 'services/primeApi';
+import scrollToTop from 'shared/scrollToTop';
+import CreatePaymentRequestForm from 'components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
+import { formatDateForSwagger } from 'shared/dates';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';

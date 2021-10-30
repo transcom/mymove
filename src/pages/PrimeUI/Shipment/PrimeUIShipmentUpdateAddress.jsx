@@ -5,17 +5,16 @@ import { useMutation } from 'react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
-import SomethingWentWrong from '../../../shared/SomethingWentWrong';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { requiredAddressSchema } from '../../../utils/validation';
-import scrollToTop from '../../../shared/scrollToTop';
-import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
-import styles from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
-
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
+import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { requiredAddressSchema } from 'utils/validation';
+import scrollToTop from 'shared/scrollToTop';
+import { updatePrimeMTOShipmentAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty, fromPrimeApiAddressFormat } from 'shared/utils';
 
