@@ -9,12 +9,7 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { updatePrimeMTOShipment } from 'services/primeApi';
-// import MOVE_STATUSES from 'constants/moves';
-// import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
-// import { shipmentStatuses } from 'constants/shipments';
-
-// const mockRequestedMoveCode = 'LR4T8V';
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
@@ -224,28 +219,6 @@ const approvedMoveTaskOrder = {
   },
 };
 
-/*
-const tooApprovedMoveDetailsQuery = {
-  ...newMoveDetailsQuery,
-  moveTaskOrder: {
-    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-    ordersId: '1',
-    status: MOVE_STATUSES.APPROVED,
-  },
-};
-
- */
-
-/*
-   mtoShipments: ...mtoShipments,
-    mtoShipments: [
-      {
-        id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-        moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-        status: shipmentStatuses.APPROVED,
-      }
- */
-
 const updateShipmentURL = generatePath(primeSimulatorRoutes.UPDATE_SHIPMENT_PATH, {
   moveCodeOrID: moveId,
   shipmentId,
@@ -285,9 +258,9 @@ describe('Update Shipment Page', () => {
 
     render(mockedComponent);
 
-    await waitFor(() => expect(screen.getByText('Shipment Dates')).toBeInTheDocument());
-    await waitFor(() => expect(screen.getByText('Shipment Weights')).toBeInTheDocument());
-    await waitFor(() => expect(screen.getByText('Shipment Addresses')).toBeInTheDocument());
+    expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
+    expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+    expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
   });
 
   it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -295,7 +268,7 @@ describe('Update Shipment Page', () => {
 
     render(mockedComponent);
 
-    const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+    const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });
     expect(h2).toBeInTheDocument();
   });
 
@@ -304,7 +277,7 @@ describe('Update Shipment Page', () => {
 
     render(mockedComponent);
 
-    const errorMessage = await screen.getByText(/Something went wrong./);
+    const errorMessage = await screen.findByText(/Something went wrong./);
     expect(errorMessage).toBeInTheDocument();
   });
 
@@ -340,20 +313,18 @@ describe('Displays the shipment information to update', () => {
     expect(shipmentDatesHeader).toBeInTheDocument();
     const updateShipmentContainer = shipmentDatesHeader.parentElement;
 
-    await waitFor(() => {
-      expect(
-        within(updateShipmentContainer).getByRole('heading', {
-          name: 'Shipment Weights',
-          level: 2,
-        }),
-      ).toBeInTheDocument();
-      expect(
-        within(updateShipmentContainer).getByRole('heading', {
-          name: 'Shipment Addresses',
-          level: 2,
-        }),
-      ).toBeInTheDocument();
-    });
+    expect(
+      await within(updateShipmentContainer).findByRole('heading', {
+        name: 'Shipment Weights',
+        level: 2,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(updateShipmentContainer).getByRole('heading', {
+        name: 'Shipment Addresses',
+        level: 2,
+      }),
+    ).toBeInTheDocument();
   });
   /*
 it('displays the submit button disabled', async () => {
@@ -380,10 +351,8 @@ expect(
       </MockProviders>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-      expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
-    });
+    expect(await screen.findByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
   });
 });
 
