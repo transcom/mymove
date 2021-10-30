@@ -18,6 +18,7 @@ import { formatDateForSwagger } from '../../../shared/dates';
 
 import styles from './CreatePaymentRequest.module.scss';
 
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -159,10 +160,10 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
       <div className="grid-row">
         <div className="grid-col-12">
           {errorMessage?.detail && (
-            <div className={styles.errorContainer}>
+            <div className={primeStyles.errorContainer}>
               <Alert slim type="error">
-                <span className={styles.errorTitle}>{errorMessage.title}</span>
-                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>
             </div>
           )}

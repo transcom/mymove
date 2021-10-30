@@ -16,6 +16,7 @@ import styles from '../../../components/Office/CustomerContactInfoForm/CustomerC
 
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty, fromPrimeApiAddressFormat } from 'shared/utils';
 
 const updateAddressSchema = Yup.object().shape({
@@ -110,10 +111,10 @@ const PrimeUIShipmentUpdateAddress = () => {
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
               {errorMessage?.detail && (
-                <div className={styles.errorContainer}>
+                <div className={primeStyles.errorContainer}>
                   <Alert type="error">
-                    <span className={styles.errorTitle}>{errorMessage.title}</span>
-                    <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                    <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                    <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
                   </Alert>
                 </div>
               )}

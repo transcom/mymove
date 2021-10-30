@@ -14,6 +14,8 @@ import { createServiceItem } from '../../../services/primeApi';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import scrollToTop from '../../../shared/scrollToTop';
 
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
+
 const CreateServiceItem = () => {
   const { moveCodeOrID, shipmentId } = useParams();
   const history = useHistory();
@@ -53,10 +55,10 @@ const CreateServiceItem = () => {
         <div className="grid-col-12">
           <h1>Create Shipment Service Item</h1>
           {errorMessage?.detail && (
-            <div className={styles.errorContainer}>
+            <div className={primeStyles.errorContainer}>
               <Alert slim type="error">
-                <span className={styles.errorTitle}>{errorMessage.title}</span>
-                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>
             </div>
           )}
