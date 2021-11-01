@@ -21,7 +21,8 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
-import { isValidWeight, fromPrimeApiAddressFormat, toPrimeApiAddressFormat, isEmpty } from 'shared/utils';
+import { isValidWeight, isEmpty } from 'shared/utils';
+import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
@@ -92,8 +93,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
 
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
   const editableWeightActualField = true;
-  const reformatPrimeApiPickupAddress = fromPrimeApiAddressFormat(shipment.pickupAddress);
-  const reformatPrimeApiDestinationAddress = fromPrimeApiAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
@@ -106,8 +107,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       primeActualWeight: parseInt(actualWeight, 10),
       scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
       actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
-      pickupAddress: editablePickupAddress ? toPrimeApiAddressFormat(pickupAddress) : null,
-      destinationAddress: editableDestinationAddress ? toPrimeApiAddressFormat(destinationAddress) : null,
+      pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
+      destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
     };
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
       setSubmitting(false);

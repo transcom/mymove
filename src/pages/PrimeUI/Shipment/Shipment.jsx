@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import styles from '../MoveTaskOrder/MoveDetails.module.scss';
@@ -70,19 +69,7 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
           {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
         </dd>
-        <dd>
-          {shipment.pickupAddress?.id && (
-            <Button
-              type="button"
-              onClick={() => {
-                window.location.href = editShipmentAddressUrl;
-              }}
-              unstyled
-            >
-              Edit
-            </Button>
-          )}
-        </dd>
+        <dd>{shipment.pickupAddress?.id && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
@@ -91,19 +78,7 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
           {shipment.destinationAddress.postalCode}
         </dd>
-        <dd>
-          {shipment.destinationAddress?.id && (
-            <Button
-              type="button"
-              onClick={() => {
-                window.location.href = editShipmentAddressUrl;
-              }}
-              unstyled
-            >
-              Edit
-            </Button>
-          )}
-        </dd>
+        <dd>{shipment.destinationAddress?.id && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Created at:</dt>

@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import userEvent from '@testing-library/user-event';
 
 import { requiredAddressSchema } from '../../../utils/validation';
-import { fromPrimeApiAddressFormat } from '../../../shared/utils';
+import { fromPrimeAPIAddressFormat } from '../../../utils/formatters';
 
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
@@ -30,7 +30,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     eTag: '1234567890',
   };
 
-  const reformatPrimeApiShipmentAddress = fromPrimeApiAddressFormat(shipmentAddress);
+  const reformatPrimeApiShipmentAddress = fromPrimeAPIAddressFormat(shipmentAddress);
 
   const initialValues = {
     addressID: shipmentAddress.id,

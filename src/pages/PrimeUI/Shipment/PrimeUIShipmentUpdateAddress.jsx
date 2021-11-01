@@ -16,7 +16,8 @@ import { requiredAddressSchema } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
-import { isEmpty, fromPrimeApiAddressFormat } from 'shared/utils';
+import { isEmpty } from 'shared/utils';
+import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 
 const updateAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
@@ -87,8 +88,8 @@ const PrimeUIShipmentUpdateAddress = () => {
     });
   };
 
-  const reformatPrimeApiPickupAddress = fromPrimeApiAddressFormat(shipment.pickupAddress);
-  const reformatPrimeApiDestinationAddress = fromPrimeApiAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = !isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
 

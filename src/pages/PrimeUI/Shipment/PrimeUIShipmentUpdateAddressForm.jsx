@@ -65,7 +65,7 @@ PrimeUIShipmentUpdateAddressForm.propTypes = {
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
-  addressLocation: PropTypes.string.isRequired,
+  addressLocation: PropTypes.oneOf(['Pickup address', 'Destination address']).isRequired,
 };
 
 export default PrimeUIShipmentUpdateAddressForm;
