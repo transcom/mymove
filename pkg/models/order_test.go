@@ -14,24 +14,26 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicOrderInstantiation() {
-	ntsTac := ""
-	ntsSac := ""
 
 	order := &Order{
-		NtsTAC: &ntsTac,
-		NtsSAC: &ntsSac,
+		TAC:    swag.String(""),
+		SAC:    swag.String(""),
+		NtsTAC: swag.String(""),
+		NtsSAC: swag.String(""),
 	}
 
 	expErrors := map[string][]string{
-		"orders_type":         {"OrdersType can not be blank."},
-		"issue_date":          {"IssueDate can not be blank."},
-		"report_by_date":      {"ReportByDate can not be blank."},
-		"service_member_id":   {"ServiceMemberID can not be blank."},
-		"new_duty_station_id": {"NewDutyStationID can not be blank."},
-		"status":              {"Status can not be blank."},
-		"uploaded_orders_id":  {"UploadedOrdersID can not be blank."},
-		"nts_tac":             {"NtsTAC can not be blank."},
-		"nts_sac":             {"NtsSAC can not be blank."},
+		"orders_type":                    {"OrdersType can not be blank."},
+		"issue_date":                     {"IssueDate can not be blank."},
+		"report_by_date":                 {"ReportByDate can not be blank."},
+		"service_member_id":              {"ServiceMemberID can not be blank."},
+		"new_duty_station_id":            {"NewDutyStationID can not be blank."},
+		"status":                         {"Status can not be blank."},
+		"uploaded_orders_id":             {"UploadedOrdersID can not be blank."},
+		"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
+		"sac":                            {"SAC can not be blank."},
+		"nts_tac":                        {"NtsTAC can not be blank."},
+		"nts_sac":                        {"NtsSAC can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)

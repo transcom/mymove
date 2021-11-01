@@ -63,6 +63,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			BillableWeightJustification: &billableWeightJustification,
 			SITDaysAllowance:            &sitDaysAllowance,
 			ServiceOrderNumber:          &serviceOrderNumber,
+			StorageFacilityID:           &uuid.Nil,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than -1."},
@@ -72,6 +73,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"billable_weight_justification": {"BillableWeightJustification can not be blank."},
 			"sitdays_allowance":             {"-1 is not greater than -1."},
 			"service_order_number":          {"ServiceOrderNumber can not be blank."},
+			"storage_facility_id":           {"StorageFacilityID can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
 	})
