@@ -7,10 +7,7 @@
   @include u-padding-bottom(2 !important);
 }
 
-.FinancialReviewTagGroup {
-  display: inline-flex;
-
-  // .RequestedTag {
-  //   max-height: ;
-  // }
+.FinancialReviewTag {
+  @include u-margin-bottom(2 !important);
+  display: inline-block;
 }

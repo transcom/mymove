@@ -8,4 +8,6 @@ export default {
   component: FinancialReviewButton,
 };
 
-export const Basic = () => <FinancialReviewButton onClick={action('Click')} />;
+export const MoveNotFlaggedForFinancialReview = () => <FinancialReviewButton onClick={action('Click')} />;
+
+export const MoveFlaggedForFinancialReview = () => <FinancialReviewButton onClick={action('Click')} reviewRequested />;

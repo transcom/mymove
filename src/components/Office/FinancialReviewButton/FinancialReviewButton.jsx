@@ -13,18 +13,7 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
     <div>
       {reviewRequested && (
-        <div className={styles.FinancialReviewTagGroup}>
-          <Tag className="usa-tag--green">Financial Review Requested</Tag>
-          <span>
-            <Button
-              type="Button"
-              className={classnames(styles.FinancialReviewButton, ['usa-button usa-button--unstyled'])}
-              onClick={onClick}
-            >
-              Edit
-            </Button>
-          </span>
-        </div>
+        <Tag className={classnames(styles.FinancialReviewTag, ['usa-tag--green'])}>Financial Review Requested</Tag>
       )}
       {!reviewRequested && (
         <Button
@@ -41,7 +30,11 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
 
 FinancialReviewButton.propTypes = {
   onClick: PropTypes.func.isRequired,
-  reviewRequested: PropTypes.bool.isRequired,
+  reviewRequested: PropTypes.bool,
+};
+
+FinancialReviewButton.defaultProps = {
+  reviewRequested: false,
 };
 
 export default FinancialReviewButton;

@@ -16,4 +16,12 @@ describe('FinancialReviewButton', () => {
       expect(mockOnClick).toHaveBeenCalled();
     });
   });
+
+  it('displays a tag when a review has been requested', async () => {
+    const mockOnClick = jest.fn();
+    render(<FinancialReviewButton onClick={mockOnClick} reviewRequested />);
+    const tag = screen.getByTestId('tag');
+
+    expect(tag).toHaveTextContent('Financial Review Requested');
+  });
 });
