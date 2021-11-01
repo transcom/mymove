@@ -769,3 +769,4 @@
 20221031150502_ppm_closeout_status_remove_needs_close_out.up.sql
 20221104180553_add_closeout_office_move_association.up.sql
 20221114184433_add_table_name_index_audit_history.up.sql
+20221116043608_update_client_certs_table.up.sql

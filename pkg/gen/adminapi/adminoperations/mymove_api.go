@@ -58,6 +58,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersCreateAdminUserHandler: admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
 		}),
+		ClientCertsCreateClientCertHandler: client_certs.CreateClientCertHandlerFunc(func(params client_certs.CreateClientCertParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.CreateClientCert has not yet been implemented")
+		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
 		}),
@@ -66,6 +69,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
+		}),
+		ClientCertsGetClientCertHandler: client_certs.GetClientCertHandlerFunc(func(params client_certs.GetClientCertParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.GetClientCert has not yet been implemented")
 		}),
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
@@ -124,6 +130,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
+		ClientCertsUpdateClientCertHandler: client_certs.UpdateClientCertHandlerFunc(func(params client_certs.UpdateClientCertParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.UpdateClientCert has not yet been implemented")
+		}),
 		MoveUpdateMoveHandler: move.UpdateMoveHandlerFunc(func(params move.UpdateMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.UpdateMove has not yet been implemented")
 		}),
@@ -178,12 +187,16 @@ type MymoveAPI struct {
 
 	// AdminUsersCreateAdminUserHandler sets the operation handler for the create admin user operation
 	AdminUsersCreateAdminUserHandler admin_users.CreateAdminUserHandler
+	// ClientCertsCreateClientCertHandler sets the operation handler for the create client cert operation
+	ClientCertsCreateClientCertHandler client_certs.CreateClientCertHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
 	// WebhookSubscriptionsCreateWebhookSubscriptionHandler sets the operation handler for the create webhook subscription operation
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
+	// ClientCertsGetClientCertHandler sets the operation handler for the get client cert operation
+	ClientCertsGetClientCertHandler client_certs.GetClientCertHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
@@ -222,6 +235,8 @@ type MymoveAPI struct {
 	WebhookSubscriptionsIndexWebhookSubscriptionsHandler webhook_subscriptions.IndexWebhookSubscriptionsHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
+	// ClientCertsUpdateClientCertHandler sets the operation handler for the update client cert operation
+	ClientCertsUpdateClientCertHandler client_certs.UpdateClientCertHandler
 	// MoveUpdateMoveHandler sets the operation handler for the update move operation
 	MoveUpdateMoveHandler move.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
@@ -310,6 +325,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.AdminUsersCreateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.CreateAdminUserHandler")
 	}
+	if o.ClientCertsCreateClientCertHandler == nil {
+		unregistered = append(unregistered, "client_certs.CreateClientCertHandler")
+	}
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
 	}
@@ -318,6 +336,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
+	}
+	if o.ClientCertsGetClientCertHandler == nil {
+		unregistered = append(unregistered, "client_certs.GetClientCertHandler")
 	}
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
@@ -375,6 +396,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
+	}
+	if o.ClientCertsUpdateClientCertHandler == nil {
+		unregistered = append(unregistered, "client_certs.UpdateClientCertHandler")
 	}
 	if o.MoveUpdateMoveHandler == nil {
 		unregistered = append(unregistered, "move.UpdateMoveHandler")
@@ -483,6 +507,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/client_certs"] = client_certs.NewCreateClientCert(o.context, o.ClientCertsCreateClientCertHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -492,6 +520,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/client_certs/{clientCertId}"] = client_certs.NewGetClientCert(o.context, o.ClientCertsGetClientCertHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -568,6 +600,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/client_certs/{clientCertId}"] = client_certs.NewUpdateClientCert(o.context, o.ClientCertsUpdateClientCertHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

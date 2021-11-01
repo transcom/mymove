@@ -285,6 +285,128 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a client cert record",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "create a client cert",
+        "operationId": "createClientCert",
+        "parameters": [
+          {
+            "description": "client cert information",
+            "name": "clientCert",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ClientCertCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created client cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a client cert"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/client_certs/{clientCertId}": {
+      "get": {
+        "description": "Returns the given client certificate",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "Get a client certificate",
+        "operationId": "getClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "id not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "Updates a client certificate",
+        "operationId": "updateClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "client cert information",
+            "name": "clientCert",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ClientCertUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Client Cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update a client cert"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -1750,6 +1872,112 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "ClientCertCreatePayload": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -2953,6 +3181,128 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a client cert record",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "create a client cert",
+        "operationId": "createClientCert",
+        "parameters": [
+          {
+            "description": "client cert information",
+            "name": "clientCert",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ClientCertCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created client cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a client cert"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/client_certs/{clientCertId}": {
+      "get": {
+        "description": "Returns the given client certificate",
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "Get a client certificate",
+        "operationId": "getClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "id not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "Updates a client certificate",
+        "operationId": "updateClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "client cert information",
+            "name": "clientCert",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ClientCertUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Client Cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update a client cert"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -4418,6 +4768,112 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "ClientCertCreatePayload": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },

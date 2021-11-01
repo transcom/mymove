@@ -603,6 +603,39 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  ClientCertCreatePayload:
+    type: object
+    properties:
+      sha256Digest:
+        type: string
+        example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      subject:
+        type: string
+        example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
+      allowOrdersAPI:
+        type: boolean
+      allowAirForceOrdersRead:
+        type: boolean
+      allowAirForceOrdersWrite:
+        type: boolean
+      allowArmyOrdersRead:
+        type: boolean
+      allowArmyOrdersWrite:
+        type: boolean
+      allowCoastGuardOrdersRead:
+        type: boolean
+      allowCoastGuardOrdersWrite:
+        type: boolean
+      allowMarineCorpsOrdersRead:
+        type: boolean
+      allowMarineCorpsOrdersWrite:
+        type: boolean
+      allowNavyOrdersRead:
+        type: boolean
+      allowNavyOrdersWrite:
+        type: boolean
+      allowPrime:
+        type: boolean
   MoveUpdatePayload:
     type: object
     required:
@@ -637,6 +670,48 @@ definitions:
         title: Last Name
         x-nullable: true
       active:
+        type: boolean
+        x-nullable: true
+  ClientCertUpdatePayload:
+    type: object
+    properties:
+      allowDpsAuthAPI:
+        type: boolean
+        x-nullable: true
+      allowOrdersAPI:
+        type: boolean
+        x-nullable: true
+      allowAirForceOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowAirForceOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowArmyOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowArmyOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowCoastGuardOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowCoastGuardOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowMarineCorpsOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowMarineCorpsOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowNavyOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowNavyOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowPrime:
         type: boolean
         x-nullable: true
   ElectronicOrder:
@@ -1144,6 +1219,87 @@ paths:
           description: office not found
         '500':
           description: server error
+    post:
+      summary: create a client cert
+      description: creates and returns a client cert record
+      operationId: createClientCert
+      tags:
+        - client_certs
+      parameters:
+        - in: body
+          name: clientCert
+          description: client cert information
+          schema:
+            $ref: '#/definitions/ClientCertCreatePayload'
+      responses:
+        201:
+          description: Successfully created client cert
+          schema:
+            $ref: '#/definitions/ClientCert'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create a client cert
+        500:
+          description: Server error
+  /client_certs/{clientCertId}:
+    get:
+      summary: Get a client certificate
+      description: Returns the given client certificate
+      operationId: getClientCert
+      tags:
+        - client_certs
+      parameters:
+        - in: path
+          name: clientCertId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/ClientCert'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: id not found
+        500:
+          description: server error
+    patch:
+      summary: Updates a client certificate
+      operationId: updateClientCert
+      tags:
+        - client_certs
+      parameters:
+        - in: path
+          name: clientCertId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: clientCert
+          description: client cert information
+          required: true
+          schema:
+            $ref: '#/definitions/ClientCertUpdatePayload'
+      responses:
+        200:
+          description: Successfully updated Client Cert
+          schema:
+            $ref: '#/definitions/ClientCert'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to update a client cert
+        500:
+          description: Server error
   /transportation_service_provider_performances:
     get:
       summary: List transportation service provider performances (TSPPs)

@@ -9,6 +9,7 @@ import (
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
+	"github.com/transcom/mymove/pkg/services/clientcert"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	move "github.com/transcom/mymove/pkg/services/move"
@@ -190,7 +191,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.ClientCertsIndexClientCertsHandler = IndexClientCertsHandler{
 		handlerConfig,
-		fetch.NewListFetcher(queryBuilder),
+		clientcert.NewClientCertListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}

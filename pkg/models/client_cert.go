@@ -32,6 +32,9 @@ type ClientCert struct {
 	UserID                      uuid.UUID `db:"user_id"`
 }
 
+// ClientCerts is not required by pop and may be deleted
+type ClientCerts []ClientCert
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
