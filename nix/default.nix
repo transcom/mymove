@@ -143,19 +143,19 @@ in buildEnv {
     }) {}).dbmate
 
     (import (builtins.fetchGit {
-      # Descriptive name to make the store path easier to identify
-      name = "nss-cacert-3.60";
-      url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+         # Descriptive name to make the store path easier to identify
+         name = "nss-cacert-3.60";
+         url = "https://github.com/NixOS/nixpkgs/";
+         ref = "refs/heads/nixpkgs-unstable";
+         rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
     }) {}).cacert
 
     (import (builtins.fetchGit {
-      # Descriptive name to make the store path easier to identify
-      name = "hadolint-2.1.0";
-      url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/nixpkgs-unstable";
-      rev = "68e901c68446539165b19b227f51f7fc2b3655f9";
+         # Descriptive name to make the store path easier to identify
+         name = "hadolint-2.1.0";
+         url = "https://github.com/NixOS/nixpkgs/";
+         ref = "refs/heads/nixpkgs-unstable";
+         rev = "68e901c68446539165b19b227f51f7fc2b3655f9";
     }) {}).hadolint
 ];
 

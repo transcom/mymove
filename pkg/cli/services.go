@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -61,7 +62,7 @@ func CheckServices(v *viper.Viper) error {
 		(!ghcAPIEnabled) &&
 		(!primeAPIEnabled) &&
 		(!primeSimulatorEnabled) {
-		return fmt.Errorf("no service was enabled")
+		return errors.New("no service was enabled")
 	}
 
 	// if DPS is enabled then the mutualTLSListener is needed too
@@ -73,21 +74,21 @@ func CheckServices(v *viper.Viper) error {
 		currentEnvironment == EnvironmentReview
 	if !devOrReviewEnvironment {
 		if dpsEnabled && !mutualTLSEnabled {
-			return fmt.Errorf("for dps service to be enabled both %s and the %s flags must be in use", ServeDPSFlag, MutualTLSListenerFlag)
+			return errors.New(fmt.Sprintf("for dps service to be enabled both %s and the %s flags must be in use", ServeDPSFlag, MutualTLSListenerFlag))
 		}
 		if ordersEnabled && !mutualTLSEnabled {
-			return fmt.Errorf("for orders service to be enabled both %s and the %s flags must be in use", ServeOrdersFlag, MutualTLSListenerFlag)
+			return errors.New(fmt.Sprintf("for orders service to be enabled both %s and the %s flags must be in use", ServeOrdersFlag, MutualTLSListenerFlag))
 		}
 		if primeAPIEnabled && !mutualTLSEnabled {
-			return fmt.Errorf("for prime service to be enabled both %s and the %s flags must be in use", ServePrimeFlag, MutualTLSListenerFlag)
+			return errors.New(fmt.Sprintf("for prime service to be enabled both %s and the %s flags must be in use", ServePrimeFlag, MutualTLSListenerFlag))
 		}
 		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled) {
-			return fmt.Errorf("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
+			return errors.New("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
 		}
 	}
 
 	if currentEnvironment == EnvironmentPrd && primeSimulatorEnabled {
-		return fmt.Errorf("Prime Simulator cannot be enabled in production")
+		return errors.New("Prime Simulator cannot be enabled in production")
 	}
 
 	return nil

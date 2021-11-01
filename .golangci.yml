@@ -33,7 +33,7 @@ linters:
     - deadcode
     - gofmt
     - goimports
-    - revive
+    - golint
     - gosec
     - govet
     - ineffassign

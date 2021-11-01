@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -111,7 +112,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			&mockCreator,
 			mtoChecker,
 		}
-		err := fmt.Errorf("ServerError")
+		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -399,7 +400,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			&mockCreator,
 			mtoChecker,
 		}
-		err := fmt.Errorf("ServerError")
+		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -412,7 +413,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 
-		var height int32
+		var height int32 = 0
 		params.Body.(*primemessages.MTOServiceItemDomesticCrating).Crate.Height = &height
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)

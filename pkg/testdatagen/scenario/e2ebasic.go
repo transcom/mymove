@@ -7,6 +7,7 @@
 //RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
+// nolint:golint
 package scenario
 
 import (
