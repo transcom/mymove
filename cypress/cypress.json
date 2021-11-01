@@ -4,6 +4,7 @@
   "reporterOptions": {
     "configFile": "mocha-reporter-config.json"
   },
+  "nodeVersion": "system",
   "viewportWidth": 1440,
   "viewportHeight": 900,
   "videoUploadOnPasses": false,

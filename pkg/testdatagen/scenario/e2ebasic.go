@@ -308,6 +308,35 @@ func userWithTOOandTIOandServicesCounselorRole(db *pop.Connection) {
 	})
 }
 
+func userWithPrimeSimulatorRole(db *pop.Connection) {
+	primeSimulatorRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypePrimeSimulator).First(&primeSimulatorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypePrimeSimulator in the DB: %w", err))
+	}
+
+	email := "prime_simulator_role@office.mil"
+	primeSimulatorUserID := uuid.Must(uuid.FromString("cf5609e9-b88f-4a98-9eda-9d028bc4a515"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            primeSimulatorUserID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{primeSimulatorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("471bce0c-1a13-4df9-bef5-26be7d27a5bd"),
+			Email:  email,
+			Active: true,
+			UserID: &primeSimulatorUserID,
+		},
+	})
+}
+
 /*
  * Moves
  */
@@ -2909,6 +2938,128 @@ func createMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.
 
 }
 
+func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+
+	now := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.FromStringOrNil("ef4a2b75-ceb3-4620-96a8-5ccf26dddb16"),
+			Status:             models.MoveStatusAPPROVED,
+			Locator:            "PRMUPD",
+			AvailableToPrimeAt: &now,
+		},
+		UserUploader: userUploader,
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+		},
+		Move: move,
+	})
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+
+	shipmentFields := models.MTOShipment{
+		ID:                    uuid.FromStringOrNil("5375f237-430c-406d-9ec8-5a27244d563a"),
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:         &pickupAddress,
+		PickupAddressID:       &pickupAddress.ID,
+	}
+
+	// Uncomment to create the shipment with a destination address
+	/*
+		destinationAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+		shipmentFields.DestinationAddress = &destinationAddress
+		shipmentFields.DestinationAddressID = &destinationAddress.ID
+	*/
+
+	// Uncomment to create the shipment with an actual weight
+	/*
+		actualWeight := unit.Pound(999)
+		shipmentFields.PrimeActualWeight = &actualWeight
+	*/
+
+	firstShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: shipmentFields,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeFSC,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+}
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
@@ -2954,6 +3105,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithServicesCounselorRole(db)
 	userWithTOOandTIORole(db)
 	userWithTOOandTIOandServicesCounselorRole(db)
+	userWithPrimeSimulatorRole(db)
 
 	// Moves
 	serviceMemberWithUploadedOrdersAndNewPPM(db, appCtx, userUploader, moveRouter)
@@ -2997,4 +3149,5 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db, appCtx, userUploader, primeUploader)
 	createMoveWithSinceParamater(db, userUploader)
 	createMoveWithTaskOrderServices(db, userUploader)
+	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 }
