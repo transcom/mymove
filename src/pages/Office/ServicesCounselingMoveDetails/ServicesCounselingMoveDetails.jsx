@@ -18,6 +18,7 @@ import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/Serv
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import FinacialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import FinacialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
@@ -216,15 +217,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               finacialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
-              <div>
-                <Button
-                  type="Button"
-                  className={classnames(['usa-button usa-button--unstyled'])}
-                  onClick={handleShowFinancialReviewModal}
-                >
-                  Flag move for financial review
-                </Button>
-              </div>
+              <FinacialReviewButton onClick={handleShowFinancialReviewModal} />
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

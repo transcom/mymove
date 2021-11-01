@@ -12,9 +12,9 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const financialReviewSchema = Yup.object().shape({
-  remarks: Yup.string(),
+  remarks: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
   // must select yest or no before they can click save.
-  flagForReview: Yup.string().required('Required').oneOf(['yes', 'no']),
+  flagForReview: Yup.string().required('Required').oneOf(['yes']),
 });
 
 const FinancialReviewModal = ({ onClose, onSubmit }) => {
