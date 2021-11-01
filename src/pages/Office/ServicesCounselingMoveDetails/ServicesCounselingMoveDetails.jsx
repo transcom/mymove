@@ -17,8 +17,8 @@ import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList
 import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import FinacialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import FinacialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
@@ -167,7 +167,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
         {isFinancialModalVisible && (
-          <FinacialReviewModal onClose={handleCancelFinancialReviewModal} onSubmit={handleSubmitFinancialReviewModal} />
+          <FinancialReviewModal
+            onClose={handleCancelFinancialReviewModal}
+            onSubmit={handleSubmitFinancialReviewModal}
+          />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <Grid row className={scMoveDetailsStyles.pageHeader}>
@@ -217,7 +220,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               finacialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
-              <FinacialReviewButton onClick={handleShowFinancialReviewModal} />
+              <FinancialReviewButton
+                onClick={handleShowFinancialReviewModal}
+                reviewRequested={move.financialReviewFlag}
+              />
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

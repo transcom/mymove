@@ -6,3 +6,11 @@
   @include u-padding-left(0);
   @include u-padding-bottom(2 !important);
 }
+
+.FinancialReviewTagGroup {
+  display: inline-flex;
+
+  // .RequestedTag {
+  //   max-height: ;
+  // }
+}
