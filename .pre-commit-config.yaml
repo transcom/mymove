@@ -60,10 +60,10 @@ repos:
     hooks:
       - id: ato-linter-be
         name: ato-linter-be
-        entry: scripts/pre-commit-go-custom-linter ato-linter
+        entry: go run ./cmd/ato-linter/main.go -- ./...
         files: \.go$
         pass_filenames: false
-        language: script
+        language: golang
         exclude: >
           (?x)^(
             testdata
