@@ -1,14 +1,14 @@
 CREATE TABLE storage_facilities (
 	id uuid
 		CONSTRAINT storage_facilities_pkey PRIMARY KEY,
-	facility_name varchar(255),
-	address_id uuid
+	facility_name varchar(255) NOT NULL,
+	address_id uuid NOT NULL
 		CONSTRAINT storage_facilities_address_id_fkey REFERENCES addresses,
 	lot_number varchar(255),
 	phone varchar(255),
 	email varchar(255),
-	created_at timestamp not null,
-	updated_at timestamp not null
+	created_at timestamp NOT NULL,
+	updated_at timestamp NOT NULL
 
 );
 
