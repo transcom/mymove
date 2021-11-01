@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -43,7 +42,7 @@ func TestListFilesForS3WithInvalidClient(t *testing.T) {
 	sut := NewFileHelper()
 	res, err := sut.ListFiles(folder, nil)
 	require.Equal(t, 0, len(res))
-	expectedErr := errors.New(fmt.Sprintf("No s3Client provided to list files at %s", folder))
+	expectedErr := fmt.Errorf("No s3Client provided to list files at %s", folder)
 	assert.Error(t, expectedErr, err)
 }
 
