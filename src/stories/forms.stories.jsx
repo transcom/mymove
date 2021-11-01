@@ -164,12 +164,12 @@ export const KitchenSinkForm = () => (
       <TextInput />
     </Fieldset>
     <Fieldset legend="Fieldset containing multiple fields">
-      <Label>Text Input Label</Label>
+      <Label className="tablet:padding-top-3">Text Input Label</Label>
       <TextInput />
 
       <Checkbox label="A checkbox" />
 
-      <Label>Text Input 2 Label</Label>
+      <Label className="tablet:padding-top-3">Text Input 2 Label</Label>
       <Hint>
         <p>Some arbitrary hint text at the end of this fieldset</p>
       </Hint>
@@ -231,12 +231,12 @@ export const KitchenSinkForm = () => (
       </Fieldset>
 
       <Fieldset legend="Fieldset containing multiple fields">
-        <Label>Text Input Label</Label>
+        <Label className="tablet:padding-top-3">Text Input Label</Label>
         <TextInput />
 
         <Checkbox label="A checkbox" />
 
-        <Label>Text Input 2 Label</Label>
+        <Label className="tablet:padding-top-3">Text Input 2 Label</Label>
         <Hint>
           <p>Some arbitrary hint text at the end of this fieldset</p>
         </Hint>
@@ -317,12 +317,16 @@ export const KitchenSinkFormWithErrors = () => (
       <TextInput error />
     </Fieldset>
     <Fieldset legend="Fieldset containing multiple fields">
-      <Label error>Text Input Label</Label>
+      <Label className="tablet:padding-top-3" error>
+        Text Input Label
+      </Label>
       <TextInput error />
 
       <Checkbox error label="A checkbox" />
 
-      <Label error>Text Input 2 Label</Label>
+      <Label className="tablet:padding-top-3" error>
+        Text Input 2 Label
+      </Label>
       <Hint>
         <p>Some arbitrary hint text at the end of this fieldset</p>
       </Hint>
@@ -348,7 +352,9 @@ export const KitchenSinkFormWithErrors = () => (
         <TextInput error />
       </FormGroup>
       <FormGroup error>
-        <Label error>Text Input 2 Label</Label>
+        <Label className="tablet:padding-top-3" error>
+          Text Input 2 Label
+        </Label>
         <Hint>
           <p>Some arbitrary hint text about this input</p>
         </Hint>
@@ -379,17 +385,23 @@ export const KitchenSinkFormWithErrors = () => (
 
       <Fieldset legend="Fieldset containing a single field">
         <p>Some arbitrary text about this fieldset</p>
-        <Label error>Text Input Label</Label>
+        <Label className="tablet:padding-top-3" error>
+          Text Input Label
+        </Label>
         <TextInput error />
       </Fieldset>
 
       <Fieldset legend="Fieldset containing multiple fields">
-        <Label error>Text Input Label</Label>
+        <Label className="tablet:padding-top-3" error>
+          Text Input Label
+        </Label>
         <TextInput error />
 
         <Checkbox error label="A checkbox" />
 
-        <Label error>Text Input 2 Label</Label>
+        <Label className="tablet:padding-top-3" error>
+          Text Input 2 Label
+        </Label>
         <Hint>
           <p>Some arbitrary hint text at the end of this fieldset</p>
         </Hint>
