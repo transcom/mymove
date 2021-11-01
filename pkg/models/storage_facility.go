@@ -22,6 +22,12 @@ type StorageFacility struct {
 
 type StorageFacilities []StorageFacility
 
-func (r *StorageFacility) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(), nil
+func (f *StorageFacility) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&OptionalUUIDIsPresent{Field: f.AddressID, Name: "AddressID"},
+		&StringIsNilOrNotBlank{Field: f.FacilityName, Name: "FacilityName"},
+		&StringIsNilOrNotBlank{Field: f.LotNumber, Name: "LotNumber"},
+		&StringIsNilOrNotBlank{Field: f.Phone, Name: "Phone"},
+		&StringIsNilOrNotBlank{Field: f.Email, Name: "Email"},
+	), nil
 }

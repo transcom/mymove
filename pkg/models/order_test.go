@@ -14,7 +14,13 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicOrderInstantiation() {
-	order := &Order{}
+	ntsTac := ""
+	ntsSac := ""
+
+	order := &Order{
+		NtsTAC: &ntsTac,
+		NtsSAC: &ntsSac,
+	}
 
 	expErrors := map[string][]string{
 		"orders_type":         {"OrdersType can not be blank."},
@@ -24,6 +30,8 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
 		"status":              {"Status can not be blank."},
 		"uploaded_orders_id":  {"UploadedOrdersID can not be blank."},
+		"nts_tac":             {"NtsTAC can not be blank."},
+		"nts_sac":             {"NtsSAC can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)

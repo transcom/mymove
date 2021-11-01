@@ -79,6 +79,8 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
+		&StringIsNilOrNotBlank{Field: o.NtsTAC, Name: "NtsTAC"},
+		&StringIsNilOrNotBlank{Field: o.NtsSAC, Name: "NtsSAC"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
