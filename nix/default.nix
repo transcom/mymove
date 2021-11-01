@@ -143,20 +143,28 @@ in buildEnv {
     }) {}).dbmate
 
     (import (builtins.fetchGit {
-         # Descriptive name to make the store path easier to identify
-         name = "nss-cacert-3.60";
-         url = "https://github.com/NixOS/nixpkgs/";
-         ref = "refs/heads/nixpkgs-unstable";
-         rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      # Descriptive name to make the store path easier to identify
+      name = "nss-cacert-3.60";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
     }) {}).cacert
 
     (import (builtins.fetchGit {
-         # Descriptive name to make the store path easier to identify
-         name = "hadolint-2.1.0";
-         url = "https://github.com/NixOS/nixpkgs/";
-         ref = "refs/heads/nixpkgs-unstable";
-         rev = "68e901c68446539165b19b227f51f7fc2b3655f9";
+      # Descriptive name to make the store path easier to identify
+      name = "hadolint-2.1.0";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "68e901c68446539165b19b227f51f7fc2b3655f9";
     }) {}).hadolint
+
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "golangci-lint-1.42.1";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "1c804c475a6267dbe4c3f38a8f8d98067802daa0";
+    }) {}).golangci-lint
 ];
 
   # the pre-commit hooks expects the binary to be `circleci`
