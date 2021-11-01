@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import FinancialReviewModal from './FinancialReviewModal';
 
@@ -7,4 +8,4 @@ export default {
   component: FinancialReviewModal,
 };
 
-export const Basic = () => <FinancialReviewModal Submit={() => {}} onClose={() => {}} />;
+export const Basic = () => <FinancialReviewModal Submit={action('Submit')} onClose={action('Cancel')} />;

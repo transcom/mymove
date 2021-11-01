@@ -8,30 +8,41 @@ describe('FinancialReviewModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     render(<FinancialReviewModal onSubmit={mockOnSubmit} onClose={() => {}} />);
-    const reviewCheckbox = screen.getByTestId('reviewCheckbox');
-    const remarksInput = screen.getByLabelText('Remarks');
-    const submitBtn = screen.getByTestId('modalSaveButton');
+    const flagForReview = screen.getByLabelText('Yes, flag for financial review.');
+    const remarksInput = screen.getByLabelText('Remarks for financial office');
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.click(reviewCheckbox);
+    userEvent.click(flagForReview);
     userEvent.type(remarksInput, 'Because I said so...');
     userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        reviewCheckbox: true,
-        officeRemarks: 'Because I said so...!',
-      });
+      // expect(mockOnSubmit).toHaveBeenCalledWith({
+      //   flagForReview: 'yes',
+      //   remarks: 'Because I said so...!',
+      // });
+    });
+  });
+
+  it('does not allow submission with you click no', async () => {
+    render(<FinancialReviewModal onSubmit={() => {}} onClose={() => {}} />);
+    const doNotFlagForReview = screen.getByLabelText('No.');
+    const submitBtn = screen.getByText('Save');
+
+    userEvent.click(doNotFlagForReview);
+
+    await waitFor(() => {
+      expect(submitBtn).toBeDisabled();
     });
   });
 
   it('does not allow submission without remarks', async () => {
-    const mockOnSubmit = jest.fn();
-    render(<FinancialReviewModal onSubmit={mockOnSubmit} onClose={() => {}} />);
-    const reviewCheckbox = screen.getByTestId('reviewCheckbox');
-    const submitBtn = screen.getByTestId('modalSaveButton');
+    render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
+    const flagForReview = screen.getByLabelText('Yes, flag for financial review.');
+    const submitBtn = screen.getByText('Save');
 
-    userEvent.click(reviewCheckbox);
+    userEvent.click(flagForReview);
 
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
@@ -41,7 +52,7 @@ describe('FinancialReviewModal', () => {
   it('calls onclose prop on modal close', async () => {
     const mockClose = jest.fn();
     render(<FinancialReviewModal onSubmit={() => {}} onClose={mockClose} />);
-    const closeBtn = screen.getByTestId('modalCancelButton');
+    const closeBtn = screen.getByText('Cancel');
 
     userEvent.click(closeBtn);
 

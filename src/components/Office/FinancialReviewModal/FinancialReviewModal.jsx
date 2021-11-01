@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Label, Textarea, Checkbox } from '@trussworks/react-uswds';
+import { Button, Label, Textarea, Radio, FormGroup } from '@trussworks/react-uswds';
 
 import styles from './FinancialReviewModal.module.scss';
 
@@ -12,52 +12,68 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const financialReviewSchema = Yup.object().shape({
-  remarks: Yup.string().required('Required'),
-  reviewCheckbox: Yup.bool().oneOf([true], 'Must click needs review checkbox'),
+  remarks: Yup.string(),
+  // must select yest or no before they can click save.
+  flagForReview: Yup.string().required('Required').oneOf(['yes', 'no']),
 });
 
 const FinancialReviewModal = ({ onClose, onSubmit }) => {
-  const [remarksDisabled, setremarksDisabled] = useState(true);
-  const labelClass = classnames({
-    [styles.RemarksLabelDisabled]: remarksDisabled,
-  });
   return (
     <div>
       <Overlay />
       <ModalContainer>
         <Modal className={styles.FinancialReviewModal}>
-          <ModalClose handleClick={() => onClose()} />
+          <ModalClose handleClick={onClose} />
           <ModalTitle>
-            <h2>Flag for Financial Review</h2>
+            <h2>Does this move need financial review?</h2>
           </ModalTitle>
-          <p>This will let the financial office know to review this move for potential costs to the customer.</p>
           <div>
             <Formik
-              validationSchema={financialReviewSchema}
-              remarksDisabled
-              onSubmit={(e) => onSubmit(e)}
               initialValues={{
                 remarks: '',
-                reviewCheckbox: false,
+                flagForReview: '',
               }}
+              validationSchema={financialReviewSchema}
+              onSubmit={(values) => onSubmit(values.remarks)}
+              validateOnMount
             >
-              {({ isValid }) => {
+              {({ values, isValid }) => {
+                const { flagForReview } = values;
                 return (
                   <Form>
-                    <Checkbox
-                      data-testid="reviewCheckbox"
-                      label="This move needs financial review"
-                      name="reviewCheckbox"
-                      onChange={() => {
-                        setremarksDisabled(!remarksDisabled);
-                      }}
-                      id="reviewCheckbox"
-                    />
-                    <Label className={labelClass} htmlFor="remarks">
-                      Remarks
+                    <FormGroup>
+                      <div>
+                        <Field
+                          as={Radio}
+                          label="Yes, flag for financial review."
+                          id="flagForReview"
+                          name="flagForReview"
+                          value="yes"
+                          title="Yes, flag for financial review."
+                          type="radio"
+                        />
+                        <Field
+                          as={Radio}
+                          label="No."
+                          id="doNotFlagforReview"
+                          name="flagForReview"
+                          title="No."
+                          value="no"
+                          type="radio"
+                        />
+                      </div>
+                    </FormGroup>
+                    <Label
+                      className={classnames({
+                        [styles.RemarksLabelDisabled]: flagForReview !== 'yes',
+                      })}
+                      htmlFor="remarks"
+                    >
+                      Remarks for financial office
                     </Label>
+                    {/* Need to set remarks to nothing when no is selected */}
                     <Field
-                      disabled={remarksDisabled}
+                      disabled={!(flagForReview === 'yes')}
                       as={Textarea}
                       data-testid="remarks"
                       label="No"
@@ -66,16 +82,10 @@ const FinancialReviewModal = ({ onClose, onSubmit }) => {
                       className={styles.RemarksField}
                     />
                     <ModalActions>
-                      <Button data-testid="modalSaveButton" type="submit" disabled={isValid} onClick={() => onSubmit()}>
+                      <Button type="submit" disabled={!isValid}>
                         Save
                       </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalCancelButton"
-                        outline
-                        className="usa-button--tertiary"
-                      >
+                      <Button type="button" onClick={onClose} outline className="usa-button--tertiary">
                         Cancel
                       </Button>
                     </ModalActions>
