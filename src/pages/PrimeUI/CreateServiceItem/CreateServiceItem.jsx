@@ -5,8 +5,6 @@ import { useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 
-import styles from '../CreatePaymentRequest/CreatePaymentRequest.module.scss';
-
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -50,7 +48,7 @@ const CreateServiceItem = () => {
   const shipment = moveTaskOrder.mtoShipments.find((s) => s.id === shipmentId);
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', primeStyles.primeContainer)}>
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Create Shipment Service Item</h1>

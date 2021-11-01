@@ -1,15 +1,21 @@
 @import 'shared/styles/basics';
 
-.errorContainer {
-  @include u-margin-top(3);
-
-  .errorTitle {
-    @include u-display(block);
-    @include u-margin-top(0);
-    @include u-font-size('heading', 'lg');
+.primeContainer {
+  h2 {
+    @include u-font-size('heading', 'xl');
   }
 
-  .errorDetail {
-    @include u-display(block);
+  .errorContainer {
+    @include u-margin-top(3);
+
+    .errorTitle {
+      @include u-display(block);
+      @include u-margin-top(0);
+      @include u-font-size('heading', 'lg');
+    }
+
+    .errorDetail {
+      @include u-display(block);
+    }
   }
 }

@@ -9,8 +9,6 @@ import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import styles from './CreatePaymentRequest.module.scss';
-
 import { createPaymentRequest } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
 import CreatePaymentRequestForm from 'components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
@@ -155,7 +153,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
   };
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', primeStyles.primeContainer)}>
       <div className="grid-row">
         <div className="grid-col-12">
           {errorMessage?.detail && (
