@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { useMutation } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
@@ -13,6 +13,7 @@ import { requiredAddressSchema } from '../../../utils/validation';
 import scrollToTop from '../../../shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
 import styles from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
+import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
 
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
@@ -39,11 +40,18 @@ const PrimeUIShipmentUpdateAddress = () => {
   const [mutateMTOShipment] = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
-      Object.keys({ pickupAddress: '', destinationAddress: '' }).forEach((key) => {
+      let updateQuery = false;
+      ['pickupAddress', 'destinationAddress'].forEach((key) => {
         if (updatedMTOShipmentAddress.id === mtoShipments[shipmentIndex][key].id) {
           mtoShipments[shipmentIndex][key] = updatedMTOShipmentAddress;
+          updateQuery = true;
         }
       });
+      if (updateQuery) {
+        moveTaskOrder.mtoShipments = mtoShipments;
+        queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+        queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
+      }
       handleClose();
     },
     onError: (error) => {
