@@ -26,6 +26,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
 
+		if file.Name.Name == "appcontext" {
+			return
+		}
+
 		for _, node := range file.Decls {
 			t, ok := node.(*ast.GenDecl)
 			if !ok {
@@ -45,6 +49,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				for _, structField := range structType.Fields.List {
 					if checkForPopConnection(structField) {
 						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in models")
+						continue
 					}
 				}
 
@@ -55,7 +60,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-// TODO: Add logic to check if it's in models, add logic to get it to run in circleCI and when run locally
+// TODO: Add logic to get it to run in circleCI and when run locally
 
 func checkForPopConnection(field *ast.Field) bool {
 	// Look for a type called StarExpr where pop Connection might be
