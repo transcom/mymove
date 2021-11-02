@@ -64,10 +64,6 @@ repos:
         files: \.go$
         pass_filenames: false
         language: script
-        exclude: >
-          (?x)^(
-            testdata
-          )
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.29.0
