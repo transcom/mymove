@@ -76,7 +76,7 @@ describe('Services counselor user', () => {
     cy.contains('Flag move for financial review').click();
 
     // Enter information in modal and submit
-    cy.contains('Yes, flag for financial review.').click();
+    cy.contains('Yes').click();
     cy.get('textarea').type('Because I said so...');
 
     // Click save on the modal

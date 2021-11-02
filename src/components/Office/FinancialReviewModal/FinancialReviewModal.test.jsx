@@ -8,7 +8,7 @@ describe('FinancialReviewModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     render(<FinancialReviewModal onSubmit={mockOnSubmit} onClose={() => {}} />);
-    const flagForReview = screen.getByLabelText('Yes, flag for financial review.');
+    const flagForReview = screen.getByLabelText('Yes');
     const remarksInput = screen.getByLabelText('Remarks for financial office');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
@@ -18,16 +18,12 @@ describe('FinancialReviewModal', () => {
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      // expect(mockOnSubmit).toHaveBeenCalledWith({
-      //   flagForReview: 'yes',
-      //   remarks: 'Because I said so...!',
-      // });
     });
   });
 
   it('does not allow submission with you click no', async () => {
     render(<FinancialReviewModal onSubmit={() => {}} onClose={() => {}} />);
-    const doNotFlagForReview = screen.getByLabelText('No.');
+    const doNotFlagForReview = screen.getByLabelText('No');
     const submitBtn = screen.getByText('Save');
 
     userEvent.click(doNotFlagForReview);
@@ -39,7 +35,7 @@ describe('FinancialReviewModal', () => {
 
   it('does not allow submission without remarks', async () => {
     render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
-    const flagForReview = screen.getByLabelText('Yes, flag for financial review.');
+    const flagForReview = screen.getByLabelText('Yes');
     const submitBtn = screen.getByText('Save');
 
     userEvent.click(flagForReview);

@@ -42,22 +42,24 @@ const FinancialReviewModal = ({ onClose, onSubmit }) => {
                 return (
                   <Form>
                     <FormGroup>
+                      <div>Select Yes to flag this move for financial review from the financial review office.</div>
+                      <div>Enter remarks to give more detail.</div>
                       <div>
                         <Field
                           as={Radio}
-                          label="Yes, flag for financial review."
+                          label="Yes"
                           id="flagForReview"
                           name="flagForReview"
                           value="yes"
-                          title="Yes, flag for financial review."
+                          title="Yes"
                           type="radio"
                         />
                         <Field
                           as={Radio}
-                          label="No."
+                          label="No"
                           id="doNotFlagforReview"
                           name="flagForReview"
-                          title="No."
+                          title="No"
                           value="no"
                           type="radio"
                         />
