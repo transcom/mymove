@@ -1,14 +1,43 @@
 import React from 'react';
+import classnames from 'classnames';
+import { Link } from 'react-router-dom';
+import { generatePath } from 'react-router';
+import PropTypes from 'prop-types';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import { shipmentTypeLabels } from '../../../content/shipments';
 import { formatDateFromIso } from '../../../shared/formatters';
 import { ShipmentShape } from '../../../types/shipment';
+import { primeSimulatorRoutes } from '../../../constants/routes';
 
-const Shipment = ({ shipment }) => {
+import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
+
+const Shipment = ({ shipment, moveId }) => {
+  const editShipmentAddressUrl = moveId
+    ? generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, {
+        moveCodeOrID: moveId,
+        shipmentId: shipment.id,
+      })
+    : '';
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+      <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
+        <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+        {moveId && (
+          <>
+            <Link
+              to={`/simulator/moves/${moveId}/shipments/${shipment.id}`}
+              className="usa-button usa-button-secondary"
+            >
+              Update Shipment
+            </Link>
+            <Link to={`shipments/${shipment.id}/service-items/new`} className="usa-button usa-button-secondary">
+              Add Service Item
+            </Link>
+          </>
+        )}
+      </div>
       <div className={descriptionListStyles.row}>
         <dt>Status:</dt>
         <dd>{shipment.status}</dd>
@@ -24,6 +53,10 @@ const Shipment = ({ shipment }) => {
       <div className={descriptionListStyles.row}>
         <dt>Requested Pickup Date:</dt>
         <dd>{shipment.requestedPickupDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Scheduled Pickup Date:</dt>
+        <dd>{shipment.scheduledPickupDate}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Actual Pickup Date:</dt>
@@ -43,18 +76,16 @@ const Shipment = ({ shipment }) => {
           {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
           {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
         </dd>
+        <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
         <dd>
-          {shipment.destinationAddress && (
-            <>
-              {shipment.destinationAddress.streetAddress1} {shipment.destinationAddress.streetAddress2}{' '}
-              {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
-              {shipment.destinationAddress.postalCode}
-            </>
-          )}
+          {shipment.destinationAddress.streetAddress1} {shipment.destinationAddress.streetAddress2}{' '}
+          {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
+          {shipment.destinationAddress.postalCode}
         </dd>
+        <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Created at:</dt>
@@ -70,6 +101,11 @@ const Shipment = ({ shipment }) => {
 
 Shipment.propTypes = {
   shipment: ShipmentShape.isRequired,
+  moveId: PropTypes.string,
+};
+
+Shipment.defaultProps = {
+  moveId: '',
 };
 
 export default Shipment;
