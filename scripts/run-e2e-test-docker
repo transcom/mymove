@@ -21,6 +21,7 @@ docker system info >> /dev/null
 # ensure we nuke anything from a prior run
 docker-compose -f docker-compose.e2e.yml down
 docker rm -f cypress || true
+docker network rm e2e_cypress || true
 
 # in CI, we can copy in the artifacts built in CI, but locally we have
 # to compile inside docker first
@@ -36,19 +37,25 @@ docker run \
        -e GOPATH \
        -e CIRCLECI=1 \
        ${circleci_build_image} \
-       make pkg/assets/assets.go server_build build_tools
+       make pkg/assets/assets.go \
+       server_build \
+       bin/generate-test-data \
+       bin/rds-ca-2019-root.pem \
+       bin/rds-ca-us-gov-west-1-2017-root.pem
 docker build -t milmove_e2e:local -f Dockerfile.e2e .
 
+docker network create e2e_cypress
 docker-compose -f docker-compose.e2e.yml up -d
 
 docker run \
+       --rm \
        --network e2e_cypress \
        ${circleci_build_image} \
        dockerize -wait http://milmovelocal:4000 -timeout 5m
 
 docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
 
-default_specs=$(echo cypress/integration/**/*.js | paste -s -d, -)
+default_specs=$(find cypress/integration -type f -name '*.js' | paste -s -d, -)
 # assign SPECS if it is not set
 : "${SPECS:=${default_specs}}"
 docker run \
