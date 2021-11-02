@@ -1,0 +1,14 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/colors';
+
+.PrimeBanner {
+  text-align: center;
+  @include u-bg('gold-20v');
+  @include u-width(100%);
+  @include u-text('bold');
+  @include u-font-size('body', 'xs');
+  @include u-text('uppercase');
+  @include u-text('center');
+  @include u-line-height('body', 3);
+}
