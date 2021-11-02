@@ -126,5 +126,9 @@ describe('Prime simulator user', () => {
 
     cy.url().should('include', `/simulator/moves/${moveID}/details`);
     cy.wait(['@getMove']);
+
+    cy.contains('Successfully created payment request');
+
+    // could also check for a payment request number but we won't know the value ahead of time
   });
 });
