@@ -80,9 +80,9 @@ const Shipment = ({ shipment, moveId }) => {
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
         <dd>
-          {shipment.destinationAddress.streetAddress1} {shipment.destinationAddress.streetAddress2}{' '}
-          {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
-          {shipment.destinationAddress.postalCode}
+          {shipment.destinationAddress?.streetAddress1} {shipment.destinationAddress?.streetAddress2}{' '}
+          {shipment.destinationAddress?.city} {shipment.destinationAddress?.state}{' '}
+          {shipment.destinationAddress?.postalCode}
         </dd>
         <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
