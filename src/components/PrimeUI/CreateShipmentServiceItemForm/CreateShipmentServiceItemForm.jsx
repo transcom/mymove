@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { Dropdown, Label } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
-import { ShipmentShape } from '../../../types/shipment';
-import { createServiceItemModelTypes } from '../../../constants/prime';
-
 import styles from './CreateShipmentServiceItemForm.module.scss';
-import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
+import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 
+import { ShipmentShape } from 'types/shipment';
+import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {

@@ -19,10 +19,12 @@ describe('CreatePaymentRequestForm', () => {
     {
       id: '1',
       pickupAddress: { streetAddress1: '500 Main Street', city: 'New York', state: 'NY', postal_code: '10001' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
     },
     {
       id: '2',
       pickupAddress: { streetAddress1: '33 Bleeker Street', city: 'New York', state: 'NY', postal_code: '10002' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
     },
   ];
 

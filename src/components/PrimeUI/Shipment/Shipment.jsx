@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 
-import descriptionListStyles from '../../../styles/descriptionList.module.scss';
-import { shipmentTypeLabels } from '../../../content/shipments';
-import { formatDateFromIso } from '../../../shared/formatters';
-import { ShipmentShape } from '../../../types/shipment';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-
+import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { shipmentTypeLabels } from 'content/shipments';
+import { formatDateFromIso } from 'shared/formatters';
+import { ShipmentShape } from 'types/shipment';
+import { primeSimulatorRoutes } from 'constants/routes';
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 
 const Shipment = ({ shipment, moveId }) => {
