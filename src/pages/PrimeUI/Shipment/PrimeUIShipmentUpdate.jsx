@@ -14,6 +14,7 @@ import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import { formatSwaggerDate } from '../../../shared/formatters';
 import scrollToTop from '../../../shared/scrollToTop';
+import PrimeBanner from '../PrimeBanner/PrimeBanner';
 
 import { updatePrimeMTOShipment } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -188,54 +189,57 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   });
 
   return (
-    <div className={styles.tabContent}>
-      <div className={styles.container}>
-        <GridContainer className={styles.gridContainer}>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              {errorMessage?.detail && (
-                <div className={styles.errorContainer}>
-                  <Alert type="error">
-                    <span className={styles.errorTitle}>{errorMessage.title}</span>
-                    <span className={styles.errorDetail}>{errorMessage.detail}</span>
-                  </Alert>
-                </div>
-              )}
-              <Formik
-                initialValues={initialValues}
-                onSubmit={onSubmit}
-                validationSchema={validationSchema}
-                validateOnMount
-              >
-                {({ isValid, isSubmitting, handleSubmit }) => {
-                  return (
-                    <Form className={formStyles.form}>
-                      <PrimeUIShipmentUpdateForm
-                        editableWeightEstimateField={editableWeightEstimateField}
-                        editableWeightActualField={editableWeightActualField}
-                        editablePickupAddress={editablePickupAddress}
-                        editableDestinationAddress={editableDestinationAddress}
-                        estimatedWeight={initialValues.estimatedWeight}
-                        actualWeight={initialValues.actualWeight}
-                        requestedPickupDate={initialValues.requestedPickupDate}
-                        pickupAddress={initialValues.pickupAddress}
-                        destinationAddress={initialValues.destinationAddress}
-                      />
-                      <div className={formStyles.formActions}>
-                        <WizardNavigation
-                          editMode
-                          disableNext={!isValid || isSubmitting}
-                          onCancelClick={handleClose}
-                          onNextClick={handleSubmit}
+    <div>
+      <PrimeBanner />
+      <div className={styles.tabContent}>
+        <div className={styles.container}>
+          <GridContainer className={styles.gridContainer}>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                {errorMessage?.detail && (
+                  <div className={styles.errorContainer}>
+                    <Alert type="error">
+                      <span className={styles.errorTitle}>{errorMessage.title}</span>
+                      <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                    </Alert>
+                  </div>
+                )}
+                <Formik
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                  validationSchema={validationSchema}
+                  validateOnMount
+                >
+                  {({ isValid, isSubmitting, handleSubmit }) => {
+                    return (
+                      <Form className={formStyles.form}>
+                        <PrimeUIShipmentUpdateForm
+                          editableWeightEstimateField={editableWeightEstimateField}
+                          editableWeightActualField={editableWeightActualField}
+                          editablePickupAddress={editablePickupAddress}
+                          editableDestinationAddress={editableDestinationAddress}
+                          estimatedWeight={initialValues.estimatedWeight}
+                          actualWeight={initialValues.actualWeight}
+                          requestedPickupDate={initialValues.requestedPickupDate}
+                          pickupAddress={initialValues.pickupAddress}
+                          destinationAddress={initialValues.destinationAddress}
                         />
-                      </div>
-                    </Form>
-                  );
-                }}
-              </Formik>
+                        <div className={formStyles.formActions}>
+                          <WizardNavigation
+                            editMode
+                            disableNext={!isValid || isSubmitting}
+                            onCancelClick={handleClose}
+                            onNextClick={handleSubmit}
+                          />
+                        </div>
+                      </Form>
+                    );
+                  }}
+                </Formik>
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
+          </GridContainer>
+        </div>
       </div>
     </div>
   );

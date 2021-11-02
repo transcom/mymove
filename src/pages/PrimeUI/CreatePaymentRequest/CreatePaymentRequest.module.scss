@@ -1,6 +1,8 @@
 @import 'shared/styles/basics';
 
 .CreatePaymentRequest {
+  display: flex;
+  flex-wrap: wrap;
 
   h2 {
     @include u-font-size('heading', 'xl')

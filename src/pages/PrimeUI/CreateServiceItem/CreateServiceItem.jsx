@@ -13,6 +13,7 @@ import CreateShipmentServiceItemForm from '../../../components/PrimeUI/CreateShi
 import { createServiceItem } from '../../../services/primeApi';
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import scrollToTop from '../../../shared/scrollToTop';
+import PrimeBanner from '../PrimeBanner/PrimeBanner';
 
 const CreateServiceItem = () => {
   const { moveCodeOrID, shipmentId } = useParams();
@@ -48,19 +49,22 @@ const CreateServiceItem = () => {
   const shipment = moveTaskOrder.mtoShipments.find((s) => s.id === shipmentId);
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
-      <div className="grid-row">
-        <div className="grid-col-12">
-          <h1>Create Shipment Service Item</h1>
-          {errorMessage?.detail && (
-            <div className={styles.errorContainer}>
-              <Alert slim type="error">
-                <span className={styles.errorTitle}>{errorMessage.title}</span>
-                <span className={styles.errorDetail}>{errorMessage.detail}</span>
-              </Alert>
-            </div>
-          )}
-          <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={createServiceItemMutation} />
+    <div className={classnames(styles.CreatePaymentRequest)}>
+      <PrimeBanner />
+      <div className={classnames('grid-container-desktop-lg', 'usa-prose')}>
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h1>Create Shipment Service Item</h1>
+            {errorMessage?.detail && (
+              <div className={styles.errorContainer}>
+                <Alert slim type="error">
+                  <span className={styles.errorTitle}>{errorMessage.title}</span>
+                  <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                </Alert>
+              </div>
+            )}
+            <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={createServiceItemMutation} />
+          </div>
         </div>
       </div>
     </div>
