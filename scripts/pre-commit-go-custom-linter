@@ -1,12 +1,11 @@
 #! /usr/bin/env bash
 
 #
-# Pre-commit hook to run a go custom hook against all go files (except the ones in the testdata directory (excluded by
-# pre-commit config).
+# Pre-commit hook to run a go custom hook against all go files
 #
 
 set -eu -o pipefail
 
-hook="$1"; shift
+linter="$1";
 
-go run ./cmd/"$hook"/main.go -- ./...
+go run ./cmd/"$linter"/main.go -- ./...
