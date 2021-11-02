@@ -43,6 +43,7 @@ describe('CreatePaymentRequestForm', () => {
         groupedServiceItems={basicAndShipmentsServiceItems}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
       />,
     );
 
@@ -62,6 +63,7 @@ describe('CreatePaymentRequestForm', () => {
         groupedServiceItems={basicAndShipmentsServiceItems}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
       />,
     );
 
@@ -81,6 +83,7 @@ describe('CreatePaymentRequestForm', () => {
         groupedServiceItems={basicAndShipmentsServiceItems}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
       />,
     );
 
@@ -108,6 +111,7 @@ describe('CreatePaymentRequestForm', () => {
         groupedServiceItems={basicAndShipmentsServiceItems}
         onSubmit={jest.fn()}
         handleSelectAll={handleSelectAll}
+        handleValidateDate={jest.fn()}
       />,
     );
 
@@ -137,6 +141,7 @@ describe('CreatePaymentRequestForm', () => {
         groupedServiceItems={basicAndShipmentsServiceItems}
         onSubmit={jest.fn()}
         handleSelectAll={handleSelectAll}
+        handleValidateDate={jest.fn()}
       />,
     );
 
