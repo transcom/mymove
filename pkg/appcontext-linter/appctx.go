@@ -48,7 +48,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				// Checking the fields of the structs
 				for _, structField := range structType.Fields.List {
 					if checkForPopConnection(structField) {
-						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in models")
+						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in appcontext")
 						continue
 					}
 				}
