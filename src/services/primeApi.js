@@ -69,7 +69,7 @@ export function updatePrimeMTOShipmentAddress({
   mtoShipmentID,
   ifMatchETag,
   addressID,
-  normalize = true,
+  normalize = false,
   schemaKey = 'mtoShipment',
   body,
 }) {

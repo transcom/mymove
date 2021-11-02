@@ -53,16 +53,13 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         onSubmit={jest.fn()}
       />,
     );
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
-      expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-      expect(screen.getByLabelText('City')).toBeInTheDocument();
-      expect(screen.getByLabelText('State')).toBeInTheDocument();
-      expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-    });
+    expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
+    expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
+    expect(screen.getByLabelText('City')).toBeInTheDocument();
+    expect(screen.getByLabelText('State')).toBeInTheDocument();
+    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
   it('change text and button is enabled', async () => {

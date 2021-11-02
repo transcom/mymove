@@ -164,7 +164,7 @@ export function isValidWeight(weight) {
 export function isEmpty(obj) {
   let empty = true;
   Object.keys(obj).forEach((key) => {
-    if (obj[key] !== 'undefined' && obj[key]) {
+    if (typeof obj[key] !== 'undefined' && obj[key]) {
       empty = false;
     }
   });
