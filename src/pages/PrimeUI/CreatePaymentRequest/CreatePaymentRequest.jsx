@@ -15,7 +15,6 @@ import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentR
 import { primeSimulatorRoutes } from '../../../constants/routes';
 import { PRIME_SIMULATOR_MOVE } from '../../../constants/queryKeys';
 import { formatDateForSwagger } from '../../../shared/dates';
-import PrimeBanner from '../PrimeBanner/PrimeBanner';
 
 import styles from './CreatePaymentRequest.module.scss';
 
@@ -156,41 +155,38 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
   };
 
   return (
-    <div className={classnames(styles.CreatePaymentRequest)}>
-      <PrimeBanner />
-      <div className={classnames('grid-container-desktop-lg', 'usa-prose')}>
-        <div className="grid-row">
-          <div className="grid-col-12">
-            {errorMessage?.detail && (
-              <div className={styles.errorContainer}>
-                <Alert slim type="error">
-                  <span className={styles.errorTitle}>{errorMessage.title}</span>
-                  <span className={styles.errorDetail}>{errorMessage.detail}</span>
-                </Alert>
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
+      <div className="grid-row">
+        <div className="grid-col-12">
+          {errorMessage?.detail && (
+            <div className={styles.errorContainer}>
+              <Alert slim type="error">
+                <span className={styles.errorTitle}>{errorMessage.title}</span>
+                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+              </Alert>
+            </div>
+          )}
+          <SectionWrapper className={formStyles.formSection}>
+            <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
+              <h2>Move</h2>
+              <div className={descriptionListStyles.row}>
+                <dt>Move Code:</dt>
+                <dd>{moveTaskOrder.moveCode}</dd>
               </div>
-            )}
-            <SectionWrapper className={formStyles.formSection}>
-              <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
-                <h2>Move</h2>
-                <div className={descriptionListStyles.row}>
-                  <dt>Move Code:</dt>
-                  <dd>{moveTaskOrder.moveCode}</dd>
-                </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>Move Id:</dt>
-                  <dd>{moveTaskOrder.id}</dd>
-                </div>
-              </dl>
-            </SectionWrapper>
-            <CreatePaymentRequestForm
-              initialValues={initialValues}
-              onSubmit={onSubmit}
-              handleSelectAll={handleShipmentSelectAll}
-              createPaymentRequestSchema={createPaymentRequestSchema}
-              mtoShipments={mtoShipments}
-              groupedServiceItems={groupedServiceItems}
-            />
-          </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Move Id:</dt>
+                <dd>{moveTaskOrder.id}</dd>
+              </div>
+            </dl>
+          </SectionWrapper>
+          <CreatePaymentRequestForm
+            initialValues={initialValues}
+            onSubmit={onSubmit}
+            handleSelectAll={handleShipmentSelectAll}
+            createPaymentRequestSchema={createPaymentRequestSchema}
+            mtoShipments={mtoShipments}
+            groupedServiceItems={groupedServiceItems}
+          />
         </div>
       </div>
     </div>

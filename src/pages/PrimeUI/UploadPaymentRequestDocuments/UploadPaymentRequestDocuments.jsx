@@ -3,8 +3,6 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Grid, Alert } from '@trussworks/react-uswds';
 import { useMutation } from 'react-query';
 
-import PrimeBanner from '../PrimeBanner/PrimeBanner';
-
 import { createUpload } from 'services/primeApi';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -81,7 +79,7 @@ const UploadPaymentRequest = () => {
           </Grid>
         </Grid>
       )}
-      <PrimeBanner />
+
       <SectionWrapper>
         <div>
           <h2>Upload Payment Request Document</h2>

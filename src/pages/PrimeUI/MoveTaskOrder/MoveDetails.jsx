@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import classnames from 'classnames';
 
 import Shipment from '../Shipment/Shipment';
-import PrimeBanner from '../PrimeBanner/PrimeBanner';
 
 import styles from './MoveDetails.module.scss';
 
@@ -26,9 +25,8 @@ const MoveDetails = () => {
   const { mtoShipments, paymentRequests } = moveTaskOrder;
 
   return (
-    <div className={styles.MoveDetails}>
-      <PrimeBanner />
-      <div className={classnames('grid-container-desktop-lg', 'usa-prose')}>
+    <div>
+      <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
         <div className="grid-row">
           <div className="grid-col-12">
             <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">

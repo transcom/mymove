@@ -1,7 +1,5 @@
 import React from 'react';
 
-import PrimeBanner from '../PrimeBanner/PrimeBanner';
-
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
@@ -58,23 +56,20 @@ const PrimeSimulatorAvailableMoves = ({ history }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div>
-      <PrimeBanner />
-      <TableQueue
-        title="Moves available to Prime"
-        columns={columnHeaders()}
-        useQueries={usePrimeSimulatorAvailableMovesQueries}
-        handleClick={(row) => {
-          history.push(`/simulator/moves/${row.id}/details`);
-        }}
-        defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
-        defaultHiddenColumns={['eTag']}
-        defaultCanSort
-        disableSortBy={false}
-        showFilters
-        manualFilters={false}
-      />
-    </div>
+    <TableQueue
+      title="Moves available to Prime"
+      columns={columnHeaders()}
+      useQueries={usePrimeSimulatorAvailableMovesQueries}
+      handleClick={(row) => {
+        history.push(`/simulator/moves/${row.id}/details`);
+      }}
+      defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
+      defaultHiddenColumns={['eTag']}
+      defaultCanSort
+      disableSortBy={false}
+      showFilters
+      manualFilters={false}
+    />
   );
 };
 
