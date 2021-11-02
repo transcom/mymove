@@ -13,7 +13,7 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
     <div>
       {reviewRequested && (
-        <Tag className={classnames(styles.FinancialReviewTag, ['usa-tag--green'])}>Financial Review Requested</Tag>
+        <Tag className={classnames(styles.FinancialReviewTag, ['usa-tag'])}>Financial Review Requested</Tag>
       )}
       {!reviewRequested && (
         <Button

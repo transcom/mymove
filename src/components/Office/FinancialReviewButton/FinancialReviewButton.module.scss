@@ -10,4 +10,5 @@
 .FinancialReviewTag {
   @include u-margin-bottom(2 !important);
   display: inline-block;
+  background-color: $info-light !important;
 }
