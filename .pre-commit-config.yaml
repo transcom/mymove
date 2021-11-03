@@ -58,8 +58,8 @@ repos:
 
   - repo: local
     hooks:
-      - id: ato-linter-be
-        name: ato-linter-be
+      - id: ato-go-linter
+        name: ato-go-linter
         entry: scripts/pre-commit-go-custom-linter ato-linter
         files: \.go$
         pass_filenames: false
