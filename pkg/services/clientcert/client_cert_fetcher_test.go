@@ -33,6 +33,10 @@ func (t *testClientCertQueryBuilder) UpdateOne(appConfig appcontext.AppContext, 
 	return nil, nil
 }
 
+func (t *testClientCertQueryBuilder) DeleteOne(appConfig appcontext.AppContext, model interface{}) error {
+	return nil
+}
+
 func (suite *ClientCertServiceSuite) TestFetchClientCert() {
 	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()

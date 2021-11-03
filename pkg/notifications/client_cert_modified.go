@@ -47,6 +47,18 @@ func NewClientCertCreated(
 	return newClientCertModified(sysAdminEmail, "created", modifiedClientCertID, modifiedAt, responsibleUserID, host)
 }
 
+// NewClientCertUpdated returns a new ClientCertModified notification for cert modification
+func NewClientCertUpdated(
+	appCtx appcontext.AppContext,
+	sysAdminEmail string,
+	modifiedClientCertID uuid.UUID,
+	modifiedAt time.Time,
+	responsibleUserID uuid.UUID,
+	host string,
+) (*ClientCertModified, error) {
+	return newClientCertModified(sysAdminEmail, "updated", modifiedClientCertID, modifiedAt, responsibleUserID, host)
+}
+
 // NewClientCertRemoved returns a new ClientCertModified notification for account removal
 func NewClientCertRemoved(
 	sysAdminEmail string,

@@ -196,6 +196,30 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
+	adminAPI.ClientCertsGetClientCertHandler = GetClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.ClientCertsCreateClientCertHandler = CreateClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertCreator(queryBuilder, handlerConfig.NotificationSender()),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.ClientCertsUpdateClientCertHandler = UpdateClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertUpdater(queryBuilder, handlerConfig.NotificationSender()),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.ClientCertsRemoveClientCertHandler = RemoveClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertRemover(queryBuilder, handlerConfig.NotificationSender()),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),

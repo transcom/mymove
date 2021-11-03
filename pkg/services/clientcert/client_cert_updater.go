@@ -5,14 +5,17 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type clientCertUpdater struct {
 	builder clientCertQueryBuilder
+	sender  notifications.NotificationSender
 }
 
 func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertUpdatePayload) (*models.ClientCert, *validate.Errors, error) {
@@ -65,11 +68,25 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
+	session := appCtx.Session()
+	if session == nil {
+		return nil, nil, apperror.NewContextError("Unable to find Session in Context")
+	}
+	email, emailErr := notifications.NewClientCertUpdated(
+		appCtx, notifications.GetSysAdminEmail(o.sender), foundClientCert.ID, foundClientCert.UpdatedAt, session.UserID, session.Hostname)
+	if emailErr != nil {
+		return nil, nil, emailErr
+	}
+	userActivityEmail := notifications.Notification(email)
+	err = o.sender.SendNotification(appCtx, userActivityEmail)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return &foundClientCert, nil, nil
 }
 
 // NewClientCertUpdater returns a new admin user updater builder
-func NewClientCertUpdater(builder clientCertQueryBuilder) services.ClientCertUpdater {
-	return &clientCertUpdater{builder}
+func NewClientCertUpdater(builder clientCertQueryBuilder, sender notifications.NotificationSender) services.ClientCertUpdater {
+	return &clientCertUpdater{builder, sender}
 }

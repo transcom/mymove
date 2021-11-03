@@ -207,3 +207,46 @@ func (h UpdateClientCertHandler) Handle(params clientcertop.UpdateClientCertPara
 			return clientcertop.NewUpdateClientCertOK().WithPayload(returnPayload), nil
 		})
 }
+
+// UpdateClientCertHandler is the handler for updating users
+type RemoveClientCertHandler struct {
+	handlers.HandlerConfig
+	services.ClientCertRemover
+	services.NewQueryFilter
+}
+
+// Handle updates admin users
+func (h RemoveClientCertHandler) Handle(params clientcertop.RemoveClientCertParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			clientCertID, err := uuid.FromString(params.ClientCertID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.ClientCertID.String()), zap.Error(err))
+				return clientcertop.NewRemoveClientCertInternalServerError(), err
+			}
+
+			removedClientCert, verrs, err := h.ClientCertRemover.RemoveClientCert(appCtx, clientCertID)
+
+			if err != nil || verrs != nil {
+				appCtx.Logger().Error("Error removing client_cert", zap.Error(err))
+				return clientcertop.NewRemoveClientCertInternalServerError(), err
+			}
+
+			// We have a POAM requirement to log if if the account was enabled
+			// or disabled, but the client_cert model does not have an active
+			// boolean.
+			//
+			// When removing a cert, we will log that the cert is disabled via
+			// `audit.CaptureAccountStatus`
+
+			_, err = audit.CaptureAccountStatus(appCtx, removedClientCert, false, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
+
+			returnPayload := payloadForClientCertModel(*removedClientCert)
+
+			return clientcertop.NewUpdateClientCertOK().WithPayload(returnPayload), nil
+		})
+}

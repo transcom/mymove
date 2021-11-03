@@ -33,3 +33,9 @@ type ClientCertCreator interface {
 type ClientCertUpdater interface {
 	UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertUpdatePayload) (*models.ClientCert, *validate.Errors, error)
 }
+
+// ClientCertRemover is the exported interface for updating an client cert
+//go:generate mockery --name ClientCertRemover --disable-version-string
+type ClientCertRemover interface {
+	RemoveClientCert(appCtx appcontext.AppContext, id uuid.UUID) (*models.ClientCert, *validate.Errors, error)
+}

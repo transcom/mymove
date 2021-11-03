@@ -12,6 +12,7 @@ type clientCertQueryBuilder interface {
 	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
 	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+	DeleteOne(appCtx appcontext.AppContext, model interface{}) error
 }
 
 type clientCertFetcher struct {

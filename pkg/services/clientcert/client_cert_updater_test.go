@@ -5,12 +5,15 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications/mocks"
 )
 
 func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 	newUUID, _ := uuid.NewV4()
+	mockSender := setUpMockNotificationSender()
 
 	allowPrime := true
 	payload := &adminmessages.ClientCertUpdatePayload{
@@ -32,10 +35,11 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			fakeUpdateOne: fakeUpdateOne,
 		}
 
-		updater := NewClientCertUpdater(builder)
-		_, verrs, err := updater.UpdateClientCert(suite.AppContextForTest(), newUUID, payload)
+		updater := NewClientCertUpdater(builder, mockSender)
+		_, verrs, err := updater.UpdateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), newUUID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
 	// Bad cert ID
@@ -53,8 +57,8 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			fakeUpdateOne: fakeUpdateOne,
 		}
 
-		updater := NewClientCertUpdater(builder)
-		_, _, err := updater.UpdateClientCert(suite.AppContextForTest(), newUUID, payload)
+		updater := NewClientCertUpdater(builder, mockSender)
+		_, _, err := updater.UpdateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), newUUID, payload)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 
