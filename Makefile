@@ -455,24 +455,34 @@ server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_cove
 
 .PHONY: redis_pull
 redis_pull: ## Pull redis image
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
+endif
 
 .PHONY: redis_destroy
 redis_destroy: ## Destroy Redis
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
+endif
 
 .PHONY: redis_run
 redis_run: redis_pull ## Run Redis
-ifndef CIRCLECI
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 		@echo "Stopping the Redis brew service in case it's running..."
 		brew services stop redis 2> /dev/null || true
-endif
 	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker start $(REDIS_DOCKER_CONTAINER) || \
 		docker run -d --name $(REDIS_DOCKER_CONTAINER) \
 			-p $(REDIS_PORT):$(REDIS_PORT_DOCKER) \
 			$(REDIS_DOCKER_CONTAINER_IMAGE)
+endif
 
 .PHONY: redis_reset
 redis_reset: redis_destroy redis_run ## Reset Redis
