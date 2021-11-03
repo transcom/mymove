@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
-	"github.com/pkg/errors"
 )
 
 // FileHelper is an afero filesystem struct
@@ -40,7 +39,7 @@ func (fh *FileHelper) ListFiles(p string, s3Client s3iface.S3API) ([]string, err
 		return f.Readdirnames(-1)
 	} else if strings.HasPrefix(p, "s3://") {
 		if s3Client == nil {
-			return make([]string, 0), errors.New(fmt.Sprintf("No s3Client provided to list files at %s", p))
+			return make([]string, 0), fmt.Errorf("No s3Client provided to list files at %s", p)
 		}
 		parts := strings.SplitN(p[len("s3://"):], "/", 2)
 		if len(parts) == 2 {

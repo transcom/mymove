@@ -104,7 +104,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
 
 	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
-	var idGenerator sdktrace.IDGenerator = nil
+	var idGenerator sdktrace.IDGenerator
 	if config.UseXrayID {
 		idGenerator = xray.NewIDGenerator()
 	}

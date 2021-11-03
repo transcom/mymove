@@ -9,7 +9,7 @@ import (
 )
 
 var AppContextAnalyzer = &analysis.Analyzer{
-	Name:     "appcontext-lint",
+	Name:     "appcontextlint",
 	Doc:      "Make sure appContext is properly used throughout codebase",
 	Run:      run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
@@ -25,6 +25,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
+
+		if file.Name.Name == "appcontext" {
+			return
+		}
 
 		for _, node := range file.Decls {
 			t, ok := node.(*ast.GenDecl)
@@ -44,7 +48,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				// Checking the fields of the structs
 				for _, structField := range structType.Fields.List {
 					if checkForPopConnection(structField) {
-						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in models")
+						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in appcontext")
+						continue
 					}
 				}
 
@@ -55,7 +60,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-// TODO: Add logic to check if it's in models, add logic to get it to run in circleCI and when run locally
+// TODO: Add logic to get it to run in circleCI and when run locally
 
 func checkForPopConnection(field *ast.Field) bool {
 	// Look for a type called StarExpr where pop Connection might be

@@ -32,6 +32,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes } from 'constants/routes';
+import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -68,6 +69,7 @@ const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
+const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -172,6 +174,7 @@ export class OfficeApp extends Component {
           <div className={siteClasses}>
             <BypassBlock />
             <FOUOHeader />
+            {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
             <main id="main" role="main" className="site__content site-office__content">
@@ -246,6 +249,14 @@ export class OfficeApp extends Component {
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
                       component={PrimeSimulatorMoveDetails}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorShipmentUpdateAddressPath"
+                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
+                      component={PrimeUIShipmentUpdateAddress}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      exact
                     />
 
                     <PrivateRoute

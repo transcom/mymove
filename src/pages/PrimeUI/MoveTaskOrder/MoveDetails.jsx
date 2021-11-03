@@ -25,61 +25,63 @@ const MoveDetails = () => {
   const { mtoShipments, paymentRequests } = moveTaskOrder;
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
-      <div className="grid-row">
-        <div className="grid-col-12">
-          <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
-            <SectionWrapper className={formStyles.formSection}>
-              <dl className={descriptionListStyles.descriptionList}>
-                <div className={styles.moveHeader}>
-                  <h2>Move</h2>
-                  <Link to="payment-requests/new" className="usa-button usa-button-secondary">
-                    Create Payment Request
-                  </Link>
-                </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>Move Code:</dt>
-                  <dd>{moveTaskOrder.moveCode}</dd>
-                </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>Move Id:</dt>
-                  <dd>{moveTaskOrder.id}</dd>
-                </div>
-              </dl>
-            </SectionWrapper>
-            <SectionWrapper className={formStyles.formSection}>
-              <dl className={descriptionListStyles.descriptionList}>
-                <h2>Shipments</h2>
-                {mtoShipments?.map((mtoShipment) => {
-                  return (
-                    <div key={mtoShipment.id}>
-                      <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
-                    </div>
-                  );
-                })}
-              </dl>
-            </SectionWrapper>
-            {paymentRequests?.length > 0 && (
+    <div>
+      <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
-                  <h2>Payment Requests</h2>
-                  {paymentRequests?.map((paymentRequest) => {
+                  <div className={styles.moveHeader}>
+                    <h2>Move</h2>
+                    <Link to="payment-requests/new" className="usa-button usa-button-secondary">
+                      Create Payment Request
+                    </Link>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Move Code:</dt>
+                    <dd>{moveTaskOrder.moveCode}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Move Id:</dt>
+                    <dd>{moveTaskOrder.id}</dd>
+                  </div>
+                </dl>
+              </SectionWrapper>
+              <SectionWrapper className={formStyles.formSection}>
+                <dl className={descriptionListStyles.descriptionList}>
+                  <h2>Shipments</h2>
+                  {mtoShipments?.map((mtoShipment) => {
                     return (
-                      <div className={styles.paymentRequestRow} key={paymentRequest.id}>
-                        <div data-testid="paymentRequestNumber">{paymentRequest.paymentRequestNumber}</div>
-                        <Link
-                          to={`payment-requests/${paymentRequest.id}/upload`}
-                          className="usa-button usa-button-secondary"
-                        >
-                          Upload Document
-                        </Link>
+                      <div key={mtoShipment.id}>
+                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
                       </div>
                     );
                   })}
                 </dl>
               </SectionWrapper>
-            )}
-          </FlashGridContainer>
+              {paymentRequests?.length > 0 && (
+                <SectionWrapper className={formStyles.formSection}>
+                  <dl className={descriptionListStyles.descriptionList}>
+                    <h2>Payment Requests</h2>
+                    {paymentRequests?.map((paymentRequest) => {
+                      return (
+                        <div className={styles.paymentRequestRow} key={paymentRequest.id}>
+                          <div data-testid="paymentRequestNumber">{paymentRequest.paymentRequestNumber}</div>
+                          <Link
+                            to={`payment-requests/${paymentRequest.id}/upload`}
+                            className="usa-button usa-button-secondary"
+                          >
+                            Upload Document
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                </SectionWrapper>
+              )}
+            </FlashGridContainer>
+          </div>
         </div>
       </div>
     </div>
