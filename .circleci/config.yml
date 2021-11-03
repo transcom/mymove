@@ -2036,8 +2036,8 @@ workflows:
 
       - build_dp3_webhook_client:
           requires:
-            - anti_virus
-            - pre_deps_golang
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               only: [*demo-branch, *loadtest-branch, *exp-branch]
