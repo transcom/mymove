@@ -81,7 +81,7 @@ services:
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
-      - MUTUAL_TLS_ENABLED=0
+      - MUTUAL_TLS_ENABLED=1
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - PGPASSWORD=mysecretpassword
