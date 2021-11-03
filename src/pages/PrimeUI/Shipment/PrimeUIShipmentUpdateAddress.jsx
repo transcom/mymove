@@ -9,7 +9,7 @@ import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
 import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from '../../../constants/routes';
-import { requiredAddressSchema } from '../../../utils/validation';
+import { requiredAddressSchema, addressSchema } from '../../../utils/validation';
 import scrollToTop from '../../../shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
 import styles from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -20,9 +20,25 @@ import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm
 import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 
-const updateAddressSchema = Yup.object().shape({
+const updatePickupAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
-  address: requiredAddressSchema,
+  pickupAddress: {
+    address: requiredAddressSchema,
+  },
+  destinationAddress: {
+    address: addressSchema,
+  },
+  eTag: Yup.string(),
+});
+
+const updateDestinationAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  pickupAddress: {
+    address: addressSchema,
+  },
+  destinationAddress: {
+    address: requiredAddressSchema,
+  },
   eTag: Yup.string(),
 });
 
@@ -103,12 +119,16 @@ const PrimeUIShipmentUpdateAddress = () => {
 
   const initialValuesPickupAddress = {
     addressID: shipment.pickupAddress?.id,
-    address: reformatPrimeApiPickupAddress,
+    pickupAddress: {
+      address: reformatPrimeApiPickupAddress,
+    },
     eTag: shipment.pickupAddress?.eTag,
   };
   const initialValuesDestinationAddress = {
     addressID: shipment.destinationAddress?.id,
-    address: reformatPrimeApiDestinationAddress,
+    destinationAddress: {
+      address: reformatPrimeApiDestinationAddress,
+    },
     eTag: shipment.destinationAddress?.eTag,
   };
 
@@ -131,16 +151,18 @@ const PrimeUIShipmentUpdateAddress = () => {
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesPickupAddress}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateAddressSchema}
+                  updateShipmentAddressSchema={updatePickupAddressSchema}
                   addressLocation="Pickup address"
+                  name="pickupAddress.address"
                 />
               )}
               {editableDestinationAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesDestinationAddress}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateAddressSchema}
+                  updateShipmentAddressSchema={updateDestinationAddressSchema}
                   addressLocation="Destination address"
+                  name="destinationAddress.address"
                 />
               )}
             </Grid>
