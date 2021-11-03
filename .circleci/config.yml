@@ -1883,21 +1883,41 @@ workflows:
           requires:
             - compile_app_server
             - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
 
       - integration_tests_office:
           requires:
             - compile_app_server
             - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
 
       - integration_tests_prime:
           requires:
             - compile_app_server
             - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
 
       - integration_tests_milmove:
           requires:
             - compile_app_server
             - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
 
       - integration_tests:
           requires:
