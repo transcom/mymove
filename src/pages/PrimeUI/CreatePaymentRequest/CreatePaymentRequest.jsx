@@ -9,15 +9,13 @@ import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import scrollToTop from '../../../shared/scrollToTop';
-import CreatePaymentRequestForm from '../../../components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
-
-import styles from './CreatePaymentRequest.module.scss';
-
 import { createPaymentRequest } from 'services/primeApi';
+import scrollToTop from 'shared/scrollToTop';
+import CreatePaymentRequestForm from 'components/PrimeUI/CreatePaymentRequestForm/CreatePaymentRequestForm';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import { formatDateForSwagger } from 'shared/dates';
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -182,14 +180,14 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
   };
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', primeStyles.primeContainer)}>
       <div className="grid-row">
         <div className="grid-col-12">
           {errorMessage?.detail && (
-            <div className={styles.errorContainer}>
+            <div className={primeStyles.errorContainer}>
               <Alert slim type="error">
-                <span className={styles.errorTitle}>{errorMessage.title}</span>
-                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>
             </div>
           )}

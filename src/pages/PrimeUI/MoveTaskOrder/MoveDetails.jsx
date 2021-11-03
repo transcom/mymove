@@ -2,10 +2,9 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import classnames from 'classnames';
 
-import Shipment from '../Shipment/Shipment';
-
 import styles from './MoveDetails.module.scss';
 
+import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';

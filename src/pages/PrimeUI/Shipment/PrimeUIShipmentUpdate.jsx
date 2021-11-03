@@ -8,13 +8,13 @@ import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
-import SomethingWentWrong from '../../../shared/SomethingWentWrong';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import { formatSwaggerDate } from '../../../shared/formatters';
-import scrollToTop from '../../../shared/scrollToTop';
-
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { primeSimulatorRoutes } from 'constants/routes';
+import { formatSwaggerDate } from 'shared/formatters';
+import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipment } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
@@ -139,10 +139,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
               {errorMessage?.detail && (
-                <div className={styles.errorContainer}>
+                <div className={primeStyles.errorContainer}>
                   <Alert type="error">
-                    <span className={styles.errorTitle}>{errorMessage.title}</span>
-                    <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                    <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                    <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
                   </Alert>
                 </div>
               )}

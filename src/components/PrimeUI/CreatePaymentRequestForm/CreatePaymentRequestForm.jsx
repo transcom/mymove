@@ -4,20 +4,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import { Form } from '../../form/Form';
-import formStyles from '../../../styles/form.module.scss';
-import SectionWrapper from '../../Customer/SectionWrapper';
-import descriptionListStyles from '../../../styles/descriptionList.module.scss';
-import Hint from '../../Hint';
-import ServiceItem from '../ServiceItem/ServiceItem';
-import Shipment from '../Shipment/Shipment';
-import { DatePickerInput } from '../../form/fields';
-
 import styles from './CreatePaymentRequestForm.module.scss';
 
-import { MTOServiceItemShape } from 'types';
+import formStyles from 'styles/form.module.scss';
+import { ErrorMessage } from 'components/form/ErrorMessage';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import { Form } from 'components/form/Form';
+import descriptionListStyles from 'styles/descriptionList.module.scss';
+import Hint from 'components/Hint/index';
 import { ShipmentShape } from 'types/shipment';
-import { ErrorMessage } from 'components/form';
+import { MTOServiceItemShape } from 'types';
+import ServiceItem from 'components/PrimeUI/ServiceItem/ServiceItem';
+import Shipment from 'components/PrimeUI/Shipment/Shipment';
+import { DatePickerInput } from 'components/form/fields';
 
 const CreatePaymentRequestForm = ({
   initialValues,
