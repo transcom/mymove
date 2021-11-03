@@ -66,7 +66,7 @@ const MoveDetails = () => {
                     {paymentRequests?.map((paymentRequest) => {
                       return (
                         <div className={styles.paymentRequestRow} key={paymentRequest.id}>
-                          <div>{paymentRequest.paymentRequestNumber}</div>
+                          <div data-testid="paymentRequestNumber">{paymentRequest.paymentRequestNumber}</div>
                           <Link
                             to={`payment-requests/${paymentRequest.id}/upload`}
                             className="usa-button usa-button-secondary"

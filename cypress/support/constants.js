@@ -17,6 +17,7 @@ export const PPMOfficeUserType = 'PPM office';
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
+export const PrimeSimulatorUserType = 'Prime Simulator';
 export const dpsUserType = 'dps';
 
 // User Types to Base URLs
