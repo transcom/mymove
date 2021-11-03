@@ -225,7 +225,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(firstMove.find('td.destinationDutyStation').text()).toBe('Area 51');
+      expect(firstMove.find('td.destinationDutyLocation').text()).toBe('Area 51');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -236,7 +236,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(secondMove.find('td.destinationDutyStation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.destinationDutyLocation').text()).toBe('Los Alamos');
     });
 
     it('sorts by submitted at date ascending by default', () => {
@@ -253,7 +253,7 @@ describe('ServicesCounselingQueue', () => {
       );
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="branch"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="destinationDutyStation"][role="columnheader"]').prop('onClick')).not.toBe(
+      expect(wrapper.find('th[data-testid="destinationDutyLocation"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
     });
@@ -295,7 +295,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Marine Corps');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(firstMove.find('td.destinationDutyStation').text()).toBe('Area 51');
+      expect(firstMove.find('td.destinationDutyLocation').text()).toBe('Area 51');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -306,7 +306,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Marine Corps');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(secondMove.find('td.destinationDutyStation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.destinationDutyLocation').text()).toBe('Los Alamos');
     });
 
     it('allows sorting on certain columns', () => {
@@ -318,7 +318,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).toBeDefined();
       expect(wrapper.find('th[data-testid="originGBLOC"][role="columnheader"]').prop('onClick')).toBeDefined();
       expect(
-        wrapper.find('th[data-testid="destinationDutyStation"][role="columnheader"]').prop('onClick'),
+        wrapper.find('th[data-testid="destinationDutyLocation"][role="columnheader"]').prop('onClick'),
       ).toBeDefined();
     });
 

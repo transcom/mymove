@@ -142,7 +142,7 @@ describe('DutyStationSearchBox', () => {
   describe('basic rendering', () => {
     it('renders with minimal props', () => {
       render(<DutyStationSearchBox input={{ name: 'test_component' }} name="test_component" />);
-      expect(screen.getByLabelText('Name of Duty Station:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Name of Duty Location:')).toBeInTheDocument();
     });
 
     it('renders the title', () => {

@@ -1,4 +1,4 @@
-package linter_tests
+package ato_linter_tests
 
 // #nosec // want "Please provide the rule that is being disabled"
 func nosecShouldProvideRule() {}

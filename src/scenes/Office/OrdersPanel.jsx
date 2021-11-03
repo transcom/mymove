@@ -88,8 +88,8 @@ const OrdersDisplay = (props) => {
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" required {...fieldProps} />
         <PanelField title="Report by" value={formatDate(orders.report_by_date)} />
-        <PanelField title="Current Duty Station">{get(serviceMember, 'current_station.name', '')}</PanelField>
-        <PanelField title="New Duty Station">{get(orders, 'new_duty_station.name', '')}</PanelField>
+        <PanelField title="Current Duty Location">{get(serviceMember, 'current_station.name', '')}</PanelField>
+        <PanelField title="New Duty Location">{get(orders, 'new_duty_station.name', '')}</PanelField>
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(entitlements, orders)}
@@ -117,13 +117,13 @@ const OrdersEdit = (props) => {
 
         <FormSection name="serviceMember">
           <div className="duty-station">
-            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
+            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Location' }} />
           </div>
         </FormSection>
 
         <FormSection name="orders">
           <div className="duty-station">
-            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
+            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
         </FormSection>
       </div>

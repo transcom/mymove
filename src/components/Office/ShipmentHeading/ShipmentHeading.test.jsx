@@ -44,7 +44,7 @@ describe('Shipment Heading with full destination address', () => {
 });
 
 describe('Shipment Heading with missing destination address', () => {
-  it("only renders the postal_code of the order's new duty station", () => {
+  it("only renders the postal_code of the order's new duty location", () => {
     headingInfo.destinationAddress = shipmentDestinationAddressWithPostalOnly;
     const wrapper = shallow(
       <ShipmentHeading

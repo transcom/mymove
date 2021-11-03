@@ -77,9 +77,6 @@ type Order struct {
 	// Example: H2XFJF
 	MoveCode string `json:"moveCode,omitempty"`
 
-	// move task order
-	MoveTaskOrder *Move `json:"moveTaskOrder,omitempty"`
-
 	// move task order ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -167,10 +164,6 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMoveTaskOrder(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -356,23 +349,6 @@ func (m *Order) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Order) validateMoveTaskOrder(formats strfmt.Registry) error {
-	if swag.IsZero(m.MoveTaskOrder) { // not required
-		return nil
-	}
-
-	if m.MoveTaskOrder != nil {
-		if err := m.MoveTaskOrder.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("moveTaskOrder")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *Order) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
@@ -506,10 +482,6 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateMoveTaskOrder(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateOrderType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -623,20 +595,6 @@ func (m *Order) contextValidateLastName(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "last_name", "body", string(m.LastName)); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *Order) contextValidateMoveTaskOrder(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.MoveTaskOrder != nil {
-		if err := m.MoveTaskOrder.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("moveTaskOrder")
-			}
-			return err
-		}
 	}
 
 	return nil

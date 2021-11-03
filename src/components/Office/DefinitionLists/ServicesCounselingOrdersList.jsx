@@ -13,12 +13,12 @@ const ServicesCounselingOrdersList = ({ ordersInfo }) => {
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
-          <dt>Current duty station</dt>
-          <dd data-testid="currentDutyStation">{ordersInfo.currentDutyStation?.name}</dd>
+          <dt>Current duty location</dt>
+          <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyStation?.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>New duty station</dt>
-          <dd data-testid="newDutyStation">{ordersInfo.newDutyStation?.name}</dd>
+          <dt>New duty location</dt>
+          <dd data-testid="newDutyLocation">{ordersInfo.newDutyStation?.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Date issued</dt>

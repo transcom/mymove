@@ -1,18 +1,25 @@
 import classnames from 'classnames';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import styles from '../MoveTaskOrder/MoveDetails.module.scss';
 import { shipmentTypeLabels } from '../../../content/shipments';
 import { formatDateFromIso } from '../../../shared/formatters';
+import { primeSimulatorRoutes } from '../../../constants/routes';
 
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 import { AddressShape } from 'types/address';
 
 const Shipment = ({ shipment, moveId }) => {
+  const editShipmentAddressUrl = generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, {
+    moveCodeOrID: moveId,
+    shipmentId: shipment.id,
+  });
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
@@ -62,6 +69,7 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
           {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
         </dd>
+        <dd>{shipment.pickupAddress?.id && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
@@ -70,6 +78,7 @@ const Shipment = ({ shipment, moveId }) => {
           {shipment.destinationAddress.city} {shipment.destinationAddress.state}{' '}
           {shipment.destinationAddress.postalCode}
         </dd>
+        <dd>{shipment.destinationAddress?.id && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Created at:</dt>

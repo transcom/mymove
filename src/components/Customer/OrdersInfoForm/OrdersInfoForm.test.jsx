@@ -151,7 +151,7 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText('Report-by date')).toBeRequired();
       expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('New duty location')).toBeInstanceOf(HTMLInputElement);
     });
   });
 
@@ -173,7 +173,7 @@ describe('OrdersInfoForm component', () => {
     });
   });
 
-  it('validates the new duty station against the current duty station', async () => {
+  it('validates the new duty location against the current duty location', async () => {
     render(<OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
@@ -182,7 +182,7 @@ describe('OrdersInfoForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);
 
@@ -194,7 +194,9 @@ describe('OrdersInfoForm component', () => {
 
     expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
     expect(
-      screen.getByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+      screen.getByText(
+        'You entered the same duty location for your origin and destination. Please change one of them.',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -219,7 +221,7 @@ describe('OrdersInfoForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty station'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);
 

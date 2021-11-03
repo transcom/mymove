@@ -64,3 +64,24 @@ export function updatePrimeMTOShipment({
 export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
 }
+
+export function updatePrimeMTOShipmentAddress({
+  mtoShipmentID,
+  ifMatchETag,
+  addressID,
+  normalize = false,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipmentAddress';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      addressID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}

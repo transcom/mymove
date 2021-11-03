@@ -46,9 +46,9 @@ const OrdersViewerDisplay = (props) => {
 
         <PanelField title="Report by" required value={formatDate(orders.report_by_date)} />
 
-        <PanelField title="Current Duty Station" required value={currentDutyStation} />
+        <PanelField title="Current Duty Location" required value={currentDutyStation} />
 
-        <PanelField title="New Duty Station" required value={get(orders, 'new_duty_station.name', '')} />
+        <PanelField title="New Duty Location" required value={get(orders, 'new_duty_station.name', '')} />
 
         {orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
 
@@ -89,12 +89,12 @@ const OrdersViewerEdit = (props) => {
         </FormSection>
         <FormSection name="serviceMember">
           <div className="duty-station">
-            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
+            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Location' }} />
           </div>
         </FormSection>
         <FormSection name="orders">
           <div className="duty-station">
-            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
+            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />

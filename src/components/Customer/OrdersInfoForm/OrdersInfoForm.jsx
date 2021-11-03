@@ -29,7 +29,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
-          'You entered the same duty station for your origin and destination. Please change one of them.',
+          'You entered the same duty location for your origin and destination. Please change one of them.',
         ),
       })
       .nullable()
@@ -82,7 +82,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty station" displayAddress={false} />
+              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

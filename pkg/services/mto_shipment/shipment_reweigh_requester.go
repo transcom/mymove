@@ -74,7 +74,5 @@ func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, s
 		return nil, dbErr
 	}
 
-	reweigh.Shipment = *shipment
-
 	return &reweigh, nil
 }
