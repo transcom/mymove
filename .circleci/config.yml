@@ -80,15 +80,8 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
   mymove_pusher:
-    resource_class: small
-    working_directory: /mnt/ramdisk
-    docker:
-      - image: *circleci-docker
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
-  mymove_medium_builder:
-    resource_class: medium
+    # needs to be medium+ so it can checkout and restore the workspace
+    resource_class: medium+
     working_directory: /mnt/ramdisk
     docker:
       - image: *circleci-docker
