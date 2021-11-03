@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+#
+# Pre-commit hook to run a go custom hook against all go files
+#
+
+set -eu -o pipefail
+
+linter="$1";
+
+go run ./cmd/"$linter"/main.go -- ./...
