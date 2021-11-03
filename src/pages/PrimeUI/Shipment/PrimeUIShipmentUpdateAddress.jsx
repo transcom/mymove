@@ -9,7 +9,7 @@ import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
 import SomethingWentWrong from '../../../shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from '../../../constants/routes';
-import { requiredAddressSchema, addressSchema } from '../../../utils/validation';
+import { requiredAddressSchema } from '../../../utils/validation';
 import scrollToTop from '../../../shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
 import styles from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -22,23 +22,17 @@ import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 
 const updatePickupAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
-  pickupAddress: {
+  pickupAddress: Yup.object().shape({
     address: requiredAddressSchema,
-  },
-  destinationAddress: {
-    address: addressSchema,
-  },
+  }),
   eTag: Yup.string(),
 });
 
 const updateDestinationAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
-  pickupAddress: {
-    address: addressSchema,
-  },
-  destinationAddress: {
+  destinationAddress: Yup.object().shape({
     address: requiredAddressSchema,
-  },
+  }),
   eTag: Yup.string(),
 });
 
@@ -92,14 +86,17 @@ const PrimeUIShipmentUpdateAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
+    // There has to be something in either pickupAddress or destinationAddress due to the validation
+    // on the form before submission.
+    const address = values.pickupAddress ? values.pickupAddress.address : values.destinationAddress.address;
     const body = {
       id: values.addressID,
-      streetAddress1: values.address.street_address_1,
-      streetAddress2: values.address.street_address_2,
-      streetAddress3: values.address.street_address_3,
-      city: values.address.city,
-      state: values.address.state,
-      postalCode: values.address.postal_code,
+      streetAddress1: address.street_address_1,
+      streetAddress2: address.street_address_2,
+      streetAddress3: address.street_address_3,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
     };
 
     mutateMTOShipment({
