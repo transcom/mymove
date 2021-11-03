@@ -12,11 +12,11 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
     <div>
       {reviewRequested ? (
-        <Tag className={classnames(styles.FinancialReviewTag, ['usa-tag'])}>Financial Review Requested</Tag>
+        <Tag className={styles.FinancialReviewTag}>Financial Review Requested</Tag>
       ) : (
         <Button
           type="Button"
-          className={classnames(styles.FinancialReviewButton, ['usa-button usa-button--unstyled'])}
+          className={classnames(styles.FinancialReviewButton, ['usa-button--unstyled'])}
           onClick={onClick}
         >
           Flag move for financial review
