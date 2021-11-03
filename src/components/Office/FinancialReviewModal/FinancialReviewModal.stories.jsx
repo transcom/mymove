@@ -8,4 +8,4 @@ export default {
   component: FinancialReviewModal,
 };
 
-export const Basic = () => <FinancialReviewModal Submit={action('Submit')} onClose={action('Cancel')} />;
+export const Basic = () => <FinancialReviewModal onSubmit={action('Submit')} onClose={action('Cancel')} />;
