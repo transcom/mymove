@@ -363,6 +363,42 @@ func init() {
           }
         }
       },
+      "delete": {
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "removes a client certificate",
+        "operationId": "removeClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removed Client Cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to remove a client cert"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
       "patch": {
         "tags": [
           "client_certs"
@@ -3256,6 +3292,42 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "client_certs"
+        ],
+        "summary": "removes a client certificate",
+        "operationId": "removeClientCert",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removed Client Cert",
+            "schema": {
+              "$ref": "#/definitions/ClientCert"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to remove a client cert"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       },

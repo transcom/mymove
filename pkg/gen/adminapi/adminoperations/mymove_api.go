@@ -127,6 +127,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		WebhookSubscriptionsIndexWebhookSubscriptionsHandler: webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		}),
+		ClientCertsRemoveClientCertHandler: client_certs.RemoveClientCertHandlerFunc(func(params client_certs.RemoveClientCertParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.RemoveClientCert has not yet been implemented")
+		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
@@ -233,6 +236,8 @@ type MymoveAPI struct {
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
 	WebhookSubscriptionsIndexWebhookSubscriptionsHandler webhook_subscriptions.IndexWebhookSubscriptionsHandler
+	// ClientCertsRemoveClientCertHandler sets the operation handler for the remove client cert operation
+	ClientCertsRemoveClientCertHandler client_certs.RemoveClientCertHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// ClientCertsUpdateClientCertHandler sets the operation handler for the update client cert operation
@@ -393,6 +398,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.IndexWebhookSubscriptionsHandler")
+	}
+	if o.ClientCertsRemoveClientCertHandler == nil {
+		unregistered = append(unregistered, "client_certs.RemoveClientCertHandler")
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
@@ -596,6 +604,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/webhook_subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/client_certs/{clientCertId}"] = client_certs.NewRemoveClientCert(o.context, o.ClientCertsRemoveClientCertHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

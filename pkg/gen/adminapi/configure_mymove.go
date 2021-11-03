@@ -169,6 +169,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		})
 	}
+	if api.ClientCertsRemoveClientCertHandler == nil {
+		api.ClientCertsRemoveClientCertHandler = client_certs.RemoveClientCertHandlerFunc(func(params client_certs.RemoveClientCertParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certs.RemoveClientCert has not yet been implemented")
+		})
+	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
 		api.AdminUsersUpdateAdminUserHandler = admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")

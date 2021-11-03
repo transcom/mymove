@@ -1310,6 +1310,30 @@ paths:
           description: Not authorized to update a client cert
         '500':
           description: Server error
+    delete:
+      summary: removes a client certificate
+      operationId: removeClientCert
+      tags:
+        - client_certs
+      parameters:
+        - in: path
+          name: clientCertId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: Successfully removed Client Cert
+          schema:
+            $ref: '#/definitions/ClientCert'
+        '400':
+          description: Invalid Request
+        '401':
+          description: Must be authenticated to use this end point
+        '403':
+          description: Not authorized to remove a client cert
+        '500':
+          description: Server error
   /transportation_service_provider_performances:
     get:
       summary: List transportation service provider performances (TSPPs)
