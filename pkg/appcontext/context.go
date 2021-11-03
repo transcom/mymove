@@ -19,7 +19,6 @@ type AppContext interface {
 	Session() *auth.Session
 }
 
-// nolint:errcheck
 type appContext struct {
 	db      *pop.Connection
 	logger  *zap.Logger
