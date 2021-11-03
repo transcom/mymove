@@ -1061,6 +1061,11 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: make client_test_coverage
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage
+          destination: coverage
+      - store_test_results:
+          path: ~/transcom/mymove
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests
