@@ -1559,12 +1559,15 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
+
   # `deploy_demo_migrations` deploys migrations to the demo environment
   deploy_demo_migrations:
     executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_migrations_steps:
           ecr_env: demo
@@ -1575,6 +1578,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_dp3_tasks_steps:
           ecr_env: demo
@@ -1585,6 +1589,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_app_steps:
           compare_host: '' # leave blank since we want demo to be able to roll back
@@ -1597,6 +1602,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - tls_vars_demo
       - deploy_app_client_tls_steps:
@@ -1610,6 +1616,7 @@ jobs:
     environment:
       APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_webhook_client_steps:
           ecr_env: demo
@@ -1620,6 +1627,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'loadtest'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_migrations_steps:
           ecr_env: loadtest
@@ -1630,6 +1638,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'loadtest'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_dp3_tasks_steps:
           ecr_env: loadtest
@@ -1641,6 +1650,7 @@ jobs:
       - APP_ENVIRONMENT: 'loadtest'
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_app_steps:
           compare_host: '' # leave blank since we want loadtest to be able to roll back
@@ -1654,6 +1664,7 @@ jobs:
       - APP_ENVIRONMENT: 'loadtest'
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - tls_vars_loadtest
       - deploy_app_client_tls_steps:
@@ -1668,6 +1679,7 @@ jobs:
       APP_ENVIRONMENT: 'loadtest'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_webhook_client_steps:
           ecr_env: loadtest
@@ -1678,6 +1690,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_migrations_steps:
           ecr_env: exp
@@ -1688,6 +1701,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_dp3_tasks_steps:
           ecr_env: exp
@@ -1698,6 +1712,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - tls_vars_exp
       - deploy_app_client_tls_steps:
@@ -1712,6 +1727,7 @@ jobs:
       APP_ENVIRONMENT: 'exp'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_app_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
@@ -1725,6 +1741,7 @@ jobs:
       APP_ENVIRONMENT: 'exp'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_webhook_client_steps:
           ecr_env: exp
@@ -1743,6 +1760,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_migrations_steps:
           ecr_env: stg
@@ -1753,6 +1771,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_tasks_steps:
           ecr_env: stg
@@ -1763,6 +1782,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_app_steps:
           compare_host: my.stg.move.mil
@@ -1775,6 +1795,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - tls_vars_stg
       - deploy_app_client_tls_steps:
@@ -1788,6 +1809,7 @@ jobs:
     environment:
       APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_webhook_client_steps:
           ecr_env: stg
@@ -1795,6 +1817,7 @@ jobs:
   deploy_storybook_dp3:
     executor: mymove_pusher
     steps:
+      - checkout
       - aws_vars_transcom_com_dev
       - deploy_app_storybook:
           s3_bucket: storybook.dp3.us
@@ -1805,6 +1828,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_migrations_steps:
           ecr_env: prd
@@ -1815,6 +1839,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_tasks_steps:
           ecr_env: prd
@@ -1825,6 +1850,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_app_steps:
           compare_host: my.move.mil
@@ -1837,6 +1863,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - tls_vars_prd
       - deploy_app_client_tls_steps:
