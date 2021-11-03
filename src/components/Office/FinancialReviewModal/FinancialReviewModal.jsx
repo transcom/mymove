@@ -17,7 +17,7 @@ const financialReviewSchema = Yup.object().shape({
   flagForReview: Yup.string().required('Required').oneOf(['yes']),
 });
 
-const FinancialReviewModal = ({ onClose, onSubmit }) => {
+function FinancialReviewModal({ onClose, onSubmit }) {
   return (
     <div>
       <Overlay />
@@ -100,7 +100,7 @@ const FinancialReviewModal = ({ onClose, onSubmit }) => {
       </ModalContainer>
     </div>
   );
-};
+}
 
 FinancialReviewModal.propTypes = {
   onClose: PropTypes.func.isRequired,

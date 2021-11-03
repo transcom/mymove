@@ -1,5 +1,4 @@
 import React from 'react';
-// import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -12,10 +11,9 @@ import styles from './FinancialReviewButton.module.scss';
 function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
     <div>
-      {reviewRequested && (
+      {reviewRequested ? (
         <Tag className={classnames(styles.FinancialReviewTag, ['usa-tag'])}>Financial Review Requested</Tag>
-      )}
-      {!reviewRequested && (
+      ) : (
         <Button
           type="Button"
           className={classnames(styles.FinancialReviewButton, ['usa-button usa-button--unstyled'])}
