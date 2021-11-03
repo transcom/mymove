@@ -44,6 +44,9 @@ docker run \
        bin/rds-ca-us-gov-west-1-2017-root.pem
 docker build -t milmove_e2e:local -f Dockerfile.e2e .
 
+# clean up the generated files that are now for linux instead of macOS
+rm -rf bin
+
 docker network create e2e_cypress
 docker-compose -f docker-compose.e2e.yml up -d
 
