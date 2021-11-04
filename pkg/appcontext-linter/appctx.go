@@ -40,8 +40,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return
 		}
 
-		for _, node := range file.Decls {
-			t, ok := node.(*ast.GenDecl)
+		for _, declaration := range file.Decls {
+			t, ok := declaration.(*ast.GenDecl)
 			if !ok {
 				continue
 			}
