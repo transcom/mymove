@@ -21,8 +21,8 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.20.1
-	github.com/go-openapi/loads v0.20.3
-	github.com/go-openapi/runtime v0.20.0
+	github.com/go-openapi/loads v0.21.0
+	github.com/go-openapi/runtime v0.21.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-openapi/strfmt v0.21.0
 	github.com/go-openapi/swag v0.19.15
@@ -87,7 +87,7 @@ require (
 
 require (
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
 	go.opentelemetry.io/contrib/propagators/aws v1.0.0
