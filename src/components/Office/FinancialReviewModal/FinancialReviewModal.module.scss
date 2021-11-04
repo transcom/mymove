@@ -2,9 +2,9 @@
 @import 'shared/styles/basics';
 
 .FinancialReviewModal {
-  min-width: 45rem !important;
   overflow-y: auto;
   max-height: 90vh;
+  max-width: 574px;
 
   .RemarksLabelDisabled {
     color: color("base");

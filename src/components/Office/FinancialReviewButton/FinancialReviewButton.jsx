@@ -12,7 +12,7 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
     <div>
       {reviewRequested ? (
-        <Tag className={styles.FinancialReviewTag}>Financial Review Requested</Tag>
+        <Tag className={styles.FinancialReviewTag}>Flagged for financial review</Tag>
       ) : (
         <Button
           type="Button"

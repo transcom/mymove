@@ -31,7 +31,7 @@ function FinancialReviewModal({ onClose, onSubmit }) {
             <Formik
               initialValues={{
                 remarks: '',
-                flagForReview: '',
+                flagForReview: 'yes',
               }}
               validationSchema={financialReviewSchema}
               onSubmit={(values) => onSubmit(values.remarks)}
@@ -42,8 +42,10 @@ function FinancialReviewModal({ onClose, onSubmit }) {
                 return (
                   <Form>
                     <FormGroup>
-                      <div>Select Yes to flag this move for financial review from the financial review office.</div>
-                      <div>Enter remarks to give more detail.</div>
+                      <div>
+                        Select <strong>Yes</strong> to flag this move for review from the service&apos;s financial
+                        office. Enter remarks to give more detail.
+                      </div>
                       <div>
                         <Field
                           as={Radio}
