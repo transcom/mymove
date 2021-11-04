@@ -19,6 +19,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	// pass.ResultOf[inspect.Analyzer] will be set if we've added inspect.Analyzer to Requires.
 	// Analyze code and make an AST from the file:
 	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+
 	nodeFilter := []ast.Node{ // filter needed nodes: visit only them
 		(*ast.File)(nil),
 	}
@@ -26,7 +27,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
 
-		if file.Name.Name == "appcontext" {
+		allowList := map[string]bool{
+			"appcontext":   true,
+			"db":           true,
+			"migrate":      true,
+			"models":       true,
+			"testdatagen":  true,
+			"testingsuite": true,
+		}
+
+		if allowList[file.Name.Name] {
 			return
 		}
 
@@ -41,6 +51,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				if !ok {
 					continue
 				}
+
+				if typeSpec.Name.Name == "handlerContext" && file.Name.Name == "handlers" {
+					continue
+				}
+
 				structType, ok := typeSpec.Type.(*ast.StructType)
 				if !ok {
 					continue

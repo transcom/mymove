@@ -9,7 +9,7 @@ type AppContext struct {
 	eagerFields []string
 }
 
-// Test pop connection in struct
+// TestAppContext Test pop connection in struct
 type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in appcontext"
 	DB         *pop.Connection // Look for a field whose type is Connection
 	testString string
@@ -18,5 +18,5 @@ type TestAppContext struct { // want "Please remove pop.Connection from the stru
 // No want statement because the linter isn't flagged here
 func TestAppContextFalse(db *pop.Connection) {}
 
-// NOTE: We don't need a want statement here because we are testing tat the code passes
+// TestAppCtxTrueFunc NOTE: We don't need a want statement here because we are testing tat the code passes
 func TestAppCtxTrueFunc(appCtx AppContext) {}
