@@ -1,13 +1,8 @@
 import React from 'react';
-import { BooleanField, Datagrid, Filter, List, TextField, TextInput, TopToolbar } from 'react-admin';
-import PropTypes from 'prop-types';
+import { BooleanField, Datagrid, Filter, List, TextField, TextInput } from 'react-admin';
+import { makeStyles } from '@material-ui/core/styles';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-
-// Overriding the default toolbar to add import button
-const ListActions = () => {
-  return <TopToolbar />;
-};
 
 const ClientCertListFilter = (props) => (
   <Filter {...props}>
@@ -17,54 +12,46 @@ const ClientCertListFilter = (props) => (
 
 const defaultSort = { field: 'subject', order: 'ASC' };
 
-const ClientCertList = (props) => (
-  <List
-    {...props}
-    pagination={<AdminPagination />}
-    perPage={25}
-    bulkActionButtons={false}
-    sort={defaultSort}
-    filters={<ClientCertListFilter />}
-    actions={<ListActions />}
-  >
-    <Datagrid rowClick="show">
-      <TextField source="id" />
-      <TextField source="sha246Digest" />
-      <TextField source="subject" />
-      <BooleanField source="allowDpsAuthAPI" />
-      <BooleanField source="allowOrdersAPI" />
-      <BooleanField source="allowAirForceOrdersRead" />
-      <BooleanField source="allowAirForceOrdersWrite" />
-      <BooleanField source="allowArmyOrdersRead" />
-      <BooleanField source="allowArmyOrdersWrite" />
-      <BooleanField source="allowCoastGuardOrdersRead" />
-      <BooleanField source="allowCoastGuardOrdersWrite" />
-      <BooleanField source="allowMarineCorpsOrdersRead" />
-      <BooleanField source="allowMarineCorpsOrdersWrite" />
-      <BooleanField source="allowNavyOrdersRead" />
-      <BooleanField source="allowNavyOrdersWrite" />
-      <BooleanField source="allowPrime" />
-    </Datagrid>
-  </List>
-);
-
-ListActions.propTypes = {
-  currentSort: PropTypes.exact({
-    field: PropTypes.string,
-    order: PropTypes.string,
-  }),
-  filterValues: PropTypes.shape({
-    // This will have to be updated if we have any filters besides search added to this page
-    search: PropTypes.string,
-  }),
-};
-
-ListActions.defaultProps = {
-  currentSort: {
-    field: 'subject',
-    order: 'ASC',
+const useStyles = makeStyles(() => ({
+  tableCell: {
+    maxWidth: 150,
+    whiteSpace: 'normal',
+    overflow: 'scroll',
+    overflowWrap: 'break-word',
   },
-  filterValues: {},
+}));
+
+const ClientCertList = ({ ...props }) => {
+  const classes = useStyles();
+  return (
+    <List
+      {...props}
+      pagination={<AdminPagination />}
+      perPage={25}
+      bulkActionButtons={false}
+      sort={defaultSort}
+      filters={<ClientCertListFilter />}
+    >
+      <Datagrid rowClick="show">
+        <TextField cellClassName={classes.tableCell} source="subject" />
+        <BooleanField source="allowDpsAuthAPI" label="Allow DPS Auth API" />
+        <BooleanField source="allowOrdersAPI" label="Allow Orders API" />
+        <BooleanField source="allowAirForceOrdersRead" />
+        <BooleanField source="allowAirForceOrdersWrite" />
+        <BooleanField source="allowArmyOrdersRead" />
+        <BooleanField source="allowArmyOrdersWrite" />
+        <BooleanField source="allowCoastGuardOrdersRead" />
+        <BooleanField source="allowCoastGuardOrdersWrite" />
+        <BooleanField source="allowMarineCorpsOrdersRead" />
+        <BooleanField source="allowMarineCorpsOrdersWrite" />
+        <BooleanField source="allowNavyOrdersRead" />
+        <BooleanField source="allowNavyOrdersWrite" />
+        <BooleanField source="allowPrime" />
+        <TextField source="id" />
+        <TextField source="sha256Digest" />
+      </Datagrid>
+    </List>
+  );
 };
 
 export default ClientCertList;
