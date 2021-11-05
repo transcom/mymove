@@ -1,172 +1,82 @@
 #! /usr/bin/env bash
 
+circleci_build_image=milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+
 set -eux -o pipefail
 
-scripts/ensure-application app
-
-# Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
+# Setting REACT_APP_NODE_ENV to development enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
-# Set the container default name
-CONTAINER=mymove_milmove_1
-CONTAINER_CYPRESS=cypress
-
-# Set hostnames
-MILMOVEHOST=milmovelocal
-OFFICEHOST=officelocal
-ADMINHOST=adminlocal
-ORDERSHOST=orderslocal
-
-# Set Defaults
-HTTP_PORT=4000
-NETWORK="mymove_default" # Docker network
-
-# When running locally enable TTY
-DOCKER_RUN="docker run -t"
+# This script is no longer used in circleci because in CI we want some
+# of the steps below to run in parallel and that's hard to integration
+# with circleci config, so there's some duplication in .circleci/config.yml
 if [ -n "${CIRCLECI+x}" ]; then
-  echo "RUNNING IN CIRCLECI"
-  DOCKER_RUN="docker run"
+  echo "This script is only for running e2e tests locally"
+  exit 1
 fi
 
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-# Begin Setup
-make e2e_clean
+# ensure we nuke anything from a prior run
+docker-compose -f docker-compose.e2e.yml down
+docker rm -f cypress || true
+docker network rm e2e_cypress || true
 
-if [[ -n "${CIRCLECI+x}" ]]; then
-  # CI/CD allows us to use pre-built images using the branch name
-  scripts/update-docker-compose docker-compose.yml
+# in CI, we can copy in the artifacts built in CI, but locally we have
+# to compile inside docker first
+rm -rf bin pkg/assets/assets.go
+mkdir bin
+# set GOPATH if not already set
+: "${GOPATH:=$HOME/.gopath}"
+docker run \
+       --rm \
+       -v "${GOPATH}:${GOPATH}" \
+       -v "${PWD}:${PWD}" \
+       -w "${PWD}" \
+       -e GOPATH \
+       -e CIRCLECI=1 \
+       ${circleci_build_image} \
+       make pkg/assets/assets.go \
+       server_build \
+       bin/generate-test-data \
+       bin/rds-ca-2019-root.pem \
+       bin/rds-ca-us-gov-west-1-2017-root.pem
+docker build -t milmove_e2e:local -f Dockerfile.e2e .
 
-  # Let's clean things up before starting
-  # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose down --rmi all || true
+# clean up the generated files that are now for linux instead of macOS
+rm -rf bin
 
-  # Docker Compose Setup
-  aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+docker network create e2e_cypress
+docker-compose -f docker-compose.e2e.yml up -d
 
-  # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose pull
+docker run \
+       --rm \
+       --network e2e_cypress \
+       ${circleci_build_image} \
+       dockerize -wait http://milmovelocal:4000 -timeout 5m
 
-  # Bring these containers up but don't start them so they can be manipulated first
-  docker-compose up --no-start
+docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
 
-  # Can't mount folders in CircleCI so copy this data in
-  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
-
-  # Start everything up
-  docker-compose up -d --no-recreate --remove-orphans
-
-  # Build a small tools dockerfile
-  docker build -f Dockerfile.tools --tag tools:latest .
-else
-  # Locally development requires that we build the container
-
-  # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down --remove-orphans || true
-
-  # Build artifacts
-  make client_build
-
-  # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up --remove-orphans -d --build
-
-  # Build a small tools dockerfile
-  docker build -f Dockerfile.tools_local --tag tools:latest .
-fi
-
-# Need to wait not just for DB but also migrations to finish
-while true; do
-  MIGRATE_EXIT=$(docker ps --filter="name=mymove_milmove_migrate_1" --filter="status=exited" -q)
-  if [[ -n "${MIGRATE_EXIT}" ]]; then
-    break
-  else
-    echo
-    echo "Waiting 5 seconds for migrations to complete"
-    sleep 5
-  fi
-done
-
-MIGRATE_EXIT_CODE=$(docker inspect --format='{{.State.ExitCode}}' mymove_milmove_migrate_1)
-if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
-  echo
-  echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
-  exit 1
-fi
-
-# Truncate the DB
-$DOCKER_RUN \
-  --link="database" \
-  --net "${NETWORK}" \
-  --rm \
-  --entrypoint psql \
-  tools:latest \
-  postgres://postgres:mysecretpassword@database:5432/dev_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
-
-# Generate Test Data
-$DOCKER_RUN \
-  -e DB_NAME=dev_db \
-  -e DB_HOST=database \
-  -e DB_PORT=5432 \
-  -e DB_USER=postgres \
-  -e DB_PASSWORD=mysecretpassword \
-  -e LOCAL_STORAGE_ROOT=/tmp \
-  -e LOCAL_STORAGE_WEB_ROOT=storage \
-  --link="database" \
-  --net "${NETWORK}" \
-  -v "$(pwd)"/tmp:/tmp \
-  --rm \
-  --entrypoint generate-test-data \
-  tools:latest \
-  --named-scenario e2e_basic
-
-# Grab the IP address of the running container
-E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
-
-# Run the cypress tests
-docker build -f cypress/Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest ./cypress
-
-# Confirm app container is still running before running tests
-# See note above about what to do if you need to debug
-DOCKER_PID=$(docker ps -qf name=${CONTAINER})
-if [ -z "${DOCKER_PID}" ]; then
-  echo
-  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run."
-  exit 1
-fi
-
-readonly spec="${SPEC:-cypress/integration/**/*}"
-echo "Testing this SPEC: ${spec}"
-
-$DOCKER_RUN \
-  -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
-  --add-host "${MILMOVEHOST}:${E2E_IP}" \
-  --add-host "${OFFICEHOST}:${E2E_IP}" \
-  --add-host "${ADMINHOST}:${E2E_IP}" \
-  --add-host "${ORDERSHOST}:${E2E_IP}" \
-  --name="${CONTAINER_CYPRESS}" \
-  --link="${CONTAINER}" \
-  --net "${NETWORK}" \
-  --ipc=host \
-  --detach \
-  ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
-
-# Tail the logs so users can follow along
-docker logs -f ${CONTAINER_CYPRESS}
-
-# Stop the app container to release the DB connection
-docker stop ${CONTAINER}
+default_specs=$(find cypress/integration -type f -name '*.js' | paste -s -d, -)
+# assign SPECS if it is not set
+: "${SPECS:=${default_specs}}"
+docker run \
+       --name cypress \
+       --network e2e_cypress \
+       -e CYPRESS_baseUrl="http://milmovelocal:4000" \
+       cypress:local \
+       run --spec "${SPECS}"
 
 # Copy out the results, there are always xml result files so fail if we don't find them
-docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/results cypress/
+docker cp cypress:/home/circleci/cypress/results cypress/
 # Copy out screenshots, videos, and reports which may or may not be generated, hence we are hiding the errors
-docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
+docker cp cypress:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
 # Grab the exit code from the test container
-EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
+EXIT_STATUS=$(docker inspect cypress --format='{{.State.ExitCode}}')
 
 # Exit with the status from tests
 exit "${EXIT_STATUS}"

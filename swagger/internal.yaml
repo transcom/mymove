@@ -7,7 +7,7 @@ info:
     email: ppp@truss.works
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: https://opensource.org/licenses/MIT
 basePath: /internal
 consumes:
   - application/json
@@ -24,7 +24,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         readOnly: true
       first_name:
@@ -108,11 +108,11 @@ definitions:
         items:
           type: string
           format: telephone
-          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
           example: 212-555-5555
       gbloc:
         type: string
-        pattern: '^[A-Z]{4}$'
+        pattern: ^[A-Z]{4}$
         example: JENQ
       latitude:
         type: number
@@ -145,7 +145,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       original_move_date:
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -154,7 +154,7 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_additional_postal_code:
         type: boolean
@@ -165,14 +165,14 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_sit:
         type: boolean
@@ -229,12 +229,12 @@ definitions:
       original_move_date:
         type: string
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: When do you plan to move?
         x-nullable: true
       actual_move_date:
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -243,7 +243,7 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_additional_postal_code:
         type: boolean
@@ -254,14 +254,14 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_sit:
         type: boolean
@@ -323,13 +323,13 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       original_move_date:
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: When do you plan to move?
         x-nullable: true
       actual_move_date:
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -338,7 +338,7 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_additional_postal_code:
         type: boolean
@@ -349,14 +349,14 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_sit:
         type: boolean
@@ -434,11 +434,11 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
-        example: '2018-04-26'
+        example: 2018-04-26
         x-nullable: true
       actual_move_date:
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -446,20 +446,20 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
+        example: 2019-03-26T13:19:56-04:00
         x-nullable: true
       approve_date:
         type: string
         format: date-time
         title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
+        example: 2019-03-26T13:19:56-04:00
         x-nullable: true
       pickup_postal_code:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_additional_postal_code:
         type: boolean
@@ -470,14 +470,14 @@ definitions:
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
         x-nullable: true
       has_sit:
         type: boolean
@@ -586,7 +586,7 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
+        example: 2019-03-26T13:19:56-04:00
     required:
       - submit_date
   PPMSitEstimate:
@@ -660,7 +660,7 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
+        example: 2019-03-26T13:19:56-04:00
     required:
       - approve_date
   IndexPersonallyProcuredMovePayload:
@@ -859,7 +859,7 @@ definitions:
       weight_ticket_date:
         title: Weight ticket date
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         x-nullable: true
       trailer_ownership_missing:
@@ -870,13 +870,13 @@ definitions:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: '2018-04-26'
+        example: 2018-04-26
         x-nullable: true
       storage_end_date:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: '2018-04-26'
+        example: 2018-04-26
         x-nullable: true
     required:
       - id
@@ -979,13 +979,13 @@ definitions:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: '2018-04-26'
+        example: 2018-04-26
         x-nullable: true
       storage_end_date:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: '2018-04-26'
+        example: 2018-04-26
         x-nullable: true
     required:
       - title
@@ -1073,7 +1073,7 @@ definitions:
       weight_ticket_date:
         title: Full Weight Ticket Date
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         x-nullable: true
       trailer_ownership_missing:
@@ -1114,14 +1114,14 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: Personal Email Address
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
@@ -1148,7 +1148,7 @@ definitions:
         type: string
         format: edipi
         example: '5789345789'
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 10
         maxLength: 10
         x-nullable: true
@@ -1186,21 +1186,21 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Secondary Phone
       personal_email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: Personal Email Address
@@ -1252,7 +1252,7 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 10
         maxLength: 10
         example: '5789345789'
@@ -1285,21 +1285,21 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Alternate phone
       personal_email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -1330,7 +1330,7 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 10
         maxLength: 10
         example: '5789345789'
@@ -1363,21 +1363,21 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Best Contact Phone
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Alternate Phone
       personal_email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: Personal Email
@@ -1418,14 +1418,14 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Phone
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: Email
@@ -1466,14 +1466,14 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
         title: Phone
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
@@ -1493,13 +1493,13 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: john_bob@example.com
         x-nullable: true
         title: email address
@@ -1628,7 +1628,7 @@ definitions:
       url:
         type: string
         format: uri
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
         example: filename.pdf
@@ -1888,7 +1888,7 @@ definitions:
         format: zip
         title: ZIP
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
       country:
         type: string
         title: Country
@@ -1936,7 +1936,7 @@ definitions:
       requested_date:
         x-nullable: true
         type: string
-        example: '2018-04-26'
+        example: 2018-04-26
         format: date
         title: Requested Date
     required:
@@ -2059,13 +2059,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Date issued
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Report by
       status:
         $ref: '#/definitions/OrdersStatus'
@@ -2146,13 +2146,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Report-by date
       orders_type:
         $ref: '#/definitions/OrdersType'
@@ -2230,12 +2230,12 @@ definitions:
         x-nullable: true
       customer_name:
         type: string
-        example: 'Thedog, Nino'
+        example: Thedog, Nino
         title: Customer Name
       edipi:
         type: string
         format: edipi
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 10
         maxLength: 10
         example: '5789345789'
@@ -2253,17 +2253,17 @@ definitions:
       move_date:
         type: string
         format: date
-        example: 2018-04-25T00:00:00.000Z
+        example: 2018-04-25
         x-nullable: true
       submitted_date:
         type: string
         format: date-time
-        example: 2018-04-25T00:00:00.000Z
+        example: 2018-04-25
         x-nullable: true
       last_modified_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28.000Z
+        example: 2017-07-21T17:32:28Z
       created_at:
         type: string
         format: date-time
@@ -2280,7 +2280,7 @@ definitions:
       pm_survey_conducted_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28.000Z
+        example: 2017-07-21T17:32:28Z
         x-nullable: true
       origin_gbloc:
         type: string
@@ -2295,12 +2295,12 @@ definitions:
       delivered_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28.000Z
+        example: 2017-07-21T17:32:28Z
         x-nullable: true
       invoice_approved_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28.000Z
+        example: 2017-07-21T17:32:28Z
         x-nullable: true
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
@@ -2309,12 +2309,12 @@ definitions:
       actual_move_date:
         type: string
         format: date
-        example: 2018-04-25T00:00:00.000Z
+        example: 2018-04-25
         x-nullable: true
       original_move_date:
         type: string
         format: date
-        example: 2018-04-25T00:00:00.000Z
+        example: 2018-04-25
         x-nullable: true
     required:
       - id
@@ -2332,7 +2332,7 @@ definitions:
     properties:
       id:
         type: string
-        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25'
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25
       move_id:
         type: string
         format: uuid
@@ -2340,37 +2340,37 @@ definitions:
       move_date:
         type: string
         format: date
-        example: '2018-09-25'
+        example: 2018-09-25
       pack:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
       pickup:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
       transit:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
       delivery:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
       report:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
     required:
       - id
       - move_id
@@ -2386,13 +2386,13 @@ definitions:
       start_date:
         type: string
         format: date
-        example: '2018-09-25'
+        example: 2018-09-25
       available:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
+          example: 2018-09-25
     required:
       - start_date
       - available
@@ -2428,7 +2428,7 @@ definitions:
         example: false
       postal_code:
         type: string
-        description: 'zip code, international allowed'
+        description: zip code, international allowed
         format: zip
         title: ZIP
         example: '''90210'' or ''N15 3NL'''
@@ -2467,7 +2467,7 @@ definitions:
       claimed_at:
         type: string
         format: date-time
-        example: 2018-04-12T23:20:50.520Z
+        example: 2018-04-12T23:20:50.52Z
         description: when the access code was claimed or used
         x-nullable: true
     required:
@@ -2531,12 +2531,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
@@ -2740,13 +2740,13 @@ paths:
           name: origin_zip
           type: string
           format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
           name: origin_duty_station_zip
           type: string
           format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
           name: orders_id
@@ -2804,7 +2804,7 @@ paths:
           name: origin_zip
           type: string
           format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
           name: orders_id
@@ -2892,7 +2892,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  '/orders/{ordersId}':
+  /orders/{ordersId}:
     put:
       summary: Updates orders
       description: All fields sent in this request will be set on the orders referenced
@@ -2954,7 +2954,7 @@ paths:
           description: order is not found
         '500':
           description: internal server error
-  '/orders/{ordersId}/upload_amended_orders':
+  /orders/{ordersId}/upload_amended_orders:
     patch:
       summary: Patch the amended orders for a given order
       description: Patch the amended orders for a given order
@@ -2992,7 +2992,7 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  '/moves/{moveId}':
+  /moves/{moveId}:
     patch:
       summary: Patches the move
       description: Any fields sent in this request will be set on the move referenced
@@ -3054,7 +3054,7 @@ paths:
           description: move is not found
         '500':
           description: internal server error
-  '/moves/{moveId}/signed_certifications':
+  /moves/{moveId}/signed_certifications:
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID
@@ -3115,7 +3115,7 @@ paths:
           description: move not found
         '500':
           description: internal server error
-  '/moves/{moveId}/personally_procured_move':
+  /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
       description: Create an instance of personally_procured_move tied to the move ID
@@ -3173,7 +3173,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-  '/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate':
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
     patch:
       summary: Calculates the estimated incentive of a PPM
       description: >-
@@ -3214,7 +3214,7 @@ paths:
           description: cannot process request with given information
         '500':
           description: internal server error
-  '/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}':
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
@@ -3325,7 +3325,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-  '/personally_procured_move/{personallyProcuredMoveId}/submit':
+  /personally_procured_move/{personallyProcuredMoveId}/submit:
     post:
       summary: Submits a PPM for approval
       description: >-
@@ -3361,7 +3361,7 @@ paths:
           description: ppm is not found
         '500':
           description: internal server error
-  '/personally_procured_move/{personallyProcuredMoveId}/expense_summary':
+  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
     get:
       summary: Returns an expense summary organized by expense type
       description: Calculates and returns an expense summary organized by expense type
@@ -3390,7 +3390,7 @@ paths:
           description: personally procured move not found
         '500':
           description: server error
-  '/personally_procured_move/{personallyProcuredMoveId}/request_payment':
+  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
       description: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -3419,7 +3419,7 @@ paths:
           description: move not found
         '500':
           description: server error
-  '/reimbursement/{reimbursementId}/approve':
+  /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
       description: Sets the status of the reimbursement to APPROVED.
@@ -3446,7 +3446,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  '/moves/{moveId}/orders':
+  /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
       description: Returns orders information for a move for office use
@@ -3475,7 +3475,7 @@ paths:
           description: move not found
         '500':
           description: internal server error
-  '/moves/{moveId}/move_documents':
+  /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
@@ -3531,7 +3531,7 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
-  '/move_documents/{moveDocumentId}':
+  /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
@@ -3591,7 +3591,7 @@ paths:
           description: not found
         '500':
           description: server error
-  '/moves/{moveId}/moving_expense_documents':
+  /moves/{moveId}/moving_expense_documents:
     post:
       summary: Creates a moving expense document
       description: Created a moving expense document with the given information
@@ -3623,7 +3623,7 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
-  '/moves/{moveId}/approve':
+  /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed
       description: >-
@@ -3656,7 +3656,7 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  '/moves/{moveId}/submit':
+  /moves/{moveId}/submit:
     post:
       summary: Submits a move for approval
       description: >-
@@ -3694,7 +3694,7 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  '/moves/{moveId}/cancel':
+  /moves/{moveId}/cancel:
     post:
       summary: Cancels a move
       description: >-
@@ -3732,7 +3732,7 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  '/moves/{moveId}/submit_amended_orders':
+  /moves/{moveId}/submit_amended_orders:
     post:
       summary: Submits amended orders for review
       description: >-
@@ -3766,7 +3766,7 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  '/moves/{moveId}/move_dates_summary':
+  /moves/{moveId}/move_dates_summary:
     get:
       summary: Returns projected move-related dates for a given move date
       description: Returns projected move-related dates for a given move date
@@ -3799,7 +3799,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  '/moves/{moveId}/shipment_summary_worksheet':
+  /moves/{moveId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
@@ -3839,7 +3839,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  '/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments':
+  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
       summary: Creates PPM attachments PDF
       description: Creates a PPM attachments PDF
@@ -3887,7 +3887,7 @@ paths:
           description: no files to be processed into attachments PDF
         '500':
           description: server error
-  '/personally_procured_moves/{personallyProcuredMoveId}/approve':
+  /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
       description: Sets the status of the PPM to APPROVED.
@@ -3936,13 +3936,13 @@ paths:
           name: origin_zip
           type: string
           format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
           name: origin_duty_station_zip
           type: string
           format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
           name: orders_id
@@ -3992,7 +3992,7 @@ paths:
           description: invalid request
         '500':
           description: server error
-  '/documents/{documentId}':
+  /documents/{documentId}:
     get:
       summary: Returns a document
       description: Returns a document and its uploads
@@ -4021,10 +4021,10 @@ paths:
           description: not found
         '500':
           description: server error
-  '/uploads/{uploadId}':
+  /uploads/{uploadId}:
     delete:
       summary: Deletes an upload
-      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUpload
       tags:
         - uploads
@@ -4051,7 +4051,7 @@ paths:
   /uploads:
     post:
       summary: Create a new upload
-      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: createUpload
       tags:
         - uploads
@@ -4088,7 +4088,7 @@ paths:
           description: server error
     delete:
       summary: Deletes a collection of uploads
-      description: 'Uploads represent a single digital file, such as a JPEG or PDF.'
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUploads
       tags:
         - uploads
@@ -4142,7 +4142,7 @@ paths:
           description: service member not found
         '500':
           description: internal server error
-  '/service_members/{serviceMemberId}':
+  /service_members/{serviceMemberId}:
     get:
       summary: Returns the given service member
       description: Returns the given service member
@@ -4206,7 +4206,7 @@ paths:
           description: service member not found
         '500':
           description: internal server error
-  '/service_members/{serviceMemberId}/current_orders':
+  /service_members/{serviceMemberId}/current_orders:
     get:
       summary: Returns the latest orders for a given service member
       description: Returns orders
@@ -4235,7 +4235,7 @@ paths:
           description: service member not found
         '500':
           description: internal server error
-  '/service_members/{serviceMemberId}/backup_contacts':
+  /service_members/{serviceMemberId}/backup_contacts:
     post:
       summary: Submits backup contact for a logged-in user
       description: Creates an instance of a backup contact tied to a service member user
@@ -4297,7 +4297,7 @@ paths:
           description: contact not found
         '500':
           description: internal server error
-  '/backup_contacts/{backupContactId}':
+  /backup_contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
@@ -4389,7 +4389,7 @@ paths:
           description: matching duty station not found
         '500':
           description: internal server error
-  '/duty_stations/{dutyStationId}/transportation_office':
+  /duty_stations/{dutyStationId}/transportation_office:
     get:
       summary: Returns the transportation office for a given duty station
       description: Returns the given duty station's transportation office
@@ -4418,7 +4418,7 @@ paths:
           description: transportation office not found
         '500':
           description: internal server error
-  '/queues/{queueType}':
+  /queues/{queueType}:
     get:
       summary: Show all moves in a queue
       description: Show all moves in a queue
@@ -4464,7 +4464,7 @@ paths:
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
-  '/entitlements/{moveId}':
+  /entitlements/{moveId}:
     get:
       summary: >-
         Validates that the stored weight estimate is below the allotted
@@ -4527,7 +4527,7 @@ paths:
         - in: query
           name: cookie_name
           type: string
-          description: 'The name of the cookie to set, DPS by default'
+          description: The name of the cookie to set, DPS by default
           required: false
         - in: query
           name: dps_redirect_url
@@ -4545,7 +4545,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  '/moves/{moveId}/weight_ticket':
+  /moves/{moveId}/weight_ticket:
     post:
       summary: Creates a weight ticket document
       description: Created a weight ticket document with the given information
@@ -4577,7 +4577,7 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
-  '/rate_engine_postal_codes/{postal_code}':
+  /rate_engine_postal_codes/{postal_code}:
     get:
       summary: >-
         Validate if a zipcode is valid for origin or destination location for a
@@ -4594,7 +4594,7 @@ paths:
           type: string
           required: true
           format: zip
-          pattern: '^(\d{5}?)$'
+          pattern: ^(\d{5}?)$
         - in: query
           name: postal_code_type
           type: string
@@ -4651,7 +4651,7 @@ paths:
           name: code
           type: string
           description: the code the access code represents and verifies if in use
-          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
+          pattern: ^(HHG|PPM)-[A-Z0-9]{6}$
           x-nullable: false
       responses:
         '200':
@@ -4702,7 +4702,7 @@ paths:
           description: access code not found in system
         '500':
           description: server error
-  '/addresses/{addressId}':
+  /addresses/{addressId}:
     get:
       summary: Returns an address
       description: Returns an address
@@ -4772,7 +4772,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentId}':
+  /mto-shipments/{mtoShipmentId}:
     patch:
       summary: updateMTOShipment
       description: |
@@ -4837,7 +4837,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/moves/{moveTaskOrderID}/mto_shipments':
+  /moves/{moveTaskOrderID}/mto_shipments:
     get:
       summary: Gets all shipments for a move task order
       description: |
