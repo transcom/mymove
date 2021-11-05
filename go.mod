@@ -7,7 +7,7 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.4
-	github.com/XSAM/otelsql v0.7.0
+	github.com/XSAM/otelsql v0.9.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
 	github.com/aws/aws-sdk-go v1.41.4
@@ -21,8 +21,8 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.20.1
-	github.com/go-openapi/loads v0.20.3
-	github.com/go-openapi/runtime v0.20.0
+	github.com/go-openapi/loads v0.21.0
+	github.com/go-openapi/runtime v0.21.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-openapi/strfmt v0.21.0
 	github.com/go-openapi/swag v0.19.15
@@ -87,17 +87,17 @@ require (
 
 require (
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1
 	go.opentelemetry.io/contrib/propagators/aws v1.0.0
 	go.opentelemetry.io/otel v1.1.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.24.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.24.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.1.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.1
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.1.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.24.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.1
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.1.0
 	go.opentelemetry.io/otel/metric v0.24.0
 	go.opentelemetry.io/otel/sdk v1.1.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.24.0

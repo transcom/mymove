@@ -5,7 +5,7 @@ info:
   title: move.mil Admin API
   license:
     name: MIT
-    url: 'https://github.com/transcom/mymove/blob/master/LICENSE.md'
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 basePath: /admin/v1
 consumes:
   - application/json
@@ -103,11 +103,11 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
       transportationOfficeId:
         type: string
         format: uuid
@@ -153,7 +153,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       userId:
         type: string
         format: uuid
@@ -192,7 +192,7 @@ definitions:
       loginGovEmail:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       active:
         type: boolean
       createdAt:
@@ -239,11 +239,11 @@ definitions:
         items:
           type: string
           format: telephone
-          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
           example: 212-555-5555
       gbloc:
         type: string
-        pattern: '^[A-Z]{4}$'
+        pattern: ^[A-Z]{4}$
         example: JENQ
       latitude:
         type: number
@@ -466,7 +466,7 @@ definitions:
           - WY
       postalCode:
         type: string
-        description: 'zip code, international allowed'
+        description: zip code, international allowed
         format: zip
         title: ZIP
         example: '''90210'' or ''N15 3NL'''
@@ -502,7 +502,7 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
       transportationOfficeId:
         type: string
@@ -531,7 +531,7 @@ definitions:
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
         x-nullable: true
       active:
@@ -659,12 +659,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       createdAt:
         type: string
@@ -1066,7 +1066,7 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
-  '/office_users/{officeUserId}':
+  /office_users/{officeUserId}:
     get:
       summary: Get an office user
       description: Returns the given office user
@@ -1162,7 +1162,7 @@ paths:
           description: office not found
         '500':
           description: server error
-  '/transportation_service_provider_performances/{tsppId}':
+  /transportation_service_provider_performances/{tsppId}:
     get:
       summary: Fetch a specific tspp
       description: Returns a single tspp
@@ -1255,7 +1255,7 @@ paths:
           description: Not authorized to create an admin user
         '500':
           description: Server error
-  '/admin_users/{adminUserId}':
+  /admin_users/{adminUserId}:
     get:
       summary: Fetch a specific admin user
       description: Returns a single admin user
@@ -1424,7 +1424,7 @@ paths:
           description: not found
         '500':
           description: server error
-  '/uploads/{uploadId}':
+  /uploads/{uploadId}:
     get:
       summary: Get information about an upload
       description: Returns the given upload and information about the uploader and move
@@ -1572,7 +1572,7 @@ paths:
           description: not found
         '500':
           description: server error
-  '/moves/{moveID}':
+  /moves/{moveID}:
     get:
       summary: Get information about a move
       description: Returns the given move and its relevant info
@@ -1678,7 +1678,7 @@ paths:
           description: users not found
         '500':
           description: server error
-  '/users/{userId}':
+  /users/{userId}:
     get:
       summary: Get information about a user
       description: Returns the given user and their sessions
@@ -1805,7 +1805,7 @@ paths:
           description: Not authorized to create a webhook subscription
         '500':
           description: Server error
-  '/webhook_subscriptions/{webhookSubscriptionId}':
+  /webhook_subscriptions/{webhookSubscriptionId}:
     get:
       summary: Get information about a webhook subscription
       description: Returns the given webhook subscription and its details
