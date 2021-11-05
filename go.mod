@@ -32,7 +32,7 @@ require (
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.13.0
-	github.com/gobuffalo/flect v0.2.3
+	github.com/gobuffalo/flect v0.2.4
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/pop/v5 v5.3.4
 	github.com/gobuffalo/validate/v3 v3.3.0
