@@ -30,7 +30,7 @@ require (
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.9.0
-	github.com/gobuffalo/envy v1.9.0
+	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobuffalo/nulls v0.4.0 // indirect
@@ -158,7 +158,7 @@ require (
 	github.com/jackc/pgtype v1.7.0 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
