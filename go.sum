@@ -107,8 +107,8 @@ github.com/atomicgo/cursor v0.0.1/go.mod h1:cBON2QmmrysudxNBFthvMtN32r3jxVRIvzkU
 github.com/aws/aws-lambda-go v1.13.3/go.mod h1:4UKl9IzQMoD+QF79YdCuzCwp8VbmG4VAQwij/eHl5CU=
 github.com/aws/aws-sdk-go v1.27.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.34.28/go.mod h1:H7NKnBqNVzoTJpGfLrQkkD+ytBA93eiDYi/+8rV9s48=
-github.com/aws/aws-sdk-go v1.41.4 h1:5xRzZp8LfBFfowMPxmoNsxLBZOY/NTH4EeI7q2F5eWE=
-github.com/aws/aws-sdk-go v1.41.4/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
+github.com/aws/aws-sdk-go v1.41.19 h1:9QR2WTNj5bFdrNjRY9SeoG+3hwQmKXGX16851vdh+N8=
+github.com/aws/aws-sdk-go v1.41.19/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
@@ -348,8 +348,8 @@ github.com/gobuffalo/envy v1.6.15/go.mod h1:n7DRkBerg/aorDM8kbduw5dN3oXGswK5liaS
 github.com/gobuffalo/envy v1.7.0/go.mod h1:n7DRkBerg/aorDM8kbduw5dN3oXGswK5liaSCx4T5NI=
 github.com/gobuffalo/envy v1.7.1/go.mod h1:FurDp9+EDPE4aIUS3ZLyD+7/9fpx7YRt/ukY6jIHf0w=
 github.com/gobuffalo/envy v1.8.1/go.mod h1:FurDp9+EDPE4aIUS3ZLyD+7/9fpx7YRt/ukY6jIHf0w=
-github.com/gobuffalo/envy v1.9.0 h1:eZR0DuEgVLfeIb1zIKt3bT4YovIMf9O9LXQeCZLXpqE=
-github.com/gobuffalo/envy v1.9.0/go.mod h1:FurDp9+EDPE4aIUS3ZLyD+7/9fpx7YRt/ukY6jIHf0w=
+github.com/gobuffalo/envy v1.10.1 h1:ppDLoXv2feQ5nus4IcgtyMdHQkKng2lhJCIm33cblM0=
+github.com/gobuffalo/envy v1.10.1/go.mod h1:AWx4++KnNOW3JOeEvhSaq+mvgAvnMYOY1XSIin4Mago=
 github.com/gobuffalo/fizz v1.10.0/go.mod h1:J2XGPO0AfJ1zKw7+2BA+6FEGAkyEsdCOLvN93WCT2WI=
 github.com/gobuffalo/fizz v1.13.0 h1:XzcBh8DLZH2BgEH77p6q+EKbd8FZyyUXgokUmKXk5ow=
 github.com/gobuffalo/fizz v1.13.0/go.mod h1:cXLjhE5p3iuIes6AGZ/9+dfyOkehlB2Vldj0Iw2Uu38=
@@ -657,8 +657,9 @@ github.com/jmoiron/sqlx v1.2.0/go.mod h1:1FEQNm3xlJgrMD+FBdI9+xvCksHtbpVBBw5dYhB
 github.com/jmoiron/sqlx v1.3.3/go.mod h1:2BljVx/86SuTyjE+aPYlHCTNvZrnJXghYGpNiXLBMCQ=
 github.com/jmoiron/sqlx v1.3.4 h1:wv+0IJZfL5z0uZoUjlpKgHkgaFSYD+r9CfrXjEXsO7w=
 github.com/jmoiron/sqlx v1.3.4/go.mod h1:2BljVx/86SuTyjE+aPYlHCTNvZrnJXghYGpNiXLBMCQ=
-github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
+github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
+github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
@@ -1051,8 +1052,8 @@ go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0 h1:1TRitKOpaS6gHoVFtHoaJgG7
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0/go.mod h1:DMnkZlhKLhqLHyWkserJlGpKQKNUdt6BoozVL5PtSZ4=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1 h1:iBTYaoHt5PEn5ckT/iaY1QaLK82yvajmgravaycGlvY=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1/go.mod h1:uKlb8I2LlLk5txEpHBjBXdhV9tQ7ljeuYeoes5217Yo=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0 h1:FIbb8m2PtTWjvXLHOEnXAoSmkaiXbg3fuvoZAjsAT3Q=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0/go.mod h1:NyB05cd+yPX6W5SiRNuJ90w7PV2+g2cgRbsPL7MvpME=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.26.1 h1:/PDcqsmxpbI/3ERJ6s6cwF13ZSH5m9NNCOPsoeazEhA=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.26.1/go.mod h1:4vatbW3QwS11DK0H0SB7FR31/VbthXcYorswdkVXdyg=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1 h1:JFqFA2LXzEJiJ+z4+FVqbCs4sVg6jiI4W6ksKeG4etQ=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1/go.mod h1:lWhqpZXOrSw6XwhSK1duzdmc34jT7Cr5EO5yq9TiOJA=
 go.opentelemetry.io/contrib/propagators/aws v1.0.0 h1:K5Tw/bDdRx1dVzLI9PyLEOBwNnBnswY4AvKD8KU1stY=
