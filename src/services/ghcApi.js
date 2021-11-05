@@ -355,3 +355,17 @@ export async function getPaymentRequestsQueue(
 export async function getShipmentsPaymentSITBalance(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getShipmentsPaymentSITBalance', { paymentRequestID });
 }
+
+export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
+  const operationPath = 'move.setFinancialReviewFlag';
+  // What is the schemakey and normalize for?
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { normalize: false },
+  );
+}
