@@ -64,7 +64,7 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access, no session token or user id", zap.String("email", session.Email))
+				logger.Error("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -225,7 +225,7 @@ func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.
 			session := auth.SessionFromRequestContext(r)
 
 			if session == nil || !session.IsAdminUser() {
-				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
+				logger.Error("unauthorized user for admin.move.mil")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
