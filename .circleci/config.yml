@@ -15,7 +15,11 @@ version: '2.1'
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
 
-  postgres: &postgres postgres:12.7
+  # the cypress image to use
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+
+  # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
+  postgres: &postgres circleci/postgres:12.7-ram
 
   # set demo-branch to the branch you want to deploy to demo, or
   # `placeholder_branch_name` if you don't want to deploy to demo
@@ -75,32 +79,25 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
-  mymove_small:
-    resource_class: small
-    working_directory: ~/transcom/mymove
-    docker:
-      - image: *circleci-docker
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
-  mymove_medium:
-    resource_class: medium
-    working_directory: ~/transcom/mymove
-    docker:
-      - image: *circleci-docker
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
-  mymove_medium_plus:
+  mymove_pusher:
+    # needs to be medium+ so it can checkout and restore the workspace
     resource_class: medium+
-    working_directory: ~/transcom/mymove
+    working_directory: /mnt/ramdisk
     docker:
       - image: *circleci-docker
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  mymove_large:
+  mymove_builder:
+    resource_class: medium+
+    working_directory: /mnt/ramdisk
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+  mymove_compiler:
+    # large and no ram disk
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
@@ -108,24 +105,22 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
-  mymove_and_postgres_medium:
-    resource_class: medium
-    working_directory: ~/transcom/mymove
+        environment:
+          GOPATH: /home/circleci/go
+
+  mymove_ramdisk_compiler:
+    # large and no ram disk
+    resource_class: large
+    working_directory: /mnt/ramdisk
     docker:
       - image: *circleci-docker
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-      - image: *postgres
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
         environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
-        command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
-  mymove_and_postgres_large:
+          GOPATH: /home/circleci/go
+
+  mymove_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
@@ -133,14 +128,25 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
       - image: *postgres
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
         environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
-        command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: test_db
+
+  mymove_integration_tester:
+    resource_class: large
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *circleci-docker
+        name: adminlocal
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 
 commands:
   aws_vars_demo:
@@ -277,17 +283,18 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             scripts/circleci-announce-broken-branch
           when: on_fail
+
+
   deploy_migrations_steps:
     parameters:
       ecr_env:
         type: string
     steps:
-      - checkout
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+          at: .
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-migrations_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
@@ -303,15 +310,11 @@ commands:
       ecr_env:
         type: string
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+          at: .
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy connect to GEX via SFTP service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -348,15 +351,11 @@ commands:
       ecr_env:
         type: string
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+          at: .
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -381,19 +380,18 @@ commands:
       ecr_env:
         type: string
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -417,19 +415,15 @@ commands:
       ecr_env:
         type: string
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -446,25 +440,24 @@ commands:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
+
   deploy_webhook_client_steps:
     parameters:
       ecr_env:
         type: string
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+          at: .
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-webhook-client_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-webhook-client_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-webhook-client service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-webhook-client "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-webhook-client@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/webhook-client webhook-notify"
           no_output_timeout: 20m
       - announce_failure
+
+
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -488,15 +481,19 @@ commands:
       working_dir:
         type: string
     steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
           name: 'Build docker image'
           working_directory: << parameters.working_dir >>
           command: |
             docker build -f << parameters.dockerfile>> -t << parameters.image_name >>:<< parameters.tag >> .
-            mkdir -p /home/circleci/transcom/mymove/bin/images
-            docker save -o /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >> << parameters.image_name >>:<< parameters.tag >>
+            mkdir -p images
+            docker save -o images/<< parameters.image_name >> << parameters.image_name >>:<< parameters.tag >>
       - persist_to_workspace:
-          root: bin
+          root: .
           paths:
             - images/<< parameters.image_name >>
 
@@ -511,13 +508,14 @@ commands:
       repo:
         type: string
     steps:
-      - checkout
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
           name: 'Retrieve docker image from workspace'
           command: |
-            docker load -i /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >>
+            docker load -i images/<< parameters.image_name >>
       - run:
           name: 'Tag and push docker image'
           command: |
@@ -530,15 +528,15 @@ commands:
       - run:
           name: 'Record ECR Image Digest'
           command: |
-            mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
-            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+            mkdir -p images/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+            cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
-          root: bin
-          paths: sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+          root: .
+          paths: images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
   server_tests_step:
     parameters:
@@ -546,105 +544,92 @@ commands:
         type: string
     steps:
       - run:
+          echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+          source $BASH_ENV
+      - run:
           name: make server_test_build for <<parameters.application>>
-          command: make server_test_build
+          command: make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
             GOFLAGS: '-p=4'
-      - run:
-          name: make db_test_reset for <<parameters.application>>
-          command: make db_test_reset
-          environment:
-            APPLICATION: '<< parameters.application >>'
             DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
-      - run:
-          name: make db_test_migrate for <<parameters.application>>
-          command: make db_test_migrate
-          environment:
-            APPLICATION: '<< parameters.application >>'
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
-      - run:
-          name: make db_test_truncate for <<parameters.application>>
-          command: make db_test_truncate
-          environment:
-            APPLICATION: '<< parameters.application >>'
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-      - run:
-          name: make server_test_standalone for <<parameters.application>>
-          command: |
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            make server_test_standalone
-          environment:
-            APPLICATION: '<< parameters.application >>'
-            DB_PASSWORD: mysecretpassword
+            DB_USER_LOW_PRIV: crud
             DB_PASSWORD_LOW_PRIV: mysecretpassword
             DB_USER: postgres
-            DB_USER_LOW_PRIV: crud
             DB_HOST: localhost
             DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            GODEBUG: 'x509ignoreCN=0'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            GOFLAGS: '-p=4'
             SERVER_REPORT: 1
             COVERAGE: 1
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             SERVE_API_INTERNAL: true
-  e2e_tests:
+
+  # this custom step has some duplication with
+  # scripts/run-e2e-test-docker because we want to run some of the
+  # steps below in parallel
+  e2e_tests_cypress:
+    parameters:
+      spec_glob:
+        type: string
+      cypress_image:
+        type: string
+        default: *cypress
     steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
-          name: make e2e_test_docker
+          name: setup docker for server
           command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            docker network create e2e_cypress
+            docker build -t milmove_e2e:local -f Dockerfile.e2e .
+      - run:
+          background: true
+          name: run server
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            echo "export SPEC=$(find cypress/integration -type f -name '*.js' | circleci tests split | tr '\n' ',' )" >> $BASH_ENV
             source $BASH_ENV
-            make e2e_test_docker
-          environment:
-            # Env vars needed for the webserver to run inside docker
-            APPLICATION: app
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
-            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.api.here.com/6.2/geocode.json
-            HERE_MAPS_ROUTING_ENDPOINT: https://route.api.here.com/routing/7.2/calculateroute.json
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            docker-compose -f docker-compose.e2e.yml up
+      - run:
+          name: wait for server
+          # Use the cypress_image here to run dockerize so that the
+          # cypress image can be downloaded while the migrations, test
+          # data generation, and server startup happens in the
+          # background.
+          #
+          # Downloading this huge image takes ~2 minutes on circleci,
+          # so doing it in parallel with the server setup is a massive speedup.
+          command: |
+            docker run --network e2e_cypress << parameters.cypress_image >> dockerize -wait http://milmovelocal:4000 -timeout 5m
+      - run:
+          name: run e2e_test cypress
+          # the junit report from the mocha reporter doesn't seem to
+          # support the right attributes to support
+          # --split-by=timings, but it seems like filesize is a
+          # reasonable proxy for test time
+          command: |
+            SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
+            echo $SPECS
+            docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
+            docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
+      - run:
+          name: extract results
+          command: |
+            docker cp cypress:/home/circleci/cypress/results cypress/
+            docker cp cypress:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+            docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+            docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
   e2e_tests_mtls:
     steps:
@@ -672,25 +657,26 @@ commands:
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
-    executor: mymove_medium
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
-          command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
       - save_cache:
-          key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
-            - '/go/pkg/mod'
+            - '~/go'
       - announce_failure
 
-  # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
+  # `pre_deps_yarn` is used to cache yarn sources
   pre_deps_yarn:
-    executor: mymove_medium
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
@@ -698,31 +684,31 @@ jobs:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
       # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/yarn/v3
+            - ~/.cache/yarn
       - announce_failure
 
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
-    executor: mymove_medium
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - save_cache:
-          key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
-            - '/go/pkg/mod'
+            - '~/go'
       - announce_failure
 
   # `anti_virus` uses virus detection software to scan the source code
@@ -749,12 +735,12 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_medium_plus
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -770,10 +756,10 @@ jobs:
               echo "======"
             done
           background: true
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -817,12 +803,12 @@ jobs:
 
   # `acceptance_tests` runs acceptance tests for the webserver against the local, experimental, and staging environments.
   acceptance_tests:
-    executor: mymove_medium
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Run Local acceptance tests
           command: |
@@ -910,41 +896,16 @@ jobs:
       - run: echo "Prod acceptance tests are prohibited in CircleCI"
       - announce_failure
 
-  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests:
-    parallelism: 5
-    executor: mymove_large
+  # separate the integration tests by site so that if there is a flaky
+  # test, we only have to re-run part of the integration tests
+  integration_tests_admin:
+    parallelism: 2
+    executor: mymove_integration_tester
     steps:
-      - aws_vars_transcom_gov_dev
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
-      - run:
-          name: Output processes and resource usage every 5 seconds while job is running
-          command: |
-            while true; do
-              sleep 5
-              ps auxwwf
-              echo "======"
-            done
-          background: true
-      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: make server_generate
-      - run: rm -f bin/generate-test-data && make bin/generate-test-data
-      - run: rm -f bin/prime-api-client && make bin/prime-api-client
-      - e2e_tests
-      - run:
-          name: Output maximum memory usage in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/admin/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -958,9 +919,84 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  # `integration_tests_mtls` runs integration tests using prime-api-client
+  integration_tests_office:
+    parallelism: 4
+    executor: mymove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/office/**/*.js
+      - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  integration_tests_prime:
+    executor: mymove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/api/**/*.js
+      - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  integration_tests_milmove:
+    parallelism: 4
+    executor: mymove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/mymove/**/*.js
+      - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  # `integration_tests` is just a fake step so that we don't have to
+  # keep track of the manual splitting of the integration_tests when
+  # specifying dependencies
+  integration_tests:
+    executor: mymove_pusher
+    steps:
+      - run: echo "integration_tests done"
+
+  # `integration_tests_mtls` runs integration tests using
+  # prime-api-client.
+  #
+  # This could almost certainly be sped up in a manner similar to the
+  # integration_tests, but this test is short enough it isn't urgent
+  # right now
   integration_tests_mtls:
-    executor: mymove_medium_plus
+    executor: mymove_compiler
     steps:
       - aws_vars_transcom_gov_dev
       - checkout
@@ -968,7 +1004,7 @@ jobs:
           docker_layer_caching: false
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -980,7 +1016,7 @@ jobs:
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - run:
           name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - e2e_tests_mtls
       - store_test_results:
           path: cypress/results
@@ -988,16 +1024,15 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_and_postgres_large
+    executor: mymove_tester
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
-      - run: make bin/go-junit-report
-      - run: make bin/milmove
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      # make -j 2 tells make to run 2 simultaneous builds
+      - run: make -j 2 bin/milmove bin/go-junit-report
       - server_tests_step:
           application: app
       - store_artifacts:
@@ -1009,7 +1044,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_large
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
@@ -1017,18 +1052,23 @@ jobs:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: make client_test_coverage
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage
+          destination: coverage
+      - store_test_results:
+          path: ~/transcom/mymove
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests
   webhook_client_test:
-    executor: mymove_and_postgres_large
+    executor: mymove_tester
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: make db_test_reset
       - run:
           command: make db_test_migrate
@@ -1068,88 +1108,99 @@ jobs:
             DB_USER_LOW_PRIV: crud
       - announce_failure
 
-  # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
-  build_tools:
-    executor: mymove_medium_plus
+  # Compile the server side of the app once and persist the relevant
+  # build artifacts to the workspace.
+  # This way we don't have to re-run the build and since all necessary
+  # items are in the workspace, we don't even have to checkout the
+  # code again
+  compile_app_server:
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: make build_tools
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      # make -j 4 tells make to run 4 simultaneous builds
+      - run: make -j 4 server_build build_tools
       - persist_to_workspace:
-          root: /home/circleci/transcom/mymove/bin
+          root: .
           paths:
-            - ecs-deploy # for registering task defs and deploying task container
-            - ecs-service-logs # for showing logs on failed deploy
-            - generate-test-data # for integration tests
-            - health-checker # for confirming deploy success.
-            - mockery # for generating mocks
-            - renderer # for rendering ECS task definition
-            - tls-checker # for confirming app won't respond to invalid TLS settings.
-            - prime-api-client #for running Prime API integration tests
+            # Makefile for integration tests
+            - Makefile
+            # all the Dockerfiles
+            - Dockerfile
+            - Dockerfile.dp3
+            - Dockerfile.e2e
+            - Dockerfile.migrations
+            - Dockerfile.tasks
+            - Dockerfile.tasks_dp3
+            - Dockerfile.tools
+            - Dockerfile.webhook_client
+            - Dockerfile.webhook_client_dp3
+            - docker-compose.e2e.yml
+            - bin
+            - config
+            - migrations
+            # save scripts for deploy
+            - scripts
+            - swagger
+            - pkg/testdatagen/testdata
+      - announce_failure
+
+
+  # Compile the client side of the app once and persist the relevant
+  # build artifacts to the workspace.
+  # This way we don't have to re-run the build and since all necessary
+  # items are in the workspace, we don't even have to checkout the
+  # code again
+  #
+  # This step is the long pole in the tent before starting the
+  # integration tests. The server compile finishes in ~3m while this
+  # takes ~6m
+  compile_app_client:
+    executor: mymove_compiler
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Frozen YARN dependencies
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run: make client_build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+            - cypress
       - announce_failure
 
   # `build_app` builds the application container
   build_app:
-    executor: mymove_medium_plus
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - run: make bin/rds-ca-2019-root.pem
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
-      - run: make client_build
-      - run: make server_build
       - build_image:
           dockerfile: Dockerfile
           image_name: app
           tag: web-dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `build_dp3_app` builds the application container, replacing DoD chain/certs with non-ato version
   build_dp3_app:
-    executor: mymove_medium_plus
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - run: make bin/rds-ca-2019-root.pem
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
-      - run: make client_build
-      - run: make server_build
       - build_image:
           dockerfile: Dockerfile.dp3
           image_name: app
           tag: web-dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
@@ -1160,10 +1211,8 @@ jobs:
 
   # `push_app_demo` pushes the app container to the milmove-demo container repository
   push_app_demo:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_demo
       - push_image:
           ecr_env: demo
@@ -1174,10 +1223,8 @@ jobs:
 
   # `push_app_loadtest` pushes the app container to the milmove-loadtest container repository
   push_app_loadtest:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_loadtest
       - push_image:
           ecr_env: loadtest
@@ -1188,10 +1235,8 @@ jobs:
 
   # `push_app_exp` pushes the app container to the milmove-exp container repository
   push_app_exp:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_exp
       - push_image:
           ecr_env: exp
@@ -1202,10 +1247,8 @@ jobs:
 
   # `push_app_stg` pushes the app container to the milmove-stg container repository
   push_app_stg:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_stg
       - push_image:
           ecr_env: stg
@@ -1216,10 +1259,8 @@ jobs:
 
   # `push_app_prd` pushes the app container to the milmove-prd container repository
   push_app_prd:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_prd
       - push_image:
           ecr_env: prd
@@ -1230,7 +1271,7 @@ jobs:
 
   # `build_storybook` builds static storybook assets for deploy
   build_storybook:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
       - checkout
       - restore_cache:
@@ -1256,7 +1297,7 @@ jobs:
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
       - persist_to_workspace:
-          root: /home/circleci/transcom/mymove/
+          root: .
           paths:
             - storybook-static
       - store_artifacts:
@@ -1266,27 +1307,19 @@ jobs:
 
   # `build_migrations` builds the migrations container
   build_migrations:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run: make bin/rds-ca-2019-root.pem
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run: make server_build
       - build_image:
           dockerfile: Dockerfile.migrations
           image_name: app-migrations
           tag: dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_migrations_gov_dev` pushes the migrations container to the gov_dev container repository
   push_migrations_gov_dev:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
@@ -1297,10 +1330,8 @@ jobs:
 
   # `push_migrations_demo` pushes the migrations container to the milmove-demo container repository
   push_migrations_demo:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_demo
       - push_image:
           ecr_env: demo
@@ -1311,10 +1342,8 @@ jobs:
 
   # `push_migrations_loadtest` pushes the migrations container to the milmove-loadtest container repository
   push_migrations_loadtest:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_loadtest
       - push_image:
           ecr_env: loadtest
@@ -1325,10 +1354,8 @@ jobs:
 
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_exp
       - push_image:
           ecr_env: exp
@@ -1339,10 +1366,8 @@ jobs:
 
   # `push_migrations_stg` pushes the migrations container to the milmove-stg container repository
   push_migrations_stg:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_stg
       - push_image:
           ecr_env: stg
@@ -1353,10 +1378,8 @@ jobs:
 
   # `push_migrations_prd` pushes the migrations container to the milmove-prd container repository
   push_migrations_prd:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_prd
       - push_image:
           ecr_env: prd
@@ -1367,54 +1390,30 @@ jobs:
 
   # `build_tasks` builds the tasks containers
   build_tasks:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: make bin/rds-ca-2019-root.pem
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: make server_generate
-      - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
       - build_image:
           dockerfile: Dockerfile.tasks
           image_name: tasks
           tag: dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   #`build_dp3_tasks` builds the task container, replacing DoD chain/certs with non-ato version
   build_dp3_tasks:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: make bin/rds-ca-2019-root.pem
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: make server_generate
-      - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
       - build_image:
           dockerfile: Dockerfile.tasks_dp3
           image_name: tasks
           tag: dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
   push_tasks_gov_dev:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
@@ -1425,10 +1424,8 @@ jobs:
 
   # `push_tasks_demo` pushes the tasks containers to the milmove-demo container repository
   push_tasks_demo:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_demo
       - push_image:
           ecr_env: demo
@@ -1439,10 +1436,8 @@ jobs:
 
   # `push_tasks_loadtest` pushes the tasks containers to the milmove-loadtest container repository
   push_tasks_loadtest:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_loadtest
       - push_image:
           ecr_env: loadtest
@@ -1453,10 +1448,8 @@ jobs:
 
   # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
   push_tasks_exp:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_exp
       - push_image:
           ecr_env: exp
@@ -1467,10 +1460,8 @@ jobs:
 
   # `push_tasks_stg` pushes the tasks containers to the milmove-stg container repository
   push_tasks_stg:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_stg
       - push_image:
           ecr_env: stg
@@ -1481,10 +1472,8 @@ jobs:
 
   # `push_tasks_prd` pushes the tasks containers to the milmove-prd container repository
   push_tasks_prd:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_prd
       - push_image:
           ecr_env: prd
@@ -1495,42 +1484,30 @@ jobs:
 
   # `build_webhook_client` builds the webhook client container
   build_webhook_client:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run: make bin/webhook-client
       - build_image:
           dockerfile: Dockerfile.webhook_client
           image_name: webhook_client
           tag: dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
   build_dp3_webhook_client:
-    executor: mymove_medium
+    executor: mymove_builder
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run: make bin/webhook-client
       - build_image:
           dockerfile: Dockerfile.webhook_client_dp3
           image_name: webhook_client
           tag: dev
-          working_dir: ~/transcom/mymove
+          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_webhook_client_demo` pushes the webhook client container to the demo container repository
   push_webhook_client_demo:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_demo
       - push_image:
           ecr_env: demo
@@ -1541,10 +1518,8 @@ jobs:
 
   # `push_webhook_client_loadtest` pushes the webhook client container to the loadtest container repository
   push_webhook_client_loadtest:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_loadtest
       - push_image:
           ecr_env: loadtest
@@ -1555,10 +1530,8 @@ jobs:
 
   # `push_webhook_client_exp` pushes the webhook client container to the exp container repository
   push_webhook_client_exp:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_exp
       - push_image:
           ecr_env: exp
@@ -1569,10 +1542,8 @@ jobs:
 
   # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
   push_webhook_client_stg:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
       - aws_vars_stg
       - push_image:
           ecr_env: stg
@@ -1581,32 +1552,37 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
+
   # `deploy_demo_migrations` deploys migrations to the demo environment
   deploy_demo_migrations:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_migrations_steps:
           ecr_env: demo
 
   # `deploy_demo_tasks` deploys scheduled tasks to the demo environment
   deploy_demo_tasks:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_dp3_tasks_steps:
           ecr_env: demo
 
   # `deploy_demo_app` updates the server-TLS app service in the demo environment
   deploy_demo_app:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_app_steps:
           compare_host: '' # leave blank since we want demo to be able to roll back
@@ -1615,10 +1591,11 @@ jobs:
 
   # `deploy_demo_app_client_tls` updates the mutual-TLS service in the demo environment
   deploy_demo_app_client_tls:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - tls_vars_demo
       - deploy_app_client_tls_steps:
@@ -1628,41 +1605,45 @@ jobs:
 
   # `deploy_demo_webhook_client` deploys the webhook client to demo
   deploy_demo_webhook_client:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'demo'
     steps:
+      - checkout
       - aws_vars_demo
       - deploy_webhook_client_steps:
           ecr_env: demo
 
   # `deploy_loadtest_migrations` deploys migrations to the loadtest environment
   deploy_loadtest_migrations:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'loadtest'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_migrations_steps:
           ecr_env: loadtest
 
   # `deploy_loadtest_tasks` deploys scheduled tasks to the loadtest environment
   deploy_loadtest_tasks:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'loadtest'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_dp3_tasks_steps:
           ecr_env: loadtest
 
   # `deploy_loadtest_app` updates the server-TLS app service in the loadtest environment
   deploy_loadtest_app:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'loadtest'
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_app_steps:
           compare_host: '' # leave blank since we want loadtest to be able to roll back
@@ -1671,11 +1652,12 @@ jobs:
 
   # `deploy_loadtest_app_client_tls` updates the mutual-TLS service in the loadtest environment
   deploy_loadtest_app_client_tls:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'loadtest'
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - tls_vars_loadtest
       - deploy_app_client_tls_steps:
@@ -1685,41 +1667,45 @@ jobs:
 
   # `deploy_loadtest_webhook_client` deploys the webhook client to loadtest
   deploy_loadtest_webhook_client:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'loadtest'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_loadtest
       - deploy_webhook_client_steps:
           ecr_env: loadtest
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_migrations_steps:
           ecr_env: exp
 
   # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
   deploy_exp_tasks:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_dp3_tasks_steps:
           ecr_env: exp
 
   # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
   deploy_exp_app_client_tls:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - checkout
       - aws_vars_exp
       - tls_vars_exp
       - deploy_app_client_tls_steps:
@@ -1729,11 +1715,12 @@ jobs:
 
   # `deploy_exp_app` updates the server-TLS app service in the exp environment
   deploy_exp_app:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'exp'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_app_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
@@ -1742,17 +1729,18 @@ jobs:
 
   # `deploy_exp_webhook_client` deploys the webhook client to exp
   deploy_exp_webhook_client:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'exp'
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
+      - checkout
       - aws_vars_exp
       - deploy_webhook_client_steps:
           ecr_env: exp
 
   check_circle_against_stg_sha:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
       - checkout
       - run:
@@ -1761,30 +1749,33 @@ jobs:
 
   # `deploy_stg_migrations` deploys migrations to the stg environment
   deploy_stg_migrations:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_migrations_steps:
           ecr_env: stg
 
   # `deploy_stg_tasks` deploys scheduled tasks to the stg environment
   deploy_stg_tasks:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_tasks_steps:
           ecr_env: stg
 
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_app_steps:
           compare_host: my.stg.move.mil
@@ -1793,10 +1784,11 @@ jobs:
 
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - tls_vars_stg
       - deploy_app_client_tls_steps:
@@ -1806,47 +1798,52 @@ jobs:
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
   deploy_stg_webhook_client:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'stg'
     steps:
+      - checkout
       - aws_vars_stg
       - deploy_webhook_client_steps:
           ecr_env: stg
 
   deploy_storybook_dp3:
-    executor: mymove_small
+    executor: mymove_pusher
     steps:
+      - checkout
       - aws_vars_transcom_com_dev
       - deploy_app_storybook:
           s3_bucket: storybook.dp3.us
 
   # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
   deploy_prd_migrations:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_migrations_steps:
           ecr_env: prd
 
   # `deploy_prd_tasks` deploys ECS tasks in the milmove-prd environment
   deploy_prd_tasks:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_tasks_steps:
           ecr_env: prd
 
   # `deploy_prd_app` updates the server-TLS app service in the milmove-prd environment
   deploy_prd_app:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - deploy_app_steps:
           compare_host: my.move.mil
@@ -1855,10 +1852,11 @@ jobs:
 
   # `deploy_prd_app_client_tls` updates the mutual-TLS service in the milmove-prd environment
   deploy_prd_app_client_tls:
-    executor: mymove_small
+    executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
+      - checkout
       - aws_vars_prd
       - tls_vars_prd
       - deploy_app_client_tls_steps:
@@ -1901,15 +1899,52 @@ workflows:
             branches:
               only: *acceptance-branch
 
+      - integration_tests_admin:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      - integration_tests_office:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      - integration_tests_prime:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      - integration_tests_milmove:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
       - integration_tests:
           requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - check_generated_code
-            - push_app_gov_dev
-            - push_app_stg
-            - push_migrations_gov_dev
-            - push_migrations_stg
+            - integration_tests_admin
+            - integration_tests_office
+            - integration_tests_prime
+            - integration_tests_milmove
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
@@ -1948,11 +1983,20 @@ workflows:
             branches:
               ignore: *server-ignore-branch
 
-      - build_app:
+      - compile_app_server:
           requires:
             - anti_virus
             - pre_deps_golang
+
+      - compile_app_client:
+          requires:
+            - anti_virus
             - pre_deps_yarn
+
+      - build_app:
+          requires:
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               ignore: [*demo-branch, *loadtest-branch, *exp-branch]
@@ -1961,15 +2005,10 @@ workflows:
           requires:
             - build_app
 
-      - build_tools:
-          requires:
-            - anti_virus
-            - pre_deps_golang
-
       - build_migrations:
           requires:
-            - anti_virus
-            - pre_deps_golang
+            - compile_app_server
+            - compile_app_client
 
       - push_migrations_gov_dev:
           requires:
@@ -1980,15 +2019,16 @@ workflows:
 
       - build_tasks:
           requires:
-            - build_tools
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               ignore: [*demo-branch, *loadtest-branch, *exp-branch]
 
       - build_webhook_client:
           requires:
-            - anti_virus
-            - pre_deps_golang
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               ignore: [*demo-branch, *loadtest-branch, *exp-branch]
@@ -1999,9 +2039,8 @@ workflows:
 
       - build_dp3_app:
           requires:
-            - anti_virus
-            - pre_deps_golang
-            - pre_deps_yarn
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               only: [*demo-branch, *loadtest-branch, *exp-branch]
@@ -2022,7 +2061,8 @@ workflows:
 
       - build_dp3_tasks:
           requires:
-            - build_tools
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               only: [*demo-branch, *loadtest-branch, *exp-branch]
@@ -2036,8 +2076,8 @@ workflows:
 
       - build_dp3_webhook_client:
           requires:
-            - anti_virus
-            - pre_deps_golang
+            - compile_app_server
+            - compile_app_client
           filters:
             branches:
               only: [*demo-branch, *loadtest-branch, *exp-branch]
@@ -2055,8 +2095,9 @@ workflows:
             - pre_test
             - client_test
             - server_test
+            - compile_app_server
+            - compile_app_client
             - push_app_demo
-            - build_tools
             - push_tasks_demo
             - push_migrations_demo
             - push_webhook_client_demo
@@ -2127,7 +2168,8 @@ workflows:
             - client_test
             - server_test
             - push_app_loadtest
-            - build_tools
+            - compile_app_server
+            - compile_app_client
             - push_tasks_loadtest
             - push_migrations_loadtest
             - push_webhook_client_loadtest
@@ -2198,7 +2240,8 @@ workflows:
             - client_test
             - server_test
             - push_app_exp
-            - build_tools
+            - compile_app_server
+            - compile_app_client
             - push_tasks_exp
             - push_migrations_exp
             - push_webhook_client_exp
@@ -2269,7 +2312,8 @@ workflows:
             - client_test
             - server_test
             - push_app_stg
-            - build_tools
+            - compile_app_server
+            - compile_app_client
             - push_migrations_stg
             - push_tasks_stg
             - push_webhook_client_stg

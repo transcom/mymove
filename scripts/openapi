@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Use npx instead of installing via package.json so that server builds
+# do not depend on client dependencies.
+#
+# This doesn't have a huge effect on local dev, but the speedups in CI
+# are significant
+exec npx '@redocly/openapi-cli@^1.0.0-beta.62' "$@"
