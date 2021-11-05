@@ -13,3 +13,6 @@ type handlerContext struct {
 	DB         *pop.Connection
 	testString string
 }
+
+// TestFuncWithPopConnection func that takes in *pop.Connection as a param.
+func TestFuncWithPopConnection(db *pop.Connection) {} // want "Please use appcontext instead of pop.Connection"

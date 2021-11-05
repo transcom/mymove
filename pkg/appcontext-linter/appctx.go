@@ -2,6 +2,7 @@ package appcontextlinter
 
 import (
 	"go/ast"
+	"go/token"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -41,41 +42,74 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 
 		for _, declaration := range file.Decls {
-			t, ok := declaration.(*ast.GenDecl)
-			if !ok {
+			switch decl := declaration.(type) {
+			case *ast.FuncDecl:
+				paramsIncludePopConnection := checkIfFuncParamsIncludePopConnection(decl)
+
+				if paramsIncludePopConnection {
+					pass.Reportf(decl.Pos(), "Please use appcontext instead of pop.Connection")
+				}
+
+				continue
+
+			case *ast.GenDecl:
+				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, file.Name.Name)
+
+				for _, position := range positionsToFlag {
+					pass.Reportf(position, "Please remove pop.Connection from the struct if not in appcontext")
+				}
+			default:
 				continue
 			}
-
-			for _, spec := range t.Specs {
-				typeSpec, ok := spec.(*ast.TypeSpec)
-				if !ok {
-					continue
-				}
-
-				if typeSpec.Name.Name == "handlerContext" && file.Name.Name == "handlers" {
-					continue
-				}
-
-				structType, ok := typeSpec.Type.(*ast.StructType)
-				if !ok {
-					continue
-				}
-				// Checking the fields of the structs
-				for _, structField := range structType.Fields.List {
-					if checkForPopConnection(structField) {
-						pass.Reportf(typeSpec.Pos(), "Please remove pop.Connection from the struct if not in appcontext")
-						continue
-					}
-				}
-
-			}
-
 		}
 	})
 	return nil, nil
 }
 
 // TODO: Add logic to get it to run in circleCI and when run locally
+
+func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
+	for _, param := range funcToCheck.Type.Params.List {
+		if checkForPopConnection(param) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, fileName string) []token.Pos {
+	var declarationsToFlag []token.Pos
+
+	for _, spec := range declarationToCheck.Specs {
+		// Only want types, not imports, variables, or constants
+		typeSpec, ok := spec.(*ast.TypeSpec)
+		if !ok {
+			continue
+		}
+
+		// Special case because this is the one that sets up all handlers so it's allowed to use *pop.Connection
+		if typeSpec.Name.Name == "handlerContext" && fileName == "handlers" {
+			continue
+		}
+
+		// Specifically care about struct types
+		structType, ok := typeSpec.Type.(*ast.StructType)
+		if !ok {
+			continue
+		}
+
+		// Checking the fields of the struct
+		for _, structField := range structType.Fields.List {
+			if checkForPopConnection(structField) {
+				declarationsToFlag = append(declarationsToFlag, typeSpec.Pos())
+				break
+			}
+		}
+	}
+
+	return declarationsToFlag
+}
 
 func checkForPopConnection(field *ast.Field) bool {
 	// Look for a type called StarExpr where pop Connection might be

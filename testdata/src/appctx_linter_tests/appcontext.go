@@ -11,12 +11,19 @@ type AppContext struct {
 
 // TestAppContext Test pop connection in struct
 type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in appcontext"
-	DB         *pop.Connection // Look for a field whose type is Connection
+	DB         *pop.Connection
 	testString string
 }
 
-// No want statement because the linter isn't flagged here
-func TestAppContextFalse(db *pop.Connection) {}
+// TestHandler Test pop connection in another struct. Want to make sure both get flagged
+type TestHandler struct { // want "Please remove pop.Connection from the struct if not in appcontext"
+	DB         *pop.Connection
+	BackupDB   *pop.Connection
+	testString string
+}
 
-// TestAppCtxTrueFunc NOTE: We don't need a want statement here because we are testing tat the code passes
-func TestAppCtxTrueFunc(appCtx AppContext) {}
+// TestFuncWithPopConnection func that takes in *pop.Connection as a param.
+func TestFuncWithPopConnection(db *pop.Connection) {} // want "Please use appcontext instead of pop.Connection"
+
+// TestFuncWithAppContext NOTE: We don't need a want statement here because we are testing tat the code passes
+func TestFuncWithAppContext(appCtx AppContext) {}
