@@ -64,4 +64,26 @@ describe('Services counselor user', () => {
     // verify success alert
     cy.contains('Move submitted.');
   });
+
+  it('is able to flag a move for financial review', () => {
+    cy.wait(['@getSortedMoves']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // click to trigger financial review modal
+    cy.contains('Flag move for financial review').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('Yes').click();
+    cy.get('textarea').type('Because I said so...');
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move flagged for finacial review.');
+    cy.contains('Flagged for financial review');
+  });
 });
