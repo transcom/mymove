@@ -7,7 +7,7 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.4
-	github.com/XSAM/otelsql v0.7.0
+	github.com/XSAM/otelsql v0.9.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
 	github.com/aws/aws-sdk-go v1.41.4
@@ -89,7 +89,7 @@ require (
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1
 	go.opentelemetry.io/contrib/propagators/aws v1.0.0
 	go.opentelemetry.io/otel v1.1.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.24.0
