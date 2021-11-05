@@ -22,6 +22,6 @@ describe('FinancialReviewButton', () => {
     render(<FinancialReviewButton onClick={mockOnClick} reviewRequested />);
     const tag = screen.getByTestId('tag');
 
-    expect(tag).toHaveTextContent('Financial Review Requested');
+    expect(tag).toHaveTextContent('Flagged for financial review');
   });
 });

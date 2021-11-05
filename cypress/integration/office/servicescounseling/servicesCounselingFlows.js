@@ -84,6 +84,6 @@ describe('Services counselor user', () => {
 
     // Verify sucess alert and tag
     cy.contains('Move flagged for finacial review.');
-    cy.contains('Financial Review Requested');
+    cy.contains('Flagged for financial review');
   });
 });
