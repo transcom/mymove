@@ -7,11 +7,11 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.4
-	github.com/XSAM/otelsql v0.7.0
+	github.com/XSAM/otelsql v0.9.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.41.4
-	github.com/benbjohnson/clock v1.1.0
+	github.com/aws/aws-sdk-go v1.41.19
+	github.com/benbjohnson/clock v1.2.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
@@ -21,16 +21,16 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.20.1
-	github.com/go-openapi/loads v0.20.3
-	github.com/go-openapi/runtime v0.20.0
+	github.com/go-openapi/loads v0.21.0
+	github.com/go-openapi/runtime v0.21.0
 	github.com/go-openapi/spec v0.20.4
-	github.com/go-openapi/strfmt v0.20.3
+	github.com/go-openapi/strfmt v0.21.0
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.3
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.9.0
-	github.com/gobuffalo/envy v1.9.0
+	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobuffalo/nulls v0.4.0 // indirect
@@ -86,23 +86,23 @@ require (
 )
 
 require (
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.25.0
-	go.opentelemetry.io/contrib/propagators/aws v1.0.0
-	go.opentelemetry.io/otel v1.0.1
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.1.1
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.1
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.26.1
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1
+	go.opentelemetry.io/contrib/propagators/aws v1.1.1
+	go.opentelemetry.io/otel v1.1.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.24.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.24.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.0.1
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.0.1
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.1.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.1.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.24.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.0.1
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.1.0
 	go.opentelemetry.io/otel/metric v0.24.0
-	go.opentelemetry.io/otel/sdk v1.0.1
+	go.opentelemetry.io/otel/sdk v1.1.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.24.0
 	go.opentelemetry.io/otel/sdk/metric v0.24.0
-	go.opentelemetry.io/otel/trace v1.0.1
+	go.opentelemetry.io/otel/trace v1.1.0
 )
 
 require (
@@ -158,7 +158,7 @@ require (
 	github.com/jackc/pgtype v1.7.0 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
@@ -198,7 +198,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
-	go.mongodb.org/mongo-driver v1.5.1 // indirect
+	go.mongodb.org/mongo-driver v1.7.3 // indirect
 	go.opentelemetry.io/otel/internal/metric v0.24.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.9.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

@@ -1,9 +1,8 @@
 @import 'shared/styles/basics';
 
-.CreatePaymentRequest {
-
+.primeContainer {
   h2 {
-    @include u-font-size('heading', 'xl')
+    @include u-font-size('heading', 'xl');
   }
 
   .errorContainer {
@@ -12,12 +11,11 @@
     .errorTitle {
       @include u-display(block);
       @include u-margin-top(0);
-      @include u-font-size('heading', 'lg')
+      @include u-font-size('heading', 'lg');
     }
 
     .errorDetail {
-      @include u-display(block)
+      @include u-display(block);
     }
-
   }
 }

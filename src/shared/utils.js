@@ -153,3 +153,20 @@ export function dateSort(field, direction) {
     };
   }
 }
+
+export function isValidWeight(weight) {
+  if (weight !== 'undefined' && weight && weight > 0) {
+    return true;
+  }
+  return false;
+}
+
+export function isEmpty(obj) {
+  let empty = true;
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] !== 'undefined' && obj[key]) {
+      empty = false;
+    }
+  });
+  return empty;
+}

@@ -4,7 +4,7 @@ info:
   version: 0.0.1
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: https://opensource.org/licenses/MIT
   contact:
     email: dp3@truss.works
   description: >
@@ -128,7 +128,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}':
+  /move-task-orders/{moveTaskOrderID}:
     parameters:
       - description: UUID of move task order to use.
         in: path
@@ -167,7 +167,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/available-to-prime':
+  /move-task-orders/{moveTaskOrderID}/available-to-prime:
     parameters:
       - description: UUID of move task order.
         in: path
@@ -250,7 +250,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/payment-requests':
+  /move-task-orders/{moveTaskOrderID}/payment-requests:
     get:
       summary: listMTOPaymentRequests
       description: >
@@ -291,7 +291,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/status':
+  /payment-requests/{paymentRequestID}/status:
     parameters:
       - description: UUID of payment request.
         format: uuid
@@ -346,7 +346,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-service-items/{mtoServiceItemID}/status':
+  /mto-service-items/{mtoServiceItemID}/status:
     parameters:
       - description: UUID of mto service item to use.
         in: path
@@ -397,7 +397,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/status':
+  /mto-shipments/{mtoShipmentID}/status:
     parameters:
       - description: UUID of the shipment being updated.
         in: path
@@ -516,7 +516,7 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/edi':
+  /payment-requests/{paymentRequestID}/edi:
     parameters:
       - description: UUID of the payment request for which EDI should be generated.
         format: uuid
@@ -607,7 +607,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/recalculate':
+  /payment-requests/{paymentRequestID}/recalculate:
     parameters:
       - description: UUID of the payment request to recalculate.
         format: uuid
@@ -796,7 +796,7 @@ definitions:
         format: zip
         title: ZIP
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
       country:
         type: string
         title: Country
@@ -837,12 +837,12 @@ definitions:
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       currentAddress:
         $ref: '#/definitions/Address'
@@ -1060,13 +1060,13 @@ definitions:
       selectedMoveType:
         $ref: '#/definitions/SelectedMoveType'
       ppmType:
-        description: 'If the move is a PPM, indicates whether it is full or partial.'
+        description: If the move is a PPM, indicates whether it is full or partial.
         type: string
         enum:
           - FULL
           - PARTIAL
       ppmEstimatedWeight:
-        description: 'If the move is a PPM, this is the estimated weight in lbs.'
+        description: If the move is a PPM, this is the estimated weight in lbs.
         type: integer
       eTag:
         description: >
@@ -1121,12 +1121,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
+        pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
@@ -1246,7 +1246,7 @@ definitions:
             description: >-
               Time of delivery corresponding to `firstAvailableDeliveryDate1`,
               in military format.
-            pattern: '\d{4}Z'
+            pattern: \d{4}Z
           firstAvailableDeliveryDate1:
             format: date
             type: string
@@ -1257,7 +1257,7 @@ definitions:
             description: >-
               Time of delivery corresponding to `firstAvailableDeliveryDate2`,
               in military format.
-            pattern: '\d{4}Z'
+            pattern: \d{4}Z
           firstAvailableDeliveryDate2:
             format: date
             type: string
@@ -1374,7 +1374,7 @@ definitions:
             type: string
             format: zip
             example: '90210'
-            pattern: '^(\d{5}([\-]\d{4})?)$'
+            pattern: ^(\d{5}([\-]\d{4})?)$
           sitEntryDate:
             format: date
             type: string
@@ -1803,7 +1803,7 @@ definitions:
         type: array
     type: object
   Rank:
-    description: 'Rank of the service member, must match specific list of available ranks.'
+    description: Rank of the service member, must match specific list of available ranks.
     type: string
     enum:
       - E_1
@@ -1959,7 +1959,7 @@ definitions:
       url:
         type: string
         format: uri
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
         example: filename.pdf

@@ -67,3 +67,25 @@ export const formatAddressForPrimeAPI = (address) => {
     postalCode: address.postal_code,
   };
 };
+
+const emptyAddress = {
+  street_address_1: '',
+  street_address_2: '',
+  city: '',
+  state: '',
+  postal_code: '',
+};
+
+export function fromPrimeAPIAddressFormat(address) {
+  if (!address) {
+    return emptyAddress;
+  }
+  return {
+    street_address_1: address.streetAddress1,
+    street_address_2: address.streetAddress2,
+    street_address_3: address.streetAddress3,
+    city: address.city,
+    state: address.state,
+    postal_code: address.postalCode,
+  };
+}

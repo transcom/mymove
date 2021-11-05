@@ -56,6 +56,15 @@ repos:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
 
+  - repo: local
+    hooks:
+      - id: ato-go-linter
+        name: ato-go-linter
+        entry: scripts/pre-commit-go-custom-linter ato-linter
+        files: \.go$
+        pass_filenames: false
+        language: script
+
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.29.0
     hooks:
