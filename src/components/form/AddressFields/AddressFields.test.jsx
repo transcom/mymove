@@ -24,11 +24,11 @@ describe('AddressFields component', () => {
     it('renders a legend and all address inputs', () => {
       const initialValues = {
         address: {
-          street_address_1: '123 Main St',
-          street_address_2: 'Apt 3A',
+          streetAddress1: '123 Main St',
+          streetAddress2: 'Apt 3A',
           city: 'New York',
           state: 'NY',
-          postal_code: '10002',
+          postalCode: '10002',
         },
       };
 
@@ -49,11 +49,11 @@ describe('AddressFields component', () => {
     it('puts the validator on the expected field', async () => {
       const initialValues = {
         address: {
-          street_address_1: '',
-          street_address_2: '',
+          streetAddress1: '',
+          streetAddress2: '',
           city: '',
           state: '',
-          postal_code: '',
+          postalCode: '',
         },
       };
 
