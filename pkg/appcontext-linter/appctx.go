@@ -1,3 +1,7 @@
+// Package appcontextlinter This linter makes sure that we only use *pop.Connections in a few allowed places. We want
+// to do this so that we can ensure our database connections are set up properly and remain consistent for each request
+// we handle. See allowList below for list of packages allowed to use *pop.Connection directly. Another allowed use is
+// handlers.handlerContext because it sets up appcontext with a DB connection for our handlers.
 package appcontextlinter
 
 import (
@@ -47,7 +51,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				paramsIncludePopConnection := checkIfFuncParamsIncludePopConnection(decl)
 
 				if paramsIncludePopConnection {
-					pass.Reportf(decl.Pos(), "Please use appcontext instead of pop.Connection")
+					pass.Reportf(decl.Pos(), "Please use appcontext instead of pop.Connection.")
 				}
 
 				continue
@@ -56,7 +60,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, file.Name.Name)
 
 				for _, position := range positionsToFlag {
-					pass.Reportf(position, "Please remove pop.Connection from the struct if not in appcontext")
+					pass.Reportf(position, "Please remove pop.Connection from the struct if not in allowed places (see pkg/appcontext-linter/appctx.go for valid placements).")
 				}
 			default:
 				continue

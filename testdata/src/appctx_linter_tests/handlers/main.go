@@ -3,7 +3,7 @@ package handlers
 import pop "github.com/gobuffalo/pop/v5"
 
 // TestAppContext Test pop connection in struct.
-type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in appcontext"
+type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in allowed places (see pkg/appcontext-linter/appctx.go for valid placements)."
 	DB         *pop.Connection // Look for a field whose type is Connection
 	testString string
 }
@@ -15,4 +15,4 @@ type handlerContext struct {
 }
 
 // TestFuncWithPopConnection func that takes in *pop.Connection as a param.
-func TestFuncWithPopConnection(db *pop.Connection) {} // want "Please use appcontext instead of pop.Connection"
+func TestFuncWithPopConnection(db *pop.Connection) {} // want "Please use appcontext instead of pop.Connection."
