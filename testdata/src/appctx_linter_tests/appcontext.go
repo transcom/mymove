@@ -10,13 +10,13 @@ type AppContext struct {
 }
 
 // TestAppContext Test pop connection in struct
-type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in allowed places (see pkg/appcontext-linter/appctx.go for valid placements)."
+type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements."
 	DB         *pop.Connection
 	testString string
 }
 
 // TestHandler Test pop connection in another struct. Want to make sure both get flagged
-type TestHandler struct { // want "Please remove pop.Connection from the struct if not in allowed places (see pkg/appcontext-linter/appctx.go for valid placements)."
+type TestHandler struct { // want "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements."
 	DB         *pop.Connection
 	BackupDB   *pop.Connection
 	testString string

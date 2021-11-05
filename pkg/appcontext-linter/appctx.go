@@ -60,7 +60,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, file.Name.Name)
 
 				for _, position := range positionsToFlag {
-					pass.Reportf(position, "Please remove pop.Connection from the struct if not in allowed places (see pkg/appcontext-linter/appctx.go for valid placements).")
+					pass.Reportf(position, "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements.")
 				}
 			default:
 				continue
