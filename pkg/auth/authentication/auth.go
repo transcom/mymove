@@ -620,8 +620,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		appCtx.Logger().Error("Inactive user requesting authentication",
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
 			zap.String("hostname", appCtx.Session().Hostname),
-			zap.String("user_id", appCtx.Session().UserID.String()),
-			zap.String("email", appCtx.Session().Email))
+			zap.String("user_id", appCtx.Session().UserID.String()))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
@@ -637,7 +636,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 
 	if appCtx.Session().IsOfficeApp() {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
-			appCtx.Logger().Error("Office user is deactivated", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("Office user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -647,11 +646,11 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(appCtx.DB(), appCtx.Session().Email)
 			if err == models.ErrFetchNotFound {
-				appCtx.Logger().Error("Non-office user authenticated at office site", zap.String("email", appCtx.Session().Email))
+				appCtx.Logger().Error("Non-office user authenticated at office site", zap.String("userID", appCtx.Session().UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
-				appCtx.Logger().Error("Checking for office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+				appCtx.Logger().Error("Checking for office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -659,7 +658,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			officeUser.UserID = &userIdentity.ID
 			err = appCtx.DB().Save(officeUser)
 			if err != nil {
-				appCtx.Logger().Error("Updating office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+				appCtx.Logger().Error("Updating office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -668,7 +667,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 
 	if appCtx.Session().IsAdminApp() {
 		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
-			appCtx.Logger().Error("Admin user is deactivated", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("Admin user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -685,11 +684,11 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			err := queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				appCtx.Logger().Error("No admin user found", zap.String("email", appCtx.Session().Email))
+				appCtx.Logger().Error("No admin user found", zap.String("userID", appCtx.Session().UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
-				appCtx.Logger().Error("Checking for admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -699,13 +698,13 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			adminUser.UserID = &userIdentity.ID
 			verrs, err := appCtx.DB().ValidateAndSave(&adminUser)
 			if err != nil {
-				appCtx.Logger().Error("Updating admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+				appCtx.Logger().Error("Updating admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 
 			if verrs != nil {
-				appCtx.Logger().Error("Admin user validation errors", zap.String("email", appCtx.Session().Email), zap.Error(verrs))
+				appCtx.Logger().Error("Admin user validation errors", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(verrs))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -737,16 +736,16 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	if appCtx.Session().IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
 		if err == models.ErrFetchNotFound {
-			appCtx.Logger().Error("No Office user found", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("No Office user found", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
-			appCtx.Logger().Error("Checking for office user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+			appCtx.Logger().Error("Checking for office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 		if !officeUser.Active {
-			appCtx.Logger().Error("Office user is deactivated", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("Office user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -762,16 +761,16 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			appCtx.Logger().Error("No admin user found", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("No admin user found", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
-			appCtx.Logger().Error("Checking for admin user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+			appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 		if !adminUser.Active {
-			appCtx.Logger().Error("Admin user is deactivated", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Error("Admin user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -785,7 +784,6 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Info(
 				"New user account created through Login.gov",
 				zap.String("newUserID", user.ID.String()),
-				zap.String("sysAdminEmail", sysAdminEmail),
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
