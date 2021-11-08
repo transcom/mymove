@@ -10,15 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: chrisdickinson/setup-yq@latest
-    - name: 'Show folks how to run YQ:'
-      run: |
-        yq --help
-        yq --version
-        yq r -pv .circleci/config.yml '.references.exp-branch'
-        yq r -pv .circleci/config.yml '.references.loadtest-branch'
-        yq r -pv .circleci/config.yml '.references.demo-branch'
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Example report branch
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval '.references.exp-branch' .circleci/config.yml
 
   changes:
     runs-on: ubuntu-latest
