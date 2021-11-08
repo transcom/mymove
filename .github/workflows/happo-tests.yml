@@ -5,6 +5,17 @@ on:
     branches: [master]
 
 jobs:
+  yq-example:
+    name: YQ example!
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: chrisdickinson/setup-yq@latest
+    - name: 'Show folks how to run YQ:'
+      run: |
+        yq --help
+
   changes:
     runs-on: ubuntu-latest
     outputs:
