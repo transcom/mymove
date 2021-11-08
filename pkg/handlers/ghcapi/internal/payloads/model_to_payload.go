@@ -385,8 +385,6 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
-		//TACType:					 ghcmessages.LOAType(mtoShipment.TACType),
-		//SACType:					 ghcmessages.LOAType(mtoShipment.SACType),
 	}
 
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
@@ -411,6 +409,16 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if sitStatusPayload != nil {
 		payload.SitStatus = sitStatusPayload
+	}
+
+	if mtoShipment.TACType != nil {
+		tt := ghcmessages.LOAType(*mtoShipment.TACType)
+		payload.TacType = &tt
+	}
+
+	if mtoShipment.SACType != nil {
+		st := ghcmessages.LOAType(*mtoShipment.SACType)
+		payload.SacType = &st
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
