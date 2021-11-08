@@ -5,9 +5,9 @@ on:
     branches: [master]
 
 jobs:
-  yq-example:
-    name: YQ example!
-    id: lookupSdkVersion
+  check-env:
+    name: Check Environment we are deploying to
+    id: checkEnv
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +19,9 @@ jobs:
           cmd: yq eval '.references.exp-branch' .circleci/config.yml
 
   changes:
+    name: Check for frontend changes
     runs-on: ubuntu-latest
-    if: ${{ steps.lookupSdkVersion.outputs.result == 'bob' }}
+    if: ${{ steps.checkEnv.outputs.result == 'bob' }}
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
