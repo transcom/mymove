@@ -4,7 +4,7 @@ info:
   version: 0.0.1
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: https://opensource.org/licenses/MIT
   contact:
     email: dp3@truss.works
   description: >
@@ -118,7 +118,7 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveID}':
+  /move-task-orders/{moveID}:
     get:
       summary: getMoveTaskOrder
       description: >
@@ -153,7 +153,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/excess-weight-record':
+  /move-task-orders/{moveTaskOrderID}/excess-weight-record:
     post:
       summary: createExcessWeightRecord
       description: >
@@ -196,7 +196,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+  /move-task-orders/{moveTaskOrderID}/post-counseling-info:
     parameters:
       - description: ID of move task order to use.
         in: path
@@ -310,7 +310,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}':
+  /mto-shipments/{mtoShipmentID}:
     patch:
       summary: updateMTOShipment
       description: >
@@ -381,7 +381,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
+  /mto-shipments/{mtoShipmentID}/addresses/{addressID}:
     put:
       summary: updateMTOShipmentAddress
       description: >
@@ -464,7 +464,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/agents':
+  /mto-shipments/{mtoShipmentID}/agents:
     post:
       summary: createMTOAgent
       description: >
@@ -527,7 +527,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/agents/{agentID}':
+  /mto-shipments/{mtoShipmentID}/agents/{agentID}:
     put:
       summary: updateMTOAgent
       description: >
@@ -596,7 +596,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}':
+  /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}:
     patch:
       summary: updateReweigh
       description: >
@@ -671,7 +671,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/sit-extensions':
+  /mto-shipments/{mtoShipmentID}/sit-extensions:
     post:
       summary: createSITExtension
       description: >
@@ -722,7 +722,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/status':
+  /mto-shipments/{mtoShipmentID}/status:
     patch:
       summary: updateMTOShipmentStatus
       description: >
@@ -916,7 +916,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-service-items/{mtoServiceItemID}':
+  /mto-service-items/{mtoServiceItemID}:
     patch:
       summary: updateMTOServiceItem
       description: >
@@ -1018,7 +1018,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/uploads':
+  /payment-requests/{paymentRequestID}/uploads:
     post:
       summary: createUpload
       description: >
@@ -1207,7 +1207,7 @@ definitions:
         format: zip
         title: ZIP
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
       country:
         type: string
         title: Country
@@ -1385,7 +1385,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         example: fake@example.com
       eTag:
         type: string
@@ -1627,12 +1627,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
+        pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
@@ -1681,7 +1681,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: 'The ID of the shipment this service is for, if any. Optional.'
+        description: The ID of the shipment this service is for, if any. Optional.
       reServiceName:
         type: string
         readOnly: true
@@ -1735,7 +1735,7 @@ definitions:
             description: >-
               Time of delivery corresponding to `firstAvailableDeliveryDate1`,
               in military format.
-            pattern: '\d{4}Z'
+            pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate1:
             format: date
@@ -1748,7 +1748,7 @@ definitions:
             description: >-
               Time of delivery corresponding to `firstAvailableDeliveryDate2`,
               in military format.
-            pattern: '\d{4}Z'
+            pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
@@ -1883,7 +1883,7 @@ definitions:
             type: string
             format: zip
             example: '90210'
-            pattern: '^(\d{5}([\-]\d{4})?)$'
+            pattern: ^(\d{5}([\-]\d{4})?)$
           sitEntryDate:
             format: date
             type: string
@@ -2661,7 +2661,7 @@ definitions:
       url:
         type: string
         format: uri
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
         example: filename.pdf
@@ -2979,7 +2979,7 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   UnprocessableEntity:
-    description: 'The request was unprocessable, likely due to bad input from the requester.'
+    description: The request was unprocessable, likely due to bad input from the requester.
     schema:
       $ref: '#/definitions/ValidationError'
   Conflict:
