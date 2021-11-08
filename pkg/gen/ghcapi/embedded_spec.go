@@ -3338,24 +3338,13 @@ func init() {
           "format": "date"
         },
         "sacType": {
-          "description": "The SAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "tacType": {
-          "description": "The TAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         }
       }
     },
@@ -3717,6 +3706,16 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "x-nullable": true,
+      "example": "HHG"
     },
     "MTOAgent": {
       "type": "object",
@@ -4119,6 +4118,9 @@ func init() {
           "x-omitempty": true,
           "$ref": "#/definitions/Reweigh"
         },
+        "sacType": {
+          "$ref": "#/definitions/LOAType"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -4133,11 +4135,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "sitDaysAllowance": {
           "type": "integer",
@@ -4151,6 +4149,9 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tacType": {
+          "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
           "type": "string",
@@ -4185,6 +4186,8 @@ func init() {
       ],
       "x-display-value": {
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB"
       },
@@ -5504,27 +5507,13 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "description": "The SAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tacType": {
-          "description": "The TAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         }
       }
     },
@@ -9776,24 +9765,13 @@ func init() {
           "format": "date"
         },
         "sacType": {
-          "description": "The SAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "tacType": {
-          "description": "The TAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         }
       }
     },
@@ -10155,6 +10133,16 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "x-nullable": true,
+      "example": "HHG"
     },
     "MTOAgent": {
       "type": "object",
@@ -10557,6 +10545,9 @@ func init() {
           "x-omitempty": true,
           "$ref": "#/definitions/Reweigh"
         },
+        "sacType": {
+          "$ref": "#/definitions/LOAType"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -10571,11 +10562,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "sitDaysAllowance": {
           "type": "integer",
@@ -10589,6 +10576,9 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tacType": {
+          "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
           "type": "string",
@@ -10623,6 +10613,8 @@ func init() {
       ],
       "x-display-value": {
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB"
       },
@@ -11948,27 +11940,13 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "description": "The SAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tacType": {
-          "description": "The TAC type that will be used for the shipment",
-          "type": "string",
-          "enum": [
-            "HHG",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "HHG"
+          "$ref": "#/definitions/LOAType"
         }
       }
     },

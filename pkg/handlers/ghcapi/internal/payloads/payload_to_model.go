@@ -156,14 +156,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	model := &models.MTOShipment{
 		MoveTaskOrderID:  uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		Status:           models.MTOShipmentStatusSubmitted,
+		ShipmentType:     models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:  mtoShipment.CustomerRemarks,
 		CounselorRemarks: mtoShipment.CounselorRemarks,
-		TACType:		  tacType,
-		SACType:		  sacType,
-	}
-
-	if mtoShipment.ShipmentStatus != nil {
-		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
+		TACType:          tacType,
+		SACType:          sacType,
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
@@ -232,8 +229,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		RequestedDeliveryDate:       requestedDeliveryDate,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		TACType:					 tacType,
-		SACType:					 sacType,
+		TACType:                     tacType,
+		SACType:                     sacType,
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)

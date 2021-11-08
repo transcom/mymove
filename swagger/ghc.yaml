@@ -3345,10 +3345,7 @@ definitions:
         example: handle with care
         x-nullable: true
       shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
@@ -3382,6 +3379,10 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
+      tacType:
+        $ref: '#/definitions/LOAType'
+      sacType:
+        $ref: '#/definitions/LOAType'
   UpdateShipment:
     type: object
     properties:
@@ -3424,21 +3425,9 @@ definitions:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
       tacType:
-        description: The TAC type that will be used for the shipment
-        type: string
-        example: HHG
-        enum:
-          - HHG
-          - NTS
-        x-nullable: true
+        $ref: '#/definitions/LOAType'
       sacType:
-        description: The SAC type that will be used for the shipment
-        type: string
-        example: HHG
-        enum:
-          - HHG
-          - NTS
-        x-nullable: true
+        $ref: '#/definitions/LOAType'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3502,22 +3491,12 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
       tacType:
-        description: The TAC type that will be used for the shipment
-        type: string
-        example: HHG
-        enum:
-          - HHG
-          - NTS
-        x-nullable: true
+        $ref: '#/definitions/LOAType'
       sacType:
-        description: The SAC type that will be used for the shipment
-        type: string
-        example: HHG
-        enum:
-          - HHG
-          - NTS
-        x-nullable: true
+        $ref: '#/definitions/LOAType'
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -3550,6 +3529,8 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
   RejectShipment:
     properties:
       rejectionReason:
@@ -4044,6 +4025,14 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  LOAType:
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    type: string
+    example: HHG
+    enum:
+      - HHG
+      - NTS
+    x-nullable: true
   SITExtension:
     type: object
     description: >-

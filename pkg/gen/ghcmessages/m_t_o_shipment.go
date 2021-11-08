@@ -115,6 +115,9 @@ type MTOShipment struct {
 	// reweigh
 	Reweigh *Reweigh `json:"reweigh,omitempty"`
 
+	// sac type
+	SacType *LOAType `json:"sacType,omitempty"`
+
 	// scheduled pickup date
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate,omitempty"`
@@ -126,8 +129,7 @@ type MTOShipment struct {
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
-	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
-	ShipmentType interface{} `json:"shipmentType,omitempty"`
+	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
 	// sit days allowance
 	SitDaysAllowance *int64 `json:"sitDaysAllowance,omitempty"`
@@ -140,6 +142,9 @@ type MTOShipment struct {
 
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
+
+	// tac type
+	TacType *LOAType `json:"tacType,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -202,6 +207,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -214,6 +223,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitExtensions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -223,6 +236,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTacType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -413,6 +430,23 @@ func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateSacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.SacType) { // not required
+		return nil
+	}
+
+	if m.SacType != nil {
+		if err := m.SacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
@@ -454,6 +488,21 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
 	}
 
 	return nil
@@ -506,6 +555,23 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.TacType) { // not required
+		return nil
+	}
+
+	if m.TacType != nil {
+		if err := m.TacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -546,11 +612,19 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -563,6 +637,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTacType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -647,6 +725,20 @@ func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt
 	return nil
 }
 
+func (m *MTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SacType != nil {
+		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SecondaryDeliveryAddress != nil {
@@ -670,6 +762,18 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
 	}
 
 	return nil
@@ -708,6 +812,20 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 			return ve.ValidateName("status")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TacType != nil {
+		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			}
+			return err
+		}
 	}
 
 	return nil
