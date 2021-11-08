@@ -21,7 +21,6 @@
     white-space: nowrap;
     @include u-minw(8);
     text-align: left;
-
   }
 
   &:last-child {
@@ -74,6 +73,6 @@
   border-left: 5px solid $accent-nts;
 }
 
-.shipment-list-item-NTS-R {
+.shipment-list-item-NTS-Release {
   border-left: 5px solid $accent-ntsr;
 }

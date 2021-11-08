@@ -74,7 +74,7 @@ export const SIGNED_CERT_OPTIONS = {
 };
 
 export const shipmentOptionLabels = [
-  { key: SHIPMENT_OPTIONS.NTSR, label: 'NTS-R' },
+  { key: SHIPMENT_OPTIONS.NTSR, label: 'NTS-Release' },
   { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },

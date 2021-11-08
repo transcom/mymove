@@ -68,7 +68,7 @@ func MakeNTSShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	return MTOShipment
 }
 
-// MakeNTSRShipment creates a single MTOShipment of type NTS-R and associated set relationships
+// MakeNTSRShipment creates a single MTOShipment of type NTS-Release and associated set relationships
 func MakeNTSRShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 
 	// Make move if it was not provided
