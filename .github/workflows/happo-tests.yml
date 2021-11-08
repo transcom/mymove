@@ -15,6 +15,10 @@ jobs:
     - name: 'Show folks how to run YQ:'
       run: |
         yq --help
+        yq --version
+        yq r .circleci/config.yml '.references.exp-branch'
+        yq r .circleci/config.yml '.references.loadtest-branch'
+        yq r .circleci/config.yml '.references.demo-branch'
 
   changes:
     runs-on: ubuntu-latest
