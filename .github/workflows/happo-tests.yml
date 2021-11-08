@@ -7,6 +7,7 @@ on:
 jobs:
   yq-example:
     name: YQ example!
+    id: lookupSdkVersion
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +20,7 @@ jobs:
 
   changes:
     runs-on: ubuntu-latest
+    if: ${{ steps.lookupSdkVersion.outputs.result == 'bob' }}
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
