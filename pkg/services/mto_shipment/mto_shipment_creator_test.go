@@ -217,68 +217,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(createdShipment.MTOServiceItems[0].MTOShipmentID, &createdShipment.ID, "Service items are not the same")
 	})
 
-	suite.Run("If the move already has a submitted NTS shipment, it should return a validation error", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		appCtx := subtestData.appCtx
-		creator := subtestData.shipmentCreator
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-				Status:       models.MTOShipmentStatusSubmitted,
-			},
-		})
-
-		secondNTSShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-				Status:       models.MTOShipmentStatusDraft,
-			},
-			Stub: true,
-		})
-
-		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
-		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSShipment, serviceItemsList)
-
-		suite.Nil(createdShipment)
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-	})
-
-	suite.Run("If the move already has a submitted NTSr shipment, it should return a validation error", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		appCtx := subtestData.appCtx
-		creator := subtestData.shipmentCreator
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:       models.MTOShipmentStatusSubmitted,
-			},
-		})
-
-		secondNTSrShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:       models.MTOShipmentStatusDraft,
-			},
-			Stub: true,
-		})
-
-		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSrShipment := clearShipmentIDFields(&secondNTSrShipment)
-		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSrShipment, serviceItemsList)
-
-		suite.Nil(createdShipment)
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-	})
-
 	suite.Run("422 Validation Error - only one mto agent of each type", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		appCtx := subtestData.appCtx
