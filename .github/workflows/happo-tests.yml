@@ -16,9 +16,9 @@ jobs:
       run: |
         yq --help
         yq --version
-        yq r .circleci/config.yml '.references.exp-branch'
-        yq r .circleci/config.yml '.references.loadtest-branch'
-        yq r .circleci/config.yml '.references.demo-branch'
+        yq r -v .circleci/config.yml '.references.exp-branch'
+        yq r -v .circleci/config.yml '.references.loadtest-branch'
+        yq r -v .circleci/config.yml '.references.demo-branch'
 
   changes:
     runs-on: ubuntu-latest
