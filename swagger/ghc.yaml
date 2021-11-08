@@ -3423,6 +3423,22 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
+      tacType:
+        description: The TAC type that will be used for the shipment
+        type: string
+        example: HHG
+        enum:
+          - HHG
+          - NTS
+        x-nullable: true
+      sacType:
+        description: The SAC type that will be used for the shipment
+        type: string
+        example: HHG
+        enum:
+          - HHG
+          - NTS
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3486,6 +3502,22 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      tacType:
+        description: The TAC type that will be used for the shipment
+        type: string
+        example: HHG
+        enum:
+          - HHG
+          - NTS
+        x-nullable: true
+      sacType:
+        description: The SAC type that will be used for the shipment
+        type: string
+        example: HHG
+        enum:
+          - HHG
+          - NTS
+        x-nullable: true
     required:
       - moveTaskOrderID
       - requestedPickupDate

@@ -141,12 +141,29 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		return nil
 	}
 
+	var tacType *models.LOAType
+	if mtoShipment.TacType != nil {
+		tt := models.LOAType(*mtoShipment.TacType)
+		tacType = &tt
+	}
+
+	var sacType *models.LOAType
+	if mtoShipment.SacType != nil {
+		st := models.LOAType(*mtoShipment.SacType)
+		sacType = &st
+	}
+
 	model := &models.MTOShipment{
 		MoveTaskOrderID:  uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:     models.MTOShipmentTypeHHG,
 		Status:           models.MTOShipmentStatusSubmitted,
 		CustomerRemarks:  mtoShipment.CustomerRemarks,
 		CounselorRemarks: mtoShipment.CounselorRemarks,
+		TACType:		  tacType,
+		SACType:		  sacType,
+	}
+
+	if mtoShipment.ShipmentStatus != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
@@ -194,6 +211,19 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		bwc := unit.Pound(*mtoShipment.BillableWeightCap)
 		billableWeightCap = &bwc
 	}
+
+	var tacType *models.LOAType
+	if mtoShipment.TacType != nil {
+		tt := models.LOAType(*mtoShipment.TacType)
+		tacType = &tt
+	}
+
+	var sacType *models.LOAType
+	if mtoShipment.SacType != nil {
+		st := models.LOAType(*mtoShipment.SacType)
+		sacType = &st
+	}
+
 	model := &models.MTOShipment{
 		BillableWeightCap:           billableWeightCap,
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
@@ -202,6 +232,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		RequestedDeliveryDate:       requestedDeliveryDate,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
+		TACType:					 tacType,
+		SACType:					 sacType,
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)

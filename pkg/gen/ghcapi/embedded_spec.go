@@ -3336,6 +3336,26 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        },
+        "sacType": {
+          "description": "The SAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
+        },
+        "tacType": {
+          "description": "The TAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
         }
       }
     },
@@ -5483,8 +5503,28 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sacType": {
+          "description": "The SAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tacType": {
+          "description": "The TAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
         }
       }
     },
@@ -9734,6 +9774,26 @@ func init() {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        },
+        "sacType": {
+          "description": "The SAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
+        },
+        "tacType": {
+          "description": "The TAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
         }
       }
     },
@@ -11887,8 +11947,28 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sacType": {
+          "description": "The SAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tacType": {
+          "description": "The TAC type that will be used for the shipment",
+          "type": "string",
+          "enum": [
+            "HHG",
+            "NTS"
+          ],
+          "x-nullable": true,
+          "example": "HHG"
         }
       }
     },

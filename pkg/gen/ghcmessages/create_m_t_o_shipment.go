@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -71,6 +72,16 @@ type CreateMTOShipment struct {
 	// Required: true
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+
+	// The SAC type that will be used for the shipment
+	// Example: HHG
+	// Enum: [HHG NTS]
+	SacType *string `json:"sacType,omitempty"`
+
+	// The TAC type that will be used for the shipment
+	// Example: HHG
+	// Enum: [HHG NTS]
+	TacType *string `json:"tacType,omitempty"`
 }
 
 // Validate validates this create m t o shipment
@@ -98,6 +109,14 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTacType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -176,6 +195,90 @@ func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry)
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var createMTOShipmentTypeSacTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HHG","NTS"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		createMTOShipmentTypeSacTypePropEnum = append(createMTOShipmentTypeSacTypePropEnum, v)
+	}
+}
+
+const (
+
+	// CreateMTOShipmentSacTypeHHG captures enum value "HHG"
+	CreateMTOShipmentSacTypeHHG string = "HHG"
+
+	// CreateMTOShipmentSacTypeNTS captures enum value "NTS"
+	CreateMTOShipmentSacTypeNTS string = "NTS"
+)
+
+// prop value enum
+func (m *CreateMTOShipment) validateSacTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createMTOShipmentTypeSacTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.SacType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateSacTypeEnum("sacType", "body", *m.SacType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var createMTOShipmentTypeTacTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HHG","NTS"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		createMTOShipmentTypeTacTypePropEnum = append(createMTOShipmentTypeTacTypePropEnum, v)
+	}
+}
+
+const (
+
+	// CreateMTOShipmentTacTypeHHG captures enum value "HHG"
+	CreateMTOShipmentTacTypeHHG string = "HHG"
+
+	// CreateMTOShipmentTacTypeNTS captures enum value "NTS"
+	CreateMTOShipmentTacTypeNTS string = "NTS"
+)
+
+// prop value enum
+func (m *CreateMTOShipment) validateTacTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createMTOShipmentTypeTacTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.TacType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateTacTypeEnum("tacType", "body", *m.TacType); err != nil {
 		return err
 	}
 
