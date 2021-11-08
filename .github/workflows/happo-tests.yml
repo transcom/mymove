@@ -21,7 +21,8 @@ jobs:
   changes:
     name: Check for frontend changes
     runs-on: ubuntu-latest
-    if: ${{ steps.checkEnv.outputs.result == 'bob' }}
+    needs: checkEnv
+    if: ${{ needs.checkEnv.outputs.result == 'placeholder_branch_name' }}
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
