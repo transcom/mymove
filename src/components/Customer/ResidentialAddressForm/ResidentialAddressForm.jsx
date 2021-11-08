@@ -19,6 +19,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
   return (
     <Formik
       initialValues={initialValues}
+      initialValues={initialValues}
       onSubmit={onSubmit}
       validateOnChange={false}
       validateOnMount
