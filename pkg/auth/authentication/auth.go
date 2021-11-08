@@ -72,11 +72,11 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
-				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
+				logger.Error("unauthorized user for office.move.mil", zap.String("user_id", session.UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
-				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
+				logger.Error("unauthorized user for admin.move.mil", zap.String("user_id", session.UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
@@ -108,7 +108,7 @@ func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) 
 
 	err = appCtx.DB().Save(user)
 	if err != nil {
-		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("email", appCtx.Session().Email), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 
@@ -131,7 +131,7 @@ func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
 	}
 	err = appCtx.DB().Save(user)
 	if err != nil {
-		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("email", appCtx.Session().Email), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 
@@ -142,7 +142,7 @@ func currentUser(appCtx appcontext.AppContext) (*models.User, error) {
 	userID := appCtx.Session().UserID
 	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		appCtx.Logger().Error("Getting the user", zap.String("email", appCtx.Session().Email), zap.Error(err))
+		appCtx.Logger().Error("Getting the user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return nil, err
 	}
 
@@ -184,7 +184,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 	// Check to see if sessionID is set on the user, presently
 	existingSessionID := currentSessionID(appCtx.Session(), user)
 	if existingSessionID != "" {
-		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("email", appCtx.Session().Email))
+		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("user_id", appCtx.Session().UserID.String()))
 
 		// Lookup the old session that wasn't logged out
 		_, exists, err := sessionManager.Store.Find(existingSessionID)
@@ -194,9 +194,9 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 		}
 
 		if !exists {
-			appCtx.Logger().Info("Session expired", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Info("Session expired", zap.String("user_id", appCtx.Session().UserID.String()))
 		} else {
-			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("email", appCtx.Session().Email))
+			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("user_id", appCtx.Session().UserID.String()))
 
 			// We need to delete the concurrent session.
 			err := sessionManager.Store.Delete(existingSessionID)
