@@ -78,12 +78,12 @@ const PrimeUIShipmentUpdateAddress = () => {
   const onSubmit = (values, { setSubmitting }) => {
     const body = {
       id: values.addressID,
-      streetAddress1: values.address.street_address_1,
-      streetAddress2: values.address.street_address_2,
-      streetAddress3: values.address.street_address_3,
+      streetAddress1: values.address.streetAddress1,
+      streetAddress2: values.address.streetAddress2,
+      streetAddress3: values.address.streetAddress3,
       city: values.address.city,
       state: values.address.state,
-      postalCode: values.address.postal_code,
+      postalCode: values.address.postalCode,
     };
 
     mutateMTOShipment({
