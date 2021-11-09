@@ -60,7 +60,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           pickupAddress: shipment.pickupAddress,
           secondaryPickupAddress: shipment.secondaryPickupAddress,
           destinationAddress: shipment.destinationAddress || {
-            postal_code: order.destinationDutyStation.address.postal_code,
+            postalCode: order.destinationDutyStation.address.postalCode,
           },
           secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
