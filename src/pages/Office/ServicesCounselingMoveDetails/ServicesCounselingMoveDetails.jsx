@@ -124,7 +124,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
 
-      setAlertMessage('Move flagged for finacial review.');
+      setAlertMessage('Move flagged for financial review.');
       setAlertType('success');
     },
     onError: () => {
@@ -217,7 +217,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                   </Link>
                 )
               }
-              finacialReviewOpen={handleShowFinancialReviewModal}
+              financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
               <FinancialReviewButton
