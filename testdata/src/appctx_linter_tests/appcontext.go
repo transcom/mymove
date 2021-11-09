@@ -2,10 +2,6 @@ package appctx_linter_tests
 
 import pop "github.com/gobuffalo/pop/v5"
 
-//type pop struct {
-//	Connection string
-//}
-
 type AppContext struct {
 	ID          string
 	Elapsed     int64
@@ -14,7 +10,7 @@ type AppContext struct {
 }
 
 // Test pop connection in struct
-type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in models"
+type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in appcontext"
 	DB         *pop.Connection // Look for a field whose type is Connection
 	testString string
 }

@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { formatDate, formatWeight } from '../../../shared/formatters';
-import { ResidentialAddressShape } from '../../../types/address';
-
+import { ResidentialAddressShape } from 'types/address';
+import { formatDate, formatWeight } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
