@@ -3297,6 +3297,9 @@ definitions:
         $ref: 'definitions/LOAType.yaml'
       sacType:
         $ref: 'definitions/LOAType.yaml'
+      usesExternalVendor:
+        type: boolean
+        example: false
   UpdateShipment:
     type: object
     properties:
@@ -3342,6 +3345,9 @@ definitions:
         $ref: 'definitions/LOAType.yaml'
       sacType:
         $ref: 'definitions/LOAType.yaml'
+      usesExternalVendor:
+        type: boolean
+        example: false
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3405,6 +3411,9 @@ definitions:
         $ref: 'definitions/LOAType.yaml'
       sacType:
         $ref: 'definitions/LOAType.yaml'
+      usesExternalVendor:
+        type: boolean
+        example: false
     required:
       - moveTaskOrderID
       - requestedPickupDate

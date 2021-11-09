@@ -64,6 +64,10 @@ type UpdateShipment struct {
 
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
+
+	// uses external vendor
+	// Example: false
+	UsesExternalVendor bool `json:"usesExternalVendor,omitempty"`
 }
 
 // Validate validates this update shipment

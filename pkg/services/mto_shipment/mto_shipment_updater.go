@@ -64,6 +64,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 	}
 
 	dbShipment.Diversion = requestedUpdatedShipment.Diversion
+	dbShipment.UsesExternalVendor = requestedUpdatedShipment.UsesExternalVendor
 
 	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
 		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
@@ -597,6 +598,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.BillableWeightJustification,
 		mtoShipment.TACType,
 		mtoShipment.SACType,
+		mtoShipment.UsesExternalVendor,
 		mtoShipment.ID,
 	}
 }
@@ -627,7 +629,8 @@ func generateUpdateMTOShipmentQuery() string {
 			billable_weight_cap = ?,
 			billable_weight_justification = ?,
 			tac_type = ?,
-			sac_type = ?
+			sac_type = ?,
+			uses_external_vendor = ?
 		WHERE
 			id = ?
 	`

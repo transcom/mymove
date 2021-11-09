@@ -3345,6 +3345,10 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -4156,6 +4160,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -5514,6 +5522,10 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -9772,6 +9784,10 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -10583,6 +10599,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -11947,6 +11967,10 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
