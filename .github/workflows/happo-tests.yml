@@ -7,7 +7,6 @@ on:
 jobs:
   check-env:
     name: Check Environment we are deploying to
-    id: checkEnv
     runs-on: ubuntu-latest
 
     steps:
