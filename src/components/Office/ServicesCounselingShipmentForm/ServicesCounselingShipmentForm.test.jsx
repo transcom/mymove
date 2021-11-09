@@ -239,11 +239,11 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
   });
 
-  describe('creating a new NTS-Release shipment', () => {
-    it('renders the NTS-Release shipment form', async () => {
+  describe('creating a new NTS-release shipment', () => {
+    it('renders the NTS-release shipment form', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
-      expect(await screen.findByText('NTS-Release')).toHaveClass('usa-tag');
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();

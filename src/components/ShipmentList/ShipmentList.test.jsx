@@ -32,9 +32,9 @@ describe('ShipmentList component', () => {
     expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
     expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
     expect(wrapper.find('.shipment-list-item-NTS span').text()).toBe('#ID-3');
-    expect(wrapper.find('.shipment-list-item-NTS-Release').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS-Release strong').text()).toBe('NTS-Release');
-    expect(wrapper.find('.shipment-list-item-NTS-Release span').text()).toBe('#ID-4');
+    expect(wrapper.find('.shipment-list-item-NTS-release').length).toBe(1);
+    expect(wrapper.find('.shipment-list-item-NTS-release strong').text()).toBe('NTS-release');
+    expect(wrapper.find('.shipment-list-item-NTS-release span').text()).toBe('#ID-4');
   });
 
   it('ShipmentList calls onShipmentClick when clicked', () => {

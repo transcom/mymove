@@ -881,7 +881,7 @@ func getNtsAndNtsrUuids(move int) [7]string {
 func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumber int) {
 	db := appCtx.DB()
 	/*
-	 * A service member with an NTS, NTS-Release shipment, & unsubmitted move
+	 * A service member with an NTS, NTS-release shipment, & unsubmitted move
 	 */
 	uuids := getNtsAndNtsrUuids(moveNumber)
 	email := fmt.Sprintf("nts.%d@nstr.unsubmitted", moveNumber)
@@ -983,7 +983,7 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Spaceman"),
-			LastName:  models.StringPointer("NTS-Release"),
+			LastName:  models.StringPointer("NTS-release"),
 		},
 	})
 }
