@@ -173,11 +173,11 @@ const ServicesCounselingShipmentForm = ({
               pickup: {
                 ...values.pickup,
                 address: {
-                  street_address_1: '',
-                  street_address_2: '',
+                  streetAddress1: '',
+                  streetAddress2: '',
                   city: '',
                   state: '',
-                  postal_code: '',
+                  postalCode: '',
                 },
               },
             });
@@ -309,7 +309,7 @@ const ServicesCounselingShipmentForm = ({
                             <br />
                             <strong>
                               {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                              {newDutyStationAddress.postal_code}{' '}
+                              {newDutyStationAddress.postalCode}{' '}
                             </strong>
                           </p>
                         )}
@@ -426,7 +426,7 @@ ServicesCounselingShipmentForm.defaultProps = {
   newDutyStationAddress: {
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   },
   mtoShipment: {
     id: '',
@@ -436,9 +436,9 @@ ServicesCounselingShipmentForm.defaultProps = {
     requestedDeliveryDate: '',
     destinationAddress: {
       city: '',
-      postal_code: '',
+      postalCode: '',
       state: '',
-      street_address_1: '',
+      streetAddress1: '',
     },
   },
 };

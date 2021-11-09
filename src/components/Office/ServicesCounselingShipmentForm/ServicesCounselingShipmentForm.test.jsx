@@ -19,14 +19,14 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-    street_address_2: '',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
   },
   serviceMember: {
     weightAllotment: {
@@ -45,16 +45,16 @@ const mockMtoShipment = {
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   mtoAgents: [
     {
@@ -126,13 +126,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
-        defaultProps.currentResidence.street_address_1,
+        defaultProps.currentResidence.streetAddress1,
       );
 
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
       expect(screen.getAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -142,12 +142,12 @@ describe('ServicesCounselingShipmentForm component', () => {
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
-        'pickup.address.street_address_1',
+        'pickup.address.streetAddress1',
       );
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
       expect(screen.getAllByLabelText('City')[0]).toHaveAttribute('name', 'pickup.address.city');
       expect(screen.getAllByLabelText('City')[1]).toHaveAttribute('name', 'delivery.address.city');
@@ -155,8 +155,8 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('State')[0]).toHaveAttribute('name', 'pickup.address.state');
       expect(screen.getAllByLabelText('State')[1]).toHaveAttribute('name', 'delivery.address.state');
 
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postal_code');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postal_code');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
   });
 
@@ -319,18 +319,18 @@ describe('ServicesCounselingShipmentForm component', () => {
           customerRemarks: newCustomerRemarks,
           counselorRemarks: newCounselorRemarks,
           destinationAddress: {
-            street_address_1: '441 SW Rio de la Plata Drive',
+            streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
             state: 'WA',
-            postal_code: '98421',
-            street_address_2: '',
+            postalCode: '98421',
+            streetAddress2: '',
           },
           pickupAddress: {
-            street_address_1: '812 S 129th St',
+            streetAddress1: '812 S 129th St',
             city: 'San Antonio',
             state: 'TX',
-            postal_code: '78234',
-            street_address_2: '',
+            postalCode: '78234',
+            streetAddress2: '',
           },
           agents: [
             {
