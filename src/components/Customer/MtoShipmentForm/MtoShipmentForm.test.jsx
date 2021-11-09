@@ -35,14 +35,14 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-    street_address_2: '',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
   },
   serviceMember: {
     weight_allotment: {
@@ -121,11 +121,11 @@ describe('MtoShipmentForm component', () => {
       userEvent.click(queryByLabelText('Use my current address'));
 
       await waitFor(() => {
-        expect(queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.street_address_1);
+        expect(queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.streetAddress1);
         expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
         expect(queryAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
         expect(queryAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-        expect(queryAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
+        expect(queryAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
       });
     });
 
@@ -135,10 +135,10 @@ describe('MtoShipmentForm component', () => {
       userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
-      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.street_address_1');
+      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.street_address_2');
+      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
 
       const city = await screen.findAllByLabelText('City');
       expect(city[1]).toHaveAttribute('name', 'secondaryPickup.address.city');
@@ -147,7 +147,7 @@ describe('MtoShipmentForm component', () => {
       expect(state[1]).toHaveAttribute('name', 'secondaryPickup.address.state');
 
       const zip = await screen.findAllByLabelText('ZIP');
-      expect(zip[1]).toHaveAttribute('name', 'secondaryPickup.address.postal_code');
+      expect(zip[1]).toHaveAttribute('name', 'secondaryPickup.address.postalCode');
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -156,12 +156,12 @@ describe('MtoShipmentForm component', () => {
       userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
-      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.street_address_1');
-      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
+      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
-      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
       const city = await screen.findAllByLabelText('City');
       expect(city[0]).toHaveAttribute('name', 'pickup.address.city');
@@ -172,8 +172,8 @@ describe('MtoShipmentForm component', () => {
       expect(state[1]).toHaveAttribute('name', 'delivery.address.state');
 
       const zip = await screen.findAllByLabelText('ZIP');
-      expect(zip[0]).toHaveAttribute('name', 'pickup.address.postal_code');
-      expect(zip[1]).toHaveAttribute('name', 'delivery.address.postal_code');
+      expect(zip[0]).toHaveAttribute('name', 'pickup.address.postalCode');
+      expect(zip[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
 
     it('renders the secondary destination address question once a user says they have a primary destination address', async () => {
@@ -198,11 +198,11 @@ describe('MtoShipmentForm component', () => {
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
       expect(streetAddress1.length).toBe(3);
-      expect(streetAddress1[2]).toHaveAttribute('name', 'secondaryDelivery.address.street_address_1');
+      expect(streetAddress1[2]).toHaveAttribute('name', 'secondaryDelivery.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2.length).toBe(3);
-      expect(streetAddress2[2]).toHaveAttribute('name', 'secondaryDelivery.address.street_address_2');
+      expect(streetAddress2[2]).toHaveAttribute('name', 'secondaryDelivery.address.streetAddress2');
 
       const city = await screen.findAllByLabelText('City');
       expect(city.length).toBe(3);
@@ -214,7 +214,7 @@ describe('MtoShipmentForm component', () => {
 
       const zip = await screen.findAllByLabelText('ZIP');
       expect(zip.length).toBe(3);
-      expect(zip[2]).toHaveAttribute('name', 'secondaryDelivery.address.postal_code');
+      expect(zip[2]).toHaveAttribute('name', 'secondaryDelivery.address.postalCode');
     });
 
     it('goes back when the back button is clicked', async () => {
@@ -232,11 +232,11 @@ describe('MtoShipmentForm component', () => {
       const shipmentInfo = {
         requestedPickupDate: '07 Jun 2021',
         pickupAddress: {
-          street_address_1: '812 S 129th St',
-          street_address_2: '#123',
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
           city: 'San Antonio',
           state: 'TX',
-          postal_code: '78234',
+          postalCode: '78234',
         },
         requestedDeliveryDate: '14 Jun 2021',
       };
@@ -273,10 +273,10 @@ describe('MtoShipmentForm component', () => {
       userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getByLabelText(/Address 2/);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getByLabelText('City');
       userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
@@ -285,7 +285,7 @@ describe('MtoShipmentForm component', () => {
       userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
       userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
@@ -307,11 +307,11 @@ describe('MtoShipmentForm component', () => {
       const shipmentInfo = {
         requestedPickupDate: '07 Jun 2021',
         pickupAddress: {
-          street_address_1: '812 S 129th St',
-          street_address_2: '#123',
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
           city: 'San Antonio',
           state: 'TX',
-          postal_code: '78234',
+          postalCode: '78234',
         },
         requestedDeliveryDate: '14 Jun 2021',
       };
@@ -327,10 +327,10 @@ describe('MtoShipmentForm component', () => {
       userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getByLabelText(/Address 2/);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getByLabelText('City');
       userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
@@ -339,7 +339,7 @@ describe('MtoShipmentForm component', () => {
       userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
       userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
@@ -375,17 +375,17 @@ describe('MtoShipmentForm component', () => {
       requestedDeliveryDate: '2021-08-11',
       pickupAddress: {
         id: uuidv4(),
-        street_address_1: '812 S 129th St',
+        streetAddress1: '812 S 129th St',
         city: 'San Antonio',
         state: 'TX',
-        postal_code: '78234',
+        postalCode: '78234',
       },
       destinationAddress: {
         id: uuidv4(),
-        street_address_1: '441 SW Rio de la Plata Drive',
+        streetAddress1: '441 SW Rio de la Plata Drive',
         city: 'Tacoma',
         state: 'WA',
-        postal_code: '98421',
+        postalCode: '98421',
       },
     };
 
@@ -429,18 +429,18 @@ describe('MtoShipmentForm component', () => {
           mtoShipment={{
             ...mockMtoShipment,
             secondaryPickupAddress: {
-              street_address_1: '142 E Barrel Hoop Circle',
-              street_address_2: '#4A',
+              streetAddress1: '142 E Barrel Hoop Circle',
+              streetAddress2: '#4A',
               city: 'Corpus Christi',
               state: 'TX',
-              postal_code: '78412',
+              postalCode: '78412',
             },
             secondaryDeliveryAddress: {
-              street_address_1: '3373 NW Martin Luther King Jr Blvd',
-              street_address_2: '',
+              streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+              streetAddress2: '',
               city: mockMtoShipment.destinationAddress.city,
               state: mockMtoShipment.destinationAddress.state,
-              postal_code: mockMtoShipment.destinationAddress.postal_code,
+              postalCode: mockMtoShipment.destinationAddress.postalCode,
             },
           }}
         />,
@@ -476,7 +476,7 @@ describe('MtoShipmentForm component', () => {
       expect(streetAddress2[3]).toHaveValue('');
       expect(city[3]).toHaveValue(mockMtoShipment.destinationAddress.city);
       expect(state[3]).toHaveValue(mockMtoShipment.destinationAddress.state);
-      expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postal_code);
+      expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postalCode);
     });
 
     it.each([
@@ -593,11 +593,11 @@ describe('MtoShipmentForm component', () => {
     it('can submit edits to an HHG shipment successfully', async () => {
       const shipmentInfo = {
         pickupAddress: {
-          street_address_1: '6622 Airport Way S',
-          street_address_2: '#1430',
+          streetAddress1: '6622 Airport Way S',
+          streetAddress2: '#1430',
           city: 'San Marcos',
           state: 'TX',
-          postal_code: '78666',
+          postalCode: '78666',
         },
       };
 
@@ -608,7 +608,7 @@ describe('MtoShipmentForm component', () => {
         customerRemarks: mockMtoShipment.customerRemarks,
         requestedPickupDate: mockMtoShipment.requestedPickupDate,
         requestedDeliveryDate: mockMtoShipment.requestedDeliveryDate,
-        destinationAddress: { ...mockMtoShipment.destinationAddress, street_address_2: '' },
+        destinationAddress: { ...mockMtoShipment.destinationAddress, streetAddress2: '' },
         secondaryDeliveryAddress: undefined,
         secondaryPickupAddress: undefined,
         agents: undefined,
@@ -638,11 +638,11 @@ describe('MtoShipmentForm component', () => {
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
       userEvent.clear(pickupAddress1Input);
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
       userEvent.clear(pickupAddress2Input);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getAllByLabelText('City')[0];
       userEvent.clear(pickupCityInput);
@@ -653,7 +653,7 @@ describe('MtoShipmentForm component', () => {
 
       const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
       userEvent.clear(pickupPostalCodeInput);
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
@@ -671,11 +671,11 @@ describe('MtoShipmentForm component', () => {
     it('shows an error when there is an error with the submission', async () => {
       const shipmentInfo = {
         pickupAddress: {
-          street_address_1: '6622 Airport Way S',
-          street_address_2: '#1430',
+          streetAddress1: '6622 Airport Way S',
+          streetAddress2: '#1430',
           city: 'San Marcos',
           state: 'TX',
-          postal_code: '78666',
+          postalCode: '78666',
         },
       };
 
@@ -695,11 +695,11 @@ describe('MtoShipmentForm component', () => {
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
       userEvent.clear(pickupAddress1Input);
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
       userEvent.clear(pickupAddress2Input);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getAllByLabelText('City')[0];
       userEvent.clear(pickupCityInput);
@@ -710,7 +710,7 @@ describe('MtoShipmentForm component', () => {
 
       const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
       userEvent.clear(pickupPostalCodeInput);
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();

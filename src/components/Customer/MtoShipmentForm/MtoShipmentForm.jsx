@@ -38,11 +38,11 @@ import Callout from 'components/Callout';
 
 const blankAddress = {
   address: {
-    street_address_1: '',
-    street_address_2: '',
+    streetAddress1: '',
+    streetAddress2: '',
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   },
 };
 
@@ -378,7 +378,7 @@ class MtoShipmentForm extends Component {
                                   <br />
                                   <strong>
                                     {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                    {newDutyStationAddress.postal_code}{' '}
+                                    {newDutyStationAddress.postalCode}{' '}
                                   </strong>
                                   <br />
                                   You can add the specific delivery address later, once you know it.
@@ -495,7 +495,7 @@ MtoShipmentForm.defaultProps = {
   newDutyStationAddress: {
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   },
   mtoShipment: {
     id: '',
@@ -504,9 +504,9 @@ MtoShipmentForm.defaultProps = {
     requestedDeliveryDate: '',
     destinationAddress: {
       city: '',
-      postal_code: '',
+      postalCode: '',
       state: '',
-      street_address_1: '',
+      streetAddress1: '',
     },
   },
 };
