@@ -19,4 +19,4 @@ jobs:
       - name: Exp report branch
         uses: mikefarah/yq@master
         with:
-          cmd: eval .circleci/config.yml
+          cmd: yq eval '.' '.circleci/config.yml'
