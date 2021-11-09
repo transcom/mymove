@@ -137,6 +137,8 @@ func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.
 	if addressModel != nil {
 		modelStorageFacility.Address = *addressModel
 	}
+
+	return modelStorageFacility
 }
 
 // ApprovedSITExtensionFromCreate model
