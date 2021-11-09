@@ -159,14 +159,20 @@ func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
 	}
 
 	logoutPath.RawQuery = params.Encode()
-	return logoutPath.String()
+	strLogoutPath := logoutPath.String()
+	p.logger.Info("Logout path", zap.String("strLogoutPath", strLogoutPath))
+
+	return strLogoutPath
 }
 
 // TokenURL returns a full URL to retrieve a user token from login.gov
 func (p LoginGovProvider) TokenURL() string {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
-	return fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
+	tokenURL := fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
+	p.logger.Info("LoginGovProvider", zap.String("tokenUrl", tokenURL))
+
+	return tokenURL
 }
 
 // TokenParams creates query params for use in the token endpoint
