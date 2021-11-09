@@ -152,6 +152,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.ServiceOrderNumber = requestedUpdatedShipment.ServiceOrderNumber
 	}
 
+	if requestedUpdatedShipment.StorageFacility != nil {
+		dbShipment.StorageFacility = requestedUpdatedShipment.StorageFacility
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		agentsToCreateOrUpdate := []models.MTOAgent{}
@@ -401,6 +405,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			newShipment.SecondaryDeliveryAddressID = &newShipment.SecondaryDeliveryAddress.ID
 		}
 
+		if newShipment.StorageFacility != nil {
+			if dbShipment.StorageFacilityID != nil {
+				newShipment.StorageFacility.ID = *dbShipment.StorageFacilityID
+			}
+
+			err := txnAppCtx.DB().Save(newShipment.StorageFacility)
+			if err != nil {
+				return err
+			}
+
+			newShipment.StorageFacilityID = &newShipment.StorageFacility.ID
+		}
+
 		if len(newShipment.MTOAgents) != 0 {
 			agentQuery := `UPDATE mto_agents
 					SET
@@ -604,6 +621,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.SACType,
 		mtoShipment.UsesExternalVendor,
 		mtoShipment.ServiceOrderNumber,
+		mtoShipment.StorageFacilityID,
 		mtoShipment.ID,
 	}
 }
@@ -636,7 +654,8 @@ func generateUpdateMTOShipmentQuery() string {
 			tac_type = ?,
 			sac_type = ?,
 			uses_external_vendor = ?,
-			service_order_number = ?
+			service_order_number = ?,
+			storage_facility_id = ?
 		WHERE
 			id = ?
 	`

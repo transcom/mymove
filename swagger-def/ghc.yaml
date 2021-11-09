@@ -3303,6 +3303,9 @@ definitions:
       serviceOrderNumber:
         type: string
         x-nullable: true
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
   UpdateShipment:
     type: object
     properties:
@@ -3354,6 +3357,10 @@ definitions:
       serviceOrderNumber:
         type: string
         x-nullable: true
+      storageFacility:
+        x-nullable: true
+        allOf:
+          - $ref: 'definitions/StorageFacility.yaml'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3423,6 +3430,10 @@ definitions:
       serviceOrderNumber:
         type: string
         x-nullable: true
+      storageFacility:
+        x-nullable: true
+        allOf:
+          - $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
       - requestedPickupDate

@@ -264,6 +264,24 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// StorageFacility payload
+func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.StorageFacility {
+	if storageFacility == nil {
+		return nil
+	}
+	address := Address(&storageFacility.Address)
+	payload := ghcmessages.StorageFacility{
+		ID:           strfmt.UUID(storageFacility.ID.String()),
+		FacilityName: storageFacility.FacilityName,
+		Address:      address,
+		LotNumber:    storageFacility.LotNumber,
+		Phone:        storageFacility.Phone,
+		Email:        storageFacility.Email,
+	}
+
+	return &payload
+}
+
 // BackupContact payload
 func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	var name, email, phone string
@@ -387,6 +405,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
+		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 	}
 
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {

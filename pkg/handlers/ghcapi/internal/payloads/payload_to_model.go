@@ -115,6 +115,30 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 	return modelAddress
 }
 
+// StorageFacilityModel model
+func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.StorageFacility {
+	// To check if the model is intended to be blank, we'll look at both ID and FacilityName
+	// We should always have ID if the user intends to update an Address,
+	// and FacilityName is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	if storageFacility == nil || (storageFacility.ID == blankSwaggerID && storageFacility.FacilityName == "") {
+		return nil
+	}
+
+	modelStorageFacility := &models.StorageFacility{
+		ID:           uuid.FromStringOrNil(storageFacility.ID.String()),
+		FacilityName: storageFacility.FacilityName,
+		LotNumber:    storageFacility.LotNumber,
+		Phone:        storageFacility.Phone,
+		Email:        storageFacility.Email,
+	}
+
+	addressModel := AddressModel(storageFacility.Address)
+	if addressModel != nil {
+		modelStorageFacility.Address = *addressModel
+	}
+}
+
 // ApprovedSITExtensionFromCreate model
 func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
 	if sitExtension == nil {
@@ -186,6 +210,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
+	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
+	if storageFacilityModel != nil{
+		model.StorageFacility = storageFacilityModel
+	}
+
 	return model
 }
 
@@ -242,6 +271,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
+	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
+	if storageFacilityModel != nil{
+		model.StorageFacility = storageFacilityModel
 	}
 
 	return model

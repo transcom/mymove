@@ -3347,6 +3347,14 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "storageFacility": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ],
+          "x-nullable": true
+        },
         "tacType": {
           "$ref": "#/definitions/LOAType"
         },
@@ -4161,6 +4169,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
@@ -5240,6 +5252,39 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -5531,6 +5576,14 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ],
+          "x-nullable": true
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
@@ -9798,6 +9851,14 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "storageFacility": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ],
+          "x-nullable": true
+        },
         "tacType": {
           "$ref": "#/definitions/LOAType"
         },
@@ -10612,6 +10673,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"
@@ -11694,6 +11759,39 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -11988,6 +12086,14 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ],
+          "x-nullable": true
         },
         "tacType": {
           "$ref": "#/definitions/LOAType"

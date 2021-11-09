@@ -146,6 +146,9 @@ type MTOShipment struct {
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
+	// storage facility
+	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
+
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
 
@@ -243,6 +246,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStorageFacility(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -562,6 +569,23 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateStorageFacility(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageFacility) { // not required
+		return nil
+	}
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
 	if swag.IsZero(m.TacType) { // not required
 		return nil
@@ -644,6 +668,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -819,6 +847,20 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 			return ve.ValidateName("status")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
 	}
 
 	return nil

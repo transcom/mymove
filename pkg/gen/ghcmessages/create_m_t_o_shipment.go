@@ -81,6 +81,11 @@ type CreateMTOShipment struct {
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
+	// storage facility
+	StorageFacility struct {
+		StorageFacility
+	} `json:"storageFacility,omitempty"`
+
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
 
@@ -122,6 +127,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStorageFacility(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -242,6 +251,14 @@ func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *CreateMTOShipment) validateStorageFacility(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageFacility) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
 	if swag.IsZero(m.TacType) { // not required
 		return nil
@@ -284,6 +301,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -359,6 +380,11 @@ func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 		}
 		return err
 	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
