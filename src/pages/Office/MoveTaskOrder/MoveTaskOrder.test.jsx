@@ -546,7 +546,7 @@ describe('MoveTaskOrder', () => {
       expect(navLinks.at(2).contains('1'));
       expect(navLinks.at(2).prop('href')).toBe('#s-4');
 
-      expect(navLinks.at(3).contains('NTS-R shipment')).toBe(true);
+      expect(navLinks.at(3).contains('NTS-release shipment')).toBe(true);
       expect(navLinks.at(3).prop('href')).toBe('#s-5');
 
       expect(navLinks.at(4).contains('HHG shipment')).toBe(true);
