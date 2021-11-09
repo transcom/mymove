@@ -27,10 +27,10 @@ const defaultProps = {
 
 const secondaryDeliveryAddress = {
   secondaryDeliveryAddress: {
-    street_address_1: 'Some Street Name',
+    streetAddress1: 'Some Street Name',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 
