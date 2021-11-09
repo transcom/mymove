@@ -141,3 +141,12 @@ export const NTSRShipmentWithSecondaryDestinationAddress = () => (
 );
 
 export const PPMShipment = () => <PPMShipmentCard {...ppmDefaultProps} />;
+
+export const WithBlankRemarks = () => (
+  <>
+    <HHGShipmentCard {...hhgDefaultProps} remarks="" />
+    <PPMShipmentCard {...ppmDefaultProps} remarks="" />
+    <NTSShipmentCard {...ntsDefaultProps} remarks="" />
+    <NTSRShipmentCard {...ntsrDefaultProps} remarks="" />
+  </>
+);
