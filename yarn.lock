@@ -16587,10 +16587,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin-import-csv@^1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.24.tgz#7a8f4778e5ddc7a13a8dd4ef86d4f0e14b8804ea"
-  integrity sha512-yFcu44dy7I51JS3ig0G1Izm7FEWom+/qb4D4vOe6bc6rF55rgqJ7YzRD9/07dpF0uP5UfZbgZD+d7feTuUM55Q==
+react-admin-import-csv@^1.0.25:
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.25.tgz#7a34df0e3b2556ace27dcee6f95430697972bf23"
+  integrity sha512-eOW79ow6GoQUG4R7OPK7/zXU5JamdL+YGSs7wekFGH0HPMlU/x8ZUtzzcjDI0PrBcIAhd55m20YtZoG2/3ayig==
   dependencies:
     papaparse "5.x"
     ramda "^0.27.0"
