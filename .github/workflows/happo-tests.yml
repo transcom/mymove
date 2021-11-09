@@ -12,7 +12,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: Example report branch
+      - name: Usage
         uses: mikefarah/yq@master
         with:
-          cmd: eval '.' .circleci/config.yml
+          cmd: help
+      - name: Exp report branch
+        uses: mikefarah/yq@master
+        with:
+          cmd: eval '.references.exp-branch' .circleci/config.yml
