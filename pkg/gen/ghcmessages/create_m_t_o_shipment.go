@@ -75,6 +75,9 @@ type CreateMTOShipment struct {
 	// sac type
 	SacType *LOAType `json:"sacType,omitempty"`
 
+	// service order number
+	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
+
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 

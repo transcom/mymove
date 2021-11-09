@@ -3340,6 +3340,10 @@ func init() {
         "sacType": {
           "$ref": "#/definitions/LOAType"
         },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -4137,6 +4141,10 @@ func init() {
         "secondaryPickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -5516,6 +5524,10 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -9779,6 +9791,10 @@ func init() {
         "sacType": {
           "$ref": "#/definitions/LOAType"
         },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -10576,6 +10592,10 @@ func init() {
         "secondaryPickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -11961,6 +11981,10 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOAType"
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"

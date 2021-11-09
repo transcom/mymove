@@ -3386,6 +3386,9 @@ definitions:
       usesExternalVendor:
         type: boolean
         example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -3434,6 +3437,9 @@ definitions:
       usesExternalVendor:
         type: boolean
         example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3506,6 +3512,9 @@ definitions:
       usesExternalVendor:
         type: boolean
         example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
     required:
       - moveTaskOrderID
       - requestedPickupDate

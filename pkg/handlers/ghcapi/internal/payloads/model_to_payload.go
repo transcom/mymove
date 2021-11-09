@@ -386,6 +386,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
+		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 	}
 
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {

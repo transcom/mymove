@@ -128,6 +128,9 @@ type MTOShipment struct {
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
+	// service order number
+	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
+
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 

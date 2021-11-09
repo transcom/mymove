@@ -148,6 +148,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.SACType = requestedUpdatedShipment.SACType
 	}
 
+	if requestedUpdatedShipment.ServiceOrderNumber != nil {
+		dbShipment.ServiceOrderNumber = requestedUpdatedShipment.ServiceOrderNumber
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		agentsToCreateOrUpdate := []models.MTOAgent{}
@@ -599,6 +603,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.TACType,
 		mtoShipment.SACType,
 		mtoShipment.UsesExternalVendor,
+		mtoShipment.ServiceOrderNumber,
 		mtoShipment.ID,
 	}
 }
@@ -630,7 +635,8 @@ func generateUpdateMTOShipmentQuery() string {
 			billable_weight_justification = ?,
 			tac_type = ?,
 			sac_type = ?,
-			uses_external_vendor = ?
+			uses_external_vendor = ?,
+			service_order_number = ?
 		WHERE
 			id = ?
 	`
