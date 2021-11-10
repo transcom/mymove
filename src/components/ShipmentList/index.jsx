@@ -21,7 +21,7 @@ export const ShipmentListItem = ({
   isMissingWeight,
 }) => {
   const shipmentClassName = classnames({
-    [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
+    [styles[`shipment-list-item-NTS-release`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
     [styles[`shipment-list-item-HHG`]]:
       shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
