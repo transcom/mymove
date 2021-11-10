@@ -16,21 +16,19 @@ import (
 type S3 struct {
 	bucket       string
 	keyNamespace string
-	logger       Logger
 	client       *s3.S3
 	fs           *afero.Afero
 	tempFs       *afero.Afero
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket, keyNamespace string, logger Logger, session *session.Session) *S3 {
+func NewS3(bucket, keyNamespace string, session *session.Session) *S3 {
 	var fs = afero.NewMemMapFs()
 	var tempFs = afero.NewMemMapFs()
 	client := s3.New(session)
 	return &S3{
 		bucket:       bucket,
 		keyNamespace: keyNamespace,
-		logger:       logger,
 		client:       client,
 		fs:           &afero.Afero{Fs: fs},
 		tempFs:       &afero.Afero{Fs: tempFs},

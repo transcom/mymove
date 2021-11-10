@@ -20,6 +20,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
   addressLocation,
   onSubmit,
   updateShipmentAddressSchema,
+  name,
 }) => {
   const { moveCodeOrID } = useParams();
   const history = useHistory();
@@ -35,7 +36,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
           <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
             <SectionWrapper className={formStyles.formSection}>
               <h2>{addressLocation}</h2>
-              <AddressFields name="address" />
+              <AddressFields name={name} />
             </SectionWrapper>
             <WizardNavigation
               editMode
@@ -55,7 +56,12 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
 PrimeUIShipmentUpdateAddressForm.propTypes = {
   initialValues: PropTypes.shape({
-    address: ResidentialAddressShape,
+    pickupAddress: PropTypes.shape({
+      address: ResidentialAddressShape,
+    }),
+    destinationAddress: PropTypes.shape({
+      address: ResidentialAddressShape,
+    }),
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
@@ -66,6 +72,7 @@ PrimeUIShipmentUpdateAddressForm.propTypes = {
     eTag: PropTypes.string,
   }).isRequired,
   addressLocation: PropTypes.oneOf(['Pickup address', 'Destination address']).isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default PrimeUIShipmentUpdateAddressForm;

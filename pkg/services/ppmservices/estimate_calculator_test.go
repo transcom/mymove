@@ -117,7 +117,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	calculator := NewEstimateCalculator(planner)
 	nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
 	if err != nil {
-		suite.logger.Fatal("failure to get uuid from string")
+		suite.Logger().Fatal("failure to get uuid from string")
 	}
 	_, _, err = calculator.CalculateEstimates(suite.AppContextForTest(), &ppm, nonExistentMoveID)
 

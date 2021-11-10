@@ -2643,6 +2643,16 @@ definitions:
         title: SAC
         example: 'N002214CSW32Y9'
         x-nullable: true
+      nts_tac:
+        type: string
+        title: NTS TAC
+        example: 'F8J1'
+        x-nullable: true
+      nts_sac:
+        type: string
+        title: NTS SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
       has_dependents:
         type: boolean
         example: false

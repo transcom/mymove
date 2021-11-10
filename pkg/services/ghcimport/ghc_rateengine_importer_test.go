@@ -2,14 +2,12 @@ package ghcimport
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -40,7 +38,6 @@ var tablesToTruncate = []string{
 
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
 }
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
@@ -82,14 +79,8 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &GHCRateEngineImportSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
 	}
 
 	suite.Run(t, hs)
@@ -104,7 +95,6 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				Logger:            suite.logger,
 				ContractCode:      testContractCode,
 				ContractName:      testContractName,
 				ContractStartDate: testContractStartDate,
@@ -114,7 +104,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := tt.gre.Import(suite.DB()); (err != nil) != tt.wantErr {
+			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
 				t.Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

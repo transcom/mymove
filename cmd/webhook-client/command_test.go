@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/spf13/cobra"
@@ -17,7 +17,7 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   utils.Logger
+	logger   *zap.Logger
 	certPath string
 	keyPath  string
 }

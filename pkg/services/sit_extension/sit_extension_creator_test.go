@@ -7,7 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -17,8 +16,6 @@ import (
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
-
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 
 	// Create move router for SitExtension Createor
 	moveRouter := moverouter.NewMoveRouter()
@@ -39,14 +36,14 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 			RequestedDays: 10,
 		}
 
-		createdSITExtension, sitErr := sitExtensionCreator.CreateSITExtension(appCtx, sit)
+		createdSITExtension, sitErr := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit)
 
 		// Retrieve updated move
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: move.ID,
 		}
-		updatedMove, moveErr := movefetcher.FetchMoveTaskOrder(appCtx, &searchParams)
+		updatedMove, moveErr := movefetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 
 		suite.Nil(sitErr)
 		suite.Nil(moveErr)
@@ -70,7 +67,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 			RequestedDays: 10,
 		}
 
-		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit)
 
 		suite.Error(err)
 		suite.Nil(createdSITExtension)
@@ -85,7 +82,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 			RequestedDays: 10,
 		}
 
-		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(appCtx, sit)
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit)
 
 		suite.Nil(createdSITExtension)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -103,14 +100,14 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 			Status:        models.SITExtensionStatusApproved,
 			RequestedDays: 10,
 		}
-		createdSITExtension, sitErr2 := sitExtensionCreator.CreateSITExtension(appCtx, sit2)
+		createdSITExtension, sitErr2 := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit2)
 
 		// Retrieve updated move
 		searchParams2 := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: move2.ID,
 		}
-		updatedMove, moveErr2 := movefetcher.FetchMoveTaskOrder(appCtx, &searchParams2)
+		updatedMove, moveErr2 := movefetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams2)
 
 		suite.Nil(sitErr2)
 		suite.Nil(moveErr2)

@@ -1,7 +1,6 @@
 package ghcapi
 
 import (
-	"log"
 	"testing"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -9,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -36,7 +34,7 @@ func (suite *HandlerSuite) AfterTest() {
 }
 
 func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
@@ -45,13 +43,8 @@ func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
 
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, hs)

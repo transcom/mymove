@@ -139,6 +139,7 @@ class MtoShipmentForm extends Component {
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
+    const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
@@ -230,7 +231,7 @@ class MtoShipmentForm extends Component {
 
                             <AddressFields
                               name="pickup.address"
-                              legend="Location"
+                              legend="Pickup location"
                               render={(fields) => (
                                 <>
                                   <p>What address are the movers picking up from?</p>
@@ -307,37 +308,39 @@ class MtoShipmentForm extends Component {
                               />
                             </Fieldset>
 
-                            <Fieldset legend="Location">
-                              <FormGroup>
-                                <p>Do you know your delivery address yet?</p>
-                                <div className={formStyles.radioGroup}>
-                                  <Field
-                                    as={Radio}
-                                    id="has-delivery-address"
-                                    label="Yes"
-                                    name="hasDeliveryAddress"
-                                    value="yes"
-                                    title="Yes, I know my delivery address"
-                                    checked={hasDeliveryAddress === 'yes'}
-                                  />
-                                  <Field
-                                    as={Radio}
-                                    id="no-delivery-address"
-                                    label="No"
-                                    name="hasDeliveryAddress"
-                                    value="no"
-                                    title="No, I do not know my delivery address"
-                                    checked={hasDeliveryAddress === 'no'}
-                                  />
-                                </div>
-                              </FormGroup>
-                              {hasDeliveryAddress === 'yes' ? (
+                            <Fieldset legend="Delivery location">
+                              {!isNTSR && (
+                                <FormGroup>
+                                  <p>Do you know your delivery address yet?</p>
+                                  <div className={formStyles.radioGroup}>
+                                    <Field
+                                      as={Radio}
+                                      id="has-delivery-address"
+                                      label="Yes"
+                                      name="hasDeliveryAddress"
+                                      value="yes"
+                                      title="Yes, I know my delivery address"
+                                      checked={hasDeliveryAddress === 'yes'}
+                                    />
+                                    <Field
+                                      as={Radio}
+                                      id="no-delivery-address"
+                                      label="No"
+                                      name="hasDeliveryAddress"
+                                      value="no"
+                                      title="No, I do not know my delivery address"
+                                      checked={hasDeliveryAddress === 'no'}
+                                    />
+                                  </div>
+                                </FormGroup>
+                              )}
+                              {hasDeliveryAddress === 'yes' || isNTSR ? (
                                 <AddressFields
                                   name="delivery.address"
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <h4>Second Destination</h4>
+                                      <h4>Second delivery location</h4>
                                       <FormGroup>
                                         <p>
                                           Do you want the movers to deliver any belongings to a second address? (Must be

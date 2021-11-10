@@ -20,9 +20,19 @@ import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 
-const updateAddressSchema = Yup.object().shape({
+const updatePickupAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
-  address: requiredAddressSchema,
+  pickupAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
+  eTag: Yup.string(),
+});
+
+const updateDestinationAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  destinationAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
   eTag: Yup.string(),
 });
 
@@ -59,7 +69,7 @@ const PrimeUIShipmentUpdateAddress = () => {
 
       if (body) {
         setErrorMessage({
-          title: `${body.title} `,
+          title: `Prime API: ${body.title} `,
           detail: `${body.detail}`,
         });
       } else {
@@ -76,14 +86,17 @@ const PrimeUIShipmentUpdateAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
+    // There has to be something in either pickupAddress or destinationAddress due to the validation
+    // on the form before submission.
+    const address = values.pickupAddress ? values.pickupAddress.address : values.destinationAddress.address;
     const body = {
       id: values.addressID,
-      streetAddress1: values.address.streetAddress1,
-      streetAddress2: values.address.streetAddress2,
-      streetAddress3: values.address.streetAddress3,
-      city: values.address.city,
-      state: values.address.state,
-      postalCode: values.address.postalCode,
+      streetAddress1: address.streetAddress1,
+      streetAddress2: address.streetAddress2,
+      streetAddress3: address.streetAddress3,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
     };
 
     mutateMTOShipment({
@@ -103,12 +116,16 @@ const PrimeUIShipmentUpdateAddress = () => {
 
   const initialValuesPickupAddress = {
     addressID: shipment.pickupAddress?.id,
-    address: reformatPrimeApiPickupAddress,
+    pickupAddress: {
+      address: reformatPrimeApiPickupAddress,
+    },
     eTag: shipment.pickupAddress?.eTag,
   };
   const initialValuesDestinationAddress = {
     addressID: shipment.destinationAddress?.id,
-    address: reformatPrimeApiDestinationAddress,
+    destinationAddress: {
+      address: reformatPrimeApiDestinationAddress,
+    },
     eTag: shipment.destinationAddress?.eTag,
   };
 
@@ -131,16 +148,18 @@ const PrimeUIShipmentUpdateAddress = () => {
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesPickupAddress}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateAddressSchema}
+                  updateShipmentAddressSchema={updatePickupAddressSchema}
                   addressLocation="Pickup address"
+                  name="pickupAddress.address"
                 />
               )}
               {editableDestinationAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesDestinationAddress}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateAddressSchema}
+                  updateShipmentAddressSchema={updateDestinationAddressSchema}
                   addressLocation="Destination address"
+                  name="destinationAddress.address"
                 />
               )}
             </Grid>

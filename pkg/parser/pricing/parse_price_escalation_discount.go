@@ -3,10 +3,11 @@ package pricing
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parsePriceEscalationDiscount processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	const xlsxDataSheetNum int = 18
 	const discountsRowIndexStart int = 9
 	const contractYearColumn int = 7

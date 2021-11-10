@@ -2,7 +2,6 @@ package route
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,9 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -55,12 +52,6 @@ type HereFullSuite struct {
 // Tests that don't hit the HERE API
 type HereTestSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *HereTestSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 type testClient struct {
@@ -231,14 +222,8 @@ func (suite *HereTestSuite) TestZipLookups() {
 }
 
 func TestHereTestSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &HereTestSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

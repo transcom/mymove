@@ -3,9 +3,9 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -16,11 +16,11 @@ type DomOtherPriceToInsert struct {
 	message string
 }
 
-func importPackUnpackPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
+func importPackUnpackPrices(appCtx appcontext.AppContext, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
 	var stagePackPrices []models.StageDomesticOtherPackPrice
 	var modelsToSave []DomOtherPriceToInsert
 
-	if err := db.All(&stagePackPrices); err != nil {
+	if err := appCtx.DB().All(&stagePackPrices); err != nil {
 		return nil, fmt.Errorf("error looking up StageDomesticOtherPackPrice data: %w", err)
 	}
 
@@ -82,11 +82,11 @@ func importPackUnpackPrices(db *pop.Connection, serviceToIDMap map[string]uuid.U
 	return modelsToSave, nil
 }
 
-func importSitPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
+func importSitPrices(appCtx appcontext.AppContext, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
 	var stageSitPrices []models.StageDomesticOtherSitPrice
 	var modelsToSave []DomOtherPriceToInsert
 
-	if err := db.All(&stageSitPrices); err != nil {
+	if err := appCtx.DB().All(&stageSitPrices); err != nil {
 		return nil, fmt.Errorf("error looking up StageDomesticOtherSitPrice data: %w", err)
 	}
 
@@ -159,8 +159,8 @@ func importSitPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, co
 	return modelsToSave, nil
 }
 
-func saveModel(db *pop.Connection, message string, model *models.ReDomesticOtherPrice) error {
-	verrs, err := db.ValidateAndSave(model)
+func saveModel(appCtx appcontext.AppContext, message string, model *models.ReDomesticOtherPrice) error {
+	verrs, err := appCtx.DB().ValidateAndSave(model)
 	if verrs.HasAny() {
 		return fmt.Errorf("error saving ReDomesticOtherPrice %s: %+v with validation errors: %w", message, model, verrs)
 	}
@@ -171,25 +171,25 @@ func saveModel(db *pop.Connection, message string, model *models.ReDomesticOther
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importREDomesticOtherPrices(db *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREDomesticOtherPrices(appCtx appcontext.AppContext) error {
 
 	var modelsToSavePack []DomOtherPriceToInsert
 	var modelsToSaveSit []DomOtherPriceToInsert
 
 	var err error
-	modelsToSavePack, err = importPackUnpackPrices(db, gre.serviceToIDMap, gre.ContractID)
+	modelsToSavePack, err = importPackUnpackPrices(appCtx, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}
 
-	modelsToSaveSit, err = importSitPrices(db, gre.serviceToIDMap, gre.ContractID)
+	modelsToSaveSit, err = importSitPrices(appCtx, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}
 
 	modelsToSave := append(modelsToSavePack, modelsToSaveSit...)
 	for _, modelToSave := range modelsToSave {
-		if err := saveModel(db, modelToSave.message, &modelToSave.model); err != nil {
+		if err := saveModel(appCtx, modelToSave.message, &modelToSave.model); err != nil {
 			return err
 		}
 	}

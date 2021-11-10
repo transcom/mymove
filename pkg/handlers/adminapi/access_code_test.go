@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAccessCodesHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:        query.NewQueryFilter,
 			AccessCodeListFetcher: accesscode.NewAccessCodeListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexAccessCodesHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:        newQueryFilter,
 			AccessCodeListFetcher: accessCodeListFetcher,
 			NewPagination:         pagination.NewPagination,
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 	suite.T().Run("test both filters present", func(t *testing.T) {
 
 		s := `{"move_type":"PPM", "code":"ABC123"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, accessCodeFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, accessCodeFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("move_type", "=", "PPM"),
 			query.NewQueryFilter("code", "=", "ABC123"),
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 	})
 	suite.T().Run("test only move_type present", func(t *testing.T) {
 		s := `{"move_type": "PPM"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, accessCodeFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, accessCodeFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("move_type", "=", "PPM"),
 		}
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 	})
 	suite.T().Run("test only code present", func(t *testing.T) {
 		s := `{"code": "XYZBCS"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, accessCodeFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, accessCodeFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("code", "=", "XYZBCS"),
 		}

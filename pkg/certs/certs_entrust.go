@@ -14,7 +14,7 @@ import (
 )
 
 // InitDoDEntrustCertificates initializes the DoD Certificates
-func InitDoDEntrustCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x509.CertPool, error) {
+func InitDoDEntrustCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
 	tlsCerts := cli.ParseCertificates(tlsCertString)

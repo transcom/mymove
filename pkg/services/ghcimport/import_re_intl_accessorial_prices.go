@@ -3,16 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(appCtx appcontext.AppContext) error {
 	//tab 5a) Access. and Add. Prices
 	var intlAccessorialPrices []models.StageInternationalMoveAccessorialPrice
-	err := dbTx.All(&intlAccessorialPrices)
+	err := appCtx.DB().All(&intlAccessorialPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged intl accessorial prices: %w", err)
 	}
@@ -60,7 +59,7 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connec
 					PerUnitCents: unit.Cents(perUnitCentsService),
 				}
 
-				verrs, dbErr := dbTx.ValidateAndSave(&intlAccessorial)
+				verrs, dbErr := appCtx.DB().ValidateAndSave(&intlAccessorial)
 				if dbErr != nil {
 					return fmt.Errorf("error saving ReIntlAccessorialPrices: %+v with error: %w", intlAccessorial, dbErr)
 				}

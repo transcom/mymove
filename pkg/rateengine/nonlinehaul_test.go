@@ -13,7 +13,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -39,7 +39,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	}
 	suite.MustSave(&serviceArea)
 
-	feeAndRate, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.serviceFeeCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -60,7 +60,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -96,7 +96,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.MustSave(&fullPackRate)
 
-	feeAndRate, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.fullPackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
@@ -116,7 +116,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -160,7 +160,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.MustSave(&fullUnpackRate)
 
-	feeAndRate, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.fullUnpackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
@@ -180,7 +180,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	zip3 := "395"
 
@@ -295,7 +295,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 
 	for _, testCase := range testCases {
 		suite.T().Run(testCase.description, func(t *testing.T) {
-			charge, err := engine.SitCharge(testCase.cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, testCase.isPPM)
+			charge, err := engine.SitCharge(suite.AppContextForTest(), testCase.cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, testCase.isPPM)
 			if err != nil {
 				t.Fatalf("error calculating SIT charge: %s", err)
 			}
@@ -305,14 +305,14 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 
 	// Test zero days in SIT.
 	suite.T().Run("zero days in SIT", func(t *testing.T) {
-		charge, err := engine.SitCharge(cwtAtMin, 0, zip3, testdatagen.DateInsidePeakRateCycle, true)
+		charge, err := engine.SitCharge(suite.AppContextForTest(), cwtAtMin, 0, zip3, testdatagen.DateInsidePeakRateCycle, true)
 		suite.NoError(err)
 		suite.Equal(SITComputation{}, charge)
 	})
 
 	// Test negative days in SIT.
 	suite.T().Run("negative days in SIT", func(t *testing.T) {
-		_, err := engine.SitCharge(cwtAtMin, -1, zip3, testdatagen.DateInsidePeakRateCycle, true)
+		_, err := engine.SitCharge(suite.AppContextForTest(), cwtAtMin, -1, zip3, testdatagen.DateInsidePeakRateCycle, true)
 		suite.Error(err)
 	})
 }
@@ -322,7 +322,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -391,7 +391,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	suite.MustSave(&fullUnpackRate)
 
 	cost, err := engine.nonLinehaulChargeComputation(
-		unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)
+		suite.AppContextForTest(), unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}

@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
@@ -118,16 +119,18 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
 	eiaURL := v.GetString(cli.EIAURLFlag)
 	eiaKey := v.GetString(cli.EIAKeyFlag)
 	newDieselFuelPriceInfo := ghcdieselfuelprice.NewDieselFuelPriceInfo(eiaURL, eiaKey, ghcdieselfuelprice.FetchEIAData, logger)
 
-	err = newDieselFuelPriceInfo.RunFetcher()
+	err = newDieselFuelPriceInfo.RunFetcher(appCtx)
 	if err != nil {
 		logger.Fatal("error returned by RunFetcher function in ghcdieselfuelprice service", zap.Error(err))
 	}
 
-	err = newDieselFuelPriceInfo.RunStorer(dbConnection)
+	err = newDieselFuelPriceInfo.RunStorer(appCtx)
 	if err != nil {
 		logger.Fatal("error returned by RunStorer function in ghcdieselfuelprice service", zap.Error(err))
 	}

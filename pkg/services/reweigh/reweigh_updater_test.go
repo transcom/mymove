@@ -11,8 +11,6 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -55,13 +53,11 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	newReweigh := oldReweigh
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
-
 	// Test Success - Reweigh updated
 	suite.T().Run("Updated reweigh - Success", func(t *testing.T) {
 		newWeight := unit.Pound(200)
 		newReweigh.Weight = &newWeight
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &newReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedReweigh)
@@ -74,7 +70,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		notFoundReweigh := newReweigh
 		notFoundReweigh.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &notFoundReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &notFoundReweigh, eTag)
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
@@ -83,7 +79,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	})
 	// PreconditionFailedError
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(appCtx, &newReweigh, "nada") // base validation
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, "nada") // base validation
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)

@@ -3,18 +3,17 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) mapZipCodesToRERateAreas(dbTx *pop.Connection) error {
-	err := gre.mapREZip3sToRERateAreas(dbTx)
+func (gre *GHCRateEngineImporter) mapZipCodesToRERateAreas(appCtx appcontext.AppContext) error {
+	err := gre.mapREZip3sToRERateAreas(appCtx)
 	if err != nil {
 		return fmt.Errorf("mapREZip3sToRERateAreas failed: %w", err)
 	}
 
-	err = gre.createAndMapREZip5sToRERateAreas(dbTx)
+	err = gre.createAndMapREZip5sToRERateAreas(appCtx)
 	if err != nil {
 		return fmt.Errorf("createAndMapREZip5sToRERateAreas failed: %w", err)
 	}
@@ -22,10 +21,10 @@ func (gre *GHCRateEngineImporter) mapZipCodesToRERateAreas(dbTx *pop.Connection)
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(appCtx appcontext.AppContext) error {
 	var reZip3s []models.ReZip3
 
-	err := dbTx.Where("contract_id = ?", gre.ContractID).All(&reZip3s)
+	err := appCtx.DB().Where("contract_id = ?", gre.ContractID).All(&reZip3s)
 	if err != nil {
 		return fmt.Errorf("failed to collect all ReZip3 records: %w", err)
 	}
@@ -41,7 +40,7 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 			copyOfReZip3.RateAreaID = nil
 			copyOfReZip3.HasMultipleRateAreas = true
 
-			verrs, err := dbTx.ValidateAndUpdate(&copyOfReZip3)
+			verrs, err := appCtx.DB().ValidateAndUpdate(&copyOfReZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update ReZip3 %v: %w", copyOfReZip3.Zip3, err)
 			}
@@ -57,7 +56,7 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 			copyOfReZip3.RateAreaID = &rateAreaID
 			copyOfReZip3.HasMultipleRateAreas = false
 
-			verrs, err := dbTx.ValidateAndUpdate(&copyOfReZip3)
+			verrs, err := appCtx.DB().ValidateAndUpdate(&copyOfReZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update ReZip3: %v: %w", copyOfReZip3.Zip3, err)
 			}
@@ -70,7 +69,7 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) createAndMapREZip5sToRERateAreas(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) createAndMapREZip5sToRERateAreas(appCtx appcontext.AppContext) error {
 	for zip5, rateArea := range zip5ToRateAreaMappings {
 		var reZip5RateArea models.ReZip5RateArea
 
@@ -83,7 +82,7 @@ func (gre *GHCRateEngineImporter) createAndMapREZip5sToRERateAreas(dbTx *pop.Con
 		reZip5RateArea.Zip5 = zip5
 		reZip5RateArea.RateAreaID = rateAreaID
 
-		verrs, err := dbTx.ValidateAndCreate(&reZip5RateArea)
+		verrs, err := appCtx.DB().ValidateAndCreate(&reZip5RateArea)
 		if err != nil {
 			return fmt.Errorf("failed to update ReZip5RateArea: %v: %w", reZip5RateArea.Zip5, err)
 		}

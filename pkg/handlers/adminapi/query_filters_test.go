@@ -12,12 +12,12 @@ func (suite *HandlerSuite) TestGenerateQueryFilters() {
 	converters := map[string]func(string) []services.QueryFilter{"omega": fnZero}
 	suite.Run("error paths", func() {
 		suite.Run("params nil", func() {
-			qfs := generateQueryFilters(suite.TestLogger(), nil, converters)
+			qfs := generateQueryFilters(suite.Logger(), nil, converters)
 			suite.Equal(0, len(qfs))
 		})
 		suite.Run("params not JSON", func() {
 			s := `{"delta": "d",`
-			qfs := generateQueryFilters(suite.TestLogger(), &s, converters)
+			qfs := generateQueryFilters(suite.Logger(), &s, converters)
 			suite.Equal(0, len(qfs))
 		})
 	})
@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestGenerateQueryFilters() {
 		}
 	}
 	suite.Run("happy path", func() {
-		qfs := generateQueryFilters(suite.TestLogger(), &params, converters)
+		qfs := generateQueryFilters(suite.Logger(), &params, converters)
 		suite.Equal(5, len(qfs))
 	})
 }

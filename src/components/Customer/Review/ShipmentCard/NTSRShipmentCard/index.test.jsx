@@ -65,7 +65,7 @@ describe('NTSRShipmentCard component', () => {
     const tableData = [formatCustomerDate(defaultProps.requestedDeliveryDate), defaultProps.destinationZIP];
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
-    expect(wrapper.find('.remarksCell').length).toBe(0);
+    expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
   it('should not render a secondary destination location if not provided one', async () => {

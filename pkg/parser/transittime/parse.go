@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx/v3"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 )
@@ -58,8 +59,8 @@ intentionally are modifying the pattern of how the processing functions are call
 
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(ParamConfig, int, Logger) (interface{}, error)
-type verifyXlsxSheet func(ParamConfig, int, Logger) error
+type processXlsxSheet func(ParamConfig, int, *zap.Logger) (interface{}, error)
+type verifyXlsxSheet func(ParamConfig, int, *zap.Logger) error
 
 // XlsxDataSheetInfo describes the excel sheet info
 type XlsxDataSheetInfo struct {
@@ -115,17 +116,17 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 }
 
 // Parse parses the XLSX file
-func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
+func Parse(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig) error {
 	// Must be after processing config param
 	// Run the process function
 
-	err := db.Transaction(func(tx *pop.Connection) error {
-		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(tx, logger, params.UseTempTables, params.DropIfExists)
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(params.UseTempTables, params.DropIfExists)
 
 		if params.ProcessAll {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
-					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator, logger)
+					dbErr := process(txnAppCtx, xlsxDataSheets, params, i, tableFromSliceCreator)
 					if dbErr != nil {
 						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
 						return dbErr
@@ -140,7 +141,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 					return dbErr
 				}
 				if index < len(xlsxDataSheets) {
-					dbErr = process(xlsxDataSheets, params, index, tableFromSliceCreator, logger)
+					dbErr = process(appCtx, xlsxDataSheets, params, index, tableFromSliceCreator)
 					if dbErr != nil {
 						log.Printf("Error processing %v\n", dbErr)
 						return dbErr
@@ -169,7 +170,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update InitDataSheetInfo() with a.) and b.)
-func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, logger Logger) error {
+func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.Description != nil {
@@ -183,7 +184,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	if params.RunVerify {
 		if xlsxInfo.verify != nil {
 			callFunc := *xlsxInfo.verify
-			err := callFunc(params, sheetIndex, logger)
+			err := callFunc(params, sheetIndex, appCtx.Logger())
 			if err != nil {
 				log.Printf("%s Verify error: %v\n", description, err)
 				return errors.Wrapf(err, " Verify error for sheet index: %d with Description: %s", sheetIndex, description)
@@ -200,7 +201,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 		for methodIndex, processMethods := range xlsxInfo.ProcessMethods {
 			if processMethods.process != nil {
 				callFunc := *processMethods.process
-				slice, err := callFunc(params, sheetIndex, logger)
+				slice, err := callFunc(params, sheetIndex, appCtx.Logger())
 				if err != nil {
 					log.Printf("%s process error: %v\n", description, err)
 					return errors.Wrapf(err, " process error for sheet index: %d with Description: %s", sheetIndex, description)

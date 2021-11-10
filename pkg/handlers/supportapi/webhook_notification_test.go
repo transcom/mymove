@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			HTTPRequest: request,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 

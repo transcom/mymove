@@ -8,19 +8,18 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("import prerequisite tables", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 	})
 
@@ -55,7 +54,7 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		reRateArea, err := suite.helperFetchReRateArea(reContract, rateAreaCode)
 		suite.NoError(err)
 
-		err = gre.mapREZip3sToRERateAreas(suite.DB())
+		err = gre.mapREZip3sToRERateAreas(suite.AppContextForTest())
 		suite.NoError(err)
 
 		var updatedReZip3 models.ReZip3
@@ -88,7 +87,7 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 
 		suite.Equal(0, reZip5RateAreasCount)
 
-		err = gre.createAndMapREZip5sToRERateAreas(suite.DB())
+		err = gre.createAndMapREZip5sToRERateAreas(suite.AppContextForTest())
 		suite.NoError(err)
 
 		var reZip5RateArea models.ReZip5RateArea
