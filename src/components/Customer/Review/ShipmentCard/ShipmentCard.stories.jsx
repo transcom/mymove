@@ -13,10 +13,10 @@ const hhgDefaultProps = {
   shipmentId: 'ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
-    street_address_1: '17 8th St',
+    streetAddress1: '17 8th St',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
   releasingAgent: {
     firstName: 'Jo',
@@ -43,10 +43,10 @@ const ntsDefaultProps = {
   showEditBtn: true,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
-    street_address_1: '17 8th St',
+    streetAddress1: '17 8th St',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
   releasingAgent: {
     firstName: 'Jo',
@@ -87,19 +87,19 @@ const ppmDefaultProps = {
 
 const secondaryDeliveryAddress = {
   secondaryDeliveryAddress: {
-    street_address_1: '17 8th St',
+    streetAddress1: '17 8th St',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 
 const secondaryPickupAddress = {
   secondaryPickupAddress: {
-    street_address_1: '812 S 129th Street',
+    streetAddress1: '812 S 129th Street',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 

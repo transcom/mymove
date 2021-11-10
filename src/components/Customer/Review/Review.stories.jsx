@@ -30,13 +30,13 @@ const defaultProps = {
     origin_duty_station: {
       name: 'Fort Drum',
       address: {
-        postal_code: '13643',
+        postalCode: '13643',
       },
     },
     new_duty_station: {
       name: 'Naval Base San Diego',
       address: {
-        postal_code: '91945',
+        postalCode: '91945',
       },
     },
     report_by_date: '2020-08-31',
@@ -66,9 +66,9 @@ const defaultProps = {
     },
     residential_address: {
       city: 'Great Bend',
-      postal_code: '13643',
+      postalCode: '13643',
       state: 'NY',
-      street_address_1: '448 Washington Blvd NE',
+      streetAddress1: '448 Washington Blvd NE',
     },
     affiliation: 'Navy',
     edipi: '1231231231',
@@ -87,9 +87,9 @@ const HHGShipment = {
   moveTaskOrderID: mtoUuid,
   pickupAddress: {
     city: 'Great Bend',
-    postal_code: '13643',
+    postalCode: '13643',
     state: 'NY',
-    street_address_1: '448 Washington Blvd NE',
+    streetAddress1: '448 Washington Blvd NE',
   },
   requestedDeliveryDate: '2020-08-31',
   requestedPickupDate: '2020-08-31',
@@ -101,8 +101,8 @@ const HHGShipment = {
 
 const PPMShipment = {
   id: 'ppmShipmentUuid',
-  pickup_postal_code: '13643',
-  destination_postal_code: '91945',
+  pickup_postalCode: '13643',
+  destination_postalCode: '91945',
   original_move_date: '2021-06-23',
   created_at: '2020-09-01T22:00:00.000Z',
 };
