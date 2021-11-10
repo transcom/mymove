@@ -37,8 +37,8 @@ describe('AddressFields component', () => {
           <AddressFields legend="Address Form" name="address" />
         </Formik>,
       );
-      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.street_address_1);
-      expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.street_address_2);
+      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
       expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
       expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
       expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postal_code);
