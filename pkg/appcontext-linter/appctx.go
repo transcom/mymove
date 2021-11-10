@@ -1,7 +1,7 @@
 // Package appcontextlinter This linter makes sure that we only use *pop.Connections in a few allowed places. We want
 // to do this so that we can ensure our database connections are set up properly and remain consistent for each request
-// we handle. See allowList below for list of packages allowed to use *pop.Connection directly. Another allowed use is
-// handlers.handlerContext because it sets up appcontext with a DB connection for our handlers.
+// we handle. See checkIfPackageCanBeSkipped below for list of packages allowed to use *pop.Connection directly.
+// Another allowed use is handlers.handlerContext because it sets up appcontext with a DB connection for our handlers.
 package appcontextlinter
 
 import (
