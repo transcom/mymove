@@ -93,7 +93,10 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 			otlpmetricgrpc.WithInsecure(),
 			otlpmetricgrpc.WithEndpoint(config.Endpoint),
 		)
-		metricExporter, err = otlpmetric.New(ctx, metricClient)
+		// use MetricExportKindSelector to prevent memory leak?
+		// https://github.com/open-telemetry/opentelemetry-go/issues/2225#issuecomment-915517182
+		metricExporter, err = otlpmetric.New(ctx, metricClient,
+			otlpmetric.WithMetricExportKindSelector(exportmetric.DeltaExportKindSelector()))
 		if err != nil {
 			logger.Error("failed to create otel metric exporter", zap.Error(err))
 		}
