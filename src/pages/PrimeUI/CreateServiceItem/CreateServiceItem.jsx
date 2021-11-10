@@ -30,7 +30,10 @@ const CreateServiceItem = () => {
       const { response: { body } = {} } = error;
 
       if (body) {
-        setErrorMessage({ title: body.title, detail: body.detail });
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
       } else {
         setErrorMessage({
           title: 'Unexpected error',

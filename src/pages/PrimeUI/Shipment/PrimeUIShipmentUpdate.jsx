@@ -66,7 +66,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           });
         }
         setErrorMessage({
-          title: `${body.title} `,
+          title: `Prime API: ${body.title} `,
           detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
         });
       } else {
