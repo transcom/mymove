@@ -13,12 +13,13 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
 // Notification is an interface for creating emails
 type Notification interface {
-	emails() ([]emailContent, error)
+	emails(appCtx appcontext.AppContext) ([]emailContent, error)
 }
 
 type emailContent struct {
@@ -33,39 +34,37 @@ type emailContent struct {
 // NotificationSender is an interface for sending notifications
 //go:generate mockery --name NotificationSender --disable-version-string
 type NotificationSender interface {
-	SendNotification(notification Notification) error
+	SendNotification(appCtx appcontext.AppContext, notification Notification) error
 }
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationSendingContext struct {
 	svc           sesiface.SESAPI
 	domain        string
-	logger        Logger
 	sysAdminEmail string
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger, sysAdminEmail string) NotificationSendingContext {
+func NewNotificationSender(svc sesiface.SESAPI, domain string, sysAdminEmail string) NotificationSendingContext {
 	return NotificationSendingContext{
 		svc:           svc,
 		domain:        domain,
-		logger:        logger,
 		sysAdminEmail: sysAdminEmail,
 	}
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationSendingContext) SendNotification(notification Notification) error {
-	emails, err := notification.emails()
+func (n NotificationSendingContext) SendNotification(appCtx appcontext.AppContext, notification Notification) error {
+	emails, err := notification.emails(appCtx)
 	if err != nil {
 		return err
 	}
 
-	return sendEmails(emails, n.svc, n.domain, n.logger)
+	return sendEmails(appCtx, emails, n.svc, n.domain)
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (NotificationSender, error) {
+func InitEmail(v *viper.Viper, sess *awssession.Session, logger *zap.Logger) (NotificationSender, error) {
 	if v.GetString(cli.EmailBackendFlag) == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
@@ -81,14 +80,14 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (Notific
 		result, err := sesService.GetAccountSendingEnabled(input)
 		if err != nil || result == nil || *result.Enabled {
 			logger.Error("email sending not enabled", zap.Error(err))
-			return NewNotificationSender(sesService, awsSESDomain, logger, sysAdminEmail), err
+			return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), err
 		}
-		return NewNotificationSender(sesService, awsSESDomain, logger, sysAdminEmail), nil
+		return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), nil
 	}
 
 	domain := "milmovelocal"
 	logger.Info("Using local email backend", zap.String("domain", domain))
-	return NewStubNotificationSender(domain, logger), nil
+	return NewStubNotificationSender(domain), nil
 }
 
 // GetSysAdminEmail returns the System Administrators' email address that has been set in the NotificationSender
@@ -99,7 +98,7 @@ func GetSysAdminEmail(sender NotificationSender) (email string) {
 	return email
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
+func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc sesiface.SESAPI, domain string) error {
 	for i, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {
@@ -120,7 +119,7 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logge
 		if email.onSuccess != nil && sendRawEmailOutput.MessageId != nil {
 			err := email.onSuccess(*sendRawEmailOutput.MessageId)
 			if err != nil {
-				logger.Error("email.onSuccess error", zap.Error(err))
+				appCtx.Logger().Error("email.onSuccess error", zap.Error(err))
 			}
 		}
 		// rate limited if exceed > 80 emails / second. delay to prevent hitting the limit

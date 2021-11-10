@@ -17,7 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	context.SetIWSPersonLookup(iws.TestingPersonLookup{})
 	dpsParams := dpsauth.Params{
 		CookieSecret:  []byte("cookie secret"),

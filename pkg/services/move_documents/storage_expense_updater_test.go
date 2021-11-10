@@ -79,7 +79,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := stu.Update(suite.AppContextWithSessionForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -171,7 +171,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := stu.Update(suite.AppContextWithSessionForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -300,14 +300,14 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 
 	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(suite.AppContextForTest(session), updateMoveDocOnePayload, originalMoveDocumentOne)
+	umd, verrs, err := stu.Update(suite.AppContextWithSessionForTest(session), updateMoveDocOnePayload, originalMoveDocumentOne)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 
 	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
-	umd, verrs, err = stu.Update(suite.AppContextForTest(session), updateMoveDocTwoPayload, originalMoveDocumentTwo)
+	umd, verrs, err = stu.Update(suite.AppContextWithSessionForTest(session), updateMoveDocTwoPayload, originalMoveDocumentTwo)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -388,7 +388,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(suite.AppContextForTest(session), updateMoveDocPayload, originalMoveDocument)
+	umd, verrs, err := stu.Update(suite.AppContextWithSessionForTest(session), updateMoveDocPayload, originalMoveDocument)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)

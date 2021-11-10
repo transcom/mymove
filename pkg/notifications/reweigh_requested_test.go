@@ -12,13 +12,13 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
-	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
-		UserID:          officeUser.ID,
-		ApplicationName: auth.OfficeApp,
-	}, move.ID, shipment)
+	notification := NewReweighRequested(move.ID, shipment)
 	subject := "FYI: Your HHG should be reweighed before it is delivered"
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          officeUser.ID,
+		ApplicationName: auth.OfficeApp,
+	}))
 	suite.NoError(err)
 	suite.Equal(len(emails), 1)
 
@@ -35,10 +35,7 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
-		UserID:          officeUser.ID,
-		ApplicationName: auth.OfficeApp,
-	}, move.ID, shipment)
+	notification := NewReweighRequested(move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedHTMLContent := `<p><strong>Essential information</strong></p>
 <ul>
@@ -69,7 +66,10 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 <p>If you believe your shipment should be reweighed and has not been, do not accept delivery. Tell your movers that they need to reweigh the shipment before they unload it.</p>
 `
 
-	htmlContent, err := notification.RenderHTML(s)
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          officeUser.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -80,10 +80,7 @@ func (suite *NotificationSuite) TestReweighRequestedTextTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	notification := NewReweighRequested(suite.DB(), suite.logger, &auth.Session{
-		UserID:          officeUser.ID,
-		ApplicationName: auth.OfficeApp,
-	}, move.ID, shipment)
+	notification := NewReweighRequested(move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedTextContent := `Essential information
 * MilMove let your movers know that they need to reweigh your HHG shipment before they deliver it to your destination
@@ -121,7 +118,10 @@ The only reason they can reject a reweigh request is if they get the request aft
 
 If you believe your shipment should be reweighed and has not been, do not accept delivery. Tell your movers that they need to reweigh the shipment before they unload it.
 `
-	textContent, err := notification.RenderText(s)
+	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          officeUser.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)

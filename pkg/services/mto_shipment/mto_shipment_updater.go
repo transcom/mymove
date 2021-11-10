@@ -551,8 +551,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 	if len(autoReweighShipments) > 0 {
 		for _, shipment := range autoReweighShipments {
-			err := f.sender.SendNotification(
-				notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), shipment.MoveTaskOrderID, shipment),
+			err := f.sender.SendNotification(appCtx,
+				notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
 			)
 			if err != nil {
 				return err

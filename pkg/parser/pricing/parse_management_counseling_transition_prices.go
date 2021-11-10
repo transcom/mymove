@@ -5,10 +5,11 @@ import (
 
 	"github.com/tealeg/xlsx/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseShipmentManagementServicesPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const mgmtRowIndexStart int = 9
@@ -42,7 +43,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 	return mgmtPrices, nil
 }
 
-var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseCounselingServicesPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const counRowIndexStart int = 22
@@ -76,7 +77,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 	return counPrices, nil
 }
 
-var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseTransitionPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const tranRowIndexStart int = 34

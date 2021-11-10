@@ -3,6 +3,8 @@ package notifications
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+
 	"go.uber.org/zap"
 )
 
@@ -10,16 +12,15 @@ import (
 type StubNotificationSender NotificationSendingContext
 
 // NewStubNotificationSender returns a new StubNotificationSender
-func NewStubNotificationSender(domain string, logger Logger) StubNotificationSender {
+func NewStubNotificationSender(domain string) StubNotificationSender {
 	return StubNotificationSender{
 		domain: domain,
-		logger: logger,
 	}
 }
 
 // SendNotification returns a dummy ID
-func (m StubNotificationSender) SendNotification(notification Notification) error {
-	emails, err := notification.emails()
+func (m StubNotificationSender) SendNotification(appCtx appcontext.AppContext, notification Notification) error {
+	emails, err := notification.emails(appCtx)
 	if err != nil {
 		return err
 	}
@@ -33,11 +34,11 @@ func (m StubNotificationSender) SendNotification(notification Notification) erro
 			id, _ := uuid.NewV4()
 			err := email.onSuccess(id.String())
 			if err != nil {
-				m.logger.Error("email.onSuccess error", zap.Error(err))
+				appCtx.Logger().Error("email.onSuccess error", zap.Error(err))
 			}
 		}
 
-		m.logger.Debug("Not sending this email",
+		appCtx.Logger().Debug("Not sending this email",
 			zap.String("destinations", email.recipientEmail),
 			zap.String("raw message", string(rawMessage[:])))
 	}

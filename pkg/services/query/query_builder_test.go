@@ -18,7 +18,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -31,19 +30,12 @@ import (
 
 type QueryBuilderSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *QueryBuilderSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestUserSuite(t *testing.T) {
 
 	ts := &QueryBuilderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

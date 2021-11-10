@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 		response := handler.Handle(subtestData.params)
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 
@@ -269,7 +269,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 		}
 
@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mockCreator := mocks.MTOShipmentCreator{}
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 		}
 
@@ -417,7 +417,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -453,7 +453,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -477,7 +477,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -495,7 +495,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -513,7 +513,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -542,7 +542,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			suite.TestNotificationSender(),
 			paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -564,7 +564,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -583,7 +583,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
 		}
 
@@ -644,7 +644,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockUpdater,
 		}
 
@@ -747,7 +747,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			listFetcher,
 			fetcher,
 		}
@@ -815,7 +815,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -836,7 +836,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -851,7 +851,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -873,7 +873,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}

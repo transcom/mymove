@@ -3,15 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) loadServiceMap(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) loadServiceMap(appCtx appcontext.AppContext) error {
 	var services models.ReServices
-	err := dbTx.Select("id", "code").All(&services)
+	err := appCtx.DB().Select("id", "code").All(&services)
 	if err != nil {
 		return fmt.Errorf("could not read services: %w", err)
 	}

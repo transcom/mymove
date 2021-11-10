@@ -11,7 +11,6 @@ type DieselFuelPriceInfo struct {
 	eiaData                EIAData
 	dieselFuelPriceData    dieselFuelPriceData
 	eiaDataFetcherFunction eiaDataFetcherFunction
-	logger                 *zap.Logger
 }
 
 type eiaDataFetcherFunction func(string) (EIAData, error)
@@ -68,6 +67,5 @@ func NewDieselFuelPriceInfo(eiaURL string, eiaKey string, eiaDataFetcherFunction
 		eiaData:                EIAData{},
 		dieselFuelPriceData:    dieselFuelPriceData{},
 		eiaDataFetcherFunction: eiaDataFetcherFunction,
-		logger:                 logger,
 	}
 }

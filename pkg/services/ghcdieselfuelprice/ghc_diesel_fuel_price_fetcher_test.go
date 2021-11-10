@@ -6,7 +6,7 @@ import (
 
 func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	suite.T().Run("build correct EIA Open Data API URL", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("https://api.eia.gov/series/", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.helperStubEIAData, suite.logger) // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("https://api.eia.gov/series/", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.helperStubEIAData, suite.Logger()) // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
 
 		finalEIAAPIURL, err := buildFinalEIAAPIURL(newDieselFuelPriceInfo.eiaURL, newDieselFuelPriceInfo.eiaKey)
 		suite.NoError(err)
@@ -15,7 +15,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	})
 
 	suite.T().Run("EIA Open Data API error - invalid or missing api_key", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("EIA Open Data API error - invalid or missing api_key", "", suite.helperStubEIAData, suite.logger)
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("EIA Open Data API error - invalid or missing api_key", "", suite.helperStubEIAData, suite.Logger())
 
 		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
@@ -25,7 +25,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	})
 
 	suite.T().Run("EIA Open Data API error - invalid series_id", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("EIA Open Data API error - invalid series_id", "", suite.helperStubEIAData, suite.logger)
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("EIA Open Data API error - invalid series_id", "", suite.helperStubEIAData, suite.Logger())
 
 		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
@@ -35,7 +35,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	})
 
 	suite.T().Run("nil series data", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("nil series data", "", suite.helperStubEIAData, suite.logger)
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("nil series data", "", suite.helperStubEIAData, suite.Logger())
 
 		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
@@ -45,7 +45,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	})
 
 	suite.T().Run("extract diesel fuel price data", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("extract diesel fuel price data", "", suite.helperStubEIAData, suite.logger)
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("extract diesel fuel price data", "", suite.helperStubEIAData, suite.Logger())
 
 		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
@@ -55,9 +55,9 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	})
 
 	suite.T().Run("run fetcher", func(t *testing.T) {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("run fetcher", "", suite.helperStubEIAData, suite.logger)
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("run fetcher", "", suite.helperStubEIAData, suite.Logger())
 
-		err := newDieselFuelPriceInfo.RunFetcher()
+		err := newDieselFuelPriceInfo.RunFetcher(suite.AppContextForTest())
 		suite.NoError(err)
 
 		suite.Equal("2020-06-22T18:16:52-0400", newDieselFuelPriceInfo.dieselFuelPriceData.lastUpdated)

@@ -94,7 +94,7 @@ export class SelectShipmentType extends Component {
       : 'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
 
     const ntsrCardText = shipmentInfo.isNTSRSelectable
-      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-Release (non-temporary storage release) shipment.'
+      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-release (non-temporary storage release) shipment.'
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const selectableCardDefaultProps = {
@@ -182,7 +182,7 @@ export class SelectShipmentType extends Component {
                   />
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="It was stored during a previous move (NTS-Release)"
+                    label="It was stored during a previous move (NTS-release)"
                     value={SHIPMENT_OPTIONS.NTSR}
                     id={SHIPMENT_OPTIONS.NTSR}
                     cardText={ntsrCardText}

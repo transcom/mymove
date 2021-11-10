@@ -771,11 +771,11 @@ describe('MtoShipmentForm component', () => {
     });
   });
 
-  describe('creating a new NTS-R shipment', () => {
-    it('renders the NTS-R shipment form', async () => {
+  describe('creating a new NTS-release shipment', () => {
+    it('renders the NTS-release shipment form', async () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
-      expect(await screen.findByText('NTS-R')).toHaveClass('usa-tag');
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.queryByLabelText('Preferred pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Pickup Info')).not.toBeInTheDocument();

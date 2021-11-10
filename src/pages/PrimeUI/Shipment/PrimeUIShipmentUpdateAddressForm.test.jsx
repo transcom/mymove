@@ -32,25 +32,30 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   const reformatPrimeApiShipmentAddress = fromPrimeAPIAddressFormat(shipmentAddress);
 
-  const initialValues = {
+  const initialValuesPickupAddress = {
     addressID: shipmentAddress.id,
-    address: reformatPrimeApiShipmentAddress,
+    pickupAddress: {
+      address: reformatPrimeApiShipmentAddress,
+    },
     eTag: shipmentAddress.eTag,
   };
 
-  const updateAddressSchema = Yup.object().shape({
+  const updatePickupAddressSchema = Yup.object().shape({
     addressID: Yup.string(),
-    address: requiredAddressSchema,
+    pickupAddress: Yup.object().shape({
+      address: requiredAddressSchema,
+    }),
     eTag: Yup.string(),
   });
 
   it('renders the form', async () => {
     render(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValues}
-        updateShipmentAddressSchema={updateAddressSchema}
+        initialValues={initialValuesPickupAddress}
+        updateShipmentAddressSchema={updatePickupAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
+        name="pickupAddress.address"
       />,
     );
     expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
@@ -65,10 +70,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   it('change text and button is enabled', async () => {
     render(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValues}
-        updateShipmentAddressSchema={updateAddressSchema}
+        initialValues={initialValuesPickupAddress}
+        updateShipmentAddressSchema={updatePickupAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
+        name="pickupAddress.address"
       />,
     );
 
@@ -85,10 +91,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   it('disables the submit button when the zip is bad', async () => {
     render(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValues}
-        updateShipmentAddressSchema={updateAddressSchema}
+        initialValues={initialValuesPickupAddress}
+        updateShipmentAddressSchema={updatePickupAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
+        name="pickupAddress.address"
       />,
     );
     await userEvent.clear(screen.getByLabelText('ZIP'));
@@ -103,10 +110,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   it('disables the submit button when the address 1 is missing', async () => {
     render(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValues}
-        updateShipmentAddressSchema={updateAddressSchema}
+        initialValues={initialValuesPickupAddress}
+        updateShipmentAddressSchema={updatePickupAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
+        name="pickupAddress.address"
       />,
     );
     await userEvent.clear(screen.getByLabelText('Address 1'));
@@ -120,10 +128,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   it('disables the submit button when city is missing', async () => {
     render(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValues}
-        updateShipmentAddressSchema={updateAddressSchema}
+        initialValues={initialValuesPickupAddress}
+        updateShipmentAddressSchema={updatePickupAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
+        name="pickupAddress.address"
       />,
     );
     userEvent.clear(screen.getByLabelText('City'));

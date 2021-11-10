@@ -99,7 +99,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 	currentTime := g.clock.Now()
 
-	interchangeControlNumber, err := g.icnSequencer.NextVal()
+	interchangeControlNumber, err := g.icnSequencer.NextVal(appCtx)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
 	}

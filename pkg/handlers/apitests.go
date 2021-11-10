@@ -17,7 +17,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -27,28 +26,16 @@ import (
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
 	testingsuite.PopTestSuite
-	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
 		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
-		logger:             logger,
 		notificationSender: sender,
 	}
-}
-
-// TestLogger returns the logger to use in the suite
-func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
-	return suite.logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *BaseHandlerTestSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests
@@ -90,7 +77,7 @@ func (suite *BaseHandlerTestSuite) HasNoWebhookNotification(objectID uuid.UUID, 
 func (suite *BaseHandlerTestSuite) IsNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*ErrResponse)
 	if ok {
-		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
+		suite.Logger().Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
 		// Formally lodge a complaint
 		suite.IsType(&ErrResponse{}, response)
 	}
@@ -217,12 +204,12 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
-		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
+		suite.Logger().Fatal("Error opening fixture file", zap.Error(err))
 	}
 
 	info, err := file.Stat()
 	if err != nil {
-		suite.logger.Fatal("Error accessing fixture stats", zap.Error(err))
+		suite.Logger().Fatal("Error accessing fixture stats", zap.Error(err))
 	}
 
 	header := multipart.FileHeader{

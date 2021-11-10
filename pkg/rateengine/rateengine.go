@@ -3,9 +3,9 @@ package rateengine
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
-	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -17,9 +17,7 @@ const MaxSITDays = 90
 
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
-	db     *pop.Connection
-	logger *zap.Logger
-	move   models.Move
+	move models.Move
 }
 
 // CostComputation represents the results of a computation.
@@ -89,6 +87,7 @@ func Zip5ToZip3(zip5 string) string {
 // hardcoded value to prevent errors when scheduling a ppm beyond 2021-05-15
 // PPMs will be addressed in outcome 7
 func (re *RateEngine) computePPM(
+	appCtx appcontext.AppContext,
 	weight unit.Pound,
 	originZip5 string,
 	destinationZip5 string,
@@ -135,7 +134,7 @@ func (re *RateEngine) computePPM(
 	cost.Scale(weightValue / 1000 * .4)
 	cost.Scale(prorateFactor)
 
-	re.logger.Info("PPM cost computation",
+	appCtx.Logger().Info("PPM cost computation",
 		zap.String("moveLocator", re.move.Locator),
 		zap.Object("cost", cost),
 	)
@@ -237,21 +236,22 @@ func (re *RateEngine) computePPM(
 // }
 
 //computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
+func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
-		re.logger,
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(appCtx.DB(),
+		appCtx.Logger(),
 		re.move,
 		originZip5,
 		destinationZip5,
 		date,
 	)
 	if err != nil {
-		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
+		appCtx.Logger().Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
-	cost, err = re.computePPM(weight,
+	cost, err = re.computePPM(appCtx,
+		weight,
 		originZip5,
 		destinationZip5,
 		distanceMiles,
@@ -262,15 +262,16 @@ func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip
 	)
 
 	if err != nil {
-		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
+		appCtx.Logger().Error("Failed to compute PPM cost", zap.Error(err))
 		return
 	}
 	return cost, nil
 }
 
 // ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns both calcs.
-func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
+func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
 	costFromOriginPickupZip, err := re.computePPMIncludingLHDiscount(
+		appCtx,
 		weight,
 		originPickupZip5,
 		destinationZip5,
@@ -279,7 +280,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 		daysInSit,
 	)
 	if err != nil {
-		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
+		appCtx.Logger().Error("Failed to compute PPM cost", zap.Error(err))
 		return
 	}
 
@@ -290,6 +291,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 	}
 
 	costFromOriginDutyStationZip, err := re.computePPMIncludingLHDiscount(
+		appCtx,
 		weight,
 		originDutyStationZip5,
 		destinationZip5,
@@ -298,7 +300,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 		daysInSit,
 	)
 	if err != nil {
-		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
+		appCtx.Logger().Error("Failed to compute PPM cost", zap.Error(err))
 		return
 	}
 	costDetails["originDutyStation"] = &CostDetail{
@@ -316,7 +318,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 		costDetails["pickupLocation"].IsWinning = true
 	}
 
-	re.logger.Info("Origin zip code information",
+	appCtx.Logger().Info("Origin zip code information",
 		zap.String("moveLocator", re.move.Locator),
 		zap.String("originZipLocation", originZipLocation),
 		zap.String("originZipCode", originZipCode),
@@ -341,6 +343,6 @@ func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger *zap.Logger, move models.Move) *RateEngine {
-	return &RateEngine{db: db, logger: logger, move: move}
+func NewRateEngine(move models.Move) *RateEngine {
+	return &RateEngine{move: move}
 }

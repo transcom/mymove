@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
