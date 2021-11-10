@@ -18,7 +18,6 @@ import (
 type Filesystem struct {
 	root    string
 	webRoot string
-	logger  Logger
 	fs      *afero.Afero
 	tempFs  *afero.Afero
 }
@@ -27,11 +26,10 @@ type Filesystem struct {
 type FilesystemParams struct {
 	root    string
 	webRoot string
-	logger  Logger
 }
 
 // NewFilesystemParams returns FilesystemParams after checking path
-func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger Logger) FilesystemParams {
+func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string) FilesystemParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
@@ -42,7 +40,6 @@ func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, lo
 	return FilesystemParams{
 		root:    storagePath,
 		webRoot: webRoot,
-		logger:  logger,
 	}
 }
 
@@ -54,7 +51,6 @@ func NewFilesystem(params FilesystemParams) *Filesystem {
 	return &Filesystem{
 		root:    params.root,
 		webRoot: params.webRoot,
-		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
 		tempFs:  &afero.Afero{Fs: tempFs},
 	}

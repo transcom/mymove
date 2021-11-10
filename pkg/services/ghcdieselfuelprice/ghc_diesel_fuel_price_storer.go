@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -24,7 +24,7 @@ func publicationDateInTime(publicationDate string) (time.Time, error) {
 }
 
 // RunStorer stores the final EIA weekly average diesel fuel price data in the ghc_diesel_fuel_price table
-func (d *DieselFuelPriceInfo) RunStorer(dbTx *pop.Connection) error {
+func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 	priceInMillicents := priceInMillicents(d.dieselFuelPriceData.price)
 
 	publicationDate, err := publicationDateInTime(d.dieselFuelPriceData.publicationDate)
@@ -39,11 +39,11 @@ func (d *DieselFuelPriceInfo) RunStorer(dbTx *pop.Connection) error {
 
 	var lastGHCDieselFuelPrice models.GHCDieselFuelPrice
 
-	err = dbTx.Where("publication_date = ?", publicationDate).First(&lastGHCDieselFuelPrice)
+	err = appCtx.DB().Where("publication_date = ?", publicationDate).First(&lastGHCDieselFuelPrice)
 	if err != nil {
-		d.logger.Info("no existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
+		appCtx.Logger().Info("no existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
 
-		verrs, err := dbTx.ValidateAndCreate(&newGHCDieselFuelPrice)
+		verrs, err := appCtx.DB().ValidateAndCreate(&newGHCDieselFuelPrice)
 		if err != nil {
 			return fmt.Errorf("failed to create ghcDieselFuelPrice: %w", err)
 		}
@@ -53,7 +53,7 @@ func (d *DieselFuelPriceInfo) RunStorer(dbTx *pop.Connection) error {
 	} else if priceInMillicents != lastGHCDieselFuelPrice.FuelPriceInMillicents {
 		lastGHCDieselFuelPrice.FuelPriceInMillicents = priceInMillicents
 
-		verrs, err := dbTx.ValidateAndUpdate(&lastGHCDieselFuelPrice)
+		verrs, err := appCtx.DB().ValidateAndUpdate(&lastGHCDieselFuelPrice)
 		if err != nil {
 			return fmt.Errorf("failed to update ghcDieselFuelPrice: %w", err)
 		}

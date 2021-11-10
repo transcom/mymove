@@ -241,7 +241,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
   });
 
   describe('error alert display', () => {
-    it('displays the error alert when the api submission returns an error', async () => {
+    it('displays the error alert when the api submission returns an error', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       updatePrimeMTOShipmentAddress.mockRejectedValue({
         response: { body: { title: 'Error title', detail: 'Error detail' } },
@@ -249,7 +249,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
 
       render(<PrimeUIShipmentUpdateAddress />);
 
-      await waitFor(() => {
+      waitFor(() => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
         userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
         expect(screen.getByText('Error title')).toBeInTheDocument();
@@ -257,13 +257,13 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       });
     });
 
-    it('displays the unknown error when none is provided', async () => {
+    it('displays the unknown error when none is provided', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       updatePrimeMTOShipmentAddress.mockRejectedValue('malformed api error response');
 
       render(<PrimeUIShipmentUpdateAddress />);
 
-      await waitFor(() => {
+      waitFor(() => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
         userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
 

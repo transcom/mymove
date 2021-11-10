@@ -82,6 +82,14 @@ type Order struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// NTS SAC
+	// Example: N002214CSW32Y9
+	NtsSac *string `json:"nts_sac,omitempty"`
+
+	// NTS TAC
+	// Example: F8J1
+	NtsTac *string `json:"nts_tac,omitempty"`
+
 	// order number
 	// Example: 030-00362
 	OrderNumber *string `json:"order_number,omitempty"`

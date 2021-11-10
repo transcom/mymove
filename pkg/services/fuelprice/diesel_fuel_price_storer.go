@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -51,10 +51,8 @@ type EiaData struct {
 type FetchFuelData func(string) (EiaData, error)
 
 // NewDieselFuelPriceStorer creates a new struct
-func NewDieselFuelPriceStorer(db *pop.Connection, logger *zap.Logger, clock clock.Clock, dataFetch FetchFuelData, eiaKey string, url string) *DieselFuelPriceStorer {
+func NewDieselFuelPriceStorer(clock clock.Clock, dataFetch FetchFuelData, eiaKey string, url string) *DieselFuelPriceStorer {
 	return &DieselFuelPriceStorer{
-		DB:            db,
-		logger:        logger,
 		Clock:         clock,
 		FetchFuelData: dataFetch,
 		eiaKey:        eiaKey,
@@ -64,8 +62,6 @@ func NewDieselFuelPriceStorer(db *pop.Connection, logger *zap.Logger, clock cloc
 
 // DieselFuelPriceStorer is a service object to add missing fuel prices to db
 type DieselFuelPriceStorer struct {
-	DB            *pop.Connection
-	logger        *zap.Logger
 	Clock         clock.Clock
 	FetchFuelData FetchFuelData
 	eiaKey        string
@@ -73,11 +69,11 @@ type DieselFuelPriceStorer struct {
 }
 
 // StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
-func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors, error) {
+func (u DieselFuelPriceStorer) StoreFuelPrices(appCtx appcontext.AppContext, numMonths int) (*validate.Errors, error) {
 	verrs := &validate.Errors{}
-	missingMonths, err := u.findMissingRecordMonths(u.DB, numMonths)
+	missingMonths, err := u.findMissingRecordMonths(appCtx, numMonths)
 	if len(missingMonths) < 1 {
-		u.logger.Info("No new fuel prices to add to the database")
+		appCtx.Logger().Info("No new fuel prices to add to the database")
 		return verrs, nil
 	}
 	if err != nil {
@@ -122,13 +118,13 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			BaselineRate:                baselineRate,
 		}
 		responseVErrors := validate.NewErrors()
-		validateAndSaveVerrs, validateAndSaveErr := u.DB.ValidateAndSave(&fuelPrice)
+		validateAndSaveVerrs, validateAndSaveErr := appCtx.DB().ValidateAndSave(&fuelPrice)
 
 		if validateAndSaveErr != nil || validateAndSaveVerrs.HasAny() {
 			responseVErrors.Append(validateAndSaveVerrs)
 			return responseVErrors, errors.Wrap(validateAndSaveErr, "Cannot validate and save fuel diesel price")
 		}
-		u.logger.Info("Fuel Data added \n", zap.String("start date month", month.String()), zap.Time("pubDate", pubDate))
+		appCtx.Logger().Info("Fuel Data added \n", zap.String("start date month", month.String()), zap.Time("pubDate", pubDate))
 	}
 	return verrs, err
 }
@@ -258,12 +254,12 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 	return fuelValues, err
 }
 
-func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMonths int) (months []int, err error) {
+func (u DieselFuelPriceStorer) findMissingRecordMonths(appCtx appcontext.AppContext, numMonths int) (months []int, err error) {
 	// right now this function only supports 12 months or less
 	if numMonths > 12 {
 		return months, errors.New("Can check no more than a max of 12 records")
 	}
-	fuelPrices, err := models.FetchMostRecentFuelPrices(db, u.Clock, numMonths)
+	fuelPrices, err := models.FetchMostRecentFuelPrices(appCtx.DB(), u.Clock, numMonths)
 	if err != nil {
 		return nil, errors.New("Error fetching fuel prices")
 	}

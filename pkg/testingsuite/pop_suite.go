@@ -10,6 +10,11 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/envy"
@@ -49,6 +54,7 @@ type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
 	dbNameTemplate      string
+	logger              *zap.Logger
 	pgConn              *pop.Connection
 	lowPrivConn         *pop.Connection
 	highPrivConn        *pop.Connection
@@ -395,6 +401,24 @@ func (suite *PopTestSuite) setDB(conn *pop.Connection) {
 	suite.lowPrivConn = conn
 }
 
+// Logger returns the logger for the test suite
+func (suite *PopTestSuite) Logger() *zap.Logger {
+	if suite.logger == nil {
+		suite.logger = zaptest.NewLogger(suite.T())
+	}
+	return suite.logger
+}
+
+// AppContextForTest returns the AppContext for the test suite
+func (suite *PopTestSuite) AppContextForTest() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.Logger(), nil)
+}
+
+// AppContextWithSessionForTest returns the AppContext for the test suite
+func (suite *PopTestSuite) AppContextWithSessionForTest(session *auth.Session) appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.Logger(), session)
+}
+
 // Truncate deletes all data from the specified tables.
 func (suite *PopTestSuite) Truncate(tables []string) error {
 	// Truncate the specified tables.
@@ -513,6 +537,7 @@ func (suite *PopTestSuite) Run(name string, subtest func()) bool {
 	defer suite.SetT(oldT)
 	return oldT.Run(name, func(t *testing.T) {
 		suite.SetT(t)
+		suite.logger = zaptest.NewLogger(t)
 		if suite.usePerTestTransaction {
 			subtestDb := suite.openTxnPopConnection()
 			suite.setDB(subtestDb)

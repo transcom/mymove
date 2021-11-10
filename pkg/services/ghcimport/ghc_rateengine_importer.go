@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pterm/pterm"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // GHCRateEngineImporter is the rate engine importer for GHC
 type GHCRateEngineImporter struct {
-	Logger                       Logger
 	ContractCode                 string
 	ContractName                 string
 	ContractStartDate            time.Time
@@ -23,9 +23,9 @@ type GHCRateEngineImporter struct {
 	contractYearToIDMap          map[string]uuid.UUID
 }
 
-func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) runImports(appCtx appcontext.AppContext) error {
 	importers := []struct {
-		importFunction func(*pop.Connection) error
+		importFunction func(appcontext.AppContext) error
 		action         string
 	}{
 		// NOTE: Ordering is significant as these functions must run in this order.
@@ -56,7 +56,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 			return fmt.Errorf("failed to create pterm spinner: %w", err)
 		}
 
-		err = importer.importFunction(dbTx)
+		err = importer.importFunction(appCtx)
 		if err != nil {
 			spinner.Fail()
 			return fmt.Errorf("importer failed: %s: %w", importer.action, err)
@@ -69,9 +69,9 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 }
 
 // Import runs the import
-func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
-	err := db.Transaction(func(connection *pop.Connection) error {
-		dbTxError := gre.runImports(connection)
+func (gre *GHCRateEngineImporter) Import(appCtx appcontext.AppContext) error {
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		dbTxError := gre.runImports(txnAppCtx)
 		return dbTxError
 	})
 	if err != nil {

@@ -3,16 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (gre *GHCRateEngineImporter) importRETaskOrderFees(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importRETaskOrderFees(appCtx appcontext.AppContext) error {
 	//tab 4a) Mgmt., Coun., Trans. Prices
 	var shipmentManagementServices []models.StageShipmentManagementServicesPrice
-	err := dbTx.All(&shipmentManagementServices)
+	err := appCtx.DB().All(&shipmentManagementServices)
 	if err != nil {
 		return fmt.Errorf("could not read staged shipment management service prices: %w", err)
 	}
@@ -42,7 +41,7 @@ func (gre *GHCRateEngineImporter) importRETaskOrderFees(dbTx *pop.Connection) er
 			PriceCents:     unit.Cents(perUnitCentsService),
 		}
 
-		verrs, dbErr := dbTx.ValidateAndSave(&taskOrderFee)
+		verrs, dbErr := appCtx.DB().ValidateAndSave(&taskOrderFee)
 		if dbErr != nil {
 			return fmt.Errorf("error saving ReTaskOrderFees: %+v with error: %w", taskOrderFee, dbErr)
 		}
@@ -52,7 +51,7 @@ func (gre *GHCRateEngineImporter) importRETaskOrderFees(dbTx *pop.Connection) er
 	}
 
 	var shipmentCounselingServices []models.StageCounselingServicesPrice
-	err = dbTx.All(&shipmentCounselingServices)
+	err = appCtx.DB().All(&shipmentCounselingServices)
 	if err != nil {
 		return fmt.Errorf("could not read staged shipment counseling service prices: %w", err)
 	}
@@ -82,7 +81,7 @@ func (gre *GHCRateEngineImporter) importRETaskOrderFees(dbTx *pop.Connection) er
 			PriceCents:     unit.Cents(perUnitCentsService),
 		}
 
-		verrs, dbErr := dbTx.ValidateAndSave(&taskOrderFee)
+		verrs, dbErr := appCtx.DB().ValidateAndSave(&taskOrderFee)
 		if dbErr != nil {
 			return fmt.Errorf("error saving ReTaskOrderFees: %+v with error: %w", taskOrderFee, dbErr)
 		}

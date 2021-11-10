@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID:                           strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -319,7 +319,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 
 	handler := UpdateMoveDocumentHandler{
 		handlers.NewHandlerContext(suite.DB(),
-			suite.TestLogger()),
+			suite.Logger()),
 		moveDocumentUpdateHandler,
 	}
 
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 
 	handler := DeleteMoveDocumentHandler{
 		handlers.NewHandlerContext(suite.DB(),
-			suite.TestLogger()),
+			suite.Logger()),
 	}
 
 	response := handler.Handle(deleteMoveDocParams)

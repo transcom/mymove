@@ -15,10 +15,9 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 				publicationDate: "20200622",
 				price:           2.659,
 			},
-			logger: suite.logger,
 		}
 
-		err := dieselFuelPriceInfo.RunStorer(suite.DB())
+		err := dieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
 		suite.NoError(err)
 
 		var ghcDieselFuelPrice models.GHCDieselFuelPrice
@@ -36,10 +35,9 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 				publicationDate: "20200622",
 				price:           2.420,
 			},
-			logger: suite.logger,
 		}
 
-		err := updatedDieselFuelPriceInfo.RunStorer(suite.DB())
+		err := updatedDieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
 		suite.NoError(err)
 
 		var ghcDieselFuelPrice models.GHCDieselFuelPrice

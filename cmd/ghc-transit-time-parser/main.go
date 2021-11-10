@@ -13,6 +13,7 @@ import (
 
 	"github.com/tealeg/xlsx/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/parser/transittime"
@@ -106,8 +107,10 @@ func main() {
 		}
 	}()
 
+	appCtx := appcontext.NewAppContext(db, logger, nil)
+
 	// Now kick off the parsing
-	err = transittime.Parse(xlsxDataSheets, params, db, logger)
+	err = transittime.Parse(appCtx, xlsxDataSheets, params)
 	if err != nil {
 		log.Fatalf("Failed to parse transit times template due to %v", err)
 	}
