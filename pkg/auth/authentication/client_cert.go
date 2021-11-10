@@ -6,10 +6,7 @@ import (
 	"encoding/hex"
 	"net/http"
 
-	"github.com/gobuffalo/pop/v5"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -36,14 +33,13 @@ func ClientCertFromContext(ctx context.Context) *models.ClientCert {
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
-func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			logger := logging.FromContext(r.Context())
-			dbc := db.WithContext(r.Context())
+			newAppCtx := appcontext.NewAppContextFromContext(r.Context(), appCtx)
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
-				logger.Info("Unauthenticated")
+				newAppCtx.Logger().Info("Unauthenticated")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -52,10 +48,10 @@ func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(nex
 			hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 			hashString := hex.EncodeToString(hash[:])
 
-			clientCert, err := models.FetchClientCert(dbc, hashString)
+			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
-				logger.Info("Unknown / unregistered client certificate")
+				newAppCtx.Logger().Info("Unknown / unregistered client certificate")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -70,29 +66,30 @@ func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(nex
 
 // DevlocalClientCertMiddleware fakes the client cert as always
 // devlocal. This will only be used if devlocal auth is enabled
-func DevlocalClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func DevlocalClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			logger := logging.FromContext(r.Context())
+			newAppCtx := appcontext.NewAppContextFromContext(r.Context(), appCtx)
+
 			hashString := ""
 			// if a TLS connection has a client cert, use that
 			if r.TLS != nil && len(r.TLS.PeerCertificates) != 0 {
 				// get DER hash
 				hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 				hashString = hex.EncodeToString(hash[:])
-				logger.Info("TLS connection has a client certificate")
+				newAppCtx.Logger().Info("TLS connection has a client certificate")
 			} else {
 				// otherwise, for devlocal, default to the devlocal cert
 				// This hash gets populated as part of migration
 				// 20191212230438_add_devlocal-mtls_client_cert.up.sql
 				hashString = "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db"
-				logger.Info("TLS connection doesn't have a client certificate")
+				newAppCtx.Logger().Info("TLS connection doesn't have a client certificate")
 			}
 
-			clientCert, err := models.FetchClientCert(db, hashString)
+			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
-				logger.Info("Unknown / unregistered client certificate")
+				newAppCtx.Logger().Info("Unknown / unregistered client certificate")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}

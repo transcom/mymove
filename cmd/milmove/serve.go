@@ -40,6 +40,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/certs"
@@ -513,6 +514,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
 	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
 	if errRedisConnection != nil {
@@ -551,7 +554,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
-	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
+	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetSessionManagers(sessionManagers)
@@ -840,7 +843,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
 		if v.GetBool(cli.DevlocalAuthFlag) {
-			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(logger, dbConnection)
+			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
 			primeMux.Use(devlocalClientCertMiddleware)
 		} else {
 			primeMux.Use(clientCertMiddleware)
