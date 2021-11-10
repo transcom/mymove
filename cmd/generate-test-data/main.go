@@ -174,7 +174,7 @@ func main() {
 	namedSubScenario := v.GetString(namedSubScenarioFlag)
 
 	if scenario == 4 {
-		err = tdgs.RunPPMSITEstimateScenario1(dbConnection)
+		err = tdgs.RunPPMSITEstimateScenario1(appCtx)
 	} else if scenario == 5 {
 		err = tdgs.RunRateEngineScenario1(dbConnection)
 	} else if scenario == 6 {
