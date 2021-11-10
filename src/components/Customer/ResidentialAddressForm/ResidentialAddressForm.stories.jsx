@@ -20,11 +20,11 @@ export const DefaultState = (argTypes) => (
     formFieldsName="residential_address"
     initialValues={{
       residential_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     onBack={argTypes.onBack}
@@ -37,11 +37,11 @@ export const WithInitialValues = (argTypes) => (
     formFieldsName="residential_address"
     initialValues={{
       residential_address: {
-        street_address_1: '235 Prospect Valley Road SE',
-        street_address_2: '',
+        streetAddress1: '235 Prospect Valley Road SE',
+        streetAddress2: '',
         city: 'El Paso',
         state: 'TX',
-        postal_code: '79912',
+        postalCode: '79912',
       },
     }}
     onBack={argTypes.onBack}
@@ -54,11 +54,11 @@ export const WithCustomValidators = (argTypes) => (
     formFieldsName="residential_address"
     initialValues={{
       residential_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     onBack={argTypes.onBack}
