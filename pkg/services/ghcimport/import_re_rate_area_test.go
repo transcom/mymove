@@ -146,16 +146,15 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplet
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateArea() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	// Prerequisite tables must be loaded.
-	err := gre.importREContract(suite.DB())
+	err := gre.importREContract(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.T().Run("Successfully run import with staged staging data (empty RE tables)", func(t *testing.T) {
-		err = gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
@@ -164,7 +163,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	})
 
 	suite.T().Run("Successfully run import, 2nd time, with staged staging data and filled in RE tables", func(t *testing.T) {
-		err = gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
@@ -175,7 +174,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	suite.T().Run("Successfully run import, prefilled re_rate_areas, update existing rate area from import", func(t *testing.T) {
 		suite.helperImportRERateArea("setup")
 
-		err = gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
@@ -189,7 +188,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
-		err = gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.Error(err)
 
 		renameQuery = "ALTER TABLE missing_stage_conus_to_oconus_prices RENAME TO stage_conus_to_oconus_prices"
@@ -198,16 +197,15 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	})
 
 	gre2 := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode2,
 	}
 
 	// Prerequisite tables must be loaded.
-	err = gre2.importREContract(suite.DB())
+	err = gre2.importREContract(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
-		err = gre2.importRERateArea(suite.DB())
+		err = gre2.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode2)
 

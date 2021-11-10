@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -42,18 +43,18 @@ func (c LinehaulCostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder)
 }
 
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) baseLinehaul(mileage int, weight unit.Pound, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
-	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, weight, date)
+func (re *RateEngine) baseLinehaul(appCtx appcontext.AppContext, mileage int, weight unit.Pound, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
+	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(appCtx.DB(), mileage, weight, date)
 	if err != nil {
-		re.logger.Error("Base Linehaul query didn't complete: ", zap.Error(err))
+		appCtx.Logger().Error("Base Linehaul query didn't complete: ", zap.Error(err))
 	}
 
 	return baseLinehaulChargeCents, err
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(cwt unit.CWT, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
+func (re *RateEngine) linehaulFactors(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -61,43 +62,43 @@ func (re *RateEngine) linehaulFactors(cwt unit.CWT, zip3 string, date time.Time)
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
-func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time) (shorthaulChargeCents unit.Cents, err error) {
+func (re *RateEngine) shorthaulCharge(appCtx appcontext.AppContext, mileage int, cwt unit.CWT, date time.Time) (shorthaulChargeCents unit.Cents, err error) {
 	if mileage >= 800 {
 		return 0, nil
 	}
-	re.logger.Info("Shipment qualifies for shorthaul fee",
+	appCtx.Logger().Info("Shipment qualifies for shorthaul fee",
 		zap.String("moveLocator", re.move.Locator),
 		zap.Int("miles", mileage),
 	)
 
 	cwtMiles := mileage * cwt.Int()
-	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
+	shorthaulChargeCents, err = models.FetchShorthaulRateCents(appCtx.DB(), cwtMiles, date)
 
 	return shorthaulChargeCents, err
 }
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, pickupDate time.Time) (cost LinehaulCostComputation, err error) {
+func (re *RateEngine) linehaulChargeComputation(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, pickupDate time.Time) (cost LinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 
 	cost.Mileage = distanceMiles
 
-	cost.BaseLinehaul, err = re.baseLinehaul(distanceMiles, weight, pickupDate)
+	cost.BaseLinehaul, err = re.baseLinehaul(appCtx, distanceMiles, weight, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine base linehaul charge")
 	}
-	cost.OriginLinehaulFactor, err = re.linehaulFactors(cwt, originZip3, pickupDate)
+	cost.OriginLinehaulFactor, err = re.linehaulFactors(appCtx, cwt, originZip3, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine origin linehaul factor")
 	}
-	cost.DestinationLinehaulFactor, err = re.linehaulFactors(cwt, destinationZip3, pickupDate)
+	cost.DestinationLinehaulFactor, err = re.linehaulFactors(appCtx, cwt, destinationZip3, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine destination linehaul factor")
 	}
-	cost.ShorthaulCharge, err = re.shorthaulCharge(distanceMiles, cwt, pickupDate)
+	cost.ShorthaulCharge, err = re.shorthaulCharge(appCtx, distanceMiles, cwt, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}
@@ -107,7 +108,7 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
 
-	re.logger.Info("Linehaul charge total calculated",
+	appCtx.Logger().Info("Linehaul charge total calculated",
 		zap.String("moveLocator", re.move.Locator),
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),
@@ -120,26 +121,26 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 }
 
 // Calculate the fuel surcharge and return the result
-func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, bookDate time.Time) (fuelSurcharge FeeAndRate, err error) {
+func (re *RateEngine) fuelSurchargeComputation(appCtx appcontext.AppContext, totalLinehaulCost unit.Cents, bookDate time.Time) (fuelSurcharge FeeAndRate, err error) {
 	fuelEIADieselPriceSlice := []models.FuelEIADieselPrice{}
 
 	// Changing the format of the date to remove the time portion so it plays nicely with db
 	bookDateString := bookDate.Format("2006-01-02")
 
-	query := re.db.Where("rate_start_date <= ?", bookDateString).Where("rate_end_date >= ?", bookDateString)
+	query := appCtx.DB().Where("rate_start_date <= ?", bookDateString).Where("rate_end_date >= ?", bookDateString)
 	err1 := query.All(&fuelEIADieselPriceSlice)
 	if err1 != nil {
-		re.logger.Error(err1.Error())
+		appCtx.Logger().Error(err1.Error())
 	}
 
 	// We expect to only retrieve one value from the FuelEIADieselPrice table. There should be only one valid date range for a given bookDate.
 	// If we get more than one, something is wrong.
 	if len(fuelEIADieselPriceSlice) > 1 {
-		re.logger.Error("Got back multiple values from FuelEIADieselPrice when we should have only gotten one.")
+		appCtx.Logger().Error("Got back multiple values from FuelEIADieselPrice when we should have only gotten one.")
 	}
 
 	if len(fuelEIADieselPriceSlice) == 0 {
-		re.logger.Error("Query failed to find an applicable FuelEIADieselPrice")
+		appCtx.Logger().Error("Query failed to find an applicable FuelEIADieselPrice")
 	}
 
 	fuelEIADieselPrice := fuelEIADieselPriceSlice[0]

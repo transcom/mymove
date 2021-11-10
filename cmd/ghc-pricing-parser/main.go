@@ -18,6 +18,7 @@ import (
 
 	"github.com/tealeg/xlsx/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
@@ -99,6 +100,8 @@ func main() {
 		}
 	}()
 
+	appCtx := appcontext.NewAppContext(db, logger, nil)
+
 	// Ensure we've been given a spreadsheet to parse
 	if params.XlsxFilename == "" {
 		logger.Fatal("Did not receive an XLSX filename to parse; missing --filename")
@@ -142,11 +145,11 @@ func main() {
 
 	// Now kick off the parsing
 	printDivider("Parsing")
-	err = pricing.Parse(xlsxDataSheets, params, db, logger)
+	err = pricing.Parse(appCtx, xlsxDataSheets, params)
 	if err != nil {
 		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}
-	if err = summarizeXlsxStageParsing(db); err != nil {
+	if err = summarizeXlsxStageParsing(appCtx); err != nil {
 		logger.Fatal("Failed to summarize XLSX to stage table parsing", zap.Error(err))
 	}
 
@@ -154,22 +157,21 @@ func main() {
 	if params.RunImport {
 		printDivider("Importing")
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
-			Logger:            logger,
 			ContractCode:      params.ContractCode,
 			ContractName:      params.ContractName,
 			ContractStartDate: basePeriodStartDateForPrimeContract1,
 		}
-		err = ghcREImporter.Import(db)
+		err = ghcREImporter.Import(appCtx)
 		if err != nil {
 			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
 		}
-		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
+		if err := summarizeStageReImport(appCtx, ghcREImporter.ContractID); err != nil {
 			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
 		}
 	}
 }
 
-func summarizeXlsxStageParsing(db *pop.Connection) error {
+func summarizeXlsxStageParsing(appCtx appcontext.AppContext) error {
 	printDivider("XLSX to stage table parsing complete; summary follows")
 
 	models := []struct {
@@ -197,7 +199,7 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 
 	for _, model := range models {
-		err := summarizeModel(db, model.header, model.modelInstance, nil)
+		err := summarizeModel(appCtx, model.header, model.modelInstance, nil)
 		if err != nil {
 			return err
 		}
@@ -206,7 +208,7 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	return nil
 }
 
-func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
+func summarizeStageReImport(appCtx appcontext.AppContext, contractID uuid.UUID) error {
 	printDivider("Stage table import into rate engine tables complete; summary follows")
 
 	models := []struct {
@@ -217,77 +219,77 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 		{
 			"re_contract",
 			models.ReContract{},
-			db.Where("id = ?", contractID),
+			appCtx.DB().Where("id = ?", contractID),
 		},
 		{
 			"re_contract_years",
 			models.ReContractYear{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_service_areas",
 			models.ReDomesticServiceArea{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_zip3s",
 			models.ReZip3{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_rate_areas",
 			models.ReRateArea{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_linehaul_prices",
 			models.ReDomesticLinehaulPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_service_area_prices",
 			models.ReDomesticServiceAreaPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_other_prices",
 			models.ReDomesticOtherPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_prices",
 			models.ReIntlPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_other_prices",
 			models.ReIntlOtherPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_task_order_fees",
 			models.ReTaskOrderFee{},
-			db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
+			appCtx.DB().Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
 		},
 		{
 			"re_domestic_accessorial_prices",
 			models.ReDomesticAccessorialPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_accessorial_prices",
 			models.ReIntlAccessorialPrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 		{
 			"re_shipment_type_prices",
 			models.ReShipmentTypePrice{},
-			db.Where("contract_id = ?", contractID),
+			appCtx.DB().Where("contract_id = ?", contractID),
 		},
 	}
 
 	for _, model := range models {
-		err := summarizeModel(db, model.header, model.modelInstance, model.filter)
+		err := summarizeModel(appCtx, model.header, model.modelInstance, model.filter)
 		if err != nil {
 			return err
 		}
@@ -296,7 +298,7 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	return nil
 }
 
-func summarizeModel(db *pop.Connection, header string, modelInstance interface{}, filter *pop.Query) error {
+func summarizeModel(appCtx appcontext.AppContext, header string, modelInstance interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460
 	modelType := reflect.TypeOf(modelInstance)
 	if modelType.Kind() != reflect.Struct {
@@ -309,7 +311,7 @@ func summarizeModel(db *pop.Connection, header string, modelInstance interface{}
 	modelPtrSlice.Elem().Set(modelSlice)
 
 	if filter == nil {
-		filter = db.Q()
+		filter = appCtx.DB().Q()
 	}
 
 	err := filter.Limit(2).All(modelPtrSlice.Interface())

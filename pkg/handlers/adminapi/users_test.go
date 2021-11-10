@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(user, nil).Once()
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -200,7 +200,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 	sessionManagers := setupSessionManagers()
-	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	handlerContext.SetSessionManagers(sessionManagers)
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)

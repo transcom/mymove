@@ -618,7 +618,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Image:     aws.String("amazon/aws-otel-collector"),
 				Essential: aws.Bool(true),
 				Command: aws.StringSlice([]string{
-					"--config=/etc/ecs/ecs-default-config.yaml",
+					"--config=/etc/ecs/ecs-cloudwatch-xray.yaml",
 				}),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),

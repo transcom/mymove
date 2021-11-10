@@ -37,7 +37,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 		}
 	}
 
-	re := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
+	re := rateengine.NewRateEngine(move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
@@ -57,6 +57,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(
+		appCtx,
 		*ppm.WeightEstimate,
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
@@ -77,7 +78,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 	if !*ppm.HasSit {
 		return sitCharge, cost, nil
 	}
-	sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
+	sitComputation, sitChargeErr := re.SitCharge(appCtx, cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 	if sitChargeErr != nil {
 		return sitCharge, cost, sitChargeErr
 	}

@@ -18,7 +18,6 @@ import (
 type Memory struct {
 	root    string
 	webRoot string
-	logger  Logger
 	fs      *afero.Afero
 	tempFs  *afero.Afero
 }
@@ -27,11 +26,10 @@ type Memory struct {
 type MemoryParams struct {
 	root    string
 	webRoot string
-	logger  Logger
 }
 
 // NewMemoryParams returns default values for MemoryParams
-func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger Logger) MemoryParams {
+func NewMemoryParams(localStorageRoot string, localStorageWebRoot string) MemoryParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
@@ -42,7 +40,6 @@ func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger
 	return MemoryParams{
 		root:    storagePath,
 		webRoot: webRoot,
-		logger:  logger,
 	}
 }
 
@@ -54,7 +51,6 @@ func NewMemory(params MemoryParams) *Memory {
 	return &Memory{
 		root:    params.root,
 		webRoot: params.webRoot,
-		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
 		tempFs:  &afero.Afero{Fs: tempFs},
 	}

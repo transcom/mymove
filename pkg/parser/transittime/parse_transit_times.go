@@ -12,7 +12,7 @@ import (
 )
 
 // parseDomesticTransitTime: parser for: Domestic Transit Times
-var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 1 // Domestic Transit Times
 	// horizontal, increment by column
@@ -78,6 +78,6 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 
 // ToDo: Need to figure out what to verify on the sheet
 // verifyTransitTimes: verification for: Domestic Transit Times
-var verifyTransitTime verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
+var verifyTransitTime verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger *zap.Logger) error {
 	return nil
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/cmd/webhook-client/webhook"
+	"github.com/transcom/mymove/pkg/appcontext"
 
 	"go.uber.org/zap"
 )
@@ -65,8 +66,6 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Create a webhook engine
 	webhookEngine := webhook.Engine{
-		DB:                  db,
-		Logger:              logger,
 		Client:              runtime,
 		PeriodInSeconds:     v.GetInt(PeriodFlag),
 		MaxImmediateRetries: v.GetInt(MaxRetriesFlag),
@@ -75,12 +74,14 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		DoneChannel:         make(chan bool, 1),
 	}
 
+	appCtx := appcontext.NewAppContext(db, logger, nil)
+
 	// Wait for interrupt signal to gracefully shutdown the client
 	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)
 
 	// Start polling the db for changes
 	go func() {
-		if engineStartFailed := webhookEngine.Start(); engineStartFailed != nil {
+		if engineStartFailed := webhookEngine.Start(appCtx); engineStartFailed != nil {
 			logger.Error("Engine start failed", zap.Error(err))
 		}
 	}()

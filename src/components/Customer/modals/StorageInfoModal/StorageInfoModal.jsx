@@ -29,11 +29,11 @@ export const StorageInfoModal = ({ closeModal }) => (
     </p>
 
     <h4>
-      <strong>Long-term storage release (NTS-R)</strong>
+      <strong>Long-term storage release (NTS-release)</strong>
     </h4>
     <p>
       Retrieval of things you placed into long-term storage (NTS) during an earlier move. If you don’t have things in
-      storage, you don’t need to request an NTS-R.
+      storage, you don’t need to request an NTS-release.
     </p>
     <p>Movers pick up your things at the storage facility and deliver them to your new location.</p>
     <ul>
@@ -42,7 +42,7 @@ export const StorageInfoModal = ({ closeModal }) => (
       <li>Will arrive as its own shipment, not as part of any other shipments you select</li>
       <li>If you don’t know where your shipment was stored, talk to your move counselor — they can look it up</li>
     </ul>
-    <p>This is known as an NTS-R — a “non-temporary storage release.”</p>
+    <p>This is known as an NTS-release — a “non-temporary storage release.”</p>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal}>
         Got it

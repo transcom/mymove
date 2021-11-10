@@ -37,7 +37,7 @@ func initRootFlags(flag *pflag.FlagSet) {
 }
 
 // InitRootConfig checks the validity of the api flags and initializes a db connection.
-func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
+func InitRootConfig(v *viper.Viper) (*pop.Connection, *zap.Logger, error) {
 
 	// LOGGER SETUP
 	// Get the db env to configure the logger level

@@ -161,7 +161,7 @@ func (invoice Invoice858C) Segments() [][]string {
 	return records
 }
 
-func logValidationErrors(logger Logger, err error) {
+func logValidationErrors(logger *zap.Logger, err error) {
 	// saftey check err is nil just return
 	if err == nil {
 		return
@@ -181,7 +181,7 @@ func logValidationErrors(logger Logger, err error) {
 }
 
 // EDIString returns the EDI representation of an 858C
-func (invoice Invoice858C) EDIString(logger Logger) (string, error) {
+func (invoice Invoice858C) EDIString(logger *zap.Logger) (string, error) {
 	err := invoice.Validate()
 	if err != nil {
 		// Log validation details, but do not expose details via API

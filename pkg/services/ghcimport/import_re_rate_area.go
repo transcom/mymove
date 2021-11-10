@@ -3,37 +3,37 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importRERateArea(appCtx appcontext.AppContext) error {
 	var err error
 	//maps the domestic rate areas to a UUID
-	gre.domesticRateAreaToIDMap, err = gre.importDomesticRateAreas(dbTx)
+	gre.domesticRateAreaToIDMap, err = gre.importDomesticRateAreas(appCtx)
 	if err != nil {
 		return fmt.Errorf("importRERateArea failed to import: %w", err)
 	}
 	//maps the international rate areas to a UUID
-	gre.internationalRateAreaToIDMap, err = gre.importInternationalRateAreas(dbTx)
+	gre.internationalRateAreaToIDMap, err = gre.importInternationalRateAreas(appCtx)
 	if err != nil {
 		return fmt.Errorf("importRERateArea failed to import: %w", err)
 	}
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (map[string]uuid.UUID, error) {
+func (gre *GHCRateEngineImporter) importDomesticRateAreas(appCtx appcontext.AppContext) (map[string]uuid.UUID, error) {
 	rateAreaToIDMap := make(map[string]uuid.UUID)
 
 	// have to read international tables to get the domestic rate areas
 
 	// models.StageConusToOconusPrice
 	var conusToOconus []models.StageConusToOconusPrice
-	err := db.All(&conusToOconus)
+	err := appCtx.DB().All(&conusToOconus)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to query all StageConusToOconusPrice: %w", err)
@@ -42,7 +42,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 		if _, found := rateAreaToIDMap[ra.OriginDomesticPriceAreaCode]; !found {
 			// does the rate area already exist in the rate engine
 			var rateArea *models.ReRateArea
-			rateArea, err = models.FetchReRateAreaItem(db, gre.ContractID, ra.OriginDomesticPriceAreaCode)
+			rateArea, err = models.FetchReRateAreaItem(appCtx.DB(), gre.ContractID, ra.OriginDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != models.RecordNotFoundErrorString {
 					return nil, fmt.Errorf("failed importing re_rate_area from StageConusToOconusPrice with code: <%s> error: %w", ra.OriginDomesticPriceAreaCode, err)
@@ -66,7 +66,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 
 				if update {
 					var verrs *validate.Errors
-					verrs, err = db.ValidateAndSave(rateArea)
+					verrs, err = appCtx.DB().ValidateAndSave(rateArea)
 					if err != nil || verrs.HasAny() {
 						var dbError string
 						if err != nil {
@@ -91,7 +91,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 					Name:       ra.OriginDomesticPriceArea,
 				}
 				var verrs *validate.Errors
-				verrs, err = db.ValidateAndCreate(&newRateArea)
+				verrs, err = appCtx.DB().ValidateAndCreate(&newRateArea)
 				if err != nil || verrs.HasAny() {
 					var dbError string
 					if err != nil {
@@ -110,14 +110,14 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 
 	// models.StageOconusToConusPrice
 	var oconusToConus []models.StageOconusToConusPrice
-	err = db.All(&oconusToConus)
+	err = appCtx.DB().All(&oconusToConus)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query all StageOconusToConusPrice error: %w", err)
 	}
 	for _, ra := range oconusToConus {
 		if _, found := rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode]; !found {
 			// does the rate area already exist in the rate engine
-			rateArea, err := models.FetchReRateAreaItem(db, gre.ContractID, ra.DestinationDomesticPriceAreaCode)
+			rateArea, err := models.FetchReRateAreaItem(appCtx.DB(), gre.ContractID, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != models.RecordNotFoundErrorString {
 					return nil, fmt.Errorf("Failed importing re_rate_area from StageOconusToConusPrice with code <%s> error: %w", ra.DestinationDomesticPriceAreaCode, err)
@@ -140,7 +140,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 
 				if update {
-					verrs, err := db.ValidateAndSave(rateArea)
+					verrs, err := appCtx.DB().ValidateAndSave(rateArea)
 					if err != nil || verrs.HasAny() {
 						var dbError string
 						if err != nil {
@@ -165,7 +165,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 					Code:       ra.DestinationDomesticPriceAreaCode,
 					Name:       ra.DestinationDomesticPriceArea,
 				}
-				verrs, err := db.ValidateAndCreate(&newRateArea)
+				verrs, err := appCtx.DB().ValidateAndCreate(&newRateArea)
 				if err != nil || verrs.HasAny() {
 					var dbError string
 					if err != nil {
@@ -185,10 +185,10 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 	return rateAreaToIDMap, nil
 }
 
-func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connection) (map[string]uuid.UUID, error) {
+func (gre *GHCRateEngineImporter) importInternationalRateAreas(appCtx appcontext.AppContext) (map[string]uuid.UUID, error) {
 	var serviceAreas []models.StageInternationalServiceArea
 
-	err := db.All(&serviceAreas)
+	err := appCtx.DB().All(&serviceAreas)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query all StageInternationalServiceArea: %w", err)
 	}
@@ -197,7 +197,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 	for _, sa := range serviceAreas {
 		if _, found := rateAreaToIDMap[sa.RateAreaID]; !found {
 			// query for ReRateArea
-			rateArea, err := models.FetchReRateAreaItem(db, gre.ContractID, sa.RateAreaID)
+			rateArea, err := models.FetchReRateAreaItem(appCtx.DB(), gre.ContractID, sa.RateAreaID)
 			if err != nil {
 				if err.Error() != models.RecordNotFoundErrorString {
 					return nil, fmt.Errorf("failed importing re_rate_area from StageInternationalServiceArea with code <%s> error: %w", sa.RateAreaID, err)
@@ -216,7 +216,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 					update = true
 				}
 				if update {
-					verrs, err := db.ValidateAndSave(rateArea)
+					verrs, err := appCtx.DB().ValidateAndSave(rateArea)
 					if err != nil || verrs.HasAny() {
 						var dbError string
 						if err != nil {
@@ -240,7 +240,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 					Code:       sa.RateAreaID,
 					Name:       sa.RateArea,
 				}
-				verrs, err := db.ValidateAndCreate(&newRateArea)
+				verrs, err := appCtx.DB().ValidateAndCreate(&newRateArea)
 				if err != nil || verrs.HasAny() {
 					var dbError string
 					if err != nil {

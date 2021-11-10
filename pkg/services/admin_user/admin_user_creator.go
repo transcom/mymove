@@ -80,7 +80,7 @@ func (o *adminUserCreator) CreateAdminUser(
 	}
 
 	if userActivityEmail != nil {
-		err = o.sender.SendNotification(userActivityEmail)
+		err = o.sender.SendNotification(appCtx, userActivityEmail)
 		if err != nil {
 			return nil, nil, err
 		}

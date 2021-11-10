@@ -12,26 +12,25 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticAccessorialPrices() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.loadServiceMap(suite.DB())
+		err = gre.loadServiceMap(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticAccessorialPrices(suite.DB())
+		err = gre.importREDomesticAccessorialPrices(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyDomesticAccessorialPrices()
 		suite.helperCheckDomesticAccessorialPrices()
 	})
 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
-		err := gre.importREDomesticAccessorialPrices(suite.DB())
+		err := gre.importREDomesticAccessorialPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_accessorial_prices_unique_key"))
 		}

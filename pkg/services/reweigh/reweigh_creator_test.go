@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/gofrs/uuid"
@@ -24,14 +23,12 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		ShipmentID:  mtoShipment.ID,
 	}
 
-	appCtx := appcontext.NewAppContext(suite.DB(), suite.logger, nil)
-
 	suite.T().Run("CreateReweigh - Success", func(t *testing.T) {
 		// Under test:	CreateReweigh
 		// Set up:		Established valid shipment and valid reweigh
 		// Expected:	New reweigh successfully created
-		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
+		reweighCreator := NewReweighCreator()
+		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 
 		suite.Nil(err)
 		suite.NotNil(createdReweigh)
@@ -43,8 +40,8 @@ func (suite *ReweighSuite) TestReweighCreator() {
 	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
 		badRequestedby := models.ReweighRequester("not requested by anyone")
 		newReweigh.RequestedBy = badRequestedby
-		reweighCreator := NewReweighCreator(suite.DB())
-		createReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
+		reweighCreator := NewReweighCreator()
+		createReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 
 		suite.Error(err)
 		suite.Nil(createReweigh)
@@ -54,8 +51,8 @@ func (suite *ReweighSuite) TestReweighCreator() {
 	suite.T().Run("Not Found Error", func(t *testing.T) {
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		newReweigh.ShipmentID = notFoundUUID
-		reweighCreator := NewReweighCreator(suite.DB())
-		createdReweigh, err := reweighCreator.CreateReweighCheck(appCtx, newReweigh)
+		reweighCreator := NewReweighCreator()
+		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 
 		suite.Nil(createdReweigh)
 		suite.IsType(apperror.NotFoundError{}, err)

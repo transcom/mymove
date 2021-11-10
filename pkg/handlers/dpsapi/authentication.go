@@ -6,10 +6,10 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
@@ -56,7 +56,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(appCtx.DB(), loginGovID, h.IWSPersonLookup())
+	payload, err := getPayload(appCtx, loginGovID, h.IWSPersonLookup())
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissingData:
@@ -71,8 +71,8 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*dpsmessages.AuthenticationUserPayload, error) {
-	userIdentity, err := models.FetchUserIdentity(db, loginGovID)
+func getPayload(appCtx appcontext.AppContext, loginGovID string, rbs iws.PersonLookup) (*dpsmessages.AuthenticationUserPayload, error) {
+	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), loginGovID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching user identity")
 	}
@@ -84,7 +84,7 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*d
 		}
 	}
 
-	sm, err := models.FetchServiceMember(db, *userIdentity.ServiceMemberID)
+	sm, err := models.FetchServiceMember(appCtx.DB(), *userIdentity.ServiceMemberID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching service member")
 	}

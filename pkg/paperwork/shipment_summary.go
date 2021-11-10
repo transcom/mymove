@@ -15,7 +15,7 @@ import (
 )
 
 type ppmComputer interface {
-	ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
+	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -52,6 +52,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	}
 
 	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
+		appCtx,
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -66,6 +67,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	}
 
 	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
+		appCtx,
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,

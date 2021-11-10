@@ -7,12 +7,12 @@ import (
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
 		ApplicationName: auth.MilApp,
-	}, move.ID)
-
-	emails, err := notification.emails()
+	}))
 	subject := "Thank you for submitting your move details"
 
 	suite.NoError(err)
@@ -29,10 +29,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
-		UserID:          approver.ID,
-		ApplicationName: auth.OfficeApp,
-	}, move.ID)
+	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
@@ -139,7 +136,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 <p>Good luck on your move to destDutyStation!</p>
 `
 
-	htmlContent, err := notification.RenderHTML(s)
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -150,10 +150,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
 	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
-		UserID:          approver.ID,
-		ApplicationName: auth.OfficeApp,
-	}, move.ID)
+	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
@@ -216,7 +213,10 @@ If any information about your move changes at any point during the move, let you
 Good luck on your move to destDutyStation!
 `
 
-	textContent, err := notification.RenderText(s)
+	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)

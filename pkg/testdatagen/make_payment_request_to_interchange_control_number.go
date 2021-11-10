@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -24,7 +25,10 @@ func MakePaymentRequestToInterchangeControlNumber(db *pop.Connection, assertions
 		log.Panic(fmt.Errorf("Errors encountered creating random sequencer: %v", err))
 	}
 
-	icn, err := icnSequencer.NextVal()
+	// for now, hack together an appcontext so we don't have to change
+	// all of testdatagen
+	appCtx := appcontext.NewAppContext(db, nil, nil)
+	icn, err := icnSequencer.NextVal(appCtx)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered getting random interchange control number: %v", err))
 	}

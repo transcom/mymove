@@ -679,8 +679,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	moveID := shipment.MoveTaskOrderID
 	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID, *shipment),
+	err = h.NotificationSender().SendNotification(appCtx,
+		notifications.NewReweighRequested(moveID, *shipment),
 	)
 	if err != nil {
 		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
