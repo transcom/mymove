@@ -33,18 +33,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		file := node.(*ast.File)
 		packageName := file.Name.Name
 
-		// These are the packages that are allowed to have pop.Connection in them. This is strictly
-		// at the package level and does not include subpackages.
-		allowedPackages := map[string]bool{
-			"appcontext":   true,
-			"db":           true,
-			"migrate":      true,
-			"models":       true,
-			"testdatagen":  true,
-			"testingsuite": true,
-		}
-
-		if allowedPackages[packageName] {
+		if checkIfPackageCanBeSkipped(packageName) {
 			return
 		}
 
@@ -71,6 +60,21 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 	})
 	return nil, nil
+}
+
+func checkIfPackageCanBeSkipped(packageName string) bool {
+	// These are the packages that are allowed to have pop.Connection in them. This is strictly
+	// at the package level and does not include subpackages.
+	allowedPackages := map[string]bool{
+		"appcontext":   true,
+		"db":           true,
+		"migrate":      true,
+		"models":       true,
+		"testdatagen":  true,
+		"testingsuite": true,
+	}
+
+	return allowedPackages[packageName]
 }
 
 func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
