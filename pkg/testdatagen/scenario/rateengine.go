@@ -3,6 +3,7 @@ package scenario
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -16,7 +17,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		RateArea:      "ZIP",
 		Region:        "13",
 	}
-	if err := save(appCtx.DB(), &zip3_321); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip3_321); err != nil {
 		return err
 	}
 
@@ -24,7 +25,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		Zip5:     "32168",
 		RateArea: "US4964400",
 	}
-	if err := save(appCtx.DB(), &zip5_32168); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip5_32168); err != nil {
 		return err
 	}
 
@@ -36,14 +37,14 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		RateArea:      "US44",
 		Region:        "12",
 	}
-	if err := save(appCtx.DB(), &zip3_294); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip3_294); err != nil {
 		return err
 	}
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
-	if err := save(appCtx.DB(), &tsp); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tsp); err != nil {
 		return err
 	}
 
@@ -52,7 +53,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		DestinationRegion: "12",
 		CodeOfService:     "2",
 	}
-	if err := save(appCtx.DB(), &tdl); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tdl); err != nil {
 		return err
 	}
 
@@ -68,7 +69,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &originServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &originServiceArea); err != nil {
 		return err
 	}
 
@@ -84,7 +85,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &destinationServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &destinationServiceArea); err != nil {
 		return err
 	}
 
@@ -98,7 +99,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &linehaulRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &linehaulRate); err != nil {
 		return err
 	}
 
@@ -111,7 +112,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &itemRate210A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &itemRate210A); err != nil {
 		return err
 	}
 
@@ -124,7 +125,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &itemRate210B); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &itemRate210B); err != nil {
 		return err
 	}
 
@@ -137,7 +138,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &itemRate210C); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &itemRate210C); err != nil {
 		return err
 	}
 
@@ -150,7 +151,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &itemRate225A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &itemRate225A); err != nil {
 		return err
 	}
 
@@ -161,7 +162,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &shorthaulRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &shorthaulRate); err != nil {
 		return err
 	}
 
@@ -173,7 +174,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &fullPackRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &fullPackRate); err != nil {
 		return err
 	}
 
@@ -183,7 +184,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &fullUnpackRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &fullUnpackRate); err != nil {
 		return err
 	}
 
@@ -201,7 +202,7 @@ func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 		SITRate:                         0.5,
 	}
 
-	return save(appCtx.DB(), &tspp)
+	return testdatagen.Save(appCtx.DB(), &tspp)
 }
 
 // RunRateEngineScenario2 runs... scenario 2.
@@ -214,7 +215,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		RateArea:      "US87",
 		Region:        "2",
 	}
-	if err := save(appCtx.DB(), &zip3_945); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip3_945); err != nil {
 		return err
 	}
 
@@ -226,7 +227,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		RateArea:      "ZIP",
 		Region:        "6",
 	}
-	if err := save(appCtx.DB(), &zip3_786); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip3_786); err != nil {
 		return err
 	}
 
@@ -234,14 +235,14 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		Zip5:     "78626",
 		RateArea: "US68",
 	}
-	if err := save(appCtx.DB(), &zip5_78626); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &zip5_78626); err != nil {
 		return err
 	}
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
-	if err := save(appCtx.DB(), &tsp); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tsp); err != nil {
 		return err
 	}
 
@@ -250,7 +251,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		DestinationRegion: "6",
 		CodeOfService:     "2",
 	}
-	if err := save(appCtx.DB(), &tdl); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tdl); err != nil {
 		return err
 	}
 
@@ -266,7 +267,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      3,
 	}
-	if err := save(appCtx.DB(), &originServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &originServiceArea); err != nil {
 		return err
 	}
 
@@ -282,7 +283,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		SIT185BRateCents:   unit.Cents(70),
 		SITPDSchedule:      3,
 	}
-	if err := save(appCtx.DB(), &destinationServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &destinationServiceArea); err != nil {
 		return err
 	}
 
@@ -296,7 +297,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &linehaulRate1); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &linehaulRate1); err != nil {
 		return err
 	}
 
@@ -309,7 +310,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &item1Rate210A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &item1Rate210A); err != nil {
 		return err
 	}
 
@@ -322,7 +323,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &item1Rate225A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &item1Rate225A); err != nil {
 		return err
 	}
 
@@ -336,7 +337,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &linehaulRate2); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &linehaulRate2); err != nil {
 		return err
 	}
 
@@ -349,7 +350,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &item2Rate210A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &item2Rate210A); err != nil {
 		return err
 	}
 
@@ -362,7 +363,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &item2Rate225A); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &item2Rate225A); err != nil {
 		return err
 	}
 
@@ -373,7 +374,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &shorthaulRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &shorthaulRate); err != nil {
 		return err
 	}
 
@@ -385,7 +386,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &fullPackRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &fullPackRate); err != nil {
 		return err
 	}
 
@@ -395,7 +396,7 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(appCtx.DB(), &fullUnpackRate); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &fullUnpackRate); err != nil {
 		return err
 	}
 
@@ -413,5 +414,5 @@ func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 		SITRate:                         0.6,
 	}
 
-	return save(appCtx.DB(), &tspp)
+	return testdatagen.Save(appCtx.DB(), &tspp)
 }

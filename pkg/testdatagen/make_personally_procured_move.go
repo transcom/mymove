@@ -46,7 +46,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 // MakeDefaultPPM makes a PPM with default values
 func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	mustSave(db, &advance)
+	MustSave(db, &advance)
 
 	return MakePPM(db, Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{

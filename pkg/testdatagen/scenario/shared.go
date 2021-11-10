@@ -35,10 +35,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/random"
 
-	"github.com/pkg/errors"
-
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -65,27 +61,6 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
-
-func save(db *pop.Connection, model interface{}) error {
-	verrs, err := db.ValidateAndSave(model)
-	if err != nil {
-		return errors.Wrap(err, "Errors encountered saving model")
-	}
-	if verrs.HasAny() {
-		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
-	}
-	return nil
-}
-
-func mustSave(db *pop.Connection, model interface{}) {
-	verrs, err := db.ValidateAndSave(model)
-	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
-	}
-	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
-	}
-}
 
 func createPPMOfficeUser(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
@@ -535,13 +510,13 @@ func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter
 	order.OrdersNumber = nil
 	order.DepartmentIndicator = nil
 	order.OrdersTypeDetail = nil
-	mustSave(db, &order)
+	testdatagen.MustSave(db, &order)
 
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
-	mustSave(db, &move)
+	testdatagen.MustSave(db, &move)
 }
 
 func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
@@ -3869,7 +3844,7 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	move := makeMoveForOrders(appCtx, orders, "REWAYD", models.MoveStatusAPPROVALSREQUESTED)
 	move.TIORemarks = &tioRemarks
-	mustSave(db, &move)
+	testdatagen.MustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -5370,7 +5345,7 @@ func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUpload
 	move := makeMoveForOrders(appCtx, orders, "PENDNG", models.MoveStatusAPPROVALSREQUESTED)
 	now := time.Now()
 	move.ExcessWeightQualifiedAt = &now
-	mustSave(db, &move)
+	testdatagen.MustSave(db, &move)
 	shipment := makeRiskOfExcessShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	makePendingSITExtensionsForShipment(appCtx, shipment)
 	paymentRequestID := uuid.Must(uuid.FromString("70b35add-605a-289d-8dad-056f5d9ef7e1"))
