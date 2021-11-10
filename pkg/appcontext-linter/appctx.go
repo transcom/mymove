@@ -31,8 +31,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspectorInstance.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
+		packageName := file.Name.Name
 
-		allowList := map[string]bool{
+		// These are the packages that are allowed to have pop.Connection in them. This is strictly
+		// at the package level and does not include subpackages.
+		allowedPackages := map[string]bool{
 			"appcontext":   true,
 			"db":           true,
 			"migrate":      true,
@@ -41,7 +44,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			"testingsuite": true,
 		}
 
-		if allowList[file.Name.Name] {
+		if allowedPackages[packageName] {
 			return
 		}
 
@@ -57,7 +60,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				continue
 
 			case *ast.GenDecl:
-				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, file.Name.Name)
+				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, packageName)
 
 				for _, position := range positionsToFlag {
 					pass.Reportf(position, "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements.")
@@ -70,8 +73,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-// TODO: Add logic to get it to run in circleCI and when run locally
-
 func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
 	for _, param := range funcToCheck.Type.Params.List {
 		if checkForPopConnection(param) {
@@ -82,7 +83,7 @@ func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
 	return false
 }
 
-func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, fileName string) []token.Pos {
+func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, packageName string) []token.Pos {
 	var declarationsToFlag []token.Pos
 
 	for _, spec := range declarationToCheck.Specs {
@@ -93,7 +94,7 @@ func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, fil
 		}
 
 		// Special case because this is the one that sets up all handlers so it's allowed to use *pop.Connection
-		if typeSpec.Name.Name == "handlerContext" && fileName == "handlers" {
+		if typeSpec.Name.Name == "handlerContext" && packageName == "handlers" {
 			continue
 		}
 
