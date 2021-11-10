@@ -3124,7 +3124,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2018-04-12T23:20:50.520Z"
+          "example": "2018-04-12T23:20:50.52Z"
         },
         "code": {
           "type": "string",
@@ -4749,7 +4749,7 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "branch_of_service": {
           "type": "string"
@@ -4767,7 +4767,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "destination_duty_station_name": {
           "type": "string",
@@ -4810,12 +4810,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "last_modified_date": {
           "type": "string",
           "format": "date-time",
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "locator": {
           "type": "string",
@@ -4825,7 +4825,7 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "orders_type": {
           "type": "string",
@@ -4853,13 +4853,13 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "pm_survey_conducted_date": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "ppm_status": {
           "type": "string",
@@ -4877,7 +4877,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "weight_allotment": {
           "$ref": "#/definitions/WeightAllotment"
@@ -9731,7 +9731,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2018-04-12T23:20:50.520Z"
+          "example": "2018-04-12T23:20:50.52Z"
         },
         "code": {
           "type": "string",
@@ -11373,7 +11373,7 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "branch_of_service": {
           "type": "string"
@@ -11391,7 +11391,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "destination_duty_station_name": {
           "type": "string",
@@ -11434,12 +11434,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "last_modified_date": {
           "type": "string",
           "format": "date-time",
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "locator": {
           "type": "string",
@@ -11449,7 +11449,7 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "orders_type": {
           "type": "string",
@@ -11477,13 +11477,13 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "pm_survey_conducted_date": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2017-07-21T17:32:28.000Z"
+          "example": "2017-07-21T17:32:28Z"
         },
         "ppm_status": {
           "type": "string",
@@ -11501,7 +11501,7 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
-          "example": "2018-04-25T00:00:00.000Z"
+          "example": "2018-04-25"
         },
         "weight_allotment": {
           "$ref": "#/definitions/WeightAllotment"

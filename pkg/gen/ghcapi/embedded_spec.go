@@ -4435,6 +4435,18 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        },
         "order_number": {
           "type": "string",
           "x-nullable": true,
@@ -10832,6 +10844,18 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         },
         "order_number": {
           "type": "string",
