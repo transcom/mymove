@@ -41,7 +41,7 @@ describe('AddressFields component', () => {
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
       expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
       expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
-      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postal_code);
+      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
     });
   });
 
