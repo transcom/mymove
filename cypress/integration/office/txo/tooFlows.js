@@ -87,6 +87,28 @@ describe('TOO user', () => {
     cy.contains('Approve selected shipments').should('not.exist');
   });
 
+  it('is able to flag a move for financial review', () => {
+    cy.wait(['@getSortedMoves']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // click to trigger financial review modal
+    cy.contains('Flag move for financial review').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('Yes').click();
+    cy.get('textarea').type('Something is rotten in the state of Denmark');
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move flagged for financial review.');
+    cy.contains('Flagged for financial review');
+  });
+
   it('is able to approve and reject mto service items', () => {
     const moveLocator = 'TEST12';
 
