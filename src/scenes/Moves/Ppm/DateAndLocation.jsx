@@ -178,7 +178,7 @@ export class DateAndLocation extends Component {
               {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
             </p>
             <SwaggerField
-              fieldName="destination_postal_code"
+              fieldName="destination_postalCode"
               swagger={this.props.schema}
               validate={validateDifferentZip}
               required
@@ -186,7 +186,7 @@ export class DateAndLocation extends Component {
             <div style={{ marginTop: '0.5rem' }}>
               <span className="grey">
                 The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-                {currentOrders && currentOrders.new_duty_station.address.postal_code}.
+                {currentOrders && currentOrders.new_duty_station.address.postalCode}.
               </span>
             </div>
             <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
@@ -217,8 +217,8 @@ DateAndLocation.propTypes = {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
-  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
-  const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
+  const defaultPickupZip = serviceMember?.residential_address?.postalCode;
+  const originDutyStationZip = serviceMember?.current_station?.address?.postalCode;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
@@ -228,7 +228,7 @@ function mapStateToProps(state) {
     currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
   };
 
   props.initialValues = !isEmpty(props.currentPPM)
