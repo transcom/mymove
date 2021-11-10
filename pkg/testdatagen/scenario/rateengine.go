@@ -1,14 +1,13 @@
 package scenario
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RunRateEngineScenario1 runs... scenario 1.
-func RunRateEngineScenario1(db *pop.Connection) error {
+func RunRateEngineScenario1(appCtx appcontext.AppContext) error {
 	zip3_321 := models.Tariff400ngZip3{
 		Zip3:          "321",
 		BasepointCity: "Crescent City",
@@ -17,7 +16,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		RateArea:      "ZIP",
 		Region:        "13",
 	}
-	if err := save(db, &zip3_321); err != nil {
+	if err := save(appCtx.DB(), &zip3_321); err != nil {
 		return err
 	}
 
@@ -25,7 +24,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		Zip5:     "32168",
 		RateArea: "US4964400",
 	}
-	if err := save(db, &zip5_32168); err != nil {
+	if err := save(appCtx.DB(), &zip5_32168); err != nil {
 		return err
 	}
 
@@ -37,14 +36,14 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		RateArea:      "US44",
 		Region:        "12",
 	}
-	if err := save(db, &zip3_294); err != nil {
+	if err := save(appCtx.DB(), &zip3_294); err != nil {
 		return err
 	}
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
-	if err := save(db, &tsp); err != nil {
+	if err := save(appCtx.DB(), &tsp); err != nil {
 		return err
 	}
 
@@ -53,7 +52,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		DestinationRegion: "12",
 		CodeOfService:     "2",
 	}
-	if err := save(db, &tdl); err != nil {
+	if err := save(appCtx.DB(), &tdl); err != nil {
 		return err
 	}
 
@@ -69,7 +68,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &originServiceArea); err != nil {
+	if err := save(appCtx.DB(), &originServiceArea); err != nil {
 		return err
 	}
 
@@ -85,7 +84,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &destinationServiceArea); err != nil {
+	if err := save(appCtx.DB(), &destinationServiceArea); err != nil {
 		return err
 	}
 
@@ -99,7 +98,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &linehaulRate); err != nil {
+	if err := save(appCtx.DB(), &linehaulRate); err != nil {
 		return err
 	}
 
@@ -112,7 +111,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &itemRate210A); err != nil {
+	if err := save(appCtx.DB(), &itemRate210A); err != nil {
 		return err
 	}
 
@@ -125,7 +124,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &itemRate210B); err != nil {
+	if err := save(appCtx.DB(), &itemRate210B); err != nil {
 		return err
 	}
 
@@ -138,7 +137,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &itemRate210C); err != nil {
+	if err := save(appCtx.DB(), &itemRate210C); err != nil {
 		return err
 	}
 
@@ -151,7 +150,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &itemRate225A); err != nil {
+	if err := save(appCtx.DB(), &itemRate225A); err != nil {
 		return err
 	}
 
@@ -162,7 +161,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &shorthaulRate); err != nil {
+	if err := save(appCtx.DB(), &shorthaulRate); err != nil {
 		return err
 	}
 
@@ -174,7 +173,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &fullPackRate); err != nil {
+	if err := save(appCtx.DB(), &fullPackRate); err != nil {
 		return err
 	}
 
@@ -184,7 +183,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &fullUnpackRate); err != nil {
+	if err := save(appCtx.DB(), &fullUnpackRate); err != nil {
 		return err
 	}
 
@@ -202,11 +201,11 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		SITRate:                         0.5,
 	}
 
-	return save(db, &tspp)
+	return save(appCtx.DB(), &tspp)
 }
 
 // RunRateEngineScenario2 runs... scenario 2.
-func RunRateEngineScenario2(db *pop.Connection) error {
+func RunRateEngineScenario2(appCtx appcontext.AppContext) error {
 	zip3_945 := models.Tariff400ngZip3{
 		Zip3:          "945",
 		BasepointCity: "Walnut Creek",
@@ -215,7 +214,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		RateArea:      "US87",
 		Region:        "2",
 	}
-	if err := save(db, &zip3_945); err != nil {
+	if err := save(appCtx.DB(), &zip3_945); err != nil {
 		return err
 	}
 
@@ -227,7 +226,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		RateArea:      "ZIP",
 		Region:        "6",
 	}
-	if err := save(db, &zip3_786); err != nil {
+	if err := save(appCtx.DB(), &zip3_786); err != nil {
 		return err
 	}
 
@@ -235,14 +234,14 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		Zip5:     "78626",
 		RateArea: "US68",
 	}
-	if err := save(db, &zip5_78626); err != nil {
+	if err := save(appCtx.DB(), &zip5_78626); err != nil {
 		return err
 	}
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
-	if err := save(db, &tsp); err != nil {
+	if err := save(appCtx.DB(), &tsp); err != nil {
 		return err
 	}
 
@@ -251,7 +250,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		DestinationRegion: "6",
 		CodeOfService:     "2",
 	}
-	if err := save(db, &tdl); err != nil {
+	if err := save(appCtx.DB(), &tdl); err != nil {
 		return err
 	}
 
@@ -267,7 +266,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      3,
 	}
-	if err := save(db, &originServiceArea); err != nil {
+	if err := save(appCtx.DB(), &originServiceArea); err != nil {
 		return err
 	}
 
@@ -283,7 +282,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		SIT185BRateCents:   unit.Cents(70),
 		SITPDSchedule:      3,
 	}
-	if err := save(db, &destinationServiceArea); err != nil {
+	if err := save(appCtx.DB(), &destinationServiceArea); err != nil {
 		return err
 	}
 
@@ -297,7 +296,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &linehaulRate1); err != nil {
+	if err := save(appCtx.DB(), &linehaulRate1); err != nil {
 		return err
 	}
 
@@ -310,7 +309,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &item1Rate210A); err != nil {
+	if err := save(appCtx.DB(), &item1Rate210A); err != nil {
 		return err
 	}
 
@@ -323,7 +322,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &item1Rate225A); err != nil {
+	if err := save(appCtx.DB(), &item1Rate225A); err != nil {
 		return err
 	}
 
@@ -337,7 +336,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &linehaulRate2); err != nil {
+	if err := save(appCtx.DB(), &linehaulRate2); err != nil {
 		return err
 	}
 
@@ -350,7 +349,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &item2Rate210A); err != nil {
+	if err := save(appCtx.DB(), &item2Rate210A); err != nil {
 		return err
 	}
 
@@ -363,7 +362,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &item2Rate225A); err != nil {
+	if err := save(appCtx.DB(), &item2Rate225A); err != nil {
 		return err
 	}
 
@@ -374,7 +373,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &shorthaulRate); err != nil {
+	if err := save(appCtx.DB(), &shorthaulRate); err != nil {
 		return err
 	}
 
@@ -386,7 +385,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &fullPackRate); err != nil {
+	if err := save(appCtx.DB(), &fullPackRate); err != nil {
 		return err
 	}
 
@@ -396,7 +395,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: May15TestYear,
 		EffectiveDateUpper: May14FollowingYear,
 	}
-	if err := save(db, &fullUnpackRate); err != nil {
+	if err := save(appCtx.DB(), &fullUnpackRate); err != nil {
 		return err
 	}
 
@@ -414,5 +413,5 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		SITRate:                         0.6,
 	}
 
-	return save(db, &tspp)
+	return save(appCtx.DB(), &tspp)
 }

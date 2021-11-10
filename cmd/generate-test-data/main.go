@@ -176,7 +176,7 @@ func main() {
 	if scenario == 4 {
 		err = tdgs.RunPPMSITEstimateScenario1(appCtx)
 	} else if scenario == 5 {
-		err = tdgs.RunRateEngineScenario1(dbConnection)
+		err = tdgs.RunRateEngineScenario1(appCtx)
 	} else if scenario == 6 {
 		query := `DELETE FROM transportation_service_provider_performances;
 				  DELETE FROM transportation_service_providers;
@@ -193,7 +193,7 @@ func main() {
 		if err != nil {
 			logger.Fatal("Failed to run raw query", zap.Error(err))
 		}
-		err = tdgs.RunRateEngineScenario2(dbConnection)
+		err = tdgs.RunRateEngineScenario2(appCtx)
 	} else if namedScenario != "" {
 		// Initialize logger
 		logger, newDevelopmentErr := zap.NewDevelopment()
