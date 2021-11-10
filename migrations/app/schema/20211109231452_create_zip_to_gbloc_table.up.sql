@@ -4,6 +4,10 @@ CREATE TABLE postal_code_to_gbloc
 	gbloc VARCHAR NOT NULL
 );
 
+COMMENT ON TABLE postal_code_to_gbloc IS 'This table is used to look up which GBLOC to use for a given postal code. Shipments from postal codes that are not in this table will not be supported, so it will need to be updated occasionally as new codes are added';
+COMMENT ON COLUMN postal_code_to_gbloc.postal_code IS 'A United States Postal Code, also known as ZIP code';
+COMMENT ON COLUMN postal_code_to_gbloc.gbloc IS 'GBLOC (Government Bill of Lading Office Code) used for a particular postal code';
+
 INSERT INTO postal_code_to_gbloc (postal_code, gbloc)
 VALUES
 ('99929','MAPK'),
