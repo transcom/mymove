@@ -23,8 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate/v3"
@@ -36,7 +34,7 @@ import (
 type testCreateMTOServiceItemQueryBuilder struct {
 	fakeCreateOne   func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
 	fakeFetchOne    func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
-	fakeTransaction func(appCtx appcontext.AppContext, fn func(tx *pop.Connection) error) error
+	fakeTransaction func(appCtx appcontext.AppContext, fn func(txnAppCtx appcontext.AppContext) error) error
 	fakeUpdateOne   func(appCtx appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
@@ -52,7 +50,7 @@ func (t *testCreateMTOServiceItemQueryBuilder) FetchOne(appCtx appcontext.AppCon
 	return t.fakeFetchOne(appCtx, model, filters)
 }
 
-func (t *testCreateMTOServiceItemQueryBuilder) Transaction(appCtx appcontext.AppContext, fn func(tx *pop.Connection) error) error {
+func (t *testCreateMTOServiceItemQueryBuilder) Transaction(appCtx appcontext.AppContext, fn func(txnAppCtx appcontext.AppContext) error) error {
 	return t.fakeTransaction(appCtx, fn)
 }
 
@@ -255,8 +253,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return nil
 		}
-		fakeTx := func(appCtx appcontext.AppContext, fn func(tx *pop.Connection) error) error {
-			return fn(&pop.Connection{})
+		fakeTx := func(appCtx appcontext.AppContext, fn func(txnAppCtx appcontext.AppContext) error) error {
+			return fn(appCtx)
 		}
 
 		builder := &testCreateMTOServiceItemQueryBuilder{

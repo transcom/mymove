@@ -3,9 +3,6 @@ package handlers
 import (
 	"testing"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest"
-
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/gofrs/uuid"
@@ -22,16 +19,11 @@ type fakeModel struct {
 
 type ErrorsSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
 }
 
 func TestErrorsSuite(t *testing.T) {
-	logger := zaptest.NewLogger(t)
-	zap.ReplaceGlobals(logger)
-
 	hs := &ErrorsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
@@ -58,7 +50,7 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	errs := []error{errInvalidColumn, errNoTable, errInvalidArguments, errInvalidQuery, errFK}
 
 	for _, err := range errs {
-		actual = ResponseForError(suite.logger, err)
+		actual = ResponseForError(suite.Logger(), err)
 		res, ok := actual.(*ErrResponse)
 		suite.True(ok)
 		suite.Equal(500, res.Code)
@@ -70,7 +62,7 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 func (suite *ErrorsSuite) TestResponseForErrorNil() {
 
 	var err error
-	actual := ResponseForError(suite.logger, err)
+	actual := ResponseForError(suite.Logger(), err)
 	res, ok := actual.(*ErrResponse)
 	suite.True(ok)
 	suite.Equal(res.Code, 500)

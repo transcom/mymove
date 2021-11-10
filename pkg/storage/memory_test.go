@@ -2,15 +2,12 @@ package storage
 
 import (
 	"testing"
-
-	"go.uber.org/zap"
 )
 
 func TestMemoryPresignedURL(t *testing.T) {
 	fsParams := MemoryParams{
 		root:    "/home/username",
 		webRoot: "https://example.text/files",
-		logger:  zap.NewNop(),
 	}
 	fs := NewMemory(fsParams)
 

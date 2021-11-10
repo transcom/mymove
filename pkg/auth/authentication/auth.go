@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
@@ -341,33 +341,20 @@ func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callb
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
-	db *pop.Connection
+	handlers.HandlerContext
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
+func NewLogoutHandler(ac Context, hc handlers.HandlerContext) LogoutHandler {
 	logoutHandler := LogoutHandler{
-		Context: ac,
-		db:      db,
+		Context:        ac,
+		HandlerContext: hc,
 	}
 	return logoutHandler
 }
 
-// AppContextFromRequest builds an AppContext from the http request
-func appContextFromRequest(db *pop.Connection, r *http.Request) appcontext.AppContext {
-	// use LoggerFromRequest to get the most specific logger
-	dbc := db
-	if db != nil {
-		dbc = db.WithContext(r.Context())
-	}
-	return appcontext.NewAppContext(
-		dbc,
-		logging.FromContext(r.Context()),
-		auth.SessionFromContext(r.Context()))
-}
-
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appCtx := appContextFromRequest(h.db, r)
+	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() != nil {
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
@@ -420,7 +407,16 @@ const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
+	handlers.HandlerContext
 	UseSecureCookie bool
+}
+
+func NewRedirectHandler(ac Context, hc handlers.HandlerContext, useSecureCookie bool) RedirectHandler {
+	return RedirectHandler{
+		Context:         ac,
+		HandlerContext:  hc,
+		UseSecureCookie: useSecureCookie,
+	}
 }
 
 func shaAsString(nonce string) string {
@@ -435,7 +431,7 @@ func StateCookieName(session *auth.Session) string {
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appCtx := appContextFromRequest(nil, r)
+	appCtx := h.AppContextFromRequest(r)
 
 	if appCtx.Session() != nil && appCtx.Session().UserID != uuid.Nil {
 		// User is already authenticated, redirect to landing page
@@ -477,23 +473,23 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db     *pop.Connection
+	handlers.HandlerContext
 	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, sender notifications.NotificationSender) CallbackHandler {
+func NewCallbackHandler(ac Context, hc handlers.HandlerContext, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
-		Context: ac,
-		db:      db,
-		sender:  sender,
+		Context:        ac,
+		HandlerContext: hc,
+		sender:         sender,
 	}
 	return handler
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appCtx := appContextFromRequest(h.db, r)
+	appCtx := h.AppContextFromRequest(r)
 
 	if appCtx.Session() == nil {
 		appCtx.Logger().Error("Session missing")
@@ -787,7 +783,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
-				sendErr := h.sender.SendNotification(email)
+				sendErr := h.sender.SendNotification(appCtx, email)
 				if sendErr != nil {
 					appCtx.Logger().Error("Error sending user creation email", zap.Error(sendErr))
 				}

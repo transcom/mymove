@@ -5,10 +5,11 @@ import (
 
 	"github.com/tealeg/xlsx/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseDomesticMoveAccessorialPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 17 // 5a) Access. and Add. Prices
 	const domAccessorialRowIndexStart int = 11
@@ -43,7 +44,7 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 	return prices, nil
 }
 
-var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseInternationalMoveAccessorialPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 17 // 5a) Access. and Add. Prices
 	const intlAccessorialRowIndexStart int = 25
@@ -78,7 +79,7 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 	return prices, nil
 }
 
-var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 17 // 5a) Access. and Add. Prices
 	const additionalPricesRowIndexStart int = 39

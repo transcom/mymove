@@ -1,20 +1,17 @@
 package dpsauth
 
 import (
-	"log"
 	"net/url"
 	"testing"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type dpsAuthSuite struct {
-	testingsuite.BaseTestSuite
-	logger Logger
+	testingsuite.PopTestSuite
 }
 
 func (suite *dpsAuthSuite) TestCookie() {
@@ -37,10 +34,6 @@ func (suite *dpsAuthSuite) TestCookie() {
 }
 
 func TestDPSAuthSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-	s := &dpsAuthSuite{logger: logger}
+	s := &dpsAuthSuite{}
 	suite.Run(t, s)
 }

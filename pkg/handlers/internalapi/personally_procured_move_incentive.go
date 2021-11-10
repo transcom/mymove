@@ -37,7 +37,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	engine := rateengine.NewRateEngine(appCtx.DB(), appCtx.Logger(), move)
+	engine := rateengine.NewRateEngine(move)
 
 	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
 	if err != nil {
@@ -55,6 +55,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	}
 
 	costDetails, err := engine.ComputePPMMoveCosts(
+		appCtx,
 		unit.Pound(params.Weight),
 		params.OriginZip,
 		params.OriginDutyStationZip,

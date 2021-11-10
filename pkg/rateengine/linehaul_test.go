@@ -12,7 +12,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	}
 
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	expected := unit.Cents(128000)
 
@@ -45,7 +45,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	weight := unit.Pound(3900)
 	date := testdatagen.DateInsidePeakRateCycle
 
-	blh, err := engine.baseLinehaul(mileage, weight, date)
+	blh, err := engine.baseLinehaul(suite.AppContextForTest(), mileage, weight, date)
 	if blh != expected {
 		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
 	}
@@ -59,7 +59,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
@@ -86,7 +86,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	}
 	suite.MustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
+	linehaulFactor, err := engine.linehaulFactors(suite.AppContextForTest(), 60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -101,7 +101,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 	mileage := 799
 	cwt := unit.CWT(40)
 	rate := unit.Cents(5656)
@@ -115,7 +115,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	}
 	suite.MustSave(&sh)
 
-	shc, _ := engine.shorthaulCharge(mileage, cwt, testdatagen.DateInsidePeakRateCycle)
+	shc, _ := engine.shorthaulCharge(suite.AppContextForTest(), mileage, cwt, testdatagen.DateInsidePeakRateCycle)
 	if shc != rate {
 		t.Errorf("Shorthaul charge should have been %d, but is %d.", rate, shc)
 	}
@@ -126,7 +126,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		Locator: "ABC123",
 	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 	weight := unit.Pound(2000)
 	expected := unit.Cents(11462)
 	zip3Austin := "787"
@@ -203,7 +203,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	suite.MustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
-		weight, zip5Austin, zip5SanFrancisco, distanceMiles, testdatagen.DateInsidePeakRateCycle)
+		suite.AppContextForTest(), weight, zip5Austin, zip5SanFrancisco, distanceMiles, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
@@ -216,13 +216,13 @@ func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
-	engine := NewRateEngine(suite.DB(), suite.logger, move)
+	engine := NewRateEngine(move)
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
-	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000), testdatagen.NonPeakRateCycleEnd)
+	fuelSurcharge, err := engine.fuelSurchargeComputation(suite.AppContextForTest(), unit.Cents(12000), testdatagen.NonPeakRateCycleEnd)
 
 	suite.NoError(err)
 	suite.Equal(unit.Cents(720), fuelSurcharge.Fee)

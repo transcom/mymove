@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
-		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		fetcher,
 		updater,
 	}
@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 		}

@@ -22,11 +22,11 @@ func (suite *PricingParserSuite) Test_parseOtherIntlPrices() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseOtherIntlPrices(params, sheetIndex, suite.logger)
+	slice, err := parseOtherIntlPrices(suite.AppContextForTest(), params, sheetIndex)
 	suite.NoError(err, "parseOtherIntlPrices function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-	err = createCSV(outputFilename, slice, suite.logger)
+	err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 	suite.NoError(err, "could not create CSV")
 
 	const goldenFilename string = "13_3d_other_intl_prices_golden.csv"

@@ -155,13 +155,13 @@ func validateOrder(s services.QueryOrder, t reflect.Type) string {
 
 // Currently this can select counts for 'categories' based on a field comparison using an array of QueryFilters. Additionally it supports adding in AND logic
 // by including a list of AND clauses, also via an array of QueryFilters. TODO: Add in functionality for OR when a use case for it comes up.
-func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.QueryFilter, andFilters *[]services.QueryFilter, t reflect.Type) (map[interface{}]int, error) {
+func categoricalCountsQueryOneModel(appCtx appcontext.AppContext, filters []services.QueryFilter, andFilters *[]services.QueryFilter, t reflect.Type) (map[interface{}]int, error) {
 	invalidFields := make([]string, 0)
 	counts := make(map[interface{}]int)
 
 	for _, f := range filters {
 		// Set up an empty query for us to use to get the count
-		query := conn.Q()
+		query := appCtx.DB().Q()
 
 		// Validate the filter we're using is valid/safe
 		invalidField := validateFilter(f, t)
@@ -422,9 +422,8 @@ func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTa
 
 // FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
 func (p *Builder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
-	conn := appCtx.DB()
 	t := reflect.TypeOf(model)
-	categoricalCounts, err := categoricalCountsQueryOneModel(conn, filters, andFilters, t)
+	categoricalCounts, err := categoricalCountsQueryOneModel(appCtx, filters, andFilters, t)
 	if err != nil {
 		return nil, err
 	}

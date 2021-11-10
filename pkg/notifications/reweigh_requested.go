@@ -7,12 +7,11 @@ import (
 	"strings"
 	text "text/template"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -25,44 +24,38 @@ var (
 
 // ReweighRequested has notification content for submitted moves
 type ReweighRequested struct {
-	db           *pop.Connection
-	logger       Logger
 	moveID       uuid.UUID
 	shipment     models.MTOShipment
-	session      *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
 // NewReweighRequested returns a new move submitted notification
-func NewReweighRequested(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID, shipment models.MTOShipment) *ReweighRequested {
+func NewReweighRequested(moveID uuid.UUID, shipment models.MTOShipment) *ReweighRequested {
 
 	return &ReweighRequested{
-		db:           db,
-		logger:       logger,
 		moveID:       moveID,
 		shipment:     shipment,
-		session:      session,
 		htmlTemplate: reweighRequestedHTMLTemplate,
 		textTemplate: reweighRequestedTextTemplate,
 	}
 }
 
-func (m ReweighRequested) emails() ([]emailContent, error) {
+func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
-	serviceMember, err := models.GetCustomerFromShipment(m.db, m.shipment.ID)
+	serviceMember, err := models.GetCustomerFromShipment(appCtx.DB(), m.shipment.ID)
 	if err != nil {
-		m.logger.Error("error retrieving service member associated with this shipment", zap.Error(err))
+		appCtx.Logger().Error("error retrieving service member associated with this shipment", zap.Error(err))
 	}
 	if len(*serviceMember.PersonalEmail) == 0 {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(reweighRequestedEmailData{})
+	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{})
 
 	if err != nil {
-		m.logger.Error("error rendering template", zap.Error(err))
+		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
 
 	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
@@ -74,19 +67,19 @@ func (m ReweighRequested) emails() ([]emailContent, error) {
 		textBody:       textBody,
 	}
 
-	m.logger.Info("Generated reweigh requested email",
+	appCtx.Logger().Info("Generated reweigh requested email",
 		zap.String("moveLocator", m.shipment.MoveTaskOrder.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }
 
-func (m ReweighRequested) renderTemplates(data reweighRequestedEmailData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(data)
+func (m ReweighRequested) renderTemplates(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, string, error) {
+	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(data)
+	textBody, err := m.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -96,19 +89,19 @@ func (m ReweighRequested) renderTemplates(data reweighRequestedEmailData) (strin
 type reweighRequestedEmailData struct{}
 
 // RenderHTML renders the html for the email
-func (m ReweighRequested) RenderHTML(data reweighRequestedEmailData) (string, error) {
+func (m ReweighRequested) RenderHTML(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
-		m.logger.Error("cant render html template ", zap.Error(err))
+		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m ReweighRequested) RenderText(data reweighRequestedEmailData) (string, error) {
+func (m ReweighRequested) RenderText(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
-		m.logger.Error("cant render text template ", zap.Error(err))
+		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
 	return textBuffer.String(), nil

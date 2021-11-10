@@ -3,11 +3,12 @@ package pricing
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseDomesticServiceAreas processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas
@@ -44,7 +45,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 	return domServAreas, nil
 }
 
-var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseInternationalServiceAreas processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas

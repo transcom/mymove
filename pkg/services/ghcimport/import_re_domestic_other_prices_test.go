@@ -14,19 +14,18 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.loadServiceMap(suite.DB())
+		err = gre.loadServiceMap(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticOtherPrices(suite.DB())
+		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		suite.NoError(err)
 
 		suite.helperVerifyDomesticOtherPrices()
@@ -34,7 +33,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 	})
 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
-		err := gre.importREDomesticOtherPrices(suite.DB())
+		err := gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_other_prices_unique_key"))
 		}
@@ -47,15 +46,14 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
-	err := gre.importREContract(suite.DB())
+	err := gre.importREContract(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(gre.ContractID)
 
-	err = gre.loadServiceMap(suite.DB())
+	err = gre.loadServiceMap(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.T().Run("stage_domestic_other_sit_prices table missing", func(t *testing.T) {
@@ -63,7 +61,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
-		err = gre.importREDomesticOtherPrices(suite.DB())
+		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
@@ -79,7 +77,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 		dropErr := suite.DB().RawQuery(dropQuery).Exec()
 		suite.NoError(dropErr)
 
-		err = gre.importREDomesticOtherPrices(suite.DB())
+		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}

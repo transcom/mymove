@@ -3,16 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(appCtx appcontext.AppContext) error {
 	// Tab 3d: Other International Prices
 	var stageOtherIntlPrices []models.StageOtherIntlPrice
-	err := dbTx.All(&stageOtherIntlPrices)
+	err := appCtx.DB().All(&stageOtherIntlPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged other international prices: %w", err)
 	}
@@ -71,7 +70,7 @@ func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(dbTx *pop.Con
 				PerUnitCents: unit.Cents(priceCents),
 			}
 
-			verrs, err := dbTx.ValidateAndSave(&intlOtherPrice)
+			verrs, err := appCtx.DB().ValidateAndSave(&intlOtherPrice)
 			if verrs.HasAny() {
 				return fmt.Errorf("validation errors when saving other international price [%+v]: %w", intlOtherPrice, verrs)
 			}

@@ -8,6 +8,8 @@ import (
 	"net/url"
 
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 func buildFinalEIAAPIURL(eiaURL string, eiaKey string) (string, error) {
@@ -85,7 +87,7 @@ func extractDieselFuelPriceData(eiaData EIAData) (dieselFuelPriceData, error) {
 }
 
 // RunFetcher creates the final EIA Open Data API URL, makes a call to the API, and fetches and returns the most recent diesel fuel price data
-func (d *DieselFuelPriceInfo) RunFetcher() error {
+func (d *DieselFuelPriceInfo) RunFetcher(appCtx appcontext.AppContext) error {
 	finalEIAAPIURL, err := buildFinalEIAAPIURL(d.eiaURL, d.eiaKey)
 	if err != nil {
 		return err
@@ -97,7 +99,7 @@ func (d *DieselFuelPriceInfo) RunFetcher() error {
 	}
 
 	d.eiaData = eiaData
-	d.logger.Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
+	appCtx.Logger().Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
 
 	extractedDieselFuelPriceData, err := extractDieselFuelPriceData(eiaData)
 	if err != nil {
@@ -105,7 +107,7 @@ func (d *DieselFuelPriceInfo) RunFetcher() error {
 	}
 
 	d.dieselFuelPriceData = extractedDieselFuelPriceData
-	d.logger.Info(
+	appCtx.Logger().Info(
 		"most recent diesel fuel price data",
 		zap.String("last updated", d.dieselFuelPriceData.lastUpdated),
 		zap.String("publication date", d.dieselFuelPriceData.publicationDate),

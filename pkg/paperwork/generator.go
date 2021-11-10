@@ -32,13 +32,6 @@ const (
 	PdfFontDir     string  = ""
 )
 
-// GeneratorConfig is an interface for the config needed by generator
-// Can't use services.ServiceConfig because that causes an import loop
-// type GeneratorConfig interface {
-// 	DB() *pop.Connection
-// 	Logger() *zap.Logger
-// }
-
 // Generator encapsulates the prerequisites for PDF generation.
 type Generator struct {
 	fs        *afero.Afero
