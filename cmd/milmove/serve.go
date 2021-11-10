@@ -37,7 +37,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -66,6 +65,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
+	"github.com/transcom/mymove/pkg/telemetry/otelhttp"
 )
 
 // initServeFlags - Order matters!
