@@ -49,10 +49,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				continue
 
 			case *ast.GenDecl:
-				positionsToFlag := checkForPopConnectionUsesInDeclaration(decl, packageName)
+				positionToFlag := checkForPopConnectionUsesInDeclaration(decl, packageName)
 
-				for _, position := range positionsToFlag {
-					pass.Reportf(position, "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements.")
+				if positionToFlag.IsValid() {
+					pass.Reportf(positionToFlag, "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements.")
 				}
 			default:
 				continue
@@ -87,9 +87,7 @@ func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
 	return false
 }
 
-func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, packageName string) []token.Pos {
-	var declarationsToFlag []token.Pos
-
+func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, packageName string) token.Pos {
 	for _, spec := range declarationToCheck.Specs {
 		// Only want types, not imports, variables, or constants
 		typeSpec, ok := spec.(*ast.TypeSpec)
@@ -111,13 +109,12 @@ func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, pac
 		// Checking the fields of the struct
 		for _, structField := range structType.Fields.List {
 			if checkForPopConnection(structField) {
-				declarationsToFlag = append(declarationsToFlag, typeSpec.Pos())
-				break
+				return typeSpec.Pos()
 			}
 		}
 	}
 
-	return declarationsToFlag
+	return token.NoPos
 }
 
 func checkForPopConnection(field *ast.Field) bool {
