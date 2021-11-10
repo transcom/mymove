@@ -798,7 +798,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 		UserUploader: userUploader,
 	})
 
-	orders = makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	orders = makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: orders,
@@ -3865,9 +3865,9 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "REWAYD", models.MoveStatusAPPROVALSREQUESTED)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "REWAYD", models.MoveStatusAPPROVALSREQUESTED)
 	move.TIORemarks = &tioRemarks
 	mustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
@@ -3887,13 +3887,13 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	makeAmendedOrders(orders, db, userUploader, &[]string{"small.pdf"})
-	move := makeMoveForOrders(orders, db, "BILWEI", models.MoveStatusAPPROVALSREQUESTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	makeAmendedOrders(appCtx, orders, userUploader, &[]string{"small.pdf"})
+	move := makeMoveForOrders(appCtx, orders, "BILWEI", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("6cd95b06-fef3-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -3901,9 +3901,9 @@ func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader
 func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "WTSTAT", models.MoveStatusAPPROVALSREQUESTED)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "WTSTAT", models.MoveStatusAPPROVALSREQUESTED)
 
 	// shipment is not yet approved so will be excluded from MTO weight calculations
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
@@ -4024,11 +4024,11 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
+	serviceMember := makeServiceMember(appCtx)
 	serviceMember.FirstName = models.StringPointer("MultipleShipments")
 	serviceMember.LastName = models.StringPointer("Reweighs")
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MULTRW", models.MoveStatusDRAFT)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "MULTRW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
 	move.SelectedMoveType = &hhgMoveType
 
@@ -4108,16 +4108,16 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
 func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MISHRW", models.MoveStatusDRAFT)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "MISHRW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
 	move.SelectedMoveType = &hhgMoveType
 
@@ -4155,16 +4155,16 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("4a1b0048-ffe7-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
 }
 
 func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MAXCED", models.MoveStatusDRAFT)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "MAXCED", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
 	move.SelectedMoveType = &hhgMoveType
 
@@ -4202,16 +4202,16 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("096496b0-ffea-11eb-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
 }
 
 func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "NOESTW", models.MoveStatusDRAFT)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "NOESTW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
 	move.SelectedMoveType = &hhgMoveType
 
@@ -4247,7 +4247,7 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	}
 
 	paymentRequestID := uuid.Must(uuid.FromString("c5c32296-0147-11ec-9a03-0242ac130003"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -4325,7 +4325,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 
 	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("f80a07d3-0dcf-431f-b72c-dfd77e0483f6"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusDeprecated)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusDeprecated)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -4867,33 +4867,31 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 }
 
 func createHHGMoveWithMultipleOrdersFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MULTOR", models.MoveStatusSUBMITTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "MULTOR", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMoveWithAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
-	move := makeMoveForOrders(orders, db, "AMDORD", models.MoveStatusAPPROVALSREQUESTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := makeMoveForOrders(appCtx, orders, "AMDORD", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	now := time.Now()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -4906,9 +4904,9 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 			ExcessWeightQualifiedAt: &now,
 		},
 	})
-	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	shipment := makeRiskOfExcessShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("50b35add-705a-468b-8bad-056f5d9ef7e1"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4942,9 +4940,9 @@ func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader 
 func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "SITEXT", models.MoveStatusAPPROVALSREQUESTED)
 
 	// manually calculated SIT days including SIT extension approved days
 	sitDaysAllowance := 270
@@ -5366,17 +5364,17 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
-	move := makeMoveForOrders(orders, db, "PENDNG", models.MoveStatusAPPROVALSREQUESTED)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := makeMoveForOrders(appCtx, orders, "PENDNG", models.MoveStatusAPPROVALSREQUESTED)
 	now := time.Now()
 	move.ExcessWeightQualifiedAt = &now
 	mustSave(db, &move)
-	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	shipment := makeRiskOfExcessShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	makePendingSITExtensionsForShipment(appCtx, shipment)
 	paymentRequestID := uuid.Must(uuid.FromString("70b35add-605a-289d-8dad-056f5d9ef7e1"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
 func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {

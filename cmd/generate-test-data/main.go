@@ -250,7 +250,7 @@ func main() {
 			// Run seed
 			tdgs.DevSeedScenario.Run(logger, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
-			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
+			tdgs.BandwidthScenario.Run(appCtx, userUploader, primeUploader)
 		}
 
 		logger.Info("Success! Created e2e test data.")
