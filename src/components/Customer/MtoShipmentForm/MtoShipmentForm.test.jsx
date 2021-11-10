@@ -63,7 +63,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[0]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getAllByText('Location')[0]).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -84,7 +84,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getAllByText('Location')[1]).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
@@ -185,7 +185,7 @@ describe('MtoShipmentForm component', () => {
 
       userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second Destination' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery location' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
     });
@@ -737,7 +737,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -752,7 +752,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
 
       expect(screen.getAllByText('Date')).toHaveLength(1);
-      expect(screen.getAllByText('Location')).toHaveLength(1);
+      expect(screen.getAllByText('Pickup location')).toHaveLength(1);
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
       expect(
@@ -782,12 +782,12 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Date')).toHaveLength(1);
-      expect(screen.getAllByText('Location')).toHaveLength(1);
+      expect(screen.getAllByText('Delivery location')).toHaveLength(1);
 
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
