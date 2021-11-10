@@ -23,13 +23,13 @@ var AppContextAnalyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	// pass.ResultOf[inspect.Analyzer] will be set if we've added inspect.Analyzer to Requires.
 	// Analyze code and make an AST from the file:
-	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+	inspectorInstance := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	nodeFilter := []ast.Node{ // filter needed nodes: visit only them
 		(*ast.File)(nil),
 	}
 
-	inspector.Preorder(nodeFilter, func(node ast.Node) {
+	inspectorInstance.Preorder(nodeFilter, func(node ast.Node) {
 		file := node.(*ast.File)
 
 		allowList := map[string]bool{
