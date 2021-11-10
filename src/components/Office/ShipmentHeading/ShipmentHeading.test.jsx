@@ -8,7 +8,7 @@ const shipmentDestinationAddressWithPostalOnly = {
 };
 
 const shipmentDestinationAddress = {
-  street_1: '123 Main St',
+  streetAddress1: '123 Main St',
   city: 'Tacoma',
   state: 'WA',
   postalCode: '98421',
