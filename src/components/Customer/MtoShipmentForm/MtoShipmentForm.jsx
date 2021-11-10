@@ -340,7 +340,7 @@ class MtoShipmentForm extends Component {
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <h4>Second Destination</h4>
+                                      <h4>Second delivery location</h4>
                                       <FormGroup>
                                         <p>
                                           Do you want the movers to deliver any belongings to a second address? (Must be

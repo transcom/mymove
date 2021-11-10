@@ -185,7 +185,7 @@ describe('MtoShipmentForm component', () => {
 
       userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second Destination' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery location' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
     });
