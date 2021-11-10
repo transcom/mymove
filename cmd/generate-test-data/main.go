@@ -248,7 +248,7 @@ func main() {
 			}
 
 			// Run seed
-			tdgs.DevSeedScenario.Run(logger, namedSubScenario)
+			tdgs.DevSeedScenario.Run(appCtx, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(appCtx, userUploader, primeUploader)
 		}
