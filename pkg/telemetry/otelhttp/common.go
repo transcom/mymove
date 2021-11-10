@@ -35,6 +35,7 @@ const (
 	RequestContentLength  = "http.server.request_content_length"  // Incoming request bytes total
 	ResponseContentLength = "http.server.response_content_length" // Incoming response bytes total
 	ServerLatency         = "http.server.duration"                // Incoming end to end duration, microseconds
+	ServerStatusCode      = "http.server.status_code"             // HTTP Status Code
 )
 
 // Filter is a predicate used to determine whether a given http.request should

@@ -105,9 +105,13 @@ func (h *Handler) createMeasures() {
 	serverLatencyMeasure, err := h.meter.NewInt64Histogram(ServerLatency)
 	handleErr(err)
 
+	statusCodeMeasure, err := h.meter.NewInt64Histogram(ServerStatusCode)
+	handleErr(err)
+
 	h.counters[RequestContentLength] = requestBytesCounter
 	h.counters[ResponseContentLength] = responseBytesCounter
 	h.valueRecorders[ServerLatency] = serverLatencyMeasure
+	h.valueRecorders[ServerStatusCode] = statusCodeMeasure
 }
 
 // ServeHTTP serves HTTP requests (http.Handler)
@@ -194,6 +198,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	attributes := append(labeler.Get(), semconv.HTTPServerMetricAttributesFromHTTPRequest(h.operation, r)...)
 	h.counters[RequestContentLength].Add(ctx, bw.read, attributes...)
 	h.counters[ResponseContentLength].Add(ctx, rww.written, attributes...)
+	h.valueRecorders[ServerStatusCode].Record(ctx, int64(rww.statusCode), attributes...)
 
 	elapsedTime := time.Since(requestStartTime).Microseconds()
 
