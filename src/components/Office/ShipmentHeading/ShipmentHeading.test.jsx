@@ -4,14 +4,14 @@ import { shallow, mount } from 'enzyme';
 import ShipmentHeading from './ShipmentHeading';
 
 const shipmentDestinationAddressWithPostalOnly = {
-  postal_code: '98421',
+  postalCode: '98421',
 };
 
 const shipmentDestinationAddress = {
   street_1: '123 Main St',
   city: 'Tacoma',
   state: 'WA',
-  postal_code: '98421',
+  postalCode: '98421',
 };
 
 const headingInfo = {
@@ -44,7 +44,7 @@ describe('Shipment Heading with full destination address', () => {
 });
 
 describe('Shipment Heading with missing destination address', () => {
-  it("only renders the postal_code of the order's new duty location", () => {
+  it("only renders the postalCode of the order's new duty location", () => {
     headingInfo.destinationAddress = shipmentDestinationAddressWithPostalOnly;
     const wrapper = shallow(
       <ShipmentHeading
