@@ -680,3 +680,4 @@
 20211012105126_exp_dp3_cert_migration.up.sql
 20211015201518_financial_review_flag.up.sql
 20211101220502_add_nts_shipment_columns.up.sql
+20211111063736_add_generated_edi_text_field.up.sql
