@@ -1715,7 +1715,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	)
 
 	handler := primeapi.CreatePaymentRequestHandler{
-		HandlerContext:        handlers.NewHandlerContext(db, logger),
+		HandlerContext:        handlers.NewHandlerContext(appCtx),
 		PaymentRequestCreator: paymentRequestCreator,
 	}
 

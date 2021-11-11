@@ -33,7 +33,8 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 		Edipi:       order.Edipi,
 	}
 
-	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)
@@ -61,7 +62,8 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
 		Edipi:       "1234567890",
 	}
 
-	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -84,7 +86,8 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoReadPerms() {
 		Edipi:       "1234567890",
 	}
 
-	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -159,7 +162,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				Edipi:       order.Edipi,
 			}
 
-			handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+			appCtx := suite.AppContextForTest()
+			handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(appCtx)}
 			response := handler.Handle(params)
 
 			suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)

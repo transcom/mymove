@@ -32,7 +32,10 @@ func (suite *HandlerSuite) TestTacValidation() {
 				HTTPRequest: request,
 				Tac:         tc.tacCode,
 			}
-			context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+			appCtx := suite.AppContextForTest()
+
+			context := handlers.NewHandlerContext(appCtx)
 			handler := TacValidationHandler{context}
 			response := handler.Handle(params)
 
@@ -51,7 +54,10 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := TacValidationHandler{context}
 		response := handler.Handle(params)
 
@@ -68,7 +74,10 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := TacValidationHandler{context}
 		response := handler.Handle(params)
 

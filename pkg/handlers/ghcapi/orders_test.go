@@ -44,7 +44,9 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	handler := GetOrdersHandler{
 		context,
 		orderservice.NewOrderFetcher(),
@@ -98,7 +100,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := GetOrdersHandler{
 			context,
 			&orderFetcher,
@@ -138,7 +142,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := GetOrdersHandler{
 			context,
 			&orderFetcher,
@@ -405,7 +411,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -450,7 +458,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TXO role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -486,7 +496,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	// be authorized to update orders. If not, we also need to prevent them from
 	// clicking the Edit Orders button in the frontend.
 	suite.Run("Allows a TIO to update orders", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		move := subtestData.move
 		order := subtestData.order
@@ -519,7 +531,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -550,7 +564,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -581,7 +597,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -634,7 +652,9 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	handler := UpdateOrderHandler{
 		context,
 		updater,
@@ -687,7 +707,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -725,7 +747,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -757,7 +781,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -787,7 +813,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -817,7 +845,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -930,7 +960,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -971,7 +1003,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1003,7 +1037,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1033,7 +1069,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1063,7 +1101,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1115,7 +1155,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	handler := UpdateAllowanceHandler{
 		context,
 		updater,
@@ -1157,7 +1199,9 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1196,7 +1240,9 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1227,7 +1273,9 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1256,7 +1304,9 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1285,7 +1335,9 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1318,7 +1370,9 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-max-billable-weight/tio", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1352,7 +1406,9 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TIO role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1383,7 +1439,9 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1415,7 +1473,9 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1447,7 +1507,9 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1483,7 +1545,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1517,7 +1581,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1548,7 +1614,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1579,7 +1647,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1610,7 +1680,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1664,7 +1736,9 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, dbAuthorizedWeight, params.IfMatch).Return(&order, move.ID, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	handler := UpdateBillableWeightHandler{
 		context,
 		updater,
@@ -1689,7 +1763,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		now := time.Now()
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
@@ -1722,7 +1798,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		now := time.Now()
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
@@ -1752,7 +1830,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		now := time.Now()
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
@@ -1783,7 +1863,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		now := time.Now()
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
@@ -1814,7 +1896,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		now := time.Now()
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
@@ -1867,7 +1951,9 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, params.IfMatch).Return(&move, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	handler := AcknowledgeExcessWeightRiskHandler{
 		context,
 		updater,

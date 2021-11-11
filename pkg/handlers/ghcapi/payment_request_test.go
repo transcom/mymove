@@ -57,8 +57,10 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			paymentrequest.NewPaymentRequestFetcher(),
 		}
 		response := handler.Handle(params)
@@ -97,8 +99,10 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -119,8 +123,10 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -157,7 +163,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     move.Locator,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerContext:            context,
 			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
@@ -193,7 +202,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerContext:            context,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
@@ -216,7 +228,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		appCtx := suite.AppContextForTest()
+
+		context := handlers.NewHandlerContext(appCtx)
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerContext:            context,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
@@ -260,8 +275,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -291,8 +308,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -331,8 +350,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 				PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 			}
 
+			appCtx := suite.AppContextForTest()
+
 			handler := UpdatePaymentRequestStatusHandler{
-				HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+				HandlerContext:              handlers.NewHandlerContext(appCtx),
 				PaymentRequestStatusUpdater: statusUpdater,
 				PaymentRequestFetcher:       paymentRequestFetcher,
 			}
@@ -365,8 +386,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -401,8 +424,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(availablePaymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -434,8 +459,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -464,8 +491,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -494,8 +523,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -524,8 +555,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:              handlers.NewHandlerContext(appCtx),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -689,8 +722,10 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := ShipmentsSITBalanceHandler{
-			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:             handlers.NewHandlerContext(appCtx),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
@@ -725,8 +760,10 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := ShipmentsSITBalanceHandler{
-			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:             handlers.NewHandlerContext(appCtx),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
@@ -746,8 +783,10 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		handler := ShipmentsSITBalanceHandler{
-			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:             handlers.NewHandlerContext(appCtx),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 

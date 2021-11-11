@@ -187,7 +187,9 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(newPPMParams)
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
@@ -240,7 +242,9 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 	}
 
 	// submit the PPM
-	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(submitPPMParams)
 	okResponse := response.(*ppmop.SubmitPersonallyProcuredMoveOK)
 	submitPPMPayload := okResponse.Payload
@@ -300,7 +304,9 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := IndexPersonallyProcuredMovesHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := IndexPersonallyProcuredMovesHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response
@@ -380,7 +386,9 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -493,7 +501,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	}
 
 	mileage := 900
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -536,7 +544,8 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID).Return(mockedSitCharge, mockedCost, nil).Once()
-	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
+
+	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
 	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 
@@ -604,7 +613,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		mock.Anything,
 	).Return(900, nil)
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
@@ -665,7 +674,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseForbidden(response)
@@ -718,7 +729,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(patchPPMParams)
 	suite.CheckResponseForbidden(response)
 }
@@ -755,7 +768,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the badrequest response
@@ -804,7 +819,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(patchPPMParams)
 
 	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
@@ -866,7 +883,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseBadRequest(response)
@@ -896,16 +915,18 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 func (suite *HandlerSuite) TestRequestPPMPayment() {
 	t := suite.T()
 
+	appCtx := suite.AppContextForTest()
+
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	moveRouter := moverouter.NewMoveRouter()
 
-	err := moveRouter.Submit(suite.AppContextForTest(), &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = moveRouter.Approve(suite.AppContextForTest(), &move)
+	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
@@ -937,7 +958,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(requestPaymentParams)
 
 	created, ok := response.(*ppmop.RequestPPMPaymentOK)
@@ -980,7 +1001,9 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
-	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(requestExpenseSumParams)
 
 	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)

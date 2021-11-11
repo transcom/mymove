@@ -47,8 +47,11 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		}
 
 		queryBuilder := query.NewQueryBuilder()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:       handlers.NewHandlerContext(appCtx),
 			NewQueryFilter:       query.NewQueryFilter,
 			AdminUserListFetcher: adminuser.NewAdminUserListFetcher(queryBuilder),
 			NewPagination:        pagination.NewPagination,
@@ -82,8 +85,11 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:       handlers.NewHandlerContext(appCtx),
 			NewQueryFilter:       newQueryFilter,
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
@@ -114,8 +120,11 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(0, expectedError).Once()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:       handlers.NewHandlerContext(appCtx),
 			NewQueryFilter:       newQueryFilter,
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
@@ -154,8 +163,11 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 		}
 
 		queryBuilder := query.NewQueryBuilder()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -181,8 +193,11 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(adminUser, nil).Once()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserFetcher,
 			newQueryFilter,
 		}
@@ -205,8 +220,11 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.AdminUser{}, expectedError).Once()
+
+		appCtx := suite.AppContextForTest()
+
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserFetcher,
 			newQueryFilter,
 		}
@@ -255,8 +273,10 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -273,8 +293,10 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -312,8 +334,10 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -331,8 +355,10 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -350,8 +376,10 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		params.AdminUser,
 	).Return(nil, err, nil).Once()
 
+	appCtx := suite.AppContextForTest()
+
 	handler := UpdateAdminUserHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlers.NewHandlerContext(appCtx),
 		adminUserUpdater,
 		newQueryFilter,
 	}

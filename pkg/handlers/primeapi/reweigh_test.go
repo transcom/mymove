@@ -59,9 +59,11 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 
+	appCtx := suite.AppContextForTest()
+
 	// Create handler
 	handler := UpdateReweighHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlers.NewHandlerContext(appCtx),
 		reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
 	}
 

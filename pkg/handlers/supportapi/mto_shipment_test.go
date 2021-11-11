@@ -97,8 +97,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
+
+	appCtx := suite.AppContextForTest()
+
 	handler := UpdateMTOShipmentStatusHandlerFunc{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlers.NewHandlerContext(appCtx),
 		fetcher,
 		updater,
 	}
@@ -106,8 +109,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+
+		appCtx := suite.AppContextForTest()
+
 		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			&mockFetcher,
 			&mockUpdater,
 		}

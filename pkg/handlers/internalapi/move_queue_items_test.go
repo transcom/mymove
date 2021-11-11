@@ -57,8 +57,10 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			QueueType:   queueType,
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(appCtx)}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -92,8 +94,10 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 			QueueType:   queueType,
 		}
 
+		appCtx := suite.AppContextForTest()
+
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(appCtx)}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code
@@ -116,8 +120,11 @@ func (suite *HandlerSuite) TestShowQueueHandlerNotFound() {
 		HTTPRequest: req,
 		QueueType:   queueType,
 	}
+
+	appCtx := suite.AppContextForTest()
+
 	// And: show Queue is queried
-	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(appCtx)}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 404 status code

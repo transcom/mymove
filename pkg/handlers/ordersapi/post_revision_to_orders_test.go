@@ -63,7 +63,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 		Revision:    &rev,
 	}
 
-	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(appCtx)}
 	suite.T().Run("Success", func(t *testing.T) {
 		response := handler.Handle(params)
 
@@ -121,7 +122,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
 		UUID:        strfmt.UUID(id.String()),
 	}
 
-	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -197,7 +199,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				UUID:        strfmt.UUID(origOrder.ID.String()),
 			}
 
-			handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+			appCtx := suite.AppContextForTest()
+			handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(appCtx)}
 			response := handler.Handle(params)
 
 			suite.IsType(&handlers.ErrResponse{}, response)

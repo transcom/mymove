@@ -12,7 +12,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	dpsAuthParams := dpsauth.Params{
 		SDDCProtocol:   "http",
 		SDDCHostname:   "testhost",

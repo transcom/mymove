@@ -21,7 +21,8 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 		HTTPRequest:   req,
 		DutyStationID: *handlers.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(appCtx)}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
@@ -45,7 +46,8 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 		HTTPRequest:   req,
 		DutyStationID: *handlers.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(appCtx)}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)

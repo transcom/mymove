@@ -39,7 +39,9 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	context.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
 	)
@@ -73,7 +75,9 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	context.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
 	)
@@ -102,7 +106,9 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	context.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: false},
 	)
@@ -135,7 +141,9 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 		Code:        &fullCode,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -180,7 +188,9 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 		Code:        &fullCode,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -228,7 +238,9 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 		ClaimedAt:       &claimedAt,
 		ServiceMemberID: &serviceMember.ID,
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+
+	context := handlers.NewHandlerContext(appCtx)
 	accessCodeClaimer := &mocks.AccessCodeClaimer{}
 	accessCodeClaimer.On("ClaimAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),

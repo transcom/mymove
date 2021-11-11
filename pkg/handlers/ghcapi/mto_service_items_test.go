@@ -61,8 +61,11 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
+
+		appCtx := suite.AppContextForTest()
+
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			listFetcher,
 			fetcher,
 		}
@@ -78,8 +81,11 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
+
+		appCtx := suite.AppContextForTest()
+
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -108,8 +114,11 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
+
+		appCtx := suite.AppContextForTest()
+
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -164,8 +173,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(errors.New("Not found error")).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -190,8 +201,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(&models.MTOServiceItem{ID: serviceItemID}, nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -216,8 +229,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil, apperror.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -242,8 +257,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil, errors.New("oh no")).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -261,8 +278,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -294,8 +313,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 		}
@@ -332,8 +353,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
+		appCtx := suite.AppContextForTest()
+
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerContext:        handlers.NewHandlerContext(appCtx),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 		}

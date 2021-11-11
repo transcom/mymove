@@ -41,9 +41,11 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 	// Create move router for SitExtension Createor
 	moveRouter := moverouter.NewMoveRouter()
 
+	appCtx := suite.AppContextForTest()
+
 	// Create handler
 	handler := CreateSITExtensionHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlers.NewHandlerContext(appCtx),
 		sitextensionservice.NewSitExtensionCreator(moveRouter),
 	}
 

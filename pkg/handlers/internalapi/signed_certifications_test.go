@@ -44,7 +44,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -90,7 +92,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -126,7 +130,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -166,7 +172,9 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -203,7 +211,9 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -234,7 +244,9 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*certop.IndexSignedCertificationOK)

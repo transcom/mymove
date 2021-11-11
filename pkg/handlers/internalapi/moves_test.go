@@ -52,7 +52,9 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -84,7 +86,9 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -111,7 +115,9 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -132,7 +138,9 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	appCtx := suite.AppContextForTest()
+
+	handler := PatchMoveHandler{handlers.NewHandlerContext(appCtx)}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -154,8 +162,11 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
+
+	appCtx := suite.AppContextForTest()
+
 	// And: show Move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(appCtx)}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -181,8 +192,11 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
+
+	appCtx := suite.AppContextForTest()
+
 	// And: Show move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(appCtx)}
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(showResponse)
@@ -216,7 +230,8 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+		context := handlers.NewHandlerContext(appCtx)
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
@@ -265,7 +280,8 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// And: a move is submitted
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+		context := handlers.NewHandlerContext(appCtx)
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
@@ -315,7 +331,8 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+		context := handlers.NewHandlerContext(appCtx)
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
@@ -419,7 +436,8 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		mock.Anything,
 	).Return(1125, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+	context := handlers.NewHandlerContext(appCtx)
 	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
@@ -491,7 +509,8 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		mock.Anything,
 	).Return(1125, nil)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+	context := handlers.NewHandlerContext(appCtx)
 	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
@@ -596,7 +615,8 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		PreparationDate: preparationDate,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	appCtx := suite.AppContextForTest()
+	context := handlers.NewHandlerContext(appCtx)
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -649,7 +669,8 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 			MoveID:      strfmt.UUID(move.ID.String()),
 		}
 		// And: a move is submitted
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		appCtx := suite.AppContextForTest()
+		context := handlers.NewHandlerContext(appCtx)
 
 		handler := SubmitAmendedOrdersHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
