@@ -74,7 +74,7 @@ function SMSubmitsMove() {
   cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
   cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
-  cy.get('input[name="destination_postalCode"]').clear().type('76127');
+  cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
   cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
   cy.get('input[name="days_in_storage"]').clear().type('30');
@@ -149,7 +149,7 @@ function SMCompletesMove() {
   cy.get('input[name="original_move_date"]').first().type('9/2/2030{enter}').blur();
   cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
-  cy.get('input[name="destination_postalCode"]').clear().type('76127');
+  cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
   cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
   cy.get('input[name="days_in_storage"]').clear().type('30');
@@ -220,9 +220,9 @@ function SMInputsSamePostalCodes() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
   cy.get('input[name="pickup_postal_code"]').clear().type('80913');
-  cy.get('input[name="destination_postalCode"]').type('80913').blur();
+  cy.get('input[name="destination_postal_code"]').type('80913').blur();
 
-  cy.get('#destination_postalCode-error').should('exist');
+  cy.get('#destination_postal_code-error').should('exist');
 }
 
 function SMInputsInvalidPostalCodes() {
@@ -239,10 +239,10 @@ function SMInputsInvalidPostalCodes() {
   cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
   // test an invalid destination zip code
-  cy.get('input[name="destination_postalCode"]').clear().type('00000').blur();
-  cy.get('#destination_postalCode-error').should('exist');
+  cy.get('input[name="destination_postal_code"]').clear().type('00000').blur();
+  cy.get('#destination_postal_code-error').should('exist');
 
-  cy.get('input[name="destination_postalCode"]').clear().type('30813');
+  cy.get('input[name="destination_postal_code"]').clear().type('30813');
   cy.nextPage();
 
   cy.location().should((loc) => {

@@ -178,7 +178,7 @@ export class DateAndLocation extends Component {
               {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
             </p>
             <SwaggerField
-              fieldName="destination_postalCode"
+              fieldName="destination_postal_code"
               swagger={this.props.schema}
               validate={validateDifferentZip}
               required
