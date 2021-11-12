@@ -67,7 +67,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="current_residence.postalCode"]').clear().type('00001').blur();
   cy.get('#postal_code-error').should('exist');
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
-  cy.get('input[name="postalCode"]').clear().type('80913');
+  cy.get('input[name="postal_code"]').clear().type('80913');
   cy.get('span[data-testid="errorMessage"]').should('not.exist');
   cy.nextPage();
   cy.location().should((loc) => {

@@ -72,7 +72,7 @@ function SMSubmitsMove() {
 
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
-  cy.get('input[name="pickup_postalCode"]').clear().type('80913');
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
   cy.get('input[name="destination_postalCode"]').clear().type('76127');
 
@@ -147,7 +147,7 @@ function SMCompletesMove() {
 
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]').first().type('9/2/2030{enter}').blur();
-  cy.get('input[name="pickup_postalCode"]').clear().type('80913');
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
   cy.get('input[name="destination_postalCode"]').clear().type('76127');
 
@@ -219,7 +219,7 @@ function SMInputsSamePostalCodes() {
 
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
-  cy.get('input[name="pickup_postalCode"]').clear().type('80913');
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
   cy.get('input[name="destination_postalCode"]').type('80913').blur();
 
   cy.get('#destination_postalCode-error').should('exist');
@@ -233,10 +233,10 @@ function SMInputsInvalidPostalCodes() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]').type('6/3/2100').blur();
   // test an invalid pickup zip code
-  cy.get('input[name="pickup_postalCode"]').clear().type('00000').blur();
-  cy.get('#pickup_postalCode-error').should('exist');
+  cy.get('input[name="pickup_postal_code"]').clear().type('00000').blur();
+  cy.get('#pickup_postal_code-error').should('exist');
 
-  cy.get('input[name="pickup_postalCode"]').clear().type('80913');
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
   // test an invalid destination zip code
   cy.get('input[name="destination_postalCode"]').clear().type('00000').blur();
