@@ -126,12 +126,12 @@ export class Summary extends Component {
         return (
           <PPMShipmentCard
             key={shipment.id}
-            destinationZIP={shipment.destination_postal_code}
+            destinationZIP={shipment.destination_postalCode}
             moveId={moveId}
             estimatedWeight="5,000"
             expectedDepartureDate={shipment.original_move_date}
             onEditClick={this.handleEditClick}
-            originZIP={shipment.pickup_postal_code}
+            originZIP={shipment.pickup_postalCode}
             shipmentId={shipment.id}
             sitDays={shipment.has_sit ? shipment.days_in_storage : ''}
           />
