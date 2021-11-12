@@ -78,7 +78,7 @@ const Shipment = ({ shipment, moveId }) => {
       {shipment.reweigh?.id && (
         <div className={descriptionListStyles.row}>
           <dt>Reweigh Requested Date:</dt>
-          <dd>{formatDateFromIso(shipment.reweigh?.requestedAt, 'YYYY-MM-DD')}</dd>
+          <dd>{formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')}</dd>
         </div>
       )}
       <div className={descriptionListStyles.row}>
