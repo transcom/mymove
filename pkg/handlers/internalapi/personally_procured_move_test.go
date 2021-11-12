@@ -435,10 +435,9 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 
 	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name:        "test duty station",
-			Affiliation: internalmessages.AffiliationARMY,
-			AddressID:   dutyStationAddress.ID,
-			Address:     dutyStationAddress,
+			Name:      "test duty station",
+			AddressID: dutyStationAddress.ID,
+			Address:   dutyStationAddress,
 		},
 	})
 

@@ -357,10 +357,11 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 	}
 	suite.MustSave(&address1)
 
+	affiliationAirforce := internalmessages.AffiliationAIRFORCE
 	stationName := "Origin Duty Station"
 	originStation := models.DutyStation{
 		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
+		Affiliation: &affiliationAirforce,
 		AddressID:   address1.ID,
 		Address:     address1,
 	}
@@ -376,7 +377,7 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 	stationName = "New Duty Station"
 	newStation := models.DutyStation{
 		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
+		Affiliation: &affiliationAirforce,
 		AddressID:   address2.ID,
 		Address:     address2,
 	}
