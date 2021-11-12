@@ -69,6 +69,18 @@ const Shipment = ({ shipment, moveId }) => {
         <dt>Actual Weight:</dt>
         <dd>{shipment.primeActualWeight}</dd>
       </div>
+      {shipment.reweigh?.id && (
+        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !shipment.reweigh.weight })}>
+          <dt>Reweigh Weight:</dt>
+          <dd data-testid="reweigh">{!shipment.reweigh.weight ? 'Missing' : shipment.reweigh.weight}</dd>
+        </div>
+      )}
+      {shipment.reweigh?.id && (
+        <div className={descriptionListStyles.row}>
+          <dt>Reweigh Requested Date:</dt>
+          <dd>{formatDateFromIso(shipment.reweigh?.requestedAt, 'YYYY-MM-DD')}</dd>
+        </div>
+      )}
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>
