@@ -5,7 +5,6 @@ CREATE TABLE postal_code_to_gbloc
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
--- Note: There is an index created for postal_code. It happens all the way at the bottom of this file, to avoid slowing down the bulk insert.
 
 COMMENT ON TABLE postal_code_to_gbloc IS 'This table is used to look up which GBLOC to use for a given postal code. Shipments from postal codes that are not in this table will not be supported, so it will need to be updated occasionally as new codes are added';
 COMMENT ON COLUMN postal_code_to_gbloc.postal_code IS 'A United States Postal Code, also known as ZIP code';
@@ -40858,5 +40857,3 @@ VALUES
 ('83127','KKFA'),
 ('83128','KKFA'),
 ('83414','KKFA');
-
-CREATE INDEX postal_code_to_gbloc_postal_code_idx ON postal_code_to_gbloc (postal_code);
