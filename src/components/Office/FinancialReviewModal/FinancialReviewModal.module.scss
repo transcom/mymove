@@ -1,0 +1,24 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.FinancialReviewModal {
+  overflow-y: auto;
+  max-height: 90vh;
+  max-width: 574px;
+
+  .RemarksLabelDisabled {
+    color: color("base");
+  }
+
+  .RemarksField {
+    &:disabled {
+      background: color("base-lighter");
+      color: color("base-lighter");
+      border-color: color("base");
+    }
+  }
+
+  .CancelButton {
+    @include u-bg('transparent');
+  }
+}

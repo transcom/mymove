@@ -2,13 +2,13 @@ package ediinvoice
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -17,15 +17,11 @@ import (
 
 type InvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger       Logger
 	Viper        *viper.Viper
 	icnSequencer sequence.Sequencer
 }
 
 func TestInvoiceSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
 	flag := pflag.CommandLine
 	// Flag to update the test EDI
 	// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
@@ -36,7 +32,7 @@ func TestInvoiceSuite(t *testing.T) {
 	v := viper.New()
 	err := v.BindPFlags(flag)
 	if err != nil {
-		logger.Fatal("could not bind flags", zap.Error(err))
+		log.Fatal("could not bind flags", err)
 	}
 
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
@@ -44,11 +40,10 @@ func TestInvoiceSuite(t *testing.T) {
 
 	hs := &InvoiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 		Viper:        v,
 	}
 
-	hs.icnSequencer = sequence.NewDatabaseSequencer(hs.DB(), ICNSequenceName)
+	hs.icnSequencer = sequence.NewDatabaseSequencer(ICNSequenceName)
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
@@ -57,7 +52,7 @@ func TestInvoiceSuite(t *testing.T) {
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
 		invoice := MakeValidEdi()
-		ediString, err := invoice.EDIString(suite.logger)
+		ediString, err := invoice.EDIString(suite.Logger())
 		suite.NoError(err)
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*000009999*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010

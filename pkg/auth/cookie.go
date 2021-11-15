@@ -180,6 +180,7 @@ func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServe
 
 			existingSession := sessionManager.Get(r.Context(), "session")
 			if existingSession != nil {
+				logger.Info("Existing session found")
 				session = existingSession.(Session)
 			}
 

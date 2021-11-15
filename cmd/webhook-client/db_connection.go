@@ -21,7 +21,7 @@ func initDbConnectionFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func notificationCreate(db *pop.Connection, logger utils.Logger) (*models.WebhookNotification, error) {
+func notificationCreate(db *pop.Connection, logger *zap.Logger) (*models.WebhookNotification, error) {
 	// Create a notification model
 	notID := uuid.Must(uuid.NewV4())
 	message := "{ \"message\" : \"A move task order was created.\" }"

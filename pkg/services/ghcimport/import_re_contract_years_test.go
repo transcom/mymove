@@ -11,24 +11,23 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREContractYears() {
 	gre := &GHCRateEngineImporter{
-		Logger:            suite.logger,
 		ContractCode:      testContractCode,
 		ContractStartDate: testContractStartDate,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREContractYears(suite.DB())
+		err = gre.importREContractYears(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyContractYears()
 		suite.helperCheckContractYearValue()
 	})
 
 	suite.T().Run("run a second time; should fail immediately due to date range constraint", func(t *testing.T) {
-		err := gre.importREContractYears(suite.DB())
+		err := gre.importREContractYears(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.ExclusionViolation, "re_contract_years_daterange_excl"))
 		}

@@ -10,9 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -20,14 +18,8 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *PaperworkSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *PaperworkSuite) AfterTest() {
@@ -70,10 +62,6 @@ func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.
 }
 
 func TestPaperworkSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
@@ -83,7 +71,6 @@ func TestPaperworkSuite(t *testing.T) {
 	}
 	hs := &PaperworkSuite{
 		PopTestSuite: popSuite,
-		logger:       logger,
 		userUploader: newUploader,
 	}
 

@@ -162,7 +162,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
+.client_build.stamp: .check_node_version.stamp $(wildcard src/**/*)
 	yarn build
 	touch .client_build.stamp
 
@@ -300,22 +300,21 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: check_swagger_generate
-check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
-.swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+.PHONY: swagger_generate
+swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
+.swagger_build.stamp: $(wildcard swagger/*.yaml)
+ifndef CIRCLECI
 ifneq ("$(wildcard .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
 endif
-
-.PHONY: swagger_generate
-swagger_generate: .client_deps.stamp check_swagger_generate ## Bundles the API definition files into a complete specification
-	yarn build-redoc
+endif
+	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp swagger_generate pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
+server_generate: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/gen/ ## Generate golang server code from Swagger files
+pkg/gen/: pkg/assets/assets.go $(wildcard swagger/*.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
@@ -370,6 +369,7 @@ build_tools: bin/gin \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
+	bin/webhook-client \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
@@ -456,24 +456,34 @@ server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_cove
 
 .PHONY: redis_pull
 redis_pull: ## Pull redis image
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
+endif
 
 .PHONY: redis_destroy
 redis_destroy: ## Destroy Redis
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
+endif
 
 .PHONY: redis_run
 redis_run: redis_pull ## Run Redis
-ifndef CIRCLECI
+ifdef CIRCLECI
+	@echo "Relying on CircleCI to setup redis."
+else
 		@echo "Stopping the Redis brew service in case it's running..."
 		brew services stop redis 2> /dev/null || true
-endif
 	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker start $(REDIS_DOCKER_CONTAINER) || \
 		docker run -d --name $(REDIS_DOCKER_CONTAINER) \
 			-p $(REDIS_PORT):$(REDIS_PORT_DOCKER) \
 			$(REDIS_DOCKER_CONTAINER_IMAGE)
+endif
 
 .PHONY: redis_reset
 redis_reset: redis_destroy redis_run ## Reset Redis

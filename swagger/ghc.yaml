@@ -5,7 +5,7 @@ info:
   description: The API for move.mil
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: https://opensource.org/licenses/MIT
   title: move.mil API
   version: 0.0.1
 basePath: /ghc/v1
@@ -31,7 +31,7 @@ tags:
   - name: paymentServiceItem
   - name: tac
 paths:
-  '/customer/{customerID}':
+  /customer/{customerID}:
     parameters:
       - description: ID of customer to use
         in: path
@@ -102,7 +102,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move/{locator}':
+  /move/{locator}:
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -133,7 +133,7 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  '/counseling/orders/{orderID}':
+  /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
         in: path
@@ -176,7 +176,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/orders/{orderID}':
+  /orders/{orderID}:
     parameters:
       - description: ID of order to use
         in: path
@@ -247,7 +247,7 @@ paths:
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  '/orders/{orderID}/allowances':
+  /orders/{orderID}/allowances:
     parameters:
       - description: ID of order to use
         in: path
@@ -290,7 +290,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/orders/{orderID}/acknowledge-excess-weight-risk':
+  /orders/{orderID}/acknowledge-excess-weight-risk:
     parameters:
       - description: ID of order to use
         in: path
@@ -332,7 +332,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/orders/{orderID}/update-billable-weight':
+  /orders/{orderID}/update-billable-weight:
     parameters:
       - description: ID of order to use
         in: path
@@ -375,7 +375,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/orders/{orderID}/update-max-billable-weight/tio':
+  /orders/{orderID}/update-max-billable-weight/tio:
     parameters:
       - description: ID of order to use
         in: path
@@ -417,7 +417,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/counseling/orders/{orderID}/allowances':
+  /counseling/orders/{orderID}/allowances:
     parameters:
       - description: ID of order to use
         in: path
@@ -460,7 +460,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}':
+  /move-task-orders/{moveTaskOrderID}:
     parameters:
       - description: ID of move to use
         in: path
@@ -530,7 +530,7 @@ paths:
       description: Updates a move by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move by ID
-  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
+  /move_task_orders/{moveTaskOrderID}/mto_service_items:
     parameters:
       - description: ID of move for mto service item to use
         in: path
@@ -599,7 +599,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
+  /move_task_orders/{moveTaskOrderID}/mto_shipments:
     parameters:
       - description: ID of move task order for mto shipment to use
         in: path
@@ -629,7 +629,7 @@ paths:
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
-  '/shipments/{shipmentID}':
+  /shipments/{shipmentID}:
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -654,7 +654,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
+  /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}:
     patch:
       summary: updateMTOShipment
       description: |
@@ -726,7 +726,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/shipments/{shipmentID}/approve':
+  /shipments/{shipmentID}/approve:
     parameters:
       - description: ID of the shipment
         in: path
@@ -766,7 +766,7 @@ paths:
       description: Approves a shipment
       operationId: approveShipment
       summary: Approves a shipment
-  '/shipments/{shipmentID}/request-diversion':
+  /shipments/{shipmentID}/request-diversion:
     parameters:
       - description: ID of the shipment
         in: path
@@ -806,7 +806,7 @@ paths:
       description: Requests a shipment diversion
       operationId: requestShipmentDiversion
       summary: Requests a shipment diversion
-  '/shipments/{shipmentID}/approve-diversion':
+  /shipments/{shipmentID}/approve-diversion:
     parameters:
       - description: ID of the shipment
         in: path
@@ -846,7 +846,7 @@ paths:
       description: Approves a shipment diversion
       operationId: approveShipmentDiversion
       summary: Approves a shipment diversion
-  '/shipments/{shipmentID}/reject':
+  /shipments/{shipmentID}/reject:
     parameters:
       - description: ID of the shipment
         in: path
@@ -891,7 +891,7 @@ paths:
       description: rejects a shipment
       operationId: rejectShipment
       summary: rejects a shipment
-  '/shipments/{shipmentID}/request-cancellation':
+  /shipments/{shipmentID}/request-cancellation:
     parameters:
       - description: ID of the shipment
         in: path
@@ -931,7 +931,7 @@ paths:
       description: Requests a shipment cancellation
       operationId: requestShipmentCancellation
       summary: Requests a shipment cancellation
-  '/shipments/{shipmentID}/request-reweigh':
+  /shipments/{shipmentID}/request-reweigh:
     parameters:
       - description: ID of the shipment
         in: path
@@ -967,7 +967,7 @@ paths:
       description: Requests a shipment reweigh
       operationId: requestShipmentReweigh
       summary: Requests a shipment reweigh
-  '/shipments/{shipmentID}/sit-extensions/':
+  /shipments/{shipmentID}/sit-extensions/:
     post:
       summary: Create an approved SIT extension
       description: >-
@@ -1015,7 +1015,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
+  /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve:
     parameters:
       - description: ID of the shipment
         in: path
@@ -1070,7 +1070,7 @@ paths:
       description: Approves a SIT extension
       operationId: approveSITExtension
       summary: Approves a SIT extension
-  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
+  /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny:
     parameters:
       - description: ID of the shipment
         in: path
@@ -1122,7 +1122,7 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+  /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
         in: path
@@ -1156,7 +1156,7 @@ paths:
       description: Fetches a list of agents associated with a move task order.
       operationId: fetchMTOAgentList
       summary: Fetch move task order agents.
-  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
+  /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}:
     parameters:
       - description: ID of move to use
         in: path
@@ -1229,7 +1229,7 @@ paths:
       description: Updates a service item by ID for a move by ID
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
+  /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status:
     parameters:
       - description: ID of move to use
         in: path
@@ -1282,7 +1282,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move by ID
-  '/move-task-orders/{moveTaskOrderID}/status':
+  /move-task-orders/{moveTaskOrderID}/status:
     patch:
       consumes:
         - application/json
@@ -1329,7 +1329,7 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
-  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
+  /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed:
     patch:
       consumes:
         - application/json
@@ -1371,7 +1371,7 @@ paths:
       description: Changes move (move task order) status to service counseling completed
       operationId: updateMTOStatusServiceCounselingCompleted
       summary: Changes move (move task order) status to service counseling completed
-  '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
+  /move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status:
     parameters:
       - description: ID of move to use
         in: path
@@ -1424,7 +1424,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
-  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
+  /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at:
     patch:
       consumes:
         - application/json
@@ -1467,7 +1467,7 @@ paths:
         Changes move (move task order) billableWeightsReviewedAt field to a
         timestamp
       operationId: UpdateMTOReviewedBillableWeightsAt
-  '/move-task-orders/{moveTaskOrderID}/tio-remarks':
+  /move-task-orders/{moveTaskOrderID}/tio-remarks:
     patch:
       consumes:
         - application/json
@@ -1515,7 +1515,7 @@ paths:
         Changes move (move task order) billableWeightsReviewedAt field to a
         timestamp
       operationId: updateMoveTIORemarks
-  '/move-task-orders/{moveTaskOrderID}/entitlements':
+  /move-task-orders/{moveTaskOrderID}/entitlements:
     parameters:
       - description: ID of move to use
         in: path
@@ -1546,7 +1546,7 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
-  '/payment-requests/{paymentRequestID}':
+  /payment-requests/{paymentRequestID}:
     parameters:
       - description: UUID of payment request
         format: uuid
@@ -1578,7 +1578,7 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-  '/moves/{locator}/payment-requests':
+  /moves/{locator}/payment-requests:
     parameters:
       - description: move code to identify a move for payment requests
         format: string
@@ -1608,7 +1608,7 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
-  '/moves/{moveID}/financial-review-flag':
+  /moves/{moveID}/financial-review-flag:
     parameters:
       - description: ID of move to flag
         in: path
@@ -1661,7 +1661,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
+  /payment-requests/{paymentRequestID}/shipments-payment-sit-balance:
     parameters:
       - description: >-
           payment request ID of the payment request with SIT service items being
@@ -1699,7 +1699,7 @@ paths:
       summary: >-
         Returns all shipment payment request SIT usage to support partial SIT
         invoicing
-  '/payment-requests/{paymentRequestID}/status':
+  /payment-requests/{paymentRequestID}/status:
     patch:
       consumes:
         - application/json
@@ -1745,7 +1745,7 @@ paths:
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
-  '/documents/{documentId}':
+  /documents/{documentId}:
     get:
       summary: Returns a document
       description: Returns a document and its uploads
@@ -2231,7 +2231,7 @@ definitions:
         format: zip
         title: ZIP
         example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        pattern: ^(\d{5}([\-]\d{4})?)$
       country:
         type: string
         title: Country
@@ -2251,11 +2251,11 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
     required:
       - name
       - email
@@ -2286,12 +2286,12 @@ definitions:
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       suffix:
         type: string
@@ -2329,12 +2329,12 @@ definitions:
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       suffix:
         type: string
@@ -2704,11 +2704,11 @@ definitions:
       date_issued:
         type: string
         format: date
-        example: '2020-01-01'
+        example: 2020-01-01
       report_by_date:
         type: string
         format: date
-        example: '2020-01-01'
+        example: 2020-01-01
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
@@ -2720,6 +2720,16 @@ definitions:
       sac:
         type: string
         title: SAC
+        example: N002214CSW32Y9
+        x-nullable: true
+      nts_tac:
+        type: string
+        title: NTS TAC
+        example: F8J1
+        x-nullable: true
+      nts_sac:
+        type: string
+        title: NTS SAC
         example: N002214CSW32Y9
         x-nullable: true
       has_dependents:
@@ -2742,13 +2752,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -2773,13 +2783,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
+        example: 2018-04-26
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -3022,12 +3032,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       agentType:
         type: string
@@ -3764,7 +3774,7 @@ definitions:
       firstAvailableDeliveryDate:
         format: date
         type: string
-        example: '2020-12-31'
+        example: 2020-12-31
         description: First available date that Prime can deliver SIT service item.
   MTOServiceItemCustomerContacts:
     type: array
@@ -3840,7 +3850,7 @@ definitions:
         format: date-time
         type: string
       url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uri
         type: string
       status:

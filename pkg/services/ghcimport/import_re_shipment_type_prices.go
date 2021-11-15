@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREShipmentTypePrices(appCtx appcontext.AppContext) error {
 	//tab 5a) Access. and Add. Prices
 	var domesticIntlAddlPrices []models.StageDomesticInternationalAdditionalPrice
-	err := dbTx.All(&domesticIntlAddlPrices)
+	err := appCtx.DB().All(&domesticIntlAddlPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged domestic international additional prices: %w", err)
 	}
@@ -57,7 +56,7 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 					Factor:     factor,
 				}
 
-				verrs, dbErr := dbTx.ValidateAndSave(&shipmentTypePrice)
+				verrs, dbErr := appCtx.DB().ValidateAndSave(&shipmentTypePrice)
 				if dbErr != nil {
 					return fmt.Errorf("error saving ReShipmentTypePrices: %+v with error: %w", shipmentTypePrice, dbErr)
 				}

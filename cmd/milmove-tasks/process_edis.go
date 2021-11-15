@@ -192,7 +192,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 
 	// TODO I don't know why we need a separate logger for cert stuff

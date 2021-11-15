@@ -9,7 +9,7 @@ func (suite *SequenceSuite) TestRandomNextVal() {
 
 	// Try 100 random numbers and make sure they're all between min and max, inclusive.
 	for i := 0; i < 100; i++ {
-		nextVal, err := sequencer.NextVal()
+		nextVal, err := sequencer.NextVal(suite.AppContextForTest())
 		suite.NoError(err, "Error getting next value of sequence")
 
 		suite.True(nextVal >= testMin && nextVal <= testMax,
@@ -22,7 +22,7 @@ func (suite *SequenceSuite) TestRandomSetVal() {
 	suite.FatalNoError(err)
 
 	// This should be a no-op; just make sure it doesn't throw any errors.
-	err = sequencer.SetVal(30)
+	err = sequencer.SetVal(suite.AppContextForTest(), 30)
 	suite.NoError(err, "Error setting value of sequence")
 }
 

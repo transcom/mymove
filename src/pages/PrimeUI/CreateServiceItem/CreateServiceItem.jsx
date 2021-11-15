@@ -5,14 +5,14 @@ import { useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 
-import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import LoadingPlaceholder from '../../../shared/LoadingPlaceholder';
-import SomethingWentWrong from '../../../shared/SomethingWentWrong';
-import styles from '../CreatePaymentRequest/CreatePaymentRequest.module.scss';
-import CreateShipmentServiceItemForm from '../../../components/PrimeUI/CreateShipmentServiceItemForm/CreateShipmentServiceItemForm';
-import { createServiceItem } from '../../../services/primeApi';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-import scrollToTop from '../../../shared/scrollToTop';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import CreateShipmentServiceItemForm from 'components/PrimeUI/CreateShipmentServiceItemForm/CreateShipmentServiceItemForm';
+import { createServiceItem } from 'services/primeApi';
+import { primeSimulatorRoutes } from 'constants/routes';
+import scrollToTop from 'shared/scrollToTop';
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 
 const CreateServiceItem = () => {
   const { moveCodeOrID, shipmentId } = useParams();
@@ -30,7 +30,10 @@ const CreateServiceItem = () => {
       const { response: { body } = {} } = error;
 
       if (body) {
-        setErrorMessage({ title: body.title, detail: body.detail });
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
       } else {
         setErrorMessage({
           title: 'Unexpected error',
@@ -48,15 +51,15 @@ const CreateServiceItem = () => {
   const shipment = moveTaskOrder.mtoShipments.find((s) => s.id === shipmentId);
 
   return (
-    <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.CreatePaymentRequest)}>
+    <div className={classnames('grid-container-desktop-lg', 'usa-prose', primeStyles.primeContainer)}>
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Create Shipment Service Item</h1>
           {errorMessage?.detail && (
-            <div className={styles.errorContainer}>
+            <div className={primeStyles.errorContainer}>
               <Alert slim type="error">
-                <span className={styles.errorTitle}>{errorMessage.title}</span>
-                <span className={styles.errorDetail}>{errorMessage.detail}</span>
+                <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>
             </div>
           )}

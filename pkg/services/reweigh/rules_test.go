@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -34,7 +33,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), testCase.newReweigh, testCase.oldReweigh, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -57,7 +56,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkShipmentID().Validate(suite.AppContextForTest(), testCase.newReweigh, testCase.oldReweigh, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
@@ -88,7 +87,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkReweighID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkReweighID().Validate(suite.AppContextForTest(), testCase.newReweigh, testCase.oldReweigh, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -114,7 +113,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkReweighID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkReweighID().Validate(suite.AppContextForTest(), testCase.newReweigh, testCase.oldReweigh, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(testCase.verr, "expected something other than a *validate.Errors type")
@@ -146,7 +145,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 				RequestedBy: requestedBy,
 			}
 
-			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), reweigh, oldReweigh, nil)
+			err := checkRequiredFields().Validate(suite.AppContextForTest(), reweigh, oldReweigh, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -165,7 +164,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 				RequestedBy: *requestedBy,
 			}
 
-			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), reweigh, oldReweigh, nil)
+			err := checkRequiredFields().Validate(suite.AppContextForTest(), reweigh, oldReweigh, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.False(verr.HasAny())
@@ -183,7 +182,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			},
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), models.Reweigh{}, nil, &shipment)
+		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.Reweigh{}, nil, &shipment)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(fmt.Sprintf("Not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
@@ -197,7 +196,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			},
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger, nil), models.Reweigh{}, nil, &shipment)
+		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.Reweigh{}, nil, &shipment)
 		suite.NoError(err)
 	})
 }

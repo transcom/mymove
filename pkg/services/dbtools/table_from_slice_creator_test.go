@@ -3,7 +3,7 @@ package dbtools
 import (
 	"testing"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 type TestStruct struct {
@@ -32,16 +32,16 @@ var validSlice = []TestStruct{
 }
 
 func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
-	tableFromSliceCreator := NewTableFromSliceCreator(suite.DB(), suite.logger, true, false)
+	tableFromSliceCreator := NewTableFromSliceCreator(true, false)
 
 	suite.T().Run("passing in a non-slice", func(t *testing.T) {
-		err := tableFromSliceCreator.CreateTableFromSlice(1)
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), 1)
 		suite.Error(err)
 		suite.Equal("Parameter must be slice or array, but got int", err.Error())
 	})
 
 	suite.T().Run("passing in a slice, but not a slice of structs", func(t *testing.T) {
-		err := tableFromSliceCreator.CreateTableFromSlice([]int{1, 2, 3})
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), []int{1, 2, 3})
 		suite.Error(err)
 		suite.Equal("Elements of slice must be type struct, but got int", err.Error())
 	})
@@ -51,13 +51,13 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 			field1 string
 			field2 int
 		}
-		err := tableFromSliceCreator.CreateTableFromSlice(invalidStructSlice)
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), invalidStructSlice)
 		suite.Error(err)
 		suite.Equal("All fields of struct must be string, but field field2 is int", err.Error())
 	})
 
 	suite.T().Run("valid slice of structs", func(t *testing.T) {
-		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), validSlice)
 		suite.NoError(err)
 
 		var testStructs []TestStruct
@@ -70,7 +70,7 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 	})
 
 	suite.T().Run("errors out when table exists", func(t *testing.T) {
-		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), validSlice)
 		suite.Error(err)
 		// TODO: Fix this DB error string literal comparison when we move the COPY-related functionality to jackc/pgx.
 		if err != nil {
@@ -80,12 +80,12 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 }
 
 func (suite *DBToolsServiceSuite) TestCreateTableFromSlicePermTable() {
-	tableFromSliceCreator := NewTableFromSliceCreator(suite.DB(), suite.logger, true, true)
+	tableFromSliceCreator := NewTableFromSliceCreator(true, true)
 
 	suite.T().Run("two runs no error when drop flag is true", func(t *testing.T) {
-		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
+		err := tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), validSlice)
 		suite.NoError(err)
-		err = tableFromSliceCreator.CreateTableFromSlice(validSlice)
+		err = tableFromSliceCreator.CreateTableFromSlice(suite.AppContextForTest(), validSlice)
 		suite.NoError(err)
 
 		var testStructs []TestStruct
@@ -100,22 +100,13 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlicePermTable() {
 
 func (suite *DBToolsServiceSuite) TestCreateTableFromSliceWithinTransaction() {
 	suite.T().Run("create table from slice in a transaction", func(t *testing.T) {
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-		//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-		//RA: in which this would be considered a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: Mitigated
-		//RA Modified Severity: N/A
-		// nolint:errcheck
-		suite.DB().Transaction(func(tx *pop.Connection) error {
-			tableFromSliceCreator := NewTableFromSliceCreator(tx, suite.logger, true, true)
-			err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
+		txnErr := suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			tableFromSliceCreator := NewTableFromSliceCreator(true, true)
+			err := tableFromSliceCreator.CreateTableFromSlice(txnAppCtx, validSlice)
 			suite.NoError(err)
 
 			var testStructs []TestStruct
-			err = tx.Order("name").All(&testStructs)
+			err = txnAppCtx.DB().Order("name").All(&testStructs)
 			suite.NoError(err)
 			suite.Len(testStructs, 3)
 			for i, testStruct := range testStructs {
@@ -123,6 +114,7 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSliceWithinTransaction() {
 			}
 			return nil
 		})
+		suite.NoError(txnErr)
 
 	})
 

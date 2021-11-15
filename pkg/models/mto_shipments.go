@@ -111,6 +111,10 @@ type MTOShipment struct {
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
 	Reweigh                          *Reweigh          `has_one:"reweighs" fk_id:"shipment_id"`
+	UsesExternalVendor               bool              `db:"uses_external_vendor"`
+	StorageFacility                  *StorageFacility  `belongs_to:"storage_facilities" fk:"storage_facility_id"`
+	StorageFacilityID                *uuid.UUID        `db:"storage_facility_id"`
+	ServiceOrderNumber               *string           `db:"service_order_number"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
@@ -150,6 +154,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	if m.SITDaysAllowance != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.SITDaysAllowance, Compared: -1, Name: "SITDaysAllowance"})
 	}
+	vs = append(vs, &OptionalUUIDIsPresent{Field: m.StorageFacilityID, Name: "StorageFacilityID"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.ServiceOrderNumber, Name: "ServiceOrderNumber"})
 	return validate.Validate(vs...), nil
 }
 

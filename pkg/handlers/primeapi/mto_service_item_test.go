@@ -1,7 +1,6 @@
 package primeapi
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -91,7 +90,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -108,11 +107,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
-		err := errors.New("ServerError")
+		err := fmt.Errorf("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -131,7 +130,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -151,7 +150,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -171,7 +170,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -192,7 +191,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -221,7 +220,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -243,7 +242,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -263,7 +262,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -349,7 +348,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -373,7 +372,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -396,11 +395,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
-		err := errors.New("ServerError")
+		err := fmt.Errorf("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -413,7 +412,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 
-		var height int32 = 0
+		var height int32
 		params.Body.(*primemessages.MTOServiceItemDomesticCrating).Crate.Height = &height
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
@@ -471,7 +470,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -502,7 +501,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -541,7 +540,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -608,7 +607,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -699,7 +698,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -856,7 +855,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -882,7 +881,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -904,7 +903,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -943,7 +942,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -967,7 +966,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -1036,7 +1035,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		subtestData.handler = UpdateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 		}
 
@@ -1199,7 +1198,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))
 
 		subtestData.handler = UpdateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 		}
 

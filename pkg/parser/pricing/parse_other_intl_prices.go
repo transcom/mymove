@@ -3,11 +3,12 @@ package pricing
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // parseOtherIntlPrices: parser for: 3d) Other International Prices
-var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
+var parseOtherIntlPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 13 // 3d) International Other Prices
 	const feeColIndexStart int = 4  // start at column 6 to get the rates

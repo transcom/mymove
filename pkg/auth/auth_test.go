@@ -6,8 +6,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 const (
@@ -42,7 +40,7 @@ func ApplicationTestServername() ApplicationServername {
 }
 
 type authSuite struct {
-	testingsuite.BaseTestSuite
+	suite.Suite
 	logger *zap.Logger
 }
 

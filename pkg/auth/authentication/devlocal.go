@@ -8,16 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -43,29 +41,22 @@ const (
 
 // UserListHandler handles redirection
 type UserListHandler struct {
-	db *pop.Connection
 	Context
+	handlers.HandlerContext
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
+func NewUserListHandler(ac Context, hc handlers.HandlerContext) UserListHandler {
 	handler := UserListHandler{
-		Context: ac,
-		db:      db,
+		Context:        ac,
+		HandlerContext: hc,
 	}
 	return handler
 }
 
-func (h UserListHandler) appContextFromRequest(r *http.Request) appcontext.AppContext {
-	return appcontext.NewAppContext(
-		h.db.WithContext(r.Context()),
-		logging.FromContext(r.Context()),
-		auth.SessionFromContext(r.Context()))
-}
-
 // UserListHandler lists users in the local database for local login
 func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appCtx := h.appContextFromRequest(r)
+	appCtx := h.AppContextFromRequest(r)
 	limit := 100
 	identities, err := models.FetchAppUserIdentities(appCtx.DB(), appCtx.Session().ApplicationName, limit)
 	if err != nil {
@@ -240,33 +231,26 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type devlocalAuthHandler struct {
 	Context
-	db       *pop.Connection
+	handlers.HandlerContext
 	appnames auth.ApplicationServername
 }
 
 // AssignUserHandler logs a user in directly
 type AssignUserHandler devlocalAuthHandler
 
-func (h devlocalAuthHandler) appContextFromRequest(r *http.Request) appcontext.AppContext {
-	return appcontext.NewAppContext(
-		h.db.WithContext(r.Context()),
-		logging.FromContext(r.Context()),
-		auth.SessionFromContext(r.Context()))
-}
-
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername) AssignUserHandler {
+func NewAssignUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) AssignUserHandler {
 	handler := AssignUserHandler{
-		Context:  ac,
-		db:       db,
-		appnames: appnames,
+		Context:        ac,
+		HandlerContext: hc,
+		appnames:       appnames,
 	}
 	return handler
 }
 
 // AssignUserHandler logs in a user locally using a user id or email
 func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appCtx := devlocalAuthHandler(h).appContextFromRequest(r)
+	appCtx := h.AppContextFromRequest(r)
 	userID := r.PostFormValue("id")
 	email := r.PostFormValue("email")
 	if userID == "" && email == "" {
@@ -312,11 +296,11 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername) CreateUserHandler {
+func NewCreateUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) CreateUserHandler {
 	handler := CreateUserHandler{
-		Context:  ac,
-		db:       db,
-		appnames: appnames,
+		Context:        ac,
+		HandlerContext: hc,
+		appnames:       appnames,
 	}
 	return handler
 }
@@ -342,11 +326,11 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
-		Context:  ac,
-		db:       db,
-		appnames: appnames,
+		Context:        ac,
+		HandlerContext: hc,
+		appnames:       appnames,
 	}
 	return handler
 }
@@ -369,7 +353,7 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 
 // createUser creates a user
 func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (*models.User, string) {
-	appCtx := devlocalAuthHandler(h).appContextFromRequest(r)
+	appCtx := h.HandlerContext.AppContextFromRequest(r)
 	id := uuid.Must(uuid.NewV4())
 
 	// Set up some defaults that we can pass in from a form
@@ -403,7 +387,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	}
 
 	userType := r.PostFormValue("userType")
-	verrs, err := h.db.ValidateAndCreate(&user)
+	verrs, err := appCtx.DB().ValidateAndCreate(&user)
 	if err != nil {
 		appCtx.Logger().Error("could not create user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -421,7 +405,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			UserID:             user.ID,
 			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		}
-		smVerrs, smErr := models.SaveServiceMember(h.db, &newServiceMember)
+		smVerrs, smErr := models.SaveServiceMember(appCtx.DB(), &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -435,7 +419,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			PostalCode:     "94115",
 		}
 
-		verrs, err := h.db.ValidateAndSave(&address)
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
 		}
@@ -444,7 +428,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
+		err = appCtx.DB().Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
 		if err != nil {
 			appCtx.Logger().Error("could not fetch role ppm_office_users", zap.Error(err))
 		}
@@ -454,7 +438,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			RoleID: role.ID,
 		}
 
-		verrs, err = h.db.ValidateAndSave(&usersRole)
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
 		if err != nil {
 			appCtx.Logger().Error("could not create user role", zap.Error(err))
 		}
@@ -471,7 +455,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Gbloc:     "LKNQ",
 		}
 
-		verrs, err = h.db.ValidateAndSave(&office)
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
 		if err != nil {
 			appCtx.Logger().Error("could not create office", zap.Error(err))
 		}
@@ -491,7 +475,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			officeUser.UserID = &user.ID
 		}
 
-		verrs, err = h.db.ValidateAndSave(&officeUser)
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create office user", zap.Error(err))
 		}
@@ -507,7 +491,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			PostalCode:     "94115",
 		}
 
-		verrs, err := h.db.ValidateAndSave(&address)
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
 		}
@@ -516,7 +500,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", roles.RoleTypeTOO).First(&role)
+		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&role)
 		if err != nil {
 			appCtx.Logger().Error("could not fetch role transportation_ordering_officer", zap.Error(err))
 		}
@@ -526,7 +510,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			RoleID: role.ID,
 		}
 
-		verrs, err = h.db.ValidateAndSave(&usersRole)
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
 		if err != nil {
 			appCtx.Logger().Error("could not create user role", zap.Error(err))
 		}
@@ -543,7 +527,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Gbloc:     "LKNQ",
 		}
 
-		verrs, err = h.db.ValidateAndSave(&office)
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
 		if err != nil {
 			appCtx.Logger().Error("could not create office", zap.Error(err))
 		}
@@ -563,7 +547,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			officeUser.UserID = &user.ID
 		}
 
-		verrs, err = h.db.ValidateAndSave(&officeUser)
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create office user", zap.Error(err))
 		}
@@ -579,7 +563,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			PostalCode:     "94115",
 		}
 
-		verrs, err := h.db.ValidateAndSave(&address)
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
 		}
@@ -588,7 +572,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", roles.RoleTypeTIO).First(&role)
+		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&role)
 		if err != nil {
 			appCtx.Logger().Error("could not fetch role transporation_invoicing_officer", zap.Error(err))
 		}
@@ -597,7 +581,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			RoleID: role.ID,
 		}
 
-		verrs, err = h.db.ValidateAndSave(&usersRole)
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
 		if err != nil {
 			appCtx.Logger().Error("could not create user role", zap.Error(err))
 		}
@@ -614,7 +598,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Gbloc:     "LKNQ",
 		}
 
-		verrs, err = h.db.ValidateAndSave(&office)
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
 		if err != nil {
 			appCtx.Logger().Error("could not create office", zap.Error(err))
 		}
@@ -634,7 +618,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			officeUser.UserID = &user.ID
 		}
 
-		verrs, err = h.db.ValidateAndSave(&officeUser)
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create office user", zap.Error(err))
 		}
@@ -650,7 +634,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			PostalCode:     "94115",
 		}
 
-		verrs, err := h.db.ValidateAndSave(&address)
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
 		}
@@ -659,7 +643,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "services_counselor").First(&role)
+		err = appCtx.DB().Where("role_type = $1", "services_counselor").First(&role)
 		if err != nil {
 			appCtx.Logger().Error("could not fetch role services_counselor", zap.Error(err))
 		}
@@ -668,7 +652,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			RoleID: role.ID,
 		}
 
-		verrs, err = h.db.ValidateAndSave(&usersRole)
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
 		if err != nil {
 			appCtx.Logger().Error("could not create user role", zap.Error(err))
 		}
@@ -685,7 +669,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Gbloc:     "LKNQ",
 		}
 
-		verrs, err = h.db.ValidateAndSave(&office)
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
 		if err != nil {
 			appCtx.Logger().Error("could not create office", zap.Error(err))
 		}
@@ -705,7 +689,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			officeUser.UserID = &user.ID
 		}
 
-		verrs, err = h.db.ValidateAndSave(&officeUser)
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create office user", zap.Error(err))
 		}
@@ -721,7 +705,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			PostalCode:     "94115",
 		}
 
-		verrs, err := h.db.ValidateAndSave(&address)
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
 		}
@@ -730,7 +714,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "prime_simulator").First(&role)
+		err = appCtx.DB().Where("role_type = $1", "prime_simulator").First(&role)
 		if err != nil {
 			appCtx.Logger().Error("could not fetch role prime_simulator", zap.Error(err))
 		}
@@ -739,7 +723,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			RoleID: role.ID,
 		}
 
-		verrs, err = h.db.ValidateAndSave(&usersRole)
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
 		if err != nil {
 			appCtx.Logger().Error("could not create user role", zap.Error(err))
 		}
@@ -756,7 +740,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Gbloc:     "LKNQ",
 		}
 
-		verrs, err = h.db.ValidateAndSave(&office)
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
 		if err != nil {
 			appCtx.Logger().Error("could not create office", zap.Error(err))
 		}
@@ -776,7 +760,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			officeUser.UserID = &user.ID
 		}
 
-		verrs, err = h.db.ValidateAndSave(&officeUser)
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create office user", zap.Error(err))
 		}
@@ -789,7 +773,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Active:        true,
 		}
 
-		verrs, err := h.db.ValidateAndSave(&dpsUser)
+		verrs, err := appCtx.DB().ValidateAndSave(&dpsUser)
 		if err != nil {
 			appCtx.Logger().Error("could not create dps user", zap.Error(err))
 		}
@@ -805,7 +789,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			LastName:  "Spaceman",
 			Role:      models.SystemAdminRole,
 		}
-		verrs, err := h.db.ValidateAndSave(&adminUser)
+		verrs, err := appCtx.DB().ValidateAndSave(&adminUser)
 
 		if err != nil {
 			appCtx.Logger().Error("could not create admin user", zap.Error(err))
@@ -820,7 +804,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 // createSession creates a new session for the user
 func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
-	appCtx := devlocalAuthHandler(h).appContextFromRequest(r)
+	appCtx := h.AppContextFromRequest(r)
 	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
@@ -828,7 +812,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	}
 
 	lgUUID := user.LoginGovUUID.String()
-	userIdentity, err := models.FetchUserIdentity(h.db, lgUUID)
+	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), lgUUID)
 
 	if err != nil {
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
@@ -913,7 +897,7 @@ func verifySessionWithApp(session *auth.Session) error {
 
 // loginUser creates a session for the user and verifies the session against the app
 func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
-	appCtx := devlocalAuthHandler(h).appContextFromRequest(r)
+	appCtx := h.AppContextFromRequest(r)
 	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		appCtx.Logger().Error("Could not create session", zap.Error(err))

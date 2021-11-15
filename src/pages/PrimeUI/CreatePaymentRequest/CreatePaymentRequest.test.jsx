@@ -36,12 +36,14 @@ const moveTaskOrder = {
       shipmentType: 'HHG',
       requestedPickupDate: '2021-11-26',
       pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
     },
     {
       id: '3',
       shipmentType: 'HHG_INTO_NTS_DOMESTIC',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
     },
   ],
   mtoServiceItems: [
@@ -145,7 +147,7 @@ describe('CreatePaymentRequest page', () => {
       const hhgHeading = within(shipmentsContainer).getByRole('heading', { name: 'HHG shipment', level: 3 });
 
       expect(hhgHeading).toBeInTheDocument();
-      const hhgContainer = hhgHeading.parentElement.parentElement;
+      const hhgContainer = hhgHeading.parentElement.parentElement.parentElement;
 
       expect(
         within(hhgContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),
@@ -159,7 +161,7 @@ describe('CreatePaymentRequest page', () => {
 
       const ntsHeading = within(shipmentsContainer).getByRole('heading', { name: 'NTS shipment', level: 3 });
       expect(ntsHeading).toBeInTheDocument();
-      const ntsContainer = ntsHeading.parentElement.parentElement;
+      const ntsContainer = ntsHeading.parentElement.parentElement.parentElement;
 
       expect(
         within(ntsContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),
@@ -191,7 +193,7 @@ describe('CreatePaymentRequest page', () => {
   });
 
   describe('error alert display', () => {
-    it('displays the error alert when the api submission returns an error', async () => {
+    it('displays the error alert when the api submission returns an error', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       createPaymentRequest.mockRejectedValue({ response: { body: { title: 'Error title', detail: 'Error detail' } } });
 
@@ -203,15 +205,13 @@ describe('CreatePaymentRequest page', () => {
 
       const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
       // avoiding linter pitfalls with async for loops
-      await userEvent.click(serviceItemInputs[0]);
-      await userEvent.click(serviceItemInputs[1]);
-      await userEvent.click(serviceItemInputs[2]);
+      userEvent.click(serviceItemInputs[0]);
+      userEvent.click(serviceItemInputs[1]);
+      userEvent.click(serviceItemInputs[2]);
 
-      await act(async () => {
-        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
 
-      await waitFor(() => {
+      waitFor(() => {
         expect(screen.getByText('Error title')).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });

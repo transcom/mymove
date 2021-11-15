@@ -10,16 +10,13 @@
 package awardqueue
 
 import (
-	"log"
 	"testing"
 	"time"
 
-	"go.uber.org/zap"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -49,7 +46,7 @@ func (suite *AwardQueueSuite) Test_GetTSPsPerBandNoRemainder() {
 
 func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.DB(), suite.logger)
+	queue := NewAwardQueue()
 	tspsToMake := 5
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -77,7 +74,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands()
+	err := queue.assignPerformanceBands(suite.AppContextForTest())
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -114,8 +111,8 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	lockID := 1
 
 	go func() {
-		suite.DB().Transaction(func(tx *pop.Connection) error {
-			suite.Nil(waitForLock(tx, lockID))
+		suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			suite.Nil(waitForLock(txnAppCtx, lockID))
 			time.Sleep(time.Second)
 			ret <- 1
 			return nil
@@ -123,9 +120,9 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	}()
 
 	go func() {
-		suite.DB().Transaction(func(tx *pop.Connection) error {
+		suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(tx, lockID))
+			suite.Nil(waitForLock(txnAppCtx, lockID))
 			ret <- 2
 			return nil
 		})
@@ -152,18 +149,11 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
 }
 
 func TestAwardQueueSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &AwardQueueSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
