@@ -15,7 +15,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <div className="grid-row grid-gap">
+          <div className="grid-row grid-gap tablet:margin-y-3">
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Best contact phone"
