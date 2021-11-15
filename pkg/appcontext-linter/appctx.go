@@ -70,8 +70,10 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 		"db":           true,
 		"migrate":      true,
 		"models":       true,
+		"roles":        true,
 		"testdatagen":  true,
 		"testingsuite": true,
+		"utilities":    true,
 	}
 
 	return allowedPackages[packageName]
