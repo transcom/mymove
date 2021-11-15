@@ -511,10 +511,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
-	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
-
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
+	telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
+	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(v, logger)
