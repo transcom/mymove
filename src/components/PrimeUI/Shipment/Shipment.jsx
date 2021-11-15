@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 
+import { formatPrimeAPIShipmentAddress } from '../../../utils/shipmentDisplay';
+
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { shipmentTypeLabels } from 'content/shipments';
 import { formatDateFromIso } from 'shared/formatters';
@@ -83,19 +85,12 @@ const Shipment = ({ shipment, moveId }) => {
       )}
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
-        <dd>
-          {shipment.pickupAddress.streetAddress1} {shipment.pickupAddress.streetAddress2} {shipment.pickupAddress.city}{' '}
-          {shipment.pickupAddress.state} {shipment.pickupAddress.postalCode}
-        </dd>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
         <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
-        <dd>
-          {shipment.destinationAddress?.streetAddress1} {shipment.destinationAddress?.streetAddress2}{' '}
-          {shipment.destinationAddress?.city} {shipment.destinationAddress?.state}{' '}
-          {shipment.destinationAddress?.postalCode}
-        </dd>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
         <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
