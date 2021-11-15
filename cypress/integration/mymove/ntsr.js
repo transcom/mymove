@@ -90,7 +90,12 @@ function customerCreatesAnNTSRShipment() {
   // pickup date
   cy.get('input[name="delivery.requestedDate"]').type('01/02/2020').blur();
 
-  // no delivery location
+  // delivery location
+  cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
+  cy.get(`input[name="delivery.address.street_address_2"]`).type('#3E');
+  cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
+  cy.get(`select[name="delivery.address.state"]`).select('CA');
+  cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
 
   // receiving agent
   cy.get(`input[name="delivery.agent.firstName"]`).type('James');
