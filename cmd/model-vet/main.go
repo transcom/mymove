@@ -15,13 +15,12 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
-
 	nflect "github.com/gobuffalo/flect/name"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
@@ -148,13 +147,13 @@ func loadModelsFromFile(path string) ([]Model, error) {
 
 // Using a model definition, check that all matching columns in the database have compatible nullability
 // Columns that aren't found are ignored.
-func auditModel(db *pop.Connection, model Model) (bool, error) {
+func auditModel(appCtx appcontext.AppContext, model Model) (bool, error) {
 	printedModelName := false
 	mismatch := false
 	sql := "select column_name, udt_name, is_nullable::boolean from information_schema.columns where table_name=$1 AND column_name=$2"
 	for _, field := range model.fields {
 		var column Column
-		query := db.RawQuery(sql, model.dbName, field.dbName)
+		query := appCtx.DB().RawQuery(sql, model.dbName, field.dbName)
 		if findErr := query.First(&column); findErr != nil {
 			if findErr.Error() == models.RecordNotFoundErrorString {
 				continue
@@ -220,6 +219,8 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
 	// Track if we have found at least one issue
 	fail := false
 
@@ -233,7 +234,7 @@ func main() {
 		}
 		if models, loadErr := loadModelsFromFile("./pkg/models/" + file.Name()); loadErr == nil {
 			for _, model := range models {
-				mismatch, auditErr := auditModel(dbConnection, model)
+				mismatch, auditErr := auditModel(appCtx, model)
 				if auditErr != nil {
 					logger.Fatal("auditing model", zap.Error(auditErr))
 				}
