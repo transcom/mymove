@@ -17,7 +17,7 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
           <Form className={formStyles.form}>
             <h1>Your contact info</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <div className="tablet:margin-top-neg-3">
+              <div className="mobile:margin-top-neg-3">
                 <CustomerContactInfoFields />
               </div>
             </SectionWrapper>

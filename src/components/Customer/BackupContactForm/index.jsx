@@ -26,7 +26,7 @@ const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
               contact must be 18 years of age or older.
             </p>
             <SectionWrapper className={formStyles.formSection}>
-              <div className="tablet:margin-top-neg-3">
+              <div className="mobile:margin-top-neg-3">
                 <BackupContactInfoFields />
               </div>
             </SectionWrapper>
