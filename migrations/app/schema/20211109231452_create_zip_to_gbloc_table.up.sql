@@ -1,9 +1,9 @@
 CREATE TABLE postal_code_to_gbloc
 (
-	postal_code VARCHAR PRIMARY KEY,
-	gbloc VARCHAR NOT NULL,
-	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    postal_code VARCHAR PRIMARY KEY,
+    gbloc VARCHAR NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE postal_code_to_gbloc IS 'This table is used to look up which GBLOC to use for a given postal code. Shipments from postal codes that are not in this table will not be supported, so it will need to be updated occasionally as new codes are added';
