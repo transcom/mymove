@@ -245,7 +245,8 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"SITExtensions",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
+		"MTOServiceItems.CustomerContacts",
+		"StorageFacility.Address").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
 		switch err {
@@ -410,7 +411,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.StorageFacility.ID = *dbShipment.StorageFacilityID
 			}
 
-			err := txnAppCtx.DB().Save(newShipment.StorageFacility)
+			if dbShipment.StorageFacility != nil && dbShipment.StorageFacility.AddressID != uuid.Nil {
+				newShipment.StorageFacility.Address.ID = dbShipment.StorageFacility.AddressID
+				newShipment.StorageFacility.AddressID = dbShipment.StorageFacility.AddressID
+			}
+			err := txnAppCtx.DB().Save(&newShipment.StorageFacility.Address)
+			if err != nil {
+				return err
+			}
+
+			err = txnAppCtx.DB().Save(newShipment.StorageFacility)
 			if err != nil {
 				return err
 			}

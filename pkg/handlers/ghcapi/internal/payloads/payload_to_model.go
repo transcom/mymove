@@ -218,7 +218,7 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
-	if storageFacilityModel != nil{
+	if storageFacilityModel != nil {
 		model.StorageFacility = storageFacilityModel
 	}
 
@@ -286,7 +286,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
-	if storageFacilityModel != nil{
+	if storageFacilityModel != nil {
 		model.StorageFacility = storageFacilityModel
 	}
 
