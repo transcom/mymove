@@ -25,7 +25,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render }) => 
         <>
           <TextField label="Name" id={`name_${backupContactInfoFieldsUUID.current}`} name={nameFieldName} required />
           <div className="grid-row grid-gap">
-            <div className="mobile-lg:grid-col-7">
+            <div className="mobile-lg:grid-col-7 tablet:margin-y-3">
               <TextField
                 label="Email"
                 id={`email_${backupContactInfoFieldsUUID.current}`}
