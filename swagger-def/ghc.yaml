@@ -2697,6 +2697,30 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      tac:
+        type: string
+        title: HHG TAC
+        minLength: 4
+        maxLength: 4
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: HHG SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      nts_tac:
+        type: string
+        title: NTS TAC
+        minLength: 4
+        maxLength: 4
+        example: 'F8J1'
+        x-nullable: true
+      nts_sac:
+        type: string
+        title: NTS SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -2737,14 +2761,26 @@ definitions:
         example: '030-00362'
       tac:
         type: string
-        title: TAC
+        title: HHG TAC
         minLength: 4
         maxLength: 4
         example: 'F8J1'
         x-nullable: true
       sac:
         type: string
-        title: SAC
+        title: HHG SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      nts_tac:
+        type: string
+        title: NTS TAC
+        minLength: 4
+        maxLength: 4
+        example: 'F8J1'
+        x-nullable: true
+      nts_sac:
+        type: string
+        title: NTS SAC
         example: 'N002214CSW32Y9'
         x-nullable: true
       departmentIndicator:

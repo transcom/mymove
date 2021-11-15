@@ -3274,6 +3274,20 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
+        },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
@@ -3288,6 +3302,20 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "HHG SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "HHG TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -5512,6 +5540,20 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
+        },
         "ordersAcknowledgement": {
           "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
           "type": "boolean",
@@ -5543,13 +5585,13 @@ func init() {
         },
         "sac": {
           "type": "string",
-          "title": "SAC",
+          "title": "HHG SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
         },
         "tac": {
           "type": "string",
-          "title": "TAC",
+          "title": "HHG TAC",
           "maxLength": 4,
           "minLength": 4,
           "x-nullable": true,
@@ -9855,6 +9897,20 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
+        },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
@@ -9869,6 +9925,20 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "HHG SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "HHG TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -12099,6 +12169,20 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "nts_sac": {
+          "type": "string",
+          "title": "NTS SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "nts_tac": {
+          "type": "string",
+          "title": "NTS TAC",
+          "maxLength": 4,
+          "minLength": 4,
+          "x-nullable": true,
+          "example": "F8J1"
+        },
         "ordersAcknowledgement": {
           "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
           "type": "boolean",
@@ -12130,13 +12214,13 @@ func init() {
         },
         "sac": {
           "type": "string",
-          "title": "SAC",
+          "title": "HHG SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
         },
         "tac": {
           "type": "string",
-          "title": "TAC",
+          "title": "HHG TAC",
           "maxLength": 4,
           "minLength": 4,
           "x-nullable": true,

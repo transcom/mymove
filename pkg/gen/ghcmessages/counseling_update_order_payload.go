@@ -33,6 +33,16 @@ type CounselingUpdateOrderPayload struct {
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
+	// NTS SAC
+	// Example: N002214CSW32Y9
+	NtsSac *string `json:"nts_sac,omitempty"`
+
+	// NTS TAC
+	// Example: F8J1
+	// Max Length: 4
+	// Min Length: 4
+	NtsTac *string `json:"nts_tac,omitempty"`
+
 	// orders type
 	// Required: true
 	OrdersType *OrdersType `json:"ordersType"`
@@ -50,6 +60,16 @@ type CounselingUpdateOrderPayload struct {
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
+
+	// HHG SAC
+	// Example: N002214CSW32Y9
+	Sac *string `json:"sac,omitempty"`
+
+	// HHG TAC
+	// Example: F8J1
+	// Max Length: 4
+	// Min Length: 4
+	Tac *string `json:"tac,omitempty"`
 }
 
 // Validate validates this counseling update order payload
@@ -64,6 +84,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNtsTac(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOrdersType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -73,6 +97,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -102,6 +130,22 @@ func (m *CounselingUpdateOrderPayload) validateNewDutyStationID(formats strfmt.R
 	}
 
 	if err := validate.FormatOf("newDutyStationId", "body", "uuid", m.NewDutyStationID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) validateNtsTac(formats strfmt.Registry) error {
+	if swag.IsZero(m.NtsTac) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 
@@ -150,6 +194,22 @@ func (m *CounselingUpdateOrderPayload) validateReportByDate(formats strfmt.Regis
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) validateTac(formats strfmt.Registry) error {
+	if swag.IsZero(m.Tac) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("tac", "body", *m.Tac, 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("tac", "body", *m.Tac, 4); err != nil {
 		return err
 	}
 
