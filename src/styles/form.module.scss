@@ -90,7 +90,9 @@
 }
 
 .formSection {
-  @include u-margin-y(4);
+  @include at-media('tablet') {
+    @include u-margin-y(4);
+  }
 
   +.formSection {
     @include u-margin-top(5);
