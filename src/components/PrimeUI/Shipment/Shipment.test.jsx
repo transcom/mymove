@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 
-import { formatDateFromIso } from '../../../shared/formatters';
+import { formatDateFromIso, formatPrimeAPIFullAddress } from '../../../shared/formatters';
 
 import Shipment from './Shipment';
 
@@ -39,20 +39,7 @@ const approvedMoveTaskOrder = {
     mtoShipments: [
       {
         actualPickupDate: '2020-03-17',
-        agents: [
-          {
-            agentType: 'RELEASING_AGENT',
-            createdAt: '2021-10-18T18:24:41.521Z',
-            eTag: 'MjAyMS0xMC0xOFQxODoyNDo0MS41MjE4NzNa',
-            email: 'test@test.email.com',
-            firstName: 'Test',
-            id: 'f2619e1b-7729-4b97-845d-6ae1ebe299f2',
-            lastName: 'Agent',
-            mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-            phone: '202-555-9301',
-            updatedAt: '2021-10-19T18:24:41.521Z',
-          },
-        ],
+        agents: [],
         approvedDate: '2021-10-20',
         createdAt: '2021-10-21T18:24:41.377Z',
         customerRemarks: 'Please treat gently',
@@ -94,12 +81,6 @@ const approvedMoveTaskOrder = {
           state: null,
           streetAddress1: null,
         },
-        secondaryPickupAddress: {
-          city: null,
-          postalCode: null,
-          state: null,
-          streetAddress1: null,
-        },
         shipmentType: 'HHG_LONGHAUL_DOMESTIC',
         status: 'APPROVED',
         updatedAt: '2021-10-22T18:24:41.377Z',
@@ -119,11 +100,6 @@ const mockedComponent = (
     <Shipment shipment={approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0]} moveId={moveId} />
   </MockProviders>
 );
-
-const formatAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
-};
 
 describe('Shipment details component', () => {
   it('renders the component without errors', async () => {
@@ -183,87 +159,51 @@ describe('Shipment details component', () => {
 
     await waitFor(() => {
       shipmentFieldValues.forEach((shipmentFieldValue) => {
-        // console.log(shipmentFieldValue);
-        // console.log(new RegExp(shipmentFieldValue));
-        // expect(screen.findByText(new RegExp(shipmentFieldValue))).toBeVisible();
         expect(screen.getByText(shipmentFieldValue)).toBeVisible();
       });
     });
 
-    expect(screen.getByText(formatAddress(shipment.pickupAddress))).toBeInTheDocument();
-    expect(screen.getByText(formatAddress(shipment.destinationAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.pickupAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.destinationAddress))).toBeInTheDocument();
+  });
+});
+
+const shipmentMissingReweighWeight = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  reweigh: {
+    id: '1234',
+    requestedAt: '2021-10-23T18:24:41.377Z',
+  },
+};
+
+const shipmentNoReweighRequested = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  reweigh: null,
+};
+
+describe('Shipment has missing reweigh', () => {
+  it('renders the component with missing reweigh error', async () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={shipmentMissingReweighWeight} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    await expect(screen.getByText('Missing')).toBeInTheDocument();
+    await expect(screen.getByText('Reweigh Weight:')).toBeInTheDocument();
+    await expect(screen.getByText('Reweigh Requested Date:')).toBeInTheDocument();
   });
 
-  it('renders the shipment addresses', async () => {
-    // const { getByText } = render(mockedComponent);
-    render(mockedComponent);
+  // Reweigh isn't missing here, it was not requested and therefore should not be present
+  // in shipment display table
+  it('renders the component with no reweigh requested', async () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={shipmentNoReweighRequested} moveId={moveId} />
+      </MockProviders>,
+    );
 
-    // These won't match
-    // getByText("Hello world");
-    // getByText(/Hello world/);
-    /*
-    getByText((content, node) => {
-
-      console.log('node.textContent');
-      console.log(node.textContent);
-      const hasText = node => node.textContent === content;
-      const nodeHasText = hasText(node);
-      const childrenDontHaveText = Array.from(node.children).every(
-        child => !hasText(child)
-      );
-
-      return nodeHasText && childrenDontHaveText;
-    });
-
-     */
-
-    /*
-    const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-const shipmentAddressFieldValues = [
-shipment.destinationAddress.streetAddress1,
-`/${shipment.destinationAddress.streetAddress2}/`,
-shipment.destinationAddress.city,
-shipment.destinationAddress.zip,
-shipment.pickupAddress.streetAddress1,
-shipment.pickupAddress.streetAddress1,
-shipment.pickupAddress.streetAddress2,
-shipment.pickupAddress.city,
-shipment.pickupAddress.zip,
-];
- */
-
-    /*
-    await waitFor(() => {
-      shipmentAddressFieldValues.forEach((shipmentAddressFieldValue)=>{
-        console.log(shipmentAddressFieldValue);
-        console.log(new RegExp(shipmentAddressFieldValue));
-        //expect(screen.findByText(new RegExp(shipmentAddressFieldValue))).toBeVisible();
-        expect(screen.getByText(shipmentAddressFieldValue)).toBeVisible();
-      });
-    });
-
-     */
-
-    /*
-    await waitFor(() => {
-      console.log(shipment.status);
-      console.log(new RegExp(shipment.status));
-      expect(screen.getByText(shipment.status)).toBeVisible();
-      expect(screen.getByText(new RegExp(shipment.status))).toBeInTheDocument();
-      expect(screen.findByText(shipment.id)).toBeVisible();
-      expect(screen.findByText(shipment.eTag)).toBeVisible();
-      expect(screen.findByText(shipment.requestedPickupDate)).toBeVisible();
-      expect(screen.findByText(shipment.scheduledPickupDate)).toBeVisible();
-      expect(screen.findByText(shipment.actualPickupDate)).toBeVisible();
-      expect(screen.findByText(shipment.primeActualWeight)).toBeVisible();
-      expect(screen.findByText(shipment.primeEstimatedWeight)).toBeVisible();
-      expect(screen.findByText(shipment.reweigh.weight)).toBeVisible();
-      expect(screen.findByText(formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD'))).toBeVisible();
-      expect(screen.findByText(formatPrimeAPIShipmentAddress(shipment.destinationAddress))).toBeVisible();
-      expect(screen.findByText(formatPrimeAPIShipmentAddress(shipment.pickupAddress))).toBeVisible();
-      expect(screen.findByText(formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD'))).toBeVisible();
-      expect(screen.findByText(shipment.approvedDate)).toBeVisible();
-    });
-     */
+    await expect(screen.getByText('Reweigh Weight:')).not.toBeInTheDocument();
+    await expect(screen.getByText('Reweigh Requested Date:')).not.toBeInTheDocument();
   });
 });
