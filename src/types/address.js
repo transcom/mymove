@@ -7,6 +7,12 @@ export const SimpleAddressShape = shape({
   postalCode: string,
 });
 
+export const MandatorySimpleAddressShape = shape({
+  city: string.isRequired,
+  state: string.isRequired,
+  postal_code: string.isRequired,
+});
+
 export const AddressShape = shape({
   city: string,
   state: string,
