@@ -26,6 +26,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			EnvironmentDevelopment,
 			EnvironmentTest,
 			EnvironmentExperimental,
+			EnvironmentLoadtest,
 			EnvironmentReview,
 		}
 		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
