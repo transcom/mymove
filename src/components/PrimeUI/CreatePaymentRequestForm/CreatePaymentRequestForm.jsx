@@ -6,6 +6,7 @@ import classnames from 'classnames';
 
 import styles from './CreatePaymentRequestForm.module.scss';
 
+import TextField from 'components/form/fields/TextField';
 import formStyles from 'styles/form.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -121,6 +122,11 @@ const CreatePaymentRequestForm = ({
                                     )
                                   }
                                 />
+                              </>
+                            )}
+                            {mtoServiceItem.reServiceCode === 'DDDSIT' && (
+                              <>
+                                <TextField name="ZipSITDestHHGFinalAddress" label="Zipcode Final Address" type="text" />
                               </>
                             )}
                           </SectionWrapper>
