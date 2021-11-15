@@ -18,6 +18,7 @@ import (
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
 	exportmetric "go.opentelemetry.io/otel/sdk/export/metric"
+	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
 	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
 	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
 	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
@@ -96,7 +97,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		// use MetricExportKindSelector to prevent memory leak?
 		// https://github.com/open-telemetry/opentelemetry-go/issues/2225#issuecomment-915517182
 		metricExporter, err = otlpmetric.New(ctx, metricClient,
-			otlpmetric.WithMetricExportKindSelector(exportmetric.DeltaExportKindSelector()))
+			otlpmetric.WithMetricAggregationTemporalitySelector(aggregation.DeltaTemporalitySelector()))
 		if err != nil {
 			logger.Error("failed to create otel metric exporter", zap.Error(err))
 		}
