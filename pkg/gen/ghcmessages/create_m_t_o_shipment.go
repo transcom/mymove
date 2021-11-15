@@ -66,6 +66,10 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"pickupAddress"`
 
+	// prime actual weight
+	// Example: 2000
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
 	// Required: true

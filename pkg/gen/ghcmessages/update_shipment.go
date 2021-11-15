@@ -48,6 +48,10 @@ type UpdateShipment struct {
 		Address
 	} `json:"pickupAddress,omitempty"`
 
+	// prime actual weight
+	// Example: 2000
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
 	// requested delivery date
 	// Format: date
 	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
