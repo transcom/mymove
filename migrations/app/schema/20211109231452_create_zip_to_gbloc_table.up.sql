@@ -1,7 +1,7 @@
 CREATE TABLE postal_code_to_gbloc
 (
-    postal_code VARCHAR PRIMARY KEY,
-    gbloc VARCHAR NOT NULL,
+    postal_code VARCHAR(5) PRIMARY KEY,
+    gbloc VARCHAR(4) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
