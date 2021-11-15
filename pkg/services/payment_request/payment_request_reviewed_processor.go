@@ -122,7 +122,6 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
-		lockedPR.GeneratedEDI858Text = &edi858cString
 		err = txnAppCtx.DB().Update(&lockedPR)
 
 		if err != nil {

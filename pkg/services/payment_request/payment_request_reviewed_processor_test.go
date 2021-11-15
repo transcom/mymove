@@ -630,9 +630,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 			suite.NoError(err)
 			suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
-			suite.NotNil(paymentRequest.GeneratedEDI858Text, "Generated EDI 858 should be present")
-			r := regexp.MustCompile(`^ISA\*`)
-			suite.NotNil(r.Find([]byte(*paymentRequest.GeneratedEDI858Text)))
 		}
 	})
 
