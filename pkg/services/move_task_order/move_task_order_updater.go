@@ -59,6 +59,13 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 	}
 
+	for _, s := range move.MTOShipments {
+		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacility == nil {
+			return &models.Move{}, apperror.NewInvalidInputError(
+				move.ID, nil, nil, "NTS-release shipment must include facility info")
+		}
+	}
+
 	// update field for move
 	now := time.Now()
 	move.ServiceCounselingCompletedAt = &now
