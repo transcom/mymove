@@ -101,8 +101,8 @@ const HHGShipment = {
 
 const PPMShipment = {
   id: 'ppmShipmentUuid',
-  pickup_postalCode: '13643',
-  destination_postalCode: '91945',
+  pickup_postal_code: '13643',
+  destination_postal_code: '91945',
   original_move_date: '2021-06-23',
   created_at: '2020-09-01T22:00:00.000Z',
 };
