@@ -14,6 +14,7 @@ import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCo
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
+import DataTable from 'components/DataTable';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -94,6 +95,7 @@ const ServicesCounselingShipmentForm = ({
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
   const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
+  const customerRemarksDisplay = mtoShipment.customerRemarks ? mtoShipment.customerRemarks : '-';
 
   const submitMTOShipment = ({
     shipmentOption,
@@ -346,19 +348,7 @@ const ServicesCounselingShipmentForm = ({
                     <h2>
                       Remarks <span className="float-right">{optionalLabel}</span>
                     </h2>
-                    <Label htmlFor="customerRemarks">Customer remarks</Label>
-                    <Hint>
-                      <p>500 characters</p>
-                    </Hint>
-                    <Field
-                      as={Textarea}
-                      data-testid="remarks"
-                      name="customerRemarks"
-                      className={`${formStyles.remarks}`}
-                      placeholder=""
-                      id="customerRemarks"
-                      maxLength={500}
-                    />
+                    <DataTable columnHeaders={['Customer remarks']} dataRow={[customerRemarksDisplay]} />
 
                     <Label htmlFor="counselorRemarks">Counselor remarks</Label>
                     <Hint>
