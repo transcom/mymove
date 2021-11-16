@@ -96,7 +96,7 @@ const PrimeUIShipmentUpdateAddress = () => {
       streetAddress3: address.streetAddress3,
       city: address.city,
       state: address.state,
-      postalCode: address.postal_code,
+      postalCode: address.postalCode,
     };
 
     mutateMTOShipment({
