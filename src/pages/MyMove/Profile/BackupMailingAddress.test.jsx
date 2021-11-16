@@ -16,11 +16,11 @@ jest.mock('services/internalApi', () => ({
 
 describe('BackupMailingAddress page', () => {
   const fakeAddress = {
-    street_address_1: '235 Prospect Valley Road SE',
-    street_address_2: '#125',
+    streetAddress1: '235 Prospect Valley Road SE',
+    streetAddress2: '#125',
     city: 'El Paso',
     state: 'TX',
-    postal_code: '79912',
+    postalCode: '79912',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -65,11 +65,11 @@ describe('BackupMailingAddress page', () => {
 
     const { getByRole, getByLabelText } = render(<BackupMailingAddress {...testProps} />);
 
-    userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
-    userEvent.type(getByLabelText(/Address 2/), fakeAddress.street_address_2);
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     userEvent.type(getByLabelText('City'), fakeAddress.city);
     userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

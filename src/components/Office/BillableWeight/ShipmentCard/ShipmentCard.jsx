@@ -1,5 +1,5 @@
 import React from 'react';
-import { func, string, number, shape } from 'prop-types';
+import { func, string, number } from 'prop-types';
 import classnames from 'classnames';
 
 import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
@@ -10,6 +10,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import { MandatorySimpleAddressShape } from 'types/address';
 
 export default function ShipmentCard({
   billableWeight,
@@ -134,20 +135,12 @@ ShipmentCard.propTypes = {
   billableWeightJustification: string,
   dateReweighRequested: string,
   departedDate: string.isRequired,
-  destinationAddress: shape({
-    city: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
-  }).isRequired,
+  destinationAddress: MandatorySimpleAddressShape.isRequired,
   editEntity: func.isRequired,
   estimatedWeight: number,
   originalWeight: number.isRequired,
   adjustedWeight: number,
-  pickupAddress: shape({
-    city: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
-  }).isRequired,
+  pickupAddress: MandatorySimpleAddressShape.isRequired,
   reweighRemarks: string,
   reweighWeight: number,
   maxBillableWeight: number.isRequired,

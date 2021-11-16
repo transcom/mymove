@@ -26,6 +26,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			EnvironmentDevelopment,
 			EnvironmentTest,
 			EnvironmentExperimental,
+			EnvironmentLoadtest,
 			EnvironmentReview,
 		}
 		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
@@ -39,6 +40,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			HTTPMyServerNameLocal,
 			fmt.Sprintf("my-%s", reviewBaseDomain),
 			fmt.Sprintf("my.%s.move.mil", EnvironmentExperimental),
+			fmt.Sprintf("my.%s.dp3.us", EnvironmentLoadtest),
 		}
 		if serverName := v.GetString(HTTPMyServerNameFlag); !stringSliceContains(allowedMyServerNames, serverName) {
 			return errors.Errorf("Devlocal Auth cannot run with the '%s' my server name, only in %v", serverName, allowedMyServerNames)
@@ -49,6 +51,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			HTTPOfficeServerNameLocal,
 			fmt.Sprintf("office-%s", reviewBaseDomain),
 			fmt.Sprintf("office.%s.move.mil", EnvironmentExperimental),
+			fmt.Sprintf("office.%s.dp3.us", EnvironmentLoadtest),
 		}
 		if serverName := v.GetString(HTTPOfficeServerNameFlag); !stringSliceContains(allowedOfficeServerNames, serverName) {
 			return errors.Errorf("Devlocal Auth cannot run with the '%s' office server name, only in %v", serverName, allowedOfficeServerNames)
@@ -59,6 +62,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			HTTPAdminServerNameLocal,
 			fmt.Sprintf("admin-%s", reviewBaseDomain),
 			fmt.Sprintf("admin.%s.move.mil", EnvironmentExperimental),
+			fmt.Sprintf("admin.%s.dp3.us", EnvironmentLoadtest),
 		}
 		if serverName := v.GetString(HTTPAdminServerNameFlag); !stringSliceContains(allowedAdminServerNames, serverName) {
 			return errors.Errorf("Devlocal Auth cannot run with the '%s' admin server name, only in %v", serverName, allowedAdminServerNames)
@@ -69,6 +73,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			HTTPPrimeServerNameLocal,
 			fmt.Sprintf("prime-%s", reviewBaseDomain),
 			fmt.Sprintf("prime.%s.move.mil", EnvironmentExperimental),
+			fmt.Sprintf("api.%s.dp3.us", EnvironmentLoadtest),
 		}
 		if serverName := v.GetString(HTTPPrimeServerNameFlag); !stringSliceContains(allowedPrimeServerNames, serverName) {
 			return errors.Errorf("Devlocal Auth cannot run with the '%s' prime server name, only in %v", serverName, allowedPrimeServerNames)

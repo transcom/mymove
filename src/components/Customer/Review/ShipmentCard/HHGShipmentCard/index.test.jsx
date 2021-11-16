@@ -17,10 +17,10 @@ const defaultProps = {
   showEditBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
-    street_address_1: '17 8th St',
+    streetAddress1: '17 8th St',
     city: 'New York',
     state: 'NY',
-    postal_code: '11111',
+    postalCode: '11111',
   },
   releasingAgent: {
     firstName: 'Jo',
@@ -42,19 +42,19 @@ const defaultProps = {
 
 const secondaryDeliveryAddress = {
   secondaryDeliveryAddress: {
-    street_address_1: 'Some Street Name',
+    streetAddress1: 'Some Street Name',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 
 const secondaryPickupAddress = {
   secondaryPickupAddress: {
-    street_address_1: 'Some Other Street Name',
+    streetAddress1: 'Some Other Street Name',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 
@@ -74,7 +74,7 @@ describe('HHGShipmentCard component', () => {
       'Receiving agent',
       'Remarks',
     ];
-    const { street_address_1: streetAddress1, city, state, postal_code: postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const {
       firstName: releasingFirstName,
       lastName: releasingLastName,
@@ -104,7 +104,7 @@ describe('HHGShipmentCard component', () => {
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountHHGShipmentCard({ ...defaultProps, releasingAgent: null, receivingAgent: null, remarks: '' });
     const tableHeaders = ['Requested pickup date', 'Pickup location', 'Requested delivery date', 'Destination'];
-    const { street_address_1: streetAddress1, city, state, postal_code: postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
       `${streetAddress1} ${city}, ${state} ${postalCode}`,

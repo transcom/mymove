@@ -617,8 +617,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
-            // eslint-disable-next-line camelcase
-            const dutyStationPostal = { postal_code: order.destinationDutyStation.address.postal_code };
+            const dutyStationPostal = { postalCode: order.destinationDutyStation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
 
@@ -636,7 +635,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     isDiversion: mtoShipment.diversion,
                     originCity: pickupAddress?.city,
                     originState: pickupAddress?.state,
-                    originPostalCode: pickupAddress?.postal_code,
+                    originPostalCode: pickupAddress?.postalCode,
                     destinationAddress: destinationAddress || dutyStationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,

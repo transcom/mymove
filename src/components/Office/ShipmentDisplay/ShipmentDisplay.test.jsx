@@ -8,32 +8,32 @@ const info = {
   heading: 'HHG',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   secondaryDeliveryAddress: {
-    street_address_1: '987 Fairway Dr',
+    streetAddress1: '987 Fairway Dr',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   counselorRemarks: 'counselor approved',
 };
 
 const secondaryPickupAddressInfo = {
   secondaryPickupAddress: {
-    street_address_1: '800 S 2nd St',
+    streetAddress1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   ...info,
 };
@@ -42,13 +42,13 @@ const postalOnly = {
   heading: 'HHG',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -57,16 +57,16 @@ const diversion = {
   isDiversion: true,
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   counselorRemarks: 'counselor approved',
 };
@@ -77,16 +77,16 @@ const cancelled = {
   shipmentStatus: 'CANCELED',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   counselorRemarks: 'counselor approved',
 };

@@ -19,9 +19,9 @@ const testProps = {
     },
     residential_address: {
       city: 'New York',
-      postal_code: '10001',
+      postalCode: '10001',
       state: 'NY',
-      street_address_1: '123 Main St',
+      streetAddress1: '123 Main St',
     },
     affiliation: 'Navy',
     edipi: '123567890',
@@ -40,13 +40,13 @@ const testProps = {
     origin_duty_station: {
       name: 'Test Duty Station',
       address: {
-        postal_code: '123456',
+        postalCode: '123456',
       },
     },
     new_duty_station: {
       name: 'New Test Duty Station',
       address: {
-        postal_code: '123456',
+        postalCode: '123456',
       },
     },
     report_by_date: '2020-08-31',
