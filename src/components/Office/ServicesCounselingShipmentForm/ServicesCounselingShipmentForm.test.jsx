@@ -109,7 +109,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
@@ -193,7 +193,8 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
       expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
       expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
-      expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
   });
@@ -223,7 +224,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
@@ -260,7 +261,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
       expect(
@@ -310,13 +311,12 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(defaultProps.history.push).not.toHaveBeenCalled();
     });
 
-    it('saves the update to the counselor and customer remarks when the save button is clicked', async () => {
+    it('saves the update to the counselor remarks when the save button is clicked', async () => {
       const newCounselorRemarks = 'Counselor remarks';
-      const newCustomerRemarks = 'Customer remarks';
 
       const expectedPayload = {
         body: {
-          customerRemarks: newCustomerRemarks,
+          customerRemarks: 'mock customer remarks',
           counselorRemarks: newCounselorRemarks,
           destinationAddress: {
             street_address_1: '441 SW Rio de la Plata Drive',
@@ -374,12 +374,6 @@ describe('ServicesCounselingShipmentForm component', () => {
           isCreatePage={false}
         />,
       );
-
-      const customerRemarks = await screen.findByLabelText('Customer remarks');
-
-      userEvent.clear(customerRemarks);
-
-      userEvent.type(customerRemarks, newCustomerRemarks);
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
