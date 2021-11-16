@@ -76,6 +76,11 @@ const mockMtoShipment = {
   },
 };
 
+const mockMtoShipmentNoCustomerRemarks = {
+  ...mockMtoShipment,
+  customerRemarks: '',
+};
+
 export default {
   title: 'Office Components / Forms / ServicesCounselingShipmentForm',
   component: ServicesCounselingShipmentForm,
@@ -94,5 +99,15 @@ export const EditHHGShipment = () => (
     selectedMoveType={SHIPMENT_OPTIONS.HHG}
     isCreatePage={false}
     mtoShipment={mockMtoShipment}
+  />
+);
+
+// edit shipment stories, no customer remarks (form should prefill)
+export const EditHHGShipmentNoCustRemarks = () => (
+  <ServicesCounselingShipmentForm
+    {...defaultProps}
+    selectedMoveType={SHIPMENT_OPTIONS.HHG}
+    isCreatePage={false}
+    mtoShipment={mockMtoShipmentNoCustomerRemarks}
   />
 );
