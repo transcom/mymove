@@ -1176,6 +1176,9 @@ reviewapp_docker_build:
 reviewapp_docker_destroy:
 	docker-compose -f docker-compose.reviewapp.yml down
 
+.PHONY: telemetry_docker
+telemetry_docker:
+	docker-compose -f docker-compose.telemetry.yml up
 #
 # ----- END RANDOM TARGETS -----
 #
