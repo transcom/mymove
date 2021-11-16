@@ -1318,18 +1318,12 @@ func init() {
             "in": "body",
             "schema": {
               "required": [
-                "flagForReview"
+                "remarks"
               ],
               "properties": {
-                "flagForReview": {
-                  "description": "boolean value representing whether we should flag a move for financial review",
-                  "type": "boolean",
-                  "example": false
-                },
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",
                   "type": "string",
-                  "x-nullable": true,
                   "example": "this address is way too far away"
                 }
               }
@@ -7355,18 +7349,12 @@ func init() {
             "in": "body",
             "schema": {
               "required": [
-                "flagForReview"
+                "remarks"
               ],
               "properties": {
-                "flagForReview": {
-                  "description": "boolean value representing whether we should flag a move for financial review",
-                  "type": "boolean",
-                  "example": false
-                },
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",
                   "type": "string",
-                  "x-nullable": true,
                   "example": "this address is way too far away"
                 }
               }

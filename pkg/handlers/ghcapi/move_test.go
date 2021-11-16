@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -137,13 +135,12 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		HTTPRequest: req,
 		IfMatch:     &fakeEtag,
 		Body: moveops.SetFinancialReviewFlagBody{
-			Remarks:       &defaultRemarks,
-			FlagForReview: swag.Bool(true),
+			Remarks: &defaultRemarks,
 		},
 		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
-	suite.T().Run("Successful flag setting to true", func(t *testing.T) {
+	suite.T().Run("Successful flag", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -153,8 +150,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			move.ID,
 			mock.Anything,
-			mock.AnythingOfType("bool"),
-			&defaultRemarks,
+			defaultRemarks,
 		).Return(&move, nil)
 
 		response := handler.Handle(params)
@@ -189,8 +185,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			mock.AnythingOfType("bool"),
-			&defaultRemarks,
+			defaultRemarks,
 		).Return(&models.Move{}, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -206,8 +201,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			mock.AnythingOfType("bool"),
-			&defaultRemarks,
+			defaultRemarks,
 		).Return(&models.Move{}, apperror.QueryError{})
 
 		response := handler.Handle(params)
@@ -224,8 +218,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			mock.AnythingOfType("bool"),
-			&defaultRemarks,
+			defaultRemarks,
 		).Return(&models.Move{}, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
