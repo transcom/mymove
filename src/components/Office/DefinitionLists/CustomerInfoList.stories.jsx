@@ -14,10 +14,10 @@ const info = {
   phone: '+1 999-999-9999',
   email: 'ksmith@email.com',
   currentAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   backupContact: {
     name: 'Quinn Ocampo',

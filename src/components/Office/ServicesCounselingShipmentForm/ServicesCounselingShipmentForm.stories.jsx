@@ -18,13 +18,13 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
   },
   useCurrentResidence: false,
   mtoShipment: {
@@ -63,16 +63,16 @@ const mockMtoShipment = {
     },
   ],
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
