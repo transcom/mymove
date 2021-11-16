@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import Shipment from './Shipment';
 
@@ -101,7 +101,7 @@ const mockedComponent = (
 );
 
 describe('Shipment details component', () => {
-  it('renders the component without errors', async () => {
+  it('renders the component headings and links without errors', async () => {
     render(mockedComponent);
     const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
     expect(shipmentLevelHeader).toBeInTheDocument();
@@ -114,56 +114,37 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink).toBeInTheDocument();
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
-    const shipmentFields = [
-      'Status:',
-      'Shipment ID:',
-      'Shipment eTag:',
-      'Requested Pickup Date:',
-      'Scheduled Pickup Date:',
-      'Actual Pickup Date:',
-      'Actual Weight:',
-      'Estimated Weight:',
-      'Reweigh Weight:',
-      'Reweigh Requested Date:',
-      'Destination Address:',
-      'Pickup Address:',
-      'Created at:',
-      'Approved at:',
-    ];
-    await waitFor(() => {
-      shipmentFields.forEach((shipmentField) => {
-        expect(screen.getByText(shipmentField)).toBeVisible();
-      });
-    });
     expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(2);
   });
 
-  it('renders the shipment details values', async () => {
+  it('renders the shipment address values', async () => {
     render(mockedComponent);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-    const shipmentFieldValues = [
-      shipment.status,
-      shipment.id,
-      shipment.eTag,
-      shipment.requestedPickupDate,
-      shipment.scheduledPickupDate,
-      shipment.actualPickupDate,
-      shipment.primeActualWeight,
-      shipment.primeEstimatedWeight,
-      shipment.reweigh.weight,
-      formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD'),
-      formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD'),
-      shipment.approvedDate,
-    ];
-
-    await waitFor(() => {
-      shipmentFieldValues.forEach((shipmentFieldValue) => {
-        expect(screen.getByText(shipmentFieldValue)).toBeVisible();
-      });
-    });
 
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.pickupAddress))).toBeInTheDocument();
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.destinationAddress))).toBeInTheDocument();
+  });
+});
+
+describe('Shipment details component fields and values are present', () => {
+  const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
+  it.each([
+    ['Status:', shipment.status],
+    ['Shipment ID:', shipment.id],
+    ['Shipment eTag:', shipment.eTag],
+    ['Requested Pickup Date:', shipment.requestedPickupDate],
+    ['Scheduled Pickup Date:', shipment.scheduledPickupDate],
+    ['Actual Pickup Date:', shipment.actualPickupDate],
+    ['Actual Weight:', shipment.primeActualWeight],
+    ['Estimated Weight:', shipment.primeEstimatedWeight],
+    ['Reweigh Weight:', shipment.reweigh.weight],
+    ['Reweigh Requested Date:', formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')],
+    ['Created at:', formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD')],
+    ['Approved at:', shipment.approvedDate],
+  ])('Verify PrimeUI Move Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+    render(mockedComponent);
+    await expect(screen.getByText(shipmentField)).toBeVisible();
+    await expect(screen.getByText(shipmentFieldValue)).toBeVisible();
   });
 });
 
