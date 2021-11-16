@@ -15,6 +15,20 @@ export function formatAddress(address) {
   );
 }
 
+// Display street address 1, street address 2, city, state, and zip
+// for Prime API Prime Simulator UI shipment
+export function formatPrimeAPIShipmentAddress(address) {
+  return address?.id ? (
+    <>
+      {address.streetAddress1 && <>{address.streetAddress1},&nbsp;</>}
+      {address.streetAddress2 && <>{address.streetAddress2},&nbsp;</>}
+      {address.city ? `${address.city}, ${address.state} ${address.postalCode}` : address.postalCode}
+    </>
+  ) : (
+    ''
+  );
+}
+
 export function formatAgent(agent) {
   const { firstName, lastName, phone, email } = agent;
   return (

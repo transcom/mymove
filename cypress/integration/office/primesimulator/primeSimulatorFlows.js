@@ -95,7 +95,7 @@ describe('Prime simulator user', () => {
     cy.contains('Estimated Weight').siblings().contains('7500');
     cy.contains('Actual Weight').siblings().contains('8000');
 
-    cy.contains('Destination Address').siblings().contains('142 E Barrel Hoop Circle Joshua Tree CA 92252');
+    cy.contains('Destination Address').siblings().contains('142 E Barrel Hoop Circle, Joshua Tree, CA 92252');
   });
 
   it('is able to create a payment request', () => {
