@@ -1,10 +1,9 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 
-import { formatDateFromIso, formatPrimeAPIFullAddress } from '../../../shared/formatters';
-
 import Shipment from './Shipment';
 
+import { formatDateFromIso, formatPrimeAPIFullAddress } from 'shared/formatters';
 import { MockProviders } from 'testUtils';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
