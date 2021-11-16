@@ -146,6 +146,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
 		}
 
+		if shipment.StorageFacility != nil {
+			verrs, err = f.builder.CreateOne(txnAppCtx, &shipment.StorageFacility.Address)
+			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
+
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
+			}
+			shipment.StorageFacilityID = &shipment.StorageFacility.ID
+		}
+
 		// check that required items to create shipment are present
 		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
