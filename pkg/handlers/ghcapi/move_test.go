@@ -153,7 +153,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			move.ID,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&move, nil)
 
 		response := handler.Handle(params)
@@ -188,7 +189,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -204,7 +206,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.QueryError{})
 
 		response := handler.Handle(params)
@@ -221,7 +224,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)
