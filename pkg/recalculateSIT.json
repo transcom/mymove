@@ -1,0 +1,451 @@
+[
+  {
+    "createdAt": "2021-10-05T21:24:19.810Z",
+    "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny40OTkxNzha",
+    "id": "35ad8f3b-f825-4d7e-9cc5-ab14baa40907",
+    "isFinal": false,
+    "moveTaskOrder": {
+      "availableToPrimeAt": "2021-08-18T18:32:56.716Z",
+      "contractor": {
+        "contractNumber": "HTC111-11-1-1111",
+        "id": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6",
+        "name": "Prime McPrime Contractor",
+        "type": "Prime"
+      },
+      "contractorId": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6",
+      "createdAt": "2021-08-18T18:10:14.839Z",
+      "eTag": "MjAyMS0xMC0wNVQyMToyNDozOS42ODk3MjRa",
+      "id": "e366c472-8076-4275-be73-be5b4f303e76",
+      "locator": "FK4T6P",
+      "orders": {
+        "amendedOrdersAcknowledgedAt": "2021-10-05T21:14:54.397Z",
+        "customer": {
+          "backup_contact": {
+            "email": "",
+            "name": "",
+            "phone": ""
+          },
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "userID": "00000000-0000-0000-0000-000000000000"
+        },
+        "customerID": "34187aa2-de35-4afe-a69c-9fa474813ce8",
+        "date_issued": "2021-08-16",
+        "department_indicator": "AIR_FORCE",
+        "destinationDutyStation": {
+          "address": {
+            "city": "",
+            "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+            "id": "00000000-0000-0000-0000-000000000000",
+            "postal_code": "",
+            "state": "",
+            "street_address_1": ""
+          },
+          "address_id": "00000000-0000-0000-0000-000000000000",
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000"
+        },
+        "eTag": "MjAyMS0xMC0wNVQyMToxNDo1NC40MDQ1Njda",
+        "grade": "E_8",
+        "id": "4510c923-85ee-4f93-8999-79929a0ff286",
+        "moveTaskOrder": {
+          "createdAt": "0001-01-01T00:00:00.000Z",
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "ordersId": "00000000-0000-0000-0000-000000000000",
+          "updatedAt": "0001-01-01T00:00:00.000Z"
+        },
+        "order_number": "1234567890",
+        "order_type": "PERMANENT_CHANGE_OF_STATION",
+        "order_type_detail": "HHG_PERMITTED",
+        "report_by_date": "2021-09-30",
+        "sac": "9999999999",
+        "tac": "D222",
+        "uploadedAmendedOrderID": "0be123c5-0124-4891-a9ea-5b36cafc0aca",
+        "uploaded_order_id": "8154b049-84bd-4d49-b713-1518509bf5db"
+      },
+      "ordersId": "4510c923-85ee-4f93-8999-79929a0ff286",
+      "referenceId": "3390-8772",
+      "serviceCounselingCompletedAt": "2021-08-18T18:26:28.035Z",
+      "status": "APPROVED",
+      "submittedAt": "2021-08-18T18:11:01.314Z",
+      "updatedAt": "2021-10-05T21:24:39.689Z"
+    },
+    "moveTaskOrderID": "e366c472-8076-4275-be73-be5b4f303e76",
+    "paymentRequestNumber": "3390-8772-1",
+    "serviceItems": [
+      {
+        "createdAt": "2021-10-05T21:24:19.816Z",
+        "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45OTU5NTla",
+        "id": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+        "mtoServiceItemCode": "DDASIT",
+        "mtoServiceItemID": "9810a355-bc70-42aa-8736-b3ff3ad87398",
+        "mtoServiceItemName": "Domestic destination add'l SIT",
+        "mtoShipmentID": "edda60a0-08db-4d4f-a6c5-5cb515750039",
+        "mtoShipmentType": "HHG",
+        "paymentServiceItemParams": [
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44MjY1NTVa",
+            "id": "2fb37f87-42fe-486c-8f72-79f6ba414b16",
+            "key": "SITPaymentRequestStart",
+            "origin": "PAYMENT_REQUEST",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "DATE",
+            "value": "2021-09-26"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44MzgxMzha",
+            "id": "6232c282-c923-4645-a5cd-c5ed5c9a0ed2",
+            "key": "SITPaymentRequestEnd",
+            "origin": "PAYMENT_REQUEST",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "DATE",
+            "value": "2021-10-15"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44NzY1NzFa",
+            "id": "958e36c1-c390-40d1-85b0-90dc0b400d3b",
+            "key": "RequestedPickupDate",
+            "origin": "PRIME",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "DATE",
+            "value": "2020-06-08"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44ODYzMzZa",
+            "id": "3ef2538b-41c9-47c1-aafe-b1dff8fba186",
+            "key": "NumberDaysSIT",
+            "origin": "PRIME",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "INTEGER",
+            "value": "20"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44ODk1OTRa",
+            "id": "b60c15ba-4285-4c21-895d-cf2f321e7f0c",
+            "key": "WeightEstimated",
+            "origin": "PRIME",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "INTEGER",
+            "value": "1000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44OTMwODJa",
+            "id": "35c3921b-9197-4230-820d-f449684ca374",
+            "key": "ServiceAreaDest",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "STRING",
+            "value": "080"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS44OTQ1MTFa",
+            "id": "989b7b03-4833-4302-9850-b79bde55c56b",
+            "key": "ContractCode",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "STRING",
+            "value": "TRUSS_TEST"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45MTI3MzFa",
+            "id": "74c043af-5a2b-42c6-8303-b3eabd38368b",
+            "key": "ZipDestAddress",
+            "origin": "PRIME",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "STRING",
+            "value": "94535"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45MTk3NTZa",
+            "id": "fa23d1c4-b264-4107-90af-71a2527bdc58",
+            "key": "WeightOriginal",
+            "origin": "PRIME",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "INTEGER",
+            "value": "3000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45MjI2NTNa",
+            "id": "b622f5fa-e5ec-43d2-92a8-d470cf70239c",
+            "key": "WeightBilled",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "INTEGER",
+            "value": "3000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45MzQ4NTda",
+            "id": "8859192f-04fe-42da-8c11-b747c045ff28",
+            "key": "ContractYearName",
+            "origin": "PRICER",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "STRING",
+            "value": "Base Period Year 2"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45ODg4NzVa",
+            "id": "76bb2d90-f830-4452-ab52-537de5b179b3",
+            "key": "PriceRateOrFactor",
+            "origin": "PRICER",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "DECIMAL",
+            "value": "0.63"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45OTI0ODFa",
+            "id": "66b50348-fb94-43db-8653-cadbeae60ca4",
+            "key": "IsPeak",
+            "origin": "PRICER",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNDoxOS45OTQ2NDRa",
+            "id": "f523e4e2-c37a-478f-98d7-96cfc7292134",
+            "key": "EscalationCompounded",
+            "origin": "PRICER",
+            "paymentServiceItemID": "d14ffaa9-2941-4bae-bbdd-c519b8aa477e",
+            "type": "DECIMAL",
+            "value": "1.02060"
+          }
+        ],
+        "priceCents": 38579,
+        "referenceID": "3390-8772-d14ffaa9",
+        "status": "REQUESTED"
+      }
+    ],
+    "status": "DEPRECATED"
+  },
+  {
+    "createdAt": "2021-10-05T21:25:47.515Z",
+    "eTag": "MjAyMS0xMC0wNVQyMTozMDo1NC4wOTEzODda",
+    "id": "8a537654-1de3-4ebe-ae79-64fb06cec90d",
+    "isFinal": false,
+    "moveTaskOrder": {
+      "availableToPrimeAt": "2021-08-18T18:32:56.716Z",
+      "contractor": {
+        "contractNumber": "HTC111-11-1-1111",
+        "id": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6",
+        "name": "Prime McPrime Contractor",
+        "type": "Prime"
+      },
+      "contractorId": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6",
+      "createdAt": "2021-08-18T18:10:14.839Z",
+      "eTag": "MjAyMS0xMC0wNVQyMToyNDozOS42ODk3MjRa",
+      "id": "e366c472-8076-4275-be73-be5b4f303e76",
+      "locator": "FK4T6P",
+      "orders": {
+        "amendedOrdersAcknowledgedAt": "2021-10-05T21:14:54.397Z",
+        "customer": {
+          "backup_contact": {
+            "email": "",
+            "name": "",
+            "phone": ""
+          },
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "userID": "00000000-0000-0000-0000-000000000000"
+        },
+        "customerID": "34187aa2-de35-4afe-a69c-9fa474813ce8",
+        "date_issued": "2021-08-16",
+        "department_indicator": "AIR_FORCE",
+        "destinationDutyStation": {
+          "address": {
+            "city": "",
+            "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+            "id": "00000000-0000-0000-0000-000000000000",
+            "postal_code": "",
+            "state": "",
+            "street_address_1": ""
+          },
+          "address_id": "00000000-0000-0000-0000-000000000000",
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000"
+        },
+        "eTag": "MjAyMS0xMC0wNVQyMToxNDo1NC40MDQ1Njda",
+        "grade": "E_8",
+        "id": "4510c923-85ee-4f93-8999-79929a0ff286",
+        "moveTaskOrder": {
+          "createdAt": "0001-01-01T00:00:00.000Z",
+          "eTag": "MDAwMS0wMS0wMVQwMDowMDowMFo=",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "ordersId": "00000000-0000-0000-0000-000000000000",
+          "updatedAt": "0001-01-01T00:00:00.000Z"
+        },
+        "order_number": "1234567890",
+        "order_type": "PERMANENT_CHANGE_OF_STATION",
+        "order_type_detail": "HHG_PERMITTED",
+        "report_by_date": "2021-09-30",
+        "sac": "9999999999",
+        "tac": "D222",
+        "uploadedAmendedOrderID": "0be123c5-0124-4891-a9ea-5b36cafc0aca",
+        "uploaded_order_id": "8154b049-84bd-4d49-b713-1518509bf5db"
+      },
+      "ordersId": "4510c923-85ee-4f93-8999-79929a0ff286",
+      "referenceId": "3390-8772",
+      "serviceCounselingCompletedAt": "2021-08-18T18:26:28.035Z",
+      "status": "APPROVED",
+      "submittedAt": "2021-08-18T18:11:01.314Z",
+      "updatedAt": "2021-10-05T21:24:39.689Z"
+    },
+    "moveTaskOrderID": "e366c472-8076-4275-be73-be5b4f303e76",
+    "paymentRequestNumber": "3390-8772-2",
+    "recalculationOfPaymentRequestID": "35ad8f3b-f825-4d7e-9cc5-ab14baa40907",
+    "reviewedAt": "2021-10-05T21:27:40.614Z",
+    "serviceItems": [
+      {
+        "createdAt": "2021-10-05T21:25:47.529Z",
+        "eTag": "MjAyMS0xMC0wNVQyMToyNzozNS45MzQxNTZa",
+        "id": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+        "mtoServiceItemCode": "DDASIT",
+        "mtoServiceItemID": "9810a355-bc70-42aa-8736-b3ff3ad87398",
+        "mtoServiceItemName": "Domestic destination add'l SIT",
+        "mtoShipmentID": "edda60a0-08db-4d4f-a6c5-5cb515750039",
+        "mtoShipmentType": "HHG",
+        "paymentServiceItemParams": [
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42MTYzMDha",
+            "id": "fb60d733-901d-4464-9728-21e20f0d695b",
+            "key": "RequestedPickupDate",
+            "origin": "PRIME",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "DATE",
+            "value": "2020-06-08"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42NzY5NzFa",
+            "id": "63246e3b-a4ea-4692-95c0-8b7bbda77b65",
+            "key": "NumberDaysSIT",
+            "origin": "PRIME",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "INTEGER",
+            "value": "1"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42ODA4MjFa",
+            "id": "f3a677fa-343f-49b9-a60a-82ed47e5785a",
+            "key": "WeightEstimated",
+            "origin": "PRIME",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "INTEGER",
+            "value": "1000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42ODc5ODRa",
+            "id": "20aadec4-0e02-4412-a4d7-88b195076637",
+            "key": "ServiceAreaDest",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "STRING",
+            "value": "080"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42OTE3NzRa",
+            "id": "dc7b277e-6f66-498c-aa4e-c86ff081cf66",
+            "key": "ContractCode",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "STRING",
+            "value": "TRUSS_TEST"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42OTU2MjRa",
+            "id": "43bdf083-fb42-4085-94d2-2609e339b2ce",
+            "key": "ZipDestAddress",
+            "origin": "PRIME",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "STRING",
+            "value": "94535"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny42OTk0MDZa",
+            "id": "e7e62322-5054-4254-9a7d-e3703f7acfa7",
+            "key": "WeightAdjusted",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "INTEGER",
+            "value": "2000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43MDU3MzVa",
+            "id": "7881835e-c47b-4fe4-b94c-7122bdf7eedd",
+            "key": "WeightOriginal",
+            "origin": "PRIME",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "INTEGER",
+            "value": "3000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43MTE5MTNa",
+            "id": "21634f44-e821-4e92-8b42-b19af532d49b",
+            "key": "WeightBilled",
+            "origin": "SYSTEM",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "INTEGER",
+            "value": "2000"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43MTU4Mjda",
+            "id": "c7f50934-b268-4e9a-9bb6-c38d846a0a35",
+            "key": "SITPaymentRequestStart",
+            "origin": "PAYMENT_REQUEST",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "DATE",
+            "value": "NOT IMPLEMENTED"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43MTk2OTla",
+            "id": "dabcded1-47eb-4658-941c-85a1bc16e39f",
+            "key": "SITPaymentRequestEnd",
+            "origin": "PAYMENT_REQUEST",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "DATE",
+            "value": "NOT IMPLEMENTED"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43MzIzN1o=",
+            "id": "a74cf6eb-9d91-4f09-a23c-2fd1f92f771e",
+            "key": "ContractYearName",
+            "origin": "PRICER",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "STRING",
+            "value": "Base Period Year 2"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43Mzg1ODRa",
+            "id": "c3b23524-d4d1-4837-86cb-fe6b6f4ab6ed",
+            "key": "PriceRateOrFactor",
+            "origin": "PRICER",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "DECIMAL",
+            "value": "0.63"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43NDQ3MDla",
+            "id": "2074fedd-af84-447b-9632-7507800ff7d3",
+            "key": "IsPeak",
+            "origin": "PRICER",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "eTag": "MjAyMS0xMC0wNVQyMToyNTo0Ny43NTA5MzJa",
+            "id": "9e904d48-18ab-4e49-9ac2-50469d484b72",
+            "key": "EscalationCompounded",
+            "origin": "PRICER",
+            "paymentServiceItemID": "c7bce9de-3ffb-4b3b-b55a-3b7b7818c2b8",
+            "type": "DECIMAL",
+            "value": "1.02060"
+          }
+        ],
+        "priceCents": 1286,
+        "referenceID": "3390-8772-c7bce9de",
+        "status": "APPROVED"
+      }
+    ],
+    "status": "SENT_TO_GEX"
+  }
+]

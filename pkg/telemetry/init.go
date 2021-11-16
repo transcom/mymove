@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 
@@ -112,6 +115,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		idGenerator = xray.NewIDGenerator()
 	}
 	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))),
 		sdktrace.WithSampler(sampler),
 		sdktrace.WithIDGenerator(idGenerator),
 		sdktrace.WithSpanProcessor(bsp),
