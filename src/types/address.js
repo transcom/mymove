@@ -10,7 +10,7 @@ export const SimpleAddressShape = shape({
 export const MandatorySimpleAddressShape = shape({
   city: string.isRequired,
   state: string.isRequired,
-  postal_code: string.isRequired,
+  postalCode: string.isRequired,
 });
 
 export const AddressShape = shape({
