@@ -1608,12 +1608,17 @@ paths:
           name: body
           schema:
             required:
-              - remarks
+              - flagForReview
             properties:
               remarks:
                 description: explanation of why the move is being flagged for financial review
                 example: this address is way too far away
                 type: string
+                x-nullable: true
+              flagForReview:
+                description: boolean value representing whether we should flag a move for financial review
+                example: false
+                type: boolean
       responses:
         '200':
           description: updated Move

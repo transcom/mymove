@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -135,12 +137,13 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		HTTPRequest: req,
 		IfMatch:     &fakeEtag,
 		Body: moveops.SetFinancialReviewFlagBody{
-			Remarks: &defaultRemarks,
+			Remarks:       &defaultRemarks,
+			FlagForReview: swag.Bool(true),
 		},
 		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
-	suite.T().Run("Successful flag", func(t *testing.T) {
+	suite.T().Run("Successful flag setting to true", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
