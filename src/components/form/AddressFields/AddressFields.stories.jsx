@@ -17,11 +17,11 @@ export const Basic = () => (
   <Formik
     initialValues={{
       address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
   >
@@ -37,11 +37,11 @@ export const CurrentResidentialAddress = () => (
   <Formik
     initialValues={{
       residential_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
@@ -58,11 +58,11 @@ export const CurrentResidentialAddressWithInitialValues = () => (
   <Formik
     initialValues={{
       residential_address: {
-        street_address_1: '123 Main St',
-        street_address_2: '#1A',
+        streetAddress1: '123 Main St',
+        streetAddress2: '#1A',
         city: 'New York',
         state: 'NY',
-        postal_code: '10002',
+        postalCode: '10002',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
@@ -79,11 +79,11 @@ export const CurrentResidentialAddressWithCustomValidators = () => (
   <Formik
     initialValues={{
       residential_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
@@ -107,11 +107,11 @@ export const WithAdditionalText = () => (
   <Formik
     initialValues={{
       backup_mailing_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     validationSchema={Yup.object().shape({ backup_mailing_address: requiredAddressSchema.required() })}
@@ -140,11 +140,11 @@ export const InsideSectionWrapper = () => (
   <Formik
     initialValues={{
       residential_address: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}

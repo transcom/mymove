@@ -57,9 +57,9 @@ function customerReviewsNTSRMoveDetails() {
 function customerEditsNTSRShipmentFromReviewPage() {
   cy.get('button[data-testid="edit-ntsr-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="delivery.requestedDate"]').clear().type('01/01/2022').blur();
-  cy.get('input[name="delivery.address.street_address_1"]').clear().type('123 Maple street');
+  cy.get('input[name="delivery.address.streetAddress1"]').clear().type('123 Maple street');
   cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
-  cy.get('input[name="secondaryDelivery.address.street_address_1"]').clear().type('123 Oak Street');
+  cy.get('input[name="secondaryDelivery.address.streetAddress1"]').clear().type('123 Oak Street');
   cy.get('input[name="delivery.agent.firstName"]').clear().type('Ketchum').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: fragile').blur();
   cy.get('button').contains('Save').click();
@@ -91,11 +91,11 @@ function customerCreatesAnNTSRShipment() {
   cy.get('input[name="delivery.requestedDate"]').type('01/02/2020').blur();
 
   // delivery location
-  cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
-  cy.get(`input[name="delivery.address.street_address_2"]`).type('#3E');
+  cy.get(`input[name="delivery.address.streetAddress1"]`).type('412 Avenue M');
+  cy.get(`input[name="delivery.address.streetAddress2"]`).type('#3E');
   cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
   cy.get(`select[name="delivery.address.state"]`).select('CA');
-  cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
+  cy.get(`input[name="delivery.address.postalCode"]`).type('91111').blur();
 
   // receiving agent
   cy.get(`input[name="delivery.agent.firstName"]`).type('James');

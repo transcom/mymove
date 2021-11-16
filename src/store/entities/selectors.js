@@ -73,8 +73,8 @@ export const selectIsProfileComplete = createSelector(
       serviceMember.telephone &&
       serviceMember.personal_email &&
       serviceMember.current_station?.id &&
-      serviceMember.residential_address?.postal_code &&
-      serviceMember.backup_mailing_address?.postal_code &&
+      serviceMember.residential_address?.postalCode &&
+      serviceMember.backup_mailing_address?.postalCode &&
       serviceMember.backup_contacts?.length > 0
     ),
 );

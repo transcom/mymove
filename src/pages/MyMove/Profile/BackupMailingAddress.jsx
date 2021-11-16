@@ -20,11 +20,11 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
 
   const initialValues = {
     [formFieldsName]: {
-      street_address_1: serviceMember.backup_mailing_address?.street_address_1 || '',
-      street_address_2: serviceMember.backup_mailing_address?.street_address_2 || '',
+      streetAddress1: serviceMember.backup_mailing_address?.streetAddress1 || '',
+      streetAddress2: serviceMember.backup_mailing_address?.streetAddress2 || '',
       city: serviceMember.backup_mailing_address?.city || '',
       state: serviceMember.backup_mailing_address?.state || '',
-      postal_code: serviceMember.backup_mailing_address?.postal_code || '',
+      postalCode: serviceMember.backup_mailing_address?.postalCode || '',
     },
   };
 

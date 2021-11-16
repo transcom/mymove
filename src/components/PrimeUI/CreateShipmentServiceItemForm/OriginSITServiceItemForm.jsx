@@ -35,11 +35,11 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
     sitEntryDate: '',
     sitDepartureDate: '', // The Prime API is currently ignoring origin SIT departure date on creation
     sitHHGActualOrigin: {
-      street_address_1: '',
-      street_address_2: '',
+      streetAddress1: '',
+      streetAddress2: '',
       city: '',
       state: '',
-      postal_code: '',
+      postalCode: '',
     },
   };
 
@@ -48,7 +48,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
     const body = {
       sitEntryDate: formatDateForSwagger(sitEntryDate),
       sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
-      sitHHGActualOrigin: sitHHGActualOrigin.street_address_1 ? formatAddressForPrimeAPI(sitHHGActualOrigin) : null,
+      sitHHGActualOrigin: sitHHGActualOrigin.streetAddress1 ? formatAddressForPrimeAPI(sitHHGActualOrigin) : null,
       ...serviceItemValues,
     };
     submission({ body });

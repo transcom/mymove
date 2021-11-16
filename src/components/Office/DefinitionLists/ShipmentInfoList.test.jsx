@@ -6,28 +6,28 @@ import ShipmentInfoList from './ShipmentInfoList';
 const info = {
   requestedPickupDate: '2020-03-26',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   secondaryPickupAddress: {
-    street_address_1: '800 S 2nd St',
+    streetAddress1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   secondaryDeliveryAddress: {
-    street_address_1: '987 Fairway Dr',
+    streetAddress1: '987 Fairway Dr',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   agents: [
     {
@@ -69,26 +69,26 @@ describe('Shipment Info List', () => {
 
     const pickupAddress = screen.getByText(labels.pickupAddress);
     expect(
-      within(pickupAddress.parentElement).getByText(info.pickupAddress.street_address_1, { exact: false }),
+      within(pickupAddress.parentElement).getByText(info.pickupAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
 
     const secondaryPickupAddress = screen.getByText(labels.secondaryPickupAddress);
     expect(
-      within(secondaryPickupAddress.parentElement).getByText(info.secondaryPickupAddress.street_address_1, {
+      within(secondaryPickupAddress.parentElement).getByText(info.secondaryPickupAddress.streetAddress1, {
         exact: false,
       }),
     ).toBeInTheDocument();
 
     const destinationAddress = screen.getByText(labels.destinationAddress);
     expect(
-      within(destinationAddress.parentElement).getByText(info.destinationAddress.street_address_1, {
+      within(destinationAddress.parentElement).getByText(info.destinationAddress.streetAddress1, {
         exact: false,
       }),
     ).toBeInTheDocument();
 
     const secondaryDeliveryAddress = screen.getByText(labels.secondaryDeliveryAddress);
     expect(
-      within(secondaryDeliveryAddress.parentElement).getByText(info.secondaryDeliveryAddress.street_address_1, {
+      within(secondaryDeliveryAddress.parentElement).getByText(info.secondaryDeliveryAddress.streetAddress1, {
         exact: false,
       }),
     ).toBeInTheDocument();
