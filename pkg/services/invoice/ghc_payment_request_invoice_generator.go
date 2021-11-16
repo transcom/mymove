@@ -278,6 +278,16 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
+	ediString, err := edi858.EDIString(appCtx.Logger())
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	paymentRequest.GeneratedEDI858Text = &ediString
+	err = appCtx.DB().Update(&paymentRequest)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+
 	return edi858, nil
 }
 
