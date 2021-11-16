@@ -119,7 +119,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     },
   });
 
-  const [mutateFinanicalReview] = useMutation(updateFinancialFlag, {
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
@@ -150,7 +150,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   };
 
   const handleSubmitFinancialReviewModal = (remarks) => {
-    mutateFinanicalReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
+    mutateFinancialReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
     setIsFinancialModalVisible(false);
   };
 
