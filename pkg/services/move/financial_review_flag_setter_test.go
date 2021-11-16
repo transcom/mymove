@@ -60,25 +60,14 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		suite.Require().Nil(move.FinancialReviewFlagSetAt)
 		suite.Require().Nil(move.FinancialReviewRemarks)
 
-		// Set the flag once
+		// Set the flag
 		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, &defaultFlagReason)
 		suite.Require().NoError(err)
 		suite.Require().NoError(suite.DB().Reload(&move))
 		suite.Require().True(move.FinancialReviewFlag)
 		suite.Require().NotNil(move.FinancialReviewFlagSetAt)
 		suite.Require().Equal(defaultFlagReason, *move.FinancialReviewRemarks)
-		originalFlagTime := move.FinancialReviewFlagSetAt
 
-		suite.Require().NoError(suite.DB().Reload(&move))
-		eTag = etag.GenerateEtag(move.UpdatedAt)
-
-		// Attempt to set it again, and check to make sure nothing has changed
-		_, err = flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, swag.String("new reason"))
-		suite.Require().NoError(err)
-		suite.Require().NoError(suite.DB().Reload(&move))
-		suite.Require().True(move.FinancialReviewFlag)
-		suite.Require().Equal(defaultFlagReason, *move.FinancialReviewRemarks)
-		suite.Require().Equal(originalFlagTime, move.FinancialReviewFlagSetAt)
 	})
 	// If we set the flag to false, the timestamp and remarks fields should be nilled out
 	suite.T().Run("when flag is set to false we nil out FinancialReviewFlagSetAt and FinancialReviewRemarks", func(t *testing.T) {
@@ -86,14 +75,12 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		suite.Require().Equal(false, move.FinancialReviewFlag)
-		suite.Require().Nil(move.FinancialReviewFlagSetAt)
-		suite.Require().Nil(move.FinancialReviewRemarks)
 		m, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, false, nil)
 		suite.NoError(suite.DB().Reload(&move))
 		suite.Require().NotNil(m)
 		suite.Require().NoError(err)
 		suite.Require().Equal(false, move.FinancialReviewFlag)
-		suite.Require().Nil(move.FinancialReviewFlagSetAt)
-		suite.Require().Nil(*move.FinancialReviewRemarks)
+		suite.Nil(move.FinancialReviewFlagSetAt)
+		suite.Nil(move.FinancialReviewRemarks)
 	})
 }
