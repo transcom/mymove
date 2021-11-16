@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 
-import { formatPrimeAPIShipmentAddress } from '../../../utils/shipmentDisplay';
-
+import { formatPrimeAPIShipmentAddress } from 'utils/shipmentDisplay';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { shipmentTypeLabels } from 'content/shipments';
 import { formatDateFromIso } from 'shared/formatters';
