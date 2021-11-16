@@ -6,37 +6,36 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connection) error {
-	if err := gre.importOconusToOconusPrices(dbTx); err != nil {
+func (gre *GHCRateEngineImporter) importREInternationalPrices(appCtx appcontext.AppContext) error {
+	if err := gre.importOconusToOconusPrices(appCtx); err != nil {
 		return fmt.Errorf("could not import OCONUS to OCONUS prices: %w", err)
 	}
 
-	if err := gre.importConusToOconusPrices(dbTx); err != nil {
+	if err := gre.importConusToOconusPrices(appCtx); err != nil {
 		return fmt.Errorf("could not import CONUS to OCONUS prices: %w", err)
 	}
 
-	if err := gre.importOconusToConusPrices(dbTx); err != nil {
+	if err := gre.importOconusToConusPrices(appCtx); err != nil {
 		return fmt.Errorf("could not import OCONUS to CONUS prices: %w", err)
 	}
 
-	if err := gre.importNonStandardLocationPrices(dbTx); err != nil {
+	if err := gre.importNonStandardLocationPrices(appCtx); err != nil {
 		return fmt.Errorf("could not import non-standard location prices: %w", err)
 	}
 
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importOconusToOconusPrices(appCtx appcontext.AppContext) error {
 	// tab 3a) OCONUS to OCONUS data
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
-	err := dbTx.All(&oconusToOconusPrices)
+	err := appCtx.DB().All(&oconusToOconusPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged OCONUS to OCONUS prices: %w", err)
 	}
@@ -103,7 +102,7 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connectio
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
-			verrs, dbErr := dbTx.ValidateAndSave(&copyOfModel)
+			verrs, dbErr := appCtx.DB().ValidateAndSave(&copyOfModel)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}
@@ -116,10 +115,10 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connectio
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importConusToOconusPrices(appCtx appcontext.AppContext) error {
 	// tab 3b CONUS to OCONUS data
 	var conusToOconusPrices []models.StageConusToOconusPrice
-	err := dbTx.All(&conusToOconusPrices)
+	err := appCtx.DB().All(&conusToOconusPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged CONUS to OCONUS prices: %w", err)
 	}
@@ -187,7 +186,7 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
-			verrs, dbErr := dbTx.ValidateAndSave(&copyOfModel)
+			verrs, dbErr := appCtx.DB().ValidateAndSave(&copyOfModel)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}
@@ -200,10 +199,10 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importOconusToConusPrices(appCtx appcontext.AppContext) error {
 	// tab 3c OCONUS to CONUS data
 	var oconusToConusPrices []models.StageOconusToConusPrice
-	err := dbTx.All(&oconusToConusPrices)
+	err := appCtx.DB().All(&oconusToConusPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged OCONUS to CONUS prices: %w", err)
 	}
@@ -271,7 +270,7 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
-			verrs, dbErr := dbTx.ValidateAndSave(&copyOfModel)
+			verrs, dbErr := appCtx.DB().ValidateAndSave(&copyOfModel)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}
@@ -284,10 +283,10 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcontext.AppContext) error {
 	// tab 3e) Non-standard location prices
 	var nonStandardLocnPrices []models.StageNonStandardLocnPrice
-	err := dbTx.All(&nonStandardLocnPrices)
+	err := appCtx.DB().All(&nonStandardLocnPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged non-standard location prices: %w", err)
 	}
@@ -360,7 +359,7 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(dbTx *pop.Conn
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
-			verrs, dbErr := dbTx.ValidateAndSave(&copyOfModel)
+			verrs, dbErr := appCtx.DB().ValidateAndSave(&copyOfModel)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}

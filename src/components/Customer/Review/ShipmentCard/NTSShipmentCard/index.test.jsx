@@ -15,10 +15,10 @@ const defaultProps = {
   showEditBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
-    street_address_1: '17 8th St',
+    streetAddress1: '17 8th St',
     city: 'New York',
     state: 'NY',
-    postal_code: '11111',
+    postalCode: '11111',
   },
   releasingAgent: {
     firstName: 'Jo',
@@ -36,10 +36,10 @@ function mountNTSShipmentCard(props) {
 
 const secondaryPickupAddress = {
   secondaryPickupAddress: {
-    street_address_1: 'Some Other Street Name',
+    streetAddress1: 'Some Other Street Name',
     city: 'New York',
     state: 'NY',
-    postal_code: '111111',
+    postalCode: '111111',
   },
 };
 
@@ -47,7 +47,7 @@ describe('NTSShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSShipmentCard();
     const tableHeaders = ['Requested pickup date', 'Pickup location', 'Releasing agent', 'Remarks'];
-    const { street_address_1: streetAddress1, city, state, postal_code: postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const {
       firstName: releasingFirstName,
       lastName: releasingLastName,
@@ -68,14 +68,14 @@ describe('NTSShipmentCard component', () => {
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountNTSShipmentCard({ ...defaultProps, releasingAgent: null, remarks: '' });
     const tableHeaders = ['Requested pickup date', 'Pickup location'];
-    const { street_address_1: streetAddress1, city, state, postal_code: postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
       `${streetAddress1} ${city}, ${state} ${postalCode}`,
     ];
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
-    expect(wrapper.find('.remarksCell').length).toBe(0);
+    expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
   it('should not render a secondary pickup location if not provided one', async () => {

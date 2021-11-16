@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREContractYears(appCtx appcontext.AppContext) error {
 	// populate contractYearsToIDMap
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
-	err := dbTx.All(&priceEscalationDiscounts)
+	err := appCtx.DB().All(&priceEscalationDiscounts)
 	if err != nil {
 		return fmt.Errorf("could not read staged price escalation discounts: %w", err)
 	}
@@ -42,7 +42,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 		}
 		incrementYear++
 
-		verrs, dbErr := dbTx.ValidateAndSave(&contractYear)
+		verrs, dbErr := appCtx.DB().ValidateAndSave(&contractYear)
 		if dbErr != nil {
 			return fmt.Errorf("error saving ReContractYears: %+v with error: %w", contractYear, dbErr)
 		}

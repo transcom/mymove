@@ -45,7 +45,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
     timeMilitary2: '',
     sitEntryDate: '',
     sitDepartureDate: '',
-    sitDestinationFinalAddress: { street_address_1: '', street_address_2: '', city: '', state: '', postal_code: '' },
+    sitDestinationFinalAddress: { streetAddress1: '', streetAddress2: '', city: '', state: '', postalCode: '' },
   };
 
   const onSubmit = (values) => {
@@ -62,7 +62,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
       firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
       sitEntryDate: formatDateForSwagger(sitEntryDate),
       sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
-      sitDestinationFinalAddress: sitDestinationFinalAddress.street_address_1
+      sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
         ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
         : null,
       ...serviceItemValues,

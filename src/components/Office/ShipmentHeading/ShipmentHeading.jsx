@@ -12,10 +12,10 @@ import { shipmentStatuses } from 'constants/shipments';
 function formatDestinationAddress(address) {
   if (address.city) {
     // eslint-disable-next-line camelcase
-    return `${address.city}, ${address.state} ${address.postal_code}`;
+    return `${address.city}, ${address.state} ${address.postalCode}`;
   }
   // eslint-disable-next-line camelcase
-  return `${address.postal_code}`;
+  return `${address.postalCode}`;
 }
 
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {

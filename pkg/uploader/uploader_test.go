@@ -19,7 +19,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/storage/mocks"
@@ -37,15 +36,9 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
-}
-
-// TestAppContext returns the AppContext for the test suite
-func (suite *UploaderSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func (suite *UploaderSuite) SetupTest() {
@@ -56,17 +49,17 @@ func (suite *UploaderSuite) SetupTest() {
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
-		suite.logger.Fatal("Error opening local file", zap.Error(err))
+		suite.Logger().Fatal("Error opening local file", zap.Error(err))
 	}
 
 	outputFile, err := suite.fs.Create(path)
 	if err != nil {
-		suite.logger.Fatal("Error creating afero file", zap.Error(err))
+		suite.Logger().Fatal("Error creating afero file", zap.Error(err))
 	}
 
 	_, err = io.Copy(outputFile, file)
 	if err != nil {
-		suite.logger.Fatal("Error copying to afero file", zap.Error(err))
+		suite.Logger().Fatal("Error copying to afero file", zap.Error(err))
 	}
 
 	return outputFile, nil
@@ -100,14 +93,8 @@ func (suite *UploaderSuite) closeFile(file afero.File) {
 }
 
 func TestUploaderSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &UploaderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       logger,
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
 

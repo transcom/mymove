@@ -173,6 +173,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		DepartmentIndicator:         &deptIndicator,
 		Tac:                         handlers.FmtStringPtr(order.TAC),
 		Sac:                         handlers.FmtStringPtr(order.SAC),
+		NtsTac:                      handlers.FmtStringPtr(order.NtsTAC),
+		NtsSac:                      handlers.FmtStringPtr(order.NtsSAC),
 		UploadedOrderID:             strfmt.UUID(order.UploadedOrdersID.String()),
 		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
 		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),

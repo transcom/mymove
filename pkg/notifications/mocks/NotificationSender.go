@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	notifications "github.com/transcom/mymove/pkg/notifications"
 )
 
@@ -12,13 +14,13 @@ type NotificationSender struct {
 	mock.Mock
 }
 
-// SendNotification provides a mock function with given fields: notification
-func (_m *NotificationSender) SendNotification(notification notifications.Notification) error {
-	ret := _m.Called(notification)
+// SendNotification provides a mock function with given fields: appCtx, notification
+func (_m *NotificationSender) SendNotification(appCtx appcontext.AppContext, notification notifications.Notification) error {
+	ret := _m.Called(appCtx, notification)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(notifications.Notification) error); ok {
-		r0 = rf(notification)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, notifications.Notification) error); ok {
+		r0 = rf(appCtx, notification)
 	} else {
 		r0 = ret.Error(0)
 	}

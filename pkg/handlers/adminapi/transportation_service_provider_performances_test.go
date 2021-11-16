@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: tsp.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 			NewPagination: pagination.NewPagination,
@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: ListFetcher,
 			NewPagination: pagination.NewPagination,
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: ListFetcher,
 			NewPagination: pagination.NewPagination,
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: tsp.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		}
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 			mock.Anything,
 		).Return(tspp, nil).Once()
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: Fetcher,
 		}
@@ -203,7 +203,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformance{}, expectedError).Once()
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: Fetcher,
 		}
@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
 	suite.T().Run("test both filters present", func(t *testing.T) {
 
 		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3", "transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
 			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
@@ -231,7 +231,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
 	})
 	suite.T().Run("test only traffic_distribution_list_id present", func(t *testing.T) {
 		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
 		}
@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
 	})
 	suite.T().Run("test only transportation_service_provider_id present", func(t *testing.T) {
 		s := `{"transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
-		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
+		qfs := generateQueryFilters(suite.Logger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
 		}

@@ -53,8 +53,8 @@ const move = {
 };
 
 const shipmentAddress = formatPaymentRequestAddressString(
-  { city: 'Boston', state: 'MA', postal_code: '02101' },
-  { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+  { city: 'Boston', state: 'MA', postalCode: '02101' },
+  { city: 'Princeton', state: 'NJ', postalCode: '08540' },
 );
 
 const shipmentsInfo = [

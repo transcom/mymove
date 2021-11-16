@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import * as Yup from 'yup';
 
 import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
@@ -12,38 +11,36 @@ export const AgentSchema = Yup.object().shape({
 
 export const OptionalAddressSchema = Yup.object().shape(
   {
-    street_address_1: Yup.string().when(
-      ['street_address_2', 'city', 'state', 'postal_code'],
+    streetAddress1: Yup.string().when(
+      ['streetAddress2', 'city', 'state', 'postalCode'],
       (street2, city, state, postalCode, schema) =>
         street2 || city || state || postalCode ? schema.required('Required') : schema,
     ),
-    street_address_2: Yup.string(),
+    streetAddress2: Yup.string(),
     city: Yup.string().when(
-      ['street_address_1', 'street_address_2', 'state', 'postal_code'],
+      ['streetAddress1', 'streetAddress2', 'state', 'postalCode'],
       (street1, street2, state, postalCode, schema) =>
         street1 || street2 || state || postalCode ? schema.required('Required') : schema,
     ),
     state: Yup.string()
       .length(2, 'Must use state abbreviation')
-      .when(
-        ['street_address_1', 'street_address_2', 'city', 'postal_code'],
-        (street1, street2, city, postalCode, schema) =>
-          street1 || street2 || city || postalCode ? schema.required('Required') : schema,
+      .when(['streetAddress1', 'streetAddress2', 'city', 'postalCode'], (street1, street2, city, postalCode, schema) =>
+        street1 || street2 || city || postalCode ? schema.required('Required') : schema,
       ),
-    postal_code: Yup.string()
+    postalCode: Yup.string()
       .matches(ZIP_CODE_REGEX, 'Must be valid zip code')
-      .when(['street_address_1', 'street_address_2', 'city', 'state'], (street1, street2, city, state, schema) =>
+      .when(['streetAddress1', 'streetAddress2', 'city', 'state'], (street1, street2, city, state, schema) =>
         street1 || street2 || city || state ? schema.required('Required') : schema,
       ),
   },
   [
-    ['street_address_1', 'street_address_2'],
-    ['street_address_1', 'city'],
-    ['street_address_1', 'state'],
-    ['street_address_1', 'postal_code'],
+    ['streetAddress1', 'streetAddress2'],
+    ['streetAddress1', 'city'],
+    ['streetAddress1', 'state'],
+    ['streetAddress1', 'postalCode'],
     ['city', 'state'],
-    ['city', 'postal_code'],
-    ['state', 'postal_code'],
+    ['city', 'postalCode'],
+    ['state', 'postalCode'],
   ],
 );
 

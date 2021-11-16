@@ -1,26 +1,17 @@
 package route
 
 import (
-	"log"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type PlannerSuite struct {
-	testingsuite.BaseTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *PlannerSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(nil, suite.logger, nil)
+	testingsuite.PopTestSuite
 }
 
 type PlannerFullSuite struct {
@@ -136,19 +127,14 @@ func (suite *PlannerFullSuite) TestZip3Distance() {
 }
 
 func TestHandlerSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	var testSuite suite.TestingSuite
 	if testing.Short() == false {
 		testSuite = &HereFullSuite{
 			PlannerFullSuite{
-				PlannerSuite: PlannerSuite{logger: logger},
+				PlannerSuite: PlannerSuite{},
 			}}
 	} else {
-		testSuite = &PlannerSuite{logger: logger}
+		testSuite = &PlannerSuite{}
 	}
 	suite.Run(t, testSuite)
 }

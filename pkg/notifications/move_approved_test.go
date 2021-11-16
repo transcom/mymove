@@ -14,13 +14,14 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
+	session := &auth.Session{
 		UserID:          approver.ID,
 		ApplicationName: auth.OfficeApp,
-	}, "milmovelocal", move.ID)
+	}
+	notification := NewMoveApproved("milmovelocal", move.ID)
 	subject := fmt.Sprintf("[MilMove] Your Move is approved (move: %s)", move.Locator)
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(session))
 	suite.NoError(err)
 	suite.Equal(len(emails), 1)
 
@@ -34,7 +35,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 }
 
 func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{}, "milmovelocal", uuid.Must(uuid.NewV4()))
+	notification := NewMoveApproved("milmovelocal", uuid.Must(uuid.NewV4()))
 
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
@@ -67,7 +68,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 <p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
 `
 
-	htmlContent, err := notification.RenderHTML(s)
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -75,7 +76,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{}, "milmovelocal", uuid.Must(uuid.NewV4()))
+	notification := NewMoveApproved("milmovelocal", uuid.Must(uuid.NewV4()))
 
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
@@ -101,7 +102,7 @@ If you have any questions, call the origDutyStation PPPO at 555-555-5555 and ref
 You can check the status of your move anytime at https://my.move.mil"
 `
 
-	textContent, err := notification.RenderText(s)
+	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)

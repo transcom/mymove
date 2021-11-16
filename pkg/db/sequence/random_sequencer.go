@@ -3,6 +3,7 @@ package sequence
 import (
 	"errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/random"
 )
 
@@ -13,7 +14,7 @@ type randomSequencer struct {
 }
 
 // NextVal returns the next random value within the range
-func (rs randomSequencer) NextVal() (int64, error) {
+func (rs randomSequencer) NextVal(appCtx appcontext.AppContext) (int64, error) {
 	randMax := int(rs.max) - int(rs.min) + 1
 	randInt, err := random.GetRandomInt(randMax)
 	if err != nil {
@@ -23,7 +24,7 @@ func (rs randomSequencer) NextVal() (int64, error) {
 }
 
 // SetVal is a no-op for the random sequence generator.
-func (rs randomSequencer) SetVal(val int64) error {
+func (rs randomSequencer) SetVal(appCtx appcontext.AppContext, val int64) error {
 	return nil
 }
 

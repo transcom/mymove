@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,17 +28,17 @@ type cityState struct {
 	state string
 }
 
-func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREDomesticServiceArea(appCtx appcontext.AppContext) error {
 	// Build a data structure that we'll walk for inserting rows into the DB (we have
 	// duplicate service areas that we need to handle).
-	serviceAreasData, err := gre.buildServiceAreasData(dbTx)
+	serviceAreasData, err := gre.buildServiceAreasData(appCtx)
 	if err != nil {
 		return err
 	}
 
 	// Insert the service area and zip3 records; store a map of service area UUIDs to use
 	// in later imports.
-	gre.serviceAreaToIDMap, err = gre.saveServiceAreasAndZip3s(dbTx, serviceAreasData)
+	gre.serviceAreaToIDMap, err = gre.saveServiceAreasAndZip3s(appCtx, serviceAreasData)
 	if err != nil {
 		return err
 	}
@@ -46,10 +46,10 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (serviceAreasSet, error) {
+func (gre *GHCRateEngineImporter) buildServiceAreasData(appCtx appcontext.AppContext) (serviceAreasSet, error) {
 	// Read all the staged domestic service areas
 	var stageDomesticServiceAreas []models.StageDomesticServiceArea
-	stageErr := dbTx.All(&stageDomesticServiceAreas)
+	stageErr := appCtx.DB().All(&stageDomesticServiceAreas)
 	if stageErr != nil {
 		return nil, fmt.Errorf("could not read staged domestic service areas: %w", stageErr)
 	}
@@ -105,7 +105,7 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 	}
 
 	// Now add schedule data (which comes from a different tab) to our service area structure.
-	err := gre.addScheduleData(dbTx, serviceAreasData)
+	err := gre.addScheduleData(appCtx, serviceAreasData)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +113,10 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 	return serviceAreasData, nil
 }
 
-func (gre *GHCRateEngineImporter) addScheduleData(dbTx *pop.Connection, serviceAreasData serviceAreasSet) error {
+func (gre *GHCRateEngineImporter) addScheduleData(appCtx appcontext.AppContext, serviceAreasData serviceAreasSet) error {
 	// Now walk tab 2b and record the two schedule values.
 	var stageDomesticServiceAreaPrices []models.StageDomesticServiceAreaPrice
-	stageErr := dbTx.All(&stageDomesticServiceAreaPrices)
+	stageErr := appCtx.DB().All(&stageDomesticServiceAreaPrices)
 	if stageErr != nil {
 		return fmt.Errorf("could not read staged domestic service area prices: %w", stageErr)
 	}
@@ -150,14 +150,14 @@ func (gre *GHCRateEngineImporter) addScheduleData(dbTx *pop.Connection, serviceA
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection, serviceAreasData serviceAreasSet) (map[string]uuid.UUID, error) {
+func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(appCtx appcontext.AppContext, serviceAreasData serviceAreasSet) (map[string]uuid.UUID, error) {
 	serviceAreaToIDMap := make(map[string]uuid.UUID)
 	for _, serviceAreaData := range serviceAreasData {
 		reServiceArea := serviceAreaData.serviceArea
 
 		// See if there is an existing service area record.  If so, we may need to update it.
 		var existingServiceAreas models.ReDomesticServiceAreas
-		err := dbTx.
+		err := appCtx.DB().
 			Where("contract_id = ?", gre.ContractID).
 			Where("service_area = ?", reServiceArea.ServiceArea).
 			All(&existingServiceAreas)
@@ -173,7 +173,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 		}
 
 		if doSaveServiceArea {
-			verrs, saveErr := dbTx.ValidateAndSave(reServiceArea)
+			verrs, saveErr := appCtx.DB().ValidateAndSave(reServiceArea)
 			if verrs.HasAny() {
 				return nil, fmt.Errorf("validation errors when saving service area [%+v]: %w", *reServiceArea, verrs)
 			}
@@ -183,7 +183,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 		}
 		serviceAreaToIDMap[reServiceArea.ServiceArea] = reServiceArea.ID
 
-		err = gre.saveZip3sForServiceArea(dbTx, serviceAreaData.zip3s, reServiceArea.ID)
+		err = gre.saveZip3sForServiceArea(appCtx, serviceAreaData.zip3s, reServiceArea.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -192,7 +192,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 	return serviceAreaToIDMap, nil
 }
 
-func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, zip3s zip3Set, serviceAreaID uuid.UUID) error {
+func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(appCtx appcontext.AppContext, zip3s zip3Set, serviceAreaID uuid.UUID) error {
 	// Save the associated zips.
 	for zip3, cityState := range zip3s {
 		reZip3 := models.ReZip3{
@@ -205,7 +205,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 
 		// See if there is an existing zip3 record.  If so, we need to update it.
 		var existingZip3s models.ReZip3s
-		err := dbTx.
+		err := appCtx.DB().
 			Where("contract_id = ?", gre.ContractID).
 			Where("zip3 = ?", reZip3.Zip3).
 			All(&existingZip3s)
@@ -221,7 +221,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 		}
 
 		if doSaveZip3 {
-			verrs, saveErr := dbTx.ValidateAndSave(&reZip3)
+			verrs, saveErr := appCtx.DB().ValidateAndSave(&reZip3)
 			if verrs.HasAny() {
 				return fmt.Errorf("validation errors when saving zip3 [%+v]: %w", reZip3, verrs)
 			}

@@ -66,7 +66,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           });
         }
         setErrorMessage({
-          title: `${body.title} `,
+          title: `Prime API: ${body.title} `,
           detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
         });
       } else {
@@ -83,12 +83,12 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isError) return <SomethingWentWrong />;
 
   const emptyAddress = {
-    street_address_1: '',
-    street_address_2: '',
-    street_address_3: '',
+    streetAddress1: '',
+    streetAddress2: '',
+    streetAddress3: '',
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   };
 
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);

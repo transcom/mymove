@@ -113,7 +113,7 @@ limit 5)
 select ds.*
 from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
-group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id
+group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id, ds.provides_services_counseling
 order by max(n.sim) desc, ds.name
 limit 7`
 

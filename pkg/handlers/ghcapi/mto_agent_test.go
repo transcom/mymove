@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(nil).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			ListFetcher:    listFetcher,
 		}
 
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(errors.New("an error happened")).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(models.ErrFetchNotFound).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)

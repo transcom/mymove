@@ -1,7 +1,6 @@
 package certs
 
 import (
-	"log"
 	"os"
 	"strings"
 	"testing"
@@ -10,15 +9,15 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
 )
 
 type certTestSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger Logger
+	logger *zap.Logger
 }
 
 type initFlags func(f *pflag.FlagSet)
@@ -55,14 +54,8 @@ func (suite *certTestSuite) SetViper(v *viper.Viper) {
 
 func TestCertSuite(t *testing.T) {
 
-	logger, _, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel("debug"))
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
-	}
-	zap.ReplaceGlobals(logger)
-
 	ss := &certTestSuite{
-		logger: logger,
+		logger: zaptest.NewLogger(t),
 	}
 
 	suite.Run(t, ss)

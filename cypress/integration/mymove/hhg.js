@@ -40,14 +40,14 @@ function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // should be empty before using "Use current residence" checkbox
-  cy.get(`input[name="pickup.address.street_address_1"]`).should('be.empty');
+  cy.get(`input[name="pickup.address.streetAddress1"]`).should('be.empty');
   cy.get(`input[name="pickup.address.city"]`).should('be.empty');
-  cy.get(`input[name="pickup.address.postal_code"]`).should('be.empty');
+  cy.get(`input[name="pickup.address.postalCode"]`).should('be.empty');
 
   // should have expected "Required" error for required fields
-  cy.get(`input[name="pickup.address.street_address_1"]`).focus().blur();
+  cy.get(`input[name="pickup.address.streetAddress1"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`input[name="pickup.address.street_address_1"]`).type('Some address');
+  cy.get(`input[name="pickup.address.streetAddress1"]`).type('Some address');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   cy.get(`input[name="pickup.address.city"]`).focus().blur();
@@ -60,11 +60,11 @@ function customerSetsUpAnHHGMove() {
   cy.get(`select[name="pickup.address.state"]`).select('CA');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get(`input[name="pickup.address.postal_code"]`).focus().blur();
+  cy.get(`input[name="pickup.address.postalCode"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`input[name="pickup.address.postal_code"]`).type('9').blur();
+  cy.get(`input[name="pickup.address.postalCode"]`).type('9').blur();
   cy.get('[class="usa-error-message"]').contains('Must be valid zip code');
-  cy.get(`input[name="pickup.address.postal_code"]`).type('1111').blur();
+  cy.get(`input[name="pickup.address.postalCode"]`).type('1111').blur();
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   // Next button disabled
@@ -75,10 +75,10 @@ function customerSetsUpAnHHGMove() {
 
   // secondary pickup location
   cy.get(`input[data-testid="has-secondary-pickup"]`).check({ force: true });
-  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).type('123 Some address');
+  cy.get(`input[name="secondaryPickup.address.streetAddress1"]`).type('123 Some address');
   cy.get(`input[name="secondaryPickup.address.city"]`).type('Some city');
   cy.get(`select[name="secondaryPickup.address.state"]`).select('CA');
-  cy.get(`input[name="secondaryPickup.address.postal_code"]`).type('90210').blur();
+  cy.get(`input[name="secondaryPickup.address.postalCode"]`).type('90210').blur();
 
   // releasing agent
   cy.get(`input[name="pickup.agent.firstName"]`).type('John');
@@ -98,19 +98,19 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[title="Yes, I know my delivery address"]').check({ force: true });
 
   // delivery location
-  cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
-  cy.get(`input[name="delivery.address.street_address_2"]`).type('#3E');
+  cy.get(`input[name="delivery.address.streetAddress1"]`).type('412 Avenue M');
+  cy.get(`input[name="delivery.address.streetAddress2"]`).type('#3E');
   cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
   cy.get(`select[name="delivery.address.state"]`).select('CA');
-  cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
+  cy.get(`input[name="delivery.address.postalCode"]`).type('91111').blur();
 
   // secondary delivery location
   cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
-  cy.get('input[name="secondaryDelivery.address.street_address_1"]').type('123 Oak Street');
-  cy.get('input[name="secondaryDelivery.address.street_address_2"]').type('5A');
+  cy.get('input[name="secondaryDelivery.address.streetAddress1"]').type('123 Oak Street');
+  cy.get('input[name="secondaryDelivery.address.streetAddress2"]').type('5A');
   cy.get('input[name="secondaryDelivery.address.city"]').type('San Diego');
   cy.get('select[name="secondaryDelivery.address.state"]').select('CA');
-  cy.get('input[name="secondaryDelivery.address.postal_code"]').type('91111').blur();
+  cy.get('input[name="secondaryDelivery.address.postalCode"]').type('91111').blur();
 
   // releasing agent
   cy.get(`input[name="delivery.agent.firstName"]`).type('John');
@@ -144,10 +144,10 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get(`[data-testid="remarks"]`).should('have.value', 'some customer remark');
 
   // Check secondary pickup address was saved correctly
-  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).should('have.value', '123 Some address');
+  cy.get(`input[name="secondaryPickup.address.streetAddress1"]`).should('have.value', '123 Some address');
   cy.get(`input[name="secondaryPickup.address.city"]`).should('have.value', 'Some city');
   cy.get(`select[name="secondaryPickup.address.state"]`).should('have.value', 'CA');
-  cy.get(`input[name="secondaryPickup.address.postal_code"]`).should('have.value', '90210');
+  cy.get(`input[name="secondaryPickup.address.postalCode"]`).should('have.value', '90210');
 
   // Edit secondary address, remarks, and agent info
   cy.get(`input[name="secondaryPickup.address.city"]`).clear().type('Beverly Hills');

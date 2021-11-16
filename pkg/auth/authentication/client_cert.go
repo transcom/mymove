@@ -80,11 +80,13 @@ func DevlocalClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) 
 				// get DER hash
 				hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 				hashString = hex.EncodeToString(hash[:])
+				logger.Info("TLS connection has a client certificate")
 			} else {
 				// otherwise, for devlocal, default to the devlocal cert
 				// This hash gets populated as part of migration
 				// 20191212230438_add_devlocal-mtls_client_cert.up.sql
 				hashString = "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db"
+				logger.Info("TLS connection doesn't have a client certificate")
 			}
 
 			clientCert, err := models.FetchClientCert(db, hashString)

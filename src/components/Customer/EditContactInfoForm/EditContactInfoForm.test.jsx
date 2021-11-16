@@ -13,18 +13,18 @@ describe('EditContactInfoForm component', () => {
       phone_is_preferred: false,
       email_is_preferred: true,
       residential_address: {
-        street_address_1: '235 Prospect Valley Road SE',
-        street_address_2: '#125',
+        streetAddress1: '235 Prospect Valley Road SE',
+        streetAddress2: '#125',
         city: 'El Paso',
         state: 'TX',
-        postal_code: '79912',
+        postalCode: '79912',
       },
       backup_mailing_address: {
-        street_address_1: '9 W 2nd Ave',
-        street_address_2: '',
+        streetAddress1: '9 W 2nd Ave',
+        streetAddress2: '',
         city: 'El Paso',
         state: 'TX',
-        postal_code: '79936',
+        postalCode: '79936',
       },
       backup_contact: {
         name: 'Peyton Wing',
@@ -71,10 +71,10 @@ describe('EditContactInfoForm component', () => {
     const [residentialAddress1, backupAddress1] = address1Inputs;
 
     expect(residentialAddress1).toBeInstanceOf(HTMLInputElement);
-    expect(residentialAddress1).toHaveValue(testProps.initialValues.residential_address.street_address_1);
+    expect(residentialAddress1).toHaveValue(testProps.initialValues.residential_address.streetAddress1);
 
     expect(backupAddress1).toBeInstanceOf(HTMLInputElement);
-    expect(backupAddress1).toHaveValue(testProps.initialValues.backup_mailing_address.street_address_1);
+    expect(backupAddress1).toHaveValue(testProps.initialValues.backup_mailing_address.streetAddress1);
 
     const address2Inputs = await screen.findAllByLabelText(/Address 2/);
 
@@ -83,10 +83,10 @@ describe('EditContactInfoForm component', () => {
     const [residentialAddress2, backupAddress2] = address2Inputs;
 
     expect(residentialAddress2).toBeInstanceOf(HTMLInputElement);
-    expect(residentialAddress2).toHaveValue(testProps.initialValues.residential_address.street_address_2);
+    expect(residentialAddress2).toHaveValue(testProps.initialValues.residential_address.streetAddress2);
 
     expect(backupAddress2).toBeInstanceOf(HTMLInputElement);
-    expect(backupAddress2).toHaveValue(testProps.initialValues.backup_mailing_address.street_address_2);
+    expect(backupAddress2).toHaveValue(testProps.initialValues.backup_mailing_address.streetAddress2);
 
     const cityInputs = await screen.findAllByLabelText('City');
 
@@ -119,10 +119,10 @@ describe('EditContactInfoForm component', () => {
     const [residentialZIP, backupZIP] = zipInputs;
 
     expect(residentialZIP).toBeInstanceOf(HTMLInputElement);
-    expect(residentialZIP).toHaveValue(testProps.initialValues.residential_address.postal_code);
+    expect(residentialZIP).toHaveValue(testProps.initialValues.residential_address.postalCode);
 
     expect(backupZIP).toBeInstanceOf(HTMLInputElement);
-    expect(backupZIP).toHaveValue(testProps.initialValues.backup_mailing_address.postal_code);
+    expect(backupZIP).toHaveValue(testProps.initialValues.backup_mailing_address.postalCode);
 
     // These next few have the same label for different field types
     const phoneInputs = await screen.findAllByLabelText('Phone');

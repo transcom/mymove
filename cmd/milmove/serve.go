@@ -644,7 +644,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
@@ -828,8 +828,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			sddcDPSMux.Use(otelmux.Middleware("sddc"))
 		}
 		sddcDPSMux.Handle("/set_cookie",
-			dpsauth.NewSetCookieHandler(logger,
-				dpsAuthSecretKey,
+			dpsauth.NewSetCookieHandler(dpsAuthSecretKey,
 				dpsCookieDomain,
 				dpsCookieSecret,
 				dpsCookieExpires))
@@ -1006,20 +1005,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
 	authMux.Use(otelmux.Middleware("auth"))
-	authMux.Handle("/login-gov", authentication.RedirectHandler{Context: authContext}).Methods("GET")
-	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, dbConnection, notificationSender)).Methods("GET")
-	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, dbConnection)).Methods("POST")
+	authMux.Handle("/login-gov", authentication.NewRedirectHandler(authContext, handlerContext, useSecureCookie)).Methods("GET")
+	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, handlerContext, notificationSender)).Methods("GET")
+	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, handlerContext)).Methods("POST")
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
-		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, dbConnection)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, dbConnection, appnames)).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames)).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, dbConnection, appnames)).Methods("POST")
+		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, handlerContext)).Methods("GET")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, handlerContext, appnames)).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, handlerContext, appnames)).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, handlerContext, appnames)).Methods("POST")
 
-		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))

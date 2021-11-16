@@ -106,8 +106,8 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveCanceled(appCtx.DB(), logger, appCtx.Session(), moveID),
+	err = h.NotificationSender().SendNotification(appCtx,
+		notifications.NewMoveCanceled(moveID),
 	)
 
 	if err != nil {
@@ -160,8 +160,8 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
 	}
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveApproved(appCtx.DB(), appCtx.Logger(), appCtx.Session(), h.HandlerContext.AppNames().MilServername, moveID),
+	err = h.NotificationSender().SendNotification(appCtx,
+		notifications.NewMoveApproved(h.HandlerContext.AppNames().MilServername, moveID),
 	)
 	if err != nil {
 		appCtx.Logger().Error("problem sending email to user", zap.Error(err))

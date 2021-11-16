@@ -6,12 +6,11 @@ import (
 	html "html/template"
 	text "text/template"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -24,46 +23,40 @@ var (
 
 // MoveSubmitted has notification content for submitted moves
 type MoveSubmitted struct {
-	db           *pop.Connection
-	logger       Logger
 	moveID       uuid.UUID
-	session      *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
 // NewMoveSubmitted returns a new move submitted notification
-func NewMoveSubmitted(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *MoveSubmitted {
+func NewMoveSubmitted(moveID uuid.UUID) *MoveSubmitted {
 
 	return &MoveSubmitted{
-		db:           db,
-		logger:       logger,
 		moveID:       moveID,
-		session:      session,
 		htmlTemplate: moveSubmittedHTMLTemplate,
 		textTemplate: moveSubmittedTextTemplate,
 	}
 }
 
-func (m MoveSubmitted) emails() ([]emailContent, error) {
+func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), m.moveID)
 	if err != nil {
 		return emails, err
 	}
 
-	orders, err := models.FetchOrderForUser(m.db, m.session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 	if err != nil {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
+	originDSTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
 	}
@@ -77,7 +70,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
+	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          originDSTransportInfo.Name,
@@ -88,7 +81,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 	})
 
 	if err != nil {
-		m.logger.Error("error rendering template", zap.Error(err))
+		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
 
 	smEmail := emailContent{
@@ -98,19 +91,19 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		textBody:       textBody,
 	}
 
-	m.logger.Info("Generated move submitted email",
+	appCtx.Logger().Info("Generated move submitted email",
 		zap.String("moveLocator", move.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }
 
-func (m MoveSubmitted) renderTemplates(data moveSubmittedEmailData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(data)
+func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, string, error) {
+	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(data)
+	textBody, err := m.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -128,19 +121,19 @@ type moveSubmittedEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m MoveSubmitted) RenderHTML(data moveSubmittedEmailData) (string, error) {
+func (m MoveSubmitted) RenderHTML(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
-		m.logger.Error("cant render html template ", zap.Error(err))
+		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m MoveSubmitted) RenderText(data moveSubmittedEmailData) (string, error) {
+func (m MoveSubmitted) RenderText(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
-		m.logger.Error("cant render text template ", zap.Error(err))
+		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
 	return textBuffer.String(), nil

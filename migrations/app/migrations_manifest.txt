@@ -681,3 +681,4 @@
 20211015201518_financial_review_flag.up.sql
 20211101220502_add_nts_shipment_columns.up.sql
 20211104212749_add_selected_tac_sac_to_mto_shipments.up.sql
+20211109231452_create_zip_to_gbloc_table.up.sql
