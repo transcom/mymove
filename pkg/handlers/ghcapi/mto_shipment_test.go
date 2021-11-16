@@ -1896,6 +1896,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 			CustomerRemarks:     handlers.FmtString("customer remark"),
 			CounselorRemarks:    handlers.FmtString("counselor remark"),
 			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+			ShipmentType:        ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		},
 	}
 	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{

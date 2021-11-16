@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -155,6 +156,38 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
+	})
+
+	suite.Run("If the submitted shipment has a storage facility attached", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				Address: models.Address{
+					StreetAddress1: "1234 Over Here",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        swag.String("US"),
+				},
+			},
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:          models.MTOShipmentStatusSubmitted,
+			},
+			Stub: true,
+		})
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		suite.NoError(err)
+		suite.NotNil(createdShipment.StorageFacility)
 	})
 
 	suite.Run("If the shipment has mto service items", func() {
@@ -359,6 +392,13 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 	if shipment.SecondaryDeliveryAddress != nil {
 		shipment.SecondaryDeliveryAddressID = nil
 		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+	}
+
+	if shipment.StorageFacility != nil {
+		shipment.StorageFacilityID = nil
+		shipment.StorageFacility.ID = uuid.Nil
+		shipment.StorageFacility.AddressID = uuid.Nil
+		shipment.StorageFacility.Address.ID = uuid.Nil
 	}
 
 	shipment.ID = uuid.Nil

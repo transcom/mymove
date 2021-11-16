@@ -45,7 +45,7 @@ func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher servic
 	}
 }
 
-// CreateMTOShipment updates the mto shipment
+// CreateMTOShipment creates the mto shipment
 func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
@@ -148,6 +148,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		if shipment.StorageFacility != nil {
 			verrs, err = f.builder.CreateOne(txnAppCtx, &shipment.StorageFacility.Address)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+			}
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
 
 			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
