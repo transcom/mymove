@@ -202,7 +202,7 @@ describe('Shipment has missing reweigh', () => {
       </MockProviders>,
     );
 
-    await expect(screen.getByText('Reweigh Weight:')).not.toBeInTheDocument();
-    await expect(screen.getByText('Reweigh Requested Date:')).not.toBeInTheDocument();
+    await expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
+    await expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
   });
 });
