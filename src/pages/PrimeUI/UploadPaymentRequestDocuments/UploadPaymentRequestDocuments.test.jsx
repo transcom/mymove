@@ -7,8 +7,6 @@ import UploadPaymentRequestDocuments from './UploadPaymentRequestDocuments';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 
-// import { createUpload } from 'services/primeApi';
-
 const mockPush = jest.fn();
 
 jest.mock('react-router-dom', () => ({
@@ -21,7 +19,6 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
-  createUpload: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('hooks/queries', () => ({
