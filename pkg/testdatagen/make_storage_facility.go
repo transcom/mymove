@@ -35,3 +35,8 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 
 	return storageFacility
 }
+
+// MakeDefaultStorageFacility makes a single StorageFacility with default values
+func MakeDefaultStorageFacility(db *pop.Connection) models.StorageFacility {
+	return MakeStorageFacility(db, Assertions{})
+}
