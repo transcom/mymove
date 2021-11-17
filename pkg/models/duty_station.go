@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -70,7 +71,12 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 		LIMIT 1`
 	err := db.RawQuery(query, *dutyStationID).First(&DSTransportInfo)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return &DutyStationTransportInfo{Name: "Unknown Office", PhoneLine: "555-555-5555"}, nil
+		default:
+			return nil, err
+		}
 	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
 		return nil, ErrFetchNotFound
 	}
@@ -95,7 +101,7 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
-	sql := `
+	sqlQuery := `
 with names as (
 (select id as duty_station_id, name, similarity(name, $1) as sim
 from duty_stations
@@ -116,7 +122,7 @@ group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.update
 order by max(n.sim) desc, ds.name
 limit 7`
 
-	query := tx.Q().RawQuery(sql, search)
+	query := tx.Q().RawQuery(sqlQuery, search)
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
