@@ -199,7 +199,7 @@ describe('TOO user', () => {
         .type('JB McGuire-Dix-Lakehurst')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
-        .eq(1)
+        .eq(3)
         .click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
