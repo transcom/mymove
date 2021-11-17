@@ -98,10 +98,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
 
-	appCtx := suite.AppContextForTest()
-
 	handler := UpdateMTOShipmentStatusHandlerFunc{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(),
 		fetcher,
 		updater,
 	}
@@ -110,10 +108,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 
-		appCtx := suite.AppContextForTest()
-
 		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockFetcher,
 			&mockUpdater,
 		}

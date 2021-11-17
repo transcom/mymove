@@ -108,10 +108,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				return paymentRequest.PaymentServiceItems[0].MTOServiceItemID == subtestData.serviceItemID1
 			})).Return(&returnedPaymentRequest, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -166,10 +164,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -218,10 +214,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -259,10 +253,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -285,10 +277,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -320,10 +310,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -351,10 +339,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -395,10 +381,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -436,10 +420,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -476,10 +458,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -694,10 +674,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -769,10 +747,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 
@@ -833,10 +809,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			paymentRequestCreator,
 		}
 

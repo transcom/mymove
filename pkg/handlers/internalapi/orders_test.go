@@ -55,8 +55,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	createHandler := CreateOrdersHandler{context}
 
@@ -101,8 +101,8 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{context}
 
@@ -149,8 +149,8 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	uploadAmendedHandler := UploadAmendedOrdersHandler{
 		HandlerContext: context,
@@ -202,9 +202,9 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	appCtx := suite.AppContextForTest()
 
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler{context}
 

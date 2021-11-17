@@ -26,9 +26,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		CustomerID:  strfmt.UUID(customer.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := GetCustomerHandler{
 		context,
 		customerservice.NewCustomerFetcher(),
@@ -80,9 +78,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		Body:        body,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := UpdateCustomerHandler{
 		context,
 		customerservice.NewCustomerUpdater(),

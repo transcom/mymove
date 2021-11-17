@@ -47,8 +47,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: show ServiceMember is queried
-	appCtx := suite.AppContextForTest()
-	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+
+	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext()}
 	response := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -72,8 +72,8 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 		ServiceMemberID: strfmt.UUID(notLoggedInUser.ID.String()),
 	}
 	// And: Show servicemember is queried
-	appCtx := suite.AppContextForTest()
-	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+
+	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext()}
 	response := showHandler.Handle(showServiceMemberParams)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -96,8 +96,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-	appCtx := suite.AppContextForTest()
-	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+
+	handler := CreateServiceMemberHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -160,8 +160,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		HTTPRequest:                req,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+	handler := CreateServiceMemberHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -279,8 +278,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{context}
 	response := handler.Handle(params)
@@ -423,8 +422,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{context}
@@ -488,8 +486,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -519,8 +516,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -551,8 +547,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -577,8 +572,8 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	handler := ShowServiceMemberOrdersHandler{context}
 

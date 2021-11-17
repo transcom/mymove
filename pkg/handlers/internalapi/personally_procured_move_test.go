@@ -187,9 +187,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(newPPMParams)
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
@@ -242,9 +240,8 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 	}
 
 	// submit the PPM
-	appCtx := suite.AppContextForTest()
 
-	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(submitPPMParams)
 	okResponse := response.(*ppmop.SubmitPersonallyProcuredMoveOK)
 	submitPPMPayload := okResponse.Payload
@@ -304,9 +301,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: req,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := IndexPersonallyProcuredMovesHandler{handlers.NewHandlerContext(appCtx)}
+	handler := IndexPersonallyProcuredMovesHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response
@@ -386,9 +381,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -501,7 +494,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	}
 
 	mileage := 900
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -545,7 +538,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID).Return(mockedSitCharge, mockedCost, nil).Once()
 
-	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 
@@ -613,7 +606,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		mock.Anything,
 	).Return(900, nil)
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
@@ -674,9 +667,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseForbidden(response)
@@ -729,9 +720,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(patchPPMParams)
 	suite.CheckResponseForbidden(response)
 }
@@ -768,9 +757,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the badrequest response
@@ -819,9 +806,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(patchPPMParams)
 
 	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
@@ -883,9 +868,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	appCtx := suite.AppContextForTest()
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(appCtx)}
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseBadRequest(response)
@@ -958,7 +943,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext(appCtx)}
+	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(requestPaymentParams)
 
 	created, ok := response.(*ppmop.RequestPPMPaymentOK)
@@ -1001,9 +986,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext(appCtx)}
+	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext()}
 	response := handler.Handle(requestExpenseSumParams)
 
 	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)

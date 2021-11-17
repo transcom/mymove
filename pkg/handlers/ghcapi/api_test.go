@@ -34,9 +34,7 @@ func (suite *HandlerSuite) AfterTest() {
 }
 
 func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 

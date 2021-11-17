@@ -40,10 +40,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(),
 			NewQueryFilter:    query.NewQueryFilter,
 			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
 			NewPagination:     pagination.NewPagination,
@@ -78,10 +76,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 		).Return(1, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,
@@ -113,10 +109,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 		).Return(0, expectedError).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,

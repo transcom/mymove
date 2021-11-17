@@ -54,9 +54,7 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateUserHandler(authContext, context, appnames)
 
@@ -96,9 +94,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateUserHandler(authContext, context, appnames)
 
@@ -173,9 +169,7 @@ func (suite *AuthSuite) TestCreateUserHandlerDPS() {
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateUserHandler(authContext, context, appnames)
 
@@ -223,7 +217,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 
 	appCtx := suite.AppContextForTest()
 
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := NewCreateUserHandler(authContext, context, appnames)
 
 	rr := httptest.NewRecorder()
@@ -282,9 +276,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
@@ -327,9 +319,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 
 	rr := httptest.NewRecorder()
@@ -365,9 +355,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	adminSession := sessionManagers[1]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 
@@ -404,9 +392,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 
@@ -442,9 +428,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	sessionManagers := setupSessionManagers()
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 	adminSession := sessionManagers[1]
@@ -482,9 +466,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 
@@ -522,9 +504,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
 

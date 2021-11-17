@@ -63,9 +63,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	handler := GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(),
@@ -123,9 +121,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			ServiceItemCodes: &serviceItemCodes,
 		}
 
-		appCtx := suite.AppContextForTest()
-
-		context := handlers.NewHandlerContext(appCtx)
+		context := handlers.NewHandlerContext()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -191,9 +187,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		IfMatch:         etag.GenerateEtag(time.Now()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 
 	// Stale ETags are already unit tested in the move_task_order_updater_test,
 	// so we can mock this here to speed up the test and avoid hitting the DB
@@ -230,9 +224,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -266,9 +258,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -356,9 +346,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)

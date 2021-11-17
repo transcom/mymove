@@ -72,10 +72,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -102,10 +100,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(user, nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -129,10 +125,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -172,10 +166,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -212,10 +204,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -243,9 +233,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 	sessionManagers := setupSessionManagers()
 
-	appCtx := suite.AppContextForTest()
-
-	handlerContext := handlers.NewHandlerContext(appCtx)
+	handlerContext := handlers.NewHandlerContext()
 	handlerContext.SetSessionManagers(sessionManagers)
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)

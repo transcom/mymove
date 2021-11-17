@@ -48,10 +48,8 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexAccessCodesHandler{
-			HandlerContext:        handlers.NewHandlerContext(appCtx),
+			HandlerContext:        handlers.NewHandlerContext(),
 			NewQueryFilter:        query.NewQueryFilter,
 			AccessCodeListFetcher: accesscode.NewAccessCodeListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -83,10 +81,8 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexAccessCodesHandler{
-			HandlerContext:        handlers.NewHandlerContext(appCtx),
+			HandlerContext:        handlers.NewHandlerContext(),
 			NewQueryFilter:        newQueryFilter,
 			AccessCodeListFetcher: accessCodeListFetcher,
 			NewPagination:         pagination.NewPagination,

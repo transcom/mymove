@@ -19,7 +19,7 @@ import (
 func (suite *HandlerSuite) TestGetUserHandler() {
 	appCtx := suite.AppContextForTest()
 
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	context.SetIWSPersonLookup(iws.TestingPersonLookup{})
 	dpsParams := dpsauth.Params{
 		CookieSecret:  []byte("cookie secret"),

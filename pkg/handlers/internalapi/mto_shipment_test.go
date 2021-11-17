@@ -138,10 +138,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		appCtx := suite.AppContextForTest()
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 		response := handler.Handle(subtestData.params)
@@ -174,10 +173,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 
@@ -217,10 +214,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 
@@ -239,10 +234,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 
@@ -257,10 +250,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 
@@ -278,10 +269,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			creator,
 		}
 
@@ -297,10 +286,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		mockCreator := mocks.MTOShipmentCreator{}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockCreator,
 		}
 
@@ -430,10 +417,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -468,10 +454,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -494,10 +479,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -514,10 +498,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -534,10 +517,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -565,10 +547,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			moveWeights,
 			suite.TestNotificationSender(),
 			paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -589,10 +570,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -610,10 +590,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-		appCtx := suite.AppContextForTest()
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			updater,
 		}
 
@@ -639,7 +618,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	//  appCtx := suite.AppContextForTest()
 	//
 	// 	handler := UpdateMTOShipmentHandler{
-	// 		handlers.NewHandlerContext(appCtx),
+	// 		handlers.NewHandlerContext(),
 	// 		updater,
 	// 	}
 
@@ -677,10 +656,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockUpdater,
 		}
 
@@ -782,10 +759,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
-		appCtx := suite.AppContextForTest()
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			listFetcher,
 			fetcher,
 		}
@@ -852,10 +828,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		}
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
-		appCtx := suite.AppContextForTest()
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -875,10 +850,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		}
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
-		appCtx := suite.AppContextForTest()
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -892,10 +866,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		subtestData := suite.makeListSubtestData()
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
-		appCtx := suite.AppContextForTest()
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -916,10 +889,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		subtestData := suite.makeListSubtestData()
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
-		appCtx := suite.AppContextForTest()
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			&mockListFetcher,
 			&mockFetcher,
 		}

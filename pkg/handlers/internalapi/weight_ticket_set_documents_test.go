@@ -61,8 +61,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 		MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateWeightTicketSetDocumentHandler{context}
@@ -116,8 +115,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 		suite.Run(t.weightTicketSetType, func() {
 			newWeightTicketSetDocParams := createWeightTicketSetDocument(suite, t.weightTicketSetType)
 
-			appCtx := suite.AppContextForTest()
-			context := handlers.NewHandlerContext(appCtx)
+			context := handlers.NewHandlerContext()
 			fakeS3 := storageTest.NewFakeS3Storage(true)
 			context.SetFileStorer(fakeS3)
 			handler := CreateWeightTicketSetDocumentHandler{context}
@@ -169,8 +167,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 			MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-		context := handlers.NewHandlerContext(appCtx)
+		context := handlers.NewHandlerContext()
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		context.SetFileStorer(fakeS3)
 		handler := CreateWeightTicketSetDocumentHandler{context}
@@ -203,8 +200,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 			MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-		context := handlers.NewHandlerContext(appCtx)
+		context := handlers.NewHandlerContext()
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		context.SetFileStorer(fakeS3)
 		handler := CreateWeightTicketSetDocumentHandler{context}

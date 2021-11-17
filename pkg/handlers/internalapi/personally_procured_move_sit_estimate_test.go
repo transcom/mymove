@@ -44,8 +44,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-	appCtx := suite.AppContextForTest()
-	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 	showResponse := showEstimateHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -84,8 +84,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		appCtx := suite.AppContextForTest()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -112,8 +112,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		appCtx := suite.AppContextForTest()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -138,8 +138,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		appCtx := suite.AppContextForTest()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -164,8 +164,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		appCtx := suite.AppContextForTest()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -195,8 +195,8 @@ func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, mockedError).Once()
-	appCtx := suite.AppContextForTest()
-	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(appCtx), estimateCalculator}
+
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(), estimateCalculator}
 	showResponse := showHandler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, showResponse)

@@ -54,8 +54,8 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Path: "",
 		},
 	}
-	appCtx := suite.AppContextForTest()
-	handler := handlers.NewHandlerContext(appCtx)
+
+	handler := handlers.NewHandlerContext()
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
@@ -187,9 +187,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		},
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext()
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -249,9 +247,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		},
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext()
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -311,9 +307,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 		},
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext()
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
@@ -343,9 +337,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 		},
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext()
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -387,9 +379,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 		},
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext()
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 

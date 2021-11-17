@@ -39,8 +39,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler{context}
 	response := handler.Handle(params)
@@ -182,8 +181,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadHandler{context}
 	response := handler.Handle(params)
@@ -225,8 +223,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler{context}
 	response := handler.Handle(params)
@@ -258,8 +255,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
 
 	fakeS3Failure := storageTest.NewFakeS3Storage(false)
 
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	context.SetFileStorer(fakeS3Failure)
 	handler := DeleteUploadHandler{context}
 	response := handler.Handle(params)

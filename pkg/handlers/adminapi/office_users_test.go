@@ -55,10 +55,8 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficeUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -85,10 +83,8 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficeUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewQueryFilter: query.NewQueryFilter,
 			NewPagination:  pagination.NewPagination,
@@ -125,10 +121,8 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetOfficeUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -152,10 +146,8 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetOfficeUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -179,10 +171,8 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetOfficeUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -239,10 +229,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateOfficeUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -279,10 +267,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := CreateOfficeUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -296,10 +282,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	mockUpdater := mocks.OfficeUserUpdater{}
 
-	appCtx := suite.AppContextForTest()
-
 	handler := UpdateOfficeUserHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(),
 		&mockUpdater,
 		query.NewQueryFilter,
 		usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests

@@ -38,10 +38,8 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 			mock.Anything,
 		).Return(map[interface{}]int{models.IssuerArmy: 2}, nil)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetElectronicOrdersTotalsHandler{
-			HandlerContext:                      handlers.NewHandlerContext(appCtx),
+			HandlerContext:                      handlers.NewHandlerContext(),
 			ElectronicOrderCategoryCountFetcher: electronicOrderCategoryCountFetcher,
 			NewQueryFilter:                      newQueryFilter,
 		}
@@ -65,10 +63,8 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetElectronicOrdersTotalsHandler{
-			HandlerContext:                      handlers.NewHandlerContext(appCtx),
+			HandlerContext:                      handlers.NewHandlerContext(),
 			ElectronicOrderCategoryCountFetcher: electronicOrderCategoryCountFetcher,
 			NewQueryFilter:                      newQueryFilter,
 		}

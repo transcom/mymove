@@ -40,10 +40,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			ListFetcher:    listFetcher,
 		}
 
@@ -66,10 +64,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			mock.Anything,
 		).Return(errors.New("an error happened")).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)
@@ -92,10 +88,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			mock.Anything,
 		).Return(models.ErrFetchNotFound).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ListMTOAgentsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(),
 			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)

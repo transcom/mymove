@@ -72,9 +72,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,
@@ -122,9 +120,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,
@@ -172,9 +168,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,

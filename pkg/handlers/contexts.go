@@ -62,7 +62,6 @@ type FeatureFlag struct {
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	appCtx                appcontext.AppContext
 	cookieSecret          string
 	planner               route.Planner
 	ghcPlanner            route.Planner
@@ -80,16 +79,14 @@ type handlerContext struct {
 	sessionManagers       [3]*scs.SessionManager
 }
 
-// NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(appCtx appcontext.AppContext) HandlerContext {
-	return &handlerContext{
-		appCtx: appCtx,
-	}
+// NewHandlerContext returns a new handlerContext
+func NewHandlerContext() HandlerContext {
+	return &handlerContext{}
 }
 
 // AppContextFromRequest builds an AppContext from the http request
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
-	return appcontext.NewAppContextFromContext(r.Context(), hctx.appCtx)
+	return appcontext.FromContext(r.Context())
 }
 
 // FileStorer returns the storage to use in the current context

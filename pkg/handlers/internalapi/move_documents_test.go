@@ -54,9 +54,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID:                           strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}
@@ -117,9 +115,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -191,9 +187,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -256,9 +250,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -325,10 +317,8 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 
 	moveDocumentUpdateHandler := &mocks.MoveDocumentUpdater{}
 
-	appCtx := suite.AppContextForTest()
-
 	handler := UpdateMoveDocumentHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(),
 		moveDocumentUpdateHandler,
 	}
 
@@ -392,10 +382,8 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 		MoveDocumentID: strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	handler := DeleteMoveDocumentHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(),
 	}
 
 	response := handler.Handle(deleteMoveDocParams)

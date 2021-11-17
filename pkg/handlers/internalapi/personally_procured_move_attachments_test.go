@@ -34,8 +34,8 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 }
 
 func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
-	appCtx := suite.AppContextForTest()
-	context := handlers.NewHandlerContext(appCtx)
+
+	context := handlers.NewHandlerContext()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
