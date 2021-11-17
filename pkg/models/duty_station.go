@@ -73,6 +73,10 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
+			// This is temporary. Non-installation duty locations do not have transportation offices
+			// so we can't look up their contact information. This default here allows us to avoid
+			// crashing when we're generating notifications. In the future, we need to update all the
+			// text relating to transportation office contact info because it's not meaningful for most moves.
 			return &DutyStationTransportInfo{Name: "Unknown Office", PhoneLine: "555-555-5555"}, nil
 		default:
 			return nil, err
