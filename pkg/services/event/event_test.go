@@ -55,7 +55,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		},
 	}
 	appCtx := suite.AppContextForTest()
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger())
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
@@ -186,10 +186,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 			Path: "",
 		},
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -248,10 +245,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			Path: "",
 		},
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -310,10 +304,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			Path: "",
 		},
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
@@ -342,10 +333,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 			Path: "",
 		},
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -386,10 +374,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 			Path: "",
 		},
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	handler := handlers.NewHandlerContext(appCtx)
+	handler := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 

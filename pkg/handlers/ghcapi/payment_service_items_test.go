@@ -61,10 +61,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("Successful patch - Approval - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
@@ -78,10 +76,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("404 - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.PaymentServiceItemID = uuid.Nil.String()
@@ -95,10 +91,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("422 - Fails to reject without rejectionReason - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
@@ -114,10 +108,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
@@ -142,10 +134,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			},
 		})
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(deniedPaymentServiceItem.UpdatedAt)
@@ -182,10 +172,8 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			},
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext:                  handlers.NewHandlerContext(appCtx),
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		traceID, err := uuid.NewV4()

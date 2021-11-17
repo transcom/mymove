@@ -1,16 +1,20 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -62,7 +66,8 @@ type FeatureFlag struct {
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	appCtx                appcontext.AppContext
+	db                    *pop.Connection
+	logger                *zap.Logger
 	cookieSecret          string
 	planner               route.Planner
 	ghcPlanner            route.Planner
@@ -81,15 +86,43 @@ type handlerContext struct {
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(appCtx appcontext.AppContext) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return &handlerContext{
-		appCtx: appCtx,
+		db:     db,
+		logger: logger,
 	}
 }
 
 // AppContextFromRequest builds an AppContext from the http request
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
-	return appcontext.NewAppContextFromContext(r.Context(), hctx.appCtx)
+	// use LoggerFromRequest to get the most specific logger
+	return appcontext.NewAppContext(
+		hctx.dBFromContext(r.Context()),
+		hctx.loggerFromRequest(r),
+		hctx.sessionFromRequest(r))
+}
+
+func (hctx *handlerContext) sessionFromRequest(r *http.Request) *auth.Session {
+	return auth.SessionFromContext(r.Context())
+}
+
+func (hctx *handlerContext) loggerFromRequest(r *http.Request) *zap.Logger {
+	return hctx.loggerFromContext(r.Context())
+}
+
+// LoggerFromContext returns the logger from the context. If the
+// context has no appCtx.Logger(), the handlerContext logger is returned
+func (hctx *handlerContext) loggerFromContext(ctx context.Context) *zap.Logger {
+	logger := logging.FromContextWithoutDefault(ctx)
+	if logger != nil {
+		return logger
+	}
+	return hctx.logger
+}
+
+// dBFromContext returns a POP db connection for the context
+func (hctx *handlerContext) dBFromContext(ctx context.Context) *pop.Connection {
+	return hctx.db.WithContext(ctx)
 }
 
 // FileStorer returns the storage to use in the current context

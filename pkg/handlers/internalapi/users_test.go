@@ -26,9 +26,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	appCtx := suite.AppContextForTest()
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(appCtx), builder}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
 
 	response := handler.Handle(params)
 
@@ -65,9 +63,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 		HTTPRequest: req,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
 	context.SetFeatureFlag(featureFlag)
 	builder := officeuser.NewOfficeUserFetcherPop()
@@ -100,9 +96,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 		HTTPRequest: req,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
 	context.SetFeatureFlag(featureFlag)
 	builder := officeuser.NewOfficeUserFetcherPop()
@@ -137,10 +131,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
-
-	appCtx := suite.AppContextForTest()
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(appCtx), builder}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
 
 	response := handler.Handle(params)
 
@@ -164,9 +155,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 

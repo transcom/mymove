@@ -71,11 +71,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		}
 
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -101,11 +98,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(user, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -128,11 +122,8 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetUserHandler{
-			handlers.NewHandlerContext(appCtx),
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			userFetcher,
 			newQueryFilter,
 		}
@@ -171,11 +162,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 		}
 
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -211,11 +199,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexUsersHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -242,10 +227,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 	sessionManagers := setupSessionManagers()
-
-	appCtx := suite.AppContextForTest()
-
-	handlerContext := handlers.NewHandlerContext(appCtx)
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	handlerContext.SetSessionManagers(sessionManagers)
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)

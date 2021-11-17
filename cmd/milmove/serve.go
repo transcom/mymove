@@ -556,7 +556,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
-	handlerContext := handlers.NewHandlerContext(appCtx)
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetSessionManagers(sessionManagers)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	handlerContext.SetUseSecureCookie(useSecureCookie)

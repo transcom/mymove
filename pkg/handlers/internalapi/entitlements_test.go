@@ -26,10 +26,8 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 		HTTPRequest: request,
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: index entitlements endpoint is hit
-	handler := IndexEntitlementsHandler{handlers.NewHandlerContext(appCtx)}
+	handler := IndexEntitlementsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -56,10 +54,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -86,10 +82,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 409 status code
@@ -114,10 +108,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpmOrHhg(
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -140,10 +132,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 		MoveID:      strfmt.UUID(badMoveID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -177,10 +167,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -205,10 +193,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerManagesNilPPMWeightEsti
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(appCtx)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

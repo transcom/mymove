@@ -17,9 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	context.SetIWSPersonLookup(iws.TestingPersonLookup{})
 	dpsParams := dpsauth.Params{
 		CookieSecret:  []byte("cookie secret"),
@@ -39,7 +37,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		Telephone:   models.StringPointer("555-555-5555"),
 	}
 	assertions := testdatagen.Assertions{ServiceMember: smData}
-	serviceMember := testdatagen.MakeServiceMember(appCtx.DB(), assertions)
+	serviceMember := testdatagen.MakeServiceMember(suite.DB(), assertions)
 	loginGovID := serviceMember.User.LoginGovUUID.String()
 	cookie, err := dpsauth.LoginGovIDToCookie(loginGovID, dpsParams.CookieSecret, dpsParams.CookieExpires)
 	suite.NoError(err)

@@ -28,8 +28,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 		OrdersNum:   order.OrdersNumber,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(appCtx)}
+	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumOK{}, response)
@@ -52,8 +51,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
 		OrdersNum:   "8675309",
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(appCtx)}
+	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -129,8 +127,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				OrdersNum:   order.OrdersNumber,
 			}
 
-			appCtx := suite.AppContextForTest()
-			handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(appCtx)}
+			handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 			response := handler.Handle(params)
 
 			suite.IsType(&handlers.ErrResponse{}, response)
@@ -159,8 +156,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNotFound() {
 		OrdersNum:   ordersNum,
 	}
 
-	appCtx := suite.AppContextForTest()
-	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(appCtx)}
+	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)

@@ -53,11 +53,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		PostalCode:     "94055",
 	}
 
-	appCtx := suite.AppContextForTest()
-
 	// Create handler
 	handler := UpdateMTOShipmentAddressHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		mtoshipment.NewMTOShipmentAddressUpdater(),
 	}
 

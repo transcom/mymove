@@ -40,11 +40,8 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			HTTPRequest: req,
 		}
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOrganizationsHandler{
-			HandlerContext:          handlers.NewHandlerContext(appCtx),
+			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:          query.NewQueryFilter,
 			OrganizationListFetcher: organization2.NewOrganizationListFetcher(queryBuilder),
 			NewPagination:           pagination.NewPagination,
@@ -78,11 +75,8 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOrganizationsHandler{
-			HandlerContext:          handlers.NewHandlerContext(appCtx),
+			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:          newQueryFilter,
 			OrganizationListFetcher: organizationListFetcher,
 			NewPagination:           pagination.NewPagination,
@@ -114,11 +108,8 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(0, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOrganizationsHandler{
-			HandlerContext:          handlers.NewHandlerContext(appCtx),
+			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:          newQueryFilter,
 			OrganizationListFetcher: organizationListFetcher,
 			NewPagination:           pagination.NewPagination,

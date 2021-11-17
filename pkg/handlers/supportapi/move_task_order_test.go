@@ -52,10 +52,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
-
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 	handler := ListMTOsHandler{
 		HandlerContext:       context,
@@ -77,10 +74,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 	suite.T().Run("successfully hide fake moves", func(t *testing.T) {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
@@ -178,10 +172,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -209,9 +200,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		MoveTaskOrderID: move.ID.String(),
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	handler := GetMoveTaskOrderHandlerFunc{context,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
@@ -285,10 +274,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	// Create the handler object
 	request := httptest.NewRequest("POST", "/move-task-orders", nil)
-
-	appCtx := suite.AppContextForTest()
-
-	context := handlers.NewHandlerContext(appCtx)
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	handler := CreateMoveTaskOrderHandler{context,
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 	}

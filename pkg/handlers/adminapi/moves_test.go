@@ -40,11 +40,8 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 			HTTPRequest: req,
 		}
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexMovesHandler{
-			HandlerContext:  handlers.NewHandlerContext(appCtx),
+			HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:  query.NewQueryFilter,
 			MoveListFetcher: move.NewMoveListFetcher(queryBuilder),
 			NewPagination:   pagination.NewPagination,
@@ -72,11 +69,8 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexMovesHandler{
-			HandlerContext:  handlers.NewHandlerContext(appCtx),
+			HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:  newQueryFilter,
 			MoveListFetcher: moveListFetcher,
 			NewPagination:   pagination.NewPagination,
@@ -104,11 +98,8 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	// Create handler and request:
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-
-	appCtx := suite.AppContextForTest()
-
 	handler := UpdateMoveHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
@@ -171,11 +162,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			HTTPRequest: req,
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 		}
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		}
 
 		response := handler.Handle(params)
@@ -193,10 +181,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			MoveID:      *handlers.FmtUUID(badUUID),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		}
 
 		response := handler.Handle(params)

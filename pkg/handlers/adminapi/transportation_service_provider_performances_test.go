@@ -49,11 +49,8 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			HTTPRequest: req,
 		}
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: tsp.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 			NewPagination: pagination.NewPagination,
@@ -87,11 +84,8 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: ListFetcher,
 			NewPagination: pagination.NewPagination,
@@ -118,11 +112,8 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexTSPPsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceListFetcher: ListFetcher,
 			NewPagination: pagination.NewPagination,
@@ -160,11 +151,8 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 			TsppID:      *handlers.FmtUUID(id),
 		}
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: tsp.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		}
@@ -190,11 +178,8 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(tspp, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: Fetcher,
 		}
@@ -217,11 +202,8 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformance{}, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := GetTSPPHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			TransportationServiceProviderPerformanceFetcher: Fetcher,
 		}

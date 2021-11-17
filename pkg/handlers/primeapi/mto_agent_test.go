@@ -52,9 +52,8 @@ func (suite *HandlerSuite) makeUpdateMTOAgentSubtestData() (subtestData *updateM
 	}
 
 	// Create handler and request
-	appCtx := suite.AppContextForTest()
 	subtestData.handler = UpdateMTOAgentHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		mtoagent.NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 	subtestData.req = httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", subtestData.agent.MTOShipmentID.String(), subtestData.agent.ID.String()), nil)
@@ -273,9 +272,8 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 	}
 
 	// Create Handler
-	appCtx := suite.AppContextForTest()
 	subtestData.handler = CreateMTOAgentHandler{
-		handlers.NewHandlerContext(appCtx),
+		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		mtoagent.NewMTOAgentCreator(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 	subtestData.req = httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/agents", subtestData.mtoShipment.ID), nil)

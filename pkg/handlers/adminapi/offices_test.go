@@ -39,11 +39,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			HTTPRequest: req,
 		}
 		queryBuilder := query.NewQueryBuilder()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:    query.NewQueryFilter,
 			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
 			NewPagination:     pagination.NewPagination,
@@ -77,11 +74,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,
@@ -112,11 +106,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		officeListFetcher.On("FetchOfficeCount",
 			mock.AnythingOfType("*appcontext.appContext"),
 		).Return(0, expectedError).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(appCtx),
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,

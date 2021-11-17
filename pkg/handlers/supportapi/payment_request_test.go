@@ -58,10 +58,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 		}
@@ -93,10 +91,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 		}
@@ -131,10 +127,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -165,10 +159,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -196,10 +188,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -226,10 +216,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(appCtx),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -253,10 +241,8 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 			MoveTaskOrderID: strfmt.UUID(mtoID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ListMTOPaymentRequestsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		}
 
 		response := handler.Handle(params)
@@ -276,10 +262,8 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 			MoveTaskOrderID: strfmt.UUID(mto.ID.String()),
 		}
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ListMTOPaymentRequestsHandler{
-			HandlerContext: handlers.NewHandlerContext(appCtx),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		}
 
 		response := handler.Handle(params)
@@ -335,11 +319,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
 
 	icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
-
-	appCtx := suite.AppContextForTest()
-
 	handler := GetPaymentRequestEDIHandler{
-		HandlerContext:                    handlers.NewHandlerContext(appCtx),
+		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
 	}
@@ -395,10 +376,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
 
-		appCtx := suite.AppContextForTest()
-
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerContext:                    handlers.NewHandlerContext(appCtx),
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -419,10 +398,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequestID, "conflict error"))
 
-		appCtx := suite.AppContextForTest()
-
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerContext:                    handlers.NewHandlerContext(appCtx),
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -458,10 +435,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		errStr := "some error"
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
 
-		appCtx := suite.AppContextForTest()
-
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerContext:                    handlers.NewHandlerContext(appCtx),
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -586,10 +561,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 	paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
 
-	appCtx := suite.AppContextForTest()
-
 	handler := ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                handlers.NewHandlerContext(appCtx),
+		HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 		PaymentRequestFetcher:         paymentRequestFetcher,
 		PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
@@ -739,10 +712,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nilPr, errors.New("could not fetch payment request"))
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerContext:                handlers.NewHandlerContext(appCtx),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestFetcher:         paymentRequestFetcher,
 			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
@@ -780,10 +751,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
 
-		appCtx := suite.AppContextForTest()
-
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerContext:                handlers.NewHandlerContext(appCtx),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestFetcher:         paymentRequestFetcher,
 			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
@@ -831,11 +800,8 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			paymentRequestID,
 		).Return(&samplePaymentRequest, nil).Once()
-
-		appCtx := suite.AppContextForTest()
-
 		handler := RecalculatePaymentRequestHandler{
-			HandlerContext:             handlers.NewHandlerContext(appCtx),
+			HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentRequestRecalculator: mockRecalculator,
 		}
 
@@ -908,11 +874,8 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 				mock.AnythingOfType("*appcontext.appContext"),
 				paymentRequestID,
 			).Return(nil, testCase.testErr)
-
-			appCtx := suite.AppContextForTest()
-
 			handler := RecalculatePaymentRequestHandler{
-				HandlerContext:             handlers.NewHandlerContext(appCtx),
+				HandlerContext:             handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 				PaymentRequestRecalculator: mockRecalculator,
 			}
 

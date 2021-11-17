@@ -60,9 +60,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	appCtx := suite.AppContextForTest()
-
-	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(appCtx)}
+	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response
