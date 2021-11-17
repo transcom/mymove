@@ -33,7 +33,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for loadtest deploys. See the branch settings below.
-  loadtest-branch: &loadtest-branch placeholder_branch_name
+  loadtest-branch: &loadtest-branch ds-mb-9926-investigate-local-otel-service-and-transaction-names
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
