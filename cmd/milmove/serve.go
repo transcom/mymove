@@ -886,6 +886,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root := mux.NewRouter()
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
+	root.Use(middleware.AppContextMiddleware(appCtx))
 
 	debug := root.PathPrefix("/debug/pprof/").Subrouter()
 	debug.Use(userAuthMiddleware)

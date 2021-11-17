@@ -10,6 +10,10 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
+type contextKey string
+
+var appCtxContextKey = contextKey("appCtx")
+
 // AppContext should be the first argument passed to all stateless
 // methods and contains all necessary config for the app
 //
@@ -20,6 +24,31 @@ type AppContext interface {
 	Logger() *zap.Logger
 	NewTransaction(func(appCtx AppContext) error) error
 	Session() *auth.Session
+}
+
+// NewContext takes an AppContext, creates a new version taking other values in context into account, and creates a
+// new context containing the new AppContext
+func NewContext(ctx context.Context, appCtx AppContext) context.Context {
+	newAppCtx := NewAppContextFromContext(ctx, appCtx)
+
+	return context.WithValue(ctx, appCtxContextKey, newAppCtx)
+}
+
+// FromContext grabs AppContext previously stored in context and returns it
+func FromContext(ctx context.Context) AppContext {
+	appCtx, ok := ctx.Value(appCtxContextKey).(AppContext)
+
+	// TODO: Not sure what the best way to handle this not being ok at this point is.
+	// The caller should likely throw a server error since it should have been set by middleware.
+	if !ok {
+		logger := logging.FromContext(ctx)
+
+		logger.Error("Could not find AppContext in request")
+
+		return nil
+	}
+
+	return appCtx
 }
 
 type appContext struct {
