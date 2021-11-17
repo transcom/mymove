@@ -188,6 +188,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
 		suite.NoError(err)
 		suite.NotNil(createdShipment.StorageFacility)
+		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
 	})
 
 	suite.Run("If the shipment has mto service items", func() {

@@ -118,7 +118,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 // StorageFacilityModel model
 func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.StorageFacility {
 	// To check if the model is intended to be blank, we'll look at both ID and FacilityName
-	// We should always have ID if the user intends to update an Address,
+	// We should always have ID if the user intends to update a Storage Facility,
 	// and FacilityName is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
 	if storageFacility == nil || (storageFacility.ID == blankSwaggerID && storageFacility.FacilityName == "") {

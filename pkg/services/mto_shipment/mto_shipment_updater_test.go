@@ -575,7 +575,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		})
 
-		newEmail := "old@email.com"
+		newEmail := "new@email.com"
 		newStorageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
 				Address: newStorageFacilityAddress,
@@ -592,7 +592,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &newShipment, eTag)
 		suite.Require().NoError(err)
-		suite.NotZero(newShipment.ID, oldMTOShipment.ID)
+		suite.NotEqual(uuid.Nil, updatedShipment.ID)
 		suite.Equal(&newEmail, updatedShipment.StorageFacility.Email)
 		suite.Equal(newStorageFacilityAddress.StreetAddress1, updatedShipment.StorageFacility.Address.StreetAddress1)
 	})
