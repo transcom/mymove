@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -133,7 +134,18 @@ func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 	}
 }
 
-func mustSave(db *pop.Connection, model interface{}) {
+func Save(db *pop.Connection, model interface{}) error {
+	verrs, err := db.ValidateAndSave(model)
+	if err != nil {
+		return errors.Wrap(err, "Errors encountered saving model")
+	}
+	if verrs.HasAny() {
+		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
+	}
+	return nil
+}
+
+func MustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))

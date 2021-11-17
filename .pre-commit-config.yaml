@@ -65,6 +65,15 @@ repos:
         pass_filenames: false
         language: script
 
+  - repo: local
+    hooks:
+      - id: appcontext-linter
+        name: appcontext-linter
+        entry: scripts/pre-commit-go-custom-linter appcontext-linter
+        files: \.go$
+        pass_filenames: false
+        language: script
+
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.29.0
     hooks:
