@@ -49,7 +49,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				continue
 
 			case *ast.GenDecl:
-				positionToFlag := checkForPopConnectionUsesInDeclaration(decl)
+				positionToFlag := checkForPopConnectionUsesInDeclaration(decl, packageName)
 
 				if positionToFlag.IsValid() {
 					pass.Reportf(positionToFlag, "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements.")
@@ -89,11 +89,16 @@ func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
 	return false
 }
 
-func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl) token.Pos {
+func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, packageName string) token.Pos {
 	for _, spec := range declarationToCheck.Specs {
 		// Only want types, not imports, variables, or constants
 		typeSpec, ok := spec.(*ast.TypeSpec)
 		if !ok {
+			continue
+		}
+
+		// Special case because this is the one that sets up all handlers so it's allowed to use *pop.Connection
+		if typeSpec.Name.Name == "handlerContext" && packageName == "handlers" {
 			continue
 		}
 

@@ -9,7 +9,7 @@ type TestAppContext struct { // want "Please remove pop.Connection from the stru
 }
 
 // handlerContext should not be flagged because it's a special exception.
-type handlerContext struct { // want "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements."
+type handlerContext struct {
 	DB         *pop.Connection
 	testString string
 }
