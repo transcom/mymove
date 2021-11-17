@@ -95,7 +95,7 @@ type CreateMTOShipment struct {
 
 	// uses external vendor
 	// Example: false
-	UsesExternalVendor bool `json:"usesExternalVendor,omitempty"`
+	UsesExternalVendor *bool `json:"usesExternalVendor,omitempty"`
 }
 
 // Validate validates this create m t o shipment

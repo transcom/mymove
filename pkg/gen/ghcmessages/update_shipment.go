@@ -79,7 +79,7 @@ type UpdateShipment struct {
 
 	// uses external vendor
 	// Example: false
-	UsesExternalVendor bool `json:"usesExternalVendor,omitempty"`
+	UsesExternalVendor *bool `json:"usesExternalVendor,omitempty"`
 }
 
 // Validate validates this update shipment

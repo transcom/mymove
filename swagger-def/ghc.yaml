@@ -3364,6 +3364,7 @@ definitions:
       usesExternalVendor:
         type: boolean
         example: false
+        x-nullable: true
       serviceOrderNumber:
         type: string
         x-nullable: true
@@ -3441,6 +3442,7 @@ definitions:
       usesExternalVendor:
         type: boolean
         example: false
+        x-nullable: true
       serviceOrderNumber:
         type: string
         x-nullable: true

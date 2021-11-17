@@ -187,7 +187,7 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		CounselorRemarks:   mtoShipment.CounselorRemarks,
 		TACType:            tacType,
 		SACType:            sacType,
-		UsesExternalVendor: mtoShipment.UsesExternalVendor,
+		UsesExternalVendor: *mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber: mtoShipment.ServiceOrderNumber,
 	}
 
@@ -269,7 +269,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		TACType:                     tacType,
 		SACType:                     sacType,
-		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 	}
 
@@ -288,6 +287,10 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
 	if storageFacilityModel != nil {
 		model.StorageFacility = storageFacilityModel
+	}
+
+	if mtoShipment.UsesExternalVendor != nil {
+		model.UsesExternalVendor = *mtoShipment.UsesExternalVendor
 	}
 
 	return model

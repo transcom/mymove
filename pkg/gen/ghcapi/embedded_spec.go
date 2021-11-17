@@ -3365,6 +3365,7 @@ func init() {
         },
         "usesExternalVendor": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         }
       }
@@ -5612,6 +5613,7 @@ func init() {
         },
         "usesExternalVendor": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         }
       }
@@ -9891,6 +9893,7 @@ func init() {
         },
         "usesExternalVendor": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         }
       }
@@ -12144,6 +12147,7 @@ func init() {
         },
         "usesExternalVendor": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         }
       }
