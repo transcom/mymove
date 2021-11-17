@@ -53,15 +53,15 @@ describe('Profile component', () => {
             residential_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Street',
               country: 'USA',
             },
             backup_mailing_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Backup Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
             current_station: {
@@ -129,15 +129,15 @@ describe('Profile component', () => {
             residential_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Street',
               country: 'USA',
             },
             backup_mailing_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Backup Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
             current_station: {
@@ -229,15 +229,15 @@ describe('Profile component', () => {
             residential_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Street',
               country: 'USA',
             },
             backup_mailing_address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92131',
-              street_address_1: 'Some Backup Street',
+              postalCode: '92131',
+              streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
             current_station: {

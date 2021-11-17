@@ -18,9 +18,9 @@ const PickupDisplay = ({ pickupLocation, secondaryPickupAddress, releasingAgent,
         <div className={styles.row}>
           <dt>Pickup location</dt>
           <dd>
-            {pickupLocation.street_address_1} {pickupLocation.street_address_2}
+            {pickupLocation.streetAddress1} {pickupLocation.streetAddress2}
             <br />
-            {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
+            {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postalCode}
           </dd>
         </div>
       )}
@@ -28,9 +28,9 @@ const PickupDisplay = ({ pickupLocation, secondaryPickupAddress, releasingAgent,
         <div className={styles.row}>
           <dt>Second pickup location</dt>
           <dd>
-            {secondaryPickupAddress.street_address_1} {secondaryPickupAddress.street_address_2}
+            {secondaryPickupAddress.streetAddress1} {secondaryPickupAddress.streetAddress2}
             <br />
-            {secondaryPickupAddress.city}, {secondaryPickupAddress.state} {secondaryPickupAddress.postal_code}
+            {secondaryPickupAddress.city}, {secondaryPickupAddress.state} {secondaryPickupAddress.postalCode}
           </dd>
         </div>
       )}

@@ -60,18 +60,18 @@ const ContactInfoDisplay = ({
           <div className={descriptionListStyles.row}>
             <dt>Current mailing address</dt>
             <dd>
-              {residentialAddress.street_address_1} {residentialAddress.street_address_2}
+              {residentialAddress.streetAddress1} {residentialAddress.streetAddress2}
               <br />
-              {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postal_code}
+              {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postalCode}
             </dd>
           </div>
 
           <div className={descriptionListStyles.row}>
             <dt>Backup mailing address</dt>
             <dd>
-              {backupMailingAddress.street_address_1} {backupMailingAddress.street_address_2}
+              {backupMailingAddress.streetAddress1} {backupMailingAddress.streetAddress2}
               <br />
-              {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postal_code}
+              {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postalCode}
             </dd>
           </div>
         </dl>

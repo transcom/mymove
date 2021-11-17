@@ -59,21 +59,21 @@ export const formatDaysInTransit = (days) => {
 
 export const formatAddressForPrimeAPI = (address) => {
   return {
-    streetAddress1: address.street_address_1,
-    streetAddress2: address.street_address_2,
-    streetAddress3: address.street_address_3,
+    streetAddress1: address.streetAddress1,
+    streetAddress2: address.streetAddress2,
+    streetAddress3: address.streetAddress3,
     city: address.city,
     state: address.state,
-    postalCode: address.postal_code,
+    postalCode: address.postalCode,
   };
 };
 
 const emptyAddress = {
-  street_address_1: '',
-  street_address_2: '',
+  streetAddress1: '',
+  streetAddress2: '',
   city: '',
   state: '',
-  postal_code: '',
+  postalCode: '',
 };
 
 export function fromPrimeAPIAddressFormat(address) {
@@ -81,11 +81,11 @@ export function fromPrimeAPIAddressFormat(address) {
     return emptyAddress;
   }
   return {
-    street_address_1: address.streetAddress1,
-    street_address_2: address.streetAddress2,
-    street_address_3: address.streetAddress3,
+    streetAddress1: address.streetAddress1,
+    streetAddress2: address.streetAddress2,
+    streetAddress3: address.streetAddress3,
     city: address.city,
     state: address.state,
-    postal_code: address.postalCode,
+    postalCode: address.postalCode,
   };
 }

@@ -66,7 +66,7 @@ let EditDateAndLocationForm = (props) => {
               <SwaggerField fieldName="destination_postal_code" swagger={schema} required />
               <span className="grey">
                 The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-                {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+                {currentOrders && currentOrders.new_duty_station.address.postalCode}{' '}
               </span>
               <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_sit', false) && (
@@ -233,7 +233,7 @@ function mapStateToProps(state) {
     sitReimbursement: currentPPM?.estimated_storage_reimbursement,
   };
 
-  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
+  const defaultPickupZip = serviceMember?.residential_address?.postalCode;
 
   props.initialValues = props.currentPPM
     ? props.currentPPM

@@ -22,16 +22,16 @@ const hhgInfo = {
   shipmentId: 'testShipmentId394',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -40,16 +40,16 @@ const ntsInfo = {
   requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -58,13 +58,13 @@ const postalOnlyInfo = {
   requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -74,16 +74,16 @@ const diversionInfo = {
   isDiversion: true,
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -94,16 +94,16 @@ const cancelledInfo = {
   shipmentStatus: 'CANCELED',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 

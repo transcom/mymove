@@ -11,9 +11,9 @@ const originDutyStation = {
   address: {
     city: 'Dover AFB',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
-    postal_code: '19902',
+    postalCode: '19902',
     state: 'DE',
-    street_address_1: '',
+    streetAddress1: '',
   },
   address_id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
   affiliation: 'AIR_FORCE',
@@ -26,9 +26,9 @@ const newDutyStation = {
   address: {
     city: 'Scott Air Force Base',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
-    postal_code: '62225',
+    postalCode: '62225',
     state: 'IL',
-    street_address_1: '',
+    streetAddress1: '',
   },
   address_id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
   affiliation: 'AIR_FORCE',

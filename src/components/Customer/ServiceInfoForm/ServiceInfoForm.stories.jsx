@@ -42,7 +42,7 @@ export const WithInitialValues = (argTypes) => (
         address: {
           city: 'Los Angeles',
           state: 'CA',
-          postal_code: '90245',
+          postalCode: '90245',
         },
         name: 'Los Angeles AFB',
         id: 'testId',
