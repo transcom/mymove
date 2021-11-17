@@ -22,16 +22,16 @@ const info = {
   ],
   secondaryAddresses: {
     secondaryPickupAddress: {
-      street_address_1: '444 S 131st St',
+      streetAddress1: '444 S 131st St',
       city: 'San Antonio',
       state: 'TX',
-      postal_code: '78234',
+      postalCode: '78234',
     },
     secondaryDeliveryAddress: {
-      street_address_1: '7 Q St',
+      streetAddress1: '7 Q St',
       city: 'Austin',
       state: 'TX',
-      postal_code: '78722',
+      postalCode: '78722',
     },
   },
 };
@@ -49,10 +49,10 @@ describe('Shipment Details Sidebar', () => {
     expect(screen.getByText(info.agents[0].email)).toBeInTheDocument();
     expect(screen.getByText(info.agents[1].email)).toBeInTheDocument();
     expect(
-      screen.getByText(info.secondaryAddresses.secondaryPickupAddress.street_address_1, { exact: false }),
+      screen.getByText(info.secondaryAddresses.secondaryPickupAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(info.secondaryAddresses.secondaryDeliveryAddress.street_address_1, { exact: false }),
+      screen.getByText(info.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
   });
 

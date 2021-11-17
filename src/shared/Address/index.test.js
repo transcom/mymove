@@ -6,10 +6,10 @@ import { AddressElementDisplay } from '.';
 describe('Address component test', () => {
   describe('when address has required data', () => {
     const address = {
-      street_address_1: '560 State Street',
+      streetAddress1: '560 State Street',
       city: 'New York City',
       state: 'NY',
-      postal_code: '11217',
+      postalCode: '11217',
     };
     const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
       .find(PanelField)
@@ -21,15 +21,15 @@ describe('Address component test', () => {
     });
     it('should render the address itself', () => {
       const addressInfo = fields[0].props.children[0];
-      expect(addressInfo).toBe(address.street_address_1);
+      expect(addressInfo).toBe(address.streetAddress1);
     });
     it('should have a line break in between addresses', () => {
       const lineBreak = fields[0].props.children[1];
       expect(lineBreak.type).toBe('br');
     });
     it('should not render addresses not present', () => {
-      const street_address_2 = fields[1];
-      expect(street_address_2).toBeFalsy();
+      const streetAddress2 = fields[1];
+      expect(streetAddress2).toBeFalsy();
     });
     it('should render the city', () => {
       const city = fields[2];
@@ -49,17 +49,17 @@ describe('Address component test', () => {
     });
     it('should render the postal code', () => {
       const postalCode = fields[6];
-      expect(postalCode).toBe(address.postal_code);
+      expect(postalCode).toBe(address.postalCode);
     });
   });
   describe('when address component is provided optional additional addresses', () => {
-    it('should render street_address_2', () => {
+    it('should render streetAddress2', () => {
       const address = {
-        street_address_1: '560 State Street',
-        street_address_2: 'PO Box 123',
+        streetAddress1: '560 State Street',
+        streetAddress2: 'PO Box 123',
         city: 'New York City',
         state: 'NY',
-        postal_code: '11217',
+        postalCode: '11217',
       };
       const wrapper = shallow(<AddressElementDisplay address={address} title="primary" />)
         .find(PanelField)
@@ -67,14 +67,14 @@ describe('Address component test', () => {
 
       const address_2 = wrapper.find('.field-value').children().at(1).props().children[0];
 
-      expect(address_2).toBe(address.street_address_2);
+      expect(address_2).toBe(address.streetAddress2);
     });
   });
-  describe('when address component is provided only city, state, postal_code', () => {
+  describe('when address component is provided only city, state, postalCode', () => {
     const address = {
       city: 'New York City',
       state: 'NY',
-      postal_code: '11217',
+      postalCode: '11217',
     };
     const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
       .find(PanelField)
@@ -92,8 +92,8 @@ describe('Address component test', () => {
     it('should render state', () => {
       expect(fields[4]).toBe(address.state);
     });
-    it('should render postal_code', () => {
-      expect(fields[6]).toBe(address.postal_code);
+    it('should render postalCode', () => {
+      expect(fields[6]).toBe(address.postalCode);
     });
   });
 });

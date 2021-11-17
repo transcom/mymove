@@ -8,10 +8,10 @@ export default function Address({ address }) {
 
   return (
     <div className="address">
-      <div>{address.street_address_1}</div>
-      {address.street_address_2 && <div>{address.street_address_2}</div>}
+      <div>{address.streetAddress1}</div>
+      {address.streetAddress2 && <div>{address.streetAddress2}</div>}
       <div>
-        {address.city}, {address.state} {address.postal_code}
+        {address.city}, {address.state} {address.postalCode}
       </div>
     </div>
   );

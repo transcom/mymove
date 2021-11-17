@@ -22,15 +22,15 @@ jest.mock('shared/api', () => ({
 
 describe('ResidentialAddress page', () => {
   const fakeAddress = {
-    street_address_1: '235 Prospect Valley Road SE',
-    street_address_2: '#125',
+    streetAddress1: '235 Prospect Valley Road SE',
+    streetAddress2: '#125',
     city: 'El Paso',
     state: 'TX',
-    postal_code: '79912',
+    postalCode: '79912',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
-
+  // TODO: We may want to change residential_address to residentialAddress
   const generateTestProps = (address) => ({
     updateServiceMember: jest.fn(),
     push: jest.fn(),
@@ -95,11 +95,11 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
-    userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.street_address_1);
-    userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.street_address_2);
+    userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
     userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postal_code);
+    userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

@@ -33,9 +33,9 @@ const mockCustomer = {
   current_address: {
     city: 'Beverly Hills',
     country: 'US',
-    postal_code: '90210',
+    postalCode: '90210',
     state: 'CA',
-    street_address_1: '123 Any Street',
+    streetAddress1: '123 Any Street',
   },
   email: 'john_doe@mail.com',
   first_name: 'John',
@@ -119,10 +119,10 @@ describe('CustomerInfo', () => {
       expect(screen.getByDisplayValue(mockCustomer.backup_contact.email).value).toEqual(
         mockCustomer.backup_contact.email,
       );
-      expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.street_address_1);
+      expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.streetAddress1);
       expect(screen.getByLabelText('City').value).toEqual(mockCustomer.current_address.city);
       expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
-      expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postal_code);
+      expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postalCode);
       expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
     });
   });

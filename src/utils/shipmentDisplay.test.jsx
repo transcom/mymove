@@ -16,10 +16,10 @@ describe('shipmentDisplay utils', () => {
   describe('formatAddress', () => {
     describe('all address parts provided', () => {
       const shipmentAddress = {
-        street_address_1: '555 Main Street',
+        streetAddress1: '555 Main Street',
         city: 'Celebration',
         state: 'FL',
-        postal_code: '34747',
+        postalCode: '34747',
       };
       const component = mount(formatAddress(shipmentAddress));
       it('includes full address with comma seperator', () => {
@@ -33,7 +33,7 @@ describe('shipmentDisplay utils', () => {
       const shipmentAddress = {
         city: 'Celebration',
         state: 'FL',
-        postal_code: '34747',
+        postalCode: '34747',
       };
       const component = mount(formatAddress(shipmentAddress));
       it('formats as single line', () => {
@@ -42,7 +42,7 @@ describe('shipmentDisplay utils', () => {
     });
     describe('postal code only', () => {
       const shipmentAddress = {
-        postal_code: '34747',
+        postalCode: '34747',
       };
       const component = mount(formatAddress(shipmentAddress));
       it('omits city and state', () => {
@@ -78,18 +78,18 @@ describe('shipmentDisplay utils', () => {
   describe('formatDestination', () => {
     it('shows entire address', () => {
       const destinationLocation = {
-        street_address_1: '123 Any Street',
-        street_address_2: 'Apt 4',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'Apt 4',
         city: 'Los Angeles',
         state: 'CA',
-        postal_code: '111111',
+        postalCode: '111111',
       };
       const wrapper = mount(formatCustomerDestination(destinationLocation));
-      expect(wrapper.at(0).text()).toEqual(destinationLocation.street_address_1);
-      expect(wrapper.at(2).text()).toEqual(destinationLocation.street_address_2);
+      expect(wrapper.at(0).text()).toEqual(destinationLocation.streetAddress1);
+      expect(wrapper.at(2).text()).toEqual(destinationLocation.streetAddress2);
       expect(wrapper.at(4).text()).toEqual(destinationLocation.city);
       expect(wrapper.at(6).text()).toEqual(destinationLocation.state);
-      expect(wrapper.at(8).text()).toEqual(destinationLocation.postal_code);
+      expect(wrapper.at(8).text()).toEqual(destinationLocation.postalCode);
     });
 
     it('shows postalCode if address is not provided', () => {
@@ -100,18 +100,18 @@ describe('shipmentDisplay utils', () => {
     const pickupAddress = {
       city: 'Princeton',
       state: 'NJ',
-      postal_code: '08540',
+      postalCode: '08540',
     };
-    const destinationAddress = { city: 'Boston', state: 'MA', postal_code: '02101' };
+    const destinationAddress = { city: 'Boston', state: 'MA', postalCode: '02101' };
     it('shows expected string when both pickupAddress and destinationAddress are present', () => {
       const wrapper = mount(formatPaymentRequestAddressString(pickupAddress, destinationAddress));
 
       expect(wrapper.at(0).text()).toEqual(pickupAddress.city);
       expect(wrapper.at(2).text()).toEqual(pickupAddress.state);
-      expect(wrapper.at(4).text()).toEqual(pickupAddress.postal_code);
+      expect(wrapper.at(4).text()).toEqual(pickupAddress.postalCode);
       expect(wrapper.at(8).text()).toEqual(destinationAddress.city);
       expect(wrapper.at(10).text()).toEqual(destinationAddress.state);
-      expect(wrapper.at(12).text()).toEqual(destinationAddress.postal_code);
+      expect(wrapper.at(12).text()).toEqual(destinationAddress.postalCode);
     });
     it('shows expected string when both pickupAddress is missing', () => {
       const wrapper = mount(formatPaymentRequestAddressString(undefined, destinationAddress));
@@ -119,25 +119,25 @@ describe('shipmentDisplay utils', () => {
       expect(wrapper.at(0).text()).toEqual('TBD ');
       expect(wrapper.at(3).text()).toEqual(destinationAddress.city);
       expect(wrapper.at(5).text()).toEqual(destinationAddress.state);
-      expect(wrapper.at(7).text()).toEqual(destinationAddress.postal_code);
+      expect(wrapper.at(7).text()).toEqual(destinationAddress.postalCode);
     });
     it('shows expected string when both destinationAddress is missing', () => {
       const wrapper = mount(formatPaymentRequestAddressString(pickupAddress, undefined));
 
       expect(wrapper.at(0).text()).toEqual(pickupAddress.city);
       expect(wrapper.at(2).text()).toEqual(pickupAddress.state);
-      expect(wrapper.at(4).text()).toEqual(pickupAddress.postal_code);
+      expect(wrapper.at(4).text()).toEqual(pickupAddress.postalCode);
       expect(wrapper.at(8).text()).toEqual(`TBD`);
     });
   });
 
   describe('formatPaymentRequestAddressString', () => {
     const address = {
-      street_address_1: '123 Any Street',
-      street_address_2: 'Apt 4',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'Apt 4',
       city: 'Los Angeles',
       state: 'CA',
-      postal_code: '111111',
+      postalCode: '111111',
     };
 
     it('shows expected string when an address is present', () => {

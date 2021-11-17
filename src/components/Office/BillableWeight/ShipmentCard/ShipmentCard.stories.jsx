@@ -14,12 +14,12 @@ const props = {
   pickupAddress: {
     city: 'Rancho Santa Margarita',
     state: 'CA',
-    postal_code: '92688',
+    postalCode: '92688',
   },
   destinationAddress: {
     city: 'West Springfield Town',
     state: 'MA',
-    postal_code: '01089',
+    postalCode: '01089',
   },
   estimatedWeight: 5000,
   originalWeight: 4014,

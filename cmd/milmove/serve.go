@@ -1021,7 +1021,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, handlerContext, appnames)).Methods("POST")
 		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, handlerContext, appnames)).Methods("POST")
 
-		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
