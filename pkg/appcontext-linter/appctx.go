@@ -40,7 +40,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		for _, declaration := range file.Decls {
 			switch decl := declaration.(type) {
 			case *ast.FuncDecl:
-				paramsIncludePopConnection := checkIfFuncParamsIncludePopConnection(decl)
+				paramsIncludePopConnection := checkIfFuncParamsIncludePopConnection(decl, packageName)
 
 				if paramsIncludePopConnection {
 					pass.Reportf(decl.Pos(), "Please use appcontext instead of pop.Connection.")
@@ -79,8 +79,8 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 	return allowedPackages[packageName]
 }
 
-func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
-	if funcToCheck.Name.Name == "NewHandlerContext" {
+func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl, packageName string) bool {
+	if funcToCheck.Name.Name == "NewHandlerContext" && packageName == "handlers" {
 		return false
 	}
 
