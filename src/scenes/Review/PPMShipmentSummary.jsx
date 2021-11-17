@@ -168,7 +168,7 @@ function mapStateToProps(state, ownProps) {
     ppmEstimate: {
       hasEstimateError: hasError,
       rateEngineError: ppmEstimateError,
-      originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
+      originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
       incentive_estimate_min,
       incentive_estimate_max,
     },

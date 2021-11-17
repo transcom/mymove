@@ -110,7 +110,7 @@ const ShipmentDetailsMain = ({
       />
       <ShipmentAddresses
         pickupAddress={pickupAddress}
-        destinationAddress={destinationAddress || destinationDutyStationAddress?.postal_code}
+        destinationAddress={destinationAddress || destinationDutyStationAddress?.postalCode}
         originDutyStation={originDutyStationAddress}
         destinationDutyStation={destinationDutyStationAddress}
         shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag, shipmentStatus: shipment.status }}

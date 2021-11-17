@@ -2938,10 +2938,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -2964,7 +2964,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -3081,18 +3081,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,
@@ -9345,10 +9345,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -9371,7 +9371,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -9488,18 +9488,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,

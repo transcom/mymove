@@ -323,9 +323,9 @@ describe('when getting the next incomplete page', () => {
             },
             residential_address: {
               city: 'Atlanta',
-              postal_code: '30030',
+              postalCode: '30030',
               state: 'GA',
-              street_address_1: 'xxx',
+              streetAddress1: 'xxx',
             },
           },
           context: ppmContext,
@@ -353,15 +353,15 @@ describe('when getting the next incomplete page', () => {
             },
             residential_address: {
               city: 'Atlanta',
-              postal_code: '30030',
+              postalCode: '30030',
               state: 'GA',
-              street_address_1: 'xxx',
+              streetAddress1: 'xxx',
             },
             backup_mailing_address: {
               city: 'Atlanta',
-              postal_code: '30030',
+              postalCode: '30030',
               state: 'GA',
-              street_address_1: 'zzz',
+              streetAddress1: 'zzz',
             },
           },
           context: ppmContext,
@@ -398,15 +398,15 @@ describe('when getting the next incomplete page', () => {
           },
           residential_address: {
             city: 'Atlanta',
-            postal_code: '30030',
+            postalCode: '30030',
             state: 'GA',
-            street_address_1: 'xxx',
+            streetAddress1: 'xxx',
           },
           backup_mailing_address: {
             city: 'Atlanta',
-            postal_code: '30030',
+            postalCode: '30030',
             state: 'GA',
-            street_address_1: 'zzz',
+            streetAddress1: 'zzz',
           },
         };
         const result = getNextIncompletePage({

@@ -8,19 +8,19 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export const AddressElementDisplay = ({ address, title }) => (
   <PanelField title={title}>
-    {address.street_address_1 && (
+    {address.streetAddress1 && (
       <span>
-        {address.street_address_1}
+        {address.streetAddress1}
         <br />
       </span>
     )}
-    {address.street_address_2 && (
+    {address.streetAddress2 && (
       <span>
-        {address.street_address_2}
+        {address.streetAddress2}
         <br />
       </span>
     )}
-    {address.city}, {address.state} {address.postal_code}
+    {address.city}, {address.state} {address.postalCode}
   </PanelField>
 );
 
@@ -30,11 +30,11 @@ AddressElementDisplay.defaultProps = {
 
 AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
-    street_address_1: PropTypes.string,
-    street_address_2: PropTypes.string,
+    streetAddress1: PropTypes.string,
+    streetAddress2: PropTypes.string,
     city: PropTypes.string.isRequired,
     state: PropTypes.string.isRequired,
-    postal_code: PropTypes.string.isRequired,
+    postalCode: PropTypes.string.isRequired,
   }).isRequired,
   title: PropTypes.string.isRequired,
 };
@@ -44,8 +44,8 @@ export class AddressElementEdit extends Component {
     return (
       <FormSection name={this.props.fieldName}>
         <div className="panel-subhead">{this.props.title}</div>
-        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
-        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
+        <SwaggerField fieldName="streetAddress1" swagger={this.props.schema} required />
+        <SwaggerField fieldName="streetAddress2" swagger={this.props.schema} />
         <SwaggerField fieldName="city" swagger={this.props.schema} required />
         <div className={style['state-zip-container']}>
           <div className="usa-width-one-half">
@@ -53,7 +53,7 @@ export class AddressElementEdit extends Component {
           </div>
           <div className="usa-width-one-half">
             <SwaggerField
-              fieldName="postal_code"
+              fieldName="postalCode"
               swagger={this.props.schema}
               zipPattern={this.props.zipPattern}
               required
