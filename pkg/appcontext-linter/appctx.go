@@ -80,6 +80,10 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 }
 
 func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl) bool {
+	if funcToCheck.Name.Name == "NewHandlerContext" {
+		return false
+	}
+
 	for _, param := range funcToCheck.Type.Params.List {
 		if checkForPopConnection(param) {
 			return true
