@@ -130,6 +130,7 @@ application testing
 | `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
+| `zips-for-gbloc`                | Helper script to find ZIP codes in the given GBLOC.                                             |
 
 ### Building
 

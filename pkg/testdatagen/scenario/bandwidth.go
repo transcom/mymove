@@ -12,9 +12,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -28,39 +28,39 @@ type bandwidthScenario NamedScenario
 // BandwidthScenario is the thing
 var BandwidthScenario = bandwidthScenario{Name: "bandwidth"}
 
-func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+func createHHGMove150Kb(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "S150KB", models.MoveStatusSUBMITTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "S150KB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("68034aa3-831c-4d2d-9fd4-b66bc0cc5130"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
-func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+func createHHGMove2mb(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	filterFile := &[]string{"2mb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MED2MB", models.MoveStatusSUBMITTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "MED2MB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("4de88d57-9723-446b-904c-cf8d0a834687"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
-func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+func createHHGMove25mb(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	filterFile := &[]string{"25mb.png"}
-	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "LG25MB", models.MoveStatusSUBMITTED)
-	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	serviceMember := makeServiceMember(appCtx)
+	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, "LG25MB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
-	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
-func makeServiceMember(db *pop.Connection) models.ServiceMember {
+func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 	affiliation := models.AffiliationCOASTGUARD
-	serviceMember := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			Affiliation: &affiliation,
 		},
@@ -69,8 +69,8 @@ func makeServiceMember(db *pop.Connection) models.ServiceMember {
 	return serviceMember
 }
 
-func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Connection, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(db, testdatagen.Assertions{
+func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
+	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
 		Document: models.Document{
 			ServiceMemberID: serviceMember.ID,
 			ServiceMember:   serviceMember,
@@ -86,7 +86,7 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
 
-		upload := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
+		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 			File: fixture,
 			UserUpload: models.UserUpload{
 				UploaderID: serviceMember.UserID,
@@ -98,7 +98,7 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 		document.UserUploads = append(document.UserUploads, upload)
 	}
 
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID:  serviceMember.ID,
 			ServiceMember:    serviceMember,
@@ -111,8 +111,8 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 	return orders
 }
 
-func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(db, testdatagen.Assertions{
+func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
+	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
 		Document: models.Document{
 			ServiceMemberID: order.ServiceMemberID,
 			ServiceMember:   order.ServiceMember,
@@ -128,7 +128,7 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
 
-		upload := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
+		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 			File: fixture,
 			UserUpload: models.UserUpload{
 				UploaderID: order.ServiceMember.UserID,
@@ -142,7 +142,7 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 
 	order.UploadedAmendedOrders = &document
 	order.UploadedAmendedOrdersID = &document.ID
-	saveErr := db.Save(&order)
+	saveErr := appCtx.DB().Save(&order)
 	if saveErr != nil {
 		log.Panic("error saving amended orders upload to orders")
 	}
@@ -150,7 +150,7 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 	return order
 }
 
-func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string, moveStatus models.MoveStatus) models.Move {
+func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
 
 	var availableToPrimeAt *time.Time
@@ -158,7 +158,7 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string,
 		now := time.Now()
 		availableToPrimeAt = &now
 	}
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status:             moveStatus,
 			OrdersID:           orders.ID,
@@ -172,11 +172,11 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string,
 	return move
 }
 
-func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
+func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmentStatus models.MTOShipmentStatus) models.MTOShipment {
 	estimatedWeight := unit.Pound(7200)
 	actualWeight := unit.Pound(7400)
 	daysOfSIT := 90
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			SITDaysAllowance:     &daysOfSIT,
 			PrimeEstimatedWeight: &estimatedWeight,
@@ -188,7 +188,7 @@ func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTO
 		Move: move,
 	})
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   MTOShipment,
 			MTOShipmentID: MTOShipment.ID,
@@ -202,13 +202,13 @@ func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTO
 	return MTOShipment
 }
 
-func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
+func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmentStatus models.MTOShipmentStatus) models.MTOShipment {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 	billableWeight := unit.Pound(4000)
 	billableWeightJustification := "heavy"
 
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight:        &estimatedWeight,
 			PrimeActualWeight:           &actualWeight,
@@ -221,7 +221,7 @@ func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStat
 		Move: move,
 	})
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   MTOShipment,
 			MTOShipmentID: MTOShipment.ID,
@@ -235,8 +235,8 @@ func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStat
 	return MTOShipment
 }
 
-func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment, db *pop.Connection, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Move, shipment models.MTOShipment, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
+	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            paymentRequestID,
 			MoveTaskOrder: move,
@@ -247,12 +247,12 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 	})
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &dcrtCost,
 		},
@@ -261,7 +261,7 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 	})
 
 	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: shipment,
 		ReService: models.ReService{
@@ -269,7 +269,7 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 		},
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &ducrtCost,
 		},
@@ -283,7 +283,7 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 	for _, file := range files {
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
-		testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
 			File:           fixture,
 			PaymentRequest: paymentRequest,
 			PrimeUploader:  primeUploader,
@@ -291,24 +291,24 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 	}
 }
 
-func createOfficeUser(db *pop.Connection) {
+func createOfficeUser(appCtx appcontext.AppContext) {
 	/* A user with both too and tio roles */
 	email := "too_tio_role@office.mil"
 	tooRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
 			LoginGovUUID:  &loginGovUUID,
@@ -317,7 +317,7 @@ func createOfficeUser(db *pop.Connection) {
 			Roles:         []roles.Role{tooRole, tioRole},
 		},
 	})
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
 			Email:  email,
@@ -361,9 +361,9 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 }
 
 // Run does that data load thing
-func (e bandwidthScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	createOfficeUser(db)
-	createHHGMove150Kb(db, userUploader, primeUploader)
-	createHHGMove2mb(db, userUploader, primeUploader)
-	createHHGMove25mb(db, userUploader, primeUploader)
+func (e bandwidthScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	createOfficeUser(appCtx)
+	createHHGMove150Kb(appCtx, userUploader, primeUploader)
+	createHHGMove2mb(appCtx, userUploader, primeUploader)
+	createHHGMove25mb(appCtx, userUploader, primeUploader)
 }

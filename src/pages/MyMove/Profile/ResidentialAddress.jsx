@@ -39,11 +39,11 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
 
   const initialValues = {
     [formFieldsName]: {
-      street_address_1: serviceMember.residential_address?.street_address_1 || '',
-      street_address_2: serviceMember.residential_address?.street_address_2 || '',
+      streetAddress1: serviceMember.residential_address?.streetAddress1 || '',
+      streetAddress2: serviceMember.residential_address?.streetAddress2 || '',
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
-      postal_code: serviceMember.residential_address?.postal_code || '',
+      postalCode: serviceMember.residential_address?.postalCode || '',
     },
   };
 

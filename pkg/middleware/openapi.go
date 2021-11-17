@@ -3,6 +3,8 @@ package middleware
 import (
 	"net/http"
 
+	sdktrace "go.opentelemetry.io/otel/trace"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
@@ -28,6 +30,7 @@ func OpenAPITracing(api OpenAPIWithContext) func(next http.Handler) http.Handler
 					logger.Warn("Cannot get labeler from context")
 				} else {
 					labeler.Add(semconv.HTTPTargetKey.String(matchedRoute.PathPattern))
+					sdktrace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRouteKey.String(matchedRoute.PathPattern))
 				}
 			}
 			next.ServeHTTP(w, r)

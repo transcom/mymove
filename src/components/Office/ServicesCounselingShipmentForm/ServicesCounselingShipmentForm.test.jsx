@@ -19,14 +19,14 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-    street_address_2: '',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
   },
   serviceMember: {
     weightAllotment: {
@@ -45,16 +45,16 @@ const mockMtoShipment = {
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   mtoAgents: [
     {
@@ -109,7 +109,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
@@ -126,13 +126,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
-        defaultProps.currentResidence.street_address_1,
+        defaultProps.currentResidence.streetAddress1,
       );
 
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
       expect(screen.getAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -142,12 +142,12 @@ describe('ServicesCounselingShipmentForm component', () => {
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
-        'pickup.address.street_address_1',
+        'pickup.address.streetAddress1',
       );
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
       expect(screen.getAllByLabelText('City')[0]).toHaveAttribute('name', 'pickup.address.city');
       expect(screen.getAllByLabelText('City')[1]).toHaveAttribute('name', 'delivery.address.city');
@@ -155,8 +155,8 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('State')[0]).toHaveAttribute('name', 'pickup.address.state');
       expect(screen.getAllByLabelText('State')[1]).toHaveAttribute('name', 'delivery.address.state');
 
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postal_code');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postal_code');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
   });
 
@@ -193,7 +193,8 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
       expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
       expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
-      expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
   });
@@ -223,7 +224,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
@@ -260,7 +261,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
       expect(
@@ -310,27 +311,26 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(defaultProps.history.push).not.toHaveBeenCalled();
     });
 
-    it('saves the update to the counselor and customer remarks when the save button is clicked', async () => {
+    it('saves the update to the counselor remarks when the save button is clicked', async () => {
       const newCounselorRemarks = 'Counselor remarks';
-      const newCustomerRemarks = 'Customer remarks';
 
       const expectedPayload = {
         body: {
-          customerRemarks: newCustomerRemarks,
+          customerRemarks: 'mock customer remarks',
           counselorRemarks: newCounselorRemarks,
           destinationAddress: {
-            street_address_1: '441 SW Rio de la Plata Drive',
+            streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
             state: 'WA',
-            postal_code: '98421',
-            street_address_2: '',
+            postalCode: '98421',
+            streetAddress2: '',
           },
           pickupAddress: {
-            street_address_1: '812 S 129th St',
+            streetAddress1: '812 S 129th St',
             city: 'San Antonio',
             state: 'TX',
-            postal_code: '78234',
-            street_address_2: '',
+            postalCode: '78234',
+            streetAddress2: '',
           },
           agents: [
             {
@@ -374,12 +374,6 @@ describe('ServicesCounselingShipmentForm component', () => {
           isCreatePage={false}
         />,
       );
-
-      const customerRemarks = await screen.findByLabelText('Customer remarks');
-
-      userEvent.clear(customerRemarks);
-
-      userEvent.type(customerRemarks, newCustomerRemarks);
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 

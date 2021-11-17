@@ -1,10 +1,13 @@
 package appcontext
 
 import (
-	"github.com/transcom/mymove/pkg/auth"
+	"context"
 
 	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 // AppContext should be the first argument passed to all stateless
@@ -31,6 +34,15 @@ func NewAppContext(db *pop.Connection, logger *zap.Logger, session *auth.Session
 		db:      db,
 		logger:  logger,
 		session: session,
+	}
+}
+
+// NewAppContextFromContext creates a new AppContext taking context.Context into account and pulling some values from it
+func NewAppContextFromContext(ctx context.Context, appCtx AppContext) AppContext {
+	return &appContext{
+		db:      appCtx.DB().WithContext(ctx),
+		logger:  logging.FromContext(ctx),
+		session: auth.SessionFromContext(ctx),
 	}
 }
 

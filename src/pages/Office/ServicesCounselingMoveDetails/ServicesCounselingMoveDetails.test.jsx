@@ -38,11 +38,11 @@ const mtoShipments = [
       city: 'Fairfield',
       country: 'US',
       id: '672ff379-f6e3-48b4-a87d-796713f8f997',
-      postal_code: '94535',
+      postalCode: '94535',
       state: 'CA',
-      street_address_1: '987 Any Avenue',
-      street_address_2: 'P.O. Box 9876',
-      street_address_3: 'c/o Some Person',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
     },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
     id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
@@ -52,33 +52,33 @@ const mtoShipments = [
       country: 'US',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
       id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
-      postal_code: '90210',
+      postalCode: '90210',
       state: 'CA',
-      street_address_1: '123 Any Street',
-      street_address_2: 'P.O. Box 12345',
-      street_address_3: 'c/o Some Person',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
     },
     secondaryPickupAddress: {
       city: 'Los Angeles',
       country: 'US',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
       id: 'b941a74a-e77e-4575-bea3-e7e01b226422',
-      postal_code: '90222',
+      postalCode: '90222',
       state: 'CA',
-      street_address_1: '456 Any Street',
-      street_address_2: 'P.O. Box 67890',
-      street_address_3: 'c/o A Friendly Person',
+      streetAddress1: '456 Any Street',
+      streetAddress2: 'P.O. Box 67890',
+      streetAddress3: 'c/o A Friendly Person',
     },
     secondaryDeliveryAddress: {
       city: 'Beverly Hills',
       country: 'US',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
       id: '1686751b-ab36-43cf-eeee-c0f467d13c19',
-      postal_code: '90215',
+      postalCode: '90215',
       state: 'CA',
-      street_address_1: '123 Any Street',
-      street_address_2: 'P.O. Box 12345',
-      street_address_3: 'c/o Some Person',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
     },
     requestedPickupDate: '2020-06-04',
     scheduledPickupDate: '2020-06-05',
@@ -93,11 +93,11 @@ const mtoShipments = [
       city: 'Fairfield',
       country: 'US',
       id: '672ff379-f6e3-48b4-a87d-752463f8f997',
-      postal_code: '94534',
+      postalCode: '94534',
       state: 'CA',
-      street_address_1: '111 Everywhere',
-      street_address_2: 'Apt #1',
-      street_address_3: '',
+      streetAddress1: '111 Everywhere',
+      streetAddress2: 'Apt #1',
+      streetAddress3: '',
     },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
     id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
@@ -107,11 +107,11 @@ const mtoShipments = [
       country: 'US',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
       id: '1686751b-ab36-43cf-b3c9-c0f467d13c55',
-      postal_code: '78712',
+      postalCode: '78712',
       state: 'TX',
-      street_address_1: '888 Lucky Street',
-      street_address_2: '#4',
-      street_address_3: 'c/o rabbit',
+      streetAddress1: '888 Lucky Street',
+      streetAddress2: '#4',
+      streetAddress3: 'c/o rabbit',
     },
     requestedPickupDate: '2020-06-05',
     scheduledPickupDate: '2020-06-06',
@@ -131,18 +131,18 @@ const newMoveDetailsQuery = {
     id: '1',
     originDutyStation: {
       address: {
-        street_address_1: '',
+        streetAddress1: '',
         city: 'Fort Knox',
         state: 'KY',
-        postal_code: '40121',
+        postalCode: '40121',
       },
     },
     destinationDutyStation: {
       address: {
-        street_address_1: '',
+        streetAddress1: '',
         city: 'Fort Irwin',
         state: 'CA',
-        postal_code: '92310',
+        postalCode: '92310',
       },
     },
     customer: {
@@ -157,11 +157,11 @@ const newMoveDetailsQuery = {
         country: 'US',
         eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
         id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
-        postal_code: '90210',
+        postalCode: '90210',
         state: 'CA',
-        street_address_1: '123 Any Street',
-        street_address_2: 'P.O. Box 12345',
-        street_address_3: 'c/o Some Person',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
       },
       dodID: '6833908165',
       eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
@@ -291,14 +291,14 @@ describe('MoveDetails page', () => {
       expect(originAddressTerms.length).toBe(2);
 
       for (let i = 0; i < 2; i += 1) {
-        const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
+        const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
 
         const addressText = originAddressTerms[i].nextElementSibling.textContent;
 
-        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(streetAddress1);
         expect(addressText).toContain(city);
         expect(addressText).toContain(state);
-        expect(addressText).toContain(postal_code);
+        expect(addressText).toContain(postalCode);
       }
 
       const secondAddressTerms = screen.getAllByText('Second pickup address');
@@ -306,15 +306,14 @@ describe('MoveDetails page', () => {
       expect(secondAddressTerms.length).toBe(1);
 
       for (let i = 0; i < 1; i += 1) {
-        const { street_address_1, city, state, postal_code } =
-          newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
+        const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
 
         const addressText = secondAddressTerms[0].nextElementSibling.textContent;
 
-        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(streetAddress1);
         expect(addressText).toContain(city);
         expect(addressText).toContain(state);
-        expect(addressText).toContain(postal_code);
+        expect(addressText).toContain(postalCode);
       }
 
       const destinationAddressTerms = screen.getAllByText('Destination address');
@@ -322,14 +321,14 @@ describe('MoveDetails page', () => {
       expect(destinationAddressTerms.length).toBe(2);
 
       for (let i = 0; i < destinationAddressTerms.length; i += 1) {
-        const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].destinationAddress;
+        const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].destinationAddress;
 
         const addressText = destinationAddressTerms[i].nextElementSibling.textContent;
 
-        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(streetAddress1);
         expect(addressText).toContain(city);
         expect(addressText).toContain(state);
-        expect(addressText).toContain(postal_code);
+        expect(addressText).toContain(postalCode);
       }
 
       const secondDestinationAddressTerms = screen.getAllByText('Second destination address');
@@ -337,14 +336,13 @@ describe('MoveDetails page', () => {
       // This is not a required field, and only one of our shipments has it filled out:
       expect(secondDestinationAddressTerms.length).toBe(1);
 
-      const { street_address_1, city, state, postal_code } =
-        newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
+      const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
       const addressText = secondDestinationAddressTerms[0].nextElementSibling.textContent;
 
-      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(streetAddress1);
       expect(addressText).toContain(city);
       expect(addressText).toContain(state);
-      expect(addressText).toContain(postal_code);
+      expect(addressText).toContain(postalCode);
 
       const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
 
@@ -378,17 +376,17 @@ describe('MoveDetails page', () => {
       expect(destinationAddressTerms.length).toBe(2);
 
       expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
-        moveDetailsQuery.order.destinationDutyStation.address.postal_code,
+        moveDetailsQuery.order.destinationDutyStation.address.postalCode,
       );
 
-      const { street_address_1, city, state, postal_code } = moveDetailsQuery.mtoShipments[1].destinationAddress;
+      const { streetAddress1, city, state, postalCode } = moveDetailsQuery.mtoShipments[1].destinationAddress;
 
       const addressText = destinationAddressTerms[1].nextElementSibling.textContent;
 
-      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(streetAddress1);
       expect(addressText).toContain(city);
       expect(addressText).toContain(state);
-      expect(addressText).toContain(postal_code);
+      expect(addressText).toContain(postalCode);
     });
     /* eslint-enable camelcase */
 

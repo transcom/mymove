@@ -182,7 +182,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     isMissingWeightTicketDocuments,
-    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
   };
 }
 
