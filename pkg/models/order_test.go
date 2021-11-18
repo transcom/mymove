@@ -308,10 +308,9 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	stationName := "New Duty Station"
 	station := DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 

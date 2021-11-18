@@ -354,10 +354,9 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name:        "Fort Sam Houston",
-			Affiliation: internalmessages.AffiliationARMY,
-			AddressID:   dutyStationAddress.ID,
-			Address:     dutyStationAddress,
+			Name:      "Fort Sam Houston",
+			AddressID: dutyStationAddress.ID,
+			Address:   dutyStationAddress,
 		},
 	})
 
@@ -382,10 +381,9 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name:        "Fort Gordon",
-			Affiliation: internalmessages.AffiliationARMY,
-			AddressID:   newDutyStationAddress.ID,
-			Address:     newDutyStationAddress,
+			Name:      "Fort Gordon",
+			AddressID: newDutyStationAddress.ID,
+			Address:   newDutyStationAddress,
 		},
 	})
 

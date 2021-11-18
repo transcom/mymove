@@ -32,9 +32,10 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 			},
 		})
 	}
+	affiliation := internalmessages.AffiliationAIRFORCE
 	station := models.DutyStation{
 		Name:                   makeRandomString(10),
-		Affiliation:            internalmessages.AffiliationAIRFORCE,
+		Affiliation:            &affiliation,
 		AddressID:              address.ID,
 		Address:                address,
 		TransportationOfficeID: &transportationOffice.ID,
