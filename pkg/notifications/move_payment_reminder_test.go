@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -57,7 +56,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	station := models.DutyStation{
 		Name:                   "Fort Bragg",
-		Affiliation:            internalmessages.AffiliationARMY,
 		AddressID:              address.ID,
 		TransportationOfficeID: &office.ID,
 		TransportationOffice:   office,
