@@ -179,6 +179,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		sacType = &st
 	}
 
+	var usesExternalVendor bool
+	if mtoShipment.UsesExternalVendor != nil {
+		usesExternalVendor = *mtoShipment.UsesExternalVendor
+	}
+
 	model := &models.MTOShipment{
 		MoveTaskOrderID:    uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		Status:             models.MTOShipmentStatusSubmitted,
@@ -187,7 +192,7 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		CounselorRemarks:   mtoShipment.CounselorRemarks,
 		TACType:            tacType,
 		SACType:            sacType,
-		UsesExternalVendor: *mtoShipment.UsesExternalVendor,
+		UsesExternalVendor: usesExternalVendor,
 		ServiceOrderNumber: mtoShipment.ServiceOrderNumber,
 	}
 
