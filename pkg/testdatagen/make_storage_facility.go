@@ -11,7 +11,12 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 	lotNumber := "1234"
 	phone := "5555555555"
 	email := "storage@email.com"
-	address := MakeAddress(db, assertions)
+	address := assertions.StorageFacility.Address
+
+	if address.StreetAddress1 == "" {
+		address = MakeAddress(db, assertions)
+	}
+
 	storageFacility := models.StorageFacility{
 		FacilityName: "Storage R Us",
 		LotNumber:    &lotNumber,
@@ -20,6 +25,9 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 		Phone:        &phone,
 		Email:        &email,
 	}
+
+	storageFacility.Address = address
+	storageFacility.AddressID = address.ID
 
 	mergeModels(&storageFacility, assertions.StorageFacility)
 

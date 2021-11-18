@@ -3,7 +3,6 @@ package mtoshipment
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -163,17 +162,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: models.Address{
-					StreetAddress1: "1234 Over Here",
-					City:           "Houston",
-					State:          "TX",
-					PostalCode:     "77083",
-					Country:        swag.String("US"),
-				},
-			},
-		})
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
