@@ -164,13 +164,13 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 
 	// Log if the account was enabled or disabled (POAM requirement)
 	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(updatedUser, *payload.Active, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+		_, err = audit.CaptureAccountStatus(appCtx, updatedUser, *payload.Active, params.HTTPRequest)
 		if err != nil {
 			appCtx.Logger().Error("Error capturing account status audit record in UpdateUserHandler", zap.Error(err))
 		}
 	}
 
-	_, err = audit.Capture(updatedUser, params.User, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, updatedUser, params.User, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}

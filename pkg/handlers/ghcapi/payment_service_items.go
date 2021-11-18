@@ -61,7 +61,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&updatedPaymentServiceItem, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, &updatedPaymentServiceItem, nil, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error for payment service item status change.", zap.Error(err))
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()

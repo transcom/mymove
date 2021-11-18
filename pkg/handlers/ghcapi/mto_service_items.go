@@ -73,7 +73,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&existingMTOServiceItem, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, &existingMTOServiceItem, nil, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error for service item update.", zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()

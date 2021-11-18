@@ -133,7 +133,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	_, err = audit.Capture(createdAdminUser, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, createdAdminUser, nil, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}
@@ -174,13 +174,13 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 
 	// Log if the account was enabled or disabled (POAM requirement)
 	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(updatedAdminUser, *payload.Active, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+		_, err = audit.CaptureAccountStatus(appCtx, updatedAdminUser, *payload.Active, params.HTTPRequest)
 		if err != nil {
 			appCtx.Logger().Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
 		}
 	}
 
-	_, err = audit.Capture(updatedAdminUser, payload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, updatedAdminUser, payload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}
