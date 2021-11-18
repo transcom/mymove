@@ -361,6 +361,7 @@ build_tools: bin/gin \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
 	bin/generate-access-codes \
+	bin/generate-payment-request-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
