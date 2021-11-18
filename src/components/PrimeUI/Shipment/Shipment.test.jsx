@@ -88,6 +88,7 @@ const approvedMoveTaskOrder = {
           id: '1234',
           weight: 9000,
           requestedAt: '2021-10-23T18:24:41.377Z',
+          verificationReason: 'Reweigh requested.',
         },
       },
     ],
@@ -138,6 +139,7 @@ describe('Shipment details component fields and values are present', () => {
     ['Actual Weight:', shipment.primeActualWeight],
     ['Estimated Weight:', shipment.primeEstimatedWeight],
     ['Reweigh Weight:', shipment.reweigh.weight],
+    ['Reweigh Remarks:', shipment.reweigh.verificationReason],
     ['Reweigh Requested Date:', formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')],
     ['Created at:', formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD')],
     ['Approved at:', shipment.approvedDate],
@@ -184,6 +186,7 @@ describe('Shipment has missing reweigh', () => {
     );
 
     await expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
+    await expect(screen.queryByText('Reweigh Remarks:')).not.toBeInTheDocument();
     await expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
   });
 });
