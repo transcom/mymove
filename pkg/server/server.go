@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 const (
@@ -41,7 +42,7 @@ type CreateNamedServerInput struct {
 	Name         string
 	Host         string
 	Port         int
-	Logger       Logger
+	Logger       *zap.Logger
 	HTTPHandler  http.Handler
 	ClientAuth   tls.ClientAuthType
 	Certificates []tls.Certificate
