@@ -436,12 +436,12 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if mtoShipment.TACType != nil {
 		tt := ghcmessages.LOAType(*mtoShipment.TACType)
-		payload.TacType = &tt
+		payload.TacType = tt
 	}
 
 	if mtoShipment.SACType != nil {
 		st := ghcmessages.LOAType(*mtoShipment.SACType)
-		payload.SacType = &st
+		payload.SacType = st
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()

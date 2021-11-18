@@ -4,4 +4,3 @@ example: HHG
 enum:
   - HHG
   - NTS
-x-nullable: true

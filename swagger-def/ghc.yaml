@@ -3305,8 +3305,10 @@ definitions:
         x-nullable: true
       tacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       sacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3359,8 +3361,10 @@ definitions:
         x-nullable: true
       tacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       sacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3374,8 +3378,7 @@ definitions:
         type: integer
       storageFacility:
         x-nullable: true
-        allOf:
-          - $ref: 'definitions/StorageFacility.yaml'
+        $ref: 'definitions/StorageFacility.yaml'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3437,8 +3440,10 @@ definitions:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       sacType:
         $ref: 'definitions/LOAType.yaml'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3452,8 +3457,7 @@ definitions:
         type: integer
       storageFacility:
         x-nullable: true
-        allOf:
-          - $ref: 'definitions/StorageFacility.yaml'
+        $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
       - requestedPickupDate

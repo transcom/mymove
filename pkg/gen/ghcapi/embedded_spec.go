@@ -3343,6 +3343,7 @@ func init() {
           "format": "date"
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
@@ -3353,14 +3354,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
@@ -3736,7 +3734,6 @@ func init() {
         "HHG",
         "NTS"
       ],
-      "x-nullable": true,
       "example": "HHG"
     },
     "MTOAgent": {
@@ -4141,6 +4138,7 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "scheduledPickupDate": {
@@ -4181,6 +4179,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
@@ -5591,6 +5590,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
@@ -5601,14 +5601,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
@@ -9871,6 +9868,7 @@ func init() {
           "format": "date"
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
@@ -9881,14 +9879,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
@@ -10264,7 +10259,6 @@ func init() {
         "HHG",
         "NTS"
       ],
-      "x-nullable": true,
       "example": "HHG"
     },
     "MTOAgent": {
@@ -10669,6 +10663,7 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "scheduledPickupDate": {
@@ -10709,6 +10704,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
@@ -12125,6 +12121,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
@@ -12135,14 +12132,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
+          "x-nullable": true,
           "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {

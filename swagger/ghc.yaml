@@ -3391,8 +3391,10 @@ definitions:
         x-nullable: true
       tacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       sacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3445,8 +3447,10 @@ definitions:
         x-nullable: true
       tacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       sacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3460,8 +3464,7 @@ definitions:
         type: integer
       storageFacility:
         x-nullable: true
-        allOf:
-          - $ref: '#/definitions/StorageFacility'
+        $ref: '#/definitions/StorageFacility'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3529,8 +3532,10 @@ definitions:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       sacType:
         $ref: '#/definitions/LOAType'
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3544,8 +3549,7 @@ definitions:
         type: integer
       storageFacility:
         x-nullable: true
-        allOf:
-          - $ref: '#/definitions/StorageFacility'
+        $ref: '#/definitions/StorageFacility'
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -4081,7 +4085,6 @@ definitions:
     enum:
       - HHG
       - NTS
-    x-nullable: true
   StorageFacility:
     description: The Storage Facility information for the shipment
     type: object

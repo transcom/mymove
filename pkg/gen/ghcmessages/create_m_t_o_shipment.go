@@ -77,7 +77,7 @@ type CreateMTOShipment struct {
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 	// sac type
-	SacType *LOAType `json:"sacType,omitempty"`
+	SacType LOAType `json:"sacType,omitempty"`
 
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
@@ -86,12 +86,10 @@ type CreateMTOShipment struct {
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
 	// storage facility
-	StorageFacility struct {
-		StorageFacility
-	} `json:"storageFacility,omitempty"`
+	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
 	// tac type
-	TacType *LOAType `json:"tacType,omitempty"`
+	TacType LOAType `json:"tacType,omitempty"`
 
 	// uses external vendor
 	// Example: false
@@ -228,13 +226,11 @@ func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.SacType != nil {
-		if err := m.SacType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sacType")
-			}
-			return err
+	if err := m.SacType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sacType")
 		}
+		return err
 	}
 
 	return nil
@@ -260,6 +256,15 @@ func (m *CreateMTOShipment) validateStorageFacility(formats strfmt.Registry) err
 		return nil
 	}
 
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -268,13 +273,11 @@ func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.TacType != nil {
-		if err := m.TacType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tacType")
-			}
-			return err
+	if err := m.TacType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("tacType")
 		}
+		return err
 	}
 
 	return nil
@@ -364,13 +367,11 @@ func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, fo
 
 func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.SacType != nil {
-		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sacType")
-			}
-			return err
+	if err := m.SacType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sacType")
 		}
+		return err
 	}
 
 	return nil
@@ -390,18 +391,25 @@ func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 
 func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
 
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
 func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.TacType != nil {
-		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tacType")
-			}
-			return err
+	if err := m.TacType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("tacType")
 		}
+		return err
 	}
 
 	return nil

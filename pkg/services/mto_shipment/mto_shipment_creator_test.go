@@ -162,7 +162,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
