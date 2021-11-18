@@ -2194,7 +2194,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: true,
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
@@ -2222,6 +2223,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), string(updatedShipment.MtoAgents[0].MtoShipmentID))
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
+		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {

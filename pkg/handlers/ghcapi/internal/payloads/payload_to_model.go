@@ -259,6 +259,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		sacType = &st
 	}
 
+	var usesExternalVendor bool
+	if mtoShipment.UsesExternalVendor != nil {
+		usesExternalVendor = *mtoShipment.UsesExternalVendor
+	}
+
 	model := &models.MTOShipment{
 		BillableWeightCap:           billableWeightCap,
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
@@ -269,6 +274,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		TACType:                     tacType,
 		SACType:                     sacType,
+		UsesExternalVendor:          usesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 	}
 
@@ -287,10 +293,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	storageFacilityModel := StorageFacilityModel(&mtoShipment.StorageFacility.StorageFacility)
 	if storageFacilityModel != nil {
 		model.StorageFacility = storageFacilityModel
-	}
-
-	if mtoShipment.UsesExternalVendor != nil {
-		model.UsesExternalVendor = *mtoShipment.UsesExternalVendor
 	}
 
 	return model
