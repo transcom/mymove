@@ -517,7 +517,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
 
 	// Create a connection to Redis
-	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	redisPool, errRedisConnection := cli.InitRedis(appCtx, v)
 	if errRedisConnection != nil {
 		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
 	}
