@@ -168,6 +168,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
         )}
         {isFinancialModalVisible && (
           <FinancialReviewModal
+            remarks={move.financialReviewRemarks}
             onClose={handleCancelFinancialReviewModal}
             onSubmit={handleSubmitFinancialReviewModal}
           />

@@ -2,13 +2,20 @@
 @import 'shared/styles/mixins';
 @import 'shared/styles/colors';
 
-.FinancialReviewButton {
-  @include u-padding-left(0);
-  @include u-padding-bottom(3 !important);
-}
+.FinancialReview {
+  @include u-padding-bottom(3);
 
-.FinancialReviewTag {
-  @include u-margin-bottom(3 !important);
-  display: inline-block;
-  background-color: $info-light !important;
+  .financialReviewButton {
+    @include u-padding-left(0);
+  }
+
+  .financialReviewEdit {
+    @include u-padding-left(1);
+    display: inline-block;
+  }
+
+  .financialReviewTag {
+    display: inline-block;
+    background-color: $info-light;
+  }
 }

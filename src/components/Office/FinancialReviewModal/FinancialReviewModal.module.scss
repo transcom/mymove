@@ -13,7 +13,7 @@
   .RemarksField {
     &:disabled {
       background: color("base-lighter");
-      color: color("base-lighter");
+      // color: color("base-lighter");
       border-color: color("base");
     }
   }

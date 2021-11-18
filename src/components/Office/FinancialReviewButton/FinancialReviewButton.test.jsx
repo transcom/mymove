@@ -17,11 +17,20 @@ describe('FinancialReviewButton', () => {
     });
   });
 
-  it('displays a tag when a review has been requested', async () => {
-    const mockOnClick = jest.fn();
-    render(<FinancialReviewButton onClick={mockOnClick} reviewRequested />);
-    const tag = screen.getByTestId('tag');
+  describe('review requested', () => {
+    it('displays a tag when a review', async () => {
+      const mockOnClick = jest.fn();
+      render(<FinancialReviewButton onClick={mockOnClick} reviewRequested />);
+      const tag = screen.getByTestId('tag');
 
-    expect(tag).toHaveTextContent('Flagged for financial review');
+      expect(tag).toHaveTextContent('Flagged for financial review');
+    });
+
+    it('displays an edit button', async () => {
+      const mockOnClick = jest.fn();
+      render(<FinancialReviewButton onClick={mockOnClick} reviewRequested />);
+
+      expect(screen.getByRole('button')).toHaveTextContent('Edit');
+    });
   });
 });

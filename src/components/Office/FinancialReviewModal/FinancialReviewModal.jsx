@@ -12,12 +12,14 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const financialReviewSchema = Yup.object().shape({
-  remarks: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
-  // must select yest or no before they can click save.
-  flagForReview: Yup.string().required('Required').oneOf(['yes']),
+  remarks: Yup.string().when('hasRemarks', {
+    is: 'yes',
+    then: Yup.string().required('Remarks are required'),
+  }),
+  hasRemarks: Yup.string().required('Required').oneOf(['yes', 'no']),
 });
 
-function FinancialReviewModal({ onClose, onSubmit }) {
+function FinancialReviewModal({ remarks, onClose, onSubmit }) {
   return (
     <div>
       <Overlay />
@@ -30,15 +32,16 @@ function FinancialReviewModal({ onClose, onSubmit }) {
           <div>
             <Formik
               initialValues={{
-                remarks: '',
-                flagForReview: 'yes',
+                remarks,
+                hasRemarks: 'yes',
               }}
               validationSchema={financialReviewSchema}
               onSubmit={(values) => onSubmit(values.remarks)}
               validateOnMount
             >
               {({ values, isValid }) => {
-                const { flagForReview } = values;
+                const { hasRemarks } = values;
+
                 return (
                   <Form>
                     <FormGroup>
@@ -50,34 +53,33 @@ function FinancialReviewModal({ onClose, onSubmit }) {
                         <Field
                           as={Radio}
                           label="Yes"
-                          id="flagForReview"
-                          name="flagForReview"
+                          id="hasRemarks"
+                          name="hasRemarks"
                           value="yes"
-                          title="Yes"
-                          type="radio"
+                          title="Yes, I have remarks for the financial office"
+                          checked={hasRemarks === 'yes'}
                         />
                         <Field
                           as={Radio}
                           label="No"
-                          id="doNotFlagforReview"
-                          name="flagForReview"
-                          title="No"
+                          id="doesNotHaveRemarks"
+                          name="hasRemarks"
+                          title="No, I do not have remarks for the financial office"
                           value="no"
-                          type="radio"
+                          checked={hasRemarks === 'no'}
                         />
                       </div>
                     </FormGroup>
                     <Label
                       className={classnames({
-                        [styles.RemarksLabelDisabled]: flagForReview !== 'yes',
+                        [styles.RemarksLabelDisabled]: hasRemarks === 'no',
                       })}
                       htmlFor="remarks"
                     >
                       Remarks for financial office
                     </Label>
-                    {/* Need to set remarks to nothing when no is selected */}
                     <Field
-                      disabled={!(flagForReview === 'yes')}
+                      disabled={hasRemarks === 'no'}
                       as={Textarea}
                       data-testid="remarks"
                       label="No"
@@ -105,7 +107,13 @@ function FinancialReviewModal({ onClose, onSubmit }) {
 }
 
 FinancialReviewModal.propTypes = {
+  remarks: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
+
+FinancialReviewModal.defaultProps = {
+  remarks: '',
+};
+
 export default FinancialReviewModal;

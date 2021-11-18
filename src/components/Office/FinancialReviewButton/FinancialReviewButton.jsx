@@ -5,18 +5,24 @@ import classnames from 'classnames';
 
 import styles from './FinancialReviewButton.module.scss';
 
-// TODO: This button will switch states based on if the move has been flagged for financial reivew or not
-// This will be covered in an up coming ticket!
-
 function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
-    <div>
+    <div className={styles.FinancialReview}>
       {reviewRequested ? (
-        <Tag className={styles.FinancialReviewTag}>Flagged for financial review</Tag>
+        <>
+          <Tag className={styles.financialReviewTag}>Flagged for financial review</Tag>
+          <Button
+            type="button"
+            className={classnames(styles.financialReviewEdit, 'usa-button--unstyled')}
+            onClick={onClick}
+          >
+            Edit
+          </Button>
+        </>
       ) : (
         <Button
           type="Button"
-          className={classnames(styles.FinancialReviewButton, ['usa-button--unstyled'])}
+          className={classnames(styles.financialReviewButton, ['usa-button--unstyled'])}
           onClick={onClick}
         >
           Flag move for financial review

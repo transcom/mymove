@@ -8,11 +8,11 @@ describe('FinancialReviewModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     render(<FinancialReviewModal onSubmit={mockOnSubmit} onClose={() => {}} />);
-    const flagForReview = screen.getByLabelText('Yes');
+    const hasRemarks = screen.getByLabelText('Yes');
     const remarksInput = screen.getByLabelText('Remarks for financial office');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.click(flagForReview);
+    userEvent.click(hasRemarks);
     userEvent.type(remarksInput, 'Because I said so...');
     userEvent.click(submitBtn);
 
@@ -21,27 +21,15 @@ describe('FinancialReviewModal', () => {
     });
   });
 
-  it('does not allow submission with you click no', async () => {
-    render(<FinancialReviewModal onSubmit={() => {}} onClose={() => {}} />);
-    const doNotFlagForReview = screen.getByLabelText('No');
-    const submitBtn = screen.getByText('Save');
-
-    userEvent.click(doNotFlagForReview);
-
-    await waitFor(() => {
-      expect(submitBtn).toBeDisabled();
-    });
-  });
-
-  it('does not allow submission without remarks', async () => {
-    render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
-    const flagForReview = screen.getByLabelText('Yes');
-    const submitBtn = screen.getByText('Save');
-
-    userEvent.click(flagForReview);
+  it('displays initial remarks', async () => {
+    const remarks = 'Initial remarks';
+    render(<FinancialReviewModal remarks={remarks} onSubmit={() => {}} onClose={() => {}} />);
+    const hasRemarks = screen.getByLabelText('Yes');
+    const remarksInput = screen.getByLabelText('Remarks for financial office');
 
     await waitFor(() => {
-      expect(submitBtn).toBeDisabled();
+      expect(hasRemarks).toBeChecked();
+      expect(remarksInput).toHaveValue(remarks);
     });
   });
 
@@ -54,6 +42,47 @@ describe('FinancialReviewModal', () => {
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();
+    });
+  });
+
+  describe('Radio is yes', () => {
+    it('does not allow submission without remarks', async () => {
+      render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
+      const hasRemarks = screen.getByLabelText('Yes');
+      const submitBtn = screen.getByText('Save');
+
+      userEvent.click(hasRemarks);
+
+      await waitFor(() => {
+        expect(submitBtn).toBeDisabled();
+      });
+    });
+  });
+
+  describe('Radio is no', () => {
+    it('allows submission without remarks', async () => {
+      render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
+      const hasRemarks = screen.getByLabelText('No');
+      const submitBtn = screen.getByText('Save');
+
+      userEvent.click(hasRemarks);
+
+      await waitFor(() => {
+        expect(submitBtn).not.toBeDisabled();
+      });
+    });
+
+    it('preserves remarks after No is selected', async () => {
+      render(<FinancialReviewModal onSubmit={() => {}} onClose={() => {}} />);
+      const remarksInput = screen.getByLabelText('Remarks for financial office');
+      const doesNotHaveRemarks = screen.getByLabelText('No');
+
+      userEvent.type(remarksInput, 'Test remark');
+      userEvent.click(doesNotHaveRemarks);
+
+      await waitFor(() => {
+        expect(remarksInput).toHaveValue('Test remark');
+      });
     });
   });
 });
