@@ -11,7 +11,8 @@ import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
-  const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT } = createServiceItemModelTypes;
+  const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT, MTOServiceItemShuttle, MTOServiceItemDomesticCrating } =
+    createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
 
   const handleServiceItemTypeChange = (event) => {
@@ -26,6 +27,8 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
         <>
           <option value={MTOServiceItemOriginSIT}>Origin SIT</option>
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
+          <option value={MTOServiceItemShuttle}>Shuttle</option>
+          <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
         </>
       </Dropdown>
       {selectedServiceItemType === MTOServiceItemOriginSIT && (
@@ -33,6 +36,14 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       )}
       {selectedServiceItemType === MTOServiceItemDestSIT && (
         <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
+      )}
+      {selectedServiceItemType === MTOServiceItemShuttle && (
+        /* <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} /> */
+        <h1>Not Implemented Yet</h1>
+      )}
+      {selectedServiceItemType === MTOServiceItemDomesticCrating && (
+        /* <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} /> */
+        <h1>Not Implemented Yet</h1>
       )}
     </div>
   );
