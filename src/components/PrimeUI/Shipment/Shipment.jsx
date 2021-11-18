@@ -20,7 +20,9 @@ const Shipment = ({ shipment, moveId }) => {
       })
     : '';
 
-  const editReweighUrl = '';
+  const editReweighUrl = moveId
+    ? generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH, { moveCodeOrID: moveId, shipmentId: shipment.id })
+    : '';
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
