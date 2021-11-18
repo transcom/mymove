@@ -149,8 +149,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     setIsFinancialModalVisible(true);
   };
 
-  const handleSubmitFinancialReviewModal = (remarks) => {
-    mutateFinancialReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
     setIsFinancialModalVisible(false);
   };
 

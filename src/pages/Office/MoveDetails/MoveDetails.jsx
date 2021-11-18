@@ -91,8 +91,14 @@ const MoveDetails = ({
     setIsFinancialModalVisible(true);
   };
 
-  const handleSubmitFinancialReviewModal = (remarks) => {
-    mutateFinancialReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    // if it's set to yes let's send a true to the backend. If not we'll send false.
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
     setIsFinancialModalVisible(false);
   };
 

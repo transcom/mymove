@@ -12,9 +12,12 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const financialReviewSchema = Yup.object().shape({
-  remarks: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
+  remarks: Yup.string().when('flagForReview', {
+    is: 'yes',
+    then: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
+  }),
   // must select yest or no before they can click save.
-  flagForReview: Yup.string().required('Required').oneOf(['yes']),
+  flagForReview: Yup.string().required('Required').oneOf(['yes', 'no']),
 });
 
 function FinancialReviewModal({ onClose, onSubmit }) {
@@ -34,7 +37,7 @@ function FinancialReviewModal({ onClose, onSubmit }) {
                 flagForReview: 'yes',
               }}
               validationSchema={financialReviewSchema}
-              onSubmit={(values) => onSubmit(values.remarks)}
+              onSubmit={(values) => onSubmit(values.remarks, values.flagForReview)}
               validateOnMount
             >
               {({ values, isValid }) => {
