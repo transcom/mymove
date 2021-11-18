@@ -114,7 +114,7 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink).toBeInTheDocument();
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
-    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(2);
+    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(3);
   });
 
   it('renders the shipment address values', async () => {

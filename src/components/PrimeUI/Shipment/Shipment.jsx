@@ -20,6 +20,8 @@ const Shipment = ({ shipment, moveId }) => {
       })
     : '';
 
+  const editReweighUrl = '';
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
@@ -74,6 +76,9 @@ const Shipment = ({ shipment, moveId }) => {
         <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !shipment.reweigh.weight })}>
           <dt>Reweigh Weight:</dt>
           <dd data-testid="reweigh">{!shipment.reweigh.weight ? 'Missing' : shipment.reweigh.weight}</dd>
+          <dd>
+            <Link to={editReweighUrl}>Edit</Link>
+          </dd>
         </div>
       )}
       {shipment.reweigh?.id && (
