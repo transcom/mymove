@@ -1,0 +1,24 @@
+description: The Storage Facility information for the shipment
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  facilityName:
+    type: string
+  address:
+    $ref: '../ghc.yaml#/definitions/Address'
+  lotNumber:
+    type: string
+    x-nullable: true
+  phone:
+    type: string
+    format: telephone
+    pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+    x-nullable: true
+  email:
+    type: string
+    format: x-email
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    x-nullable: true

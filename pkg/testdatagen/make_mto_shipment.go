@@ -19,6 +19,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	counselorRemarks := mtoShipment.CounselorRemarks
 	billableWeightJustification := mtoShipment.BillableWeightJustification
 	billableWeightCap := mtoShipment.BillableWeightCap
+	tacType := mtoShipment.TACType
+	sacType := mtoShipment.SACType
+	usesExternalVendor := mtoShipment.UsesExternalVendor
+	storageFacility := mtoShipment.StorageFacility
+	storageFacilityID := mtoShipment.StorageFacilityID
+
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -35,6 +41,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	if counselorRemarks != nil {
 		counselorRemarks = mtoShipment.CounselorRemarks
+	}
+
+	if storageFacility != nil {
+		storageFacilityID = &storageFacility.ID
 	}
 
 	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom
@@ -100,6 +110,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		Status:                      shipmentStatus,
 		BillableWeightCap:           billableWeightCap,
 		BillableWeightJustification: billableWeightJustification,
+		StorageFacilityID:           storageFacilityID,
+		StorageFacility:             storageFacility,
+		TACType:                     tacType,
+		SACType:                     sacType,
+		UsesExternalVendor:          usesExternalVendor,
 	}
 
 	if shipmentHasDeliveryDetails {
@@ -136,7 +151,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
 	mustCreate(db, &MTOShipment, assertions.Stub)
-
 	return MTOShipment
 }
 
