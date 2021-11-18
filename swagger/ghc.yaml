@@ -3390,11 +3390,13 @@ definitions:
         example: more weight than expected
         x-nullable: true
       tacType:
-        $ref: '#/definitions/LOAType'
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       sacType:
-        $ref: '#/definitions/LOAType'
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3446,11 +3448,14 @@ definitions:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
       tacType:
-        $ref: '#/definitions/LOAType'
         x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       sacType:
-        $ref: '#/definitions/LOAType'
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -3531,11 +3536,13 @@ definitions:
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
-        $ref: '#/definitions/LOAType'
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       sacType:
-        $ref: '#/definitions/LOAType'
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false

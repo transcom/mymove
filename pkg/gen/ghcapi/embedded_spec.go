@@ -3343,8 +3343,14 @@ func init() {
           "format": "date"
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -3358,8 +3364,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -4138,8 +4150,14 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -4179,8 +4197,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -5590,8 +5614,14 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -5605,8 +5635,15 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ],
+          "x-nullable": true
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -9868,8 +9905,14 @@ func init() {
           "format": "date"
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -9883,8 +9926,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10663,8 +10712,14 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -10704,8 +10759,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -12121,8 +12182,14 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -12136,8 +12203,15 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ],
+          "x-nullable": true
         },
         "usesExternalVendor": {
           "type": "boolean",

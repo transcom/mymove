@@ -168,14 +168,14 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	var tacType *models.LOAType
-	if mtoShipment.TacType != "" {
-		tt := models.LOAType(mtoShipment.TacType)
+	if mtoShipment.TacType != nil {
+		tt := models.LOAType(*mtoShipment.TacType)
 		tacType = &tt
 	}
 
 	var sacType *models.LOAType
-	if mtoShipment.SacType != "" {
-		st := models.LOAType(mtoShipment.SacType)
+	if mtoShipment.SacType != nil {
+		st := models.LOAType(*mtoShipment.SacType)
 		sacType = &st
 	}
 
@@ -253,14 +253,14 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	var tacType *models.LOAType
-	if mtoShipment.TacType != "" {
-		tt := models.LOAType(mtoShipment.TacType)
+	if mtoShipment.TacType != nil {
+		tt := models.LOAType(*mtoShipment.TacType)
 		tacType = &tt
 	}
 
 	var sacType *models.LOAType
-	if mtoShipment.SacType != "" {
-		st := models.LOAType(mtoShipment.SacType)
+	if mtoShipment.SacType != nil {
+		st := models.LOAType(*mtoShipment.SacType)
 		sacType = &st
 	}
 
