@@ -72,7 +72,7 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
 
-	CheckOutboundIP(appCtx.Logger())
+	CheckOutboundIP(appCtx)
 
 	appCtx.Logger().Info("Parsing GEX SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
