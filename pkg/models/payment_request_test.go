@@ -22,21 +22,6 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 		suite.verifyValidationErrors(&validPaymentRequest, expErrors)
 	})
 
-	suite.T().Run("test valid PaymentRequest with GeneratedEDI858Text", func(t *testing.T) {
-		recalculationOfPaymentRequestID := uuid.Must(uuid.NewV4())
-		generatedEDI858Text := "example edi 858 goes here"
-		validPaymentRequest := models.PaymentRequest{
-			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
-			Status:                          models.PaymentRequestStatusPending,
-			PaymentRequestNumber:            "1111-2222-1",
-			SequenceNumber:                  1,
-			RecalculationOfPaymentRequestID: &recalculationOfPaymentRequestID,
-			GeneratedEDI858Text:             &generatedEDI858Text,
-		}
-		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPaymentRequest, expErrors)
-	})
-
 	suite.T().Run("test empty PaymentServiceItem", func(t *testing.T) {
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),

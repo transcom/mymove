@@ -11,16 +11,16 @@ import (
 
 // EdiError stores errors found while sending an 858 and being reported from EDI response files (824, 997)
 type EdiError struct {
-	ID                         uuid.UUID                                `json:"id" db:"id"`
-	CreatedAt                  time.Time                                `json:"created_at" db:"created_at"`
-	UpdatedAt                  time.Time                                `json:"updated_at" db:"updated_at"`
-	PaymentRequestID           uuid.UUID                                `json:"payment_request_id" db:"payment_request_id"`
-	PaymentRequest             PaymentRequest                           `belongs_to:"payment_requests" fk_id:"payment_request_id"`
-	InterchangeControlNumberID *uuid.UUID                               `json:"interchange_control_number_id" db:"interchange_control_number_id"`
-	InterchangeControlNumber   PaymentRequestToInterchangeControlNumber `belongs_to:"payment_request_to_interchange_control_numbers" fk_id:"interchange_control_number_id"`
-	Code                       *string                                  `json:"code" db:"code"`
-	Description                *string                                  `json:"description" db:"description"`
-	EDIType                    EDIType                                  `json:"edi_type" db:"edi_type"`
+	ID                         uuid.UUID         `json:"id" db:"id"`
+	CreatedAt                  time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt                  time.Time         `json:"updated_at" db:"updated_at"`
+	PaymentRequestID           uuid.UUID         `json:"payment_request_id" db:"payment_request_id"`
+	PaymentRequest             PaymentRequest    `belongs_to:"payment_requests" fk_id:"payment_request_id"`
+	InterchangeControlNumberID *uuid.UUID        `json:"payment_request_edi_id" db:"payment_request_edi_id"`
+	InterchangeControlNumber   PaymentRequestEDI `belongs_to:"payment_request_edis" fk_id:"payment_request_edi_id"`
+	Code                       *string           `json:"code" db:"code"`
+	Description                *string           `json:"description" db:"description"`
+	EDIType                    EDIType           `json:"edi_type" db:"edi_type"`
 }
 
 // EdiErrors is a list of EDI Error

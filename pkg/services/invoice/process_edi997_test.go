@@ -54,8 +54,8 @@ IEA*1*000000022
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
@@ -101,8 +101,8 @@ IEA*1*000000995
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
@@ -137,16 +137,16 @@ IEA*1*000000995
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 995,
 				PaymentRequest:           paymentRequest,
 				EDIType:                  models.EDIType858,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001253,
 				PaymentRequest:           paymentRequest,
@@ -181,16 +181,16 @@ IEA*1*000000995
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 995,
 				PaymentRequest:           paymentRequest,
 				EDIType:                  models.EDIType997,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001254,
 				PaymentRequest:           paymentRequest,
@@ -225,8 +225,8 @@ IEA*1*000000022
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 22,
 				PaymentRequest:           paymentRequest,
@@ -334,8 +334,8 @@ IEA*1*000000995
 				Status: models.PaymentRequestStatusSentToGex,
 			},
 		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,

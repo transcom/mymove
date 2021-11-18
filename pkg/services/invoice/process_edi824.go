@@ -75,12 +75,12 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 			return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN))
 		}
 
-		prToICN := models.PaymentRequestToInterchangeControlNumber{
+		prEDI := models.PaymentRequestEDI{
 			InterchangeControlNumber: int(icn),
 			PaymentRequestID:         paymentRequest.ID,
 			EDIType:                  models.EDIType824,
 		}
-		err = txnAppCtx.DB().Save(&prToICN)
+		err = txnAppCtx.DB().Save(&prEDI)
 		if err != nil {
 			return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
 		}
@@ -93,7 +93,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: &prToICN.ID,
+				InterchangeControlNumberID: &prEDI.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = txnAppCtx.DB().Save(&ediError)
@@ -135,7 +135,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: &prToICN.ID,
+				InterchangeControlNumberID: &prEDI.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = txnAppCtx.DB().Save(&ediError)

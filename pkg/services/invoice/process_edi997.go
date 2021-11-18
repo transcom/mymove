@@ -67,25 +67,25 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 	}
 
 	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
-	prToICN := models.PaymentRequestToInterchangeControlNumber{
+	prEDI := models.PaymentRequestEDI{
 		InterchangeControlNumber: int(icn),
 		PaymentRequestID:         paymentRequest.ID,
 		EDIType:                  models.EDIType997,
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		lookupErr := txnAppCtx.DB().Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prToICN.PaymentRequestID, prToICN.InterchangeControlNumber, prToICN.EDIType).First(&prToICN)
+		lookupErr := txnAppCtx.DB().Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prEDI.PaymentRequestID, prEDI.InterchangeControlNumber, prEDI.EDIType).First(&prEDI)
 		if lookupErr != nil {
 			txnAppCtx.Logger().Error("failure looking up payment request to interchange control number", zap.Error(err))
 		}
-		if prToICN.ID == uuid.Nil {
-			err = txnAppCtx.DB().Save(&prToICN)
+		if prEDI.ID == uuid.Nil {
+			err = txnAppCtx.DB().Save(&prEDI)
 			if err != nil {
 				txnAppCtx.Logger().Error("failure saving payment request to interchange control number", zap.Error(err))
 				return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
 			}
 		} else {
-			txnAppCtx.Logger().Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prToICN.EDIType, prToICN.PaymentRequestID, prToICN.InterchangeControlNumber))
+			txnAppCtx.Logger().Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prEDI.EDIType, prEDI.PaymentRequestID, prEDI.InterchangeControlNumber))
 		}
 		err = edi997.Validate()
 		if err != nil {
@@ -95,7 +95,7 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: &prToICN.ID,
+				InterchangeControlNumberID: &prEDI.ID,
 				EDIType:                    models.EDIType997,
 			}
 			err = txnAppCtx.DB().Save(&ediError)

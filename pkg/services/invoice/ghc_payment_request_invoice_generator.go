@@ -105,12 +105,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	}
 
 	// save ICN
-	pr2icn := models.PaymentRequestToInterchangeControlNumber{
+	prEDI := models.PaymentRequestEDI{
 		PaymentRequestID:         paymentRequest.ID,
 		InterchangeControlNumber: int(interchangeControlNumber),
 		EDIType:                  models.EDIType858,
 	}
-	verrs, err := appCtx.DB().ValidateAndSave(&pr2icn)
+	verrs, err := appCtx.DB().ValidateAndSave(&prEDI)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
 	} else if verrs != nil && verrs.HasAny() {
@@ -276,16 +276,6 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	edi858.IEA = edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,
 		InterchangeControlNumber:         interchangeControlNumber,
-	}
-
-	ediString, err := edi858.EDIString(appCtx.Logger())
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
-	}
-	paymentRequest.GeneratedEDI858Text = &ediString
-	err = appCtx.DB().Update(&paymentRequest)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
 	}
 
 	return edi858, nil

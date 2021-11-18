@@ -63,7 +63,7 @@ type Assertions struct {
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
-	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
+	PaymentRequestEDI                        models.PaymentRequestEDI
 	PaymentServiceItem                       models.PaymentServiceItem
 	PaymentServiceItemParam                  models.PaymentServiceItemParam
 	PaymentServiceItemParams                 models.PaymentServiceItemParams

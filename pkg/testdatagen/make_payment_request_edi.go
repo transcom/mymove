@@ -12,9 +12,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakePaymentRequestToInterchangeControlNumber creates a single PaymentRequest and PaymentRequestToInterchangeControlNumber
-func MakePaymentRequestToInterchangeControlNumber(db *pop.Connection, assertions Assertions) models.PaymentRequestToInterchangeControlNumber {
-	paymentRequestID := assertions.PaymentRequestToInterchangeControlNumber.PaymentRequestID
+// MakePaymentRequestEDI creates a single PaymentRequest and PaymentRequestEDI
+func MakePaymentRequestEDI(db *pop.Connection, assertions Assertions) models.PaymentRequestEDI {
+	paymentRequestID := assertions.PaymentRequestEDI.PaymentRequestID
 	if isZeroUUID(paymentRequestID) {
 		paymentRequest := MakePaymentRequest(db, assertions)
 		paymentRequestID = paymentRequest.ID
@@ -33,14 +33,14 @@ func MakePaymentRequestToInterchangeControlNumber(db *pop.Connection, assertions
 		log.Panic(fmt.Errorf("Errors encountered getting random interchange control number: %v", err))
 	}
 
-	pr2icn := models.PaymentRequestToInterchangeControlNumber{
+	pr2icn := models.PaymentRequestEDI{
 		PaymentRequestID:         paymentRequestID,
 		InterchangeControlNumber: int(icn),
 		EDIType:                  models.EDIType858,
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&pr2icn, assertions.PaymentRequestToInterchangeControlNumber)
+	mergeModels(&pr2icn, assertions.PaymentRequestEDI)
 
 	mustCreate(db, &pr2icn, assertions.Stub)
 

@@ -286,10 +286,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test that the Interchange Control Number (ICN) is being saved to the db
 	suite.T().Run("the ICN is saved to the database", func(t *testing.T) {
-		var pr2icn models.PaymentRequestToInterchangeControlNumber
-		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
+		var prEDI models.PaymentRequestEDI
+		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&prEDI)
 		suite.NoError(err)
-		suite.Equal(int(result.ISA.InterchangeControlNumber), pr2icn.InterchangeControlNumber)
+		suite.Equal(int(result.ISA.InterchangeControlNumber), prEDI.InterchangeControlNumber)
 	})
 
 	// Test Invoice Start and End Segments
@@ -689,30 +689,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		l3 := result.L3
 		// Will need to be updated as more service items are supported
 		suite.Equal(int64(16872), l3.PriceCents)
-	})
-
-	suite.T().Run("stores generated EDI on payment request", func(t *testing.T) {
-		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
-		suite.NoError(err)
-		edi, err := result.EDIString(suite.AppContextForTest().Logger())
-		suite.NoError(err)
-		var savedPaymentRequest models.PaymentRequest
-		err = suite.DB().Find(&savedPaymentRequest, paymentRequest.ID)
-		suite.NotNil(savedPaymentRequest.GeneratedEDI858Text, "Generated EDI 858 should be present")
-		suite.Equal(edi, *savedPaymentRequest.GeneratedEDI858Text, "Generated EDI should match Saved EDI")
-	})
-
-	suite.T().Run("regenerating EDI returns stored EDI", func(t *testing.T) {
-		first, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
-		suite.NoError(err)
-		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
-		suite.NoError(err)
-		edi, err := first.EDIString(suite.AppContextForTest().Logger())
-		suite.NoError(err)
-		var savedPaymentRequest models.PaymentRequest
-		err = suite.DB().Find(&savedPaymentRequest, paymentRequest.ID)
-		suite.NotNil(savedPaymentRequest.GeneratedEDI858Text, "Generated EDI 858 should be present")
-		suite.Equal(edi, *savedPaymentRequest.GeneratedEDI858Text, "Generated EDI should match Saved EDI")
 	})
 }
 

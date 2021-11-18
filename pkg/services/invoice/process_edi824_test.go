@@ -51,8 +51,8 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
@@ -120,8 +120,8 @@ GE*1*1
 IEA*1*000000995
 `
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001253,
 				PaymentRequest:           paymentRequest,
@@ -164,8 +164,8 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000996
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001255,
 				PaymentRequest:           paymentRequest,
@@ -219,8 +219,8 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000997
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
@@ -263,8 +263,8 @@ SE*5*000000001
 GE*2*1
 IEA*1*000000001
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		testdatagen.MakePaymentRequestEDI(suite.DB(), testdatagen.Assertions{
+			PaymentRequestEDI: models.PaymentRequestEDI{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
