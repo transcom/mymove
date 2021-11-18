@@ -182,6 +182,9 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	if payload.UsesExternalVendor == nil {
 		mtoShipment.UsesExternalVendor = oldShipment.UsesExternalVendor
 	}
+	// booleans not passed will update to false
+	mtoShipment.Diversion = oldShipment.Diversion
+
 	mtoShipment.ID = shipmentID
 
 	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
