@@ -22,7 +22,7 @@ export const InitialValues = (argTypes) => (
         address: {
           city: 'Los Angeles',
           state: 'CA',
-          postal_code: '90245',
+          postalCode: '90245',
         },
         name: 'Los Angeles AFB',
         id: 'testId',
@@ -40,7 +40,7 @@ export const Error = (argTypes) => (
         address: {
           city: 'Los Angeles',
           state: 'CA',
-          postal_code: '90245',
+          postalCode: '90245',
         },
         name: 'Los Angeles AFB',
         id: 'testId',
@@ -50,7 +50,7 @@ export const Error = (argTypes) => (
       address: {
         city: 'Los Angeles',
         state: 'CA',
-        postal_code: '90245',
+        postalCode: '90245',
       },
       id: 'testId',
     }}

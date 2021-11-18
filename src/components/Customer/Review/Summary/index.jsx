@@ -163,7 +163,7 @@ export class Summary extends Component {
           <NTSRShipmentCard
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
-            destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            destinationZIP={currentOrders.new_duty_station.address.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditBtn={showEditBtn}
             moveId={moveId}
@@ -180,7 +180,7 @@ export class Summary extends Component {
       return (
         <HHGShipmentCard
           key={shipment.id}
-          destinationZIP={currentOrders.new_duty_station.address.postal_code}
+          destinationZIP={currentOrders.new_duty_station.address.postalCode}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
           secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
@@ -252,11 +252,11 @@ export class Summary extends Component {
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
-            postalCode={serviceMember.residential_address.postal_code}
+            postalCode={serviceMember.residential_address.postalCode}
             rank={currentOrders.grade}
             state={serviceMember.residential_address.state}
-            streetAddress1={serviceMember.residential_address.street_address_1}
-            streetAddress2={serviceMember.residential_address.street_address_2}
+            streetAddress1={serviceMember.residential_address.streetAddress1}
+            streetAddress2={serviceMember.residential_address.streetAddress2}
             telephone={serviceMember.telephone}
           />
         </SectionWrapper>

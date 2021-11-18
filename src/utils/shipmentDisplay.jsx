@@ -6,12 +6,26 @@ import { shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 
 export function formatAddress(address) {
-  const { street_address_1, city, state, postal_code } = address;
+  const { streetAddress1, city, state, postalCode } = address;
   return (
     <>
-      {street_address_1 && <>{street_address_1},&nbsp;</>}
-      {city ? `${city}, ${state} ${postal_code}` : postal_code}
+      {streetAddress1 && <>{streetAddress1},&nbsp;</>}
+      {city ? `${city}, ${state} ${postalCode}` : postalCode}
     </>
+  );
+}
+
+// Display street address 1, street address 2, city, state, and zip
+// for Prime API Prime Simulator UI shipment
+export function formatPrimeAPIShipmentAddress(address) {
+  return address?.id ? (
+    <>
+      {address.streetAddress1 && <>{address.streetAddress1},&nbsp;</>}
+      {address.streetAddress2 && <>{address.streetAddress2},&nbsp;</>}
+      {address.city ? `${address.city}, ${address.state} ${address.postalCode}` : address.postalCode}
+    </>
+  ) : (
+    ''
   );
 }
 
@@ -31,9 +45,9 @@ export function formatAgent(agent) {
 export function formatCustomerDestination(destinationLocation, destinationZIP) {
   return destinationLocation ? (
     <>
-      {destinationLocation.street_address_1} {destinationLocation.street_address_2}
+      {destinationLocation.streetAddress1} {destinationLocation.streetAddress2}
       <br />
-      {destinationLocation.city}, {destinationLocation.state} {destinationLocation.postal_code}
+      {destinationLocation.city}, {destinationLocation.state} {destinationLocation.postalCode}
     </>
   ) : (
     destinationZIP
@@ -46,15 +60,15 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
   if (pickupAddress && destinationAddress) {
     return (
       <>
-        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postal_code} <FontAwesomeIcon icon="arrow-right" />{' '}
-        {destinationAddress.city}, {destinationAddress.state} {destinationAddress.postal_code}
+        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postalCode} <FontAwesomeIcon icon="arrow-right" />{' '}
+        {destinationAddress.city}, {destinationAddress.state} {destinationAddress.postalCode}
       </>
     );
   }
   if (pickupAddress && !destinationAddress) {
     return (
       <>
-        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postal_code} <FontAwesomeIcon icon="arrow-right" />{' '}
+        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postalCode} <FontAwesomeIcon icon="arrow-right" />{' '}
         TBD
       </>
     );
@@ -63,7 +77,7 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
     return (
       <>
         TBD <FontAwesomeIcon icon="arrow-right" /> {destinationAddress.city}, {destinationAddress.state}{' '}
-        {destinationAddress.postal_code}
+        {destinationAddress.postalCode}
       </>
     );
   }
@@ -72,7 +86,7 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
 
 export function formatPaymentRequestReviewAddressString(address) {
   if (address) {
-    return `${address.city}, ${address.state} ${address.postal_code}`;
+    return `${address.city}, ${address.state} ${address.postalCode}`;
   }
   return '';
 }

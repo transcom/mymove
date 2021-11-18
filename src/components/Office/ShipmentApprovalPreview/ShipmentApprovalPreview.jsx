@@ -78,7 +78,7 @@ const ShipmentApprovalPreview = ({
                           ...shipment,
                           destinationAddress: shipment.destinationAddress
                             ? shipment.destinationAddress
-                            : { postal_code: ordersInfo.newDutyStation.address.postal_code },
+                            : { postalCode: ordersInfo.newDutyStation.address.postalCode },
                           agents: shipment.mtoAgents,
                         }}
                       />
@@ -144,10 +144,10 @@ ShipmentApprovalPreview.propTypes = {
     phone: PropTypes.string,
     email: PropTypes.string,
     currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
+      streetAddress1: PropTypes.string,
       city: PropTypes.string,
       state: PropTypes.string,
-      postal_code: PropTypes.string,
+      postalCode: PropTypes.string,
     }),
     backupContact: PropTypes.shape({
       name: PropTypes.string,

@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { useState, useEffect } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';

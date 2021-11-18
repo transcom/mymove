@@ -2031,16 +2031,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -2158,7 +2158,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -2171,10 +2171,10 @@ definitions:
         example: 'USA'
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
   BackupContact:
     type: object
     properties:

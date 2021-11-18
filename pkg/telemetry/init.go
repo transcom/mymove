@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 
@@ -18,6 +21,7 @@ import (
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
 	exportmetric "go.opentelemetry.io/otel/sdk/export/metric"
+	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
 	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
 	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
 	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
@@ -96,7 +100,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		// use MetricExportKindSelector to prevent memory leak?
 		// https://github.com/open-telemetry/opentelemetry-go/issues/2225#issuecomment-915517182
 		metricExporter, err = otlpmetric.New(ctx, metricClient,
-			otlpmetric.WithMetricExportKindSelector(exportmetric.DeltaExportKindSelector()))
+			otlpmetric.WithMetricAggregationTemporalitySelector(aggregation.DeltaTemporalitySelector()))
 		if err != nil {
 			logger.Error("failed to create otel metric exporter", zap.Error(err))
 		}
@@ -112,6 +116,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		idGenerator = xray.NewIDGenerator()
 	}
 	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))),
 		sdktrace.WithSampler(sampler),
 		sdktrace.WithIDGenerator(idGenerator),
 		sdktrace.WithSpanProcessor(bsp),

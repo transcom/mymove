@@ -5,11 +5,13 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // RegisterRuntimeObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterRuntimeObserver(logger *zap.Logger, config *Config) {
+func RegisterRuntimeObserver(appCtx appcontext.AppContext, config *Config) {
 	if !config.Enabled {
 		return
 	}
@@ -21,7 +23,7 @@ func RegisterRuntimeObserver(logger *zap.Logger, config *Config) {
 	if err := runtime.Start(
 		runtime.WithMinimumReadMemStatsInterval(time.Duration(collectSeconds) * time.Second),
 	); err != nil {
-		logger.Fatal("failed to start runtime instrumentation:", zap.Error(err))
+		appCtx.Logger().Fatal("failed to start runtime instrumentation:", zap.Error(err))
 	}
 
 }

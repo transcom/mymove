@@ -17,16 +17,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-	"github.com/transcom/mymove/pkg/handlers"
-
-	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/cmd/webhook-client/utils/mocks"
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -1016,29 +1015,31 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 }
 
 // truncateAllNotifications truncates the notifications table
-func truncateAllNotifications(db *pop.Connection) {
+func truncateAllNotifications(appCtx appcontext.AppContext) {
 	notifications := []models.WebhookNotification{}
-	db.All(&notifications)
+	appCtx.DB().All(&notifications)
 	for _, notif := range notifications {
 		copyOfNotify := notif // Make copy to avoid implicit memory aliasing of items from a range statement.
-		db.Destroy(&copyOfNotify)
+		appCtx.DB().Destroy(&copyOfNotify)
 	}
 }
 
 // truncateAllSubscriptions truncates the subscriptions table
-func truncateAllSubscriptions(db *pop.Connection) {
+func truncateAllSubscriptions(appCtx appcontext.AppContext) {
 	subscriptions := []models.WebhookSubscription{}
-	db.All(&subscriptions)
+	appCtx.DB().All(&subscriptions)
 	for _, sub := range subscriptions {
 		copyOfSub := sub // Make copy to avoid implicit memory aliasing of items from a range statement.
-		db.Destroy(&copyOfSub)
+		appCtx.DB().Destroy(&copyOfSub)
 	}
 }
 
 // teardownEngineRun truncates the notifications and subscriptions tables
 func teardownEngineRun(suite *WebhookClientTestingSuite) {
-	truncateAllNotifications(suite.DB())
-	truncateAllSubscriptions(suite.DB())
+	appCtx := suite.AppContextForTest()
+
+	truncateAllNotifications(appCtx)
+	truncateAllSubscriptions(appCtx)
 }
 
 // convertBodyToPayload is a helper function to convert []byte to a webhookMessage payload

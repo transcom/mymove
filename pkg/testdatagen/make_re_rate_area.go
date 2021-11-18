@@ -42,7 +42,7 @@ func FetchOrMakeReRateArea(db *pop.Connection, assertions Assertions) models.ReR
 
 		mergeModels(&rateArea, assertions.ReRateArea)
 
-		mustSave(db, &rateArea)
+		MustSave(db, &rateArea)
 		existingReRateAreas = append(existingReRateAreas, rateArea)
 	}
 

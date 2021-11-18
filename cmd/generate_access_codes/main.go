@@ -10,11 +10,9 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -37,8 +35,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func mustSave(db *pop.Connection, model interface{}) {
-	verrs, err := db.ValidateAndSave(model)
+func mustSave(appCtx appcontext.AppContext, model interface{}) {
+	verrs, err := appCtx.DB().ValidateAndSave(model)
 	if verrs.HasAny() {
 		log.Fatalf("validation Errors %v", verrs)
 	}
@@ -47,7 +45,7 @@ func mustSave(db *pop.Connection, model interface{}) {
 	}
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 
@@ -106,6 +104,8 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
 	hhg := v.GetInt(hhgFlag)
 	ppm := v.GetInt(ppmFlag)
 
@@ -119,7 +119,7 @@ func main() {
 			MoveType: models.SelectedMoveTypeHHG,
 		}
 
-		mustSave(dbConnection, &accessCode)
+		mustSave(appCtx, &accessCode)
 	}
 
 	for i := 0; i < ppm; i++ {
@@ -128,7 +128,7 @@ func main() {
 			MoveType: models.SelectedMoveTypePPM,
 		}
 
-		mustSave(dbConnection, &accessCode)
+		mustSave(appCtx, &accessCode)
 	}
 
 	fmt.Println("Completed generate_access_codes")

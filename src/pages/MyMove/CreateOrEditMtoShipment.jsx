@@ -93,15 +93,15 @@ CreateOrEditMtoShipment.defaultProps = {
     requestedDeliveryDate: '',
     destinationAddress: {
       city: '',
-      postal_code: '',
+      postalCode: '',
       state: '',
-      street_address_1: '',
+      streetAddress1: '',
     },
   },
   newDutyStationAddress: {
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   },
 };
 

@@ -12,11 +12,11 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 
 const emptyAddressShape = {
-  street_address_1: '',
-  street_address_2: '',
+  streetAddress1: '',
+  streetAddress2: '',
   city: '',
   state: '',
-  postal_code: '',
+  postalCode: '',
 };
 
 const PrimeUIShipmentUpdateForm = ({

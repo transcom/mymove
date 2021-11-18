@@ -63,7 +63,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           pickupAddress: shipment.pickupAddress,
           secondaryPickupAddress: shipment.secondaryPickupAddress,
           destinationAddress: shipment.destinationAddress || {
-            postal_code: order.destinationDutyStation.address.postal_code,
+            postalCode: order.destinationDutyStation.address.postalCode,
           },
           secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
@@ -119,12 +119,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     },
   });
 
-  const [mutateFinanicalReview] = useMutation(updateFinancialFlag, {
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
 
-      setAlertMessage('Move flagged for finacial review.');
+      setAlertMessage('Move flagged for financial review.');
       setAlertType('success');
     },
     onError: () => {
@@ -150,7 +150,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   };
 
   const handleSubmitFinancialReviewModal = (remarks) => {
-    mutateFinanicalReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
+    mutateFinancialReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
     setIsFinancialModalVisible(false);
   };
 
@@ -217,7 +217,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                   </Link>
                 )
               }
-              finacialReviewOpen={handleShowFinancialReviewModal}
+              financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
               <FinancialReviewButton
