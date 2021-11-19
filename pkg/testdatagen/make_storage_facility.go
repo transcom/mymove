@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -8,27 +9,21 @@ import (
 
 // MakeStorageFacility creates a single SIT Extension and associated set relationships
 func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.StorageFacility {
-	lotNumber := "1234"
-	phone := "5555555555"
-	email := "storage@email.com"
 	address := assertions.StorageFacility.Address
-
-	if address.StreetAddress1 == "" {
+	if isZeroUUID(address.ID) {
 		address = MakeAddress(db, assertions)
 	}
 
 	storageFacility := models.StorageFacility{
 		FacilityName: "Storage R Us",
-		LotNumber:    &lotNumber,
 		Address:      address,
 		AddressID:    address.ID,
-		Phone:        &phone,
-		Email:        &email,
+		LotNumber:    swag.String("1234"),
+		Phone:        swag.String("5555555555"),
+		Email:        swag.String("storage@email.com"),
 	}
 
-	storageFacility.Address = address
-	storageFacility.AddressID = address.ID
-
+	// Overwrite values with those from assertions
 	mergeModels(&storageFacility, assertions.StorageFacility)
 
 	mustCreate(db, &storageFacility, assertions.Stub)
