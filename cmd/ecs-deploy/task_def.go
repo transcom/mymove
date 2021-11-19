@@ -615,7 +615,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
-				Image:     aws.String("amazon/aws-otel-collector"),
+				Image:     aws.String("amazon/aws-otel-collector:v0.14.0"),
 				Essential: aws.Bool(true),
 				Command: aws.StringSlice([]string{
 					"--config=/etc/ecs/ecs-cloudwatch-xray.yaml",
