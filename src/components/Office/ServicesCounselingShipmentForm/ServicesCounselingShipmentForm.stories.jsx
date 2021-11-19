@@ -133,8 +133,8 @@ export const NTSShipmentWithCodes = () => {
     <ServicesCounselingShipmentForm
       {...defaultProps}
       selectedMoveType={SHIPMENT_OPTIONS.NTS}
-      TACs={{ hhg: '1234', nts: '5678' }}
-      SACs={{ hhg: '000012345' }}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345' }}
     />
   );
 };
@@ -144,8 +144,8 @@ export const NTSReleaseShipment = () => {
     <ServicesCounselingShipmentForm
       {...defaultProps}
       selectedMoveType={SHIPMENT_OPTIONS.NTSR}
-      TACs={{ hhg: '1234', nts: '5678' }}
-      SACs={{ hhg: '000012345', nts: '6789ABC' }}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345', NTS: '6789ABC' }}
     />
   );
 };

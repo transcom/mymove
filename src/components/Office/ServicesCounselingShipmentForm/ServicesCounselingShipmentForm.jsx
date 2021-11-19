@@ -110,6 +110,8 @@ const ServicesCounselingShipmentForm = ({
     delivery,
     customerRemarks,
     counselorRemarks,
+    tacType,
+    sacType,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -123,6 +125,8 @@ const ServicesCounselingShipmentForm = ({
       counselorRemarks,
       pickup,
       delivery: deliveryDetails,
+      tacType,
+      sacType,
     });
 
     if (isCreatePage) {

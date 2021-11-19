@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Fieldset, Label, FormGroup, Radio, Button } from '@trussworks/react-uswds';
 import { useField } from 'formik';
@@ -9,33 +9,42 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AccountingCodesShape } from 'types/accountingCodes';
 
-const AccountingCodeSection = ({ label, fieldName, shipmentTypes }) => {
+const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }) => {
   const [inputProps, , helperProps] = useField(fieldName);
-  const handleClear = () => helperProps.setValue(undefined);
+  const [hasSetDefaultValue, setHasSetDefaultValue] = useState(false);
 
   const shipmentTypePairs = Object.entries(shipmentTypes);
+
+  useEffect(() => {
+    if (hasSetDefaultValue === false && shipmentTypePairs.length === 1) {
+      helperProps.setValue(shipmentTypePairs[0][0]);
+      setHasSetDefaultValue(true);
+    }
+  }, [hasSetDefaultValue, shipmentTypePairs, helperProps]);
+
+  const handleClear = () => helperProps.setValue(undefined);
 
   if (shipmentTypePairs.length === 0) {
     return (
       <FormGroup>
         <Label>{label}</Label>
-        <p className={styles.SectionDefaultText}>No {fieldName.toUpperCase()} code entered.</p>
+        <p className={styles.SectionDefaultText}>{emptyMessage}</p>
       </FormGroup>
     );
   }
 
   const fields = shipmentTypePairs.map(([key, value]) => {
-    const isChecked = inputProps.value === value || shipmentTypePairs.length === 1;
-    const handleChange = () => helperProps.setValue(value);
+    const isChecked = inputProps.value === key;
+    const handleChange = () => helperProps.setValue(key);
 
     return (
       <Radio
         key={key}
         id={`${fieldName}-${key}`}
-        label={`${value} (${key.toUpperCase()})`}
+        label={`${value} (${key})`}
         name={fieldName}
-        value={value}
-        title={`${value} (${key.toUpperCase()})`}
+        value={key}
+        title={`${value} (${key})`}
         checked={isChecked}
         onChange={handleChange}
       />
@@ -59,6 +68,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes }) => {
 AccountingCodeSection.propTypes = {
   label: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
+  emptyMessage: PropTypes.string.isRequired,
   shipmentTypes: AccountingCodesShape.isRequired,
 };
 
@@ -77,8 +87,18 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
           )}
         </h2>
 
-        <AccountingCodeSection label="TAC" fieldName="tac" shipmentTypes={TACs} />
-        <AccountingCodeSection label="SAC (optional)" fieldName="sac" shipmentTypes={SACs} />
+        <AccountingCodeSection
+          label="TAC"
+          emptyMessage="No TAC code entered."
+          fieldName="tacType"
+          shipmentTypes={TACs}
+        />
+        <AccountingCodeSection
+          label="SAC (optional)"
+          emptyMessage="No SAC code entered."
+          fieldName="sacType"
+          shipmentTypes={SACs}
+        />
 
         <Button type="button" onClick={onEditCodesClick} secondary={hasCodes}>
           {hasCodes ? 'Add or edit codes' : 'Add code'}

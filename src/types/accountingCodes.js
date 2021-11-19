@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 
 export const AccountingCodesShape = PropTypes.shape({
-  hhg: PropTypes.string,
-  nts: PropTypes.string,
+  HHG: PropTypes.string,
+  NTS: PropTypes.string,
 });
 
 export default {

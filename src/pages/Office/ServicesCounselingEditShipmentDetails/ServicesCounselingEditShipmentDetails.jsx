@@ -35,13 +35,13 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
   const TACs = {
-    hhg: order.tac,
-    nts: order.nts_tac,
+    HHG: order.tac,
+    NTS: order.nts_tac,
   };
 
   const SACs = {
-    hhg: order.sac,
-    nts: order.nts_sac,
+    HHG: order.sac,
+    NTS: order.nts_sac,
   };
 
   return (
