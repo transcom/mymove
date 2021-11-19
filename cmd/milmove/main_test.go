@@ -29,7 +29,7 @@ import (
 type webServerSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger logger
+	logger *zap.Logger
 }
 
 func TestWebServerSuite(t *testing.T) {

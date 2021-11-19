@@ -95,7 +95,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	moveTaskOrderPayload := payloads.Move(mto)
 
 	// Audit attempt to make MTO available to prime
-	_, err = audit.Capture(mto, moveTaskOrderPayload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
 		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
@@ -153,7 +153,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 	moveTaskOrderPayload := payloads.Move(mto)
 
 	// Audit
-	_, err = audit.Capture(mto, moveTaskOrderPayload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error for transitioning Move status to Service Counseling Completed.", zap.Error(err))
 		return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
@@ -209,7 +209,7 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 	moveTaskOrderPayload := payloads.Move(mto)
 
 	// Audit
-	_, err = audit.Capture(mto, moveTaskOrderPayload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
 		return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
@@ -262,7 +262,7 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 	moveTaskOrderPayload := payloads.Move(mto)
 
 	// Audit
-	_, err = audit.Capture(mto, moveTaskOrderPayload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Auditing service error updating the move's TioRemarks field.", zap.Error(err))
 		return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
