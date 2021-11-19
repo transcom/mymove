@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/route/mocks"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -119,10 +118,9 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 

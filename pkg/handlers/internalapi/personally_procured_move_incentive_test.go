@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -109,10 +108,9 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 

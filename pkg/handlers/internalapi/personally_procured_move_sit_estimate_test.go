@@ -14,7 +14,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -207,10 +206,9 @@ func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID,
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 
