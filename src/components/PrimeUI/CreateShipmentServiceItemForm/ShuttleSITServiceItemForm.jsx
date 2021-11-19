@@ -4,16 +4,15 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { addressSchema } from '../../../utils/validation';
-import { formatDateForSwagger } from '../../../shared/dates';
-import { formatAddressForPrimeAPI } from '../../../utils/formatters';
-import { Form } from '../../form/Form';
-import { DatePickerInput } from '../../form/fields/DatePickerInput';
-import MaskedTextField from '../../form/fields/MaskedTextField';
-import { AddressFields } from '../../form/AddressFields/AddressFields';
-import { ShipmentShape } from '../../../types/shipment';
+// import { formatDateForSwagger } from '../../../shared/dates';
+// import { formatAddressForPrimeAPI } from '../../../utils/formatters';
 
-const destinationSITValidationSchema = Yup.object().shape({
+import { Form } from 'components/form/Form';
+import TextField from 'components/form/fields/TextField';
+import { ShipmentShape } from 'types/shipment';
+
+const shuttleSITValidationSchema = Yup.object().shape({
+  /*
   firstAvailableDeliveryDate1: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
@@ -31,6 +30,8 @@ const destinationSITValidationSchema = Yup.object().shape({
     .required('Required'),
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
   sitDestinationFinalAddress: addressSchema,
+  */
+  reason: '',
 });
 
 const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
@@ -43,63 +44,47 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
     // was borrowed from the DestinationSITServiceItemForm that inspired this
     // file.
     reServiceCode: ['DOSHUT', 'DDSHUT'],
-    firstAvailableDeliveryDate1: '',
-    timeMilitary1: '',
-    firstAvailableDeliveryDate2: '',
-    timeMilitary2: '',
-    sitEntryDate: '',
-    sitDepartureDate: '',
-    sitDestinationFinalAddress: { streetAddress1: '', streetAddress2: '', city: '', state: '', postalCode: '' },
   };
 
   const onSubmit = (values) => {
     const {
       firstAvailableDeliveryDate1,
+      /*
       firstAvailableDeliveryDate2,
       sitEntryDate,
       sitDepartureDate,
       sitDestinationFinalAddress,
+      */
       ...serviceItemValues
     } = values;
+    /*
+    firstAvailableDeliveryDate1: formatDateForSwagger(firstAvailableDeliveryDate1),
+    firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
+    sitEntryDate: formatDateForSwagger(sitEntryDate),
+    sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
+    sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
+    ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
+    : null,
+    ...serviceItemValues,
+    */
     const body = {
-      firstAvailableDeliveryDate1: formatDateForSwagger(firstAvailableDeliveryDate1),
-      firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
-      sitEntryDate: formatDateForSwagger(sitEntryDate),
-      sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
-      sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
-        ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
-        : null,
+      reServiceCode: 'DOSHUT',
+      reason: '',
+      estimatedWeight: 0,
+      actualWeight: 0,
       ...serviceItemValues,
     };
     submission({ body });
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={destinationSITValidationSchema} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} validationSchema={shuttleSITValidationSchema} onSubmit={onSubmit}>
       <Form>
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
-        <DatePickerInput label="First available delivery date" name="firstAvailableDeliveryDate1" />
-        <MaskedTextField
-          id="timeMilitary1"
-          name="timeMilitary1"
-          label="First available delivery time"
-          mask="0000{Z}"
-          placeholder="1400Z"
-        />
-        <DatePickerInput label="Second available delivery date" name="firstAvailableDeliveryDate2" />
-        <MaskedTextField
-          id="timeMilitary1"
-          name="timeMilitary2"
-          label="Second available delivery time"
-          mask="0000{Z}"
-          placeholder="1400Z"
-        />
-        <DatePickerInput label="SIT entry date" name="sitEntryDate" />
-        <DatePickerInput label="SIT departure date" name="sitDepartureDate" />
-        <AddressFields legend="SIT destination final address" name="sitHHGActualOrigin" />
+        <TextField name="reason" id="reason" label="Reason" />
         <Button type="submit">Create service item</Button>
       </Form>
     </Formik>
