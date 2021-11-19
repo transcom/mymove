@@ -6195,7 +6195,7 @@ classlist-polyfill@^1.0.3:
   resolved "https://registry.yarnpkg.com/classlist-polyfill/-/classlist-polyfill-1.2.0.tgz#935bc2dfd9458a876b279617514638bcaa964a2e"
   integrity sha1-k1vC39lFiodrJ5YXUUY4vKqWSi4=
 
-classnames@^2.2.3, classnames@^2.2.5, classnames@^2.3.1:
+classnames@^2.2.3, classnames@^2.2.5, classnames@^2.3.1, classnames@~2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
   integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
@@ -6704,10 +6704,10 @@ core-js@^2.0.0, core-js@^2.4.0, core-js@^2.6.5:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
 
-core-js@^3.0.1, core-js@^3.0.4, core-js@^3.19.0, core-js@^3.6.5, core-js@^3.8.2:
-  version "3.19.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.19.0.tgz#9e40098a9bc326c7e81b486abbd5e12b9d275176"
-  integrity sha512-L1TpFRWXZ76vH1yLM+z6KssLZrP8Z6GxxW4auoCj+XiViOzNPJCAuTIkn03BGdFe6Z5clX5t64wRIRypsZQrUg==
+core-js@^3.0.1, core-js@^3.0.4, core-js@^3.19.1, core-js@^3.6.5, core-js@^3.8.2:
+  version "3.19.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.19.1.tgz#f6f173cae23e73a7d88fa23b6e9da329276c6641"
+  integrity sha512-Tnc7E9iKd/b/ff7GFbhwPVzJzPztGrChB8X8GLqoYGdEOG8IpLnK1xPyo3ZoO3HsK6TodJS58VGPOxA+hLHQMg==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -10729,6 +10729,11 @@ inflection@~1.12.0:
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/inflection/-/inflection-1.12.0.tgz#a200935656d6f5f6bc4dc7502e1aecb703228416"
   integrity sha1-ogCTVlbW9fa8TcdQLhrstwMihBY=
+
+inflection@~1.13.1:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/inflection/-/inflection-1.13.1.tgz#c5cadd80888a90cf84c2e96e340d7edc85d5f0cb"
+  integrity sha512-dldYtl2WlN0QDkIDtg8+xFwOS2Tbmp12t1cHa5/YClU6ZQjTFm7B66UcVbh9NQB+HvT5BAd2t5+yKsBkw5pcqA==
 
 inflight@^1.0.4:
   version "1.0.6"
@@ -16434,15 +16439,15 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-ra-core@^3.19.0:
-  version "3.19.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.19.0.tgz#9aa18a6ad794454b9fc38f0413d5d4c68e306d60"
-  integrity sha512-ae5+RGme36zjjgMLlSxnJW0yuaJtHny1C+slgaPZSr+KA78t5t5AJkAuk+9yGuYQ0qK3dqgnJYaZuJt8KMzHyw==
+ra-core@^3.19.0, ra-core@^3.19.1:
+  version "3.19.1"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.19.1.tgz#8c8480105975bc4f082d94988f8d3d0e1ee0737e"
+  integrity sha512-vTGrJLhOABnSjRjiqX/Bs4YHoRTeE+Zw4pNzX/9aXdvah4L48zHsnY1m+1i3veqzUcWDXR9FiQHZcpJTu03j0A==
   dependencies:
-    classnames "~2.2.5"
+    classnames "~2.3.1"
     date-fns "^1.29.0"
     eventemitter3 "^3.0.0"
-    inflection "~1.12.0"
+    inflection "~1.13.1"
     lodash "~4.17.5"
     prop-types "^15.6.1"
     query-string "^5.1.1"
@@ -16463,12 +16468,12 @@ ra-i18n-polyglot@^3.19.0:
     node-polyglot "^2.2.2"
     ra-core "^3.19.0"
 
-ra-language-english@^3.19.0:
-  version "3.19.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.19.0.tgz#060aa8a5b89b623304801ced6268da1705a89da5"
-  integrity sha512-BWL1q3LwUktqPQc7elvs9h+lBJTdO84v44oNMIH8BoLtHvBM1SNtGlYkFJ+HPZ9PcdVAnqR+tcaUHV1VBPUVJw==
+ra-language-english@^3.19.0, ra-language-english@^3.19.1:
+  version "3.19.1"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.19.1.tgz#109aba62bfc5b04242621efd6be77286e8082f21"
+  integrity sha512-REyyFXHAe6lKb3BvRZrnNuXVM16lTAFwDpS3vRP0Cl1dbg0yN7KoHo9DyHDOo9evnEIctUSbcbCPTGOIoQhsew==
   dependencies:
-    ra-core "^3.19.0"
+    ra-core "^3.19.1"
 
 ra-ui-materialui@^3.19.0:
   version "3.19.0"
