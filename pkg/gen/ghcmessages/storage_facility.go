@@ -22,6 +22,10 @@ type StorageFacility struct {
 	// address
 	Address *Address `json:"address,omitempty"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
@@ -129,6 +133,10 @@ func (m *StorageFacility) ContextValidate(ctx context.Context, formats strfmt.Re
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -144,6 +152,15 @@ func (m *StorageFacility) contextValidateAddress(ctx context.Context, formats st
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *StorageFacility) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
 	}
 
 	return nil
