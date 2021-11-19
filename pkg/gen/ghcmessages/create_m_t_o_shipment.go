@@ -66,11 +66,34 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"pickupAddress"`
 
+	// prime actual weight
+	// Example: 2000
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
 	// Required: true
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+
+	// sac type
+	SacType *LOAType `json:"sacType,omitempty"`
+
+	// service order number
+	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
+
+	// shipment type
+	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+	// storage facility
+	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
+
+	// tac type
+	TacType *LOAType `json:"tacType,omitempty"`
+
+	// uses external vendor
+	// Example: false
+	UsesExternalVendor *bool `json:"usesExternalVendor,omitempty"`
 }
 
 // Validate validates this create m t o shipment
@@ -98,6 +121,22 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTacType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,6 +221,72 @@ func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry)
 	return nil
 }
 
+func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.SacType) { // not required
+		return nil
+	}
+
+	if m.SacType != nil {
+		if err := m.SacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateStorageFacility(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageFacility) { // not required
+		return nil
+	}
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.TacType) { // not required
+		return nil
+	}
+
+	if m.TacType != nil {
+		if err := m.TacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create m t o shipment based on the context it is used
 func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -199,6 +304,22 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTacType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -244,6 +365,60 @@ func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, 
 }
 
 func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SacType != nil {
+		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TacType != nil {
+		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

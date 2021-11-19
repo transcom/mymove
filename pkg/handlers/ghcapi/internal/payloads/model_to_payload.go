@@ -266,6 +266,24 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// StorageFacility payload
+func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.StorageFacility {
+	if storageFacility == nil {
+		return nil
+	}
+	address := Address(&storageFacility.Address)
+	payload := ghcmessages.StorageFacility{
+		ID:           strfmt.UUID(storageFacility.ID.String()),
+		FacilityName: storageFacility.FacilityName,
+		Address:      address,
+		LotNumber:    storageFacility.LotNumber,
+		Phone:        storageFacility.Phone,
+		Email:        storageFacility.Email,
+	}
+
+	return &payload
+}
+
 // BackupContact payload
 func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	var name, email, phone string
@@ -387,6 +405,9 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
+		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
+		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
+		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 	}
 
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
@@ -411,6 +432,16 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if sitStatusPayload != nil {
 		payload.SitStatus = sitStatusPayload
+	}
+
+	if mtoShipment.TACType != nil {
+		tt := ghcmessages.LOAType(*mtoShipment.TACType)
+		payload.TacType = &tt
+	}
+
+	if mtoShipment.SACType != nil {
+		st := ghcmessages.LOAType(*mtoShipment.SACType)
+		payload.SacType = &st
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
