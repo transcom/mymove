@@ -2,13 +2,28 @@
 @import 'shared/styles/mixins';
 @import 'shared/styles/colors';
 
+.FinancialReviewContainer {
+  display: inline;
+}
+
 .FinancialReviewButton {
   @include u-padding-left(0);
   @include u-padding-bottom(3 !important);
+  display: inline;
+}
+
+.EditFinancialReviewContainer {
+  display: inline;
+}
+
+.EditFinancialReviewButton {
+  @include u-padding-left(1);
+  @include u-padding-top(0);
+  display: inline;
 }
 
 .FinancialReviewTag {
   @include u-margin-bottom(3 !important);
-  display: inline-block;
+  display: inline;
   background-color: $info-light !important;
 }

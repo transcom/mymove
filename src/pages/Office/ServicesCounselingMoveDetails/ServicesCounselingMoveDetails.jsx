@@ -109,9 +109,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
-
-      setAlertMessage('Move submitted.');
-      setAlertType('success');
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
     },
     onError: () => {
       setAlertMessage('There was a problem submitting the move. Please try again later.');
@@ -225,10 +229,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
-              <FinancialReviewButton
-                onClick={handleShowFinancialReviewModal}
-                reviewRequested={move.financialReviewFlag}
-              />
+              <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                <FinancialReviewButton
+                  onClick={handleShowFinancialReviewModal}
+                  reviewRequested={move.financialReviewFlag}
+                />
+              </div>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

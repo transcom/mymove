@@ -88,4 +88,25 @@ describe('Services counselor user', () => {
     cy.contains('Move flagged for financial review.');
     cy.contains('Flagged for financial review');
   });
+
+  it('is able to unflag a move for financial review', () => {
+    cy.wait(['@getSortedMoves']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // click to trigger financial review modal
+    cy.contains('Edit').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('No').click();
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+    cy.wait(['@financialReviewFlagCompleted']);
+
+    // Verify sucess alert and tag
+    cy.contains('Move unflagged for financial review.');
+  });
 });

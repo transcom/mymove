@@ -77,9 +77,13 @@ const MoveDetails = ({
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
-
-      setAlertMessage('Move flagged for financial review.');
-      setAlertType('success');
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
     },
     onError: () => {
       setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
@@ -258,8 +262,13 @@ const MoveDetails = ({
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <h1>Move details</h1>
-          <FinancialReviewButton onClick={handleShowFinancialReviewModal} reviewRequested={move.financialReviewFlag} />
+          <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+          <div className={styles.tooFinancialReviewContainer}>
+            <FinancialReviewButton
+              onClick={handleShowFinancialReviewModal}
+              reviewRequested={move.financialReviewFlag}
+            />
+          </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
