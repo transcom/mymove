@@ -7,11 +7,7 @@ import styles from './AccountingCodes.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-
-const ShipmentTypeShape = PropTypes.shape({
-  hhg: PropTypes.string,
-  nts: PropTypes.string,
-});
+import { AccountingCodesShape } from 'types/accountingCodes';
 
 const AccountingCodeSection = ({ label, fieldName, shipmentTypes }) => {
   const [inputProps, , helperProps] = useField(fieldName);
@@ -63,7 +59,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes }) => {
 AccountingCodeSection.propTypes = {
   label: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
-  shipmentTypes: ShipmentTypeShape.isRequired,
+  shipmentTypes: AccountingCodesShape.isRequired,
 };
 
 const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
@@ -84,7 +80,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
         <AccountingCodeSection label="TAC" fieldName="tac" shipmentTypes={TACs} />
         <AccountingCodeSection label="SAC (optional)" fieldName="sac" shipmentTypes={SACs} />
 
-        <Button onClick={onEditCodesClick} secondary={hasCodes}>
+        <Button type="button" onClick={onEditCodesClick} secondary={hasCodes}>
           {hasCodes ? 'Add or edit codes' : 'Add code'}
         </Button>
       </Fieldset>
@@ -101,8 +97,8 @@ AccountingCodes.defaultProps = {
 
 AccountingCodes.propTypes = {
   optional: PropTypes.bool,
-  TACs: ShipmentTypeShape,
-  SACs: ShipmentTypeShape,
+  TACs: AccountingCodesShape,
+  SACs: AccountingCodesShape,
   onEditCodesClick: PropTypes.func,
 };
 

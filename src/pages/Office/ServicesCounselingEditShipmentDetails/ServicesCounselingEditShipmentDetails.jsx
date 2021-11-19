@@ -34,6 +34,15 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const { customer, entitlement: allowances } = order;
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+  const TACs = {
+    hhg: order.tac,
+    nts: order.nts_tac,
+  };
+
+  const SACs = {
+    hhg: order.sac,
+    nts: order.nts_sac,
+  };
 
   return (
     <>
@@ -55,6 +64,8 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
+                  TACs={TACs}
+                  SACs={SACs}
                 />
               </Grid>
             </Grid>
