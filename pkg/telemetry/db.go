@@ -53,7 +53,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 					attribute.String(dbPoolIdleName, dbPoolIdleDesc))
 			}
 		},
-		metric.WithDescription(dbPoolInUseDesc))
+		metric.WithDescription(dbPoolIdleDesc))
 
 	metric.Must(meter).NewInt64UpDownCounterObserver(
 		dbWaitDurationName,
@@ -61,7 +61,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 			dbStats, err := stats.DBStats(appCtx)
 			if err == nil {
 				result.Observe(int64(dbStats.WaitDuration),
-					attribute.String(dbPoolInUseName, dbPoolInUseDesc))
+					attribute.String(dbWaitDurationName, dbWaitDurationDesc))
 			}
 		},
 		metric.WithDescription(dbWaitDurationDesc))
