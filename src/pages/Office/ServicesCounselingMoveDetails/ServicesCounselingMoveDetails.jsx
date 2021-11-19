@@ -109,13 +109,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
-      if (data.financialReviewFlag) {
-        setAlertMessage('Move flagged for financial review.');
-        setAlertType('success');
-      } else {
-        setAlertMessage('Move unflagged for financial review.');
-        setAlertType('success');
-      }
+      setAlertMessage('Move submitted.');
+      setAlertType('success');
     },
     onError: () => {
       setAlertMessage('There was a problem submitting the move. Please try again later.');
@@ -128,8 +123,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
 
-      setAlertMessage('Move flagged for financial review.');
-      setAlertType('success');
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
     },
     onError: () => {
       setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
