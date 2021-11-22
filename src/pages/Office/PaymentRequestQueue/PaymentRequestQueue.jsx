@@ -89,7 +89,7 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('Origin GBLOC', 'originGBLOC'),
+  createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
 const PaymentRequestQueue = ({ history }) => {

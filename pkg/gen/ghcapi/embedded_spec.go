@@ -2178,8 +2178,7 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age",
-              "originGBLOC"
+              "age"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8549,8 +8548,7 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age",
-              "originGBLOC"
+              "age"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
