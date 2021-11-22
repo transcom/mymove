@@ -90,6 +90,7 @@ type Assertions struct {
 	SignedCertification                      models.SignedCertification
 	SITExtension                             models.SITExtension
 	ServiceMember                            models.ServiceMember
+	StorageFacility                          models.StorageFacility
 	Stub                                     bool
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem

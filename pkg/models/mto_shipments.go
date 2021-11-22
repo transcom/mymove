@@ -74,6 +74,16 @@ const (
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
+// LOAType represents the possible TAC and SAC types for a mto shipment
+type LOAType string
+
+const (
+	// LOATypeHHG is the HHG TAC or SAC
+	LOATypeHHG LOAType = "HHG"
+	// LOATypeNTS is the NTS TAC or SAC
+	LOATypeNTS LOAType = "NTS"
+)
+
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
@@ -115,6 +125,8 @@ type MTOShipment struct {
 	StorageFacility                  *StorageFacility  `belongs_to:"storage_facilities" fk:"storage_facility_id"`
 	StorageFacilityID                *uuid.UUID        `db:"storage_facility_id"`
 	ServiceOrderNumber               *string           `db:"service_order_number"`
+	TACType                          *LOAType          `db:"tac_type"`
+	SACType                          *LOAType          `db:"sac_type"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
@@ -156,6 +168,27 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	vs = append(vs, &OptionalUUIDIsPresent{Field: m.StorageFacilityID, Name: "StorageFacilityID"})
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.ServiceOrderNumber, Name: "ServiceOrderNumber"})
+
+	var ptrTACType *string
+	if m.TACType != nil {
+		tacType := string(*m.TACType)
+		ptrTACType = &tacType
+	}
+	vs = append(vs, &OptionalStringInclusion{Field: ptrTACType, Name: "TACType", List: []string{
+		string(LOATypeHHG),
+		string(LOATypeNTS),
+	}})
+
+	var ptrSACType *string
+	if m.SACType != nil {
+		sacType := string(*m.SACType)
+		ptrSACType = &sacType
+	}
+	vs = append(vs, &OptionalStringInclusion{Field: ptrSACType, Name: "SACType", List: []string{
+		string(LOATypeHHG),
+		string(LOATypeNTS),
+	}})
+
 	return validate.Validate(vs...), nil
 }
 

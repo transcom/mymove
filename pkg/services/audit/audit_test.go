@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -37,6 +38,8 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
+		appCtx := appcontext.NewAppContext(nil, logger, &session)
+
 		req := &http.Request{
 			URL: &url.URL{
 				Path: "/admin/v1/admin_users",
@@ -44,7 +47,7 @@ func TestCapture(t *testing.T) {
 			Method: "POST",
 		}
 
-		zapFields, _ := Capture(&model, nil, logger, &session, req)
+		zapFields, _ := Capture(appCtx, &model, nil, req)
 		var eventType string
 		for _, field := range zapFields {
 			if field.Key == "event_type" {
@@ -81,6 +84,8 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
+		appCtx := appcontext.NewAppContext(nil, logger, &session)
+
 		req := &http.Request{
 			URL: &url.URL{
 				Path: "/admin/v1/admin_users/778acee1-bb04-4ccf-80bf-eae3c66e8c22",
@@ -88,7 +93,7 @@ func TestCapture(t *testing.T) {
 			Method: "PATCH",
 		}
 
-		zapFields, _ := Capture(&model, &payload, logger, &session, req)
+		zapFields, _ := Capture(appCtx, &model, &payload, req)
 
 		var fieldsChanged string
 		var eventType string
@@ -116,7 +121,9 @@ func TestCapture(t *testing.T) {
 			ServiceMemberID: serviceMemberID,
 		}
 
-		zapFields, _ := Capture(&model, nil, logger, &session, &dummyRequest)
+		appCtx := appcontext.NewAppContext(nil, logger, &session)
+
+		zapFields, _ := Capture(appCtx, &model, nil, &dummyRequest)
 
 		if assert.NotEmpty(t, zapFields) {
 			var keys []string
@@ -131,7 +138,9 @@ func TestCapture(t *testing.T) {
 	t.Run("success when a non-pointer is passed in", func(t *testing.T) {
 		session := auth.Session{}
 
-		zapFields, err := Capture(model, nil, logger, &session, &dummyRequest)
+		appCtx := appcontext.NewAppContext(nil, logger, &session)
+
+		zapFields, err := Capture(appCtx, model, nil, &dummyRequest)
 
 		var eventType string
 		for _, field := range zapFields {
@@ -148,8 +157,11 @@ func TestCapture(t *testing.T) {
 
 	t.Run("success when a non-struct is passed in", func(t *testing.T) {
 		session := auth.Session{}
+
+		appCtx := appcontext.NewAppContext(nil, logger, &session)
+
 		invalidArg := 5
-		zapFields, err := Capture(&invalidArg, nil, logger, &session, &dummyRequest)
+		zapFields, err := Capture(appCtx, &invalidArg, nil, &dummyRequest)
 
 		var eventType string
 		for _, field := range zapFields {
@@ -182,6 +194,8 @@ func TestCaptureAccountStatus(t *testing.T) {
 		AdminUserID: adminUserID,
 	}
 
+	appCtx := appcontext.NewAppContext(nil, logger, &session)
+
 	req := &http.Request{
 		URL: &url.URL{
 			Path: "/admin/v1/admin_users",
@@ -190,7 +204,7 @@ func TestCaptureAccountStatus(t *testing.T) {
 	}
 
 	t.Run("Sucessfully logs account enabled", func(t *testing.T) {
-		zapFields, _ := CaptureAccountStatus(&model, true, logger, &session, req)
+		zapFields, _ := CaptureAccountStatus(appCtx, &model, true, req)
 
 		if assert.NotEmpty(t, zapFields) {
 			fieldsMap := map[string]string{}
@@ -204,7 +218,7 @@ func TestCaptureAccountStatus(t *testing.T) {
 	})
 
 	t.Run("Sucessfully logs account disabled", func(t *testing.T) {
-		zapFields, _ := CaptureAccountStatus(&model, false, logger, &session, req)
+		zapFields, _ := CaptureAccountStatus(appCtx, &model, false, req)
 
 		if assert.NotEmpty(t, zapFields) {
 			fieldsMap := map[string]string{}

@@ -17,7 +17,7 @@ func (l *stdLogger) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func newStandardLogger(l Logger) *log.Logger {
+func newStandardLogger(l *zap.Logger) *log.Logger {
 	logger := l.WithOptions(zap.AddCallerSkip(4)).Error
 	return log.New(
 		&stdLogger{Logger: func(msg []byte) { logger(string(msg)) }},

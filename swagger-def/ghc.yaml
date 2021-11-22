@@ -3269,10 +3269,7 @@ definitions:
         example: handle with care
         x-nullable: true
       shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
@@ -3306,6 +3303,23 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
+      tacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
   UpdateShipment:
     type: object
     properties:
@@ -3347,6 +3361,29 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
+      tacType:
+        x-nullable: true
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3404,6 +3441,30 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      tacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -3436,6 +3497,8 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
   RejectShipment:
     properties:
       rejectionReason:

@@ -210,7 +210,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
-	_, err = audit.Capture(createdOfficeUser, nil, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}
@@ -255,13 +255,13 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 
 	// Log if the account was enabled or disabled (POAM requirement)
 	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(updatedOfficeUser, *payload.Active, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+		_, err = audit.CaptureAccountStatus(appCtx, updatedOfficeUser, *payload.Active, params.HTTPRequest)
 		if err != nil {
 			appCtx.Logger().Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
 		}
 	}
 
-	_, err = audit.Capture(updatedOfficeUser, payload, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, updatedOfficeUser, payload, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}

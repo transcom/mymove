@@ -169,7 +169,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 }
 
 // CheckDatabase validates DB command line flags
-func CheckDatabase(v *viper.Viper, logger Logger) error {
+func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 
 	if err := ValidateHost(v, DbHostFlag); err != nil {
 		return err
@@ -234,7 +234,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 // v is the viper Configuration.
 // creds must relate to an assumed role and can't point to a user or task role directly.
 // logger is the application logger.
-func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger) (*pop.Connection, error) {
+func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
@@ -376,7 +376,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 }
 
 //testConnection tests the connection to determine successful ping
-func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Logger) error {
+func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger *zap.Logger) error {
 	// Copy connection info as we don't want to alter connection info
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
