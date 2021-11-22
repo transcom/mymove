@@ -70,7 +70,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
 	}
 
-	_, err = dbMeter.NewInt64UpDownCounterObserver(
+	_, err = dbMeter.NewInt64CounterObserver(
 		dbWaitDurationName,
 		func(_ context.Context, result metric.Int64ObserverResult) {
 			dbStats, dberr := stats.DBStats(appCtx)
