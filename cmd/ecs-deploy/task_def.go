@@ -596,6 +596,13 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			Command:     []*string{},
 			Secrets:     secrets,
 			Environment: containerEnvironment,
+			Ulimits: []*ecs.Ulimit{
+				{
+					Name:      aws.String("nofile"),
+					SoftLimit: aws.Int64(10000),
+					HardLimit: aws.Int64(10000),
+				},
+			},
 			LogConfiguration: &ecs.LogConfiguration{
 				LogDriver: aws.String("awslogs"),
 				Options: map[string]*string{
