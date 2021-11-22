@@ -6,6 +6,7 @@ import styles from './CreateShipmentServiceItemForm.module.scss';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
+import DomesticShippingServiceItemForm from './DomesticCrating';
 
 import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
@@ -43,7 +44,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       )}
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         /* <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} /> */
-        <h1>Not Implemented Yet</h1>
+        <DomesticShippingServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
     </div>
   );

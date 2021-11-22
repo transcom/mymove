@@ -9,9 +9,10 @@ import PropTypes from 'prop-types';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField';
+import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
 
-const shuttleSITValidationSchema = Yup.object().shape({
+const domesticShippingValidationSchema = Yup.object().shape({
   /*
   firstAvailableDeliveryDate1: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
@@ -34,68 +35,89 @@ const shuttleSITValidationSchema = Yup.object().shape({
   reason: '',
 });
 
-const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
+const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: 'MTOServiceItemShuttle',
-    // TODO: This Model type has two different `reServiceCode` associated with
-    // it. This needs a Dropdown element associated with this form beyond what
-    // was borrowed from the DestinationSITServiceItemForm that inspired this
-    // file.
-    reServiceCode: ['DOSHUT', 'DDSHUT'],
+    modelType: 'MTOServiceItemDomesticCrating',
+    reServiceCode: ['DCRT', 'DUCRT'],
+    itemLength: 0,
+    itemWidth: 0,
+    itemHeight: 0,
+    crateLength: 0,
+    crateWidth: 0,
+    crateHeight: 0,
+    reason: '',
+    description: '',
   };
 
   const onSubmit = (values) => {
     const {
-      firstAvailableDeliveryDate1,
-      /*
-      firstAvailableDeliveryDate2,
-      sitEntryDate,
-      sitDepartureDate,
-      sitDestinationFinalAddress,
-      */
+      itemLength,
+      itemWidth,
+      itemHeight,
+      crateLength,
+      crateWidth,
+      crateHeight,
+      reason,
+      description,
       ...serviceItemValues
     } = values;
-    /*
-    firstAvailableDeliveryDate1: formatDateForSwagger(firstAvailableDeliveryDate1),
-    firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
-    sitEntryDate: formatDateForSwagger(sitEntryDate),
-    sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
-    sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
-    ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
-    : null,
-    ...serviceItemValues,
-    */
+
     const body = {
-      reServiceCode: 'DOSHUT',
+      reServiceCode: 'DCRT',
+      item: {
+        id: '',
+        length: itemLength,
+        width: itemWidth,
+        height: itemHeight,
+      },
+      crate: {
+        id: '',
+        length: crateLength,
+        width: crateWidth,
+        height: crateHeight,
+      },
       reason: '',
-      estimatedWeight: 0,
-      actualWeight: 0,
+      description: '',
       ...serviceItemValues,
     };
     submission({ body });
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={shuttleSITValidationSchema} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
       <Form>
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
+        <DropdownInput
+          name="reServiceCode"
+          id="reServiceCode"
+          label="Service Code"
+          options={[
+            { value: 'DCRT', key: 'DCRT' },
+            { value: 'DUCRT', key: 'DUCRT' },
+          ]}
+        />
+        <TextField name="itemLength" id="itemLength" label="Item length" />
+        <TextField name="itemWidth" id="itemWidth" label="Item width" />
+        <TextField name="itemHeight" id="itemHeight" label="Item height" />
+        <TextField name="crateLength" id="crateLength" label="Crate length" />
+        <TextField name="crateWidth" id="crateWidth" label="Crate width" />
+        <TextField name="crateHeight" id="crateHeight" label="Crate height" />
+        <TextField name="description" id="description" label="Description" />
         <TextField name="reason" id="reason" label="Reason" />
-        <TextField name="estimatedWeight" id="estimatedWeight" label="Estimated Weight" />
-        <TextField name="actualWeight" id="actualWeight" label="Actual Weight" />
         <Button type="submit">Create service item</Button>
       </Form>
     </Formik>
   );
 };
 
-ShuttleSITServiceItemForm.propTypes = {
+DomesticShippingServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default ShuttleSITServiceItemForm;
+export default DomesticShippingServiceItemForm;
