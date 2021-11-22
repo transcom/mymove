@@ -105,5 +105,19 @@ describe('components/Office/AccountingCodes', () => {
         expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
       });
     });
+
+    it('clicking "Clear selection" on a single code clears the value', async () => {
+      render(
+        <Formik initialValues={{}}>
+          <AccountingCodes TACs={{ NTS: '5678' }} />
+        </Formik>,
+      );
+
+      expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
+      userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+      await waitFor(() => {
+        expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
+      });
+    });
   });
 });
