@@ -79,6 +79,8 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  tacType,
+  sacType,
 }) {
   const displayValues = {
     shipmentType,
@@ -104,6 +106,8 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    tacType,
+    sacType,
   };
 
   if (agents) {

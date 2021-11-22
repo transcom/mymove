@@ -176,6 +176,18 @@ describe('formatMtoShipmentForDisplay', () => {
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
     expect(displayValues.hasSecondaryDelivery).toBe('yes');
   });
+
+  it('can format a shipment with lines of accounting', () => {
+    const params = {
+      ...mtoShipment,
+      tacType: 'HHG',
+      sacType: 'NTS',
+    };
+
+    const displayValues = formatMtoShipmentForDisplay(params);
+    expect(displayValues.tacType).toEqual('HHG');
+    expect(displayValues.sacType).toEqual('NTS');
+  });
 });
 
 describe('formatMtoShipmentForAPI', () => {

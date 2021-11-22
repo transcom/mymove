@@ -32,8 +32,10 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+
   const TACs = {
     HHG: order.tac,
     NTS: order.nts_tac,
