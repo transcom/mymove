@@ -262,12 +262,14 @@ const MoveDetails = ({
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
-          <div className={styles.tooFinancialReviewContainer}>
-            <FinancialReviewButton
-              onClick={handleShowFinancialReviewModal}
-              reviewRequested={move.financialReviewFlag}
-            />
+          <div className={styles.tooMoveDetailsHeadingFlexbox}>
+            <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+            <div className={styles.tooFinancialReviewContainer}>
+              <FinancialReviewButton
+                onClick={handleShowFinancialReviewModal}
+                reviewRequested={move.financialReviewFlag}
+              />
+            </div>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal

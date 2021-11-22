@@ -7,7 +7,7 @@ import styles from './FinancialReviewButton.module.scss';
 
 function FinancialReviewButton({ onClick, reviewRequested }) {
   return (
-    <div className={styles.FinancialReviewContainer}>
+    <div>
       {reviewRequested ? (
         <div className={styles.EditFinancialReviewContainer}>
           <Tag className={styles.FinancialReviewTag}>Flagged for financial review</Tag>

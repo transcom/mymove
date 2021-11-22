@@ -27,16 +27,15 @@
     @include u-margin-bottom(4);
   }
 
-  .tooMoveDetailsH1 {
-    display: inline;
+  .tooMoveDetailsHeadingFlexbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
   }
 
-  .tooFinancialReviewContainer {
-    display: inline;
-    position: absolute;
-    @include u-right(0);
-    @include u-margin-right(3);
-    @include u-margin-top(2);
+  .tooMoveDetailsH1 {
+    @include u-margin-bottom(0);
   }
 
   .gridContainer {
