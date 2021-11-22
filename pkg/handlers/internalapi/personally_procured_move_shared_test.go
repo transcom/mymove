@@ -3,7 +3,6 @@ package internalapi
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -19,10 +18,9 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UU
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 

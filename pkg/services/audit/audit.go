@@ -15,17 +15,18 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 )
 
 // Capture captures an audit record
-func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+func Capture(appCtx appcontext.AppContext, model interface{}, payload interface{}, request *http.Request) ([]zap.Field, error) {
 	var logItems []zap.Field
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
 
 	logItems = append(logItems, zap.String("event_type", eventType))
-	logItems = append(logItems, extractResponsibleUser(session)...)
+	logItems = append(logItems, extractResponsibleUser(appCtx.Session())...)
 
 	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
@@ -57,7 +58,7 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 				return nil, err
 			}
 
-			logger.Debug("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
+			appCtx.Logger().Debug("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
 		}
 	} else {
 		msg += " invalid or zero or nil model interface received from request handler"
@@ -66,18 +67,18 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 		)
 	}
 
-	logger.Info(msg, logItems...)
+	appCtx.Logger().Info(msg, logItems...)
 
 	return logItems, nil
 }
 
 // CaptureAccountStatus captures an audit record when a user account is enabled or disabled
-func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+func CaptureAccountStatus(appCtx appcontext.AppContext, model interface{}, activeValue bool, request *http.Request) ([]zap.Field, error) {
 	var logItems []zap.Field
 	eventType := extractEventType(request) + "_active_status_changed"
 	msg := flect.Titleize(eventType)
 	logItems = append(logItems, zap.String("event_type", eventType))
-	logItems = append(logItems, extractResponsibleUser(session)...)
+	logItems = append(logItems, extractResponsibleUser(appCtx.Session())...)
 
 	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
@@ -98,7 +99,7 @@ func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, se
 		)
 	}
 
-	logger.Info(msg, logItems...)
+	appCtx.Logger().Info(msg, logItems...)
 	return logItems, nil
 }
 

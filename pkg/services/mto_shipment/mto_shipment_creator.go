@@ -45,7 +45,7 @@ func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher servic
 	}
 }
 
-// CreateMTOShipment updates the mto shipment
+// CreateMTOShipment creates the mto shipment
 func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
@@ -70,17 +70,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			return nil, apperror.NewNotFoundError(moveID, "for move")
 		default:
 			return nil, apperror.NewQueryError("Move", err, "")
-		}
-	}
-
-	for _, existingShipment := range move.MTOShipments {
-		hasNTSShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
-			(existingShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
-
-		hasNTSRShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && (existingShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
-
-		if hasNTSShipment || hasNTSRShipment {
-			return nil, apperror.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
 		}
 	}
 
@@ -155,6 +144,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
 			}
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
+		}
+
+		if shipment.StorageFacility != nil {
+			verrs, err = f.builder.CreateOne(txnAppCtx, &shipment.StorageFacility.Address)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+			}
+			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
+
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
+			}
+			shipment.StorageFacilityID = &shipment.StorageFacility.ID
 		}
 
 		// check that required items to create shipment are present

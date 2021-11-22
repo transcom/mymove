@@ -15,12 +15,16 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		estimatedWeight := unit.Pound(1000)
 		actualWeight := unit.Pound(980)
 		sitDaysAllowance := 90
+		tacType := models.LOATypeHHG
+		sacType := models.LOATypeHHG
 		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			Status:               models.MTOShipmentStatusApproved,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			SITDaysAllowance:     &sitDaysAllowance,
+			TACType:              &tacType,
+			SACType:              &sacType,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
@@ -54,6 +58,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		billableWeightJustification := ""
 		sitDaysAllowance := -1
 		serviceOrderNumber := ""
+		tacType := models.LOAType("FAKE")
 		invalidMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:             uuid.Must(uuid.NewV4()),
 			Status:                      models.MTOShipmentStatusRejected,
@@ -64,6 +69,8 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			SITDaysAllowance:            &sitDaysAllowance,
 			ServiceOrderNumber:          &serviceOrderNumber,
 			StorageFacilityID:           &uuid.Nil,
+			TACType:                     &tacType,
+			SACType:                     &tacType,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than -1."},
@@ -74,6 +81,8 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"sitdays_allowance":             {"-1 is not greater than -1."},
 			"service_order_number":          {"ServiceOrderNumber can not be blank."},
 			"storage_facility_id":           {"StorageFacilityID can not be blank."},
+			"tactype":                       {"TACType is not in the list [HHG, NTS]."},
+			"sactype":                       {"SACType is not in the list [HHG, NTS]."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
 	})

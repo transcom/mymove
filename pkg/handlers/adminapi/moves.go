@@ -125,7 +125,7 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 		}
 	}
 
-	_, err = audit.Capture(updatedMove, params.Move, appCtx.Logger(), appCtx.Session(), params.HTTPRequest)
+	_, err = audit.Capture(appCtx, updatedMove, params.Move, params.HTTPRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
 	}

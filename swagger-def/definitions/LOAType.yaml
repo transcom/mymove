@@ -1,0 +1,6 @@
+description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+type: string
+example: HHG
+enum:
+  - HHG
+  - NTS
