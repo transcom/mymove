@@ -275,6 +275,8 @@ const MoveDetails = ({
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
               onSubmit={handleSubmitFinancialReviewModal}
+              initialRemarks={move?.financialReviewRemarks}
+              initialSelection={move?.financialReviewFlag}
             />
           )}
           <Grid row className={styles.pageHeader}>

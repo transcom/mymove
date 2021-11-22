@@ -179,6 +179,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           <FinancialReviewModal
             onClose={handleCancelFinancialReviewModal}
             onSubmit={handleSubmitFinancialReviewModal}
+            initialRemarks={move?.financialReviewRemarks}
+            initialSelection={move?.financialReviewFlag}
           />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
