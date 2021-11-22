@@ -9,7 +9,7 @@ import { formatDateForSwagger } from '../../../shared/dates';
 import { formatAddressForPrimeAPI } from '../../../utils/formatters';
 import { Form } from '../../form/Form';
 import { DatePickerInput } from '../../form/fields/DatePickerInput';
-import MaskedTextField from '../../form/fields/MaskedTextField';
+import MaskedTextField from '../../form/fields/MaskedTextField/MaskedTextField';
 import { AddressFields } from '../../form/AddressFields/AddressFields';
 import { ShipmentShape } from '../../../types/shipment';
 

@@ -56,27 +56,32 @@ export default {
     showDepartmentIndicator: { defaultValue: false },
     showOrdersNumber: { defaultValue: false },
     showOrdersTypeDetail: { defaultValue: false },
-    showTac: { defaultValue: false },
-    showSac: { defaultValue: false },
+    showHHGTac: { defaultValue: false },
+    showHHGSac: { defaultValue: false },
+    showNTSTac: { defaultValue: false },
+    showNTSSac: { defaultValue: false },
+
     showOrdersAcknowledgement: { defaultValue: false },
   },
 };
 
 export const EmptyValues = () => (
-  <Formik>
-    <form>
-      <OrdersDetailForm
-        deptIndicatorOptions={deptIndicatorOptions}
-        ordersTypeOptions={ordersTypeOptions}
-        ordersTypeDetailOptions={ordersTypeDetailOptions}
-      />
-    </form>
-  </Formik>
+  <div style={{ width: '400px' }}>
+    <Formik>
+      <form>
+        <OrdersDetailForm
+          deptIndicatorOptions={deptIndicatorOptions}
+          ordersTypeOptions={ordersTypeOptions}
+          ordersTypeDetailOptions={ordersTypeDetailOptions}
+        />
+      </form>
+    </Formik>
+  </div>
 );
 
 export const InitialValues = () => {
   return (
-    <>
+    <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
           originDutyStation,
@@ -87,8 +92,10 @@ export const InitialValues = () => {
           ordersNumber: '999999999',
           ordersType: 'PERMANENT_CHANGE_OF_STATION',
           ordersTypeDetail: 'HHG_PERMITTED',
-          tac: 'Tac',
-          sac: 'Sac',
+          hhg_tac: 'Tac',
+          hhg_sac: 'Sac',
+          nts_tac: 'Tac',
+          nts_sac: 'Sac',
           ordersAcknowledgement: true,
         }}
         validationSchema={Yup.object({
@@ -100,8 +107,10 @@ export const InitialValues = () => {
           ordersNumber: Yup.string().required('Required'),
           ordersType: Yup.string().required('Required'),
           ordersTypeDetail: Yup.string().required('Required'),
-          tac: Yup.string().required('Required'),
-          sac: Yup.string().required('Required'),
+          hhg_tac: Yup.string().required('Required'),
+          hhg_sac: Yup.string().required('Required'),
+          nts_tac: Yup.string().required('Required'),
+          nts_sac: Yup.string().required('Required'),
         })}
       >
         <form>
@@ -113,13 +122,13 @@ export const InitialValues = () => {
           />
         </form>
       </Formik>
-    </>
+    </div>
   );
 };
 
 export const FieldsHidden = (args) => {
   return (
-    <>
+    <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
           originDutyStation,
@@ -130,8 +139,10 @@ export const FieldsHidden = (args) => {
           ordersNumber: '999999999',
           ordersType: 'PERMANENT_CHANGE_OF_STATION',
           ordersTypeDetail: 'HHG_PERMITTED',
-          tac: 'Tac',
-          sac: 'Sac',
+          hhg_tac: 'Tac',
+          hhg_sac: 'Sac',
+          nts_tac: 'Tac',
+          nts_sac: 'Sac',
         }}
         validationSchema={Yup.object({
           originDutyStation: Yup.object().defined('Required'),
@@ -142,8 +153,10 @@ export const FieldsHidden = (args) => {
           ordersNumber: Yup.string().required('Required'),
           ordersType: Yup.string().required('Required'),
           ordersTypeDetail: Yup.string().required('Required'),
-          tac: Yup.string().required('Required'),
-          sac: Yup.string().required('Required'),
+          hhg_tac: Yup.string().required('Required'),
+          hhg_sac: Yup.string().required('Required'),
+          nts_tac: Yup.string().required('Required'),
+          nts_sac: Yup.string().required('Required'),
         })}
       >
         <form>
@@ -155,6 +168,6 @@ export const FieldsHidden = (args) => {
           />
         </form>
       </Formik>
-    </>
+    </div>
   );
 };

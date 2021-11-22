@@ -5,7 +5,7 @@ import { ResidentialAddressShape } from 'types/address';
 import { formatDate, formatWeight } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { DatePickerInput } from 'components/form/fields';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';

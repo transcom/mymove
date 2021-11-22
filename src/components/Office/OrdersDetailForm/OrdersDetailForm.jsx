@@ -4,21 +4,25 @@ import { func, string, bool } from 'prop-types';
 import styles from './OrdersDetailForm.module.scss';
 
 import { CheckboxField, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
-import TextField from 'components/form/fields/TextField';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
-  tacWarning,
-  validateTac,
+  hhgTacWarning,
+  ntsTacWarning,
+  validateHHGTac,
+  validateNTSTac,
   showDepartmentIndicator,
   showOrdersNumber,
   showOrdersTypeDetail,
-  showTac,
-  showSac,
+  showHHGTac,
+  showHHGSac,
+  showNTSTac,
+  showNTSSac,
   showOrdersAcknowledgement,
 }) => {
   return (
@@ -35,10 +39,34 @@ const OrdersDetailForm = ({
       {showOrdersTypeDetail && (
         <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
       )}
-      {showTac && (
-        <MaskedTextField name="tac" label="TAC" id="tacInput" mask="****" warning={tacWarning} validate={validateTac} />
+
+      {showHHGTac && showHHGSac && <h3>HHG accounting codes</h3>}
+      {showHHGTac && (
+        <MaskedTextField
+          name="hhg_tac"
+          label="TAC"
+          id="hhgTacInput"
+          mask="****"
+          warning={hhgTacWarning}
+          validate={validateHHGTac}
+        />
       )}
-      {showSac && <TextField name="sac" label="SAC" id="sacInput" />}
+      {showHHGSac && <TextField name="hhg_sac" label="SAC" id="hhgSacInput" optional />}
+
+      {showNTSTac && showNTSSac && <h3>NTS accounting codes</h3>}
+      {showNTSTac && (
+        <MaskedTextField
+          name="nts_tac"
+          label="TAC"
+          id="ntsTacInput"
+          mask="****"
+          warning={ntsTacWarning}
+          validate={validateNTSTac}
+          optional
+        />
+      )}
+      {showNTSSac && <TextField name="nts_sac" label="SAC" id="ntsSacInput" optional />}
+
       {showOrdersAcknowledgement && (
         <div className={styles.wrappedCheckbox}>
           <CheckboxField
@@ -56,26 +84,34 @@ OrdersDetailForm.propTypes = {
   ordersTypeOptions: DropdownArrayOf.isRequired,
   deptIndicatorOptions: DropdownArrayOf,
   ordersTypeDetailOptions: DropdownArrayOf,
-  tacWarning: string,
-  validateTac: func,
+  hhgTacWarning: string,
+  ntsTacWarning: string,
+  validateHHGTac: func,
+  validateNTSTac: func,
   showDepartmentIndicator: bool,
   showOrdersNumber: bool,
   showOrdersTypeDetail: bool,
-  showTac: bool,
-  showSac: bool,
+  showHHGTac: bool,
+  showHHGSac: bool,
+  showNTSTac: bool,
+  showNTSSac: bool,
   showOrdersAcknowledgement: bool,
 };
 
 OrdersDetailForm.defaultProps = {
-  tacWarning: '',
+  hhgTacWarning: '',
+  ntsTacWarning: '',
   deptIndicatorOptions: null,
   ordersTypeDetailOptions: null,
-  validateTac: null,
+  validateHHGTac: null,
+  validateNTSTac: null,
   showDepartmentIndicator: true,
   showOrdersNumber: true,
   showOrdersTypeDetail: true,
-  showTac: true,
-  showSac: true,
+  showHHGTac: true,
+  showHHGSac: true,
+  showNTSTac: true,
+  showNTSSac: true,
   showOrdersAcknowledgement: false,
 };
 

@@ -23,4 +23,8 @@
     border: 1px solid $base-lighter;
     border-radius: 4px;
   }
+
+  h3 {
+    @include u-margin-bottom(0);
+  }
 }

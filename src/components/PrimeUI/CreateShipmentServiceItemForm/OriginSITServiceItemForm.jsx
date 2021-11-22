@@ -8,8 +8,8 @@ import { requiredAddressSchema, ZIP_CODE_REGEX } from '../../../utils/validation
 import { formatDateForSwagger } from '../../../shared/dates';
 import { formatAddressForPrimeAPI } from '../../../utils/formatters';
 import { Form } from '../../form/Form';
-import TextField from '../../form/fields/TextField';
-import MaskedTextField from '../../form/fields/MaskedTextField';
+import TextField from '../../form/fields/TextField/TextField';
+import MaskedTextField from '../../form/fields/MaskedTextField/MaskedTextField';
 import { DatePickerInput } from '../../form/fields/DatePickerInput';
 import { AddressFields } from '../../form/AddressFields/AddressFields';
 import { ShipmentShape } from '../../../types/shipment';
