@@ -1000,6 +1000,8 @@ github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
+github.com/trussworks/otelhttp v0.0.0-20211122135524-6786c52b8001 h1:Yu8Rlc2uN4VoiHnkYib6lp4elyScpqMV3FoGeXjYG8Q=
+github.com/trussworks/otelhttp v0.0.0-20211122135524-6786c52b8001/go.mod h1:cSJPL2mXxVRRuC50s164/MqqxyZfDIwc49baRtosd9Y=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
@@ -1057,8 +1059,6 @@ go.opentelemetry.io/contrib/detectors/aws/ecs v1.2.0 h1:M52QUnEQqY5xJPA+jm64ikQ6
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.2.0/go.mod h1:T7fSLzTdRftgkS5T2D5qlJHBXbHUEF50kL/tQoq/E+w=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.27.0 h1:skEHl5tInxJEfZDzc2L7Pg6Nf035WhWnDoo+TMX/GLQ=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.27.0/go.mod h1:a3otjxj/qsovtwBJ7TWaVpmQe1WG+nigjTPNulxwFfY=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.27.0 h1:0BgiNWjN7rUWO9HdjF4L12r8OW86QkVQcYmCjnayJLo=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.27.0/go.mod h1:bdvm3YpMxWAgEfQhtTBaVR8ceXPRuRBSQrvOBnIlHxc=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0 h1:0VckNFxrgunf4bpAFcgyqwvBedyP53cK+MMlU/9O788=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0/go.mod h1:6ZYYPfSKyhnkpw3xOssb1PMclnNs8dnSzO5POa+02ys=
 go.opentelemetry.io/contrib/propagators/aws v1.2.0 h1:bC16XvI2aiy0SfMnPdjhudKp5FY7rdL+1TFF33CE8+s=
