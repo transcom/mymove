@@ -1978,6 +1978,7 @@ paths:
             - status
             - dodID
             - age
+            - originGBLOC
           description: field that results should be sorted by
         - in: query
           name: order

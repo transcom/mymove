@@ -28,6 +28,7 @@ var parameters = map[string]string{
 	"locator":     "moves.locator",
 	"status":      "payment_requests.status",
 	"age":         "payment_requests.created_at",
+	"originGBLOC": "transportation_offices.gbloc",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -93,7 +94,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, transportation_offices.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -186,14 +187,19 @@ func reverseOrder(order *string) string {
 }
 
 func sortOrder(sort *string, order *string) QueryOption {
+	fmt.Println("🎉🎉🎉🎉🎉🎉🎉🎉")
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
+			fmt.Println(*sort)
 			sortTerm := parameters[*sort]
+			fmt.Println("SORT ORDER: ", sortTerm)
 			if *sort == "lastName" {
 				orderName(query, order)
 			} else if *sort == "age" {
 				query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
 			} else {
+				fmt.Println("🤦‍♀️🤦‍♀️🤦‍♀️🤦‍♀️🤦‍♀️")
+				fmt.Println(sortTerm)
 				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
 		} else {

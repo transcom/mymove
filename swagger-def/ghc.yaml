@@ -1908,7 +1908,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originGBLOC]
           description: field that results should be sorted by
         - in: query
           name: order
