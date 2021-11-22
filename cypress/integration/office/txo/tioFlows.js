@@ -63,8 +63,8 @@ describe('TIO user', () => {
 
     cy.wait(['@getMoves', '@getOrders', '@getDocuments']);
     cy.get('form').within(($form) => {
-      cy.get('input[name="tac"]').click().clear().type('E15A');
-      cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
+      cy.get('input[name="hhg_tac"]').click().clear().type('E15A');
+      cy.get('input[name="hhg_sac"]').click().clear().type('4K988AS098F');
       // Edit orders page | Save
       cy.get('button').contains('Save').click();
     });
