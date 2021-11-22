@@ -1621,7 +1621,7 @@ paths:
       description: >-
         This sets a flag which indicates that the move should be reviewed by a
         fincancial office. For example, if the origin or destination address of
-        a shipment is far from the duty location and may incur excess costs to
+        a shipment is far from the duty station and may incur excess costs to
         the customer.
       operationId: setFinancialReviewFlag
       tags:
@@ -1886,7 +1886,7 @@ paths:
       description: >
         An office TOO user will be assigned a transportation office that will
         determine which moves are displayed in their queue based on the origin
-        duty station.  GHC moves will show up here onced they have reached the
+        duty station.  GHC moves will show up here once they have reached the
         submitted status sent by the customer and have move task orders,
         shipments, and service items to approve.
       operationId: getMovesQueue
@@ -1910,7 +1910,7 @@ paths:
             - branch
             - locator
             - status
-            - destinationDutyStation
+            - originDutyStation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1932,7 +1932,7 @@ paths:
           name: dodID
           type: string
         - in: query
-          name: destinationDutyStation
+          name: originDutyStation
           type: string
         - in: query
           name: status
@@ -3896,7 +3896,7 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
-      destinationDutyStation:
+      originDutyStation:
         $ref: '#/definitions/DutyStation'
       originGBLOC:
         $ref: '#/definitions/GBLOC'

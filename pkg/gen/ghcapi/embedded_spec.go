@@ -1295,7 +1295,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty station and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -2055,7 +2055,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here once they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -2084,7 +2084,7 @@ func init() {
               "branch",
               "locator",
               "status",
-              "destinationDutyStation"
+              "originDutyStation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2123,7 +2123,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "originDutyStation",
             "in": "query"
           },
           {
@@ -4782,15 +4782,15 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
-        },
         "id": {
           "type": "string",
           "format": "uuid"
         },
         "locator": {
           "type": "string"
+        },
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -7326,7 +7326,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty station and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -8267,7 +8267,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here once they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -8296,7 +8296,7 @@ func init() {
               "branch",
               "locator",
               "status",
-              "destinationDutyStation"
+              "originDutyStation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8335,7 +8335,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "originDutyStation",
             "in": "query"
           },
           {
@@ -11192,15 +11192,15 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
-        },
         "id": {
           "type": "string",
           "format": "uuid"
         },
         "locator": {
           "type": "string"
+        },
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
