@@ -823,6 +823,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:     moveTaskOrder.Locator,
 			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+			// Add Origin Duty Location
+			OriginDutyLocation: DutyStation(orders.OriginDutyStation),
 		}
 
 		if orders.DepartmentIndicator != nil {

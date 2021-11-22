@@ -4008,6 +4008,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:

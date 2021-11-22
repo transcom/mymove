@@ -4949,6 +4949,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -11510,6 +11513,9 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"

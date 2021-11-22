@@ -11,6 +11,7 @@ import {
   formatAgeToDays,
   paymentRequestStatusReadable,
   serviceMemberAgencyLabel,
+  formatOriginDutyLoction,
 } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -90,6 +91,17 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+  createHeader(
+    'Origin Duty Location',
+    (row) => {
+      return formatOriginDutyLoction(row.originDutyLocation);
+    },
+    {
+      id: 'originDutyLocation',
+      isFilterable: true,
+      disableSortBy: true,
+    },
+  ),
 ];
 
 const PaymentRequestQueue = ({ history }) => {

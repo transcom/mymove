@@ -374,3 +374,9 @@ export const formatPrimeAPIFullAddress = (address) => {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
 };
+
+export const formatOriginDutyLoction = (originDutyLocation) => {
+  return originDutyLocation.name !== null || originDutyLocation.name !== ''
+    ? originDutyLocation.name
+    : `${originDutyLocation.address.city}, ${originDutyLocation.address.state} ${originDutyLocation.address.postalCode}`;
+};
