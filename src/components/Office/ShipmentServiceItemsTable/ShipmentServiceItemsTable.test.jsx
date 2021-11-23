@@ -44,8 +44,7 @@ describe('Shipment Service Items Table', () => {
     expect(wrapper.find('td').at(1).text()).toEqual('Fuel surcharge');
     expect(wrapper.find('td').at(2).text()).toEqual('Domestic origin price');
     expect(wrapper.find('td').at(3).text()).toEqual('Domestic destination price');
-    expect(wrapper.find('td').at(4).text()).toEqual('Domestic packing');
-    expect(wrapper.find('td').at(5).text()).toEqual('Domestic NTS packing factor');
+    expect(wrapper.find('td').at(4).text()).toEqual('Domestic NTS packing');
   });
 
   it('renders the nts release shipment type with service items', () => {

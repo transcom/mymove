@@ -886,14 +886,13 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDUPK,
 		}
 	case models.MTOShipmentTypeHHGIntoNTSDom:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDNPKF,
+			models.ReServiceCodeDNPK,
 		}
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
