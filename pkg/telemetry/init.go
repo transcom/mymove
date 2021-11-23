@@ -59,6 +59,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	ctx := context.Background()
 	shutdown = func() {}
 
+	logger.Info("Configuring tracing", zap.Any("TelemetryConfig", config))
 	if !config.Enabled {
 		tp := trace.NewNoopTracerProvider()
 		otel.SetTracerProvider(tp)

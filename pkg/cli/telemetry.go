@@ -33,7 +33,7 @@ func InitTelemetryFlags(flag *pflag.FlagSet) {
 	flag.Bool(TelemetryEnabledFlag, false, "Is open telemetry tracing enabled")
 	flag.String(TelemetryEndpointFlag, "stdout", "open telemetry tracing endpoint")
 	flag.Bool(TelemetryUseXrayIDFlag, false, "Using AWS Xray Trace IDs")
-	flag.Float32(TelemetrySamplingFractionFlag, 0.5, "Percent of traces to sample")
+	flag.Float64(TelemetrySamplingFractionFlag, 0.5, "Percent of traces to sample")
 	flag.Int(TelemetryCollectSecondsFlag, 30, "Metric collection period in seconds")
 	flag.Bool(TelemetryReadEventsEnabledFlag, true, "Enable read event traces")
 	flag.Bool(TelemetryWriteEventsEnabledFlag, true, "Enable write event traces")

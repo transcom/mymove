@@ -147,6 +147,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// SessionFlags
 	cli.InitSessionFlags(flag)
 
+	// Telemetry flag config
+	cli.InitTelemetryFlags(flag)
+
 	// Sort command line flags
 	flag.SortFlags = true
 }
