@@ -37,7 +37,7 @@ func (e *errInvalidScenario) Error() string {
 	return fmt.Sprintf("invalid scenario: %s", e.Name)
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 

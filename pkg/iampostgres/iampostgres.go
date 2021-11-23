@@ -25,7 +25,7 @@ type config struct {
 	passHolder       string
 	currentIamPass   string
 	currentPassMutex sync.Mutex
-	logger           Logger
+	logger           *zap.Logger
 }
 
 var iamConfig = config{false, "", "", sync.Mutex{}, nil}
@@ -80,7 +80,7 @@ func updateDSN(dsn string) (string, error) {
 }
 
 // Refreshes the RDS IAM on the given interval.
-func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
+func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger *zap.Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
 	logger.Info("Starting refresh of RDS IAM")
 	// This for loop immediately runs the first tick then on interval
 	// This for loop will run indefinitely until it either errors or true is
@@ -118,7 +118,7 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
 // Note: This method is intended to be non-blocking, so please add any changes to the goroutine
 // Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
-func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, shouldQuitChan chan bool) {
+func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger *zap.Logger, shouldQuitChan chan bool) {
 	// Lets enable and configure the DSN settings
 	iamConfig.useIAM = true
 	iamConfig.passHolder = passTemplate
@@ -132,7 +132,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	go logEnableIAMFailed(logger, errorMessagesChan)
 }
 
-func logEnableIAMFailed(logger Logger, errorMessagesChan chan error) {
+func logEnableIAMFailed(logger *zap.Logger, errorMessagesChan chan error) {
 	errorMessages := <-errorMessagesChan
 
 	if errorMessages != nil {
