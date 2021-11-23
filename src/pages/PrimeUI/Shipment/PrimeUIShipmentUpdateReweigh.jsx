@@ -1,22 +1,67 @@
-import React from 'react';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import React, { useState } from 'react';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { useHistory, useParams } from 'react-router-dom';
+import { useMutation } from 'react-query';
 
 import PrimeUIShipmentUpdateReweighForm from './PrimeUIShipmentUpdateReweighForm';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import scrollToTop from 'shared/scrollToTop';
+import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
+import { updatePrimeMTOShipmentReweigh } from 'services/primeApi';
 
 const PrimeUIShipmentUpdateReweigh = () => {
-  const { moveCodeOrID } = useParams();
+  const [errorMessage, setErrorMessage] = useState();
+  const { moveCodeOrID, shipmentId, reweighId } = useParams();
+  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+  const mtoShipments = moveTaskOrder?.mtoShipments;
+  const shipment = mtoShipments?.find((mtoShipment) => mtoShipment?.id === shipmentId);
   const history = useHistory();
-
-  const handleSubmit = () => {};
 
   const handleClose = () => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
+
+  const [mutateMTOShipmentReweigh] = useMutation(updatePrimeMTOShipmentReweigh, {
+    onSuccess: () => {
+      handleClose();
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred, please check the address values used',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const handleSubmit = (values) => {
+    mutateMTOShipmentReweigh({
+      mtoShipmentID: shipmentId,
+      reweighID: reweighId,
+      ifMatchETag: shipment.reweigh.eTag,
+      body: {
+        weight: values.reweighWeight,
+        verificationReason: values.reweighRemarks,
+      },
+    });
+  };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <div className={styles.tabContent}>
@@ -24,6 +69,15 @@ const PrimeUIShipmentUpdateReweigh = () => {
         <GridContainer className={styles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
+              {errorMessage?.detail && (
+                <div className={primeStyles.errorContainer}>
+                  <Alert type="error">
+                    <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                    <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
+                  </Alert>
+                </div>
+              )}
+              <h1>Update Existing Pickup & Destination Address</h1>
               <PrimeUIShipmentUpdateReweighForm handleSubmit={handleSubmit} handleClose={handleClose} />
             </Grid>
           </Grid>
