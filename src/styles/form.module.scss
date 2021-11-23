@@ -25,7 +25,7 @@
   }
 
   legend + :global(.usa-form-group .usa-label) {
-    @include u-margin-top('105');
+    @include u-margin-top(2);
   }
 
   legend + :global(.usa-form-group) p {
@@ -39,6 +39,7 @@
 
   legend + p {
     @include u-margin-top('205');
+    margin-bottom: 0;
   }
 
   :global(.usa-label) {
