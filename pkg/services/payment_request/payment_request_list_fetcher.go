@@ -21,13 +21,14 @@ type paymentRequestListFetcher struct {
 }
 
 var parameters = map[string]string{
-	"lastName":    "service_members.last_name",
-	"dodID":       "service_members.edipi",
-	"submittedAt": "payment_requests.created_at",
-	"branch":      "service_members.affiliation",
-	"locator":     "moves.locator",
-	"status":      "payment_requests.status",
-	"age":         "payment_requests.created_at",
+	"lastName":           "service_members.last_name",
+	"dodID":              "service_members.edipi",
+	"submittedAt":        "payment_requests.created_at",
+	"branch":             "service_members.affiliation",
+	"locator":            "moves.locator",
+	"status":             "payment_requests.status",
+	"age":                "payment_requests.created_at",
+	"originDutyLocation": "duty_stations.name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -95,7 +96,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}

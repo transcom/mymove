@@ -98,7 +98,6 @@ const columns = (showBranchFilter = true) => [
     {
       id: 'originDutyLocation',
       isFilterable: true,
-      disableSortBy: true,
     },
   ),
 ];

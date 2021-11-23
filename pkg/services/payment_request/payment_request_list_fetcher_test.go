@@ -354,6 +354,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedCreatedAtOrder []time.Time
 	var expectedLocatorOrder []string
 	var expectedBranchOrder []string
+	var expectedOriginDutyLocation []string
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	branchNavy := models.AffiliationNAVY
@@ -380,6 +381,9 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Status:    models.PaymentRequestStatusReviewed,
 			CreatedAt: prevCreatedAt,
 		},
+		OriginDutyStation: models.DutyStation{
+			Name: "Scott AFB",
+		},
 	})
 
 	paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -396,6 +400,9 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusPaid,
 		},
+		OriginDutyStation: models.DutyStation{
+			Name: "Applewood, CA 99999",
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -411,6 +418,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	expectedCreatedAtOrder = append(expectedCreatedAtOrder, paymentRequest1.CreatedAt, paymentRequest2.CreatedAt)
 	expectedLocatorOrder = append(expectedLocatorOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
 	expectedBranchOrder = append(expectedBranchOrder, string(*paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Affiliation), string(*paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Affiliation))
+	expectedOriginDutyLocation = append(expectedOriginDutyLocation, string(paymentRequest1.MoveTaskOrder.Orders.OriginDutyStation.Name), string(paymentRequest2.MoveTaskOrder.Orders.OriginDutyStation.Name))
 
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
@@ -585,5 +593,30 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedBranchOrder[0], string(*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation))
 		suite.Equal(expectedBranchOrder[1], string(*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation))
+	})
+
+	suite.T().Run("Sort by originDutyLocation ASC", func(t *testing.T) {
+		sort.Strings(expectedOriginDutyLocation)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("originDutyLocation"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedOriginDutyLocation[0], paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name)
+		suite.Equal(expectedOriginDutyLocation[1], paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
+	})
+
+	suite.T().Run("Sort by originDutyLocation DESC", func(t *testing.T) {
+		sort.Strings(expectedOriginDutyLocation)
+
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("originDutyLocation"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedOriginDutyLocation[0], paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
+		suite.Equal(expectedOriginDutyLocation[1], paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name)
 	})
 }
