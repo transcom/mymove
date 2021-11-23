@@ -55,19 +55,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		},
 		OriginDutyStation: models.DutyStation{
 			Name: "KJKJKJKJKJK",
-			Address: models.Address{
-				City: "JJJJJJJJ",
-			},
-		},
-	})
-
-	paymentRequest2 := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		OriginDutyStation: models.DutyStation{
-			Name: "",
-			Address: models.Address{
-				City: "MPMPMPMPM",
-			},
 		},
 	})
 
@@ -129,7 +116,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 	suite.T().Run("Returens payment request matching the originDutyLocation filter", func(t *testing.T) {
 		stationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Name
-		locationCity := paymentRequest2.MoveTaskOrder.Orders.OriginDutyStation.Address.City
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), OriginDutyLocation: &stationName})
@@ -137,13 +123,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
 		suite.Equal(stationName, paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
-
-		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Locator: &locationCity})
-		suite.NoError(err)
-		suite.Equal(1, len(*expectedPaymentRequests))
-		paymentRequests = *expectedPaymentRequests
-		suite.Equal(locationCity, paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Address.City)
 
 	})
 }

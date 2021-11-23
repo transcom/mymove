@@ -57,7 +57,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("addresses", "addresses.id = duty_stations.address_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
 		Where("moves.show = ?", swag.Bool(true))
 
@@ -228,14 +227,8 @@ func lastNameFilter(lastName *string) QueryOption {
 func dutyLocationFilter(dutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if dutyLocation != nil {
-			fmt.Println("🎉🎉🎉🎉🎉🎉")
-			fmt.Println(dutyLocation)
 			locationSearch := fmt.Sprintf("%s%%", *dutyLocation)
-			query.Where("duty_stations.name ILIKE (?)"+
-				"OR addresses.city ILIKE (?)"+
-				"OR addresses.state ILIKE (?)"+
-				"OR addresses.postal_code ILIKE (?)",
-				locationSearch, locationSearch, locationSearch, locationSearch)
+			query.Where("duty_stations.name ILIKE ?", locationSearch)
 		}
 	}
 }

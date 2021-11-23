@@ -169,23 +169,3 @@ describe('paymentRequestStatusReadable', () => {
     expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
   });
 });
-
-describe('formatOriginDutyLocation', () => {
-  const originDutylocation = {
-    name: null,
-    address: {
-      city: 'New York',
-      state: 'NY',
-      postalCode: '99999',
-    },
-  };
-
-  it('returns expected string when a name is not present', () => {
-    expect(formatters.formatOriginDutyLoction(originDutylocation)).toEqual('New York, NY 99999');
-  });
-
-  it('returns expected string when a name is present', () => {
-    originDutylocation.name = 'Scott AFB';
-    expect(formatters.formatOriginDutyLoction(originDutylocation)).toEqual('Scott AFB');
-  });
-});

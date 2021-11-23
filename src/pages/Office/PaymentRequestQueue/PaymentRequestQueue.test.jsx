@@ -42,11 +42,6 @@ jest.mock('hooks/queries', () => ({
             submittedAt: '2020-10-15T23:48:35.420Z',
             originDutyLocation: {
               name: 'Scott AFB',
-              address: {
-                city: 'New York',
-                state: 'NY',
-                postalCode: '99999',
-              },
             },
           },
         ],

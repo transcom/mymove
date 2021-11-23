@@ -11,7 +11,6 @@ import {
   formatAgeToDays,
   paymentRequestStatusReadable,
   serviceMemberAgencyLabel,
-  formatOriginDutyLoction,
 } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -94,7 +93,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Origin Duty Location',
     (row) => {
-      return formatOriginDutyLoction(row.originDutyLocation);
+      return row.originDutyLocation.name;
     },
     {
       id: 'originDutyLocation',
