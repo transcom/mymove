@@ -1,0 +1,9 @@
+body {
+    overflow-x: scroll;
+}
+
+@media (max-width:1240px) {
+    main {
+        min-width: 1240px;
+    }
+}
