@@ -29,6 +29,7 @@ import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/form
 import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
 import { deleteShipment } from 'services/ghcApi';
+import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 
 const ServicesCounselingShipmentForm = ({
   match,
@@ -88,6 +89,7 @@ const ServicesCounselingShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
+  const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -104,6 +106,7 @@ const ServicesCounselingShipmentForm = ({
     delivery,
     customerRemarks,
     counselorRemarks,
+    primeActualWeight,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -117,6 +120,7 @@ const ServicesCounselingShipmentForm = ({
       counselorRemarks,
       pickup,
       delivery: deliveryDetails,
+      primeActualWeight,
     });
 
     if (isCreatePage) {
@@ -227,6 +231,7 @@ const ServicesCounselingShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
+                {isNTSR && <ShipmentWeightInput />}
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>

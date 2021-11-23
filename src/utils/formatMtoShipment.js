@@ -79,6 +79,7 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  primeActualWeight,
 }) {
   const displayValues = {
     shipmentType,
@@ -104,6 +105,7 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    primeActualWeight,
   };
 
   if (agents) {
@@ -167,6 +169,7 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
+  primeActualWeight,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -213,6 +216,10 @@ export function formatMtoShipmentForAPI({
 
   if (!formattedMtoShipment.agents?.length) {
     formattedMtoShipment.agents = undefined;
+  }
+
+  if (primeActualWeight) {
+    formattedMtoShipment.primeActualWeight = primeActualWeight;
   }
 
   return formattedMtoShipment;
