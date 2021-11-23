@@ -43,7 +43,7 @@ const OrdersDetailForm = ({
       {showHHGTac && showHHGSac && <h3>HHG accounting codes</h3>}
       {showHHGTac && (
         <MaskedTextField
-          name="hhg_tac"
+          name="tac"
           label="TAC"
           id="hhgTacInput"
           mask="****"
@@ -51,7 +51,7 @@ const OrdersDetailForm = ({
           validate={validateHHGTac}
         />
       )}
-      {showHHGSac && <TextField name="hhg_sac" label="SAC" id="hhgSacInput" optional />}
+      {showHHGSac && <TextField name="sac" label="SAC" id="hhgSacInput" optional />}
 
       {showNTSTac && showNTSSac && <h3>NTS accounting codes</h3>}
       {showNTSTac && (

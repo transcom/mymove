@@ -208,8 +208,8 @@ describe('TOO user', () => {
       cy.get('input[name="ordersNumber"]').click().clear().type('ORDER66');
       cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
       cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
-      cy.get('input[name="hhg_tac"]').click().clear().type('F123');
-      cy.get('input[name="hhg_sac"]').click().clear().type('4K988AS098F');
+      cy.get('input[name="tac"]').click().clear().type('F123');
+      cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
 
       // Edit orders page | Save
       cy.get('button').contains('Save').click();

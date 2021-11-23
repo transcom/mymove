@@ -34,8 +34,8 @@ const initialValues = {
   ordersNumber: '999999999',
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   ordersTypeDetail: 'HHG_PERMITTED',
-  hhg_tac: 'Tac',
-  hhg_sac: 'Sac',
+  tac: 'Tac',
+  sac: 'Sac',
   ordersAcknowledgement: true,
 };
 
