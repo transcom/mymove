@@ -1,5 +1,5 @@
 import React from 'react';
-import { func } from 'prop-types';
+import { func, shape, string } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Textarea, Label } from '@trussworks/react-uswds';
@@ -15,12 +15,7 @@ const validationSchema = Yup.object({
   reweighRemarks: Yup.string().required('Required'),
 });
 
-const ReweighForm = ({ onSubmit, handleClose }) => {
-  const initialValues = {
-    reweighWeight: '0',
-    reweighRemarks: '',
-  };
-
+const ReweighForm = ({ onSubmit, handleClose, initialValues }) => {
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
       {({ isValid, isSubmitting, handleSubmit, handleChange, setTouched, values }) => (
@@ -72,6 +67,10 @@ const ReweighForm = ({ onSubmit, handleClose }) => {
 ReweighForm.propTypes = {
   onSubmit: func.isRequired,
   handleClose: func.isRequired,
+  initialValues: shape({
+    reweighWeight: string,
+    reweighRemarks: string,
+  }).isRequired,
 };
 
 export default ReweighForm;

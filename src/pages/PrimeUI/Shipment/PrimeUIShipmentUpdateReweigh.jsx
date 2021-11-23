@@ -74,6 +74,11 @@ const PrimeUIShipmentUpdateReweigh = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const initialValues = {
+    reweighWeight: String(shipment.reweigh.weight) ?? '',
+    reweighRemarks: shipment.reweigh.verificationReason ?? '',
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -89,7 +94,11 @@ const PrimeUIShipmentUpdateReweigh = () => {
                 </div>
               )}
               <h1>Edit Reweigh</h1>
-              <PrimeUIShipmentUpdateReweighForm onSubmit={handleSubmit} handleClose={handleClose} />
+              <PrimeUIShipmentUpdateReweighForm
+                onSubmit={handleSubmit}
+                handleClose={handleClose}
+                initialValues={initialValues}
+              />
             </Grid>
           </Grid>
         </GridContainer>
