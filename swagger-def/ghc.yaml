@@ -1944,6 +1944,9 @@ paths:
           name: destinationDutyStation
           type: string
         - in: query
+          name: originDutyLocation
+          type: string
+        - in: query
           name: status
           type: array
           description: Filtering for the status.

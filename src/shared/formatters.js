@@ -376,7 +376,5 @@ export const formatPrimeAPIFullAddress = (address) => {
 };
 
 export const formatOriginDutyLoction = (originDutyLocation) => {
-  return originDutyLocation.name !== null || originDutyLocation.name !== ''
-    ? originDutyLocation.name
-    : `${originDutyLocation.address.city}, ${originDutyLocation.address.state} ${originDutyLocation.address.postalCode}`;
+  return originDutyLocation.name != null ? originDutyLocation.name : formatAddressShort(originDutyLocation.address);
 };

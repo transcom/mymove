@@ -58,6 +58,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*
+	  In: query
+	*/
+	OriginDutyLocation *string
 	/*requested page of results
 	  In: query
 	*/
@@ -119,6 +123,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
+	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -270,6 +279,24 @@ func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) e
 	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+func (o *GetPaymentRequestsQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OriginDutyLocation = &raw
 
 	return nil
 }

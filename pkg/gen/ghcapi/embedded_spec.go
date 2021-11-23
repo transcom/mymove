@@ -2240,6 +2240,11 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -8610,6 +8615,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {

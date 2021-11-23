@@ -40,6 +40,14 @@ jest.mock('hooks/queries', () => ({
             originGBLOC: 'LKNQ',
             status: 'PENDING',
             submittedAt: '2020-10-15T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+              address: {
+                city: 'New York',
+                state: 'NY',
+                postalCode: '99999',
+              },
+            },
           },
         ],
         totalCount: 1,
@@ -78,6 +86,7 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('thead tr th').at(5).text()).toBe('Move Code');
     expect(wrapper.find('thead tr th').at(6).text()).toContain('Branch');
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
+    expect(wrapper.find('thead tr th').at(8).text()).toBe('Origin Duty Location');
   });
 
   it('renders the correct status filter', () => {
@@ -97,6 +106,7 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('tbody tr td').at(5).text()).toBe('R993T7');
     expect(wrapper.find('tbody tr td').at(6).text()).toBe('Army');
     expect(wrapper.find('tbody tr td').at(7).text()).toBe('LKNQ');
+    expect(wrapper.find('tbody tr td').at(8).text()).toBe('Scott AFB');
   });
 
   it('applies the sort to the age column in descending direction', () => {
