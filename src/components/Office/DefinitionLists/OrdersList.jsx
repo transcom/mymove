@@ -51,12 +51,20 @@ const OrdersList = ({ ordersInfo }) => {
           <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</dd>
         </div>
         <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.tacMDC })}>
-          <dt>TAC / MDC</dt>
+          <dt>HHG TAC</dt>
           <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? 'Missing' : ordersInfo.tacMDC}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>SAC / SDN</dt>
+          <dt>HHG SAC</dt>
           <dd data-testid="sacSDN">{ordersInfo.sacSDN}</dd>
+        </div>
+        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.tacMDC })}>
+          <dt>NTS TAC</dt>
+          <dd data-testid="NTStac">{!ordersInfo.NTStac ? 'Missing' : ordersInfo.NTStac}</dd>
+        </div>
+        <div className={descriptionListStyles.row}>
+          <dt>NTS SAC</dt>
+          <dd data-testid="NTSsac">{ordersInfo.NTSsac}</dd>
         </div>
       </dl>
     </div>
