@@ -79,7 +79,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	fmt.Println("😆😆😆😆")
 	fmt.Println(params.OriginDutyLocation)
 	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
 
@@ -97,12 +96,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	fmt.Println("🍑🍑🍑🍑🍑")
-	fmt.Println(query)
-
 	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
-		fmt.Println("📅📅📅📅📅")
 		return nil, 0, err
 	}
 
