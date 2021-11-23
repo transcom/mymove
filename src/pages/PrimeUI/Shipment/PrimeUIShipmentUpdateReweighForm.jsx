@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import { Textarea, Label } from '@trussworks/react-uswds';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
@@ -14,20 +15,20 @@ const validationSchema = Yup.object({
   reweighRemarks: Yup.string().required('Required'),
 });
 
-const ReweighForm = ({ handleSubmit, handleClose }) => {
+const ReweighForm = ({ onSubmit, handleClose }) => {
   const initialValues = {
-    reweighWeight: '',
+    reweighWeight: '0',
     reweighRemarks: '',
   };
 
   return (
-    <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema}>
-      {({ handleChange, values, setTouched }) => (
-        <>
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+      {({ isValid, isSubmitting, handleSubmit, handleChange, setTouched, values }) => (
+        <Form className={formStyles.form}>
           <SectionWrapper className={formStyles.formSection}>
             <MaskedTextField
               defaultValue="0"
-              inputTestId="textInput"
+              inputTestId="reweighWeightInput"
               id="reweighWeight"
               lazy={false} // immediate masking evaluation
               label="Reweigh Weight"
@@ -45,8 +46,8 @@ const ReweighForm = ({ handleSubmit, handleClose }) => {
               data-testid="remarks"
               id="reweighRemarks"
               maxLength={500}
-              onChange={handleChange}
               placeholder=""
+              onChange={handleChange}
               onBlur={() => setTouched({ reweighRemarks: true }, false)}
               value={values.reweighRemarks}
             />
@@ -57,10 +58,11 @@ const ReweighForm = ({ handleSubmit, handleClose }) => {
             className={formStyles.formActions}
             aria-label="Update Reweigh"
             type="submit"
+            disableNext={!isValid || isSubmitting}
             onCancelClick={handleClose}
             onNextClick={handleSubmit}
           />
-        </>
+        </Form>
       )}
     </Formik>
   );
@@ -68,7 +70,7 @@ const ReweighForm = ({ handleSubmit, handleClose }) => {
 
 // disableNext={isSubmitting || !isValid}
 ReweighForm.propTypes = {
-  handleSubmit: func.isRequired,
+  onSubmit: func.isRequired,
   handleClose: func.isRequired,
 };
 

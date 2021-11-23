@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { useHistory, useParams } from 'react-router-dom';
-import { useMutation } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 
 import PrimeUIShipmentUpdateReweighForm from './PrimeUIShipmentUpdateReweighForm';
 
@@ -14,6 +14,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { updatePrimeMTOShipmentReweigh } from 'services/primeApi';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
 
 const PrimeUIShipmentUpdateReweigh = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -28,7 +29,17 @@ const PrimeUIShipmentUpdateReweigh = () => {
   };
 
   const [mutateMTOShipmentReweigh] = useMutation(updatePrimeMTOShipmentReweigh, {
-    onSuccess: () => {
+    onSuccess: (updatedReweigh) => {
+      const updatedMTOShipment = {
+        ...shipment,
+        reweigh: updatedReweigh,
+      };
+
+      mtoShipments[mtoShipments.findIndex((s) => s.id === updatedReweigh.shipmentID)] = updatedMTOShipment;
+
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+
       handleClose();
     },
     onError: (error) => {
@@ -54,7 +65,7 @@ const PrimeUIShipmentUpdateReweigh = () => {
       reweighID: reweighId,
       ifMatchETag: shipment.reweigh.eTag,
       body: {
-        weight: values.reweighWeight,
+        weight: Number(values.reweighWeight),
         verificationReason: values.reweighRemarks,
       },
     });
@@ -77,8 +88,8 @@ const PrimeUIShipmentUpdateReweigh = () => {
                   </Alert>
                 </div>
               )}
-              <h1>Update Existing Pickup & Destination Address</h1>
-              <PrimeUIShipmentUpdateReweighForm handleSubmit={handleSubmit} handleClose={handleClose} />
+              <h1>Edit Reweigh</h1>
+              <PrimeUIShipmentUpdateReweighForm onSubmit={handleSubmit} handleClose={handleClose} />
             </Grid>
           </Grid>
         </GridContainer>
