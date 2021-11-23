@@ -151,7 +151,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func checkServeConfig(v *viper.Viper, logger logger) error {
+func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Info("checking webserver config")
 
@@ -258,7 +258,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
+func startListener(srv *server.NamedServer, logger *zap.Logger, useTLS bool) {
 	logger.Info("Starting listener",
 		zap.String("name", srv.Name),
 		zap.Duration("idle-timeout", srv.IdleTimeout),
@@ -286,7 +286,7 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 }
 
 // indexHandler returns a handler that will serve the resulting content
-func indexHandler(buildDir string, globalLogger logger) http.HandlerFunc {
+func indexHandler(buildDir string, globalLogger *zap.Logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
 	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
@@ -517,7 +517,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
 
 	// Create a connection to Redis
-	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	redisPool, errRedisConnection := cli.InitRedis(appCtx, v)
 	if errRedisConnection != nil {
 		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
 	}
@@ -651,7 +651,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := iws.InitRBSPersonLookup(v, logger)
+	rbs, err := iws.InitRBSPersonLookup(appCtx, v)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}

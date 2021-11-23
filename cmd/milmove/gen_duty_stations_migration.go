@@ -42,8 +42,8 @@ func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
 	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new duty stations users")
 }
 
-// CheckAddDutyStations validates add_duty_stations command line flags
-func CheckAddDutyStations(v *viper.Viper, logger logger) error {
+// checkAddDutyStations validates add_duty_stations command line flags
+func checkAddDutyStations(v *viper.Viper, logger *zap.Logger) error {
 	if err := cli.CheckDatabase(v, logger); err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = CheckAddDutyStations(v, logger)
+	err = checkAddDutyStations(v, logger)
 	if err != nil {
 		return err
 	}

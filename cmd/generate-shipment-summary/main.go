@@ -41,7 +41,7 @@ func noErr(err error) {
 	}
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 

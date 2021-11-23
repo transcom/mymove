@@ -683,3 +683,4 @@
 20211104212749_add_selected_tac_sac_to_mto_shipments.up.sql
 20211109231452_create_zip_to_gbloc_table.up.sql
 20211112193224_support_noninstallation_locations.up.sql
+20211112205920_add_noninstallation_locations.up.sql

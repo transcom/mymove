@@ -1638,7 +1638,7 @@ paths:
           name: body
           schema:
             required:
-              - remarks
+              - flagForReview
             properties:
               remarks:
                 description: >-
@@ -1646,6 +1646,13 @@ paths:
                   review
                 example: this address is way too far away
                 type: string
+                x-nullable: true
+              flagForReview:
+                description: >-
+                  boolean value representing whether we should flag a move for
+                  financial review
+                example: false
+                type: boolean
       responses:
         '200':
           description: updated Move

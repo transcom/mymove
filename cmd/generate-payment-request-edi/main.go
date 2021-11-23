@@ -25,7 +25,7 @@ import (
 // Call this from command line with go run ./cmd/generate-payment-request-edi/ --payment-request-number <paymentRequestNumber>
 // Must use a payment request that is submitted, but not yet approved for payment (that does not already have a submitted invoice)
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	paymentRequestNumber := v.GetString("payment-request-number")
 	if paymentRequestNumber == "" {
 		return errors.New("must provide payment-request-number")

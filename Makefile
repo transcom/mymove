@@ -244,8 +244,8 @@ bin/ecs-deploy: cmd/ecs-deploy
 bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-summary: cmd/generate_shipment_summary
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
+bin/generate-shipment-summary: cmd/generate-shipment-summary
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
 bin/generate-test-data: cmd/generate-test-data
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
@@ -361,6 +361,8 @@ build_tools: bin/gin \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
 	bin/generate-access-codes \
+	bin/generate-payment-request-edi \
+	bin/generate-shipment-summary \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
 	bin/ghc-transit-time-parser \

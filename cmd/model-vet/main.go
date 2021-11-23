@@ -26,15 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type logger interface {
-	Debug(msg string, fields ...zap.Field)
-	Info(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-	Warn(msg string, fields ...zap.Field)
-	Fatal(msg string, fields ...zap.Field)
-}
-
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
 	err := cli.CheckDatabase(v, logger)
