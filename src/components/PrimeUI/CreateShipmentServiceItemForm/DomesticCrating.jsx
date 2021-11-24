@@ -1,86 +1,48 @@
 import * as Yup from 'yup';
-import { Formik } from 'formik';
-import { Button } from '@trussworks/react-uswds';
+import { Field, Formik } from 'formik';
+import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
-
-// import { formatDateForSwagger } from '../../../shared/dates';
-// import { formatAddressForPrimeAPI } from '../../../utils/formatters';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
+import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 
-const domesticShippingValidationSchema = Yup.object().shape({
-  /*
-  firstAvailableDeliveryDate1: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  timeMilitary1: Yup.string()
-    .matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)')
-    .required('Required'),
-  firstAvailableDeliveryDate2: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  timeMilitary2: Yup.string()
-    .matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)')
-    .required('Required'),
-  sitEntryDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
-  sitDestinationFinalAddress: addressSchema,
-  */
-  reason: '',
-});
+const domesticShippingValidationSchema = Yup.object().shape({});
 
 const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: 'MTOServiceItemDomesticCrating',
-    reServiceCode: ['DCRT', 'DUCRT'],
-    itemLength: 0,
-    itemWidth: 0,
-    itemHeight: 0,
-    crateLength: 0,
-    crateWidth: 0,
-    crateHeight: 0,
+    modelType: createServiceItemModelTypes.MTOServiceItemDomesticCrating,
+    itemLength: '0',
+    itemWidth: '0',
+    itemHeight: '0',
+    crateLength: '0',
+    crateWidth: '0',
+    crateHeight: '0',
     reason: '',
     description: '',
   };
 
   const onSubmit = (values) => {
-    const {
-      itemLength,
-      itemWidth,
-      itemHeight,
-      crateLength,
-      crateWidth,
-      crateHeight,
-      reason,
-      description,
-      ...serviceItemValues
-    } = values;
+    const { itemLength, itemWidth, itemHeight, crateLength, crateWidth, crateHeight, ...otherFields } = values;
 
     const body = {
-      reServiceCode: 'DCRT',
       item: {
-        id: '',
-        length: itemLength,
-        width: itemWidth,
-        height: itemHeight,
+        length: Number.parseInt(itemLength, 10),
+        width: Number.parseInt(itemWidth, 10),
+        height: Number.parseInt(itemHeight, 10),
       },
       crate: {
-        id: '',
-        length: crateLength,
-        width: crateWidth,
-        height: crateHeight,
+        length: Number.parseInt(crateLength, 10),
+        width: Number.parseInt(crateWidth, 10),
+        height: Number.parseInt(crateHeight, 10),
       },
-      reason: '',
-      description: '',
-      ...serviceItemValues,
+      ...otherFields,
     };
     submission({ body });
   };
@@ -88,26 +50,81 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
   return (
     <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
       <Form>
-        <input type="hidden" name="moveTaskOrderID" />
-        <input type="hidden" name="mtoShipmentID" />
-        <input type="hidden" name="modelType" />
-        <input type="hidden" name="reServiceCode" />
         <DropdownInput
+          label="Service Item Code"
           name="reServiceCode"
           id="reServiceCode"
-          label="Service Code"
-          options={[
-            { value: 'DCRT', key: 'DCRT' },
-            { value: 'DUCRT', key: 'DUCRT' },
-          ]}
+          required
+          options={domesticCratingServiceItemCodeOptions}
         />
-        <TextField name="itemLength" id="itemLength" label="Item length" />
-        <TextField name="itemWidth" id="itemWidth" label="Item width" />
-        <TextField name="itemHeight" id="itemHeight" label="Item height" />
-        <TextField name="crateLength" id="crateLength" label="Crate length" />
-        <TextField name="crateWidth" id="crateWidth" label="Crate width" />
-        <TextField name="crateHeight" id="crateHeight" label="Crate height" />
-        <TextField name="description" id="description" label="Description" />
+        <MaskedTextField
+          data-testid="itemLength"
+          defaultValue="0"
+          name="itemLength"
+          label="Item length (ft)"
+          id="itemLength"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <MaskedTextField
+          data-testid="itemWidth"
+          defaultValue="0"
+          name="itemWidth"
+          label="Item width (ft)"
+          id="itemWidth"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <MaskedTextField
+          data-testid="itemHeight"
+          defaultValue="0"
+          name="itemHeight"
+          label="Item height (ft)"
+          id="itemHeight"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <MaskedTextField
+          data-testid="crateLength"
+          defaultValue="0"
+          name="crateLength"
+          label="Crate length (ft)"
+          id="crateLength"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <MaskedTextField
+          data-testid="crateWidth"
+          defaultValue="0"
+          name="crateWidth"
+          label="Crate width (ft)"
+          id="crateWidth"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <MaskedTextField
+          data-testid="crateHeight"
+          defaultValue="0"
+          name="crateHeight"
+          label="Crate height (ft)"
+          id="crateHeight"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+        <Label htmlFor="description">Description</Label>
+        <Field as={Textarea} data-testid="description" name="description" id="description" />
         <TextField name="reason" id="reason" label="Reason" />
         <Button type="submit">Create service item</Button>
       </Form>
