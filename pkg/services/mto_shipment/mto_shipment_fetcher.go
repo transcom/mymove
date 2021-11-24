@@ -33,11 +33,19 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	}
 
 	var shipments []models.MTOShipment
-	// TODO: These associations could be preloaded, but it will require Pop 5.3.4 to land first as it
-	//   has a fix for using a "has_many" association that has a pointer-based foreign key (like the
-	//   case with "MTOServiceItems.ReService"). There appear to be other changes that will need to be
-	//   made for Pop 5.3.4 though (see https://ustcdp3.slack.com/archives/CP497TGAU/p1620421441217700).
-	err = appCtx.DB().Eager("MTOServiceItems.ReService", "MTOAgents", "PickupAddress", "SecondaryPickupAddress", "DestinationAddress", "SecondaryDeliveryAddress", "MTOServiceItems.Dimensions", "Reweigh", "SITExtensions").
+	err = appCtx.DB().
+		EagerPreload(
+			"MTOServiceItems.ReService",
+			"MTOAgents",
+			"PickupAddress",
+			"SecondaryPickupAddress",
+			"DestinationAddress",
+			"SecondaryDeliveryAddress",
+			"MTOServiceItems.Dimensions",
+			"Reweigh",
+			"SITExtensions",
+			"StorageFacility.Address",
+		).
 		Where("move_id = ?", moveID).
 		Order("created_at asc").
 		All(&shipments)

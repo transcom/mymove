@@ -46,7 +46,7 @@ describe('CurrentDutyStationForm component', () => {
             address: {
               city: 'Los Angeles',
               state: 'CA',
-              postal_code: '90245',
+              postalCode: '90245',
             },
             name: 'Los Angeles AFB',
             id: 'testId',
@@ -79,7 +79,7 @@ describe('CurrentDutyStationForm component', () => {
             address: {
               city: 'San Diego',
               state: 'CA',
-              postal_code: '92104',
+              postalCode: '92104',
             },
             id: 'testId',
           },

@@ -83,7 +83,7 @@ function customerEditsNTSShipment() {
   cy.get('input[name="pickup.requestedDate"]').clear().type('12/25/2020').blur();
   cy.get('input[name="pickup.agent.lastName"]').clear().type('Bourne').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Handle with care').blur();
-  cy.get('input[name="secondaryPickup.address.street_address_1"]').clear().type('999 Any Street');
+  cy.get('input[name="secondaryPickup.address.streetAddress1"]').clear().type('999 Any Street');
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
@@ -116,10 +116,10 @@ function customerCreatesAnNTSShipment() {
 
   // secondary pickup location
   cy.get(`input[data-testid="has-secondary-pickup"]`).check({ force: true });
-  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).type('123 Some address');
+  cy.get(`input[name="secondaryPickup.address.streetAddress1"]`).type('123 Some address');
   cy.get(`input[name="secondaryPickup.address.city"]`).type('Some city');
   cy.get(`select[name="secondaryPickup.address.state"]`).select('CA');
-  cy.get(`input[name="secondaryPickup.address.postal_code"]`).type('90210').blur();
+  cy.get(`input[name="secondaryPickup.address.postalCode"]`).type('90210').blur();
 
   // releasing agent
   cy.get('input[name="pickup.agent.firstName"]').type('John');

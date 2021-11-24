@@ -4,11 +4,18 @@
 
 .FinancialReviewButton {
   @include u-padding-left(0);
-  @include u-padding-bottom(3 !important);
+}
+
+.EditFinancialReviewContainer {
+  display: flex;
+  align-content: baseline;
+}
+
+.EditFinancialReviewButton {
+  @include u-padding-left(1);
+  @include u-padding-top(0);
 }
 
 .FinancialReviewTag {
-  @include u-margin-bottom(3 !important);
-  display: inline-block;
   background-color: $info-light !important;
 }

@@ -22,12 +22,12 @@ export default {
 const hhgAddress = formatPaymentRequestAddressString(
   {
     city: 'Beverly Hills',
-    postal_code: '90210',
+    postalCode: '90210',
     state: 'CA',
   },
   {
     city: 'Fairfield',
-    postal_code: '94535',
+    postalCode: '94535',
     state: 'CA',
   },
 );
@@ -35,12 +35,12 @@ const hhgAddress = formatPaymentRequestAddressString(
 const ntsAddress = formatPaymentRequestAddressString(
   {
     city: 'Boston',
-    postal_code: '02101',
+    postalCode: '02101',
     state: 'MA',
   },
   {
     city: 'Princeton',
-    postal_code: '08540',
+    postalCode: '08540',
     state: 'NJ',
   },
 );

@@ -16,9 +16,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
-	counselorRemarks := mtoShipment.CounselorRemarks
-	billableWeightJustification := mtoShipment.BillableWeightJustification
-	billableWeightCap := mtoShipment.BillableWeightCap
+
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -31,10 +29,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	if mtoShipment.Status != "" {
 		shipmentStatus = mtoShipment.Status
-	}
-
-	if counselorRemarks != nil {
-		counselorRemarks = mtoShipment.CounselorRemarks
 	}
 
 	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom
@@ -85,21 +79,24 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		requestedDeliveryDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	}
 
+	var storageFacilityID *uuid.UUID
+	if mtoShipment.StorageFacility != nil {
+		storageFacilityID = &mtoShipment.StorageFacility.ID
+	}
+
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:               moveTaskOrder,
-		MoveTaskOrderID:             moveTaskOrder.ID,
-		RequestedPickupDate:         &requestedPickupDate,
-		ScheduledPickupDate:         &scheduledPickupDate,
-		ActualPickupDate:            &actualPickupDate,
-		RequestedDeliveryDate:       &requestedDeliveryDate,
-		CustomerRemarks:             swag.String("Please treat gently"),
-		CounselorRemarks:            counselorRemarks,
-		PrimeEstimatedWeight:        estimatedWeight,
-		PrimeActualWeight:           &actualWeight,
-		ShipmentType:                shipmentType,
-		Status:                      shipmentStatus,
-		BillableWeightCap:           billableWeightCap,
-		BillableWeightJustification: billableWeightJustification,
+		MoveTaskOrder:         moveTaskOrder,
+		MoveTaskOrderID:       moveTaskOrder.ID,
+		RequestedPickupDate:   &requestedPickupDate,
+		ScheduledPickupDate:   &scheduledPickupDate,
+		ActualPickupDate:      &actualPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       swag.String("Please treat gently"),
+		PrimeEstimatedWeight:  estimatedWeight,
+		PrimeActualWeight:     &actualWeight,
+		ShipmentType:          shipmentType,
+		Status:                shipmentStatus,
+		StorageFacilityID:     storageFacilityID,
 	}
 
 	if shipmentHasDeliveryDetails {
@@ -136,7 +133,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
 	mustCreate(db, &MTOShipment, assertions.Stub)
-
 	return MTOShipment
 }
 

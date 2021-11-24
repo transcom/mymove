@@ -1,19 +1,19 @@
 package scenario
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RunPPMSITEstimateScenario1 runs... scenario 1.
-func RunPPMSITEstimateScenario1(db *pop.Connection) error {
+func RunPPMSITEstimateScenario1(appCtx appcontext.AppContext) error {
 	originZip5_779 := models.Tariff400ngZip5RateArea{
 		Zip5:     "77901",
 		RateArea: "US68",
 	}
-	if err := save(db, &originZip5_779); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &originZip5_779); err != nil {
 		return err
 	}
 
@@ -21,7 +21,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		Zip5:     "67401",
 		RateArea: "US58",
 	}
-	if err := save(db, &destZip5_674); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &destZip5_674); err != nil {
 		return err
 	}
 
@@ -33,7 +33,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		ServiceArea:   "748",
 		Region:        "6",
 	}
-	if err := save(db, &originZip3_779); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &originZip3_779); err != nil {
 		return err
 	}
 
@@ -45,14 +45,14 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		RateArea:      "US58",
 		ServiceArea:   "320",
 	}
-	if err := save(db, &destZip3_674); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &destZip3_674); err != nil {
 		return err
 	}
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
-	if err := save(db, &tsp); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tsp); err != nil {
 		return err
 	}
 
@@ -61,7 +61,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		DestinationRegion: "5",
 		CodeOfService:     "D",
 	}
-	if err := save(db, &tdl); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &tdl); err != nil {
 		return err
 	}
 
@@ -77,7 +77,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	if err := save(db, &originServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &originServiceArea); err != nil {
 		return err
 	}
 
@@ -93,7 +93,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	if err := save(db, &destServiceArea); err != nil {
+	if err := testdatagen.Save(appCtx.DB(), &destServiceArea); err != nil {
 		return err
 	}
 
@@ -111,5 +111,5 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 
-	return save(db, &tspp)
+	return testdatagen.Save(appCtx.DB(), &tspp)
 }

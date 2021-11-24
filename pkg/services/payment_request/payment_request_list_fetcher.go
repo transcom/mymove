@@ -21,13 +21,14 @@ type paymentRequestListFetcher struct {
 }
 
 var parameters = map[string]string{
-	"lastName":    "service_members.last_name",
-	"dodID":       "service_members.edipi",
-	"submittedAt": "payment_requests.created_at",
-	"branch":      "service_members.affiliation",
-	"locator":     "moves.locator",
-	"status":      "payment_requests.status",
-	"age":         "payment_requests.created_at",
+	"lastName":           "service_members.last_name",
+	"dodID":              "service_members.edipi",
+	"submittedAt":        "payment_requests.created_at",
+	"branch":             "service_members.affiliation",
+	"locator":            "moves.locator",
+	"status":             "payment_requests.status",
+	"age":                "payment_requests.created_at",
+	"originDutyLocation": "duty_stations.name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -75,9 +76,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
+	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [9]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -93,7 +95,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -218,6 +220,15 @@ func lastNameFilter(lastName *string) QueryOption {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
 			query.Where("service_members.last_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
+func dutyLocationFilter(dutyLocation *string) QueryOption {
+	return func(query *pop.Query) {
+		if dutyLocation != nil {
+			locationSearch := fmt.Sprintf("%s%%", *dutyLocation)
+			query.Where("duty_stations.name ILIKE ?", locationSearch)
 		}
 	}
 }

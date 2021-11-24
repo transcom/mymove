@@ -55,7 +55,7 @@ describe('Duty Station page', () => {
       address: {
         city: 'San Diego',
         state: 'CA',
-        postal_code: '92104',
+        postalCode: '92104',
       },
       name: 'San Diego',
       id: 'testId',
@@ -97,7 +97,7 @@ describe('Duty Station page', () => {
       address: {
         city: 'San Diego',
         state: 'CA',
-        postal_code: '92104',
+        postalCode: '92104',
       },
       name: 'San Diego',
       id: 'testId',

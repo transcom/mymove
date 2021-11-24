@@ -89,7 +89,7 @@ func NewMigrationBuilder() MigrationBuilder {
 func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutyStations {
 	var filtered []models.DutyStation
 	for _, ds := range dss {
-		if ds.Affiliation == internalmessages.AffiliationMARINES {
+		if ds.Affiliation != nil && *ds.Affiliation == internalmessages.AffiliationMARINES {
 			filtered = append(filtered, ds)
 		}
 	}

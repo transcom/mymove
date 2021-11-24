@@ -14,5 +14,5 @@ type handlerContext struct {
 	testString string
 }
 
-// TestFuncWithPopConnection func that takes in *pop.Connection as a param.
-func TestFuncWithPopConnection(db *pop.Connection) {} // want "Please use appcontext instead of pop.Connection."
+// NewHandlerContext should not be flagged because it's a special exception.
+func NewHandlerContext(db *pop.Connection) {}

@@ -134,8 +134,7 @@ const RequestedShipments = ({
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
       !missingRequiredOrdersInfo;
 
-  // eslint-disable-next-line camelcase
-  const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
+  const dutyStationPostal = { postalCode: ordersInfo.newDutyStation?.address?.postalCode };
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
@@ -284,10 +283,10 @@ RequestedShipments.propTypes = {
     phone: PropTypes.string,
     email: PropTypes.string,
     currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
+      streetAddress1: PropTypes.string,
       city: PropTypes.string,
       state: PropTypes.string,
-      postal_code: PropTypes.string,
+      postalCode: PropTypes.string,
     }),
     backupContactName: PropTypes.string,
     backupContactPhone: PropTypes.string,

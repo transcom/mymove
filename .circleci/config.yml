@@ -625,6 +625,9 @@ commands:
             docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
       - run:
           name: extract results
+          # always try to extract the artifacts so it can help us
+          # figure out why a test is failing
+          when: always
           command: |
             docker cp cypress:/home/circleci/cypress/results cypress/
             docker cp cypress:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"

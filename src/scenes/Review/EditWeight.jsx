@@ -354,7 +354,7 @@ function mapStateToProps(state) {
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
     orders: selectCurrentOrders(state) || {},
     rateEngineError: selectPPMEstimateError(state),
   };

@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -109,10 +108,9 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 
@@ -135,7 +133,10 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -167,7 +168,10 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
@@ -206,7 +210,10 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	ordersID := uuid.Must(uuid.NewV4())
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 

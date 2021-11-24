@@ -1318,12 +1318,18 @@ func init() {
             "in": "body",
             "schema": {
               "required": [
-                "remarks"
+                "flagForReview"
               ],
               "properties": {
+                "flagForReview": {
+                  "description": "boolean value representing whether we should flag a move for financial review",
+                  "type": "boolean",
+                  "example": false
+                },
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",
                   "type": "string",
+                  "x-nullable": true,
                   "example": "this address is way too far away"
                 }
               }
@@ -2178,7 +2184,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2237,6 +2244,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -2938,10 +2950,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -2964,7 +2976,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -3081,18 +3093,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,
@@ -3332,10 +3344,51 @@ func init() {
             }
           ]
         },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         }
       }
     },
@@ -3697,6 +3750,15 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "example": "HHG"
     },
     "MTOAgent": {
       "type": "object",
@@ -4099,6 +4161,16 @@ func init() {
           "x-omitempty": true,
           "$ref": "#/definitions/Reweigh"
         },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -4112,12 +4184,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "sitDaysAllowance": {
           "type": "integer",
@@ -4132,9 +4204,27 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -4165,6 +4255,8 @@ func init() {
       ],
       "x-display-value": {
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB"
       },
@@ -4869,6 +4961,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -5213,6 +5308,43 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -5485,6 +5617,11 @@ func init() {
             }
           ]
         },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -5495,8 +5632,42 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ],
+          "x-nullable": true
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         }
       }
     },
@@ -7349,12 +7520,18 @@ func init() {
             "in": "body",
             "schema": {
               "required": [
-                "remarks"
+                "flagForReview"
               ],
               "properties": {
+                "flagForReview": {
+                  "description": "boolean value representing whether we should flag a move for financial review",
+                  "type": "boolean",
+                  "example": false
+                },
                 "remarks": {
                   "description": "explanation of why the move is being flagged for financial review",
                   "type": "string",
+                  "x-nullable": true,
                   "example": "this address is way too far away"
                 }
               }
@@ -8396,7 +8573,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8455,6 +8633,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -9345,10 +9528,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -9371,7 +9554,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -9488,18 +9671,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,
@@ -9742,10 +9925,51 @@ func init() {
             }
           ]
         },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
+        },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         }
       }
     },
@@ -10107,6 +10331,15 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "example": "HHG"
     },
     "MTOAgent": {
       "type": "object",
@@ -10509,6 +10742,16 @@ func init() {
           "x-omitempty": true,
           "$ref": "#/definitions/Reweigh"
         },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -10522,12 +10765,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "sitDaysAllowance": {
           "type": "integer",
@@ -10542,9 +10785,27 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "example": false
         }
       }
     },
@@ -10575,6 +10836,8 @@ func init() {
       ],
       "x-display-value": {
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB"
       },
@@ -11279,6 +11542,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -11626,6 +11892,43 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -11901,6 +12204,11 @@ func init() {
             }
           ]
         },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -11911,8 +12219,42 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "serviceOrderNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
+        "tacType": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ],
+          "x-nullable": true
+        },
+        "usesExternalVendor": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         }
       }
     },

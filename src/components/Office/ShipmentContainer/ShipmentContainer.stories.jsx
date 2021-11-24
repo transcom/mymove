@@ -31,10 +31,10 @@ export const HHG = () => (
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
         destinationAddress: object('MTOShipment.destinationAddress', {
-          street_address_1: '123 Any Street',
+          streetAddress1: '123 Any Street',
           city: 'Tacoma',
           state: 'WA',
-          postal_code: '98421',
+          postalCode: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
         reweigh: { id: '00000000-0000-0000-0000-000000000000' },
@@ -53,10 +53,10 @@ export const MTOAccessorial = () => (
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
         destinationAddress: object('MTOShipment.destinationAddress', {
-          street_address_1: '123 Any Street',
+          streetAddress1: '123 Any Street',
           city: 'Tacoma',
           state: 'WA',
-          postal_code: '98421',
+          postalCode: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
         reweigh: { id: '00000000-0000-0000-0000-000000000000' },
@@ -74,28 +74,28 @@ export const MTOAccessorial = () => (
       })}
       handleDivertShipment={() => {}}
       pickupAddress={object('MTOShipment.pickupAddress', {
-        street_address_1: '123 Any Street',
+        streetAddress1: '123 Any Street',
         city: 'Beverly Hills',
         state: 'CA',
-        postal_code: '90210',
+        postalCode: '90210',
       })}
       destinationAddress={object('MTOShipment.destinationAddress', {
-        street_address_1: '987 Any Avenue',
+        streetAddress1: '987 Any Avenue',
         city: 'Fairfield',
         state: 'CA',
-        postal_code: '94535',
+        postalCode: '94535',
       })}
       originDutyStation={object('Order.originDutyStation', {
-        street_address_1: '',
+        streetAddress1: '',
         city: 'Fort Knox',
         state: 'KY',
-        postal_code: '40121',
+        postalCode: '40121',
       })}
       destinationDutyStation={object('Order.destinationDutyStation', {
-        street_address_1: '',
+        streetAddress1: '',
         city: 'Fort Irwin',
         state: 'CA',
-        postal_code: '92310',
+        postalCode: '92310',
       })}
     />
 
@@ -129,10 +129,10 @@ export const HHGDiversion = () => (
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
         destinationAddress: object('MTOShipment.destinationAddress', {
-          street_address_1: '123 Any Street',
+          streetAddress1: '123 Any Street',
           city: 'Tacoma',
           state: 'WA',
-          postal_code: '98421',
+          postalCode: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
         reweigh: { id: '00000000-0000-0000-0000-000000000000' },

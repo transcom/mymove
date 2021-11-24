@@ -51,7 +51,7 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func checkMigrateConfig(v *viper.Viper, logger logger) error {
+func checkMigrateConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Info("checking migration config")
 

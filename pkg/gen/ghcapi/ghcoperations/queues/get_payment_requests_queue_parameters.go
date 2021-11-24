@@ -58,6 +58,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*
+	  In: query
+	*/
+	OriginDutyLocation *string
 	/*requested page of results
 	  In: query
 	*/
@@ -119,6 +123,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
+	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -274,6 +283,24 @@ func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) e
 	return nil
 }
 
+// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+func (o *GetPaymentRequestsQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OriginDutyLocation = &raw
+
+	return nil
+}
+
 // bindPage binds and validates parameter Page from query.
 func (o *GetPaymentRequestsQueueParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -345,7 +372,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 

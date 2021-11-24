@@ -511,9 +511,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 
 		session := auth.Session{}
+		appCtx := suite.AppContextWithSessionForTest(&session)
 
 		// Capture creation attempt in audit log
-		zapFields, err := audit.Capture(&params.Body, nil, suite.Logger(), &session, params.HTTPRequest)
+		zapFields, err := audit.Capture(appCtx, &params.Body, nil, params.HTTPRequest)
 
 		var eventType string
 		for _, field := range zapFields {

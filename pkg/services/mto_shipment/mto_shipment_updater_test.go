@@ -526,6 +526,74 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.T().Run("Successfully add storage facility to shipment", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+
+		updatedShipment := models.MTOShipment{
+			ID:              shipment.ID,
+			StorageFacility: &storageFacility,
+		}
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.NotNil(updatedMTOShipment.StorageFacility)
+	})
+
+	suite.T().Run("Successfully edit storage facility on shipment", func(t *testing.T) {
+		// Create initial shipment data
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						StreetAddress1: "1234 Over Here Street",
+						City:           "Houston",
+						State:          "TX",
+						PostalCode:     "77083",
+						Country:        swag.String("US"),
+					},
+				}),
+				Email: swag.String("old@email.com"),
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+
+		// Make updates to previously persisted data (don't need to create these in the DB first)
+		newStorageFacilityAddress := models.Address{
+			StreetAddress1: "987 Over There Avenue",
+			City:           "Houston",
+			State:          "TX",
+			PostalCode:     "77083",
+			Country:        swag.String("US"),
+		}
+
+		newEmail := "new@email.com"
+		newStorageFacility := models.StorageFacility{
+			Address: newStorageFacilityAddress,
+			Email:   &newEmail,
+		}
+
+		newShipment := models.MTOShipment{
+			ID:              shipment.ID,
+			StorageFacility: &newStorageFacility,
+		}
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &newShipment, eTag)
+		suite.Require().NoError(err)
+		suite.NotEqual(uuid.Nil, updatedShipment.ID)
+		suite.Equal(&newEmail, updatedShipment.StorageFacility.Email)
+		suite.Equal(newStorageFacilityAddress.StreetAddress1, updatedShipment.StorageFacility.Address.StreetAddress1)
+	})
+
 	suite.T().Run("Successfully divert a shipment and transition statuses", func(t *testing.T) {
 		// A diverted shipment should transition to the SUBMITTED status.
 		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED

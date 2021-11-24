@@ -366,6 +366,11 @@ export const formatAgeToDays = (age) => {
 };
 
 export const formatAddressShort = (address) => {
-  const { city, state, postal_code } = address;
-  return `${city}, ${state} ${postal_code}`;
+  const { city, state, postalCode } = address;
+  return `${city}, ${state} ${postalCode}`;
+};
+
+export const formatPrimeAPIFullAddress = (address) => {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
 };

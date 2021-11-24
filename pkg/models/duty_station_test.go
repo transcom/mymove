@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -16,37 +15,32 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:        "Fort Bragg",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "Fort Bragg",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:        "Fort Belvoir",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "Fort Belvoir",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station2)
 
 	station3 := models.DutyStation{
-		Name:        "Davis Monthan AFB",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "Davis Monthan AFB",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station3)
 
 	station4 := models.DutyStation{
-		Name:        "JB Elmendorf-Richardson",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "JB Elmendorf-Richardson",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station4)
 
 	station5 := models.DutyStation{
-		Name:        "NAS Fallon",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "NAS Fallon",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station5)
 
@@ -57,9 +51,8 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&s5)
 
 	station6 := models.DutyStation{
-		Name:        "NAS Fort Worth JRB",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "NAS Fort Worth JRB",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station6)
 	s6 := models.DutyStationName{
@@ -95,9 +88,8 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 	station := &models.DutyStation{}
 
 	var expErrors = map[string][]string{
-		"name":        {"Name can not be blank."},
-		"affiliation": {"Affiliation can not be blank."},
-		"address_id":  {"AddressID can not be blank."},
+		"name":       {"Name can not be blank."},
+		"address_id": {"AddressID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(station, expErrors)

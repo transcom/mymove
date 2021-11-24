@@ -11,11 +11,11 @@ describe('ResidentialAddressForm component', () => {
     formFieldsName,
     initialValues: {
       [formFieldsName]: {
-        street_address_1: '',
-        street_address_2: '',
+        streetAddress1: '',
+        streetAddress2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
       },
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -23,11 +23,11 @@ describe('ResidentialAddressForm component', () => {
   };
 
   const fakeAddress = {
-    street_address_1: '235 Prospect Valley Road SE',
-    street_address_2: '#125',
+    streetAddress1: '235 Prospect Valley Road SE',
+    streetAddress2: '#125',
     city: 'El Paso',
     state: 'TX',
-    postal_code: '79912',
+    postalCode: '79912',
   };
 
   it('renders the form inputs', async () => {
@@ -86,11 +86,11 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
-    userEvent.type(getByLabelText(/Address 2/), fakeAddress.street_address_2);
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     userEvent.type(getByLabelText('City'), fakeAddress.city);
     userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
     userEvent.click(submitBtn);
 

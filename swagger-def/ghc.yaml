@@ -1608,12 +1608,17 @@ paths:
           name: body
           schema:
             required:
-              - remarks
+              - flagForReview
             properties:
               remarks:
                 description: explanation of why the move is being flagged for financial review
                 example: this address is way too far away
                 type: string
+                x-nullable: true
+              flagForReview:
+                description: boolean value representing whether we should flag a move for financial review
+                example: false
+                type: boolean
       responses:
         '200':
           description: updated Move
@@ -1908,7 +1913,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1942,6 +1947,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -2026,16 +2034,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -2153,7 +2161,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -2166,10 +2174,10 @@ definitions:
         example: 'USA'
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
   BackupContact:
     type: object
     properties:
@@ -3269,10 +3277,7 @@ definitions:
         example: handle with care
         x-nullable: true
       shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
@@ -3306,6 +3311,23 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
+      tacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
   UpdateShipment:
     type: object
     properties:
@@ -3347,6 +3369,29 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
+      tacType:
+        x-nullable: true
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3404,6 +3449,30 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      tacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -3436,6 +3505,8 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
   RejectShipment:
     properties:
       rejectionReason:
@@ -3845,6 +3916,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:

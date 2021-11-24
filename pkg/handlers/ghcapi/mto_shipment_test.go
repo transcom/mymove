@@ -53,6 +53,8 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 
+	storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+
 	sitAllowance := int(90)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -60,6 +62,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 			Status:           models.MTOShipmentStatusApproved,
 			CounselorRemarks: handlers.FmtString("counselor remark"),
 			SITDaysAllowance: &sitAllowance,
+			StorageFacility:  &storageFacility,
 		},
 	})
 
@@ -161,8 +164,12 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(mtoAgent.ID.String(), payloadShipment.MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), payloadShipment.MtoServiceItems[0].ID.String())
 		suite.Equal(sitExtension.ID.String(), payloadShipment.SitExtensions[0].ID.String())
+		suite.Equal(shipments[0].StorageFacility.ID.String(), payloadShipment.StorageFacility.ID.String())
+		suite.Equal(shipments[0].StorageFacility.Address.ID.String(), payloadShipment.StorageFacility.Address.ID.String())
 
-		suite.Equal(shipments[1].ID.String(), okResponse.Payload[1].ID.String())
+		payloadShipment2 := okResponse.Payload[1]
+		suite.Equal(shipments[1].ID.String(), payloadShipment2.ID.String())
+		suite.Nil(payloadShipment2.StorageFacility)
 
 		suite.Equal(int64(90), *payloadShipment.SitDaysAllowance)
 		suite.Equal(mtoshipment.OriginSITLocation, payloadShipment.SitStatus.Location)
@@ -1896,6 +1903,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 			CustomerRemarks:     handlers.FmtString("customer remark"),
 			CounselorRemarks:    handlers.FmtString("counselor remark"),
 			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+			ShipmentType:        ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		},
 	}
 	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{
@@ -2193,7 +2201,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: true,
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
@@ -2221,6 +2230,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), string(updatedShipment.MtoAgents[0].MtoShipmentID))
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
+		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {

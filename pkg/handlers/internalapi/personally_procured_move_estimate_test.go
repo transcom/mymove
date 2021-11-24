@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -110,10 +109,9 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 
@@ -137,7 +135,9 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	orderID := uuid.Must(uuid.NewV4())
 
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
@@ -179,7 +179,9 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	orderID := uuid.Must(uuid.NewV4())
 
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
