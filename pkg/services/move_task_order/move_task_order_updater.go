@@ -60,9 +60,9 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 	}
 
 	for _, s := range move.MTOShipments {
-		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacility == nil {
-			return &models.Move{}, apperror.NewInvalidInputError(
-				move.ID, nil, nil, "NTS-release shipment must include facility info")
+		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
+			return &models.Move{}, apperror.NewConflictError(
+				s.ID, "NTS-release shipment must include facility info")
 		}
 	}
 

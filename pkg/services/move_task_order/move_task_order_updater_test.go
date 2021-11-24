@@ -49,7 +49,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
 	})
 
-	suite.RunWithRollback("Invalid input error when there is no faciity information on NTS-r shipment", func() {
+	suite.RunWithRollback("Invalid input error when there is no facility information on NTS-r shipment", func() {
 		noFacilityInfoMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -66,7 +66,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), noFacilityInfoMove.ID, eTag)
 
-		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 
 	suite.RunWithRollback("MTO status is in a conflicted state", func() {
