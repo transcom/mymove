@@ -75,8 +75,8 @@ const PrimeUIShipmentUpdateReweigh = () => {
   if (isError) return <SomethingWentWrong />;
 
   const initialValues = {
-    reweighWeight: String(shipment.reweigh.weight) ?? '',
-    reweighRemarks: shipment.reweigh.verificationReason ?? '',
+    reweighWeight: shipment.reweigh ? String(shipment.reweigh.weight) : '0',
+    reweighRemarks: shipment.reweigh ? shipment.reweigh.verificationReason : '',
   };
 
   return (
