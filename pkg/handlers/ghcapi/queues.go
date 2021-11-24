@@ -160,17 +160,18 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 	}
 
 	ListOrderParams := services.ListOrderParams{
-		Branch:            params.Branch,
-		Locator:           params.Locator,
-		DodID:             params.DodID,
-		LastName:          params.LastName,
-		OriginGBLOC:       params.OriginGBLOC,
-		SubmittedAt:       handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-		RequestedMoveDate: params.RequestedMoveDate,
-		Page:              params.Page,
-		PerPage:           params.PerPage,
-		Sort:              params.Sort,
-		Order:             params.Order,
+		Branch:                 params.Branch,
+		Locator:                params.Locator,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		OriginGBLOC:            params.OriginGBLOC,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+		RequestedMoveDate:      params.RequestedMoveDate,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+		Sort:                   params.Sort,
+		Order:                  params.Order,
 	}
 
 	if len(params.Status) == 0 {
