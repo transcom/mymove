@@ -61,7 +61,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
     <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
       <Form data-testid="domesticCratingForm">
         <DropdownInput
-          label="Service Item Code"
+          label="Service item code"
           name="reServiceCode"
           id="reServiceCode"
           required
