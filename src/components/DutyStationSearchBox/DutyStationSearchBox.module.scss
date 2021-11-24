@@ -1,5 +1,6 @@
+@import 'shared/styles/_basics';
 .title {
-  margin-bottom: 1rem;
+  @include u-margin-bottom(1);
 }
 
 .titleWithError {
