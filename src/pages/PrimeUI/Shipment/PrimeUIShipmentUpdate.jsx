@@ -99,8 +99,15 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
   const onSubmit = (values, { setSubmitting }) => {
-    const { estimatedWeight, actualWeight, actualPickupDate, scheduledPickupDate, pickupAddress, destinationAddress } =
-      values;
+    const {
+      estimatedWeight,
+      actualWeight,
+      actualPickupDate,
+      scheduledPickupDate,
+      pickupAddress,
+      destinationAddress,
+      diversion,
+    } = values;
 
     const body = {
       primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
@@ -109,6 +116,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
       pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
       destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
+      diversion,
     };
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
       setSubmitting(false);
@@ -123,6 +131,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     actualPickupDate: shipment.actualPickupDate,
     pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
     destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+    diversion: shipment.diversion,
   };
 
   const validationSchema = Yup.object().shape({
@@ -165,6 +174,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                         requestedPickupDate={initialValues.requestedPickupDate}
                         pickupAddress={initialValues.pickupAddress}
                         destinationAddress={initialValues.destinationAddress}
+                        diversion={initialValues.diversion}
                       />
                       <div className={formStyles.formActions}>
                         <WizardNavigation
