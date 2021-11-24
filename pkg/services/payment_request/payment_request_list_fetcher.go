@@ -79,7 +79,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	fmt.Println(params.OriginDutyLocation)
 	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {

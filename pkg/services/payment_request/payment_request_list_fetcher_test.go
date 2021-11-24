@@ -114,7 +114,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		suite.Equal(models.AffiliationAIRFORCE, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 	})
 
-	suite.T().Run("Returens payment request matching the originDutyLocation filter", func(t *testing.T) {
+	suite.T().Run("Returns payment request matching the originDutyLocation filter", func(t *testing.T) {
 		stationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Name
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
@@ -603,8 +603,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		suite.NoError(err)
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedOriginDutyLocation[0], paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name)
-		suite.Equal(expectedOriginDutyLocation[1], paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
+		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name))
+		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name))
 	})
 
 	suite.T().Run("Sort by originDutyLocation DESC", func(t *testing.T) {
@@ -616,7 +616,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		suite.NoError(err)
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedOriginDutyLocation[0], paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
-		suite.Equal(expectedOriginDutyLocation[1], paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name)
+		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name))
+		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name))
 	})
 }
