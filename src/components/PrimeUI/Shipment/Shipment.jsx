@@ -19,7 +19,6 @@ const Shipment = ({ shipment, moveId }) => {
         shipmentId: shipment.id,
       })
     : '';
-
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
@@ -99,6 +98,10 @@ const Shipment = ({ shipment, moveId }) => {
       <div className={descriptionListStyles.row}>
         <dt>Approved at:</dt>
         <dd>{shipment.approvedDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Diversion:</dt>
+        <dd>{shipment.diversion ? shipment.diversion.toString() : 'N/A'}</dd>
       </div>
     </dl>
   );
