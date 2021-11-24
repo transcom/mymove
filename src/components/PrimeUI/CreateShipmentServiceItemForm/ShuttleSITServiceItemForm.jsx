@@ -11,7 +11,10 @@ import { DropdownInput } from 'components/form/fields';
 import { shuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
 
-const shuttleSITValidationSchema = Yup.object().shape({});
+const shuttleSITValidationSchema = Yup.object().shape({
+  reServiceCode: Yup.string().required('Required'),
+  reason: Yup.string().required('Required'),
+});
 
 const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
