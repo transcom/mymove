@@ -96,17 +96,17 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticOtherPriceValue() {
 	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
 	suite.NoError(err)
 
-	suite.verifyDomesticOtherPrice(unit.Cents(7395), contract.ID, false, "DPK", 3)
-	suite.verifyDomesticOtherPrice(unit.Cents(8000), contract.ID, true, "DPK", 3)
-	suite.verifyDomesticOtherPrice(unit.Cents(597), contract.ID, false, "DUPK", 2)
-	suite.verifyDomesticOtherPrice(unit.Cents(650), contract.ID, true, "DUPK", 2)
-	suite.verifyDomesticOtherPrice(unit.Cents(23440), contract.ID, false, "DOPSIT", 2)
-	suite.verifyDomesticOtherPrice(unit.Cents(24122), contract.ID, true, "DOPSIT", 2)
-	suite.verifyDomesticOtherPrice(unit.Cents(24625), contract.ID, false, "DDDSIT", 3)
-	suite.verifyDomesticOtherPrice(unit.Cents(25030), contract.ID, true, "DDDSIT", 3)
+	suite.verifyDomesticOtherPrice(unit.Cents(7395), contract.ID, false, models.ReServiceCodeDPK, 3)
+	suite.verifyDomesticOtherPrice(unit.Cents(8000), contract.ID, true, models.ReServiceCodeDPK, 3)
+	suite.verifyDomesticOtherPrice(unit.Cents(597), contract.ID, false, models.ReServiceCodeDUPK, 2)
+	suite.verifyDomesticOtherPrice(unit.Cents(650), contract.ID, true, models.ReServiceCodeDUPK, 2)
+	suite.verifyDomesticOtherPrice(unit.Cents(23440), contract.ID, false, models.ReServiceCodeDOPSIT, 2)
+	suite.verifyDomesticOtherPrice(unit.Cents(24122), contract.ID, true, models.ReServiceCodeDOPSIT, 2)
+	suite.verifyDomesticOtherPrice(unit.Cents(24625), contract.ID, false, models.ReServiceCodeDDDSIT, 3)
+	suite.verifyDomesticOtherPrice(unit.Cents(25030), contract.ID, true, models.ReServiceCodeDDDSIT, 3)
 }
 
-func (suite *GHCRateEngineImportSuite) verifyDomesticOtherPrice(expected unit.Cents, contractID uuid.UUID, isPeakPeriod bool, serviceCode string, schedule int) {
+func (suite *GHCRateEngineImportSuite) verifyDomesticOtherPrice(expected unit.Cents, contractID uuid.UUID, isPeakPeriod bool, serviceCode models.ReServiceCode, schedule int) {
 	var service models.ReService
 	err := suite.DB().Where("code = ?", serviceCode).First(&service)
 	suite.NoError(err)

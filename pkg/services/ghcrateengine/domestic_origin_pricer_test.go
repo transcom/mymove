@@ -277,7 +277,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
 	domesticOriginService := testdatagen.MakeReService(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DOP",
+				Code: models.ReServiceCodeDOP,
 				Name: "Dom. Origin Price",
 			},
 		})

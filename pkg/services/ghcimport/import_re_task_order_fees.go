@@ -20,7 +20,7 @@ func (gre *GHCRateEngineImporter) importRETaskOrderFees(appCtx appcontext.AppCon
 	for _, stageShipmentManagementServicePrice := range shipmentManagementServices {
 		shipmentManagementService, foundService := gre.serviceToIDMap[models.ReServiceCodeMS]
 		if !foundService {
-			return fmt.Errorf("missing service MS in map of services")
+			return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeMS)
 		}
 
 		contractYear := stageShipmentManagementServicePrice.ContractYear
@@ -60,7 +60,7 @@ func (gre *GHCRateEngineImporter) importRETaskOrderFees(appCtx appcontext.AppCon
 	for _, stageShipmentCounselingServicePrice := range shipmentCounselingServices {
 		shipmentCounselingService, foundService := gre.serviceToIDMap[models.ReServiceCodeCS]
 		if !foundService {
-			return fmt.Errorf("missing service CS in map of services")
+			return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeCS)
 		}
 
 		contractYear := stageShipmentCounselingServicePrice.ContractYear

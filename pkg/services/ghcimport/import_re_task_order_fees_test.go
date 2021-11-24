@@ -54,11 +54,11 @@ func (suite *GHCRateEngineImportSuite) helperVerifyTaskOrderFees() {
 func (suite *GHCRateEngineImportSuite) helperCheckTaskOrderFees() {
 	// Get service UUID.
 	var serviceMS models.ReService
-	err := suite.DB().Where("code = 'MS'").First(&serviceMS)
+	err := suite.DB().Where("code = $1", models.ReServiceCodeMS).First(&serviceMS)
 	suite.NoError(err)
 
 	var serviceCS models.ReService
-	err = suite.DB().Where("code = 'CS'").First(&serviceCS)
+	err = suite.DB().Where("code = $1", models.ReServiceCodeCS).First(&serviceCS)
 	suite.NoError(err)
 
 	// Get contract year UUID.

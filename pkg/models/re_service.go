@@ -12,6 +12,10 @@ import (
 // ReServiceCode is the code of service
 type ReServiceCode string
 
+func (r ReServiceCode) String() string {
+	return string(r)
+}
+
 const (
 	// ReServiceCodeCS Counseling
 	ReServiceCodeCS ReServiceCode = "CS"

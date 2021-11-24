@@ -25,26 +25,26 @@ func importPackUnpackPrices(appCtx appcontext.AppContext, serviceToIDMap map[mod
 	}
 
 	// DPK Dom. Packing
-	packServiceID, found := serviceToIDMap["DPK"]
+	packServiceID, found := serviceToIDMap[models.ReServiceCodeDPK]
 	if !found {
-		return nil, fmt.Errorf("missing service [DPK] in map of services")
+		return nil, fmt.Errorf("missing service [%s] in map of services", models.ReServiceCodeDPK)
 	}
 
 	// DUPK Dom. Unpacking
-	unpackServiceID, found := serviceToIDMap["DUPK"]
+	unpackServiceID, found := serviceToIDMap[models.ReServiceCodeDUPK]
 	if !found {
-		return nil, fmt.Errorf("missing service [DUPK] in map of services")
+		return nil, fmt.Errorf("missing service [%s] in map of services", models.ReServiceCodeDUPK)
 	}
 
 	for _, stagePackPrice := range stagePackPrices {
 		peakCents, err := priceToCents(stagePackPrice.PeakPricePerCwt)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DPK: %+v error: %w", stagePackPrice.PeakPricePerCwt, err)
+			return nil, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", models.ReServiceCodeDPK, stagePackPrice.PeakPricePerCwt, err)
 		}
 
 		nonPeakCents, err := priceToCents(stagePackPrice.NonPeakPricePerCwt)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DUPK: %+v error: %w", stagePackPrice.NonPeakPricePerCwt, err)
+			return nil, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", models.ReServiceCodeDUPK, stagePackPrice.NonPeakPricePerCwt, err)
 		}
 
 		servicesSchedule, err := stringToInteger(stagePackPrice.ServicesSchedule)
@@ -91,26 +91,26 @@ func importSitPrices(appCtx appcontext.AppContext, serviceToIDMap map[models.ReS
 	}
 
 	// DOPSIT Dom. Origin SIT Pickup
-	originSitPickupID, found := serviceToIDMap["DOPSIT"]
+	originSitPickupID, found := serviceToIDMap[models.ReServiceCodeDOPSIT]
 	if !found {
-		return nil, fmt.Errorf("missing service [DOPSIT] in map of services")
+		return nil, fmt.Errorf("missing service [%s] in map of services", models.ReServiceCodeDOPSIT)
 	}
 
 	// DDDSIT Dom. Destination SIT Delivery
-	destSitDeliveryID, found := serviceToIDMap["DDDSIT"]
+	destSitDeliveryID, found := serviceToIDMap[models.ReServiceCodeDDDSIT]
 	if !found {
-		return nil, fmt.Errorf("missing service [DDDSIT] in map of services")
+		return nil, fmt.Errorf("missing service [%s] in map of services", models.ReServiceCodeDDDSIT)
 	}
 
 	for _, stageSitPrice := range stageSitPrices {
 		peakCents, err := priceToCents(stageSitPrice.PeakPricePerCwt)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DOPSIT: %+v error: %w", stageSitPrice.PeakPricePerCwt, err)
+			return nil, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", models.ReServiceCodeDOPSIT, stageSitPrice.PeakPricePerCwt, err)
 		}
 
 		nonPeakCents, err := priceToCents(stageSitPrice.NonPeakPricePerCwt)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DDDSIT: %+v error: %w", stageSitPrice.NonPeakPricePerCwt, err)
+			return nil, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", models.ReServiceCodeDDDSIT, stageSitPrice.NonPeakPricePerCwt, err)
 		}
 
 		schedule, err := stringToInteger(stageSitPrice.SITPickupDeliverySchedule)

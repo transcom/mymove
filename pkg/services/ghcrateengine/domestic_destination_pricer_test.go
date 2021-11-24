@@ -268,7 +268,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticDestinationData() {
 	domesticDestinationService := testdatagen.MakeReService(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DDP",
+				Code: models.ReServiceCodeDDP,
 				Name: "Dom. Destination Price",
 			},
 		})

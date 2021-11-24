@@ -43,13 +43,13 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(appCtx appcontext.A
 	// Int'l O->O Shipping & LH
 	serviceIOOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOLH]
 	if !foundService {
-		return fmt.Errorf("missing service IOOLH in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOOLH)
 	}
 
 	// Int'l O->O UB
 	serviceIOOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOUB]
 	if !foundService {
-		return fmt.Errorf("missing service IOOUB in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOOUB)
 	}
 
 	// loop through the OCONUS to OCONUS data and store in db
@@ -126,13 +126,13 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(appCtx appcontext.Ap
 	// Int'l C->O Shipping & LH
 	serviceICOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeICOLH]
 	if !foundService {
-		return fmt.Errorf("missing service ICOLH in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeICOLH)
 	}
 
 	// Int'l C->O UB
 	serviceICOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeICOUB]
 	if !foundService {
-		return fmt.Errorf("missing service ICOUB in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeICOUB)
 	}
 
 	// loop through the CONUS to OCONUS data and store in db
@@ -210,13 +210,13 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(appCtx appcontext.Ap
 	// Int'l O->C Shipping & LH
 	serviceIOCLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCLH]
 	if !foundService {
-		return fmt.Errorf("missing service IOCLH in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOCLH)
 	}
 
 	// Int'l O->C UB
 	serviceIOCUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCUB]
 	if !foundService {
-		return fmt.Errorf("missing service IOCUB in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOCUB)
 	}
 
 	// loop through the OCONUS to CONUS data and store in db
@@ -294,13 +294,13 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcont
 	// Int'l non-standard HHG
 	serviceNSTH, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTH]
 	if !foundService {
-		return fmt.Errorf("missing service NSTH in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeNSTH)
 	}
 
 	// Int'l non-standard UB
 	serviceNSTUB, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTUB]
 	if !foundService {
-		return fmt.Errorf("missing service NSTUB in map of services")
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeNSTUB)
 	}
 
 	// loop through the non-standard location data and store in db

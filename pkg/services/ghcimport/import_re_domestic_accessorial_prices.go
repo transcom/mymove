@@ -49,7 +49,7 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(appCtx appco
 				serviceProvidedFound = true
 				serviceID, found := gre.serviceToIDMap[serviceCode]
 				if !found {
-					return fmt.Errorf("missing service [%s] in map of services", service)
+					return fmt.Errorf("missing service [%s] in map of services", serviceCode)
 				}
 
 				domesticAccessorial := models.ReDomesticAccessorialPrice{
