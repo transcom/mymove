@@ -5306,6 +5306,10 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -11876,6 +11880,10 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",

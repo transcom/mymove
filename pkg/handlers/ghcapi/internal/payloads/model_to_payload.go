@@ -271,14 +271,15 @@ func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.Stora
 	if storageFacility == nil {
 		return nil
 	}
-	address := Address(&storageFacility.Address)
+
 	payload := ghcmessages.StorageFacility{
 		ID:           strfmt.UUID(storageFacility.ID.String()),
 		FacilityName: storageFacility.FacilityName,
-		Address:      address,
+		Address:      Address(&storageFacility.Address),
 		LotNumber:    storageFacility.LotNumber,
 		Phone:        storageFacility.Phone,
 		Email:        storageFacility.Email,
+		ETag:         etag.GenerateEtag(storageFacility.UpdatedAt),
 	}
 
 	return &payload
