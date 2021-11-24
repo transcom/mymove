@@ -16,9 +16,9 @@ func (gre *GHCRateEngineImporter) loadServiceMap(appCtx appcontext.AppContext) e
 		return fmt.Errorf("could not read services: %w", err)
 	}
 
-	gre.serviceToIDMap = make(map[string]uuid.UUID)
+	gre.serviceToIDMap = make(map[models.ReServiceCode]uuid.UUID)
 	for _, service := range services {
-		gre.serviceToIDMap[string(service.Code)] = service.ID
+		gre.serviceToIDMap[service.Code] = service.ID
 	}
 
 	return nil

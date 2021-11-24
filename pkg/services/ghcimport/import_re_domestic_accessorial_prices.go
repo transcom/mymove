@@ -17,14 +17,14 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(appCtx appco
 	}
 
 	services := []struct {
-		serviceCode     string
+		serviceCode     models.ReServiceCode
 		serviceProvided string
 	}{
-		{"DCRT", "Crating (per cubic ft.)"},
-		{"DCRTSA", "Crating (per cubic ft.)"},
-		{"DUCRT", "Uncrating (per cubic ft.)"},
-		{"DDSHUT", "Shuttle Service (per cwt)"},
-		{"DOSHUT", "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeDCRT, "Crating (per cubic ft.)"},
+		{models.ReServiceCodeDCRTSA, "Crating (per cubic ft.)"},
+		{models.ReServiceCodeDUCRT, "Uncrating (per cubic ft.)"},
+		{models.ReServiceCodeDDSHUT, "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeDOSHUT, "Shuttle Service (per cwt)"},
 	}
 
 	//loop through the domestic accessorial price data and store in db

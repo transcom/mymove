@@ -16,7 +16,7 @@ type DomOtherPriceToInsert struct {
 	message string
 }
 
-func importPackUnpackPrices(appCtx appcontext.AppContext, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
+func importPackUnpackPrices(appCtx appcontext.AppContext, serviceToIDMap map[models.ReServiceCode]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
 	var stagePackPrices []models.StageDomesticOtherPackPrice
 	var modelsToSave []DomOtherPriceToInsert
 
@@ -82,7 +82,7 @@ func importPackUnpackPrices(appCtx appcontext.AppContext, serviceToIDMap map[str
 	return modelsToSave, nil
 }
 
-func importSitPrices(appCtx appcontext.AppContext, serviceToIDMap map[string]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
+func importSitPrices(appCtx appcontext.AppContext, serviceToIDMap map[models.ReServiceCode]uuid.UUID, contractID uuid.UUID) ([]DomOtherPriceToInsert, error) {
 	var stageSitPrices []models.StageDomesticOtherSitPrice
 	var modelsToSave []DomOtherPriceToInsert
 

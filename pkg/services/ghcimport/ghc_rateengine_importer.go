@@ -8,6 +8,7 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // GHCRateEngineImporter is the rate engine importer for GHC
@@ -19,7 +20,7 @@ type GHCRateEngineImporter struct {
 	serviceAreaToIDMap           map[string]uuid.UUID
 	domesticRateAreaToIDMap      map[string]uuid.UUID
 	internationalRateAreaToIDMap map[string]uuid.UUID
-	serviceToIDMap               map[string]uuid.UUID
+	serviceToIDMap               map[models.ReServiceCode]uuid.UUID
 	contractYearToIDMap          map[string]uuid.UUID
 }
 

@@ -41,13 +41,13 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(appCtx appcontext.A
 	}
 
 	// Int'l O->O Shipping & LH
-	serviceIOOLH, foundService := gre.serviceToIDMap["IOOLH"]
+	serviceIOOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOLH]
 	if !foundService {
 		return fmt.Errorf("missing service IOOLH in map of services")
 	}
 
 	// Int'l O->O UB
-	serviceIOOUB, foundService := gre.serviceToIDMap["IOOUB"]
+	serviceIOOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOUB]
 	if !foundService {
 		return fmt.Errorf("missing service IOOUB in map of services")
 	}
@@ -124,13 +124,13 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(appCtx appcontext.Ap
 	}
 
 	// Int'l C->O Shipping & LH
-	serviceICOLH, foundService := gre.serviceToIDMap["ICOLH"]
+	serviceICOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeICOLH]
 	if !foundService {
 		return fmt.Errorf("missing service ICOLH in map of services")
 	}
 
 	// Int'l C->O UB
-	serviceICOUB, foundService := gre.serviceToIDMap["ICOUB"]
+	serviceICOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeICOUB]
 	if !foundService {
 		return fmt.Errorf("missing service ICOUB in map of services")
 	}
@@ -208,13 +208,13 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(appCtx appcontext.Ap
 	}
 
 	// Int'l O->C Shipping & LH
-	serviceIOCLH, foundService := gre.serviceToIDMap["IOCLH"]
+	serviceIOCLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCLH]
 	if !foundService {
 		return fmt.Errorf("missing service IOCLH in map of services")
 	}
 
 	// Int'l O->C UB
-	serviceIOCUB, foundService := gre.serviceToIDMap["IOCUB"]
+	serviceIOCUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCUB]
 	if !foundService {
 		return fmt.Errorf("missing service IOCUB in map of services")
 	}
@@ -292,13 +292,13 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcont
 	}
 
 	// Int'l non-standard HHG
-	serviceNSTH, foundService := gre.serviceToIDMap["NSTH"]
+	serviceNSTH, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTH]
 	if !foundService {
 		return fmt.Errorf("missing service NSTH in map of services")
 	}
 
 	// Int'l non-standard UB
-	serviceNSTUB, foundService := gre.serviceToIDMap["NSTUB"]
+	serviceNSTUB, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTUB]
 	if !foundService {
 		return fmt.Errorf("missing service NSTUB in map of services")
 	}
