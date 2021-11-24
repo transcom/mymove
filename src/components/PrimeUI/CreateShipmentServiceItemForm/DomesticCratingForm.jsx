@@ -23,7 +23,7 @@ const domesticShippingValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
 });
 
-const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
+const DomesticCratingForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -59,7 +59,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
-      <Form>
+      <Form data-testid="domesticCratingForm">
         <DropdownInput
           label="Service Item Code"
           name="reServiceCode"
@@ -141,9 +141,9 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
   );
 };
 
-DomesticShippingServiceItemForm.propTypes = {
+DomesticCratingForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default DomesticShippingServiceItemForm;
+export default DomesticCratingForm;
