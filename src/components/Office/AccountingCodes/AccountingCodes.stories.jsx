@@ -6,6 +6,7 @@ import AccountingCodes from './AccountingCodes';
 
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import { Form } from 'components/form/Form';
+import minWidth from 'components/minWidth';
 import formStyles from 'styles/form.module.scss';
 
 export default {
@@ -32,7 +33,11 @@ export default {
   ],
 };
 
-export const AsRequired = () => <AccountingCodes optional={false} />;
+export const AsRequired = () => (
+  <minWidth>
+    <AccountingCodes optional={false} />
+  </minWidth>
+);
 
 export const WithNoTACsOrSACs = () => <AccountingCodes />;
 WithNoTACsOrSACs.storyName = 'With No TACs or SACs';
