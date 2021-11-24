@@ -1608,12 +1608,17 @@ paths:
           name: body
           schema:
             required:
-              - remarks
+              - flagForReview
             properties:
               remarks:
                 description: explanation of why the move is being flagged for financial review
                 example: this address is way too far away
                 type: string
+                x-nullable: true
+              flagForReview:
+                description: boolean value representing whether we should flag a move for financial review
+                example: false
+                type: boolean
       responses:
         '200':
           description: updated Move
@@ -1908,7 +1913,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1942,6 +1947,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -3908,6 +3916,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:
