@@ -18,6 +18,9 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
     modelType: createServiceItemModelTypes.MTOServiceItemShuttle,
+    reason: '',
+    estimatedWeight: null,
+    actualWeight: null,
   };
 
   const onSubmit = (values) => {
@@ -43,9 +46,10 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
         <TextField name="reason" id="reason" label="Reason" />
         <MaskedTextField
           data-testid="estimatedWeightInput"
-          defaultValue="0"
+          defaultValue=""
           name="estimatedWeight"
           label="Estimated weight (lbs)"
+          labelHint="Optional"
           id="estimatedWeightInput"
           mask={Number}
           scale={0} // digits after point, 0 for integers
@@ -54,9 +58,10 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="actualWeightInput"
-          defaultValue="0"
+          defaultValue=""
           name="actualWeight"
           label="Actual weight (lbs)"
+          labelHint="Optional"
           id="actualWeightInput"
           mask={Number}
           scale={0} // digits after point, 0 for integers
