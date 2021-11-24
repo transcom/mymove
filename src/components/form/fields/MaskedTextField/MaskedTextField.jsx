@@ -5,11 +5,8 @@ import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 
-import { OptionalTag } from '../../OptionalTag';
-import { ErrorMessage } from '../../index';
-
-import styles from './MaskedTextField.module.scss';
-
+import { OptionalTag } from 'components/form/OptionalTag';
+import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
 
 const MaskedTextField = ({
@@ -41,7 +38,7 @@ const MaskedTextField = ({
   const { value } = field;
   return (
     <FormGroup className={classnames(!!warning && !showError && `warning`, formGroupClassName)} error={showError}>
-      <div className={styles.labelWrapper}>
+      <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
         </Label>

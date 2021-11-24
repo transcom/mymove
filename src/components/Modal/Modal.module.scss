@@ -89,6 +89,11 @@ div.Modal {
 
   :global(.usa-form) {
     max-width: 100%;
+
+    > :global(.usa-form-group:first-of-type .usa-label),
+    > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
   }
 
   .ModalTitle {

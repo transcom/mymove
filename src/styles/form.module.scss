@@ -93,6 +93,13 @@
   }
 }
 
+:global(.usa-form-group) {
+  .labelWrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
 .formSection {
   @include u-margin-y(4);
 

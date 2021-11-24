@@ -4,11 +4,9 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
-import { OptionalTag } from '../../OptionalTag';
-
-import styles from './TextField.module.scss';
-
+import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
+
 /**
  * This component renders a ReactUSWDS TextInput component inside of a FormGroup,
  * with a Label and ErrorMessage.
@@ -45,7 +43,7 @@ const TextField = ({
 
   return (
     <FormGroup className={formGroupClasses} error={showError}>
-      <div className={styles.labelWrapper}>
+      <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
         </Label>
