@@ -11,7 +11,17 @@ import { ShipmentShape } from 'types/shipment';
 import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
 
-const domesticShippingValidationSchema = Yup.object().shape({});
+const domesticShippingValidationSchema = Yup.object().shape({
+  reServiceCode: Yup.string().required('Required'),
+  itemLength: Yup.string().required('Required'),
+  itemWidth: Yup.string().required('Required'),
+  itemHeight: Yup.string().required('Required'),
+  crateLength: Yup.string().required('Required'),
+  crateWidth: Yup.string().required('Required'),
+  crateHeight: Yup.string().required('Required'),
+  description: Yup.string().required('Required'),
+  reason: Yup.string().required('Required'),
+});
 
 const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
