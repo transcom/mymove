@@ -1917,7 +1917,7 @@ paths:
             - branch
             - locator
             - status
-            - originDutyStation
+            - originDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1939,7 +1939,7 @@ paths:
           name: dodID
           type: string
         - in: query
-          name: originDutyStation
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -1985,6 +1985,7 @@ paths:
             - status
             - dodID
             - age
+            - originDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2022,6 +2023,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -2680,7 +2684,7 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
-      originDutyStation:
+      originDutyLocation:
         $ref: '#/definitions/DutyStation'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -3966,7 +3970,7 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
-      originDutyStation:
+      originDutyLocation:
         $ref: '#/definitions/DutyStation'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
