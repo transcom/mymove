@@ -1985,6 +1985,7 @@ paths:
             - status
             - dodID
             - age
+            - originDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2022,6 +2023,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -4015,6 +4019,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:
@@ -4124,6 +4130,9 @@ definitions:
         format: x-email
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
   SITExtension:
     type: object
     description: >-

@@ -528,7 +528,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Successfully add storage facility to shipment", func(t *testing.T) {
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
 
 		updatedShipment := models.MTOShipment{
 			ID:              shipment.ID,
@@ -544,7 +544,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.T().Run("Successfully edit storage facility on shipment", func(t *testing.T) {
-		email := "old@email.com"
+		// Create initial shipment data
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
 				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -556,7 +556,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 						Country:        swag.String("US"),
 					},
 				}),
-				Email: &email,
+				Email: swag.String("old@email.com"),
 			},
 		})
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -565,23 +565,20 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		})
 
-		newStorageFacilityAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "987 Over There Avenue",
-				City:           "Houston",
-				State:          "TX",
-				PostalCode:     "77083",
-				Country:        swag.String("US"),
-			},
-		})
+		// Make updates to previously persisted data (don't need to create these in the DB first)
+		newStorageFacilityAddress := models.Address{
+			StreetAddress1: "987 Over There Avenue",
+			City:           "Houston",
+			State:          "TX",
+			PostalCode:     "77083",
+			Country:        swag.String("US"),
+		}
 
 		newEmail := "new@email.com"
-		newStorageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: newStorageFacilityAddress,
-				Email:   &newEmail,
-			},
-		})
+		newStorageFacility := models.StorageFacility{
+			Address: newStorageFacilityAddress,
+			Email:   &newEmail,
+		}
 
 		newShipment := models.MTOShipment{
 			ID:              shipment.ID,

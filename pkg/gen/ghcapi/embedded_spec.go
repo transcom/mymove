@@ -2184,7 +2184,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2243,6 +2244,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -4955,6 +4961,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -5305,6 +5314,10 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -8560,7 +8573,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8619,6 +8633,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -11523,6 +11542,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -11876,6 +11898,10 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
