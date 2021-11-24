@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
-import { Field, Formik } from 'formik';
-import { Button, Label, Textarea } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
+import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -18,12 +18,12 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
     modelType: createServiceItemModelTypes.MTOServiceItemDomesticCrating,
-    itemLength: '0',
-    itemWidth: '0',
-    itemHeight: '0',
-    crateLength: '0',
-    crateWidth: '0',
-    crateHeight: '0',
+    itemLength: '',
+    itemWidth: '',
+    itemHeight: '',
+    crateLength: '',
+    crateWidth: '',
+    crateHeight: '',
     reason: '',
     description: '',
   };
@@ -59,7 +59,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="itemLength"
-          defaultValue="0"
+          defaultValue=""
           name="itemLength"
           label="Item length (ft)"
           id="itemLength"
@@ -70,7 +70,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="itemWidth"
-          defaultValue="0"
+          defaultValue=""
           name="itemWidth"
           label="Item width (ft)"
           id="itemWidth"
@@ -81,7 +81,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="itemHeight"
-          defaultValue="0"
+          defaultValue=""
           name="itemHeight"
           label="Item height (ft)"
           id="itemHeight"
@@ -92,7 +92,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="crateLength"
-          defaultValue="0"
+          defaultValue=""
           name="crateLength"
           label="Crate length (ft)"
           id="crateLength"
@@ -103,7 +103,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="crateWidth"
-          defaultValue="0"
+          defaultValue=""
           name="crateWidth"
           label="Crate width (ft)"
           id="crateWidth"
@@ -114,7 +114,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="crateHeight"
-          defaultValue="0"
+          defaultValue=""
           name="crateHeight"
           label="Crate height (ft)"
           id="crateHeight"
@@ -123,8 +123,7 @@ const DomesticShippingServiceItemForm = ({ shipment, submission }) => {
           thousandsSeparator=","
           lazy={false} // immediate masking evaluation
         />
-        <Label htmlFor="description">Description</Label>
-        <Field as={Textarea} data-testid="description" name="description" id="description" />
+        <TextField name="description" id="description" label="Description" />
         <TextField name="reason" id="reason" label="Reason" />
         <Button type="submit">Create service item</Button>
       </Form>
