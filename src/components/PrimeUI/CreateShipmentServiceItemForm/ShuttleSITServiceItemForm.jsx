@@ -40,7 +40,7 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
     <Formik initialValues={initialValues} validationSchema={shuttleSITValidationSchema} onSubmit={onSubmit}>
       <Form data-testid="shuttleSITServiceItemForm">
         <DropdownInput
-          label="Service Item Code"
+          label="Service item code"
           name="reServiceCode"
           id="reServiceCode"
           required
