@@ -37,7 +37,7 @@ describe('Shipment Service Items Table', () => {
   it('renders the nts shipment type with service items', () => {
     const wrapper = shallow(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />);
     expect(wrapper.find('table.serviceItemsTable').exists()).toBe(true);
-    expect(wrapper.find('h4').text()).toEqual('Service items for this shipment 6 items');
+    expect(wrapper.find('h4').text()).toEqual('Service items for this shipment 5 items');
     expect(wrapper.find('th').text()).toEqual('Service item');
     expect(wrapper.find('td').length).toBe(5);
     expect(wrapper.find('td').at(0).text()).toEqual('Domestic linehaul');
