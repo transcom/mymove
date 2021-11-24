@@ -2713,6 +2713,7 @@ definitions:
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
+      - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest

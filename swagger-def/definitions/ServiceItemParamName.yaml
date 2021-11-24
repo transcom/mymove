@@ -21,6 +21,7 @@ enum:
   - MarketDest
   - MarketOrigin
   - MTOAvailableToPrimeAt
+  - NTSPackingFactor
   - NumberDaysSIT
   - PriceAreaDest
   - PriceAreaIntlDest
