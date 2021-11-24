@@ -9,28 +9,6 @@ import { MockProviders } from 'testUtils';
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
-const mockPush = jest.fn();
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({
-    moveCode: 'LR4T8V',
-    moveCodeOrID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-}));
-
-jest.mock('services/primeApi', () => ({
-  ...jest.requireActual('services/primeApi'),
-  updatePrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
-jest.mock('hooks/queries', () => ({
-  usePrimeSimulatorGetMove: jest.fn(),
-}));
 const approvedMoveTaskOrder = {
   moveTaskOrder: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -76,7 +54,7 @@ const approvedMoveTaskOrder = {
           state: null,
           streetAddress1: null,
         },
-        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+        shipmentType: 'HHG',
         status: 'APPROVED',
         updatedAt: '2021-10-22',
         mtoServiceItems: null,
@@ -97,7 +75,7 @@ const mockedComponent = (
 );
 
 describe('Shipment details component', () => {
-  it('renders the component headings and links without errors', async () => {
+  it('renders the component headings and links without errors', () => {
     render(mockedComponent);
     const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
     expect(shipmentLevelHeader).toBeInTheDocument();
@@ -119,6 +97,76 @@ describe('Shipment details component', () => {
 
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.pickupAddress))).toBeInTheDocument();
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.destinationAddress))).toBeInTheDocument();
+  });
+
+  it('renders the shipment info', () => {
+    render(mockedComponent);
+    const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
+
+    // shipment text values
+    let field = screen.getByText('Status:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.status);
+
+    field = screen.getByText('Shipment ID:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.id);
+
+    field = screen.getByText('Shipment eTag:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.eTag);
+
+    field = screen.getByText('Requested Pickup Date:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.requestedPickupDate);
+
+    field = screen.getByText('Scheduled Pickup Date:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.scheduledPickupDate);
+
+    field = screen.getByText('Actual Pickup Date:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.actualPickupDate);
+
+    field = screen.getByText('Estimated Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.primeEstimatedWeight.toString());
+
+    field = screen.getByText('Actual Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.primeActualWeight.toString());
+
+    field = screen.getByText('Reweigh Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.weight.toString());
+
+    field = screen.getByText('Reweigh Requested Date:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.requestedAt);
+
+    field = screen.getByText('Pickup Address:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.city);
+    expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.state);
+    expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress1);
+    expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress2);
+    expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.postalCode);
+
+    field = screen.getByText('Destination Address:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.city);
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.state);
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.streetAddress1);
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.streetAddress2);
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.postalCode);
+
+    field = screen.getByText('Created at:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.createdAt);
+
+    field = screen.getByText('Approved at:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
   });
 });
 
@@ -158,103 +206,28 @@ const shipmentNoReweighRequested = {
 };
 
 describe('Shipment has missing reweigh', () => {
-  it('renders the component with missing reweigh error', async () => {
+  it('renders the component with missing reweigh error', () => {
     render(
       <MockProviders>
         <Shipment shipment={shipmentMissingReweighWeight} moveId={moveId} />
       </MockProviders>,
     );
 
-    await expect(screen.getByText('Missing')).toBeInTheDocument();
-    await expect(screen.getByText('Reweigh Weight:')).toBeInTheDocument();
-    await expect(screen.getByText('Reweigh Requested Date:')).toBeInTheDocument();
+    expect(screen.getByText('Missing')).toBeInTheDocument();
+    expect(screen.getByText('Reweigh Weight:')).toBeInTheDocument();
+    expect(screen.getByText('Reweigh Requested Date:')).toBeInTheDocument();
   });
 
   // Reweigh isn't missing here, it was not requested and therefore should not be present
   // in shipment display table
-  it('renders the component with no reweigh requested', async () => {
+  it('renders the component with no reweigh requested', () => {
     render(
       <MockProviders>
         <Shipment shipment={shipmentNoReweighRequested} moveId={moveId} />
       </MockProviders>,
     );
 
-    await expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
-    await expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
   });
-});
-
-describe('displaying shipment information', () => {
-  const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-
-  render(
-    <MockProviders>
-      <Shipment shipment={shipment} moveId={moveId} />
-    </MockProviders>,
-  );
-
-  // shipment text values
-  let field = screen.getByText('Status:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.status);
-
-  field = screen.getByText('Shipment ID:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.id);
-
-  field = screen.getByText('Shipment eTag:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.eTag);
-
-  field = screen.getByText('Requested Pickup Date:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.requestedPickupDate);
-
-  field = screen.getByText('Scheduled Pickup Date:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.scheduledPickupDate);
-
-  field = screen.getByText('Actual Pickup Date:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.actualPickupDate);
-
-  field = screen.getByText('Estimated Weight:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.primeEstimatedWeight.toString());
-
-  field = screen.getByText('Actual Weight:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.primeActualWeight.toString());
-
-  field = screen.getByText('Reweigh Weight:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.weight.toString());
-
-  field = screen.getByText('Reweigh Requested Date:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.requestedAt);
-
-  field = screen.getByText('Pickup Address:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.city);
-  expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.state);
-  expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress1);
-  expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress2);
-  expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.postalCode);
-
-  field = screen.getByText('Destination Address:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.city);
-  expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.state);
-  expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.streetAddress1);
-  expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.streetAddress2);
-  expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.postalCode);
-
-  field = screen.getByText('Created at:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.createdAt);
-
-  field = screen.getByText('Approved at:');
-  expect(field).toBeInTheDocument();
-  expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 });
