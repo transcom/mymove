@@ -6,7 +6,7 @@ import styles from './CreateShipmentServiceItemForm.module.scss';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
-import DomesticShippingServiceItemForm from './DomesticCrating';
+import DomesticShippingServiceItemForm from './DomesticCratingForm';
 
 import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
