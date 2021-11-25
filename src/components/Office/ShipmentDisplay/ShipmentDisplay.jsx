@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,9 +12,72 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
+import { AgentShape } from 'types/agent';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
+  const baseDisplayInfo = {
+    id: displayInfo.shipmentId,
+    heading: displayInfo.heading,
+    counselorRemarks: displayInfo.counselorRemarks,
+  };
+
+  const hhgCollapsedDisplay = {
+    ...baseDisplayInfo,
+    requestedPickupDate: displayInfo.requestedPickupDate,
+    pickupAddress: displayInfo.pickupAddress,
+    destinationAddress: displayInfo.destinationAddress,
+  };
+  const hhgExpandedDisplay = {
+    ...hhgCollapsedDisplay,
+    secondaryPickupAddress: displayInfo.secondaryPickupAddress,
+    secondaryDeliveryAddress: displayInfo.secondaryDeliveryAddress,
+    customerRemarks: displayInfo.customerRemarks,
+    agents: displayInfo.agents,
+  };
+
+  const storageFacilityAddress = displayInfo.storageFacility ? displayInfo.storageFacility.address : 'MISSING';
+  const ntsrCollapsedDisplay = {
+    ...baseDisplayInfo,
+    requestedDeliveryDate: displayInfo.requestedDeliveryDate,
+    storageFacilityAddress,
+    destinationAddress: displayInfo.destinationAddress,
+    counselorRemarks: displayInfo.counselorRemarks,
+  };
+  const ntsrExpandedDisplay = {
+    ...ntsrCollapsedDisplay,
+    primeActualWeight: displayInfo.primeActualWeight,
+    storageFacility: displayInfo.storageFacility,
+    serviceOrderNumber: displayInfo.serviceOrderNumber,
+    destinationAddress: displayInfo.destinationAddress,
+    secondaryDeliveryAddress: displayInfo.secondaryDeliveryAddress,
+    agents: displayInfo.agents,
+    customerRemarks: displayInfo.customerRemarks,
+    tacType: displayInfo.tacType,
+    sacType: displayInfo.sacType,
+  };
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const setDisplayInfo = () => {
+    switch (shipmentType) {
+      case SHIPMENT_OPTIONS.HHG:
+        return isExpanded ? hhgExpandedDisplay : hhgCollapsedDisplay;
+      case SHIPMENT_OPTIONS.NTSR:
+        return isExpanded ? ntsrExpandedDisplay : ntsrCollapsedDisplay;
+      default:
+        return hhgCollapsedDisplay;
+    }
+  };
+  let rowsToDisplay = setDisplayInfo();
+
+  const handleExpandClick = () => {
+    setIsExpanded((prev) => !prev);
+    rowsToDisplay = setDisplayInfo();
+  };
+  const expandableIconClasses = classnames({
+    'chevron-up': isExpanded,
+    'chevron-down': !isExpanded,
+  });
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -45,9 +108,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             )}
           </div>
 
-          <FontAwesomeIcon icon="chevron-down" />
+          <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
-        <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} />
+        <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={rowsToDisplay} shipmentType={shipmentType} />
         {editURL && (
           <EditButton
             onClick={() => {
@@ -79,12 +142,27 @@ ShipmentDisplay.propTypes = {
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
     shipmentStatus: ShipmentStatusesOneOf,
-    requestedPickupDate: PropTypes.string.isRequired,
-    pickupAddress: AddressShape.isRequired,
+    requestedPickupDate: PropTypes.string,
+    pickupAddress: AddressShape,
     secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
     secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
+    shipmentId: PropTypes.string,
+    shipmentType: PropTypes.string,
+    usesExternalVendor: PropTypes.bool,
+    customerRemarks: PropTypes.string,
+    serviceOrderNumber: PropTypes.string,
+    requestedDeliveryDate: PropTypes.string,
+    agents: PropTypes.arrayOf(AgentShape),
+    primeActualWeight: PropTypes.number,
+    storageFacility: PropTypes.shape({
+      address: AddressShape.isRequired,
+      facilityName: PropTypes.string,
+      lotNumber: PropTypes.string,
+    }),
+    tacType: PropTypes.string,
+    sacType: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,
   editURL: PropTypes.string,

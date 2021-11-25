@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import classnames from 'classnames';
+import 'styles/office.scss';
+import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -22,7 +22,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -56,20 +56,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
       return {
         id: shipment.id,
-        displayInfo: {
-          id: shipment.id,
-          heading: SHIPMENT_OPTIONS.HHG,
-          requestedPickupDate: shipment.requestedPickupDate,
-          pickupAddress: shipment.pickupAddress,
-          secondaryPickupAddress: shipment.secondaryPickupAddress,
-          destinationAddress: shipment.destinationAddress || {
-            postalCode: order.destinationDutyStation.address.postalCode,
-          },
-          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-          counselorRemarks: shipment.counselorRemarks,
-          customerRemarks: shipment.customerRemarks,
-        },
+        displayInfo: { ...shipment },
         editURL,
+        shipmentType: shipment.shipmentType,
       };
     });
   }
@@ -232,7 +221,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
-                    shipmentType={SHIPMENT_OPTIONS.HHG}
+                    shipmentType={shipment.shipmentType}
                     showIcon={false}
                   />
                 ))}
