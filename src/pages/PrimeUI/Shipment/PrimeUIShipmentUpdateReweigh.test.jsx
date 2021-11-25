@@ -7,6 +7,7 @@ import PrimeUIShipmentUpdateReweigh from './PrimeUIShipmentUpdateReweigh';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { updatePrimeMTOShipmentReweigh } from 'services/primeApi';
+import { MockProviders } from 'testUtils';
 
 const mockUseHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -98,7 +99,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(loadingReturnValue);
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       expect(await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 }));
     });
@@ -106,7 +111,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('renders the Something Went Wrong component when the query has an error', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(errorReturnValue);
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       expect(await screen.findByText(/Something went wrong./));
     });
@@ -116,7 +125,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('displays the reweigh weight and verification reason', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -136,7 +149,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('displays only the reweigh weight', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noVerificationReason);
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -157,7 +174,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('uses the default values when there is no reweigh', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noReweigh);
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -178,7 +199,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);
@@ -192,7 +217,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       updatePrimeMTOShipmentReweigh.mockRejectedValue('malformed api error response');
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);
@@ -214,7 +243,11 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
         eTag: '1234567890',
       });
 
-      render(<PrimeUIShipmentUpdateReweigh />);
+      render(
+        <MockProviders>
+          <PrimeUIShipmentUpdateReweigh />
+        </MockProviders>,
+      );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);

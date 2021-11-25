@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
 
 import PrimeUIShipmentUpdateReweighForm from './PrimeUIShipmentUpdateReweighForm';
 
@@ -15,8 +17,9 @@ import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { updatePrimeMTOShipmentReweigh } from 'services/primeApi';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-const PrimeUIShipmentUpdateReweigh = () => {
+const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId, reweighId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
@@ -39,6 +42,14 @@ const PrimeUIShipmentUpdateReweigh = () => {
 
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+
+      setFlashMessage(
+        `MSG_UPDATE_REWEIGH_SUCCESS${shipmentId}`,
+        'success',
+        `Successfully updated shipment reweigh`,
+        '',
+        true,
+      );
 
       handleClose();
     },
@@ -107,4 +118,16 @@ const PrimeUIShipmentUpdateReweigh = () => {
   );
 };
 
-export default PrimeUIShipmentUpdateReweigh;
+PrimeUIShipmentUpdateReweigh.propTypes = {
+  setFlashMessage: func,
+};
+
+PrimeUIShipmentUpdateReweigh.defaultProps = {
+  setFlashMessage: () => {},
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdateReweigh));
