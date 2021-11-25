@@ -46,7 +46,7 @@ type ListOrderParams struct {
 	DodID                  *string
 	LastName               *string
 	DestinationDutyStation *string
-	OriginDutyStation      *string
+	OriginDutyLocation     *string
 	OriginGBLOC            *string
 	SubmittedAt            *time.Time
 	RequestedMoveDate      *string

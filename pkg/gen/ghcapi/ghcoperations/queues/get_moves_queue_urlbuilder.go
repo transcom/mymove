@@ -15,16 +15,16 @@ import (
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
-	Branch            *string
-	DodID             *string
-	LastName          *string
-	Locator           *string
-	Order             *string
-	OriginDutyStation *string
-	Page              *int64
-	PerPage           *int64
-	Sort              *string
-	Status            []string
+	Branch             *string
+	DodID              *string
+	LastName           *string
+	Locator            *string
+	Order              *string
+	OriginDutyLocation *string
+	Page               *int64
+	PerPage            *int64
+	Sort               *string
+	Status             []string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -100,12 +100,12 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("order", orderQ)
 	}
 
-	var originDutyStationQ string
-	if o.OriginDutyStation != nil {
-		originDutyStationQ = *o.OriginDutyStation
+	var originDutyLocationQ string
+	if o.OriginDutyLocation != nil {
+		originDutyLocationQ = *o.OriginDutyLocation
 	}
-	if originDutyStationQ != "" {
-		qs.Set("originDutyStation", originDutyStationQ)
+	if originDutyLocationQ != "" {
+		qs.Set("originDutyLocation", originDutyLocationQ)
 	}
 
 	var pageQ string

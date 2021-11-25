@@ -37,16 +37,16 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	ListOrderParams := services.ListOrderParams{
-		Branch:            params.Branch,
-		Locator:           params.Locator,
-		DodID:             params.DodID,
-		LastName:          params.LastName,
-		OriginDutyStation: params.OriginDutyStation,
-		Status:            params.Status,
-		Page:              params.Page,
-		PerPage:           params.PerPage,
-		Sort:              params.Sort,
-		Order:             params.Order,
+		Branch:             params.Branch,
+		Locator:            params.Locator,
+		DodID:              params.DodID,
+		LastName:           params.LastName,
+		OriginDutyLocation: params.OriginDutyLocation,
+		Status:             params.Status,
+		Page:               params.Page,
+		PerPage:            params.PerPage,
+		Sort:               params.Sort,
+		Order:              params.Order,
 	}
 
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20

@@ -57,7 +57,7 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
-	OriginDutyStation *string
+	OriginDutyLocation *string
 	/*requested page of results
 	  In: query
 	*/
@@ -113,8 +113,8 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 		res = append(res, err)
 	}
 
-	qOriginDutyStation, qhkOriginDutyStation, _ := qs.GetOK("originDutyStation")
-	if err := o.bindOriginDutyStation(qOriginDutyStation, qhkOriginDutyStation, route.Formats); err != nil {
+	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
+	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -247,8 +247,8 @@ func (o *GetMovesQueueParams) validateOrder(formats strfmt.Registry) error {
 	return nil
 }
 
-// bindOriginDutyStation binds and validates parameter OriginDutyStation from query.
-func (o *GetMovesQueueParams) bindOriginDutyStation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+func (o *GetMovesQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -260,7 +260,7 @@ func (o *GetMovesQueueParams) bindOriginDutyStation(rawData []string, hasKey boo
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.OriginDutyStation = &raw
+	o.OriginDutyLocation = &raw
 
 	return nil
 }
@@ -336,7 +336,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyStation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 

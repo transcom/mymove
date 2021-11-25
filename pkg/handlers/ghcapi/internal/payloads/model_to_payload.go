@@ -768,7 +768,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			RequestedMoveDate:   handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator: &deptIndicator,
 			ShipmentsCount:      int64(len(validMTOShipments)),
-			OriginDutyStation:   DutyStation(move.Orders.OriginDutyStation),
+			OriginDutyLocation:  DutyStation(move.Orders.OriginDutyStation),
 			OriginGBLOC:         ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}

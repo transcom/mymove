@@ -56,13 +56,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	originDutyStationQuery := originDutyStationFilter(params.OriginDutyStation)
+	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyStationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+
+	fmt.Println(params.OriginDutyLocation)
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -210,10 +212,10 @@ func locatorFilter(locator *string) QueryOption {
 	}
 }
 
-func originDutyStationFilter(originDutyStation *string) QueryOption {
+func originDutyLocationFilter(originDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
-		if originDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *originDutyStation)
+		if originDutyLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *originDutyLocation)
 			query.Where("origin_ds.name ILIKE ?", nameSearch)
 		}
 	}

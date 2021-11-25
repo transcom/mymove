@@ -32,8 +32,8 @@ type QueueMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
-	// origin duty station
-	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
+	// origin duty location
+	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
@@ -69,7 +69,7 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyStation(formats); err != nil {
+	if err := m.validateOriginDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -141,15 +141,15 @@ func (m *QueueMove) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueueMove) validateOriginDutyStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginDutyStation) { // not required
+func (m *QueueMove) validateOriginDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocation) { // not required
 		return nil
 	}
 
-	if m.OriginDutyStation != nil {
-		if err := m.OriginDutyStation.Validate(formats); err != nil {
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originDutyStation")
+				return ve.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -224,7 +224,7 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateOriginDutyStation(ctx, formats); err != nil {
+	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -270,12 +270,12 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 	return nil
 }
 
-func (m *QueueMove) contextValidateOriginDutyStation(ctx context.Context, formats strfmt.Registry) error {
+func (m *QueueMove) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.OriginDutyStation != nil {
-		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originDutyStation")
+				return ve.ValidateName("originDutyLocation")
 			}
 			return err
 		}
