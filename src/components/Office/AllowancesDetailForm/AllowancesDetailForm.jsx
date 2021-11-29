@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import styles from './AllowancesDetailForm.module.scss';
 
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
@@ -25,11 +25,11 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
-        formGroupClassName={styles.fieldWithHint}
-      />
-      <Hint data-testid="proGearWeightHint">
-        <p>Max. 2,000 lbs</p>
-      </Hint>
+      >
+        <Hint data-testid="proGearWeightHint">
+          <p>Max. 2,000 lbs</p>
+        </Hint>
+      </MaskedTextField>
 
       <MaskedTextField
         data-testid="proGearWeightSpouseInput"
@@ -42,11 +42,11 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
-        formGroupClassName={styles.fieldWithHint}
-      />
-      <Hint data-testid="proGearWeightSpouseHint">
-        <p>Max. 500 lbs</p>
-      </Hint>
+      >
+        <Hint data-testid="proGearWeightSpouseHint">
+          <p>Max. 500 lbs</p>
+        </Hint>
+      </MaskedTextField>
 
       <MaskedTextField
         data-testid="rmeInput"

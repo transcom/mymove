@@ -2184,7 +2184,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2243,6 +2244,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -4954,6 +4960,9 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -8561,7 +8570,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8620,6 +8630,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -11523,6 +11538,9 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
