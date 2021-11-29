@@ -39,6 +39,9 @@ type QueuePaymentRequest struct {
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
+	// origin duty location
+	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
+
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
@@ -67,6 +70,10 @@ func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -146,6 +153,23 @@ func (m *QueuePaymentRequest) validateMoveID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *QueuePaymentRequest) validateOriginDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocation) { // not required
+		return nil
+	}
+
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originDutyLocation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *QueuePaymentRequest) validateOriginGBLOC(formats strfmt.Registry) error {
 	if swag.IsZero(m.OriginGBLOC) { // not required
 		return nil
@@ -200,6 +224,10 @@ func (m *QueuePaymentRequest) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOriginGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -234,6 +262,20 @@ func (m *QueuePaymentRequest) contextValidateDepartmentIndicator(ctx context.Con
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originDutyLocation")
 			}
 			return err
 		}

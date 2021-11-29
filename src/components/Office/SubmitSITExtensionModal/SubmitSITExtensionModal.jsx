@@ -7,7 +7,7 @@ import { Button, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './SubmitSITExtensionModal.module.scss';
 
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
