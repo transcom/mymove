@@ -47,4 +47,10 @@
   table {
     width: 100%;
   }
+
+  form {
+    @media (min-width: 480px) {
+      max-width: none;
+    }
+  }
 }

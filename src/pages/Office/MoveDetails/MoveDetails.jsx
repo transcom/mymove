@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
@@ -18,9 +18,11 @@ import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
@@ -40,6 +42,9 @@ const MoveDetails = ({
   setUnapprovedSITExtensionCount,
 }) => {
   const { moveCode } = useParams();
+  const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertType, setAlertType] = useState('success');
   const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
@@ -67,6 +72,43 @@ const MoveDetails = ({
       queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
+
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
+    },
+    onError: () => {
+      setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
+  const handleShowFinancialReviewModal = () => {
+    setIsFinancialModalVisible(true);
+  };
+
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    // if it's set to yes let's send a true to the backend. If not we'll send false.
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
+    setIsFinancialModalVisible(false);
+  };
+
+  const handleCancelFinancialReviewModal = () => {
+    setIsFinancialModalVisible(false);
+  };
 
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
@@ -220,7 +262,32 @@ const MoveDetails = ({
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <h1>Move details</h1>
+          <div className={styles.tooMoveDetailsHeadingFlexbox}>
+            <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+            <div className={styles.tooFinancialReviewContainer}>
+              <FinancialReviewButton
+                onClick={handleShowFinancialReviewModal}
+                reviewRequested={move.financialReviewFlag}
+              />
+            </div>
+          </div>
+          {isFinancialModalVisible && (
+            <FinancialReviewModal
+              onClose={handleCancelFinancialReviewModal}
+              onSubmit={handleSubmitFinancialReviewModal}
+              initialRemarks={move?.financialReviewRemarks}
+              initialSelection={move?.financialReviewFlag}
+            />
+          )}
+          <Grid row className={styles.pageHeader}>
+            {alertMessage && (
+              <Grid col={12} className={styles.alertContainer}>
+                <Alert slim type={alertType}>
+                  {alertMessage}
+                </Alert>
+              </Grid>
+            )}
+          </Grid>
           {/* TODO - RequestedShipments could be simplified, if extra time we could tackle this or just write a story to track */}
           {submittedShipments.length > 0 && (
             <div className={styles.section} id="requested-shipments">

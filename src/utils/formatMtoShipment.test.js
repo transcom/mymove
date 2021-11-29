@@ -176,6 +176,18 @@ describe('formatMtoShipmentForDisplay', () => {
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
     expect(displayValues.hasSecondaryDelivery).toBe('yes');
   });
+
+  it('can format a shipment with lines of accounting', () => {
+    const params = {
+      ...mtoShipment,
+      tacType: 'HHG',
+      sacType: 'NTS',
+    };
+
+    const displayValues = formatMtoShipmentForDisplay(params);
+    expect(displayValues.tacType).toEqual('HHG');
+    expect(displayValues.sacType).toEqual('NTS');
+  });
 });
 
 describe('formatMtoShipmentForAPI', () => {
@@ -270,6 +282,21 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[0].phone).toBe('222-555-0101');
     expect(actual.agents[0].agentType).toBe('RECEIVING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+  });
+
+  it('can format a shipment with lines of accounting', () => {
+    const params = {
+      ...mtoShipmentParams,
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      pickup: { ...pickupInfo },
+      tacType: 'HHG',
+      sacType: 'NTS',
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+
+    expect(actual.tacType).toEqual('HHG');
+    expect(actual.sacType).toEqual('NTS');
   });
 
   it('can format an HHG shipment with a secondary pickup/destination', () => {
