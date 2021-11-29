@@ -1144,8 +1144,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-		suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	})
 
 	suite.Run("returns moves in the needs counseling and services counseling complete statuses", func() {
@@ -1173,7 +1172,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			suite.EqualValues(move.Status, result.Status)
 			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 			suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
 
 			if move.Status == models.MoveStatusNeedsServiceCounseling {
@@ -1210,7 +1209,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
 			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-			suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 
 			if move.Status == models.MoveStatusNeedsServiceCounseling {
 				suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
@@ -1248,7 +1247,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.marineCorpsMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
 		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-		suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	})
 
 	suite.Run("responds with forbidden error when user is not an office user", func() {

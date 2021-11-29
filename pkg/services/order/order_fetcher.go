@@ -56,19 +56,19 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
 	fmt.Println(params.OriginDutyLocation)
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
-		//TODO what do we need this for?
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
@@ -81,6 +81,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
 
@@ -100,6 +101,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	var groupByColumms []string
 	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
+
+	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
+		groupByColumms = append(groupByColumms, "dest_ds.name")
+	}
 
 	if params.Sort != nil && *params.Sort == "originGBLOC" {
 		groupByColumms = append(groupByColumms, "origin_to.id")
@@ -208,6 +213,15 @@ func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
 			query.Where("moves.locator = ?", *locator)
+		}
+	}
+}
+
+func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
+	return func(query *pop.Query) {
+		if destinationDutyStation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
+			query.Where("dest_ds.name ILIKE ?", nameSearch)
 		}
 	}
 }

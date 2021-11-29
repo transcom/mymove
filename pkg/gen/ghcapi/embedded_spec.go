@@ -2090,7 +2090,8 @@ func init() {
               "branch",
               "locator",
               "status",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyStation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2130,6 +2131,11 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
             "in": "query"
           },
           {
@@ -4873,6 +4879,9 @@ func init() {
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "id": {
           "type": "string",
@@ -8473,7 +8482,8 @@ func init() {
               "branch",
               "locator",
               "status",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyStation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8513,6 +8523,11 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
             "in": "query"
           },
           {
@@ -11454,6 +11469,9 @@ func init() {
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "id": {
           "type": "string",

@@ -25,6 +25,9 @@ type QueueMove struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
+	// destination duty station
+	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -62,6 +65,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDepartmentIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationDutyStation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -121,6 +128,23 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateDestinationDutyStation(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyStation) { // not required
+		return nil
+	}
+
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationDutyStation")
 			}
 			return err
 		}
@@ -224,6 +248,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -262,6 +290,20 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidateDestinationDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationDutyStation")
 			}
 			return err
 		}

@@ -41,6 +41,10 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
+	DestinationDutyStation *string
+	/*
+	  In: query
+	*/
 	DodID *string
 	/*
 	  In: query
@@ -90,6 +94,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qDestinationDutyStation, qhkDestinationDutyStation, _ := qs.GetOK("destinationDutyStation")
+	if err := o.bindDestinationDutyStation(qDestinationDutyStation, qhkDestinationDutyStation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -157,6 +166,24 @@ func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats 
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindDestinationDutyStation binds and validates parameter DestinationDutyStation from query.
+func (o *GetMovesQueueParams) bindDestinationDutyStation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.DestinationDutyStation = &raw
 
 	return nil
 }
@@ -336,7 +363,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyStation"}, true); err != nil {
 		return err
 	}
 
