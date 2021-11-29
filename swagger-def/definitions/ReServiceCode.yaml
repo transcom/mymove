@@ -16,7 +16,7 @@ enum:
   - DDSHUT
   - DLH
   - DMHF
-  - DNPKF
+  - DNPK
   - DOASIT
   - DOFSIT
   - DOP
@@ -39,7 +39,7 @@ enum:
   - IDSHUT
   - IHPK
   - IHUPK
-  - INPKF
+  - INPK
   - IOASIT
   - IOCLH
   - IOCUB

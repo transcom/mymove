@@ -2023,7 +2023,7 @@ definitions:
       - DDSHUT
       - DLH
       - DMHF
-      - DNPKF
+      - DNPK
       - DOASIT
       - DOFSIT
       - DOP
@@ -2046,7 +2046,7 @@ definitions:
       - IDSHUT
       - IHPK
       - IHUPK
-      - INPKF
+      - INPK
       - IOASIT
       - IOCLH
       - IOCUB
