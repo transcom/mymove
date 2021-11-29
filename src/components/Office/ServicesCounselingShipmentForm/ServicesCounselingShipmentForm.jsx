@@ -235,7 +235,7 @@ const ServicesCounselingShipmentForm = ({
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
-                  <strong>Weight Allowance: </strong>
+                  <strong>Weight allowance: </strong>
                   {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
                 </p>
               </SectionWrapper>
