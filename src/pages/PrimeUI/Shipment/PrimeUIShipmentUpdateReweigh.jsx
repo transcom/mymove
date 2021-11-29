@@ -87,7 +87,8 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
 
   const initialValues = {
     reweighWeight: shipment.reweigh ? String(shipment.reweigh.weight) : '0',
-    reweighRemarks: shipment.reweigh ? shipment.reweigh.verificationReason : '',
+    reweighRemarks:
+      shipment.reweigh && shipment.reweigh.verificationReason !== null ? shipment.reweigh.verificationReason : '',
   };
 
   return (
