@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
@@ -48,6 +50,66 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.NotZero(actualMTO.ID)
 		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+	})
+
+	suite.RunWithRollback("MTO status is updated succesfully with facility info", func() {
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						StreetAddress1: "1234 Over Here Street",
+						City:           "Houston",
+						State:          "TX",
+						PostalCode:     "77083",
+						Country:        swag.String("US"),
+					},
+				}),
+				Email: swag.String("old@email.com"),
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+		var mtoShipments []models.MTOShipment
+		mtoShipments = append(mtoShipments, shipment)
+		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:       models.MoveStatusNeedsServiceCounseling,
+				MTOShipments: mtoShipments,
+			},
+			Order: expectedOrder,
+		})
+		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTOWithFacility.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+	})
+
+	suite.RunWithRollback("Invalid input error when there is no facility information on NTS-r shipment", func() {
+		noFacilityInfoMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: expectedOrder,
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+			Move: noFacilityInfoMove,
+		})
+		eTag := etag.GenerateEtag(noFacilityInfoMove.UpdatedAt)
+
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), noFacilityInfoMove.ID, eTag)
+
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 
 	suite.RunWithRollback("MTO status is in a conflicted state", func() {

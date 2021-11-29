@@ -79,6 +79,8 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  tacType,
+  sacType,
 }) {
   const displayValues = {
     shipmentType,
@@ -104,6 +106,8 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    tacType,
+    sacType,
   };
 
   if (agents) {
@@ -167,6 +171,8 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
+  tacType,
+  sacType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -213,6 +219,14 @@ export function formatMtoShipmentForAPI({
 
   if (!formattedMtoShipment.agents?.length) {
     formattedMtoShipment.agents = undefined;
+  }
+
+  if (tacType) {
+    formattedMtoShipment.tacType = tacType;
+  }
+
+  if (sacType) {
+    formattedMtoShipment.sacType = sacType;
   }
 
   return formattedMtoShipment;

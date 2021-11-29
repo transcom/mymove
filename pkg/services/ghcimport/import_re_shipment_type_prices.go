@@ -23,8 +23,8 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(appCtx appcontext.A
 		"OCONUS:Tow Away Boat Service":  models.ReServiceCodeIBTF,
 		"CONUS:Haul Away Boat Service":  models.ReServiceCodeDBHF,
 		"OCONUS:Haul Away Boat Service": models.ReServiceCodeIBHF,
-		"CONUS:NTS Packing Factor":      models.ReServiceCodeDNPKF,
-		"OCONUS:NTS Packing Factor":     models.ReServiceCodeINPKF,
+		"CONUS:NTS Packing Factor":      models.ReServiceCodeDNPK,
+		"OCONUS:NTS Packing Factor":     models.ReServiceCodeINPK,
 	}
 
 	//loop through the domestic international additional prices data and store in db

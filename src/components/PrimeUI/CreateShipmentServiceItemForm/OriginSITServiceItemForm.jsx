@@ -4,15 +4,15 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { requiredAddressSchema, ZIP_CODE_REGEX } from '../../../utils/validation';
-import { formatDateForSwagger } from '../../../shared/dates';
-import { formatAddressForPrimeAPI } from '../../../utils/formatters';
-import { Form } from '../../form/Form';
-import TextField from '../../form/fields/TextField';
-import MaskedTextField from '../../form/fields/MaskedTextField';
-import { DatePickerInput } from '../../form/fields/DatePickerInput';
-import { AddressFields } from '../../form/AddressFields/AddressFields';
-import { ShipmentShape } from '../../../types/shipment';
+import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
+import { formatDateForSwagger } from 'shared/dates';
+import { formatAddressForPrimeAPI } from 'utils/formatters';
+import { Form } from 'components/form/Form';
+import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { DatePickerInput } from 'components/form/fields';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { ShipmentShape } from 'types/shipment';
 
 const originSITValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
@@ -56,7 +56,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={originSITValidationSchema} onSubmit={onSubmit}>
-      <Form>
+      <Form data-testid="originSITServiceItemForm">
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />

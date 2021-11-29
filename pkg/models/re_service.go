@@ -41,8 +41,8 @@ const (
 	ReServiceCodeDLH ReServiceCode = "DLH"
 	// ReServiceCodeDMHF Domestic mobile home factor
 	ReServiceCodeDMHF ReServiceCode = "DMHF"
-	// ReServiceCodeDNPKF Domestic NTS packing factor
-	ReServiceCodeDNPKF ReServiceCode = "DNPKF"
+	// ReServiceCodeDNPK Domestic NTS packing
+	ReServiceCodeDNPK ReServiceCode = "DNPK"
 	// ReServiceCodeDOASIT Domestic origin add'l SIT
 	ReServiceCodeDOASIT ReServiceCode = "DOASIT"
 	// ReServiceCodeDOFSIT Domestic origin 1st day SIT
@@ -87,8 +87,8 @@ const (
 	ReServiceCodeIHPK ReServiceCode = "IHPK"
 	// ReServiceCodeIHUPK International HHG unpack
 	ReServiceCodeIHUPK ReServiceCode = "IHUPK"
-	// ReServiceCodeINPKF International NTS packing factor
-	ReServiceCodeINPKF ReServiceCode = "INPKF"
+	// ReServiceCodeINPK International NTS packing
+	ReServiceCodeINPK ReServiceCode = "INPK"
 	// ReServiceCodeIOASIT International origin add'l day SIT
 	ReServiceCodeIOASIT ReServiceCode = "IOASIT"
 	// ReServiceCodeIOCLH International O->C shipping & LH

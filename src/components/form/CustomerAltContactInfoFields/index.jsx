@@ -3,8 +3,8 @@ import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import TextField from 'components/form/fields/TextField';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
   const CustomerAltContactInfoFieldsUUID = useRef(uuidv4());

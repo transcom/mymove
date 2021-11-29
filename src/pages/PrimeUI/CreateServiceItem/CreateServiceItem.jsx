@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
+import { func } from 'prop-types';
+import { connect } from 'react-redux';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -13,8 +15,9 @@ import { createServiceItem } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-const CreateServiceItem = () => {
+const CreateServiceItem = ({ setFlashMessage }) => {
   const { moveCodeOrID, shipmentId } = useParams();
   const history = useHistory();
 
@@ -24,15 +27,30 @@ const CreateServiceItem = () => {
 
   const [createServiceItemMutation] = useMutation(createServiceItem, {
     onSuccess: () => {
+      setFlashMessage(
+        `MSG_CREATE_SERVICE_ITEM_SUCCESS${moveCodeOrID}`,
+        'success',
+        'Successfully created service item',
+        '',
+        true,
+      );
+
       history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
 
       if (body) {
+        let additionalDetails = '';
+        if (body.invalidFields) {
+          Object.keys(body.invalidFields).forEach((key) => {
+            additionalDetails += `:\n${key} - ${body.invalidFields[key]}`;
+          });
+        }
+
         setErrorMessage({
           title: `Prime API: ${body.title} `,
-          detail: `${body.detail}`,
+          detail: `${body.detail}${additionalDetails}`,
         });
       } else {
         setErrorMessage({
@@ -70,4 +88,12 @@ const CreateServiceItem = () => {
   );
 };
 
-export default CreateServiceItem;
+CreateServiceItem.propTypes = {
+  setFlashMessage: func.isRequired,
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(CreateServiceItem));
