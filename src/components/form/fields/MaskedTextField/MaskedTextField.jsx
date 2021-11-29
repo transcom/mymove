@@ -5,7 +5,9 @@ import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 
-import { ErrorMessage } from '../index';
+import { OptionalTag } from 'components/form/OptionalTag';
+import { ErrorMessage } from 'components/form/index';
+import Hint from 'components/Hint';
 
 const MaskedTextField = ({
   label,
@@ -25,24 +27,29 @@ const MaskedTextField = ({
   children,
   type,
   inputTestId,
+  optional,
+  errorMessage,
+  error,
   ...props
 }) => {
-  const [field, meta, helpers] = useField({ id, name, validate, ...props });
-  const hasError = meta.touched && !!meta.error;
+  const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
+  const showError = (metaProps.touched && !!metaProps.error) || error;
+  const showWarning = !showError && warning;
   const { value } = field;
   return (
-    <FormGroup className={classnames(!!warning && !hasError && `warning`, formGroupClassName)} error={hasError}>
-      <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
-        {label}
-      </Label>
-      <ErrorMessage display={hasError} className={errorClassName}>
-        {meta.error}
-      </ErrorMessage>
-      {!!warning && !hasError && (
-        <p className="usa-hint" data-testid="textInputWarning">
-          {warning}
-        </p>
+    <FormGroup className={classnames(!!warning && !showError && `warning`, formGroupClassName)} error={showError}>
+      <div className="labelWrapper">
+        <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
+          {label}
+        </Label>
+        {optional && <OptionalTag />}
+      </div>
+      {showError && (
+        <ErrorMessage display={showError} className={errorClassName}>
+          {metaProps.error ? metaProps.error : errorMessage}
+        </ErrorMessage>
       )}
+      {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable react/jsx-props-no-spreading */}
       <IMaskInput
         className={classnames('usa-input', inputClassName)}
@@ -85,6 +92,9 @@ MaskedTextField.propTypes = {
   validate: PropTypes.func,
   warning: PropTypes.string,
   inputTestId: PropTypes.string,
+  optional: PropTypes.bool,
+  error: PropTypes.bool,
+  errorMessage: PropTypes.string,
 };
 
 MaskedTextField.defaultProps = {
@@ -103,6 +113,9 @@ MaskedTextField.defaultProps = {
   validate: undefined,
   warning: '',
   inputTestId: '',
+  optional: false,
+  error: false,
+  errorMessage: '',
 };
 
 export default MaskedTextField;

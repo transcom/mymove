@@ -115,11 +115,9 @@ const ServicesCounselingOrders = () => {
                 <div className={styles.body}>
                   <OrdersDetailForm
                     ordersTypeOptions={ordersTypeDropdownOptions}
-                    showTac={false}
                     showDepartmentIndicator={false}
                     showOrdersNumber={false}
                     showOrdersTypeDetail={false}
-                    showSac={false}
                   />
                 </div>
                 <div className={styles.bottom}>
