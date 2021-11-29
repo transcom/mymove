@@ -8,7 +8,7 @@ import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatAddressForPrimeAPI } from 'utils/formatters';
 import { Form } from 'components/form/Form';
-import TextField from 'components/form/fields/TextField';
+import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
