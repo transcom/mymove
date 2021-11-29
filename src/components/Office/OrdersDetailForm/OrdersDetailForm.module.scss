@@ -4,7 +4,6 @@
 
 .OrdersDetailForm {
   label {
-    @include u-margin-bottom(1);
     color: $base-darker;
   }
 
@@ -22,5 +21,9 @@
     justify-content: center;
     border: 1px solid $base-lighter;
     border-radius: 4px;
+  }
+
+  h3 {
+    @include u-margin-bottom(0);
   }
 }

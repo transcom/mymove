@@ -159,7 +159,7 @@
     border-radius: 100%;
     width: 16px;
     height: 16px;
-    @include u-padding-top(.5);
+    @include u-padding-top(0.5);
     padding-left: 9px;
     display: inline-flex;
     justify-content: center;
@@ -170,7 +170,7 @@
       vertical-align: sub;
       path {
         fill: #fff;
-        transform: scale(.8);
+        transform: scale(0.8);
       }
     }
     .svg-inline--fa.fa-w-6 {
@@ -221,6 +221,12 @@
 }
 
 //Form
+.usa-form-group {
+  .labelWrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+}
 
 .usa-label {
   @include u-font-size('body', '3xs');
@@ -281,7 +287,6 @@
     color: $base-darker;
     font-style: italic;
   }
-
 }
 
 //Modals

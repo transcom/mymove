@@ -7,7 +7,7 @@ import { Grid } from '@trussworks/react-uswds';
 import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
-import TextField from 'components/form/fields/TextField';
+import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { DutyStationInput } from 'components/form/fields/DutyStationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';

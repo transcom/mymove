@@ -5,11 +5,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Form } from 'components/form/Form';
-import TextField from 'components/form/fields/TextField';
+import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
 import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const domesticShippingValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
