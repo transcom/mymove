@@ -817,8 +817,8 @@ describe('makeCalculations', () => {
   //   expect(result).toEqual([]);
   // });
 
-  // it('returns correct data for DomesticNTSPackingFactor', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticNTSPackingFactor);
+  // it('returns correct data for DomesticNTSPacking', () => {
+  //   const result = makeCalculations('?', 99999, testParams.DomesticNTSPacking);
   //   expect(result).toEqual([]);
   // });
 });
