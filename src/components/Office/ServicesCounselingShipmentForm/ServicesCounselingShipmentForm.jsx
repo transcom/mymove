@@ -15,6 +15,8 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import DataTable from 'components/DataTable';
+import AccountingCodes from 'components/Office/AccountingCodes/AccountingCodes';
+import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -27,9 +29,9 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
+import { AccountingCodesShape } from 'types/accountingCodes';
 import { validateDate } from 'utils/validation';
 import { deleteShipment } from 'services/ghcApi';
-import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 
 const ServicesCounselingShipmentForm = ({
   match,
@@ -43,6 +45,8 @@ const ServicesCounselingShipmentForm = ({
   serviceMember,
   currentResidence,
   moveTaskOrderID,
+  TACs,
+  SACs,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -90,6 +94,7 @@ const ServicesCounselingShipmentForm = ({
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
+  const showAccountingCodes = isNTS || isNTSR;
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -97,6 +102,7 @@ const ServicesCounselingShipmentForm = ({
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
   const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
+  const editOrdersPath = generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode });
   const customerRemarksDisplay = mtoShipment.customerRemarks ? mtoShipment.customerRemarks : '-';
 
   const submitMTOShipment = ({
@@ -107,6 +113,8 @@ const ServicesCounselingShipmentForm = ({
     customerRemarks,
     counselorRemarks,
     primeActualWeight,
+    tacType,
+    sacType,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -121,6 +129,8 @@ const ServicesCounselingShipmentForm = ({
       pickup,
       delivery: deliveryDetails,
       primeActualWeight,
+      tacType,
+      sacType,
     });
 
     if (isCreatePage) {
@@ -371,6 +381,10 @@ const ServicesCounselingShipmentForm = ({
                   </Fieldset>
                 </SectionWrapper>
 
+                {showAccountingCodes && (
+                  <AccountingCodes TACs={TACs} SACs={SACs} onEditCodesClick={() => history.push(editOrdersPath)} />
+                )}
+
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
                   <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
                     Save
@@ -412,6 +426,8 @@ ServicesCounselingShipmentForm.propTypes = {
       totalWeightSelf: number,
     }),
   }).isRequired,
+  TACs: AccountingCodesShape,
+  SACs: AccountingCodesShape,
 };
 
 ServicesCounselingShipmentForm.defaultProps = {
@@ -436,6 +452,8 @@ ServicesCounselingShipmentForm.defaultProps = {
       streetAddress1: '',
     },
   },
+  TACs: {},
+  SACs: {},
 };
 
 export default ServicesCounselingShipmentForm;

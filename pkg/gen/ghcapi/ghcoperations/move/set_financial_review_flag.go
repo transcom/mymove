@@ -67,17 +67,21 @@ func (o *SetFinancialReviewFlag) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 // swagger:model SetFinancialReviewFlagBody
 type SetFinancialReviewFlagBody struct {
 
+	// boolean value representing whether we should flag a move for financial review
+	// Example: false
+	// Required: true
+	FlagForReview *bool `json:"flagForReview"`
+
 	// explanation of why the move is being flagged for financial review
 	// Example: this address is way too far away
-	// Required: true
-	Remarks *string `json:"remarks"`
+	Remarks *string `json:"remarks,omitempty"`
 }
 
 // Validate validates this set financial review flag body
 func (o *SetFinancialReviewFlagBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateRemarks(formats); err != nil {
+	if err := o.validateFlagForReview(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,9 +91,9 @@ func (o *SetFinancialReviewFlagBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *SetFinancialReviewFlagBody) validateRemarks(formats strfmt.Registry) error {
+func (o *SetFinancialReviewFlagBody) validateFlagForReview(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"remarks", "body", o.Remarks); err != nil {
+	if err := validate.Required("body"+"."+"flagForReview", "body", o.FlagForReview); err != nil {
 		return err
 	}
 

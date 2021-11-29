@@ -27,6 +27,17 @@
     @include u-margin-bottom(4);
   }
 
+  .tooMoveDetailsHeadingFlexbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .tooMoveDetailsH1 {
+    @include u-margin-bottom(0);
+  }
+
   .gridContainer {
     .shipmentCard {
       @include u-padding-left(4);

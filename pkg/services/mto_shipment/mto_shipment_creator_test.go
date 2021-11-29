@@ -163,9 +163,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{}),
-			},
+			Stub: true,
 		})
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
@@ -177,7 +175,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			Stub: true,
 		})
+
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
 		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
 		suite.NoError(err)
 		suite.NotNil(createdShipment.StorageFacility)

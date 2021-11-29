@@ -80,6 +80,8 @@ export function formatMtoShipmentForDisplay({
   secondaryPickupAddress,
   secondaryDeliveryAddress,
   primeActualWeight,
+  tacType,
+  sacType,
 }) {
   const displayValues = {
     shipmentType,
@@ -106,6 +108,8 @@ export function formatMtoShipmentForDisplay({
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
     primeActualWeight,
+    tacType,
+    sacType,
   };
 
   if (agents) {
@@ -170,6 +174,8 @@ export function formatMtoShipmentForAPI({
   secondaryPickup,
   secondaryDelivery,
   primeActualWeight,
+  tacType,
+  sacType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -220,6 +226,14 @@ export function formatMtoShipmentForAPI({
 
   if (primeActualWeight) {
     formattedMtoShipment.primeActualWeight = primeActualWeight;
+  }
+
+  if (tacType) {
+    formattedMtoShipment.tacType = tacType;
+  }
+
+  if (sacType) {
+    formattedMtoShipment.sacType = sacType;
   }
 
   return formattedMtoShipment;
