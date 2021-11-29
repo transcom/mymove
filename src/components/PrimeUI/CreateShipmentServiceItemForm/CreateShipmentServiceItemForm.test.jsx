@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import CreateShipmentServiceItemForm from './CreateShipmentServiceItemForm';
 
 import { createServiceItemModelTypes } from 'constants/prime';
+import { MockProviders } from 'testUtils';
 
 const approvedMoveTaskOrder = {
   moveTaskOrder: {
@@ -68,7 +69,11 @@ const approvedMoveTaskOrder = {
 describe('CreateShipmentServiceItemForm component', () => {
   it('renders service item type dropdown', () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-    render(<CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />);
+    render(
+      <MockProviders>
+        <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
+      </MockProviders>,
+    );
 
     expect(screen.getByRole('combobox', { name: 'Service item type' })).toBeInTheDocument();
   });
@@ -81,7 +86,11 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
   ])('renders %s after selecting %s type', (formName, serviceItemType) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-    render(<CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />);
+    render(
+      <MockProviders>
+        <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
+      </MockProviders>,
+    );
 
     const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
     userEvent.selectOptions(dropdown, [serviceItemType]);
