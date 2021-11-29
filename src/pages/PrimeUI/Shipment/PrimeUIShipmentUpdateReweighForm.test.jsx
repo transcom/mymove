@@ -17,7 +17,7 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
   it('renders the form', async () => {
     render(<PrimeUIShipmentUpdateReweighForm {...testProps} />);
 
-    expect(await screen.findByLabelText('Reweigh Weight')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByTestId('remarks')).toBeInstanceOf(HTMLTextAreaElement);
   });
 
@@ -27,7 +27,7 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
 
     expect(submitBtn).toBeDisabled();
 
-    const reweighInput = screen.getByLabelText('Reweigh Weight');
+    const reweighInput = screen.getByLabelText('Reweigh Weight (lbs)');
     userEvent.clear(reweighInput);
     userEvent.type(reweighInput, '123');
     userEvent.type(screen.getByTestId('remarks'), 'test');

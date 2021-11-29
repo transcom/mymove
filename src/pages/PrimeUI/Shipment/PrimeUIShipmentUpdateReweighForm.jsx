@@ -26,16 +26,13 @@ const ReweighForm = ({ onSubmit, handleClose, initialValues }) => {
               inputTestId="reweighWeightInput"
               id="reweighWeight"
               lazy={false} // immediate masking evaluation
-              label="Reweigh Weight"
+              label="Reweigh Weight (lbs)"
               mask={Number}
               name="reweighWeight"
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
               thousandsSeparator=","
-            >
-              {' '}
-              lbs
-            </MaskedTextField>
+            />
             <Label htmlFor="remarks">Remarks</Label>
             <Textarea
               data-testid="remarks"

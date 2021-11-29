@@ -141,7 +141,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       const shipmentIndex = moveTaskOrder.mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
 
-      expect(await screen.findByLabelText('Reweigh Weight')).toHaveValue(String(shipment.reweigh.weight));
+      expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toHaveValue(String(shipment.reweigh.weight));
 
       expect(screen.getByTestId('remarks')).toHaveValue(shipment.reweigh.verificationReason);
     });
@@ -167,7 +167,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
       const shipment = noVerificationReason.moveTaskOrder.mtoShipments[shipmentIndex];
 
-      expect(await screen.findByLabelText('Reweigh Weight')).toHaveValue(String(shipment.reweigh.weight));
+      expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toHaveValue(String(shipment.reweigh.weight));
       expect(screen.getByTestId('remarks')).toHaveValue('');
     });
 
@@ -186,7 +186,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       });
       expect(pageHeading).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Reweigh Weight')).toHaveValue('0');
+      expect(screen.getByLabelText('Reweigh Weight (lbs)')).toHaveValue('0');
       expect(screen.getByTestId('remarks')).toHaveValue('');
     });
   });
