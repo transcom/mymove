@@ -65,46 +65,24 @@ const approvedMoveTaskOrder = {
 };
 
 describe('DomesticCratingForm component', () => {
-  it('renders fields', () => {
+  it.each([
+    ['Service item code', 'reServiceCode'],
+    ['Item length (ft)', 'itemLength'],
+    ['Item width (ft)', 'itemWidth'],
+    ['Item height (ft)', 'itemHeight'],
+    ['Crate length (ft)', 'crateLength'],
+    ['Crate width (ft)', 'crateWidth'],
+    ['Crate height (ft)', 'crateHeight'],
+    ['Description', 'description'],
+    ['Reason', 'reason'],
+  ])('renders field %s in form', (labelName, inputName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     render(<DomesticCratingForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
 
     // shipment text values
-    let field = screen.getByText('Service item code');
+    const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('reServiceCode');
-
-    field = screen.getByText('Item length (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('itemLength');
-
-    field = screen.getByText('Item width (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('itemWidth');
-
-    field = screen.getByText('Item height (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('itemHeight');
-
-    field = screen.getByText('Crate length (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('crateLength');
-
-    field = screen.getByText('Crate width (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('crateWidth');
-
-    field = screen.getByText('Crate height (ft)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('crateHeight');
-
-    field = screen.getByText('Description');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('description');
-
-    field = screen.getByText('Reason');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('reason');
+    expect(field.nextElementSibling.name).toBe(inputName);
   });
 });

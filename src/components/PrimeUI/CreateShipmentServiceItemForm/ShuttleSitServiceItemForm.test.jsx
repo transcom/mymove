@@ -65,26 +65,19 @@ const approvedMoveTaskOrder = {
 };
 
 describe('DomesticCratingForm component', () => {
-  it('renders fields', () => {
+  it.each([
+    ['Service item code', 'reServiceCode'],
+    ['Reason', 'reason'],
+    ['Estimated weight (lbs)', 'estimatedWeight'],
+    ['Actual weight (lbs)', 'actualWeight'],
+  ])('renders field %s in form', (labelName, inputName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     render(<ShuttleSITServiceItemForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
 
     // shipment text values
-    let field = screen.getByText('Service item code');
+    const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('reServiceCode');
-
-    field = screen.getByText('Reason');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('reason');
-
-    field = screen.getByText('Estimated weight (lbs)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('estimatedWeight');
-
-    field = screen.getByText('Actual weight (lbs)');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe('actualWeight');
+    expect(field.nextElementSibling.name).toBe(inputName);
   });
 });
