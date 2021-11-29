@@ -28,7 +28,7 @@ const hhgInfo = {
     postalCode: '78234',
   },
   secondaryPickupAddress: {
-    streetAddress1: '812 S 129th St',
+    streetAddress1: '441 SW Rio de la Plata',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -71,7 +71,7 @@ const ntsInfo = {
 
 const ntsReleaseInfo = {
   heading: 'NTS-release',
-  shipmentId: 'testShipmentId394',
+  shipmentId: 'testShipmentId111',
   primeActualWeight: 2000,
   storageFacility: {
     address: {
@@ -112,6 +112,33 @@ const ntsReleaseInfo = {
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
     'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   customerRemarks: 'Ut enim ad minima veniam',
+  tacType: 'HHG',
+  sacType: 'NTS',
+};
+
+const ntsReleaseMissingInfo = {
+  heading: 'NTS-release',
+  shipmentId: 'testShipmentId222',
+  primeActualWeight: 2000,
+  requestedDeliveryDate: '26 Mar 2020',
+  destinationAddress: {
+    streetAddress1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postalCode: '98421',
+  },
+  agents: [
+    {
+      agentType: 'RECEIVING_AGENT',
+      firstName: 'Kate',
+      lastName: 'Smith',
+      phone: '419-555-9999',
+      email: 'ksmith@email.com',
+    },
+  ],
+  counselorRemarks:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
+    'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   tacType: 'HHG',
   sacType: 'NTS',
 };
@@ -220,6 +247,16 @@ export const NTSReleaseShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       displayInfo={object('displayInfo', ntsReleaseInfo)}
+      shipmentType={SHIPMENT_OPTIONS.NTSR}
+      isSubmitted
+    />
+  </div>
+);
+
+export const NTSReleaseShipmentMissingInfo = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={object('displayInfo', ntsReleaseMissingInfo)}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       isSubmitted
     />

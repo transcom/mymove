@@ -36,7 +36,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
     agents: displayInfo.agents,
   };
 
-  const storageFacilityAddress = displayInfo.storageFacility ? displayInfo.storageFacility.address : 'MISSING';
+  const storageFacilityAddress = displayInfo.storageFacility ? displayInfo.storageFacility.address : null;
   const ntsrCollapsedDisplay = {
     ...baseDisplayInfo,
     requestedDeliveryDate: displayInfo.requestedDeliveryDate,
@@ -110,7 +110,12 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
-        <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={rowsToDisplay} shipmentType={shipmentType} />
+        <ShipmentInfoList
+          className={styles.shipmentDisplayInfo}
+          shipment={displayInfo}
+          shipmentType={shipmentType}
+          isExpanded={isExpanded}
+        />
         {editURL && (
           <EditButton
             onClick={() => {
