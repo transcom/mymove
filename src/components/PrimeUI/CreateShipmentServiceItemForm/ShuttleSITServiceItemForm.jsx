@@ -49,27 +49,25 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
         <TextField name="reason" id="reason" label="Reason" />
         <MaskedTextField
           data-testid="estimatedWeightInput"
-          defaultValue=""
           name="estimatedWeight"
           label="Estimated weight (lbs)"
           labelHint="Optional"
           id="estimatedWeightInput"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="actualWeightInput"
-          defaultValue=""
           name="actualWeight"
           label="Actual weight (lbs)"
           labelHint="Optional"
           id="actualWeightInput"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <Button type="submit">Create service item</Button>
       </Form>

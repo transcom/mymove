@@ -69,69 +69,63 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         />
         <MaskedTextField
           data-testid="itemLength"
-          defaultValue=""
           name="itemLength"
           label="Item length (ft)"
           id="itemLength"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="itemWidth"
-          defaultValue=""
           name="itemWidth"
           label="Item width (ft)"
           id="itemWidth"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="itemHeight"
-          defaultValue=""
           name="itemHeight"
           label="Item height (ft)"
           id="itemHeight"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="crateLength"
-          defaultValue=""
           name="crateLength"
           label="Crate length (ft)"
           id="crateLength"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="crateWidth"
-          defaultValue=""
           name="crateWidth"
           label="Crate width (ft)"
           id="crateWidth"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <MaskedTextField
           data-testid="crateHeight"
-          defaultValue=""
           name="crateHeight"
           label="Crate height (ft)"
           id="crateHeight"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
+          scale={0}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
         />
         <TextField name="description" id="description" label="Description" />
         <TextField name="reason" id="reason" label="Reason" />
