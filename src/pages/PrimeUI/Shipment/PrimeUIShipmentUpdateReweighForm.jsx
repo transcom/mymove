@@ -8,7 +8,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const validationSchema = Yup.object({
   reweighWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
