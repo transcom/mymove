@@ -7,7 +7,7 @@ import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import styles from './EditBillableWeight.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { formatWeight } from 'shared/formatters';
 
 function BillableWeightHintText({

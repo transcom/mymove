@@ -21,10 +21,10 @@ describe('components/Office/AccountingCodes', () => {
       expect(screen.getByRole('button', { name: 'Add code' })).toBeInTheDocument();
     });
 
-    it('renders one or multiple TACs and SACs', () => {
+    it('renders one or multiple TACs and SACs', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ hhg: '1234', nts: '5678' }} SACs={{ hhg: '000012345' }} />
+          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} SACs={{ HHG: '000012345' }} />
         </Formik>,
       );
 
@@ -33,15 +33,15 @@ describe('components/Office/AccountingCodes', () => {
       expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
 
       // Single code for a category gets checked by defalt
-      expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
+      await waitFor(() => expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked());
 
       expect(screen.getByRole('button', { name: 'Add or edit codes' })).toBeInTheDocument();
     });
 
     it('applies Formik internal values', () => {
       render(
-        <Formik initialValues={{ tac: '5678' }}>
-          <AccountingCodes TACs={{ hhg: '1234', nts: '5678' }} SACs={{ hhg: '000012345' }} />
+        <Formik initialValues={{ tacType: 'NTS' }}>
+          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -76,7 +76,7 @@ describe('components/Office/AccountingCodes', () => {
     it('clicking a code sets the value', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ hhg: '1234', nts: '5678' }} />
+          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -90,7 +90,7 @@ describe('components/Office/AccountingCodes', () => {
     it('clicking "Clear selection" clears the value', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ hhg: '1234', nts: '5678' }} />
+          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -100,6 +100,20 @@ describe('components/Office/AccountingCodes', () => {
         expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
       });
 
+      userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+      await waitFor(() => {
+        expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
+      });
+    });
+
+    it('clicking "Clear selection" on a single code clears the value', async () => {
+      render(
+        <Formik initialValues={{}}>
+          <AccountingCodes TACs={{ NTS: '5678' }} />
+        </Formik>,
+      );
+
+      expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
       userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
       await waitFor(() => {
         expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
