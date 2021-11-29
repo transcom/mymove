@@ -13,9 +13,9 @@ const dutyStation = {
   address: {
     city: 'Scott Air Force Base',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
-    postal_code: '62225',
+    postalCode: '62225',
     state: 'IL',
-    street_address_1: '',
+    streetAddress1: '',
   },
   address_id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
   affiliation: 'AIR_FORCE',
@@ -69,8 +69,9 @@ describe('OrdersDetailForm', () => {
     expect(screen.getByLabelText('Department indicator')).toBeInTheDocument();
     expect(screen.getByLabelText('Orders number')).toBeInTheDocument();
     expect(screen.getByLabelText('Orders type detail')).toBeInTheDocument();
-    expect(screen.getByLabelText('TAC')).toBeInTheDocument();
-    expect(screen.getByLabelText('SAC')).toBeInTheDocument();
+    expect(screen.queryAllByLabelText('TAC').length).toBe(2);
+    expect(screen.queryAllByLabelText('SAC').length).toBe(2);
+    // expect(screen.getByLabelText('SAC')).toBeInTheDocument();
     expect(screen.getByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
@@ -95,7 +96,7 @@ describe('OrdersDetailForm', () => {
   });
 
   it('shows the tac warning', async () => {
-    renderOrdersDetailForm({ tacWarning: 'Test warning' });
+    renderOrdersDetailForm({ hhgTacWarning: 'Test warning' });
     expect(await screen.findByText('Test warning')).toBeInTheDocument();
   });
 
@@ -104,8 +105,10 @@ describe('OrdersDetailForm', () => {
       showDepartmentIndicator: false,
       showOrdersNumber: false,
       showOrdersTypeDetail: false,
-      showTac: false,
-      showSac: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
       showOrdersAcknowledgement: false,
     });
 

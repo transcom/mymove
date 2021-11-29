@@ -157,6 +157,33 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
 	})
 
+	suite.Run("If the submitted shipment has a storage facility attached", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:          models.MTOShipmentStatusSubmitted,
+			},
+			Stub: true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		suite.NoError(err)
+		suite.NotNil(createdShipment.StorageFacility)
+		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
+	})
+
 	suite.Run("If the shipment has mto service items", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		appCtx := subtestData.appCtx
@@ -215,68 +242,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotNil(createdShipment)
 		suite.NotNil(createdShipment.MTOServiceItems, "Service Items are empty")
 		suite.Equal(createdShipment.MTOServiceItems[0].MTOShipmentID, &createdShipment.ID, "Service items are not the same")
-	})
-
-	suite.Run("If the move already has a submitted NTS shipment, it should return a validation error", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		appCtx := subtestData.appCtx
-		creator := subtestData.shipmentCreator
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-				Status:       models.MTOShipmentStatusSubmitted,
-			},
-		})
-
-		secondNTSShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-				Status:       models.MTOShipmentStatusDraft,
-			},
-			Stub: true,
-		})
-
-		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
-		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSShipment, serviceItemsList)
-
-		suite.Nil(createdShipment)
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-	})
-
-	suite.Run("If the move already has a submitted NTSr shipment, it should return a validation error", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		appCtx := subtestData.appCtx
-		creator := subtestData.shipmentCreator
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:       models.MTOShipmentStatusSubmitted,
-			},
-		})
-
-		secondNTSrShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:       models.MTOShipmentStatusDraft,
-			},
-			Stub: true,
-		})
-
-		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSrShipment := clearShipmentIDFields(&secondNTSrShipment)
-		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanedNTSrShipment, serviceItemsList)
-
-		suite.Nil(createdShipment)
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("422 Validation Error - only one mto agent of each type", func() {
@@ -421,6 +386,13 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 	if shipment.SecondaryDeliveryAddress != nil {
 		shipment.SecondaryDeliveryAddressID = nil
 		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+	}
+
+	if shipment.StorageFacility != nil {
+		shipment.StorageFacilityID = nil
+		shipment.StorageFacility.ID = uuid.Nil
+		shipment.StorageFacility.AddressID = uuid.Nil
+		shipment.StorageFacility.Address.ID = uuid.Nil
 	}
 
 	shipment.ID = uuid.Nil

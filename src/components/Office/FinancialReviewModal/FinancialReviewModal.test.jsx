@@ -21,18 +21,6 @@ describe('FinancialReviewModal', () => {
     });
   });
 
-  it('does not allow submission with you click no', async () => {
-    render(<FinancialReviewModal onSubmit={() => {}} onClose={() => {}} />);
-    const doNotFlagForReview = screen.getByLabelText('No');
-    const submitBtn = screen.getByText('Save');
-
-    userEvent.click(doNotFlagForReview);
-
-    await waitFor(() => {
-      expect(submitBtn).toBeDisabled();
-    });
-  });
-
   it('does not allow submission without remarks', async () => {
     render(<FinancialReviewModal onSubmit={jest.fn()} onClose={() => {}} />);
     const flagForReview = screen.getByLabelText('Yes');

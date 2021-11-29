@@ -28,6 +28,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
 	mockSender := mocks.NotificationSender{}
 	mockSender.On("SendNotification",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*notifications.UserAccountModified"),
 	).Return(nil)
 

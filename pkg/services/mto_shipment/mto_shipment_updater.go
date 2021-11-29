@@ -64,6 +64,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 	}
 
 	dbShipment.Diversion = requestedUpdatedShipment.Diversion
+	dbShipment.UsesExternalVendor = requestedUpdatedShipment.UsesExternalVendor
 
 	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
 		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
@@ -137,6 +138,22 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 
 	if requestedUpdatedShipment.BillableWeightJustification != nil {
 		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
+	}
+
+	if requestedUpdatedShipment.TACType != nil {
+		dbShipment.TACType = requestedUpdatedShipment.TACType
+	}
+
+	if requestedUpdatedShipment.SACType != nil {
+		dbShipment.SACType = requestedUpdatedShipment.SACType
+	}
+
+	if requestedUpdatedShipment.ServiceOrderNumber != nil {
+		dbShipment.ServiceOrderNumber = requestedUpdatedShipment.ServiceOrderNumber
+	}
+
+	if requestedUpdatedShipment.StorageFacility != nil {
+		dbShipment.StorageFacility = requestedUpdatedShipment.StorageFacility
 	}
 
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
@@ -228,7 +245,8 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 		"SITExtensions",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
+		"MTOServiceItems.CustomerContacts",
+		"StorageFacility.Address").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
 		switch err {
@@ -386,6 +404,28 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 
 			newShipment.SecondaryDeliveryAddressID = &newShipment.SecondaryDeliveryAddress.ID
+		}
+
+		if newShipment.StorageFacility != nil {
+			if dbShipment.StorageFacilityID != nil {
+				newShipment.StorageFacility.ID = *dbShipment.StorageFacilityID
+			}
+
+			if dbShipment.StorageFacility != nil && dbShipment.StorageFacility.AddressID != uuid.Nil {
+				newShipment.StorageFacility.Address.ID = dbShipment.StorageFacility.AddressID
+				newShipment.StorageFacility.AddressID = dbShipment.StorageFacility.AddressID
+			}
+			err := txnAppCtx.DB().Save(&newShipment.StorageFacility.Address)
+			if err != nil {
+				return err
+			}
+
+			err = txnAppCtx.DB().Save(newShipment.StorageFacility)
+			if err != nil {
+				return err
+			}
+
+			newShipment.StorageFacilityID = &newShipment.StorageFacility.ID
 		}
 
 		if len(newShipment.MTOAgents) != 0 {
@@ -551,8 +591,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 	if len(autoReweighShipments) > 0 {
 		for _, shipment := range autoReweighShipments {
-			err := f.sender.SendNotification(
-				notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), shipment.MoveTaskOrderID, shipment),
+			err := f.sender.SendNotification(appCtx,
+				notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
 			)
 			if err != nil {
 				return err
@@ -587,6 +627,11 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.Diversion,
 		mtoShipment.BillableWeightCap,
 		mtoShipment.BillableWeightJustification,
+		mtoShipment.TACType,
+		mtoShipment.SACType,
+		mtoShipment.UsesExternalVendor,
+		mtoShipment.ServiceOrderNumber,
+		mtoShipment.StorageFacilityID,
 		mtoShipment.ID,
 	}
 }
@@ -615,7 +660,12 @@ func generateUpdateMTOShipmentQuery() string {
 			secondary_pickup_address_id = ?,
 			diversion = ?,
 			billable_weight_cap = ?,
-			billable_weight_justification = ?
+			billable_weight_justification = ?,
+			tac_type = ?,
+			sac_type = ?,
+			uses_external_vendor = ?,
+			service_order_number = ?,
+			storage_facility_id = ?
 		WHERE
 			id = ?
 	`
@@ -836,14 +886,13 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDUPK,
 		}
 	case models.MTOShipmentTypeHHGIntoNTSDom:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDNPKF,
+			models.ReServiceCodeDNPK,
 		}
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking

@@ -11,20 +11,20 @@ describe('formatMtoShipmentForDisplay', () => {
   };
 
   const emptyAddressShape = {
-    street_address_1: '',
-    street_address_2: '',
+    streetAddress1: '',
+    streetAddress2: '',
     city: '',
     state: '',
-    postal_code: '',
+    postalCode: '',
   };
 
   const mtoShipment = {
     requestedPickupDate: '2026-01-20',
     pickupAddress: {
-      street_address_1: '123 main',
+      streetAddress1: '123 main',
       city: 'legit human city',
       state: 'DC',
-      postal_code: '20017',
+      postalCode: '20017',
     },
     requestedDeliveryDate: '2026-01-27',
     moveTaskOrderID: 'move123',
@@ -48,35 +48,35 @@ describe('formatMtoShipmentForDisplay', () => {
   };
 
   const destinationAddress = {
-    street_address_1: '0011100010110101',
+    streetAddress1: '0011100010110101',
     city: 'R0B0T T0WN',
     state: 'CP',
-    postal_code: '10101',
+    postalCode: '10101',
   };
 
   const secondaryPickupAddress = {
-    street_address_1: '142 E Barrel Hoop Circle',
-    street_address_2: '#4A',
+    streetAddress1: '142 E Barrel Hoop Circle',
+    streetAddress2: '#4A',
     city: 'Corpus Christi',
     state: 'TX',
-    postal_code: '78412',
+    postalCode: '78412',
   };
 
   const secondaryDeliveryAddress = {
-    street_address_1: '441 SW Río de la Plata Drive',
-    street_address_2: '',
+    streetAddress1: '441 SW Río de la Plata Drive',
+    streetAddress2: '',
     city: destinationAddress.city,
     state: destinationAddress.state,
-    postal_code: destinationAddress.postal_code,
+    postalCode: destinationAddress.postalCode,
   };
 
   const checkAddressesAreEqual = (address1, address2) => {
-    expect(address1.street_address_1 === address2.street_address_1);
-    expect(address1.street_address_2 === address2.street_address_2);
-    expect(address1.street_address_3 === address2.street_address_3);
+    expect(address1.streetAddress1 === address2.streetAddress1);
+    expect(address1.streetAddress2 === address2.streetAddress2);
+    expect(address1.streetAddress3 === address2.streetAddress3);
     expect(address1.city === address2.city);
     expect(address1.state === address2.state);
-    expect(address1.postal_code === address2.postal_code);
+    expect(address1.postalCode === address2.postalCode);
   };
 
   const checkAgentsAreEqual = (agent1, agent2) => {
@@ -176,6 +176,18 @@ describe('formatMtoShipmentForDisplay', () => {
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
     expect(displayValues.hasSecondaryDelivery).toBe('yes');
   });
+
+  it('can format a shipment with lines of accounting', () => {
+    const params = {
+      ...mtoShipment,
+      tacType: 'HHG',
+      sacType: 'NTS',
+    };
+
+    const displayValues = formatMtoShipmentForDisplay(params);
+    expect(displayValues.tacType).toEqual('HHG');
+    expect(displayValues.sacType).toEqual('NTS');
+  });
 });
 
 describe('formatMtoShipmentForAPI', () => {
@@ -187,10 +199,10 @@ describe('formatMtoShipmentForAPI', () => {
   const pickupInfo = {
     requestedDate: '2026-01-07',
     address: {
-      street_address_1: '123 main',
+      streetAddress1: '123 main',
       city: 'legit human city',
       state: 'DC',
-      postal_code: '20017',
+      postalCode: '20017',
     },
     agent: {
       firstName: 'mockFirstName',
@@ -203,10 +215,10 @@ describe('formatMtoShipmentForAPI', () => {
   const deliveryInfo = {
     requestedDate: '2026-01-27',
     address: {
-      street_address_1: '0011100010110101',
+      streetAddress1: '0011100010110101',
       city: 'R0B0T T0WN',
       state: 'CP',
-      postal_code: '10101',
+      postalCode: '10101',
     },
     agent: {
       firstName: 'r0b0tBestFr1end',
@@ -272,6 +284,21 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.customerRemarks).toBe('some mock remarks');
   });
 
+  it('can format a shipment with lines of accounting', () => {
+    const params = {
+      ...mtoShipmentParams,
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      pickup: { ...pickupInfo },
+      tacType: 'HHG',
+      sacType: 'NTS',
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+
+    expect(actual.tacType).toEqual('HHG');
+    expect(actual.sacType).toEqual('NTS');
+  });
+
   it('can format an HHG shipment with a secondary pickup/destination', () => {
     const params = {
       ...mtoShipmentParams,
@@ -279,21 +306,21 @@ describe('formatMtoShipmentForAPI', () => {
       pickup: { ...pickupInfo },
       secondaryPickup: {
         address: {
-          street_address_1: '142 E Barrel Hoop Circle',
-          street_address_2: '#4A',
+          streetAddress1: '142 E Barrel Hoop Circle',
+          streetAddress2: '#4A',
           city: 'Corpus Christi',
           state: 'TX',
-          postal_code: '78412',
+          postalCode: '78412',
         },
       },
       delivery: { ...deliveryInfo },
       secondaryDelivery: {
         address: {
-          street_address_1: '441 SW Río de la Plata Drive',
-          street_address_2: '',
+          streetAddress1: '441 SW Río de la Plata Drive',
+          streetAddress2: '',
           city: deliveryInfo.address.city,
           state: deliveryInfo.address.state,
-          postal_code: deliveryInfo.address.postal_code,
+          postalCode: deliveryInfo.address.postalCode,
         },
       },
     };
@@ -301,9 +328,9 @@ describe('formatMtoShipmentForAPI', () => {
     const actual = formatMtoShipmentForAPI(params);
 
     expect(actual.secondaryPickupAddress).not.toBeUndefined();
-    expect(actual.secondaryPickupAddress.street_address_1).toEqual('142 E Barrel Hoop Circle');
+    expect(actual.secondaryPickupAddress.streetAddress1).toEqual('142 E Barrel Hoop Circle');
 
     expect(actual.secondaryDeliveryAddress).not.toBeUndefined();
-    expect(actual.secondaryDeliveryAddress.street_address_1).toEqual('441 SW Río de la Plata Drive');
+    expect(actual.secondaryDeliveryAddress.streetAddress1).toEqual('441 SW Río de la Plata Drive');
   });
 });

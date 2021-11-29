@@ -34,6 +34,16 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const { customer, entitlement: allowances } = order;
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
+  const TACs = {
+    HHG: order.tac,
+    NTS: order.nts_tac,
+  };
+
+  const SACs = {
+    HHG: order.sac,
+    NTS: order.nts_sac,
+  };
+
   return (
     <>
       <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
@@ -53,6 +63,8 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
+                  TACs={TACs}
+                  SACs={SACs}
                 />
               </Grid>
             </Grid>

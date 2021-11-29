@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -57,7 +56,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	station := models.DutyStation{
 		Name:                   "Fort Bragg",
-		Affiliation:            internalmessages.AffiliationARMY,
 		AddressID:              address.ID,
 		TransportationOfficeID: &office.ID,
 		TransportationOffice:   office,
@@ -110,9 +108,9 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	ppms := suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
+	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfo, err := PaymentReminder.GetEmailInfo()
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 
 	suite.NotNil(emailInfo)
@@ -155,9 +153,9 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
+	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfo, err := PaymentReminder.GetEmailInfo()
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 
 	suite.NoError(err)
 	suite.Len(emailInfo, 0)
@@ -179,15 +177,15 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	}
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
+	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo()
+	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.Len(emailInfoBeforeSending, 1)
 
-	err = PaymentReminder.OnSuccess(emailInfoBeforeSending[0])("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SESID")
 	suite.NoError(err)
-	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo()
+	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.Len(emailInfoAfterSending, 0)
 }
@@ -198,9 +196,9 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 		ServiceMemberID: sm.ID,
 	}
 
-	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
+	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	err = PaymentReminder.OnSuccess(ei)("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
@@ -212,7 +210,7 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	pr, err := NewPaymentReminder(suite.DB(), suite.logger)
+	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	s := PaymentReminderEmailData{
 		DestinationDutyStation: "DestDutyStation",
@@ -265,7 +263,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
 `
 
-	htmlContent, err := pr.RenderHTML(s)
+	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -273,7 +271,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
-	pr, err := NewPaymentReminder(suite.DB(), suite.logger)
+	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
 	s := PaymentReminderEmailData{
@@ -323,14 +321,14 @@ Request payment within 45 days of your move date or you might not be able to get
 If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.
 `
 
-	textContent, err := pr.RenderText(s)
+	textContent, err := pr.RenderText(suite.AppContextForTest(), s)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
 }
 
 func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
-	pr, err := NewPaymentReminder(suite.DB(), suite.logger)
+	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	email1 := "email1"
 	weightEst1 := unit.Pound(100)
@@ -398,7 +396,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			Locator:              "def456",
 		},
 	}
-	formattedEmails, err := pr.formatEmails(emailInfos)
+	formattedEmails, err := pr.formatEmails(suite.AppContextForTest(), emailInfos)
 
 	suite.NoError(err)
 	for i, actualEmailContent := range formattedEmails {
@@ -414,9 +412,9 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			TOPhone:                *emailInfo.TOPhone,
 			Locator:                emailInfo.Locator,
 		}
-		htmlBody, err := pr.RenderHTML(data)
+		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
-		textBody, err := pr.RenderText(data)
+		textBody, err := pr.RenderText(suite.AppContextForTest(), data)
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,

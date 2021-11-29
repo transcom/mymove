@@ -20,5 +20,5 @@ func TestAll(t *testing.T) {
 	testdata := filepath.Join(filepath.Dir(filepath.Dir(wd)), "testdata")
 
 	// Pass in the linter that we want to use, and location of linter tests:
-	analysistest.Run(t, testdata, AppContextAnalyzer, "appctx_linter_tests")
+	analysistest.Run(t, testdata, AppContextAnalyzer, "appctx_linter_tests/...")
 }

@@ -19,7 +19,10 @@ import (
 
 func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -53,7 +56,10 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 
 func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -89,7 +95,10 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	weightEstimate := unit.Pound(7000)
 
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+
+	appCtx := suite.AppContextForTest()
+
+	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -117,7 +126,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	calculator := NewEstimateCalculator(planner)
 	nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
 	if err != nil {
-		suite.logger.Fatal("failure to get uuid from string")
+		suite.Logger().Fatal("failure to get uuid from string")
 	}
 	_, _, err = calculator.CalculateEstimates(suite.AppContextForTest(), &ppm, nonExistentMoveID)
 
@@ -130,7 +139,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // 	weightEstimate := unit.Pound(7000)
 
 // 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-// 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+//  appCtx := suite.AppContextForTest()
+// 	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
 
@@ -167,7 +177,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // bypass tests as we are returning hard coded values and not checking zips right now
 // func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
 // 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-// 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+//  appCtx := suite.AppContextForTest()
+// 	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
 // 	originDutyStationZip := "94540"
@@ -201,7 +212,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // keep this test around for when we do address PPM work
 // func (suite *PPMServiceSuite) TestCalculateEstimateInvalidWeightFails() {
 // 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
-// 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+//  appCtx := suite.AppContextForTest()
+// 	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
 
@@ -357,10 +369,11 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 	}
 	suite.MustSave(&address1)
 
+	affiliationAirforce := internalmessages.AffiliationAIRFORCE
 	stationName := "Origin Duty Station"
 	originStation := models.DutyStation{
 		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
+		Affiliation: &affiliationAirforce,
 		AddressID:   address1.ID,
 		Address:     address1,
 	}
@@ -376,7 +389,7 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 	stationName = "New Duty Station"
 	newStation := models.DutyStation{
 		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
+		Affiliation: &affiliationAirforce,
 		AddressID:   address2.ID,
 		Address:     address2,
 	}

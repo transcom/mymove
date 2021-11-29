@@ -41,7 +41,7 @@ type Address struct {
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
-	PostalCode *string `json:"postal_code"`
+	PostalCode *string `json:"postalCode"`
 
 	// State
 	// Required: true
@@ -51,15 +51,15 @@ type Address struct {
 	// Street address 1
 	// Example: 123 Main Ave
 	// Required: true
-	StreetAddress1 *string `json:"street_address_1"`
+	StreetAddress1 *string `json:"streetAddress1"`
 
 	// Street address 2
 	// Example: Apartment 9000
-	StreetAddress2 *string `json:"street_address_2,omitempty"`
+	StreetAddress2 *string `json:"streetAddress2,omitempty"`
 
 	// Address Line 3
 	// Example: Montmârtre
-	StreetAddress3 *string `json:"street_address_3,omitempty"`
+	StreetAddress3 *string `json:"streetAddress3,omitempty"`
 }
 
 // Validate validates this address
@@ -115,11 +115,11 @@ func (m *Address) validateID(formats strfmt.Registry) error {
 
 func (m *Address) validatePostalCode(formats strfmt.Registry) error {
 
-	if err := validate.Required("postal_code", "body", m.PostalCode); err != nil {
+	if err := validate.Required("postalCode", "body", m.PostalCode); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("postal_code", "body", *m.PostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("postalCode", "body", *m.PostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -318,7 +318,7 @@ func (m *Address) validateState(formats strfmt.Registry) error {
 
 func (m *Address) validateStreetAddress1(formats strfmt.Registry) error {
 
-	if err := validate.Required("street_address_1", "body", m.StreetAddress1); err != nil {
+	if err := validate.Required("streetAddress1", "body", m.StreetAddress1); err != nil {
 		return err
 	}
 

@@ -10,8 +10,6 @@
 package scenario
 
 import (
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
@@ -64,23 +62,23 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 }
 
 // Run does that data load thing
-func (e *devSeedScenario) Run(logger *zap.Logger, namedSubScenario string) {
+func (e *devSeedScenario) Run(appCtx appcontext.AppContext, namedSubScenario string) {
 	// sub-scenario name validation runs before this part is reached
 	// run only the specified sub-scenario
 	if subScenarioFunc, ok := e.SubScenarios[namedSubScenario]; ok {
-		logger.Info("running sub-scenario: " + namedSubScenario)
+		appCtx.Logger().Info("running sub-scenario: " + namedSubScenario)
 
 		subScenarioFunc()
 
-		logger.Info("done running sub-scenario: " + namedSubScenario)
+		appCtx.Logger().Info("done running sub-scenario: " + namedSubScenario)
 	} else {
 		// otherwise, run through all sub-scenarios
 		for name, subScenarioFunc := range e.SubScenarios {
-			logger.Info("running sub-scenario: " + name)
+			appCtx.Logger().Info("running sub-scenario: " + name)
 
 			subScenarioFunc()
 
-			logger.Info("done running sub-scenario: " + name)
+			appCtx.Logger().Info("done running sub-scenario: " + name)
 		}
 	}
 }

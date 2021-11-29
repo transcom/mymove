@@ -30,7 +30,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         <div className={descriptionListStyles.row}>
           <dt>Current address</dt>
           <dd data-testid="currentAddress">
-            {`${customerInfo.currentAddress?.street_address_1}, ${customerInfo.currentAddress?.city}, ${customerInfo.currentAddress?.state} ${customerInfo.currentAddress?.postal_code}`}
+            {`${customerInfo.currentAddress?.streetAddress1}, ${customerInfo.currentAddress?.city}, ${customerInfo.currentAddress?.state} ${customerInfo.currentAddress?.postalCode}`}
           </dd>
         </div>
         <div className={descriptionListStyles.row}>

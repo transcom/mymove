@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 )
@@ -110,7 +110,7 @@ intentionally are modifying the pattern of how the processing functions are call
 
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(ParamConfig, int, Logger) (interface{}, error)
+type processXlsxSheet func(appcontext.AppContext, ParamConfig, int) (interface{}, error)
 type verifyXlsxSheet func(ParamConfig, int) error
 
 // XlsxDataSheetInfo is the xlsx data sheet info
@@ -339,19 +339,19 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 }
 
 // Parse will parsh xlsx data sheet info
-func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
+func Parse(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig) error {
 	// Must be after processing config param
 	// Run the process function
 
-	err := db.Transaction(func(tx *pop.Connection) error {
-		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(tx, logger, params.UseTempTables, params.DropIfExists)
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(params.UseTempTables, params.DropIfExists)
 
 		if params.ProcessAll {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
-					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator, logger)
+					dbErr := process(txnAppCtx, xlsxDataSheets, params, i, tableFromSliceCreator)
 					if dbErr != nil {
-						logger.Error("Error processing xlsxDataSheets", zap.Error(dbErr))
+						txnAppCtx.Logger().Error("Error processing xlsxDataSheets", zap.Error(dbErr))
 						return dbErr
 					}
 				}
@@ -360,17 +360,17 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 			for _, v := range params.XlsxSheets {
 				index, dbErr := strconv.Atoi(v)
 				if dbErr != nil {
-					logger.Error("Bad XlsxSheets index provided", zap.Error(dbErr))
+					txnAppCtx.Logger().Error("Bad XlsxSheets index provided", zap.Error(dbErr))
 					return dbErr
 				}
 				if index < len(xlsxDataSheets) {
-					dbErr = process(xlsxDataSheets, params, index, tableFromSliceCreator, logger)
+					dbErr = process(txnAppCtx, xlsxDataSheets, params, index, tableFromSliceCreator)
 					if dbErr != nil {
-						logger.Error("Error processing", zap.Error(dbErr))
+						txnAppCtx.Logger().Error("Error processing", zap.Error(dbErr))
 						return dbErr
 					}
 				} else {
-					logger.Error("Error processing index not in range of slice xlsxDataSheets", zap.Int("index", index))
+					txnAppCtx.Logger().Error("Error processing index not in range of slice xlsxDataSheets", zap.Int("index", index))
 					return errors.New("Index out of range of slice xlsxDataSheets")
 				}
 			}
@@ -393,7 +393,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update InitDataSheetInfo() with a.) and b.)
-func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, logger Logger) error {
+func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 
 	description := "(no description)"
@@ -409,14 +409,14 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 			callFunc := *xlsxInfo.verify
 			err := callFunc(params, sheetIndex)
 			if err != nil {
-				logger.Error("Verify error", zap.String("description", description), zap.Error(err))
+				appCtx.Logger().Error("Verify error", zap.String("description", description), zap.Error(err))
 				return errors.Wrapf(err, " Verify error for sheet index: %d with description: %s", sheetIndex, description)
 			}
 		} else {
-			logger.Info("No verify function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
+			appCtx.Logger().Info("No verify function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
 		}
 	} else {
-		logger.Info("Skip running the verify functions")
+		appCtx.Logger().Info("Skip running the verify functions")
 	}
 
 	// Call process function
@@ -430,42 +430,42 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 
 				spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
 				if err != nil {
-					logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+					appCtx.Logger().Fatal("Failed to create pterm spinner", zap.Error(err))
 				}
 
 				callFunc := *p.process
-				slice, err := callFunc(params, sheetIndex, logger)
+				slice, err := callFunc(appCtx, params, sheetIndex)
 				if err != nil {
 					spinner.Fail()
-					logger.Error("process error", zap.String("description", description), zap.Error(err))
+					appCtx.Logger().Error("process error", zap.String("description", description), zap.Error(err))
 					return errors.Wrapf(err, "process error for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
-					if err := createCSV(filename, slice, logger); err != nil {
+					if err := createCSV(appCtx, filename, slice); err != nil {
 						spinner.Fail()
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
 				}
-				if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
+				if err := tableFromSliceCreator.CreateTableFromSlice(appCtx, slice); err != nil {
 					spinner.Fail()
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
 				spinner.Success()
 			} else {
-				logger.Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
+				appCtx.Logger().Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
 			}
 		}
 	} else {
-		logger.Fatal("Missing process function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
+		appCtx.Logger().Fatal("Missing process function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
 	}
 
 	return nil
 }
 
-func createCSV(filename string, slice interface{}, logger Logger) error {
+func createCSV(appCtx appcontext.AppContext, filename string, slice interface{}) error {
 	// Create file for writing the CSV
 	csvFile, err := os.Create(filename)
 	if err != nil {
@@ -473,7 +473,7 @@ func createCSV(filename string, slice interface{}, logger Logger) error {
 	}
 	defer func() {
 		if closeErr := csvFile.Close(); closeErr != nil {
-			logger.Fatal("Could not close CSV file", zap.Error(closeErr))
+			appCtx.Logger().Fatal("Could not close CSV file", zap.Error(closeErr))
 		}
 	}()
 

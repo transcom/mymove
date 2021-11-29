@@ -1638,7 +1638,7 @@ paths:
           name: body
           schema:
             required:
-              - remarks
+              - flagForReview
             properties:
               remarks:
                 description: >-
@@ -1646,6 +1646,13 @@ paths:
                   review
                 example: this address is way too far away
                 type: string
+                x-nullable: true
+              flagForReview:
+                description: >-
+                  boolean value representing whether we should flag a move for
+                  financial review
+                example: false
+                type: boolean
       responses:
         '200':
           description: updated Move
@@ -1978,6 +1985,7 @@ paths:
             - status
             - dodID
             - age
+            - originDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2015,6 +2023,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -2099,16 +2110,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -2226,7 +2237,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -2239,10 +2250,10 @@ definitions:
         example: USA
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
   BackupContact:
     type: object
     properties:
@@ -2720,6 +2731,16 @@ definitions:
       sac:
         type: string
         title: SAC
+        example: N002214CSW32Y9
+        x-nullable: true
+      nts_tac:
+        type: string
+        title: NTS TAC
+        example: F8J1
+        x-nullable: true
+      nts_sac:
+        type: string
+        title: NTS SAC
         example: N002214CSW32Y9
         x-nullable: true
       has_dependents:
@@ -3345,10 +3366,7 @@ definitions:
         example: handle with care
         x-nullable: true
       shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
@@ -3382,6 +3400,23 @@ definitions:
         type: string
         example: more weight than expected
         x-nullable: true
+      tacType:
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      storageFacility:
+        x-nullable: true
+        $ref: '#/definitions/StorageFacility'
   UpdateShipment:
     type: object
     properties:
@@ -3423,6 +3458,29 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
+      tacType:
+        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: '#/definitions/StorageFacility'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3486,6 +3544,30 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      tacType:
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      sacType:
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
+      usesExternalVendor:
+        type: boolean
+        example: false
+        x-nullable: true
+      serviceOrderNumber:
+        type: string
+        x-nullable: true
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      storageFacility:
+        x-nullable: true
+        $ref: '#/definitions/StorageFacility'
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -3518,6 +3600,8 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
   RejectShipment:
     properties:
       rejectionReason:
@@ -3935,6 +4019,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:
@@ -4012,6 +4098,41 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  LOAType:
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    type: string
+    example: HHG
+    enum:
+      - HHG
+      - NTS
+  StorageFacility:
+    description: The Storage Facility information for the shipment
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      facilityName:
+        type: string
+      address:
+        $ref: '#/definitions/Address'
+      lotNumber:
+        type: string
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
   SITExtension:
     type: object
     description: >-
@@ -4102,6 +4223,7 @@ definitions:
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
+      - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -4112,10 +4234,6 @@ definitions:
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
       - PSI_LinehaulShortPrice
-      - PSI_PackingDom
-      - PSI_PackingDomPrice
-      - PSI_PackingHHGIntl
-      - PSI_PackingHHGIntlPrice
       - PSI_PriceDomDest
       - PSI_PriceDomDestPrice
       - PSI_PriceDomOrigin

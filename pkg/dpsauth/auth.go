@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 // SetCookiePath is the path for this resource
@@ -23,7 +24,6 @@ type Claims struct {
 
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger        Logger
 	secretKey     string
 	cookieDomain  string
 	cookieSecret  []byte
@@ -31,9 +31,8 @@ type SetCookieHandler struct {
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
+func NewSetCookieHandler(secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
 	return SetCookieHandler{
-		logger:        logger,
 		secretKey:     secretKey,
 		cookieDomain:  cookieDomain,
 		cookieSecret:  cookieSecret,
@@ -41,16 +40,17 @@ func NewSetCookieHandler(logger Logger, secretKey string, cookieDomain string, c
 }
 
 func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	logger := logging.FromContext(r.Context())
 	claims, err := ParseToken(r.URL.Query().Get("token"), h.secretKey)
 	if err != nil {
-		h.logger.Error("Parsing token", zap.Error(err))
+		logger.Error("Parsing token", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
 	cookie, err := LoginGovIDToCookie(claims.StandardClaims.Subject, h.cookieSecret, h.cookieExpires)
 	if err != nil {
-		h.logger.Error("Converting user ID to cookie value", zap.Error(err))
+		logger.Error("Converting user ID to cookie value", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}

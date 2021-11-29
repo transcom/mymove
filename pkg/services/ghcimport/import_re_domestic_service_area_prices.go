@@ -3,16 +3,15 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(appCtx appcontext.AppContext) error {
 	var stageDomPricingModels []models.StageDomesticServiceAreaPrice
 
-	if err := db.All(&stageDomPricingModels); err != nil {
+	if err := appCtx.DB().All(&stageDomPricingModels); err != nil {
 		return fmt.Errorf("error looking up StageDomesticServiceAreaPrice data: %w", err)
 	}
 
@@ -67,7 +66,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 				PriceCents:            unit.Cents(cents),
 			}
 
-			verrs, err := db.ValidateAndSave(&domPricingModel)
+			verrs, err := appCtx.DB().ValidateAndSave(&domPricingModel)
 			if verrs.HasAny() {
 				return fmt.Errorf("error saving ReDomesticServiceAreaPrices: %+v with validation errors: %w", domPricingModel, verrs)
 			}

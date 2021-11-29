@@ -192,7 +192,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 
 	// TODO I don't know why we need a separate logger for cert stuff
@@ -228,7 +228,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// SSH and SFTP Connection Setup
-	sshClient, err := cli.InitGEXSSH(v, logger)
+	sshClient, err := cli.InitGEXSSH(appCtx, v)
 	if err != nil {
 		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
@@ -238,7 +238,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
+	sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
 	if err != nil {
 		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}

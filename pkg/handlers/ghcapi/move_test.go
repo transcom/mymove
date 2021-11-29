@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -45,7 +47,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFetcher:    &mockFetcher,
 		}
 
@@ -77,7 +79,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFetcher:    &mockFetcher,
 		}
 
@@ -89,7 +91,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFetcher:    &mockFetcher,
 		}
 
@@ -107,7 +109,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFetcher:    &mockFetcher,
 		}
 
@@ -135,22 +137,24 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		HTTPRequest: req,
 		IfMatch:     &fakeEtag,
 		Body: moveops.SetFinancialReviewFlagBody{
-			Remarks: &defaultRemarks,
+			Remarks:       &defaultRemarks,
+			FlagForReview: swag.Bool(true),
 		},
 		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
-	suite.T().Run("Successful flag", func(t *testing.T) {
+	suite.T().Run("Successful flag setting to true", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
 			mock.AnythingOfType("*appcontext.appContext"),
 			move.ID,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&move, nil)
 
 		response := handler.Handle(params)
@@ -168,7 +172,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		}
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 
@@ -178,14 +182,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.T().Run("Unsuccessful flag - move not found", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -194,14 +199,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.T().Run("Unsuccessful flag - internal server error", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.QueryError{})
 
 		response := handler.Handle(params)
@@ -211,14 +217,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.T().Run("Unsuccessful flag - bad etag", func(t *testing.T) {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			defaultRemarks,
+			mock.AnythingOfType("bool"),
+			&defaultRemarks,
 		).Return(&models.Move{}, apperror.PreconditionFailedError{})
 
 		response := handler.Handle(params)

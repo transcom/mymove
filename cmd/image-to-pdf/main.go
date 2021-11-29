@@ -35,7 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	storer := storage.NewMemory(storage.NewMemoryParams("", "", logger))
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Fatalf("could not instantiate uploader due to %v", err)

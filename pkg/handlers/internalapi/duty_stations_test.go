@@ -7,7 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -32,16 +31,14 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:        "First Station",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "First Station",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:        "Second Station",
-		Affiliation: internalmessages.AffiliationARMY,
-		AddressID:   address.ID,
+		Name:      "Second Station",
+		AddressID: address.ID,
 	}
 	suite.MustSave(&station2)
 
@@ -60,7 +57,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

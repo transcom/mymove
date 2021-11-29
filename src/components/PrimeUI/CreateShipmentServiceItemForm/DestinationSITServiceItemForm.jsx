@@ -4,14 +4,14 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { addressSchema } from '../../../utils/validation';
-import { formatDateForSwagger } from '../../../shared/dates';
-import { formatAddressForPrimeAPI } from '../../../utils/formatters';
-import { Form } from '../../form/Form';
-import { DatePickerInput } from '../../form/fields/DatePickerInput';
-import MaskedTextField from '../../form/fields/MaskedTextField';
-import { AddressFields } from '../../form/AddressFields/AddressFields';
-import { ShipmentShape } from '../../../types/shipment';
+import { Form } from 'components/form/Form';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { addressSchema } from 'utils/validation';
+import { formatDateForSwagger } from 'shared/dates';
+import { formatAddressForPrimeAPI } from 'utils/formatters';
+import { DatePickerInput } from 'components/form/fields';
+import { ShipmentShape } from 'types/shipment';
 
 const destinationSITValidationSchema = Yup.object().shape({
   firstAvailableDeliveryDate1: Yup.date()
@@ -45,7 +45,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
     timeMilitary2: '',
     sitEntryDate: '',
     sitDepartureDate: '',
-    sitDestinationFinalAddress: { street_address_1: '', street_address_2: '', city: '', state: '', postal_code: '' },
+    sitDestinationFinalAddress: { streetAddress1: '', streetAddress2: '', city: '', state: '', postalCode: '' },
   };
 
   const onSubmit = (values) => {
@@ -62,7 +62,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
       firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
       sitEntryDate: formatDateForSwagger(sitEntryDate),
       sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
-      sitDestinationFinalAddress: sitDestinationFinalAddress.street_address_1
+      sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
         ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
         : null,
       ...serviceItemValues,
@@ -72,7 +72,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={destinationSITValidationSchema} onSubmit={onSubmit}>
-      <Form>
+      <Form data-testid="destinationSITServiceItemForm">
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />

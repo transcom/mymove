@@ -12,19 +12,18 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticLinehaulPrices() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
 		ContractCode: testContractCode,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		err := gre.importREContract(suite.DB())
+		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
 
-		err = gre.importREDomesticLinehaulPrices(suite.DB())
+		err = gre.importREDomesticLinehaulPrices(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperVerifyDomesticLinehaulCount()
 
@@ -33,7 +32,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticLinehaulPrices() {
 	})
 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
-		err := gre.importREDomesticLinehaulPrices(suite.DB())
+		err := gre.importREDomesticLinehaulPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_linehaul_prices_unique_key"))
 		}

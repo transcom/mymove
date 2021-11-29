@@ -41,7 +41,7 @@ func noErr(err error) {
 	}
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 
@@ -151,7 +151,7 @@ func main() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger, move))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(move))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
 	if err != nil {

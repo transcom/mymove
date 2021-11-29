@@ -5,18 +5,18 @@ import { ResidentialAddressShape } from 'types/address';
 import { formatDate, formatWeight } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { DatePickerInput } from 'components/form/fields';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 
 const emptyAddressShape = {
-  street_address_1: '',
-  street_address_2: '',
+  streetAddress1: '',
+  streetAddress2: '',
   city: '',
   state: '',
-  postal_code: '',
+  postalCode: '',
 };
 
 const PrimeUIShipmentUpdateForm = ({

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"log"
 	"os"
 	"strings"
 	"testing"
@@ -10,14 +9,13 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/logging"
+	"go.uber.org/zap/zaptest"
 )
 
 type cliTestSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger Logger
+	logger *zap.Logger
 }
 
 type initFlags func(f *pflag.FlagSet)
@@ -54,18 +52,8 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 
 func TestCLISuite(t *testing.T) {
 
-	logger, _, err := logging.Config(
-		logging.WithEnvironment("development"),
-		logging.WithLoggingLevel("debug"),
-		logging.WithStacktraceLength(10),
-	)
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
-	}
-	zap.ReplaceGlobals(logger)
-
 	ss := &cliTestSuite{
-		logger: logger,
+		logger: zaptest.NewLogger(t),
 	}
 
 	suite.Run(t, ss)

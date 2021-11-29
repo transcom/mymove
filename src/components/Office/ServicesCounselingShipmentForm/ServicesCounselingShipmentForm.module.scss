@@ -35,10 +35,6 @@
     @include u-margin-bottom(3);
   }
 
-  :global(.usa-legend + .usa-form-group) {
-    @include u-margin-top(3);
-  }
-
   .weightAllowance {
     padding-top: 9px;
     padding-bottom: 9px;
@@ -46,5 +42,15 @@
 
   .buttonGroup {
     display: flex;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  form {
+    @media (min-width: 480px) {
+      max-width: none;
+    }
   }
 }

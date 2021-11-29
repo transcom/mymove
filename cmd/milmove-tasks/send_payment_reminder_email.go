@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -116,17 +117,19 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
 	}
 
-	movePaymentReminderNotifier, err := notifications.NewPaymentReminder(dbConnection, logger)
+	movePaymentReminderNotifier, err := notifications.NewPaymentReminder()
 	if err != nil {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
 
-	err = notificationSender.SendNotification(movePaymentReminderNotifier)
+	err = notificationSender.SendNotification(appCtx, movePaymentReminderNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

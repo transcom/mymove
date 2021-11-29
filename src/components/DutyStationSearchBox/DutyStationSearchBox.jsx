@@ -130,10 +130,12 @@ export const DutyStationSearchBoxComponent = (props) => {
 
   return (
     <FormGroup>
-      <div className={inputContainerClasses}>
+      <div className="labelWrapper">
         <Label htmlFor={inputId} className={labelClasses}>
           {title}
         </Label>
+      </div>
+      <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
           inputId={inputId}
@@ -152,7 +154,7 @@ export const DutyStationSearchBoxComponent = (props) => {
       </div>
       {displayAddress && hasStation && (
         <p className={locationClasses}>
-          {value.address.city}, {value.address.state} {value.address.postal_code}
+          {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
       )}
       {errorMsg && <span className="usa-error-message">{errorMsg}</span>}

@@ -1,10 +1,7 @@
 package migrate
 
 import (
-	"log"
 	"testing"
-
-	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/suite"
 
@@ -13,21 +10,14 @@ import (
 
 type MigrateSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
 }
 
 func TestMigrateSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	ms := &MigrateSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(
 			"migrate",
 			testingsuite.WithHighPrivPSQLRole(),
 		),
-		logger: logger,
 	}
 	suite.Run(t, ms)
 	ms.PopTestSuite.TearDown()

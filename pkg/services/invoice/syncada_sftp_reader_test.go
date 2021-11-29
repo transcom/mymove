@@ -9,31 +9,22 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type SyncadaSftpReaderSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *SyncadaSftpReaderSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestSyncadaSftpReaderSuite(t *testing.T) {
 
 	ts := &SyncadaSftpReaderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_reader")),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

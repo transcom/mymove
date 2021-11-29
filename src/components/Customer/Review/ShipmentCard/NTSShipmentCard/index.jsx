@@ -58,12 +58,10 @@ const NTSShipmentCard = ({
             secondaryPickupAddress={secondaryPickupAddress}
             releasingAgent={releasingAgent}
           />
-          {remarks && (
-            <div className={`${styles.row} ${styles.remarksRow}`}>
-              <dt>Remarks</dt>
-              <dd className={styles.remarksCell}>{remarks}</dd>
-            </div>
-          )}
+          <div className={`${styles.row} ${styles.remarksRow}`}>
+            <dt>Remarks</dt>
+            <dd className={styles.remarksCell}>{remarks || '—'}</dd>
+          </div>
         </dl>
       </ShipmentContainer>
     </div>

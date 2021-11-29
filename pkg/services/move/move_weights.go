@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -33,9 +32,9 @@ func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester) services
 	return &moveWeights{ReweighRequestor: reweighRequestor}
 }
 
-func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, error) {
+func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {
 	var existingMove models.Move
-	err := db.Find(&existingMove, move.ID)
+	err := appCtx.DB().Find(&existingMove, move.ID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -48,7 +47,7 @@ func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, e
 	if move.UpdatedAt != existingMove.UpdatedAt {
 		return nil, apperror.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
 	}
-	return db.ValidateAndSave(move)
+	return appCtx.DB().ValidateAndSave(move)
 }
 
 // only shipments in these statuses should have their weights included in the totals
@@ -127,7 +126,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		excessWeightQualifiedAt := time.Now()
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 
-		verrs, err := validateAndSave(db, &move)
+		verrs, err := validateAndSave(appCtx, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
 		}
@@ -135,7 +134,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		// the move had previously qualified for excess weight but does not any longer so reset the value
 		move.ExcessWeightQualifiedAt = nil
 
-		verrs, err := validateAndSave(db, &move)
+		verrs, err := validateAndSave(appCtx, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
 		}

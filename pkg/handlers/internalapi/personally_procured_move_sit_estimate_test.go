@@ -14,7 +14,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -44,7 +43,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 	showResponse := showEstimateHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -83,7 +82,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -110,7 +109,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -135,7 +134,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -160,7 +159,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -190,7 +189,7 @@ func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything).Return(mockedSitCharge, mockedCost, mockedError).Once()
-	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
 	showResponse := showHandler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, showResponse)
@@ -207,10 +206,9 @@ func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID,
 
 	stationName := "New Duty Station"
 	station := models.DutyStation{
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationAIRFORCE,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
 	}
 	suite.MustSave(&station)
 

@@ -19,14 +19,14 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-    street_address_2: '',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
   },
   serviceMember: {
     weightAllotment: {
@@ -45,16 +45,16 @@ const mockMtoShipment = {
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
   mtoAgents: [
     {
@@ -109,7 +109,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
@@ -126,13 +126,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
-        defaultProps.currentResidence.street_address_1,
+        defaultProps.currentResidence.streetAddress1,
       );
 
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
       expect(screen.getAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -142,12 +142,12 @@ describe('ServicesCounselingShipmentForm component', () => {
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
-        'pickup.address.street_address_1',
+        'pickup.address.streetAddress1',
       );
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
       expect(screen.getAllByLabelText('City')[0]).toHaveAttribute('name', 'pickup.address.city');
       expect(screen.getAllByLabelText('City')[1]).toHaveAttribute('name', 'delivery.address.city');
@@ -155,8 +155,15 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('State')[0]).toHaveAttribute('name', 'pickup.address.state');
       expect(screen.getAllByLabelText('State')[1]).toHaveAttribute('name', 'delivery.address.state');
 
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postal_code');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postal_code');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
+    });
+
+    it('does not render an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
     });
   });
 
@@ -193,7 +200,8 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
       expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
       expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
-      expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
   });
@@ -223,7 +231,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
@@ -237,13 +245,52 @@ describe('ServicesCounselingShipmentForm component', () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it('renders an Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).toBeInTheDocument();
+      expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
+    });
   });
 
-  describe('creating a new NTS-R shipment', () => {
-    it('renders the NTS-R shipment form', async () => {
+  describe('editing an already existing NTS shipment', () => {
+    it('pre-fills the Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).not.toBeChecked();
+      expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
+      expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
+    });
+  });
+
+  describe('creating a new NTS-release shipment', () => {
+    it('renders the NTS-release shipment form', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
-      expect(await screen.findByText('NTS-R')).toHaveClass('usa-tag');
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
@@ -260,7 +307,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
       expect(
@@ -268,6 +315,12 @@ describe('ServicesCounselingShipmentForm component', () => {
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
+    });
+
+    it('renders an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
     });
   });
 
@@ -310,27 +363,26 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(defaultProps.history.push).not.toHaveBeenCalled();
     });
 
-    it('saves the update to the counselor and customer remarks when the save button is clicked', async () => {
+    it('saves the update to the counselor remarks when the save button is clicked', async () => {
       const newCounselorRemarks = 'Counselor remarks';
-      const newCustomerRemarks = 'Customer remarks';
 
       const expectedPayload = {
         body: {
-          customerRemarks: newCustomerRemarks,
+          customerRemarks: 'mock customer remarks',
           counselorRemarks: newCounselorRemarks,
           destinationAddress: {
-            street_address_1: '441 SW Rio de la Plata Drive',
+            streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
             state: 'WA',
-            postal_code: '98421',
-            street_address_2: '',
+            postalCode: '98421',
+            streetAddress2: '',
           },
           pickupAddress: {
-            street_address_1: '812 S 129th St',
+            streetAddress1: '812 S 129th St',
             city: 'San Antonio',
             state: 'TX',
-            postal_code: '78234',
-            street_address_2: '',
+            postalCode: '78234',
+            streetAddress2: '',
           },
           agents: [
             {
@@ -374,12 +426,6 @@ describe('ServicesCounselingShipmentForm component', () => {
           isCreatePage={false}
         />,
       );
-
-      const customerRemarks = await screen.findByLabelText('Customer remarks');
-
-      userEvent.clear(customerRemarks);
-
-      userEvent.type(customerRemarks, newCustomerRemarks);
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 

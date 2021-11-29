@@ -33,7 +33,7 @@ func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger utils.Logger) error {
+func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger *zap.Logger) error {
 
 	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args))
 

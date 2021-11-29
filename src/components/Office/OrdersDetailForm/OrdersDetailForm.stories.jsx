@@ -11,9 +11,9 @@ const originDutyStation = {
   address: {
     city: 'Dover AFB',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
-    postal_code: '19902',
+    postalCode: '19902',
     state: 'DE',
-    street_address_1: '',
+    streetAddress1: '',
   },
   address_id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
   affiliation: 'AIR_FORCE',
@@ -26,9 +26,9 @@ const newDutyStation = {
   address: {
     city: 'Scott Air Force Base',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
-    postal_code: '62225',
+    postalCode: '62225',
     state: 'IL',
-    street_address_1: '',
+    streetAddress1: '',
   },
   address_id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
   affiliation: 'AIR_FORCE',
@@ -56,27 +56,32 @@ export default {
     showDepartmentIndicator: { defaultValue: false },
     showOrdersNumber: { defaultValue: false },
     showOrdersTypeDetail: { defaultValue: false },
-    showTac: { defaultValue: false },
-    showSac: { defaultValue: false },
+    showHHGTac: { defaultValue: false },
+    showHHGSac: { defaultValue: false },
+    showNTSTac: { defaultValue: false },
+    showNTSSac: { defaultValue: false },
+
     showOrdersAcknowledgement: { defaultValue: false },
   },
 };
 
 export const EmptyValues = () => (
-  <Formik>
-    <form>
-      <OrdersDetailForm
-        deptIndicatorOptions={deptIndicatorOptions}
-        ordersTypeOptions={ordersTypeOptions}
-        ordersTypeDetailOptions={ordersTypeDetailOptions}
-      />
-    </form>
-  </Formik>
+  <div style={{ width: '400px' }}>
+    <Formik>
+      <form>
+        <OrdersDetailForm
+          deptIndicatorOptions={deptIndicatorOptions}
+          ordersTypeOptions={ordersTypeOptions}
+          ordersTypeDetailOptions={ordersTypeDetailOptions}
+        />
+      </form>
+    </Formik>
+  </div>
 );
 
 export const InitialValues = () => {
   return (
-    <>
+    <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
           originDutyStation,
@@ -89,6 +94,8 @@ export const InitialValues = () => {
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
+          nts_tac: 'Tac',
+          nts_sac: 'Sac',
           ordersAcknowledgement: true,
         }}
         validationSchema={Yup.object({
@@ -102,6 +109,8 @@ export const InitialValues = () => {
           ordersTypeDetail: Yup.string().required('Required'),
           tac: Yup.string().required('Required'),
           sac: Yup.string().required('Required'),
+          nts_tac: Yup.string().required('Required'),
+          nts_sac: Yup.string().required('Required'),
         })}
       >
         <form>
@@ -113,13 +122,13 @@ export const InitialValues = () => {
           />
         </form>
       </Formik>
-    </>
+    </div>
   );
 };
 
 export const FieldsHidden = (args) => {
   return (
-    <>
+    <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
           originDutyStation,
@@ -132,6 +141,8 @@ export const FieldsHidden = (args) => {
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
+          nts_tac: 'Tac',
+          nts_sac: 'Sac',
         }}
         validationSchema={Yup.object({
           originDutyStation: Yup.object().defined('Required'),
@@ -144,6 +155,8 @@ export const FieldsHidden = (args) => {
           ordersTypeDetail: Yup.string().required('Required'),
           tac: Yup.string().required('Required'),
           sac: Yup.string().required('Required'),
+          nts_tac: Yup.string().required('Required'),
+          nts_sac: Yup.string().required('Required'),
         })}
       >
         <form>
@@ -155,6 +168,6 @@ export const FieldsHidden = (args) => {
           />
         </form>
       </Formik>
-    </>
+    </div>
   );
 };

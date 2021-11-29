@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -12,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -21,7 +21,7 @@ func initDbConnectionFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func notificationCreate(db *pop.Connection, logger utils.Logger) (*models.WebhookNotification, error) {
+func notificationCreate(appCtx appcontext.AppContext) (*models.WebhookNotification, error) {
 	// Create a notification model
 	notID := uuid.Must(uuid.NewV4())
 	message := "{ \"message\" : \"A move task order was created.\" }"
@@ -33,9 +33,9 @@ func notificationCreate(db *pop.Connection, logger utils.Logger) (*models.Webhoo
 	}
 
 	// Save it to the db
-	verrs, err := db.ValidateAndCreate(&notification)
+	verrs, err := appCtx.DB().ValidateAndCreate(&notification)
 	if err != nil {
-		logger.Error("Error:", zap.Error(err))
+		appCtx.Logger().Error("Error:", zap.Error(err))
 		return nil, err
 	} else if verrs != nil && verrs.HasAny() {
 		fmt.Println(verrs)
@@ -59,8 +59,10 @@ func dbConnection(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	appCtx := appcontext.NewAppContext(db, logger, nil)
+
 	// Create notification
-	notification, err := notificationCreate(db, logger)
+	notification, err := notificationCreate(appCtx)
 	if err != nil {
 		return err
 	}

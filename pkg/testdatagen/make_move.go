@@ -225,7 +225,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 
 	mergeModels(&move, assertions.Move)
 	if !assertions.Stub {
-		mustSave(db, &move)
+		MustSave(db, &move)
 	}
 
 	MakeSubmittedMTOShipmentWithMove(db, &move, Assertions{

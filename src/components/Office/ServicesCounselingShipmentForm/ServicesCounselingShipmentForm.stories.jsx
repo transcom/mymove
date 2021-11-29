@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 const defaultProps = {
   match: {
@@ -18,13 +20,13 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
   },
   useCurrentResidence: false,
   mtoShipment: {
@@ -63,23 +65,38 @@ const mockMtoShipment = {
     },
   ],
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
+};
+
+const mockMtoShipmentNoCustomerRemarks = {
+  ...mockMtoShipment,
+  customerRemarks: '',
 };
 
 export default {
   title: 'Office Components / Forms / ServicesCounselingShipmentForm',
   component: ServicesCounselingShipmentForm,
-  decorators: [(Story) => <Story />],
+  decorators: [
+    (Story) => (
+      <GridContainer className={styles.gridContainer}>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
+    ),
+  ],
 };
 
 // create shipment stories (form should not prefill customer data)
@@ -96,3 +113,39 @@ export const EditHHGShipment = () => (
     mtoShipment={mockMtoShipment}
   />
 );
+
+// edit shipment stories, no customer remarks (form should prefill)
+export const EditHHGShipmentNoCustRemarks = () => (
+  <ServicesCounselingShipmentForm
+    {...defaultProps}
+    selectedMoveType={SHIPMENT_OPTIONS.HHG}
+    isCreatePage={false}
+    mtoShipment={mockMtoShipmentNoCustomerRemarks}
+  />
+);
+
+export const NTSShipmentWithoutCodes = () => {
+  return <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />;
+};
+
+export const NTSShipmentWithCodes = () => {
+  return (
+    <ServicesCounselingShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTS}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345' }}
+    />
+  );
+};
+
+export const NTSReleaseShipment = () => {
+  return (
+    <ServicesCounselingShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345', NTS: '6789ABC' }}
+    />
+  );
+};

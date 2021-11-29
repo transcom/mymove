@@ -40,6 +40,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/certs"
@@ -150,7 +151,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func checkServeConfig(v *viper.Viper, logger logger) error {
+func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Info("checking webserver config")
 
@@ -257,7 +258,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
+func startListener(srv *server.NamedServer, logger *zap.Logger, useTLS bool) {
 	logger.Info("Starting listener",
 		zap.String("name", srv.Name),
 		zap.Duration("idle-timeout", srv.IdleTimeout),
@@ -285,7 +286,7 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 }
 
 // indexHandler returns a handler that will serve the resulting content
-func indexHandler(buildDir string, globalLogger logger) http.HandlerFunc {
+func indexHandler(buildDir string, globalLogger *zap.Logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
 	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
@@ -510,11 +511,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	telemetry.RegisterDBStatsObserver(dbConnection, telemetryConfig)
-	telemetry.RegisterRuntimeObserver(logger, telemetryConfig)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
+	telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
+	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
 
 	// Create a connection to Redis
-	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	redisPool, errRedisConnection := cli.InitRedis(appCtx, v)
 	if errRedisConnection != nil {
 		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
 	}
@@ -551,7 +554,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
-	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
+	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetSessionManagers(sessionManagers)
@@ -644,11 +647,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := iws.InitRBSPersonLookup(v, logger)
+	rbs, err := iws.InitRBSPersonLookup(appCtx, v)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
@@ -828,8 +831,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			sddcDPSMux.Use(otelmux.Middleware("sddc"))
 		}
 		sddcDPSMux.Handle("/set_cookie",
-			dpsauth.NewSetCookieHandler(logger,
-				dpsAuthSecretKey,
+			dpsauth.NewSetCookieHandler(dpsAuthSecretKey,
 				dpsCookieDomain,
 				dpsCookieSecret,
 				dpsCookieExpires))
@@ -841,7 +843,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
 		if v.GetBool(cli.DevlocalAuthFlag) {
-			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(logger, dbConnection)
+			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
 			primeMux.Use(devlocalClientCertMiddleware)
 		} else {
 			primeMux.Use(clientCertMiddleware)
@@ -1006,20 +1008,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
 	authMux.Use(otelmux.Middleware("auth"))
-	authMux.Handle("/login-gov", authentication.RedirectHandler{Context: authContext}).Methods("GET")
-	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, dbConnection, notificationSender)).Methods("GET")
-	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, dbConnection)).Methods("POST")
+	authMux.Handle("/login-gov", authentication.NewRedirectHandler(authContext, handlerContext, useSecureCookie)).Methods("GET")
+	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, handlerContext, notificationSender)).Methods("GET")
+	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, handlerContext)).Methods("POST")
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
-		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, dbConnection)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, dbConnection, appnames)).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames)).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, dbConnection, appnames)).Methods("POST")
+		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, handlerContext)).Methods("GET")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, handlerContext, appnames)).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, handlerContext, appnames)).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, handlerContext, appnames)).Methods("POST")
 
-		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))

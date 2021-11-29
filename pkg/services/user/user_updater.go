@@ -122,7 +122,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 	}
 
 	if userActivityEmail != nil {
-		err = o.sender.SendNotification(userActivityEmail)
+		err = o.sender.SendNotification(appCtx, userActivityEmail)
 		if err != nil {
 			return nil, nil, err
 		}

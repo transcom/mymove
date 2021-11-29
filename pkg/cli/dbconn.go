@@ -81,12 +81,32 @@ const (
 	// SSLModeVerifyFull is the verify-full SSL Mode
 	SSLModeVerifyFull string = "verify-full"
 
+	// awsRdsT3SmallMaxConnections is the max connections to an RDS T3
+	// Small instance
+	//
+	// The T3 small instance has 2 GB
+	// https://aws.amazon.com/rds/instance-types/
+	//
+	// These docs say we can calculate the max connections
+	// https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html
+	//
+	// If correct it is
+	//
+	// LEAST({DBInstanceClassMemory/9531392}, 5000)
+	//
+	// DBInstanceClassMemory = 2147483648
+	// so 2147483648 / 9531392 = 225.3 which is less than 5000
+	//
+	// we deploy two containers for the AWS service, so divide that in
+	// half
+	// 225 / 2 =~ 110
+	awsRdsT3SmallMaxConnections = 110
 	// DbPoolDefault is the default db pool connections
-	DbPoolDefault = 50
+	DbPoolDefault = awsRdsT3SmallMaxConnections
 	// DbIdlePoolDefault is the default db idle pool connections
 	DbIdlePoolDefault = 2
 	// DbPoolMax is the upper limit the db pool can use for connections which constrains the user input
-	DbPoolMax int = 50
+	DbPoolMax int = awsRdsT3SmallMaxConnections
 )
 
 // The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
@@ -169,7 +189,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 }
 
 // CheckDatabase validates DB command line flags
-func CheckDatabase(v *viper.Viper, logger Logger) error {
+func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 
 	if err := ValidateHost(v, DbHostFlag); err != nil {
 		return err
@@ -234,7 +254,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 // v is the viper Configuration.
 // creds must relate to an assumed role and can't point to a user or task role directly.
 // logger is the application logger.
-func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger) (*pop.Connection, error) {
+func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
@@ -376,7 +396,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 }
 
 //testConnection tests the connection to determine successful ping
-func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Logger) error {
+func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger *zap.Logger) error {
 	// Copy connection info as we don't want to alter connection info
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",

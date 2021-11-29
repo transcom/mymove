@@ -6,11 +6,10 @@ import PropTypes from 'prop-types';
 import { FormGroup } from '@material-ui/core';
 import classnames from 'classnames';
 
-import SectionWrapper from '../../../components/Customer/SectionWrapper';
-import { ResidentialAddressShape } from '../../../types/address';
-import { AddressFields } from '../../../components/form/AddressFields/AddressFields';
-import { primeSimulatorRoutes } from '../../../constants/routes';
-
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import { ResidentialAddressShape } from 'types/address';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { primeSimulatorRoutes } from 'constants/routes';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -20,6 +19,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
   addressLocation,
   onSubmit,
   updateShipmentAddressSchema,
+  name,
 }) => {
   const { moveCodeOrID } = useParams();
   const history = useHistory();
@@ -35,7 +35,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
           <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
             <SectionWrapper className={formStyles.formSection}>
               <h2>{addressLocation}</h2>
-              <AddressFields name="address" />
+              <AddressFields name={name} />
             </SectionWrapper>
             <WizardNavigation
               editMode
@@ -55,7 +55,12 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
 PrimeUIShipmentUpdateAddressForm.propTypes = {
   initialValues: PropTypes.shape({
-    address: ResidentialAddressShape,
+    pickupAddress: PropTypes.shape({
+      address: ResidentialAddressShape,
+    }),
+    destinationAddress: PropTypes.shape({
+      address: ResidentialAddressShape,
+    }),
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
@@ -66,6 +71,7 @@ PrimeUIShipmentUpdateAddressForm.propTypes = {
     eTag: PropTypes.string,
   }).isRequired,
   addressLocation: PropTypes.oneOf(['Pickup address', 'Destination address']).isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default PrimeUIShipmentUpdateAddressForm;

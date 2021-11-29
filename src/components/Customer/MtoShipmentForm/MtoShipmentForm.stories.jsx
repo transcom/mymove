@@ -22,14 +22,14 @@ const defaultProps = {
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
+    postalCode: '31905',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-    street_address_2: '',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
   },
   useCurrentResidence: false,
   mtoShipment: {
@@ -66,16 +66,16 @@ const mockMtoShipment = {
     },
   ],
   pickupAddress: {
-    street_address_1: '812 S 129th St',
+    streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
-    postal_code: '78234',
+    postalCode: '78234',
   },
   destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
+    streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
-    postal_code: '98421',
+    postalCode: '98421',
   },
 };
 
@@ -122,18 +122,18 @@ export const EditHHGShipmentWithSecondaryAddresses = () => {
   const extendedShipment = {
     ...mockMtoShipment,
     secondaryPickupAddress: {
-      street_address_1: '142 E Barrel Hoop Circle',
-      street_address_2: '#4A',
+      streetAddress1: '142 E Barrel Hoop Circle',
+      streetAddress2: '#4A',
       city: 'Corpus Christi',
       state: 'TX',
-      postal_code: '78412',
+      postalCode: '78412',
     },
     secondaryDeliveryAddress: {
-      street_address_1: '3373 NW Martin Luther King Jr Blvd',
-      street_address_2: '',
+      streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+      streetAddress2: '',
       city: mockMtoShipment.destinationAddress.city,
       state: mockMtoShipment.destinationAddress.state,
-      postal_code: mockMtoShipment.destinationAddress.postal_code,
+      postalCode: mockMtoShipment.destinationAddress.postalCode,
     },
   };
 

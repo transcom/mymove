@@ -10,15 +10,12 @@
 package route
 
 import (
-	"log"
 	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,24 +29,12 @@ const (
 
 type GHCTestSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-// AppContextForTest returns the AppContext for the test suite
-func (suite *GHCTestSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger, nil)
 }
 
 func TestGHCTestSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-
 	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	ts := &GHCTestSuite{
 		PopTestSuite: popTs,
-		logger:       logger,
 	}
 
 	suite.Run(t, ts)

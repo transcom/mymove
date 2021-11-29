@@ -6,17 +6,15 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/flect/name"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/lib/pq"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // NewTableFromSliceCreator is the public constructor for a TableFromSliceCreator using Pop
-func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool, dropIfExists bool) services.TableFromSliceCreator {
+func NewTableFromSliceCreator(isTemp bool, dropIfExists bool) services.TableFromSliceCreator {
 	return &tableFromSliceCreator{
-		db:           db,
-		logger:       logger,
 		isTemp:       isTemp,
 		dropIfExists: dropIfExists,
 	}
@@ -24,14 +22,12 @@ func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool, dr
 
 // tableFromSliceCreator is a service object to create/populate a table from a slice
 type tableFromSliceCreator struct {
-	db           *pop.Connection
-	logger       Logger
 	isTemp       bool
 	dropIfExists bool
 }
 
 // CreateTableFromSlice creates and populates a table from a slice of structs
-func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
+func (c tableFromSliceCreator) CreateTableFromSlice(appCtx appcontext.AppContext, slice interface{}) error {
 	// Ensure we've got a slice or an array.
 	sliceType := reflect.TypeOf(slice)
 	if sliceType.Kind() != reflect.Slice {
@@ -74,29 +70,25 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 	builder.WriteString(");")
 	createTableQuery := builder.String()
 
-	// check to see if we are already in a transaction
-	if c.db.TX != nil {
-		return c.executeSQL(c.db, tableName, createTableQuery, fieldDbNames, numFields, slice)
-	}
-	return c.db.Transaction(func(tx *pop.Connection) error {
-		return c.executeSQL(tx, tableName, createTableQuery, fieldDbNames, numFields, slice)
+	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		return c.executeSQL(txnAppCtx, tableName, createTableQuery, fieldDbNames, numFields, slice)
 	})
 }
 
-func (c tableFromSliceCreator) executeSQL(tx *pop.Connection, tableName string, createTableQuery string, fieldDbNames []string, numFields int, slice interface{}) error {
+func (c tableFromSliceCreator) executeSQL(appCtx appcontext.AppContext, tableName string, createTableQuery string, fieldDbNames []string, numFields int, slice interface{}) error {
 	if c.dropIfExists {
-		err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
+		err := appCtx.DB().RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
 		if err != nil {
 			return fmt.Errorf("Error dropping table: '%s': %w", tableName, err)
 		}
 	}
-	err := tx.RawQuery(createTableQuery).Exec()
+	err := appCtx.DB().RawQuery(createTableQuery).Exec()
 	if err != nil {
 		return fmt.Errorf("Error creating table: '%s': %w", tableName, err)
 	}
 
 	// Put data into the table
-	stmt, err := tx.TX.Prepare(pq.CopyIn(tableName, fieldDbNames...))
+	stmt, err := appCtx.DB().TX.Prepare(pq.CopyIn(tableName, fieldDbNames...))
 	if err != nil {
 		return fmt.Errorf("Error preparing CopyIn statement: %w", err)
 	}

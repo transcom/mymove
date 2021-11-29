@@ -33,7 +33,7 @@ func setup(suite *MoveDocumentServiceSuite) (*models.MoveDocument, uuid.UUID, ap
 		})
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Require().Nil(err)
-	appCtx := suite.AppContextForTest(session)
+	appCtx := suite.AppContextWithSessionForTest(session)
 	return originalMoveDocument, moveDocument.ID, appCtx
 }
 

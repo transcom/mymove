@@ -177,6 +177,14 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+
+	//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
+	if payload.UsesExternalVendor == nil {
+		mtoShipment.UsesExternalVendor = oldShipment.UsesExternalVendor
+	}
+	// booleans not passed will update to false
+	mtoShipment.Diversion = oldShipment.Diversion
+
 	mtoShipment.ID = shipmentID
 
 	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
@@ -679,8 +687,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	moveID := shipment.MoveTaskOrderID
 	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewReweighRequested(appCtx.DB(), appCtx.Logger(), appCtx.Session(), moveID, *shipment),
+	err = h.NotificationSender().SendNotification(appCtx,
+		notifications.NewReweighRequested(moveID, *shipment),
 	)
 	if err != nil {
 		appCtx.Logger().Error("problem sending email to user", zap.Error(err))

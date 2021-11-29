@@ -20,7 +20,7 @@ const ntsShipmentSchema = Yup.object().shape({
 });
 
 const ntsReleaseShipmentSchema = Yup.object().shape({
-  delivery: OptionalPlaceSchema,
+  delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });

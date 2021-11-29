@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 const (
@@ -87,7 +89,7 @@ func CheckRedis(v *viper.Viper) error {
 // InitRedis initializes a Redis pool from command line flags.
 // v is the viper Configuration.
 // logger is the application logger.
-func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
+func InitRedis(appCtx appcontext.AppContext, v *viper.Viper) (*redis.Pool, error) {
 	enabled := v.GetBool(RedisEnabledFlag)
 	if !enabled {
 		return nil, nil
@@ -109,7 +111,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 		s = "redis://%s:%d?db=%d"
 		redisURI = fmt.Sprintf(s, redisHost, redisPort, redisDBName)
 	}
-	logger.Info("Connecting to Redis", zap.String("url", redisURI))
+	appCtx.Logger().Info("Connecting to Redis", zap.String("url", redisURI))
 
 	// Configure Redis TLS Config
 	redisTLSConfig := tls.Config{
@@ -120,7 +122,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	redisURLTemplate := "%s:%s"
 	redisURL := fmt.Sprintf(redisURLTemplate, redisHost, strconv.Itoa(redisPort))
 
-	if testRedisErr := testRedisConnection(redisURL, redisPassword, redisDBName, redisConnectTimeout, redisSSLEnabled, &redisTLSConfig, logger); testRedisErr != nil {
+	if testRedisErr := testRedisConnection(appCtx, redisURL, redisPassword, redisDBName, redisConnectTimeout, redisSSLEnabled, &redisTLSConfig); testRedisErr != nil {
 		return nil, testRedisErr
 	}
 
@@ -147,9 +149,9 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	return pool, nil
 }
 
-func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisConnectTimeout time.Duration, redisSSLEnabled bool, redisTLSConfig *tls.Config, logger Logger) error {
+func testRedisConnection(appCtx appcontext.AppContext, redisURL, redisPassword string, redisDBName int, redisConnectTimeout time.Duration, redisSSLEnabled bool, redisTLSConfig *tls.Config) error {
 	// Confirm the connection works
-	logger.Info("Testing Redis connection...")
+	appCtx.Logger().Info("Testing Redis connection...")
 
 	redisConnection, redisConnectionErr := redis.Dial(
 		"tcp",
@@ -163,7 +165,7 @@ func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisC
 
 	defer func() {
 		if redisDisconnectErr := redisConnection.Close(); redisDisconnectErr != nil {
-			logger.Error("Failed to close redis connection", zap.Error(redisDisconnectErr))
+			appCtx.Logger().Error("Failed to close redis connection", zap.Error(redisDisconnectErr))
 		}
 	}()
 
@@ -174,19 +176,19 @@ func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisC
 	}
 
 	if redisConnectionErr != nil {
-		logger.Error(finalErrorString, zap.Error(redisConnectionErr))
+		appCtx.Logger().Error(finalErrorString, zap.Error(redisConnectionErr))
 		return redisConnectionErr
 	}
-	logger.Info("...Redis connection successful!")
+	appCtx.Logger().Info("...Redis connection successful!")
 
-	logger.Info("Starting Redis ping...")
+	appCtx.Logger().Info("Starting Redis ping...")
 	_, pingErr := redis.String(redisConnection.Do("PING"))
 	if pingErr != nil {
-		logger.Error("failed to ping Redis", zap.Error(pingErr))
+		appCtx.Logger().Error("failed to ping Redis", zap.Error(pingErr))
 		return pingErr
 	}
 
-	logger.Info("...Redis ping successful!")
+	appCtx.Logger().Info("...Redis ping successful!")
 
 	return nil
 }
