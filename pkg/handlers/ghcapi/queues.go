@@ -109,6 +109,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		Sort:                   params.Sort,
 		Order:                  params.Order,
+		OriginDutyLocation:     params.OriginDutyLocation,
 	}
 
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20

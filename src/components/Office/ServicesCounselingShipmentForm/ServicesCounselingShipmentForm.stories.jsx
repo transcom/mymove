@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 const defaultProps = {
   match: {
@@ -84,7 +86,17 @@ const mockMtoShipmentNoCustomerRemarks = {
 export default {
   title: 'Office Components / Forms / ServicesCounselingShipmentForm',
   component: ServicesCounselingShipmentForm,
-  decorators: [(Story) => <Story />],
+  decorators: [
+    (Story) => (
+      <GridContainer className={styles.gridContainer}>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
+    ),
+  ],
 };
 
 // create shipment stories (form should not prefill customer data)
@@ -111,3 +123,29 @@ export const EditHHGShipmentNoCustRemarks = () => (
     mtoShipment={mockMtoShipmentNoCustomerRemarks}
   />
 );
+
+export const NTSShipmentWithoutCodes = () => {
+  return <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />;
+};
+
+export const NTSShipmentWithCodes = () => {
+  return (
+    <ServicesCounselingShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTS}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345' }}
+    />
+  );
+};
+
+export const NTSReleaseShipment = () => {
+  return (
+    <ServicesCounselingShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345', NTS: '6789ABC' }}
+    />
+  );
+};
