@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
 
 import { ResidentialAddressShape } from 'types/address';
 import { formatDate, formatWeight } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
-import { DatePickerInput } from 'components/form/fields';
+import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -39,7 +38,7 @@ const PrimeUIShipmentUpdateForm = ({
       <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
       <DatePickerInput name="actualPickupDate" label="Actual pickup" />
       <h2 className={styles.sectionHeader}>Diversion</h2>
-      <Checkbox id="diversion" name="diversion" label="Diversion" />
+      <CheckboxField id="diversion" name="diversion" label="Diversion" />
       <h2 className={styles.sectionHeader}>Shipment Weights</h2>
       {editableWeightEstimateField && (
         <MaskedTextField

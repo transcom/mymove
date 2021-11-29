@@ -101,7 +101,7 @@ const Shipment = ({ shipment, moveId }) => {
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Diversion:</dt>
-        <dd>{shipment.diversion ? shipment.diversion.toString() : 'N/A'}</dd>
+        <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
     </dl>
   );
