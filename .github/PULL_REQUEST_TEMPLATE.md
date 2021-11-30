@@ -15,25 +15,25 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 Start the Storybook locally.
 
-\`\`\`sh
+```sh
 make storybook
-\`\`\`
+```
 
 ##### Terminal 2
 
 Start the UI locally.
 
-\`\`\`sh
+```sh
 make client_run
-\`\`\`
+```
 
 ##### Terminal 3
 
 Start the Go server locally.
 
-\`\`\`sh
+```sh
 make server_run
-\`\`\`
+```
 
 </details>
 
