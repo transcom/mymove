@@ -28,6 +28,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
@@ -56,7 +57,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
       return {
         id: shipment.id,
-        displayInfo: { ...shipment },
+        displayInfo: {
+          heading: getShipmentTypeLabel(shipment.shipmentType),
+          destinationAddress: shipment.destinationAddress || {
+            postalCode: order.destinationDutyStation.address.postalCode,
+          },
+          ...shipment,
+        },
         editURL,
         shipmentType: shipment.shipmentType,
       };
