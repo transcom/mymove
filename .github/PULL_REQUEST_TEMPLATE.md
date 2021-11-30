@@ -22,7 +22,7 @@ echo "Code goes here"
 - [ ] Code follows the guidelines for [Logging](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide#logging)
 - [ ] The requirements listed in [Querying the Database Safely](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide/#querying-the-database-safely) have been satisfied.
 - Any new migrations/schema changes:
-  - [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations))
+  - [ ] Follows our guidelines for [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations)
   - [ ] Have been communicated to #g-database
   - [ ] Secure migrations have been tested following the instructions in our [docs](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations)
 - [ ] There are no aXe warnings for UI.
