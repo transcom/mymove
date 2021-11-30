@@ -58,9 +58,9 @@ const OrdersList = ({ ordersInfo }) => {
           <dt>HHG SAC</dt>
           <dd data-testid="sacSDN">{ordersInfo.sacSDN}</dd>
         </div>
-        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.tacMDC })}>
+        <div className={descriptionListStyles.row}>
           <dt>NTS TAC</dt>
-          <dd data-testid="NTStac">{!ordersInfo.NTStac ? 'Missing' : ordersInfo.NTStac}</dd>
+          <dd data-testid="NTStac">{ordersInfo.NTStac}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>NTS SAC</dt>
