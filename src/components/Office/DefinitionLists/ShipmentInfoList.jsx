@@ -6,11 +6,10 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 
-const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => {
+const ShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -20,121 +19,43 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
     agents,
     counselorRemarks,
     customerRemarks,
-    primeActualWeight,
-    requestedDeliveryDate,
-    storageFacility,
-    serviceOrderNumber,
-    tacType,
-    sacType,
   } = shipment;
+  const requestedPickupDateElement = (
+    <div className={descriptionListStyles.row}>
+      <dt>Requested move date</dt>
+      <dd>{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
+    </div>
+  );
 
-  // if (shipmentType === SHIPMENT_OPTIONS.NTSR) {
-  //   if (isExpanded) {
-  //     let listItems = [storageFacilityAddressElement]
-  //   } else {
-  //
-  //   }
-  //
-  // }
-  // const present = [];
-  // const requiredButMissing = [];
+  const pickupAddressElement = (
+    <div className={descriptionListStyles.row}>
+      <dt>Current address</dt>
+      <dd>{pickupAddress && formatAddress(pickupAddress)}</dd>
+    </div>
+  );
 
-  const storageFacilityAddressElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR ? (
-      <div className={classNames((descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility }))}>
-        <dt>Storage facility address</dt>
-        <dd>
-          {storageFacility ? formatAddress(storageFacility.address) : 'Missing'}
-          {storageFacility && storageFacility.lotNumber && (
-            <>
-              <br /> Lot #{storageFacility.lotNumber}
-            </>
-          )}
-        </dd>
-      </div>
-    ) : null;
+  const secondaryPickupAddressElement = (
+    <div className={descriptionListStyles.row}>
+      <dt>Second pickup address</dt>
+      <dd>{secondaryPickupAddress && formatAddress(secondaryPickupAddress)}</dd>
+    </div>
+  );
 
-  // if (storageFacilityAddress) {
-  //   present.push(storageFacilityAddressElement);
-  // } else {
-  //   requiredButMissing.push(storageFacilityAddressElement);
-  // }
+  const destinationAddressElement = (
+    <div className={descriptionListStyles.row}>
+      <dt>Destination address</dt>
+      <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
+    </div>
+  );
 
-  const primeActualWeightElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR ? (
-      <div className={classNames((descriptionListStyles.row, { [styles.missingInfoError]: !primeActualWeight }))}>
-        <dt>Shipment weight</dt>
-        <dd data-testid="primeActualWeight">{primeActualWeight || '—'}</dd>
-      </div>
-    ) : null;
-
-  const storageFacilityInfoElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR ? (
-      <div className={classNames((descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility }))}>
-        <dt>Storage facility info</dt>
-        <dd data-testid="storageFacilityName">
-          {storageFacility && storageFacility.facilityName ? storageFacility.facilityName : 'Missing'}
-        </dd>
-      </div>
-    ) : null;
-
-  const serviceOrderNumberElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR ? (
-      <div className={descriptionListStyles.row}>
-        <dt>Service order #</dt>
-        <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
-      </div>
-    ) : null;
-
-  const requestedDeliveryDateElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR ? (
-      <div className={descriptionListStyles.row}>
-        <dt>Preferred delivery date</dt>
-        <dd>{(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}</dd>
-      </div>
-    ) : null;
-
-  const requestedPickupDateElement =
-    shipmentType === SHIPMENT_OPTIONS.NTS || shipmentType === SHIPMENT_OPTIONS.HHG ? (
-      <div className={descriptionListStyles.row}>
-        <dt>{shipmentType === SHIPMENT_OPTIONS.NTS ? 'Preferred pickup date' : 'Requested move date'}</dt>
-        <dd>{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
-      </div>
-    ) : null;
-
-  const pickupAddressElement =
-    shipmentType === SHIPMENT_OPTIONS.NTS || shipmentType === SHIPMENT_OPTIONS.HHG ? (
-      <div className={descriptionListStyles.row}>
-        <dt>{shipmentType === SHIPMENT_OPTIONS.NTS ? 'Origin address' : 'Current address'}</dt>
-        <dd>{pickupAddress && formatAddress(pickupAddress)}</dd>
-      </div>
-    ) : null;
-
-  const secondaryPickupAddressElement =
-    shipmentType === SHIPMENT_OPTIONS.NTS || shipmentType === SHIPMENT_OPTIONS.HHG ? (
-      <div className={descriptionListStyles.row}>
-        <dt>Second pickup address</dt>
-        <dd>{secondaryPickupAddress && formatAddress(secondaryPickupAddress)}</dd>
-      </div>
-    ) : null;
-
-  const destinationAddressElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR || shipmentType === SHIPMENT_OPTIONS.HHG ? (
-      <div className={descriptionListStyles.row}>
-        <dt>{shipmentType === SHIPMENT_OPTIONS.NTSR ? 'Delivery address' : 'Destination address'}</dt>
-        <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
-      </div>
-    ) : null;
-
-  const secondaryDeliveryAddressElement =
-    shipmentType === SHIPMENT_OPTIONS.NTSR || shipmentType === SHIPMENT_OPTIONS.HHG ? (
-      <div className={descriptionListStyles.row}>
-        <dt>{shipmentType === SHIPMENT_OPTIONS.NTSR ? 'Second delivery address' : 'Second destination address'}</dt>
-        <dd data-testid="secondaryDeliveryAddress">
-          {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
-        </dd>
-      </div>
-    ) : null;
+  const secondaryDeliveryAddressElement = (
+    <div className={descriptionListStyles.row}>
+      <dt>Second destination address</dt>
+      <dd data-testid="secondaryDeliveryAddress">
+        {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
 
   return (
     <dl
@@ -147,19 +68,10 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
       data-testid="shipment-info-list"
     >
       {requestedPickupDateElement}
-      {isExpanded && primeActualWeightElement}
       {pickupAddress && pickupAddressElement}
       {isExpanded && secondaryPickupAddress && secondaryPickupAddressElement}
-      {isExpanded && storageFacilityInfoElement}
-      {!isExpanded && requestedDeliveryDate && requestedDeliveryDateElement}
-      {isExpanded && serviceOrderNumberElement}
-      {(isExpanded || storageFacility) && storageFacilityAddressElement}
-      {isExpanded && requestedDeliveryDate && requestedDeliveryDateElement}
       {destinationAddressElement}
-      {isExpanded && secondaryDeliveryAddressElement}
-
-      {!isExpanded && !storageFacility && storageFacilityInfoElement}
-      {!isExpanded && !storageFacility && storageFacilityAddressElement}
+      {isExpanded && secondaryDeliveryAddress && secondaryDeliveryAddressElement}
 
       {isExpanded &&
         agents &&
@@ -176,22 +88,10 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
         </div>
       )}
 
-      <div className={descriptionListStyles.row}>
+      <div className={classNames((descriptionListStyles.row, { [styles.warning]: !counselorRemarks }))}>
         <dt>Counselor remarks</dt>
         <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
       </div>
-      {isExpanded && (
-        <div className={descriptionListStyles.row}>
-          <dt>TAC</dt>
-          <dd data-testid="tacType">{tacType || '—'}</dd>
-        </div>
-      )}
-      {isExpanded && (
-        <div className={descriptionListStyles.row}>
-          <dt>SAC</dt>
-          <dd data-testid="sacType">{sacType || '—'}</dd>
-        </div>
-      )}
     </dl>
   );
 };
@@ -199,19 +99,11 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  shipmentType: PropTypes.oneOf([
-    SHIPMENT_OPTIONS.HHG,
-    SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.NTS,
-    SHIPMENT_OPTIONS.NTSR,
-  ]),
   isExpanded: PropTypes.bool,
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
-  shipmentType: SHIPMENT_OPTIONS.HHG,
   isExpanded: false,
 };
 

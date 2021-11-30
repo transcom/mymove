@@ -136,9 +136,6 @@ const ntsReleaseMissingInfo = {
       email: 'ksmith@email.com',
     },
   ],
-  counselorRemarks:
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
-    'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   tacType: 'HHG',
   sacType: 'NTS',
 };
@@ -248,6 +245,7 @@ export const NTSReleaseShipment = () => (
     <ShipmentDisplay
       displayInfo={object('displayInfo', ntsReleaseInfo)}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
+      shipmentId={ntsReleaseInfo.shipmentId}
       isSubmitted
     />
   </div>
@@ -258,6 +256,7 @@ export const NTSReleaseShipmentMissingInfo = () => (
     <ShipmentDisplay
       displayInfo={object('displayInfo', ntsReleaseMissingInfo)}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
+      shipmentId={ntsReleaseMissingInfo.shipmentId}
       isSubmitted
     />
   </div>

@@ -21,4 +21,9 @@
     @include u-border-left('error');
     @include u-font-weight(bold);
   }
+
+  .warning {
+        border-left: 4px solid $mm-gold;
+        @include u-margin-left(-0.5);
+  }
 }
