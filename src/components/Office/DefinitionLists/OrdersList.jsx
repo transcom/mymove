@@ -56,15 +56,15 @@ const OrdersList = ({ ordersInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>HHG SAC</dt>
-          <dd data-testid="sacSDN">{ordersInfo.sacSDN}</dd>
+          <dd data-testid="sacSDN">{!ordersInfo.sacSDN ? '—' : ordersInfo.sacSDN}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>NTS TAC</dt>
-          <dd data-testid="NTStac">{ordersInfo.NTStac}</dd>
+          <dd data-testid="NTStac">{!ordersInfo.NTStac ? '—' : ordersInfo.NTStac}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>NTS SAC</dt>
-          <dd data-testid="NTSsac">{ordersInfo.NTSsac}</dd>
+          <dd data-testid="NTSsac">{!ordersInfo.NTSsac ? '—' : ordersInfo.NTSsac}</dd>
         </div>
       </dl>
     </div>
