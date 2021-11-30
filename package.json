@@ -68,7 +68,7 @@
     "regenerator-runtime": "^0.13.9",
     "reselect": "^4.1.4",
     "swagger-client": "^3.17.0",
-    "swagger-ui-dist": "^4.0.1",
+    "swagger-ui-dist": "^4.1.2",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"
@@ -120,7 +120,7 @@
     "@storybook/addon-a11y": "^6.3.12",
     "@storybook/addon-essentials": "6.3.12",
     "@storybook/addon-knobs": "^6.3.1",
-    "@storybook/addon-links": "^6.3.12",
+    "@storybook/addon-links": "^6.4.1",
     "@storybook/addons": "^6.3.11",
     "@storybook/preset-create-react-app": "^3.2.0",
     "@storybook/react": "6.3.12",
