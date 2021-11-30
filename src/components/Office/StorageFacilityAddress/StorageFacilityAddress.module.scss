@@ -1,0 +1,14 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+
+.Fieldset {
+  h2 {
+    @include u-margin-bottom(2);
+  }
+}
+
+.Label {
+  span {
+    font-weight: normal;
+  }
+}
