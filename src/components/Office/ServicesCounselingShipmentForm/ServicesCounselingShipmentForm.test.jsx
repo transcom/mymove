@@ -165,6 +165,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
     });
+
+    it('does not render a Shipment Weight section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {
@@ -260,6 +267,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('1234 (HHG)')).toBeInTheDocument();
       expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
     });
+
+    it('does not render a Shipment Weight section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+      expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+    });
   });
 
   describe('editing an already existing NTS shipment', () => {
@@ -321,6 +335,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+    });
+
+    it('renders the Shipment Weight section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+      expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
     });
   });
 

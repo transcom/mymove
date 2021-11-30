@@ -16,6 +16,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import DataTable from 'components/DataTable';
 import AccountingCodes from 'components/Office/AccountingCodes/AccountingCodes';
+import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -92,7 +93,8 @@ const ServicesCounselingShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
-  const showAccountingCodes = shipmentType === SHIPMENT_OPTIONS.NTS || shipmentType === SHIPMENT_OPTIONS.NTSR;
+  const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
+  const showAccountingCodes = isNTS || isNTSR;
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -110,6 +112,7 @@ const ServicesCounselingShipmentForm = ({
     delivery,
     customerRemarks,
     counselorRemarks,
+    primeActualWeight,
     tacType,
     sacType,
   }) => {
@@ -125,6 +128,7 @@ const ServicesCounselingShipmentForm = ({
       counselorRemarks,
       pickup,
       delivery: deliveryDetails,
+      primeActualWeight,
       tacType,
       sacType,
     });
@@ -231,12 +235,13 @@ const ServicesCounselingShipmentForm = ({
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
-                  <strong>Weight Allowance: </strong>
+                  <strong>Weight allowance: </strong>
                   {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
                 </p>
               </SectionWrapper>
 
               <Form className={formStyles.form}>
+                {isNTSR && <ShipmentWeightInput />}
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
