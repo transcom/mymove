@@ -19,12 +19,14 @@ describe('components/Office/StorageFacilityAddress', () => {
     render(
       <Formik
         initialValues={{
-          facilityLotNumber: '42',
-          facilityAddress: {
-            streetAddress1: '3373 NW Martin Luther King Blvd',
-            city: 'San Antonio',
-            state: 'TX',
-            postalCode: '78234',
+          storageFacility: {
+            lotNumber: '42',
+            address: {
+              streetAddress1: '3373 NW Martin Luther King Blvd',
+              city: 'San Antonio',
+              state: 'TX',
+              postalCode: '78234',
+            },
           },
         }}
       >

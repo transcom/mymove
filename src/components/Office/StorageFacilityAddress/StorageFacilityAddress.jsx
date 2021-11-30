@@ -14,7 +14,7 @@ const StorageFacilityAddress = () => {
       <Fieldset className={styles.Fieldset}>
         <h2>Storage facility address</h2>
         <AddressFields
-          name="facilityAddress"
+          name="storageFacility.address"
           render={(fields) => (
             <>
               {fields}
@@ -25,7 +25,7 @@ const StorageFacilityAddress = () => {
                       Lot number
                       <span className="float-right">Optional</span>
                     </Label>
-                    <Field as={TextInput} id="facilityLotNumber" name="facilityLotNumber" />
+                    <Field as={TextInput} id="facilityLotNumber" name="storageFacility.lotNumber" />
                   </FormGroup>
                 </Grid>
               </Grid>

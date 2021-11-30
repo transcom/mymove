@@ -16,7 +16,7 @@ const StorageFacilityInfo = () => {
           <Grid col={12}>
             <FormGroup>
               <Label htmlFor="facilityName">Facility name</Label>
-              <Field as={TextInput} id="facilityName" name="facilityName" />
+              <Field as={TextInput} id="facilityName" name="storageFacility.facilityName" />
             </FormGroup>
           </Grid>
         </Grid>
@@ -28,7 +28,7 @@ const StorageFacilityInfo = () => {
                 Phone
                 <span className="float-right">Optional</span>
               </Label>
-              <Field as={TextInput} id="facilityPhone" name="facilityPhone" />
+              <Field as={TextInput} id="facilityPhone" name="storageFacility.phone" />
             </FormGroup>
           </Grid>
         </Grid>
@@ -40,7 +40,7 @@ const StorageFacilityInfo = () => {
                 Email
                 <span className="float-right">Optional</span>
               </Label>
-              <Field as={TextInput} id="facilityEmail" name="facilityEmail" />
+              <Field as={TextInput} id="facilityEmail" name="storageFacility.email" />
             </FormGroup>
           </Grid>
         </Grid>
@@ -52,7 +52,7 @@ const StorageFacilityInfo = () => {
                 Service order number
                 <span className="float-right">Optional</span>
               </Label>
-              <Field as={TextInput} id="facilityServiceOrderNumber" name="facilityServiceOrderNumber" />
+              <Field as={TextInput} id="facilityServiceOrderNumber" name="serviceOrderNumber" />
             </FormGroup>
           </Grid>
         </Grid>

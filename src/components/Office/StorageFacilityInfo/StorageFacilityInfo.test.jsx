@@ -19,7 +19,8 @@ describe('components/Office/StorageFacilityInfo', () => {
     render(
       <Formik
         initialValues={{
-          facilityName: 'Most Excellent Storage',
+          serviceOrderNumber: '12341234',
+          storageFacility: { facilityName: 'Most Excellent Storage' },
         }}
       >
         <StorageFacilityInfo />
@@ -27,5 +28,6 @@ describe('components/Office/StorageFacilityInfo', () => {
     );
 
     expect(screen.getByLabelText('Facility name')).toHaveValue('Most Excellent Storage');
+    expect(screen.getByLabelText(/Service order number/)).toHaveValue('12341234');
   });
 });
