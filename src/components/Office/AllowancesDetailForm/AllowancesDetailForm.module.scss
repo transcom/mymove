@@ -9,11 +9,10 @@
 
   label {
     @include u-margin-top(1);
-    @include u-margin-bottom(1);
     color: $base-darker;
   }
 
-  input+label {
+  input + label {
     @include u-margin-top(1);
   }
 
