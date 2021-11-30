@@ -15,28 +15,28 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DOFSIT",
+			Code: models.ReServiceCodeDOFSIT,
 			Name: "Dom. Origin 1st Day SIT",
 		},
 	})
 
 	reServiceDOASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DOASIT",
+			Code: models.ReServiceCodeDOASIT,
 			Name: "Dom. Origin Add'l SIT",
 		},
 	})
 
 	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 			Name: "Dom. Destination 1st Day SIT",
 		},
 	})
 
 	reServiceDDASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DDASIT",
+			Code: models.ReServiceCodeDDASIT,
 			Name: "Dom. Destination Add'l SIT",
 		},
 	})

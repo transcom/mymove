@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -184,7 +185,7 @@ func MakeValidEdi() Invoice858C {
 		},
 		L5: edisegment.L5{
 			LadingLineItemNumber:   1,
-			LadingDescription:      "CS",
+			LadingDescription:      models.ReServiceCodeCS.String(),
 			CommodityCode:          "TBD",
 			CommodityCodeQualifier: "D",
 		},

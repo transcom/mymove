@@ -34,19 +34,19 @@ func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(appCtx appcon
 		}
 
 		servicesToInsert := []struct {
-			service string
+			service models.ReServiceCode
 			price   string
 		}{
-			{"IHPK", stagePrice.HHGOriginPackPrice},
-			{"IHUPK", stagePrice.HHGDestinationUnPackPrice},
-			{"IUBPK", stagePrice.UBOriginPackPrice},
-			{"IUBUPK", stagePrice.UBDestinationUnPackPrice},
-			{"IOFSIT", stagePrice.OriginDestinationSITFirstDayWarehouse},
-			{"IDFSIT", stagePrice.OriginDestinationSITFirstDayWarehouse},
-			{"IOASIT", stagePrice.OriginDestinationSITAddlDays},
-			{"IDASIT", stagePrice.OriginDestinationSITAddlDays},
-			{"IOPSIT", stagePrice.SITLte50Miles},
-			{"IDDSIT", stagePrice.SITGt50Miles},
+			{models.ReServiceCodeIHPK, stagePrice.HHGOriginPackPrice},
+			{models.ReServiceCodeIHUPK, stagePrice.HHGDestinationUnPackPrice},
+			{models.ReServiceCodeIUBPK, stagePrice.UBOriginPackPrice},
+			{models.ReServiceCodeIUBUPK, stagePrice.UBDestinationUnPackPrice},
+			{models.ReServiceCodeIOFSIT, stagePrice.OriginDestinationSITFirstDayWarehouse},
+			{models.ReServiceCodeIDFSIT, stagePrice.OriginDestinationSITFirstDayWarehouse},
+			{models.ReServiceCodeIOASIT, stagePrice.OriginDestinationSITAddlDays},
+			{models.ReServiceCodeIDASIT, stagePrice.OriginDestinationSITAddlDays},
+			{models.ReServiceCodeIOPSIT, stagePrice.SITLte50Miles},
+			{models.ReServiceCodeIDDSIT, stagePrice.SITGt50Miles},
 		}
 
 		for _, serviceToInsert := range servicesToInsert {

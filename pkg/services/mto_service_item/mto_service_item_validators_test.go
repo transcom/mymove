@@ -1,6 +1,7 @@
 package mtoserviceitem
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -176,7 +177,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), "SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items")
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
 	})
 
 	// Test successful check for service item w/out payment request

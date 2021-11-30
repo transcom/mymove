@@ -98,7 +98,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		Move:        mto,
 		MTOShipment: mtoShipment,
 		ReService: models.ReService{
-			Code: "DOPSIT",
+			Code: models.ReServiceCodeDOPSIT,
 		},
 	})
 
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		Move:        mto,
 		MTOShipment: mtoShipment,
 		ReService: models.ReService{
-			Code: "DOPSIT",
+			Code: models.ReServiceCodeDOPSIT,
 		},
 	})
 

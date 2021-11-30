@@ -1371,7 +1371,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
 
 	if updateOriginErr != nil {
-		logger.Fatal("Error updating DOPSIT with departure date")
+		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDOPSIT))
 	}
 
 	originPickupSIT = *updatedDOPSIT
@@ -1405,7 +1405,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
 	if updateDestErr != nil {
-		logger.Fatal("Error updating DDDSIT with departure date")
+		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDDDSIT))
 	}
 
 	serviceItemDDDSIT = *updatedDDDSIT
@@ -4944,7 +4944,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOFSIT",
+			Code: models.ReServiceCodeDOFSIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -4958,7 +4958,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOASIT",
+			Code: models.ReServiceCodeDOASIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -4973,7 +4973,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:           &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOPSIT",
+			Code: models.ReServiceCodeDOPSIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -4987,7 +4987,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -5001,7 +5001,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDASIT",
+			Code: models.ReServiceCodeDDASIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -5015,7 +5015,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDDSIT",
+			Code: models.ReServiceCodeDDDSIT,
 		},
 		MTOShipment: mtoShipmentSIT,
 		Move:        move,
@@ -5051,7 +5051,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		ReService: models.ReService{
-			Code: "MS",
+			Code: models.ReServiceCodeMS,
 		},
 		Move: move,
 	})
@@ -5080,7 +5080,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			Reason:           &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOPSIT",
+			Code: models.ReServiceCodeDOPSIT,
 		},
 		MTOShipment: mtoShipment,
 		Move:        move,
@@ -5094,7 +5094,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			Reason:       &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDDSIT",
+			Code: models.ReServiceCodeDDDSIT,
 		},
 		MTOShipment: mtoShipment,
 		Move:        move,
