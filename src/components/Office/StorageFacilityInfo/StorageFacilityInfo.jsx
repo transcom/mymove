@@ -6,6 +6,7 @@ import styles from './StorageFacilityInfo.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const StorageFacilityInfo = () => {
   return (
@@ -23,13 +24,15 @@ const StorageFacilityInfo = () => {
 
         <Grid row gap>
           <Grid col={6}>
-            <FormGroup>
-              <Label htmlFor="facilityPhone" className={styles.Label}>
-                Phone
-                <span className="float-right">Optional</span>
-              </Label>
-              <Field as={TextInput} id="facilityPhone" name="storageFacility.phone" />
-            </FormGroup>
+            <MaskedTextField
+              label="Phone"
+              id="facilityPhone"
+              name="storageFacility.phone"
+              type="tel"
+              minimum="12"
+              mask="000{-}000{-}0000"
+              optional
+            />
           </Grid>
         </Grid>
 

@@ -20,6 +20,8 @@ import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentW
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
+import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
+import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -115,6 +117,8 @@ const ServicesCounselingShipmentForm = ({
     primeActualWeight,
     tacType,
     sacType,
+    serviceOrderNumber,
+    storageFacility,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -131,6 +135,8 @@ const ServicesCounselingShipmentForm = ({
       primeActualWeight,
       tacType,
       sacType,
+      serviceOrderNumber,
+      storageFacility,
     });
 
     if (isCreatePage) {
@@ -241,7 +247,13 @@ const ServicesCounselingShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isNTSR && <ShipmentWeightInput />}
+                {isNTSR && (
+                  <>
+                    <ShipmentWeightInput />
+                    <StorageFacilityInfo />
+                    <StorageFacilityAddress />
+                  </>
+                )}
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
