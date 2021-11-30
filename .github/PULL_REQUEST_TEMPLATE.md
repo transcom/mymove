@@ -37,6 +37,10 @@ make server_run
 
 </details>
 
+### Additional steps
+
+<!-- Fill out the next section as you see fit, these are just suggestions. -->
+
 1. Access the
 2. Login as a
 3.
@@ -52,6 +56,8 @@ These are to be checked by the author.
 ## Verification Steps for Reviewers
 
 These are to be checked by a reviewer.
+
+<!-- Fill out the next sections as you see fit, these are just suggestions. -->
 
 ### Frontend
 
