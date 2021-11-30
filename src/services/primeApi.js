@@ -85,3 +85,24 @@ export function updatePrimeMTOShipmentAddress({
     { schemaKey, normalize },
   );
 }
+
+export function updatePrimeMTOShipmentReweigh({
+  mtoShipmentID,
+  reweighID,
+  ifMatchETag,
+  normalize = false,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateReweigh';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      reweighID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
