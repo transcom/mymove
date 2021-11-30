@@ -1857,7 +1857,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, locator, status, destinationDutyStation]
+          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyStation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1875,6 +1875,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: destinationDutyStation
@@ -3869,6 +3872,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originGBLOC:

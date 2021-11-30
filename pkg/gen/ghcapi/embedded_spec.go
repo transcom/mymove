@@ -2090,6 +2090,7 @@ func init() {
               "branch",
               "locator",
               "status",
+              "originDutyLocation",
               "destinationDutyStation"
             ],
             "type": "string",
@@ -2125,6 +2126,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -4883,6 +4889,9 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -8470,6 +8479,7 @@ func init() {
               "branch",
               "locator",
               "status",
+              "originDutyLocation",
               "destinationDutyStation"
             ],
             "type": "string",
@@ -8505,6 +8515,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -11461,6 +11476,9 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
