@@ -736,6 +736,10 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
+		suite.Equal(body.Tac, ordersPayload.Tac)
+		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
