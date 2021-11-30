@@ -1,46 +1,83 @@
-## Description
+## [Jira ticket](tbd) for this change
 
-Explain a little about the changes at a high level.
-
-## Reviewer Notes
+## Summary
 
 Is there anything you would like reviewers to give additional scrutiny?
 
-## Setup
+[this article](tbd) explains more about the approach used.
 
-Add any steps or code to run in this section to help others prepare to run your code:
+## Setup to Run Your Code
+
+<details>
+<summary>💻 You will need to use three separate terminals to test this locally.</summary>
+
+##### Terminal 1
+
+Start the Storybook locally.
 
 ```sh
-echo "Code goes here"
+make storybook
 ```
 
-## Code Review Verification Steps
+##### Terminal 2
 
-* [ ] If the change is risky, it has been tested in experimental before merging.
-* [ ] Code follows the guidelines for [Logging](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide#logging)
-* [ ] The requirements listed in [Querying the Database Safely](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide/#querying-the-database-safely) have been satisfied.
-* Any new migrations/schema changes:
-  * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations))
-  * [ ] Have been communicated to #g-database
-  * [ ] Secure migrations have been tested following the instructions in our [docs](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations)
-* [ ] There are no aXe warnings for UI.
-* [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
-* [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
-* [ ] User facing changes have been reviewed by design.
-* [ ] Request review from a member of a different team.
-* [ ] Have the Jira acceptance criteria been met for this change?
+Start the UI locally.
 
-## References
+```sh
+make client_run
+```
 
-* [Jira story](tbd) for this change
-* [this article](tbd) explains more about the approach used.
+##### Terminal 3
+
+Start the Go server locally.
+
+```sh
+make server_run
+```
+
+</details>
+
+### Additional steps
+
+<!-- Fill out the next section as you see fit, these are just suggestions. -->
+
+1. Access the
+2. Login as a
+3.
+
+## Verification Steps for Author
+
+These are to be checked by the author.
+
+- [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
+- [ ] Request review from a member of a different team.
+- [ ] Have the Jira acceptance criteria been met for this change?
+
+## Verification Steps for Reviewers
+
+These are to be checked by a reviewer.
+
+<!-- Fill out the next sections as you see fit, these are just suggestions. -->
+
+### Frontend
+
+- [ ] User facing changes have been reviewed by design.
+- [ ] There are no aXe warnings for UI.
+- [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
+- [ ] There are no new console errors in the browser devtools
+- [ ] There are no new console errors in the test output
+
+### Backend
+
+- [ ] Code follows the guidelines for [Logging](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide#logging)
+- [ ] The requirements listed in [Querying the Database Safely](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/Backend-Programming-Guide/#querying-the-database-safely) have been satisfied.
+
+### Database
+
+#### Any new migrations/schema changes:
+
+- [ ] Follows our guidelines for [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations)
+- [ ] Have been communicated to #g-database
+- [ ] Secure migrations have been tested following the instructions in our [docs](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations)
 
 ## Screenshots
-
-If this PR makes visible UI changes, an image of the finished UI can help reviewers and casual
-observers understand the context of the changes. A before image is optional and
-can be included at the submitter's discretion.
-
-Consider using an animated image to show an entire workflow instead of using multiple images. You may want to use GIPHY CAPTURE for this! 📸
-
-_Please frame screenshots to show enough useful context but also highlight the affected regions._
