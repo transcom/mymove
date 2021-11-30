@@ -68,9 +68,10 @@ These are to be checked by a reviewer.
 
 ### Database
 
-- Any new migrations/schema changes:
-  - [ ] Follows our guidelines for [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations)
-  - [ ] Have been communicated to #g-database
-  - [ ] Secure migrations have been tested following the instructions in our [docs](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations)
+#### Any new migrations/schema changes:
+
+- [ ] Follows our guidelines for [Zero-Downtime Deploys](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#zero-downtime-migrations)
+- [ ] Have been communicated to #g-database
+- [ ] Secure migrations have been tested following the instructions in our [docs](https://transcom.github.io/mymove-docs/docs/dev/contributing/database/Database-Migrations#secure-migrations)
 
 ## Screenshots
