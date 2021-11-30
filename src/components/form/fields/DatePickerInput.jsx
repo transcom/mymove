@@ -21,9 +21,11 @@ export const DatePickerInput = (props) => {
     <FormGroup error={hasError}>
       {renderInput(
         <>
-          <Label error={hasError} htmlFor={inputId.current}>
-            {label}
-          </Label>
+          <div className="labelWrapper">
+            <Label error={hasError} htmlFor={inputId.current}>
+              {label}
+            </Label>
+          </div>
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
           <SingleDatePicker
             title={label}

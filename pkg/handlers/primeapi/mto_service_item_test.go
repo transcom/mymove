@@ -308,12 +308,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		})
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DCRT",
+				Code: models.ReServiceCodeDCRT,
 			},
 		})
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DUCRT",
+				Code: models.ReServiceCodeDUCRT,
 			},
 		})
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
@@ -1010,7 +1010,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 				SITEntryDate: swag.Time(time.Now()),
 			},
 			ReService: models.ReService{
-				Code: "DDDSIT",
+				Code: models.ReServiceCodeDDDSIT,
 			},
 		})
 
@@ -1025,7 +1025,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:              "DDDSIT",
+			ReServiceCode:              models.ReServiceCodeDDDSIT.String(),
 			SitDepartureDate:           *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			SitDestinationFinalAddress: &addr,
 		}
@@ -1186,13 +1186,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 				SITEntryDate: swag.Time(time.Now()),
 			},
 			ReService: models.ReService{
-				Code: "DOPSIT",
+				Code: models.ReServiceCodeDOPSIT,
 			},
 		})
 
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:    "DOPSIT",
+			ReServiceCode:    models.ReServiceCodeDOPSIT.String(),
 			SitDepartureDate: *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))

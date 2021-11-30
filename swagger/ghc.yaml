@@ -1985,6 +1985,7 @@ paths:
             - status
             - dodID
             - age
+            - originDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2022,6 +2023,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -4015,6 +4019,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:
@@ -4217,6 +4223,7 @@ definitions:
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
+      - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -4227,10 +4234,6 @@ definitions:
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
       - PSI_LinehaulShortPrice
-      - PSI_PackingDom
-      - PSI_PackingDomPrice
-      - PSI_PackingHHGIntl
-      - PSI_PackingHHGIntlPrice
       - PSI_PriceDomDest
       - PSI_PriceDomDestPrice
       - PSI_PriceDomOrigin

@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Label, Fieldset } from '@trussworks/react-uswds';
 
 import formStyles from 'styles/form.module.scss';
-import TextField from 'components/form/fields/TextField';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
 
 export const CustomerContactInfoFields = ({ legend, className, render }) => {

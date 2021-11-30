@@ -7,7 +7,7 @@ import { Button } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions } from './Modal';
 
 import { Form } from 'components/form';
-import TextField from 'components/form/fields/TextField';
+import TextField from 'components/form/fields/TextField/TextField';
 
 export default {
   title: 'Components/Modals',

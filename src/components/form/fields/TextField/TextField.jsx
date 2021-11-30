@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
+import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
 
 /**
@@ -17,9 +18,23 @@ import Hint from 'components/Hint';
  * ReactUSWDS components directly.
  */
 
-const TextField = ({ name, id, label, labelClassName, labelHint, validate, type, warning, ...inputProps }) => {
+const TextField = ({
+  name,
+  id,
+  label,
+  labelClassName,
+  labelHint,
+  validate,
+  type,
+  optional,
+  warning,
+  error,
+  errorMessage,
+  errorClassName,
+  ...inputProps
+}) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
-  const showError = metaProps.touched && !!metaProps.error;
+  const showError = (metaProps.touched && !!metaProps.error) || error;
   const showWarning = !showError && warning;
 
   const formGroupClasses = classnames({
@@ -28,11 +43,18 @@ const TextField = ({ name, id, label, labelClassName, labelHint, validate, type,
 
   return (
     <FormGroup className={formGroupClasses} error={showError}>
-      <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-        {label}
-      </Label>
+      <div className="labelWrapper">
+        <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
+          {label}
+        </Label>
+        {optional && <OptionalTag />}
+      </div>
 
-      {showError && <ErrorMessage>{metaProps.error}</ErrorMessage>}
+      {showError && (
+        <ErrorMessage display={showError} className={errorClassName}>
+          {metaProps.error ? metaProps.error : errorMessage}
+        </ErrorMessage>
+      )}
 
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
@@ -48,16 +70,24 @@ TextField.propTypes = {
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
   warning: PropTypes.string,
+  optional: PropTypes.bool,
   validate: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   type: PropTypes.string,
+  error: PropTypes.bool,
+  errorMessage: PropTypes.string,
+  errorClassName: PropTypes.string,
 };
 
 TextField.defaultProps = {
   labelHint: '',
   labelClassName: '',
   warning: '',
+  optional: false,
   validate: undefined,
   type: 'text',
+  error: false,
+  errorMessage: '',
+  errorClassName: '',
 };
 
 export default TextField;

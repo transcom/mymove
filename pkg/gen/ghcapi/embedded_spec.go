@@ -2184,7 +2184,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2243,6 +2244,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -4955,6 +4961,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -5184,6 +5193,7 @@ func init() {
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
+        "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -5194,10 +5204,6 @@ func init() {
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
         "PSI_LinehaulShortPrice",
-        "PSI_PackingDom",
-        "PSI_PackingDomPrice",
-        "PSI_PackingHHGIntl",
-        "PSI_PackingHHGIntlPrice",
         "PSI_PriceDomDest",
         "PSI_PriceDomDestPrice",
         "PSI_PriceDomOrigin",
@@ -8564,7 +8570,8 @@ func init() {
               "branch",
               "status",
               "dodID",
-              "age"
+              "age",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8623,6 +8630,11 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -11527,6 +11539,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyStation"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -11759,6 +11774,7 @@ func init() {
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
+        "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -11769,10 +11785,6 @@ func init() {
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
         "PSI_LinehaulShortPrice",
-        "PSI_PackingDom",
-        "PSI_PackingDomPrice",
-        "PSI_PackingHHGIntl",
-        "PSI_PackingHHGIntlPrice",
         "PSI_PriceDomDest",
         "PSI_PriceDomDestPrice",
         "PSI_PriceDomOrigin",

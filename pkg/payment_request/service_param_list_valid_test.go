@@ -20,14 +20,14 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 	subtestData.mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.move,
 		ReService: models.ReService{
-			Code: "DLH",
+			Code: models.ReServiceCodeDLH,
 			Name: "Domestic Linehaul",
 		},
 	})
 	subtestData.mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.move,
 		ReService: models.ReService{
-			Code: "DOP",
+			Code: models.ReServiceCodeDOP,
 			Name: "Domestic Origin Pickup",
 		},
 	})

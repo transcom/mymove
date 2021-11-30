@@ -1,5 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
@@ -14,6 +15,7 @@ import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
+  const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
 
   return (
@@ -51,7 +53,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
         {editURL && (
           <EditButton
             onClick={() => {
-              window.location.href = editURL;
+              history.push(editURL);
             }}
             className={styles.editButton}
             data-testid={editURL}

@@ -1913,7 +1913,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1947,6 +1947,9 @@ paths:
           type: string
         - in: query
           name: destinationDutyStation
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: status
@@ -3913,6 +3916,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
   QueuePaymentRequests:
     type: array
     items:

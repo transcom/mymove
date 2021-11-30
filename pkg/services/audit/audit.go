@@ -58,7 +58,7 @@ func Capture(appCtx appcontext.AppContext, model interface{}, payload interface{
 				return nil, err
 			}
 
-			appCtx.Logger().Debug("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
+			appCtx.Logger().Info("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
 		}
 	} else {
 		msg += " invalid or zero or nil model interface received from request handler"

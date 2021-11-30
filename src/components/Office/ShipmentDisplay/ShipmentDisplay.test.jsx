@@ -1,8 +1,17 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ShipmentDisplay from './ShipmentDisplay';
+
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+}));
 
 const info = {
   heading: 'HHG',
@@ -119,9 +128,15 @@ describe('Shipment Container', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
     expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
   });
-  it('renders with edit button', () => {
+  it('renders with edit button', async () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} editURL="/" />);
-    expect(screen.getByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+
+    const button = screen.getByRole('button', { name: 'Edit shipment' });
+    expect(button).toBeInTheDocument();
+    userEvent.click(button);
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/');
+    });
   });
   it('renders without edit button', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
