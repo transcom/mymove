@@ -27,8 +27,6 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
     tacType,
     sacType,
   } = shipment;
-  console.log(shipment);
-  console.log(storageFacility);
 
   // if (shipmentType === SHIPMENT_OPTIONS.NTSR) {
   //   if (isExpanded) {
@@ -191,7 +189,7 @@ const ShipmentInfoList = ({ className, shipment, shipmentType, isExpanded }) => 
       {isExpanded && (
         <div className={descriptionListStyles.row}>
           <dt>SAC</dt>
-          <dd data-testid="sacType">{tacType || '—'}</dd>
+          <dd data-testid="sacType">{sacType || '—'}</dd>
         </div>
       )}
     </dl>
