@@ -8,11 +8,34 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 ## Setup to Run Your Code
 
-```sh
+<details>
+<summary>💻 You will need to use three separate terminals to test this locally.</summary>
+
+##### Terminal 1
+
+Start the Storybook locally.
+
+\`\`\`sh
 make storybook
+\`\`\`
+
+##### Terminal 2
+
+Start the UI locally.
+
+\`\`\`sh
 make client_run
+\`\`\`
+
+##### Terminal 3
+
+Start the Go server locally.
+
+\`\`\`sh
 make server_run
-```
+\`\`\`
+
+</details>
 
 1. Access the
 2. Login as a
