@@ -22,6 +22,8 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     serviceOrderNumber,
     tacType,
     sacType,
+    tac,
+    sac,
   } = shipment;
 
   const storageFacilityAddressElement = (
@@ -83,6 +85,18 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
       </dd>
     </div>
   );
+  const tacElement = (
+    <div className={classNames(descriptionListStyles.row, { [styles.warning]: !tacType })}>
+      <dt>TAC</dt>
+      <dd data-testid="tacType">{tacType && tac ? String(tac).concat(' (', tacType, ')') : '—'}</dd>
+    </div>
+  );
+  const sacElement = (
+    <div className={classNames(descriptionListStyles.row, { [styles.warning]: !sacType })}>
+      <dt>SAC</dt>
+      <dd data-testid="tacType">{sacType && sac ? String(sac).concat(' (', sacType, ')') : '—'}</dd>
+    </div>
+  );
 
   return (
     <dl
@@ -114,6 +128,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
             <dd>{formatAgent(agent)}</dd>
           </div>
         ))}
+
       {isExpanded && (
         <div className={descriptionListStyles.row}>
           <dt>Customer remarks</dt>
@@ -125,18 +140,9 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
         <dt>Counselor remarks</dt>
         <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
       </div>
-      {isExpanded && (
-        <div className={classNames(descriptionListStyles.row, { [styles.warning]: !tacType })}>
-          <dt>TAC</dt>
-          <dd data-testid="tacType">{tacType || '—'}</dd>
-        </div>
-      )}
-      {isExpanded && (
-        <div className={classNames(descriptionListStyles.row, { [styles.warning]: !sacType })}>
-          <dt>SAC</dt>
-          <dd data-testid="sacType">{sacType || '—'}</dd>
-        </div>
-      )}
+
+      {isExpanded && tacElement}
+      {isExpanded && sacElement}
     </dl>
   );
 };

@@ -17,6 +17,13 @@ export default {
   ],
 };
 
+const ordersLOA = {
+  tac: '1111',
+  sac: '2222222222',
+  ntsTAC: '3333',
+  ntsSAC: '4444444444',
+};
+
 const hhgInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
@@ -136,7 +143,6 @@ const ntsReleaseMissingInfo = {
       email: 'ksmith@email.com',
     },
   ],
-  tacType: 'HHG',
   sacType: 'NTS',
 };
 
@@ -246,6 +252,7 @@ export const NTSReleaseShipment = () => (
       displayInfo={object('displayInfo', ntsReleaseInfo)}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
+      ordersLOA={ordersLOA}
       isSubmitted
     />
   </div>
@@ -257,6 +264,7 @@ export const NTSReleaseShipmentMissingInfo = () => (
       displayInfo={object('displayInfo', ntsReleaseMissingInfo)}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseMissingInfo.shipmentId}
+      ordersLOA={ordersLOA}
       isSubmitted
     />
   </div>

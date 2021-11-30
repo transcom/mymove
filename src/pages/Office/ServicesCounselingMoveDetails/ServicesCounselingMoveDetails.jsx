@@ -92,6 +92,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
   };
+  const ordersLOA = {
+    tac: order.tac,
+    sac: order.sac,
+    ntsTAC: order.ntsTAC,
+    ntsSAC: order.ntsSac,
+  };
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
@@ -223,6 +229,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     showIcon={false}
+                    ordersLOA={ordersLOA}
                   />
                 ))}
               </div>

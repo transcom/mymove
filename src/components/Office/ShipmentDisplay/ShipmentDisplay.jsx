@@ -9,56 +9,48 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
 
-const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
+const ShipmentDisplay = ({
+  shipmentType,
+  displayInfo,
+  onChange,
+  shipmentId,
+  isSubmitted,
+  showIcon,
+  editURL,
+  ordersLOA,
+}) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
-  // const baseDisplayInfo = {
-  //   id: displayInfo.shipmentId,
-  //   heading: displayInfo.heading,
-  //   counselorRemarks: displayInfo.counselorRemarks,
-  // };
-  //
-  // const hhgCollapsedDisplay = {
-  //   ...baseDisplayInfo,
-  //   requestedPickupDate: displayInfo.requestedPickupDate,
-  //   pickupAddress: displayInfo.pickupAddress,
-  //   destinationAddress: displayInfo.destinationAddress,
-  // };
-  // const hhgExpandedDisplay = {
-  //   ...hhgCollapsedDisplay,
-  //   secondaryPickupAddress: displayInfo.secondaryPickupAddress,
-  //   secondaryDeliveryAddress: displayInfo.secondaryDeliveryAddress,
-  //   customerRemarks: displayInfo.customerRemarks,
-  //   agents: displayInfo.agents,
-  // };
-  //
-  // const storageFacilityAddress = displayInfo.storageFacility ? displayInfo.storageFacility.address : null;
-  // const ntsrCollapsedDisplay = {
-  //   ...baseDisplayInfo,
-  //   requestedDeliveryDate: displayInfo.requestedDeliveryDate,
-  //   storageFacilityAddress,
-  //   destinationAddress: displayInfo.destinationAddress,
-  //   counselorRemarks: displayInfo.counselorRemarks,
-  // };
-  // const ntsrExpandedDisplay = {
-  //   ...ntsrCollapsedDisplay,
-  //   primeActualWeight: displayInfo.primeActualWeight,
-  //   storageFacility: displayInfo.storageFacility,
-  //   serviceOrderNumber: displayInfo.serviceOrderNumber,
-  //   destinationAddress: displayInfo.destinationAddress,
-  //   secondaryDeliveryAddress: displayInfo.secondaryDeliveryAddress,
-  //   agents: displayInfo.agents,
-  //   customerRemarks: displayInfo.customerRemarks,
-  //   tacType: displayInfo.tacType,
-  //   sacType: displayInfo.sacType,
-  // };
   const [isExpanded, setIsExpanded] = useState(false);
   let infoList;
+  let tac;
+  switch (displayInfo.tacType) {
+    case LOA_TYPE.HHG:
+      tac = ordersLOA.tac;
+      break;
+    case LOA_TYPE.NTS:
+      tac = ordersLOA.ntsTAC;
+      break;
+    default:
+      tac = ordersLOA.tac;
+  }
+
+  let sac;
+  switch (displayInfo.sacType) {
+    case LOA_TYPE.HHG:
+      sac = ordersLOA.sac;
+      break;
+    case LOA_TYPE.NTS:
+      sac = ordersLOA.ntsSAC;
+      break;
+    default:
+      sac = ordersLOA.sac;
+  }
 
   const setDisplayInfo = () => {
     switch (shipmentType) {
@@ -74,7 +66,11 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
         break;
       case SHIPMENT_OPTIONS.NTSR:
         infoList = (
-          <NTSRShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} isExpanded={isExpanded} />
+          <NTSRShipmentInfoList
+            className={styles.shipmentDisplayInfo}
+            shipment={{ ...displayInfo, tac, sac }}
+            isExpanded={isExpanded}
+          />
         );
         break;
       default:
@@ -186,6 +182,12 @@ ShipmentDisplay.propTypes = {
   }).isRequired,
   showIcon: PropTypes.bool,
   editURL: PropTypes.string,
+  ordersLOA: PropTypes.shape({
+    tac: PropTypes.string,
+    sac: PropTypes.string,
+    ntsTAC: PropTypes.string,
+    ntsSAC: PropTypes.string,
+  }),
 };
 
 ShipmentDisplay.defaultProps = {
@@ -193,6 +195,12 @@ ShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
   showIcon: true,
   editURL: '',
+  ordersLOA: {
+    tac: '',
+    sac: '',
+    ntsTAC: '',
+    ntsSAC: '',
+  },
 };
 
 export default ShipmentDisplay;
