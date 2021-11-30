@@ -68,7 +68,7 @@
     "regenerator-runtime": "^0.13.9",
     "reselect": "^4.1.4",
     "swagger-client": "^3.17.0",
-    "swagger-ui-dist": "^4.0.1",
+    "swagger-ui-dist": "^4.1.2",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"
@@ -117,7 +117,7 @@
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.9.2",
-    "@storybook/addon-a11y": "^6.3.12",
+    "@storybook/addon-a11y": "^6.4.1",
     "@storybook/addon-essentials": "6.3.12",
     "@storybook/addon-knobs": "^6.3.1",
     "@storybook/addon-links": "^6.3.12",
