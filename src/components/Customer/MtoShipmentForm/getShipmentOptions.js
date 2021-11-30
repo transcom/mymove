@@ -1,6 +1,11 @@
 import * as Yup from 'yup';
 
-import { AdditionalAddressSchema, RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
+import {
+  AdditionalAddressSchema,
+  RequiredPlaceSchema,
+  OptionalPlaceSchema,
+  StorageFacilityAddressSchema,
+} from './validationSchemas';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -23,6 +28,8 @@ const ntsReleaseShipmentSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
+  serviceOrderNumber: Yup.string(),
+  storageFacility: StorageFacilityAddressSchema,
 });
 
 function getShipmentOptions(shipmentType) {
