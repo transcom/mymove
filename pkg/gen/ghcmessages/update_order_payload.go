@@ -38,13 +38,13 @@ type UpdateOrderPayload struct {
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
-	NtsSac *string `json:"nts_sac,omitempty"`
+	NtsSac *string `json:"ntsSac,omitempty"`
 
 	// NTS TAC
 	// Example: F8J1
 	// Max Length: 4
 	// Min Length: 4
-	NtsTac *string `json:"nts_tac,omitempty"`
+	NtsTac *string `json:"ntsTac,omitempty"`
 
 	// Confirmation that the new amended orders were reviewed after previously approving the original orders
 	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
@@ -179,11 +179,11 @@ func (m *UpdateOrderPayload) validateNtsTac(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
+	if err := validate.MinLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
+	if err := validate.MaxLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 

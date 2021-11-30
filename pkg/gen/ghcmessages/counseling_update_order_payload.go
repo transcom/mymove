@@ -35,13 +35,13 @@ type CounselingUpdateOrderPayload struct {
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
-	NtsSac *string `json:"nts_sac,omitempty"`
+	NtsSac *string `json:"ntsSac,omitempty"`
 
 	// NTS TAC
 	// Example: F8J1
 	// Max Length: 4
 	// Min Length: 4
-	NtsTac *string `json:"nts_tac,omitempty"`
+	NtsTac *string `json:"ntsTac,omitempty"`
 
 	// orders type
 	// Required: true
@@ -141,11 +141,11 @@ func (m *CounselingUpdateOrderPayload) validateNtsTac(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.MinLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
+	if err := validate.MinLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("nts_tac", "body", *m.NtsTac, 4); err != nil {
+	if err := validate.MaxLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 
