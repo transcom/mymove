@@ -25,7 +25,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   } = shipment;
 
   const storageFacilityAddressElement = (
-    <div className={classNames((descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility }))}>
+    <div className={classNames(descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility })}>
       <dt>Storage facility address</dt>
       <dd>
         {storageFacility ? formatAddress(storageFacility.address) : 'Missing'}
@@ -39,14 +39,14 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   );
 
   const primeActualWeightElement = (
-    <div className={classNames((descriptionListStyles.row, { [styles.warning]: !primeActualWeight }))}>
+    <div className={classNames(descriptionListStyles.row, { [styles.warning]: !primeActualWeight })}>
       <dt>Shipment weight</dt>
       <dd data-testid="primeActualWeight">{String(primeActualWeight).concat(' lbs') || '—'}</dd>
     </div>
   );
 
   const storageFacilityInfoElement = (
-    <div className={classNames((descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility }))}>
+    <div className={classNames(descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility })}>
       <dt>Storage facility info</dt>
       <dd data-testid="storageFacilityName">
         {storageFacility && storageFacility.facilityName ? storageFacility.facilityName : 'Missing'}
@@ -55,7 +55,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   );
 
   const serviceOrderNumberElement = (
-    <div className={classNames((descriptionListStyles.row, { [styles.warning]: !serviceOrderNumber }))}>
+    <div className={classNames(descriptionListStyles.row, { [styles.warning]: !serviceOrderNumber })}>
       <dt>Service order #</dt>
       <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
     </div>
@@ -121,18 +121,18 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
         </div>
       )}
 
-      <div className={classNames((descriptionListStyles.row, { [styles.warning]: !counselorRemarks }))}>
+      <div className={classNames(descriptionListStyles.row, { [styles.warning]: !counselorRemarks })}>
         <dt>Counselor remarks</dt>
         <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
       </div>
       {isExpanded && (
-        <div className={classNames((descriptionListStyles.row, { [styles.warning]: !tacType }))}>
+        <div className={classNames(descriptionListStyles.row, { [styles.warning]: !tacType })}>
           <dt>TAC</dt>
           <dd data-testid="tacType">{tacType || '—'}</dd>
         </div>
       )}
       {isExpanded && (
-        <div className={classNames((descriptionListStyles.row, { [styles.warning]: !sacType }))}>
+        <div className={classNames(descriptionListStyles.row, { [styles.warning]: !sacType })}>
           <dt>SAC</dt>
           <dd data-testid="sacType">{sacType || '—'}</dd>
         </div>
