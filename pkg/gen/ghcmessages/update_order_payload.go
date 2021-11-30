@@ -36,6 +36,16 @@ type UpdateOrderPayload struct {
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
+	// NTS SAC
+	// Example: N002214CSW32Y9
+	NtsSac *string `json:"ntsSac,omitempty"`
+
+	// NTS TAC
+	// Example: F8J1
+	// Max Length: 4
+	// Min Length: 4
+	NtsTac *string `json:"ntsTac,omitempty"`
+
 	// Confirmation that the new amended orders were reviewed after previously approving the original orders
 	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
 
@@ -64,11 +74,11 @@ type UpdateOrderPayload struct {
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
-	// SAC
+	// HHG SAC
 	// Example: N002214CSW32Y9
 	Sac *string `json:"sac,omitempty"`
 
-	// TAC
+	// HHG TAC
 	// Example: F8J1
 	// Max Length: 4
 	// Min Length: 4
@@ -88,6 +98,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateNewDutyStationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNtsTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,6 +168,22 @@ func (m *UpdateOrderPayload) validateNewDutyStationID(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("newDutyStationId", "body", "uuid", m.NewDutyStationID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateNtsTac(formats strfmt.Registry) error {
+	if swag.IsZero(m.NtsTac) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
 		return err
 	}
 

@@ -16,15 +16,15 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(appCtx appcontext.A
 		return fmt.Errorf("could not read staged domestic international additional prices: %w", err)
 	}
 
-	var serviceToCodeMap = map[string]string{
+	var serviceToCodeMap = map[string]models.ReServiceCode{
 		//concatenating market with shipment type so that keys in  map are unique
-		"CONUS:Mobile Homes":            "DMHF",
-		"CONUS:Tow Away Boat Service":   "DBTF",
-		"OCONUS:Tow Away Boat Service":  "IBTF",
-		"CONUS:Haul Away Boat Service":  "DBHF",
-		"OCONUS:Haul Away Boat Service": "IBHF",
-		"CONUS:NTS Packing Factor":      "DNPK",
-		"OCONUS:NTS Packing Factor":     "INPK",
+		"CONUS:Mobile Homes":            models.ReServiceCodeDMHF,
+		"CONUS:Tow Away Boat Service":   models.ReServiceCodeDBTF,
+		"OCONUS:Tow Away Boat Service":  models.ReServiceCodeIBTF,
+		"CONUS:Haul Away Boat Service":  models.ReServiceCodeDBHF,
+		"OCONUS:Haul Away Boat Service": models.ReServiceCodeIBHF,
+		"CONUS:NTS Packing Factor":      models.ReServiceCodeDNPK,
+		"OCONUS:NTS Packing Factor":     models.ReServiceCodeINPK,
 	}
 
 	//loop through the domestic international additional prices data and store in db

@@ -321,7 +321,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	domesticShorthaulService := testdatagen.MakeReService(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DSH",
+				Code: models.ReServiceCodeDSH,
 				Name: "Dom. Shorthaul",
 			},
 		})

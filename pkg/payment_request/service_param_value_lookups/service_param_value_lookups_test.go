@@ -214,7 +214,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,
-				Name: "DLH",
+				Name: models.ReServiceCodeDLH.String(),
 			},
 		})
 
@@ -234,13 +234,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDLH,
-					Name: "DLH",
+					Name: models.ReServiceCodeDLH.String(),
 				},
 			}),
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDUPK,
-					Name: "DUPK",
+					Name: models.ReServiceCodeDUPK.String(),
 				},
 			}),
 		}
@@ -262,7 +262,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDPK,
-				Name: "DPK",
+				Name: models.ReServiceCodeDPK.String(),
 			},
 		})
 
@@ -279,13 +279,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDLH,
-					Name: "DLH",
+					Name: models.ReServiceCodeDLH.String(),
 				},
 			}),
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDPK,
-					Name: "DPK",
+					Name: models.ReServiceCodeDPK.String(),
 				},
 			}),
 		}
@@ -307,7 +307,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDUPK,
-				Name: "DUPK",
+				Name: models.ReServiceCodeDUPK.String(),
 			},
 		})
 
@@ -325,7 +325,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDDASIT,
-					Name: "DDASIT",
+					Name: models.ReServiceCodeDDASIT.String(),
 				},
 				MTOServiceItem: models.MTOServiceItem{
 					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
@@ -335,7 +335,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
-					Name: "DDDSIT",
+					Name: models.ReServiceCodeDDDSIT.String(),
 				},
 				MTOServiceItem: models.MTOServiceItem{
 					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
@@ -345,7 +345,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDDFSIT,
-					Name: "DDFSIT",
+					Name: models.ReServiceCodeDDFSIT.String(),
 				},
 				MTOServiceItem: models.MTOServiceItem{
 					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
@@ -372,13 +372,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDLH,
-					Name: "DLH",
+					Name: models.ReServiceCodeDLH.String(),
 				},
 			}),
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDSH,
-					Name: "DSH",
+					Name: models.ReServiceCodeDSH.String(),
 				},
 			}),
 		}

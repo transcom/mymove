@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -18,7 +19,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	// Basic Service Item
 	basicServieItem := &primemessages.MTOServiceItemBasic{
-		ReServiceCode: primemessages.NewReServiceCode("FSC"),
+		ReServiceCode: primemessages.NewReServiceCode(primemessages.ReServiceCode(models.ReServiceCodeFSC)),
 	}
 
 	basicServieItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
@@ -27,7 +28,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
-	dcrtCode := "DCRT"
+	dcrtCode := models.ReServiceCodeDCRT.String()
 	reason := "Reason"
 	description := "Description"
 
@@ -60,7 +61,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
 		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
-		suite.Equal(models.ReServiceCode("FSC"), returnedModel.ReService.Code)
+		suite.Equal(models.ReServiceCodeFSC, returnedModel.ReService.Code)
 	})
 
 	suite.T().Run("Success - Returns a DCRT service item model", func(t *testing.T) {
@@ -78,7 +79,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
 		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
-		suite.Equal(models.ReServiceCode("DCRT"), returnedModel.ReService.Code)
+		suite.Equal(models.ReServiceCodeDCRT, returnedModel.ReService.Code)
 		suite.Equal(DCRTServiceItem.Reason, returnedModel.Reason)
 		suite.Equal(DCRTServiceItem.Description, returnedModel.Description)
 		suite.Equal(unit.ThousandthInches(*DCRTServiceItem.Item.Length), returnedItem.Length)
@@ -106,7 +107,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 		returnedModel, verrs := MTOServiceItemModel(badDCRTServiceItem)
 
-		suite.True(verrs.HasAny(), "invalid crate dimensions for DCRT service item")
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
 	})

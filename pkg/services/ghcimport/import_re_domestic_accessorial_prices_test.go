@@ -54,19 +54,19 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 	suite.NoError(err)
 
 	testCases := []struct {
-		serviceCode   string
+		serviceCode   models.ReServiceCode
 		schedule      int
 		expectedPrice int
 		isError       bool
 	}{
-		{"DCRT", 1, 2369, false},
-		{"DCRTSA", 1, 2369, false},
-		{"DUCRT", 1, 595, false},
-		{"DDSHUT", 1, 505, false},
-		{"DDSHUT", 3, 576, false},
-		{"DOSHUT", 1, 505, false},
-		{"MS", 3, 0, true},
-		{"DCRT", 5, 0, true},
+		{models.ReServiceCodeDCRT, 1, 2369, false},
+		{models.ReServiceCodeDCRTSA, 1, 2369, false},
+		{models.ReServiceCodeDUCRT, 1, 595, false},
+		{models.ReServiceCodeDDSHUT, 1, 505, false},
+		{models.ReServiceCodeDDSHUT, 3, 576, false},
+		{models.ReServiceCodeDOSHUT, 1, 505, false},
+		{models.ReServiceCodeMS, 3, 0, true},
+		{models.ReServiceCodeDCRT, 5, 0, true},
 	}
 
 	for _, testCase := range testCases {

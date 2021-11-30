@@ -32,16 +32,16 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(appCtx appco
 		}
 
 		servicesToInsert := []struct {
-			service string
+			service models.ReServiceCode
 			price   string
 		}{
-			{"DSH", stageDomPricingModel.ShorthaulPrice},
-			{"DOP", stageDomPricingModel.OriginDestinationPrice},
-			{"DDP", stageDomPricingModel.OriginDestinationPrice},
-			{"DOFSIT", stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
-			{"DDFSIT", stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
-			{"DOASIT", stageDomPricingModel.OriginDestinationSITAddlDays},
-			{"DDASIT", stageDomPricingModel.OriginDestinationSITAddlDays},
+			{models.ReServiceCodeDSH, stageDomPricingModel.ShorthaulPrice},
+			{models.ReServiceCodeDOP, stageDomPricingModel.OriginDestinationPrice},
+			{models.ReServiceCodeDDP, stageDomPricingModel.OriginDestinationPrice},
+			{models.ReServiceCodeDOFSIT, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
+			{models.ReServiceCodeDDFSIT, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
+			{models.ReServiceCodeDOASIT, stageDomPricingModel.OriginDestinationSITAddlDays},
+			{models.ReServiceCodeDDASIT, stageDomPricingModel.OriginDestinationSITAddlDays},
 		}
 
 		for _, serviceToInsert := range servicesToInsert {
