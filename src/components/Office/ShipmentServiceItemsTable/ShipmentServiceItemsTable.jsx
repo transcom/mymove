@@ -36,8 +36,7 @@ const shipmentTypes = {
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
-    serviceItemCodes.DPK,
-    serviceItemCodes.DNPKF,
+    serviceItemCodes.DNPK,
   ],
   HHG_OUTOF_NTS_DOMESTIC: [
     serviceItemCodes.DLH,

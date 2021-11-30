@@ -16,13 +16,13 @@ type MoveFinancialReviewFlagSetter struct {
 	mock.Mock
 }
 
-// SetFinancialReviewFlag provides a mock function with given fields: appCtx, moveID, eTag, remarks
-func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
-	ret := _m.Called(appCtx, moveID, eTag, remarks)
+// SetFinancialReviewFlag provides a mock function with given fields: appCtx, moveID, eTag, flagForReview, remarks
+func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, flagForReview bool, remarks *string) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveID, eTag, flagForReview, remarks)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, string) *models.Move); ok {
-		r0 = rf(appCtx, moveID, eTag, remarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) *models.Move); ok {
+		r0 = rf(appCtx, moveID, eTag, flagForReview, remarks)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -30,8 +30,8 @@ func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontex
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, string) error); ok {
-		r1 = rf(appCtx, moveID, eTag, remarks)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) error); ok {
+		r1 = rf(appCtx, moveID, eTag, flagForReview, remarks)
 	} else {
 		r1 = ret.Error(1)
 	}

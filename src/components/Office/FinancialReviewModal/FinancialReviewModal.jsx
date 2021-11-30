@@ -12,12 +12,15 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 const financialReviewSchema = Yup.object().shape({
-  remarks: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
+  remarks: Yup.string().when('flagForReview', {
+    is: 'yes',
+    then: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
+  }),
   // must select yest or no before they can click save.
-  flagForReview: Yup.string().required('Required').oneOf(['yes']),
+  flagForReview: Yup.string().required('Required').oneOf(['yes', 'no']),
 });
 
-function FinancialReviewModal({ onClose, onSubmit }) {
+function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelection }) {
   return (
     <div>
       <Overlay />
@@ -30,11 +33,11 @@ function FinancialReviewModal({ onClose, onSubmit }) {
           <div>
             <Formik
               initialValues={{
-                remarks: '',
-                flagForReview: 'yes',
+                remarks: initialRemarks,
+                flagForReview: initialSelection ? 'yes' : 'no',
               }}
               validationSchema={financialReviewSchema}
-              onSubmit={(values) => onSubmit(values.remarks)}
+              onSubmit={(values) => onSubmit(values.remarks, values.flagForReview)}
               validateOnMount
             >
               {({ values, isValid }) => {
@@ -107,5 +110,13 @@ function FinancialReviewModal({ onClose, onSubmit }) {
 FinancialReviewModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  initialRemarks: PropTypes.string,
+  initialSelection: PropTypes.bool,
 };
+
+FinancialReviewModal.defaultProps = {
+  initialRemarks: '',
+  initialSelection: true,
+};
+
 export default FinancialReviewModal;

@@ -158,6 +158,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
+
+    it('does not render an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {
@@ -238,6 +245,45 @@ describe('ServicesCounselingShipmentForm component', () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it('renders an Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).toBeInTheDocument();
+      expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
+    });
+  });
+
+  describe('editing an already existing NTS shipment', () => {
+    it('pre-fills the Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).not.toBeChecked();
+      expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
+      expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
+    });
   });
 
   describe('creating a new NTS-release shipment', () => {
@@ -269,6 +315,12 @@ describe('ServicesCounselingShipmentForm component', () => {
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
+    });
+
+    it('renders an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
     });
   });
 

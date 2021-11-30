@@ -90,6 +90,16 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+  createHeader(
+    'Origin Duty Location',
+    (row) => {
+      return row.originDutyLocation.name;
+    },
+    {
+      id: 'originDutyLocation',
+      isFilterable: true,
+    },
+  ),
 ];
 
 const PaymentRequestQueue = ({ history }) => {

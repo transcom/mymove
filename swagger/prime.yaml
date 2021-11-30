@@ -2713,6 +2713,7 @@ definitions:
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
+      - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -2723,10 +2724,6 @@ definitions:
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
       - PSI_LinehaulShortPrice
-      - PSI_PackingDom
-      - PSI_PackingDomPrice
-      - PSI_PackingHHGIntl
-      - PSI_PackingHHGIntlPrice
       - PSI_PriceDomDest
       - PSI_PriceDomDestPrice
       - PSI_PriceDomOrigin
@@ -2913,7 +2910,7 @@ definitions:
       - DDSHUT
       - DLH
       - DMHF
-      - DNPKF
+      - DNPK
       - DOASIT
       - DOFSIT
       - DOP
@@ -2936,7 +2933,7 @@ definitions:
       - IDSHUT
       - IHPK
       - IHUPK
-      - INPKF
+      - INPK
       - IOASIT
       - IOCLH
       - IOCUB
