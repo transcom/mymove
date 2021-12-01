@@ -66,7 +66,7 @@ const labels = {
   sacType: 'SAC',
 };
 
-describe('Shipment Info List', () => {
+describe('NTSR Shipment Info List', () => {
   it('renders all fields when provided and expanded', () => {
     render(<NTSRShipmentInfoList isExpanded shipment={info} />);
     const primeActualWeight = screen.getByTestId('primeActualWeight');
