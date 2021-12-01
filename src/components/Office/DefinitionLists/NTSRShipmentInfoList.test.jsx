@@ -69,36 +69,23 @@ const labels = {
 describe('Shipment Info List', () => {
   it('renders all fields when provided and expanded', () => {
     render(<NTSRShipmentInfoList isExpanded shipment={info} />);
+    const primeActualWeight = screen.getByTestId('primeActualWeight');
+    expect(primeActualWeight).toHaveTextContent('2000 lbs');
 
-    const primeActualWeight = screen.getByText(labels.primeActualWeight);
-    expect(within(primeActualWeight.parentElement).getByText('2000 lbs')).toBeInTheDocument();
+    const storageFacility = screen.getByTestId('storageFacilityName');
+    expect(storageFacility).toHaveTextContent(info.storageFacility.facilityName);
 
-    const storageFacility = screen.getByText(labels.storageFacility);
-    expect(within(storageFacility.parentElement).getByText(info.storageFacility.facilityName)).toBeInTheDocument();
+    const serviceOrderNumber = screen.getByTestId('serviceOrderNumber');
+    expect(serviceOrderNumber).toHaveTextContent(info.serviceOrderNumber);
 
-    const serviceOrderNumber = screen.getByText(labels.serviceOrderNumber);
-    expect(within(serviceOrderNumber.parentElement).getByText(info.serviceOrderNumber)).toBeInTheDocument();
+    const storageFacilityAddress = screen.getByTestId('storageFacilityAddress');
+    expect(storageFacilityAddress).toHaveTextContent(info.storageFacility.address.streetAddress1);
 
-    const storageFacilityAddress = screen.getByText(labels.storageFacilityAddress);
-    expect(
-      within(storageFacilityAddress.parentElement).getByText(info.storageFacility.address.streetAddress1, {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
+    const destinationAddress = screen.getByTestId('destinationAddress');
+    expect(destinationAddress).toHaveTextContent(info.destinationAddress.streetAddress1);
 
-    const destinationAddress = screen.getByText(labels.destinationAddress);
-    expect(
-      within(destinationAddress.parentElement).getByText(info.destinationAddress.streetAddress1, {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
-
-    const secondaryDeliveryAddress = screen.getByText(labels.secondaryDeliveryAddress);
-    expect(
-      within(secondaryDeliveryAddress.parentElement).getByText(info.secondaryDeliveryAddress.streetAddress1, {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
+    const secondaryDeliveryAddress = screen.getByTestId('secondaryDeliveryAddress');
+    expect(secondaryDeliveryAddress).toHaveTextContent(info.secondaryDeliveryAddress.streetAddress1);
 
     const receivingAgent = screen.getByText(labels.agents);
     expect(within(receivingAgent.parentElement).getByText(info.agents[0].email, { exact: false })).toBeInTheDocument();
@@ -116,69 +103,67 @@ describe('Shipment Info List', () => {
     expect(within(sacType.parentElement).getByText('1234123412 (NTS)')).toBeInTheDocument();
   });
 
-  // it('renders a dash for for non-required missing items', () => {
-  //   render(
-  //     <NTSRShipmentInfoList
-  //       isExpanded
-  //       shipment={{
-  //         requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-  //         storageFacility: object('storageFacility', info.storageFacility),
-  //         destinationAddress: object('destinationAddress', info.destinationAddress),
-  //       }}
-  //     />,
-  //   );
-  //
-  //   const counselorRemarks = screen.getByText(labels.counselorRemarks);
-  //   console.log(counselorRemarks)
-  //   expect(within(counselorRemarks.parentElement).getByText('—')).toBeInTheDocument();
-  //   expect(counselorRemarks.parentElement.toHaveClass('OfficeDefinitionLists_warning__Z3q_v'));
-  //
-  //   const tacType = screen.getByText(labels.tacType);
-  //   expect(within(tacType.parentElement).getByText('—')).toBeInTheDocument();
-  //   expect(tacType.parentElement.classList.contains('OfficeDefinitionLists_warning__Z3q_v'));
-  //
-  //   const sacType = screen.getByText(labels.sacType);
-  //   expect(within(sacType.parentElement).getByText('—')).toBeInTheDocument();
-  //   expect(sacType.parentElement.classList.contains('OfficeDefinitionLists_warning__Z3q_v'));
-  //
-  //   const primeActualWeight = screen.getByText(labels.primeActualWeight);
-  //   expect(within(primeActualWeight.parentElement).getByText('—')).toBeInTheDocument();
-  //   expect(primeActualWeight.parentElement.classList.contains('OfficeDefinitionLists_warning__Z3q_v'));
-  //
-  //   const serviceOrderNumber = screen.getByText(labels.serviceOrderNumber);
-  //   expect(within(serviceOrderNumber.parentElement).getByText('—')).toBeInTheDocument();
-  //   expect(serviceOrderNumber.parentElement.classList.contains('OfficeDefinitionLists_warning__Z3q_v'));
-  // });
-  //
-  // it('shows Missing for required missing items', () => {
-  //   render(
-  //     <NTSRShipmentInfoList
-  //       shipment={{
-  //         counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-  //         requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-  //         storageFacility: object('storageFacility', info.storageFacility),
-  //         destinationAddress: object('destinationAddress', info.destinationAddress),
-  //       }}
-  //     />,
-  //   );
-  //
-  //   const storageFacility = screen.getByText(labels.storageFacility);
-  //   expect(within(storageFacility.parentElement).getByText('Missing').toBeInTheDocument());
-  //   expect(within(storageFacility.parentElement).classList.contains('OfficeDefinitionLists_missingInfoError__3ckQO'));
-  //
-  //   const storageFacilityAddress = screen.getByText(labels.storageFacilityAddress);
-  //   expect(within(storageFacilityAddress.parentElement).getByText('Missing')).toBeInTheDocument();
-  //   expect(within(storageFacilityAddress.parentElement).classList.contains('OfficeDefinitionLists_missingInfoError__3ckQO'));
-  // });
+  it('renders a dash and adds a warning class for non-required missing items', () => {
+    render(
+      <NTSRShipmentInfoList
+        isExpanded
+        shipment={{
+          requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
+          storageFacility: object('storageFacility', info.storageFacility),
+          destinationAddress: object('destinationAddress', info.destinationAddress),
+        }}
+      />,
+    );
+
+    const counselorRemarks = screen.getByTestId('counselorRemarks');
+    expect(counselorRemarks).toHaveTextContent('—');
+    expect(counselorRemarks.parentElement).toHaveClass('warning');
+
+    const tacType = screen.getByTestId('tacType');
+    expect(tacType).toHaveTextContent('—');
+    expect(tacType.parentElement).toHaveClass('warning');
+
+    const sacType = screen.getByTestId('sacType');
+    expect(sacType).toHaveTextContent('—');
+    expect(sacType.parentElement).toHaveClass('warning');
+
+    const primeActualWeight = screen.getByTestId('primeActualWeight');
+    expect(primeActualWeight).toHaveTextContent('—');
+    expect(primeActualWeight.parentElement).toHaveClass('warning');
+
+    const serviceOrderNumber = screen.getByTestId('serviceOrderNumber');
+    expect(serviceOrderNumber).toHaveTextContent('—');
+    expect(serviceOrderNumber.parentElement).toHaveClass('warning');
+  });
+
+  it('shows Missing and adds missing class for required missing items', () => {
+    render(
+      <NTSRShipmentInfoList
+        shipment={{
+          counselorRemarks: text('counselorRemarks', info.counselorRemarks),
+          requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
+          destinationAddress: object('destinationAddress', info.destinationAddress),
+        }}
+      />,
+    );
+
+    const storageFacility = screen.getByTestId('storageFacilityName');
+    expect(storageFacility).toHaveTextContent('Missing');
+    expect(storageFacility.parentElement).toHaveClass('missingInfoError');
+
+    const storageFacilityAddress = screen.getByTestId('storageFacilityAddress');
+    expect(storageFacilityAddress).toHaveTextContent('Missing');
+    expect(storageFacilityAddress.parentElement).toHaveClass('missingInfoError');
+  });
 
   it('hides fields when collapsed', () => {
     render(<NTSRShipmentInfoList isExpanded={false} shipment={info} />);
 
-    expect(screen.queryByText(labels.primeActualWeight)).toBeNull();
-    expect(screen.queryByText(labels.storageFacility)).toBeNull();
-    expect(screen.queryByText(labels.serviceOrderNumber)).toBeNull();
-    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
-    expect(screen.queryByText(labels.agents)).toBeNull();
-    expect(screen.queryByText(labels.customerRemarks)).toBeNull();
+    expect(screen.queryByTestId('primeActualWeight')).toBeNull();
+    expect(screen.queryByTestId('storageFacility')).toBeNull();
+    expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
+    expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
+    expect(screen.queryByTestId('agents')).toBeNull();
+    expect(screen.queryByTestId('customerRemarks')).toBeNull();
   });
 });
