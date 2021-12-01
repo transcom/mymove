@@ -47,8 +47,11 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
+  const classNameValue = classNames(descriptionListStyles.row, {
+    [styles.missingInfoError]: !storageFacility,
+  });
   const storageFacilityInfoElement = (
-    <div className={classNames(descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility })}>
+    <div className={classNameValue}>
       <dt>Storage facility info</dt>
       <dd data-testid="storageFacilityName">
         {storageFacility && storageFacility.facilityName ? storageFacility.facilityName : 'Missing'}
@@ -91,6 +94,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
       <dd data-testid="tacType">{tacType && tac ? String(tac).concat(' (', tacType, ')') : '—'}</dd>
     </div>
   );
+
   const sacElement = (
     <div className={classNames(descriptionListStyles.row, { [styles.warning]: !sacType })}>
       <dt>SAC</dt>
@@ -105,6 +109,8 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
         descriptionListStyles.tableDisplay,
         descriptionListStyles.compact,
         className,
+        styles.OfficeDefinitionLists,
+        styles.NTSRShipmentInfoList,
       )}
       data-testid="shipment-info-list"
     >
