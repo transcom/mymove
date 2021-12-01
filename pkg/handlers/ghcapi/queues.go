@@ -42,6 +42,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		DodID:                  params.DodID,
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
+		OriginDutyLocation:     params.OriginDutyLocation,
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
@@ -150,7 +151,7 @@ type GetServicesCounselingQueueHandler struct {
 	services.OrderFetcher
 }
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the services counselor
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
