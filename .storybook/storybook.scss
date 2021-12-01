@@ -4,4 +4,18 @@
     padding-top: 5px;
     height: 100vh;
   }
+  .sb-main-padded .officeApp,
+  .sb-show-main .officeApp {
+    @media (max-width:1240px) {
+      body {
+        min-width: 1240px;
+        overflow-x: scroll;
+      }
+
+       {
+        min-width: 0px;
+        overflow-x: hidden;
+      }
+    }
+  }
 }
