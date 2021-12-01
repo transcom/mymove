@@ -54,19 +54,19 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 	suite.NoError(err)
 
 	testCases := []struct {
-		serviceCode   string
+		serviceCode   models.ReServiceCode
 		market        string
 		expectedPrice int
 		isError       bool
 	}{
-		{"ICRT", "C", 2561, false},
-		{"ICRTSA", "C", 2561, false},
-		{"IUCRT", "C", 654, false},
-		{"IDSHUT", "C", 14529, false},
-		{"IDSHUT", "O", 15623, false},
-		{"IOSHUT", "O", 15623, false},
-		{"MS", "O", 0, true},
-		{"ICRT", "R", 0, true},
+		{models.ReServiceCodeICRT, "C", 2561, false},
+		{models.ReServiceCodeICRTSA, "C", 2561, false},
+		{models.ReServiceCodeIUCRT, "C", 654, false},
+		{models.ReServiceCodeIDSHUT, "C", 14529, false},
+		{models.ReServiceCodeIDSHUT, "O", 15623, false},
+		{models.ReServiceCodeIOSHUT, "O", 15623, false},
+		{models.ReServiceCodeMS, "O", 0, true},
+		{models.ReServiceCodeICRT, "R", 0, true},
 	}
 
 	for _, testCase := range testCases {

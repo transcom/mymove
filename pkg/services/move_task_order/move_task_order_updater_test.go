@@ -2,7 +2,10 @@ package movetaskorder_test
 
 import (
 	"encoding/base64"
+	"fmt"
 	"time"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -47,6 +50,66 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.NotZero(actualMTO.ID)
 		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+	})
+
+	suite.RunWithRollback("MTO status is updated succesfully with facility info", func() {
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						StreetAddress1: "1234 Over Here Street",
+						City:           "Houston",
+						State:          "TX",
+						PostalCode:     "77083",
+						Country:        swag.String("US"),
+					},
+				}),
+				Email: swag.String("old@email.com"),
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+		var mtoShipments []models.MTOShipment
+		mtoShipments = append(mtoShipments, shipment)
+		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:       models.MoveStatusNeedsServiceCounseling,
+				MTOShipments: mtoShipments,
+			},
+			Order: expectedOrder,
+		})
+		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTOWithFacility.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+	})
+
+	suite.RunWithRollback("Invalid input error when there is no facility information on NTS-r shipment", func() {
+		noFacilityInfoMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: expectedOrder,
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+			Move: noFacilityInfoMove,
+		})
+		eTag := etag.GenerateEtag(noFacilityInfoMove.UpdatedAt)
+
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), noFacilityInfoMove.ID, eTag)
+
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 
 	suite.RunWithRollback("MTO status is in a conflicted state", func() {
@@ -285,8 +348,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 2, "Expected to find at most 2 service items")
-		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
-		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
+		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeMS))
+		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeCS))
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.NotNil(fetchedMove.AvailableToPrimeAt)
@@ -317,8 +380,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 1, "Expected to find at most 1 service item")
-		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
-		suite.False(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
+		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeMS))
+		suite.False(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeCS))
 	})
 
 	suite.Run("Makes move available to Prime and only creates CS service item when it's the only one specified", func() {
@@ -345,8 +408,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 1, "Expected to find at most 1 service item")
-		suite.False(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
-		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
+		suite.False(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeMS))
+		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeCS))
 	})
 
 	suite.Run("Does not create service items if neither CS nor MS are requested", func() {
@@ -491,14 +554,14 @@ func (suite *MoveTaskOrderServiceSuite) createMSAndCSReServices() {
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			ID:   uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
-			Code: "MS",
+			Code: models.ReServiceCodeMS,
 		},
 	})
 
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			Code: "CS",
+			Code: models.ReServiceCodeCS,
 		},
 	})
 }

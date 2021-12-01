@@ -21,6 +21,8 @@ export const Basic = () => (
       ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
       tacMDC: text('ordersInfo.tacMDC', '9999'),
       sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
+      NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
+      NTStac: text('ordersInfo.NTStac', '9999'),
     }}
   />
 );
@@ -38,6 +40,8 @@ export const WithSomeMissingInfo = () => (
       ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
       tacMDC: '',
       sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
+      NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
+      NTStac: '',
     }}
   />
 );
@@ -56,6 +60,8 @@ export const WithAllPotentialMissingInfo = () => (
       tacMDC: undefined,
       // TODO: missing styles/text are not added to SAC row, but they maybe should be
       sacSDN: undefined,
+      NTSsac: undefined,
+      NTStac: undefined,
     }}
   />
 );

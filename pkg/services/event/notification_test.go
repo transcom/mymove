@@ -19,7 +19,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			AvailableToPrimeAt: &now,
 		},
 		ReService: models.ReService{
-			Code: "DOFSIT",
+			Code: models.ReServiceCodeDOFSIT,
 			Name: "Destination 1st Day SIT",
 		},
 	})
@@ -29,7 +29,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			AvailableToPrimeAt: &now,
 		},
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 			Name: "Destination 1st Day SIT",
 		},
 	})
@@ -42,7 +42,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			FirstAvailableDeliveryDate: time.Now(),
 		},
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 			Name: "Destination 1st Day SIT",
 		},
 	})
@@ -55,7 +55,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			FirstAvailableDeliveryDate: time.Now(),
 		},
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 		},
 	})
 
@@ -64,7 +64,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			AvailableToPrimeAt: &now,
 		},
 		ReService: models.ReService{
-			Code: "DCRT",
+			Code: models.ReServiceCodeDCRT,
 			Name: "Dom. Crating",
 		},
 	})
@@ -100,7 +100,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			AvailableToPrimeAt: &now,
 		},
 		ReService: models.ReService{
-			Code: "DOSHUT",
+			Code: models.ReServiceCodeDOSHUT,
 		},
 		MTOServiceItem: models.MTOServiceItem{
 			Description: &testString,

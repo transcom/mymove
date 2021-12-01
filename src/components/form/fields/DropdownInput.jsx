@@ -5,6 +5,7 @@ import { useField } from 'formik';
 import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
+// import { OptionalTag } from 'components/form/OptionalTag';
 import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
@@ -17,9 +18,12 @@ export const DropdownInput = (props) => {
 
   return (
     <FormGroup error={hasError}>
-      <Label error={hasError} htmlFor={inputId.current}>
-        {label}
-      </Label>
+      <div className="labelWrapper">
+        <Label error={hasError} htmlFor={inputId.current}>
+          {label}
+        </Label>
+        {/* {optional && <OptionalTag />} */}
+      </div>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Dropdown id={inputId.current} {...field} {...inputProps}>

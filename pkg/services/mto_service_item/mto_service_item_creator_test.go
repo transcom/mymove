@@ -11,6 +11,7 @@ package mtoserviceitem
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -955,7 +956,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "A service item with reServiceCode DDFSIT already exists for this move and/or shipment.")
+		suite.Contains(err.Error(), fmt.Sprintf("A service item with reServiceCode %s already exists for this move and/or shipment.", models.ReServiceCodeDDFSIT))
 	})
 
 	// Successful creation of DDASIT service item
@@ -1021,7 +1022,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Contains(err.Error(), "DDDSIT")
+		suite.Contains(err.Error(), models.ReServiceCodeDDDSIT)
 
 		invalidInputError := err.(apperror.InvalidInputError)
 		suite.NotEmpty(invalidInputError.ValidationErrors)

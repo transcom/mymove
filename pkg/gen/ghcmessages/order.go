@@ -84,11 +84,11 @@ type Order struct {
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
-	NtsSac *string `json:"nts_sac,omitempty"`
+	NtsSac *string `json:"ntsSac,omitempty"`
 
 	// NTS TAC
 	// Example: F8J1
-	NtsTac *string `json:"nts_tac,omitempty"`
+	NtsTac *string `json:"ntsTac,omitempty"`
 
 	// order number
 	// Example: 030-00362

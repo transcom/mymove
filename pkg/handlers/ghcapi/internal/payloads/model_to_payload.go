@@ -271,14 +271,15 @@ func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.Stora
 	if storageFacility == nil {
 		return nil
 	}
-	address := Address(&storageFacility.Address)
+
 	payload := ghcmessages.StorageFacility{
 		ID:           strfmt.UUID(storageFacility.ID.String()),
 		FacilityName: storageFacility.FacilityName,
-		Address:      address,
+		Address:      Address(&storageFacility.Address),
 		LotNumber:    storageFacility.LotNumber,
 		Phone:        storageFacility.Phone,
 		Email:        storageFacility.Email,
+		ETag:         etag.GenerateEtag(storageFacility.UpdatedAt),
 	}
 
 	return &payload
@@ -767,6 +768,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
+			OriginDutyLocation:     DutyStation(move.Orders.OriginDutyStation),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
@@ -815,14 +817,15 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 		orders := moveTaskOrder.Orders
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
-			ID:          *handlers.FmtUUID(paymentRequest.ID),
-			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
-			Customer:    Customer(&orders.ServiceMember),
-			Status:      ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
-			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
-			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
-			Locator:     moveTaskOrder.Locator,
-			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+			ID:                 *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
+			Customer:           Customer(&orders.ServiceMember),
+			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Age:                int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
+			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
+			Locator:            moveTaskOrder.Locator,
+			OriginGBLOC:        ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+			OriginDutyLocation: DutyStation(orders.OriginDutyStation),
 		}
 
 		if orders.DepartmentIndicator != nil {

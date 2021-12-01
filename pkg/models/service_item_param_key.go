@@ -46,7 +46,7 @@ const (
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
 	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
 	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
-	// ServiceItemParamNameFSCMultiplier is the param key name FSCMultipilier
+	// ServiceItemParamNameFSCMultiplier is the param key name FSCMultiplier
 	ServiceItemParamNameFSCMultiplier ServiceItemParamName = "FSCMultiplier"
 	// ServiceItemParamNameFSCPriceDifferenceInCents is the param key name FSCPriceDifferenceInCents
 	ServiceItemParamNameFSCPriceDifferenceInCents ServiceItemParamName = "FSCPriceDifferenceInCents"
@@ -60,6 +60,8 @@ const (
 	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
 	// ServiceItemParamNameMTOAvailableToPrimeAt is the param key name MTOAvailableToPrimeAt
 	ServiceItemParamNameMTOAvailableToPrimeAt ServiceItemParamName = "MTOAvailableToPrimeAt"
+	// ServiceItemParamNameNTSPackingFactor is the param key name NTSPackingFactor
+	ServiceItemParamNameNTSPackingFactor ServiceItemParamName = "NTSPackingFactor"
 	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
@@ -80,14 +82,6 @@ const (
 	ServiceItemParamNamePSILinehaulShort ServiceItemParamName = "PSI_LinehaulShort"
 	// ServiceItemParamNamePSILinehaulShortPrice is the param key name PSI_LinehaulShortPrice
 	ServiceItemParamNamePSILinehaulShortPrice ServiceItemParamName = "PSI_LinehaulShortPrice"
-	// ServiceItemParamNamePSIPackingDom is the param key name PSI_PackingDom
-	ServiceItemParamNamePSIPackingDom ServiceItemParamName = "PSI_PackingDom"
-	// ServiceItemParamNamePSIPackingDomPrice is the param key name PSI_PackingDomPrice
-	ServiceItemParamNamePSIPackingDomPrice ServiceItemParamName = "PSI_PackingDomPrice"
-	// ServiceItemParamNamePSIPackingHHGIntl is the param key name PSI_PackingHHGIntl
-	ServiceItemParamNamePSIPackingHHGIntl ServiceItemParamName = "PSI_PackingHHGIntl"
-	// ServiceItemParamNamePSIPackingHHGIntlPrice is the param key name PSI_PackingHHGIntlPrice
-	ServiceItemParamNamePSIPackingHHGIntlPrice ServiceItemParamName = "PSI_PackingHHGIntlPrice"
 	// ServiceItemParamNamePSIPriceDomDest is the param key name PSI_PriceDomDest
 	ServiceItemParamNamePSIPriceDomDest ServiceItemParamName = "PSI_PriceDomDest"
 	// ServiceItemParamNamePSIPriceDomDestPrice is the param key name PSI_PriceDomDestPrice
@@ -219,6 +213,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameMarketDest,
 	ServiceItemParamNameMarketOrigin,
 	ServiceItemParamNameMTOAvailableToPrimeAt,
+	ServiceItemParamNameNTSPackingFactor,
 	ServiceItemParamNameNumberDaysSIT,
 	ServiceItemParamNamePriceAreaDest,
 	ServiceItemParamNamePriceAreaIntlDest,
@@ -229,10 +224,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNamePSILinehaulDomPrice,
 	ServiceItemParamNamePSILinehaulShort,
 	ServiceItemParamNamePSILinehaulShortPrice,
-	ServiceItemParamNamePSIPackingDom,
-	ServiceItemParamNamePSIPackingDomPrice,
-	ServiceItemParamNamePSIPackingHHGIntl,
-	ServiceItemParamNamePSIPackingHHGIntlPrice,
 	ServiceItemParamNamePSIPriceDomDest,
 	ServiceItemParamNamePSIPriceDomDestPrice,
 	ServiceItemParamNamePSIPriceDomOrigin,
@@ -289,6 +280,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
 	string(ServiceItemParamNameMTOAvailableToPrimeAt),
+	string(ServiceItemParamNameNTSPackingFactor),
 	string(ServiceItemParamNameNumberDaysSIT),
 	string(ServiceItemParamNamePriceAreaDest),
 	string(ServiceItemParamNamePriceAreaIntlDest),
@@ -299,10 +291,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNamePSILinehaulDomPrice),
 	string(ServiceItemParamNamePSILinehaulShort),
 	string(ServiceItemParamNamePSILinehaulShortPrice),
-	string(ServiceItemParamNamePSIPackingDom),
-	string(ServiceItemParamNamePSIPackingDomPrice),
-	string(ServiceItemParamNamePSIPackingHHGIntl),
-	string(ServiceItemParamNamePSIPackingHHGIntlPrice),
 	string(ServiceItemParamNamePSIPriceDomDest),
 	string(ServiceItemParamNamePSIPriceDomDestPrice),
 	string(ServiceItemParamNamePSIPriceDomOrigin),

@@ -1,6 +1,7 @@
 package mtoserviceitem
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -156,7 +157,7 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 	}
 
 	return apperror.NewConflictError(v.updatedServiceItem.ID,
-		"- SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items.")
+		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
 }
 
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
