@@ -110,7 +110,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
         descriptionListStyles.compact,
         className,
         styles.OfficeDefinitionLists,
-        styles.NTSRShipmentInfoList,
+        styles.ShipmentInfoList,
       )}
       data-testid="shipment-info-list"
     >

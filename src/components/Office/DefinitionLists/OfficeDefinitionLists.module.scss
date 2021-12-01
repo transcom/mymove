@@ -29,6 +29,25 @@
   }
 }
 
-.NTSRShipmentInfoList {
+.ShipmentInfoList {
   padding-left: 4px;
+
+  dt {
+    @include u-border-left(0.5); //4px
+    @include u-border-left('transparent');
+  }
+
+  .missingInfoError {
+    dt {
+      @include u-border-left('error');
+      @include u-margin-left(-0.5);
+    }
+  }
+
+  .warning {
+    dt {
+      border-left: 4px solid $mm-gold;
+      @include u-margin-left(-0.5);
+    }
+  }
 }
