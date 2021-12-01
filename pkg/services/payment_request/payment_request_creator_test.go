@@ -24,7 +24,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
 		ReService: models.ReService{
-			Code: "DLH",
+			Code: models.ReServiceCodeDLH,
 		},
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedWeight,
@@ -33,7 +33,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
 		ReService: models.ReService{
-			Code: "DOP",
+			Code: models.ReServiceCodeDOP,
 		},
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedWeight,

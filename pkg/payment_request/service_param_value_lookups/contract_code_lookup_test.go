@@ -30,7 +30,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		// MS
 		reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "MS",
+				Code: models.ReServiceCodeMS,
 			},
 		})
 

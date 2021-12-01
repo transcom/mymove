@@ -54,7 +54,7 @@ func (suite *GHCRateEngineImportSuite) helperCheckShipmentTypePrices() {
 
 	// Get service UUID for shipment type
 	var service models.ReService
-	err = suite.DB().Where("code = 'DMHF'").First(&service)
+	err = suite.DB().Where("code = $1", models.ReServiceCodeDMHF).First(&service)
 	suite.NoError(err)
 
 	var shipmentTypePrices models.ReShipmentTypePrice

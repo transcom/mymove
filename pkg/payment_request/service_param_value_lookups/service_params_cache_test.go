@@ -42,19 +42,19 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 
 	reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DLH",
+			Code: models.ReServiceCodeDLH,
 		},
 	})
 
 	reService2 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "DOP",
+			Code: models.ReServiceCodeDOP,
 		},
 	})
 
 	reService3 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code: "MS",
+			Code: models.ReServiceCodeMS,
 		},
 	})
 

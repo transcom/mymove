@@ -361,6 +361,12 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	//
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
+	originDutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "Scott AFB",
+		},
+	})
+
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Leo"),
@@ -371,6 +377,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			SelectedMoveType: &hhgMoveType,
 			Locator:          "ZZZZ",
 		},
+		OriginDutyStation: originDutyStation1,
 	})
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
@@ -381,8 +388,11 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Status:    models.PaymentRequestStatusReviewed,
 			CreatedAt: prevCreatedAt,
 		},
-		OriginDutyStation: models.DutyStation{
-			Name: "Scott AFB",
+	})
+
+	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "Applewood, CA 99999",
 		},
 	})
 
@@ -400,9 +410,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusPaid,
 		},
-		OriginDutyStation: models.DutyStation{
-			Name: "Applewood, CA 99999",
-		},
+		OriginDutyStation: originDutyStation2,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{

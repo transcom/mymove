@@ -66,19 +66,19 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalOtherPriceRecords
 
 	// Get service UUID.
 	testServices := []struct {
-		service       string
+		service       models.ReServiceCode
 		expectedPrice int
 	}{
-		{"IHPK", 8186},
-		{"IHUPK", 915},
-		{"IUBPK", 8482},
-		{"IUBUPK", 847},
-		{"IOFSIT", 507},
-		{"IDFSIT", 507},
-		{"IOASIT", 14},
-		{"IDASIT", 14},
-		{"IOPSIT", 17001},
-		{"IDDSIT", 30186},
+		{models.ReServiceCodeIHPK, 8186},
+		{models.ReServiceCodeIHUPK, 915},
+		{models.ReServiceCodeIUBPK, 8482},
+		{models.ReServiceCodeIUBUPK, 847},
+		{models.ReServiceCodeIOFSIT, 507},
+		{models.ReServiceCodeIDFSIT, 507},
+		{models.ReServiceCodeIOASIT, 14},
+		{models.ReServiceCodeIDASIT, 14},
+		{models.ReServiceCodeIOPSIT, 17001},
+		{models.ReServiceCodeIDDSIT, 30186},
 	}
 
 	for _, test := range testServices {
@@ -86,7 +86,7 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalOtherPriceRecords
 	}
 }
 
-func (suite *GHCRateEngineImportSuite) helperCheckOneOtherInternationalPriceRecord(expected int, contractID uuid.UUID, serviceCode string, rateAreaID uuid.UUID) {
+func (suite *GHCRateEngineImportSuite) helperCheckOneOtherInternationalPriceRecord(expected int, contractID uuid.UUID, serviceCode models.ReServiceCode, rateAreaID uuid.UUID) {
 	var service models.ReService
 	err := suite.DB().Where("code = ?", serviceCode).First(&service)
 	suite.NoError(err)

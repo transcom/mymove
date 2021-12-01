@@ -20,6 +20,15 @@ const Shipment = ({ shipment, moveId }) => {
       })
     : '';
 
+  const editReweighUrl =
+    moveId && shipment.reweigh
+      ? generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH, {
+          moveCodeOrID: moveId,
+          shipmentId: shipment.id,
+          reweighId: shipment.reweigh.id,
+        })
+      : '';
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
@@ -71,10 +80,23 @@ const Shipment = ({ shipment, moveId }) => {
         <dd>{shipment.primeActualWeight}</dd>
       </div>
       {shipment.reweigh?.id && (
-        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !shipment.reweigh.weight })}>
-          <dt>Reweigh Weight:</dt>
-          <dd data-testid="reweigh">{!shipment.reweigh.weight ? 'Missing' : shipment.reweigh.weight}</dd>
-        </div>
+        <>
+          <div
+            className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !shipment.reweigh.weight })}
+          >
+            <dt>Reweigh Weight:</dt>
+            <dd data-testid="reweigh">{!shipment.reweigh.weight ? 'Missing' : shipment.reweigh.weight}</dd>
+            <dd>
+              <Link to={editReweighUrl}>Edit</Link>
+            </dd>
+          </div>
+          {shipment.reweigh.verificationReason && (
+            <div className={descriptionListStyles.row}>
+              <dt>Reweigh Remarks:</dt>
+              <dd>{shipment.reweigh.verificationReason}</dd>
+            </div>
+          )}
+        </>
       )}
       {shipment.reweigh?.id && (
         <div className={descriptionListStyles.row}>
@@ -99,6 +121,10 @@ const Shipment = ({ shipment, moveId }) => {
       <div className={descriptionListStyles.row}>
         <dt>Approved at:</dt>
         <dd>{shipment.approvedDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Diversion:</dt>
+        <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
     </dl>
   );

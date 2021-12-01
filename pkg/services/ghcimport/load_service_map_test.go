@@ -25,7 +25,7 @@ func (suite *GHCRateEngineImportSuite) Test_loadServiceMap() {
 		suite.Equal(count, len(gre.serviceToIDMap))
 
 		// Spot-check a service code
-		testServiceCode := "DOASIT"
+		testServiceCode := models.ReServiceCodeDOASIT
 		if suite.Contains(gre.serviceToIDMap, testServiceCode) {
 			suite.NotEqual(uuid.Nil, gre.serviceToIDMap[testServiceCode])
 		}
