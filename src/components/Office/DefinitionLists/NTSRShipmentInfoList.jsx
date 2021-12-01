@@ -29,7 +29,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const storageFacilityAddressElement = (
     <div className={classNames(descriptionListStyles.row, { [styles.missingInfoError]: !storageFacility })}>
       <dt>Storage facility address</dt>
-      <dd>
+      <dd data-testid="storageFacilityAddress">
         {storageFacility ? formatAddress(storageFacility.address) : 'Missing'}
         {storageFacility && storageFacility.lotNumber && isExpanded && (
           <>
@@ -43,7 +43,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const primeActualWeightElement = (
     <div className={classNames(descriptionListStyles.row, { [styles.warning]: !primeActualWeight })}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">{String(primeActualWeight).concat(' lbs') || '—'}</dd>
+      <dd data-testid="primeActualWeight">{primeActualWeight ? String(primeActualWeight).concat(' lbs') : '—'}</dd>
     </div>
   );
 
@@ -98,7 +98,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const sacElement = (
     <div className={classNames(descriptionListStyles.row, { [styles.warning]: !sacType })}>
       <dt>SAC</dt>
-      <dd data-testid="tacType">{sacType && sac ? String(sac).concat(' (', sacType, ')') : '—'}</dd>
+      <dd data-testid="sacType">{sacType && sac ? String(sac).concat(' (', sacType, ')') : '—'}</dd>
     </div>
   );
 
@@ -131,7 +131,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
         agents.map((agent) => (
           <div className={descriptionListStyles.row} key={`${agent.agentType}-${agent.email}`}>
             <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-            <dd>{formatAgent(agent)}</dd>
+            <dd data-testid="agent">{formatAgent(agent)}</dd>
           </div>
         ))}
 
