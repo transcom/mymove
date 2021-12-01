@@ -429,7 +429,7 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
-                              <li>The storage facility or address where your items are currently stored</li>
+                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>
