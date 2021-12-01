@@ -1962,7 +1962,8 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation"
+              "destinationDutyStation",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2026,6 +2027,12 @@ func init() {
             "type": "string",
             "description": "filters the name of the destination duty station on the orders",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -8345,7 +8352,8 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation"
+              "destinationDutyStation",
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8409,6 +8417,12 @@ func init() {
             "type": "string",
             "description": "filters the name of the destination duty station on the orders",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {

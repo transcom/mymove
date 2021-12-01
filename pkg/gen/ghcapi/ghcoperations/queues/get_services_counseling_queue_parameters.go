@@ -58,6 +58,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*filters the name of the origin duty location on the orders
+	  In: query
+	*/
+	OriginDutyLocation *string
 	/*filters the GBLOC of the service member's origin duty station
 	  In: query
 	*/
@@ -127,6 +131,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
+	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -292,6 +301,24 @@ func (o *GetServicesCounselingQueueParams) validateOrder(formats strfmt.Registry
 	return nil
 }
 
+// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+func (o *GetServicesCounselingQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OriginDutyLocation = &raw
+
+	return nil
+}
+
 // bindOriginGBLOC binds and validates parameter OriginGBLOC from query.
 func (o *GetServicesCounselingQueueParams) bindOriginGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -399,7 +426,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "destinationDutyStation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "destinationDutyStation", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 

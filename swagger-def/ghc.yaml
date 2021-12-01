@@ -1776,6 +1776,7 @@ paths:
               submittedAt,
               originGBLOC,
               destinationDutyStation,
+              originDutyLocation,
             ]
           description: field that results should be sorted by
         - in: query
@@ -1816,6 +1817,10 @@ paths:
           name: destinationDutyStation
           type: string
           description: filters the name of the destination duty station on the orders
+        - in: query
+          name: originDutyLocation
+          type: string
+          description: filters the name of the origin duty location on the orders
         - in: query
           name: status
           type: array
