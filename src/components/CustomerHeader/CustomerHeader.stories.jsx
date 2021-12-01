@@ -28,4 +28,8 @@ const props = {
 };
 
 // eslint-disable-next-line react/jsx-props-no-spreading
-export const Customer = () => <CustomerHeader {...props} />;
+export const Customer = () => (
+  <div className="officeApp">
+    <CustomerHeader {...props} />
+  </div>
+);
