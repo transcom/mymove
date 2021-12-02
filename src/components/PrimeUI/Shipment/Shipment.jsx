@@ -122,6 +122,10 @@ const Shipment = ({ shipment, moveId }) => {
         <dt>Approved at:</dt>
         <dd>{shipment.approvedDate}</dd>
       </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Diversion:</dt>
+        <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
+      </div>
     </dl>
   );
 };
