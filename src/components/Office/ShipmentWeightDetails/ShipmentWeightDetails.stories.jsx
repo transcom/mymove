@@ -6,7 +6,7 @@ export default {
   title: 'Office Components/ShipmentWeightDetails',
   decorators: [
     (storyFn) => (
-      <div id="containers" style={{ padding: '20px' }}>
+      <div className="officeApp" id="containers" style={{ padding: '20px' }}>
         {storyFn()}
       </div>
     ),
