@@ -46,7 +46,7 @@ export const LoggedInOfficeHeader = () => (
 );
 
 export const LoggedInOfficeHeaderWithNavigation = () => (
-  <div className="officeApp">
+  <div style={{ minWidth: '1000px' }}>
     <MilMoveHeader>
       <ul className="usa-nav__primary">
         <li className="usa-nav__primary-item">
