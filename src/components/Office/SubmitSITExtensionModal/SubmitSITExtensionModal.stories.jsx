@@ -19,16 +19,20 @@ const sitExtension = {
 };
 
 const summarySITExtension = (
-  <ShipmentSITDisplay
-    {...{
-      sitExtensions: [sitExtension],
-      sitStatus: SITStatusOrigin,
-      shipment: { sitDaysAllowance: 90 },
-      hideSITExtensionAction: true,
-    }}
-  />
+  <div className="officeApp">
+    <ShipmentSITDisplay
+      {...{
+        sitExtensions: [sitExtension],
+        sitStatus: SITStatusOrigin,
+        shipment: { sitDaysAllowance: 90 },
+        hideSITExtensionAction: true,
+      }}
+    />
+  </div>
 );
 
 export const Basic = () => (
-  <SubmitSITExtensionModal Submit={() => {}} onClose={() => {}} summarySITComponent={summarySITExtension} />
+  <div className="officeApp">
+    <SubmitSITExtensionModal Submit={() => {}} onClose={() => {}} summarySITComponent={summarySITExtension} />
+  </div>
 );
