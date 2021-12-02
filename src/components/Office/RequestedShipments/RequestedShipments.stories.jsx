@@ -294,63 +294,73 @@ export default {
 };
 
 export const withOneShipment = () => (
-  <RequestedShipments
-    mtoShipments={[shipments[0]]}
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoAgents={agents}
-    shipmentsStatus="SUBMITTED"
-    moveTaskOrder={moveTaskOrders[0]}
-  />
+  <div className="officeApp">
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[0]}
+    />
+  </div>
 );
 
 export const withCompletedServicesCounseling = () => (
-  <RequestedShipments
-    mtoShipments={[shipments[0]]}
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoAgents={agents}
-    shipmentsStatus="SUBMITTED"
-    moveTaskOrder={moveTaskOrders[1]}
-  />
+  <div className="officeApp">
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[1]}
+    />
+  </div>
 );
 
 export const withMultipleShipments = () => (
-  <RequestedShipments
-    mtoShipments={shipments}
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoAgents={agents}
-    shipmentsStatus="SUBMITTED"
-    moveTaskOrder={moveTaskOrders[0]}
-  />
+  <div className="officeApp">
+    <RequestedShipments
+      mtoShipments={shipments}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[0]}
+    />
+  </div>
 );
 
 export const withOneApprovedShipment = () => (
-  <RequestedShipments
-    mtoShipments={[shipments[0]]}
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoAgents={agents}
-    shipmentsStatus="APPROVED"
-    mtoServiceItems={serviceItems}
-    moveTaskOrder={moveTaskOrders[0]}
-  />
+  <div className="officeApp">
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="APPROVED"
+      mtoServiceItems={serviceItems}
+      moveTaskOrder={moveTaskOrders[0]}
+    />
+  </div>
 );
 
 export const withMultipleApprovedShipments = () => (
-  <RequestedShipments
-    mtoShipments={shipments}
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoAgents={agents}
-    shipmentsStatus="APPROVED"
-    mtoServiceItems={serviceItems}
-    moveTaskOrder={moveTaskOrders[0]}
-  />
+  <div className="officeApp">
+    <RequestedShipments
+      mtoShipments={shipments}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="APPROVED"
+      mtoServiceItems={serviceItems}
+      moveTaskOrder={moveTaskOrders[0]}
+    />
+  </div>
 );
