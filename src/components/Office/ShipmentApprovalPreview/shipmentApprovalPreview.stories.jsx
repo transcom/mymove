@@ -166,29 +166,33 @@ const customerInfo = {
 };
 
 export const shipmentApprovalPreviewModal = () => (
-  <ShipmentApprovalPreview
-    customerInfo={customerInfo}
-    setIsModalVisible={() => {
-      return true;
-    }}
-    mtoShipments={[shipments[0]]}
-    allowancesInfo={allowancesInfo}
-    counselingFee
-    shipmentManagementFee
-  />
+  <div style={{ minWidth: '1240px' }}>
+    <ShipmentApprovalPreview
+      customerInfo={customerInfo}
+      setIsModalVisible={() => {
+        return true;
+      }}
+      mtoShipments={[shipments[0]]}
+      allowancesInfo={allowancesInfo}
+      counselingFee
+      shipmentManagementFee
+    />
+  </div>
 );
 
 export const approvalPreviewWithShipments = () => (
-  <ShipmentApprovalPreview
-    customerInfo={customerInfo}
-    setIsModalVisible={() => {
-      return true;
-    }}
-    mtoShipments={shipments}
-    allowancesInfo={allowancesInfo}
-    counselingFee
-    shipmentManagementFee
-  />
+  <div style={{ minWidth: '1240px' }}>
+    <ShipmentApprovalPreview
+      customerInfo={customerInfo}
+      setIsModalVisible={() => {
+        return true;
+      }}
+      mtoShipments={shipments}
+      allowancesInfo={allowancesInfo}
+      counselingFee
+      shipmentManagementFee
+    />
+  </div>
 );
 
 export default { title: 'Office Components/ShipmentApprovalPreview' };
