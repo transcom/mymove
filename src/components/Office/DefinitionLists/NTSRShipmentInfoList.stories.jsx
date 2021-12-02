@@ -78,6 +78,7 @@ export const NTSRMissingInfo = () => (
       primeActualWeight: text('primeActualWeight', info.primeActualWeight),
       serviceOrderNumber: text('serviceOrderNumber', info.serviceOrderNumber),
     }}
+    errorIfMissing={['storageFacility']}
   />
 );
 

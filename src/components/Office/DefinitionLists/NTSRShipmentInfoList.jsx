@@ -174,16 +174,14 @@ const NTSRShipmentInfoList = ({
         descriptionListStyles.compact,
         className,
         styles.OfficeDefinitionLists,
-        styles.ShipmentInfoList,
       )}
       data-testid="shipment-info-list"
     >
       {(isExpanded || primeActualWeightElementFlags.alwaysShow) && primeActualWeightElement}
       {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
-      {!isExpanded && requestedDeliveryDateElement}
       {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
-      {isExpanded && requestedDeliveryDateElement}
+      {requestedDeliveryDateElement}
       {destinationAddressElement}
       {isExpanded && secondaryDeliveryAddressElement}
       {isExpanded && agentsElement}
