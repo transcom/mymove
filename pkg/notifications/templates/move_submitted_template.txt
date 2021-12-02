@@ -1,5 +1,8 @@
+{{ if .ShowOriginDutyStation }}
 This is a confirmation that you’ve submitted the details for your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}}.
-
+{{else}}
+This is a confirmation that you’ve submitted the details for your move to {{.DestinationDutyStation}}.
+{{ end }}
 We’ve assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 
 To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re using them) or your move counselor.
@@ -21,9 +24,9 @@ If you chose to do a full or partial PPM (DITY) move, <a href="{{.PpmLink}}"> re
 * Get certified weight tickets that show the empty and full weight for each vehicle used in each PPM shipment
 * If you’re missing weight tickets, you may not get paid for your PPM
 * Save receipts for PPM expenses to request reimbursement or to reduce taxes on your incentive payment
-
+{{ if .ShowOriginDutyStation }}
 If you have any questions about the PPM part of your move, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}} and reference move code {{.Locator}}.
-
+{{ end }}
 Once you’ve completed your PPM shipment, you can request payment by <a href="{{.Link}}">logging in to MilMove</a>.
 
 For HHG and other government-funded shipments

@@ -56,9 +56,18 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
+	showOriginDutyStation := false
 	originDSTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
+	}
+
+	var originDutyStation, originDutyStationPhoneLine *string
+	if originDSTransportInfo != nil {
+		showOriginDutyStation = true
+		originDutyStation = &originDSTransportInfo.Name
+		originDutyStationPhoneLine = &originDSTransportInfo.PhoneLine
+
 	}
 
 	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
@@ -73,14 +82,16 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          originDSTransportInfo.Name,
+		OriginDutyStation:          originDutyStation,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
-		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
+		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 		WeightAllowance:            totalEntitlement,
+		ShowOriginDutyStation:      showOriginDutyStation,
 	})
 
 	if err != nil {
+		fmt.Println("THIS IS DUMB")
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
 
@@ -113,11 +124,12 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 type moveSubmittedEmailData struct {
 	Link                       string
 	PpmLink                    string
-	OriginDutyStation          string
+	OriginDutyStation          *string
 	DestinationDutyStation     string
-	OriginDutyStationPhoneLine string
+	OriginDutyStationPhoneLine *string
 	Locator                    string
 	WeightAllowance            int
+	ShowOriginDutyStation      bool
 }
 
 // RenderHTML renders the html for the email
