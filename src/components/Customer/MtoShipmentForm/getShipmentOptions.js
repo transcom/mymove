@@ -28,11 +28,17 @@ const ntsReleaseShipmentSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
+});
+
+const ntsReleaseShipmentOfficeSchema = Yup.object().shape({
+  delivery: RequiredPlaceSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
   serviceOrderNumber: Yup.string(),
   storageFacility: StorageFacilityAddressSchema,
 });
 
-function getShipmentOptions(shipmentType) {
+function getShipmentOptions(shipmentType, isCustomer) {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return {
@@ -40,18 +46,29 @@ function getShipmentOptions(shipmentType) {
         showPickupFields: true,
         showDeliveryFields: true,
       };
+
     case SHIPMENT_OPTIONS.NTS:
       return {
         schema: ntsShipmentSchema,
         showPickupFields: true,
         showDeliveryFields: false,
       };
+
     case SHIPMENT_OPTIONS.NTSR:
+      if (isCustomer) {
+        return {
+          schema: ntsReleaseShipmentSchema,
+          showPickupFields: false,
+          showDeliveryFields: true,
+        };
+      }
+
       return {
-        schema: ntsReleaseShipmentSchema,
+        schema: ntsReleaseShipmentOfficeSchema,
         showPickupFields: false,
         showDeliveryFields: true,
       };
+
     default:
       throw new Error('unrecognized move type');
   }

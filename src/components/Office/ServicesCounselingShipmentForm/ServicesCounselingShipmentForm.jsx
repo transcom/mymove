@@ -93,7 +93,7 @@ const ServicesCounselingShipmentForm = ({
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
+  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, false);
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
