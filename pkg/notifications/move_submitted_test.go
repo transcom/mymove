@@ -42,12 +42,9 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
 		WeightAllowance:            7999,
-		ShowOriginDutyStation:      true,
 	}
-	expectedHTMLContent := `
-<p>
-  This is a confirmation that you’ve submitted the details for your move from origDutyStation to
-  destDutyStation.
+	expectedHTMLContent := `<p>
+  This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
 </p>
 
 <p>
@@ -164,10 +161,8 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation
 		OriginDutyStationPhoneLine: nil,
 		Locator:                    "abc123",
 		WeightAllowance:            7999,
-		ShowOriginDutyStation:      false,
 	}
-	expectedHTMLContent := `
-<p>
+	expectedHTMLContent := `<p>
   This is a confirmation that you’ve submitted the details for your move to destDutyStation.
 </p>
 
@@ -284,11 +279,9 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
 		WeightAllowance:            7999,
-		ShowOriginDutyStation:      true,
 	}
 
-	expectedTextContent := `
-This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
+	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
 
 We’ve assigned you a move code: abc123. You can use this code when talking to any representative about your move.
 

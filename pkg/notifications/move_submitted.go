@@ -56,7 +56,6 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	showOriginDutyStation := false
 	originDSTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
@@ -64,7 +63,6 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	var originDutyStation, originDutyStationPhoneLine *string
 	if originDSTransportInfo != nil {
-		showOriginDutyStation = true
 		originDutyStation = &originDSTransportInfo.Name
 		originDutyStationPhoneLine = &originDSTransportInfo.PhoneLine
 
@@ -87,7 +85,6 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 		WeightAllowance:            totalEntitlement,
-		ShowOriginDutyStation:      showOriginDutyStation,
 	})
 
 	if err != nil {
@@ -129,7 +126,6 @@ type moveSubmittedEmailData struct {
 	OriginDutyStationPhoneLine *string
 	Locator                    string
 	WeightAllowance            int
-	ShowOriginDutyStation      bool
 }
 
 // RenderHTML renders the html for the email
