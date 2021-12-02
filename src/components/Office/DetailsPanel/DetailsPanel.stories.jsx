@@ -11,34 +11,42 @@ export default {
 };
 
 export const Basic = () => (
-  <DetailsPanel title="Details panel">
-    <p>Child content!</p>
-  </DetailsPanel>
+  <div className="officeApp">
+    <DetailsPanel title="Details panel">
+      <p>Child content!</p>
+    </DetailsPanel>
+  </div>
 );
 
 export const WithEditButton = () => (
-  <DetailsPanel
-    title="Details panel with edit button"
-    editButton={
-      <a href="#" className="usa-button usa-button--secondary">
-        Edit
-      </a>
-    }
-  >
-    <p>Child content!</p>
-  </DetailsPanel>
+  <div className="officeApp">
+    <DetailsPanel
+      title="Details panel with edit button"
+      editButton={
+        <a href="#" className="usa-button usa-button--secondary">
+          Edit
+        </a>
+      }
+    >
+      <p>Child content!</p>
+    </DetailsPanel>
+  </div>
 );
 
 export const WithClassname = () => (
-  <DetailsPanel title="Details panel with added CSS class" className="border-2px">
-    <p>I have a border class added via props!</p>
-  </DetailsPanel>
+  <div className="officeApp">
+    <DetailsPanel title="Details panel with added CSS class" className="border-2px">
+      <p>I have a border class added via props!</p>
+    </DetailsPanel>
+  </div>
 );
 
 export const WithTag = () => (
-  <DetailsPanel title="Details panel with tag" tag="NEW">
-    <p>I have a tag added via props!</p>
-  </DetailsPanel>
+  <div className="officeApp">
+    <DetailsPanel title="Details panel with tag" tag="NEW">
+      <p>I have a tag added via props!</p>
+    </DetailsPanel>
+  </div>
 );
 
 const info = {
@@ -60,14 +68,16 @@ const info = {
 };
 
 export const WithDefinitionListComponent = () => (
-  <DetailsPanel
-    title="Customer info"
-    editButton={
-      <a href="#" className="usa-button usa-button--secondary">
-        Edit customer info
-      </a>
-    }
-  >
-    <CustomerInfoList customerInfo={object('customerInfo', info)} />
-  </DetailsPanel>
+  <div className="officeApp">
+    <DetailsPanel
+      title="Customer info"
+      editButton={
+        <a href="#" className="usa-button usa-button--secondary">
+          Edit customer info
+        </a>
+      }
+    >
+      <CustomerInfoList customerInfo={object('customerInfo', info)} />
+    </DetailsPanel>
+  </div>
 );
