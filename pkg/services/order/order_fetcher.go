@@ -106,6 +106,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		groupByColumms = append(groupByColumms, "dest_ds.name")
 	}
 
+	if params.Sort != nil && *params.Sort == "originDutyLocation" {
+		groupByColumms = append(groupByColumms, "origin_ds.name")
+	}
+
 	if params.Sort != nil && *params.Sort == "originGBLOC" {
 		groupByColumms = append(groupByColumms, "origin_to.id")
 	}

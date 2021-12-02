@@ -93,28 +93,28 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue(
 	suite.NoError(err)
 
 	// Get domestic service area price DSH
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(16), contract.ID, "DSH", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(16), contract.ID, models.ReServiceCodeDSH, serviceArea.ID)
 
 	// Get domestic service area price DOP
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(581), contract.ID, "DOP", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(581), contract.ID, models.ReServiceCodeDOP, serviceArea.ID)
 
 	// Get domestic service area price DDP
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(581), contract.ID, "DDP", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(581), contract.ID, models.ReServiceCodeDDP, serviceArea.ID)
 
 	// Get domestic service area price DOFSIT
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(1597), contract.ID, "DOFSIT", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(1597), contract.ID, models.ReServiceCodeDOFSIT, serviceArea.ID)
 
 	// Get domestic service area price DDFSIT
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(1597), contract.ID, "DDFSIT", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(1597), contract.ID, models.ReServiceCodeDDFSIT, serviceArea.ID)
 
 	// Get domestic service area price DOASIT
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(62), contract.ID, "DOASIT", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(62), contract.ID, models.ReServiceCodeDOASIT, serviceArea.ID)
 
 	// Get domestic service area price DDASIT
-	suite.verifyDomesticSerivceAreaPrice(unit.Cents(62), contract.ID, "DDASIT", serviceArea.ID)
+	suite.verifyDomesticServiceAreaPrice(unit.Cents(62), contract.ID, models.ReServiceCodeDDASIT, serviceArea.ID)
 }
 
-func (suite *GHCRateEngineImportSuite) verifyDomesticSerivceAreaPrice(expected unit.Cents, contractID uuid.UUID, serviceCode string, serviceAreaID uuid.UUID) {
+func (suite *GHCRateEngineImportSuite) verifyDomesticServiceAreaPrice(expected unit.Cents, contractID uuid.UUID, serviceCode models.ReServiceCode, serviceAreaID uuid.UUID) {
 	var service models.ReService
 	err := suite.DB().Where("code = ?", serviceCode).First(&service)
 	suite.NoError(err)

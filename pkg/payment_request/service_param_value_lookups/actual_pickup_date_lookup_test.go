@@ -34,7 +34,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		// FSC
 		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "FSC",
+				Code: models.ReServiceCodeFSC,
 			},
 			MTOShipment: models.MTOShipment{
 				ActualPickupDate: &actualPickupDate,

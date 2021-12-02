@@ -100,52 +100,52 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
 
 	// Spot check one non-peak/peak record of each type
 	testCases := []struct {
-		serviceCode         string
+		serviceCode         models.ReServiceCode
 		originRateArea      string
 		destinationRateArea string
 		isPeakPeriod        bool
 		expectedPrice       int
 	}{
 		// 3a: OCONUS to OCONUS
-		{"IOOLH", "GE", "US8101000", false, 1021},
-		{"IOOUB", "GE", "US8101000", false, 1717},
-		{"IOOLH", "GE", "US8101000", true, 1205},
-		{"IOOUB", "GE", "US8101000", true, 2026},
+		{models.ReServiceCodeIOOLH, "GE", "US8101000", false, 1021},
+		{models.ReServiceCodeIOOUB, "GE", "US8101000", false, 1717},
+		{models.ReServiceCodeIOOLH, "GE", "US8101000", true, 1205},
+		{models.ReServiceCodeIOOUB, "GE", "US8101000", true, 2026},
 		// 3b: CONUS to OCONUS
-		{"ICOLH", "US47", "AS11", false, 3090},
-		{"ICOUB", "US47", "AS11", false, 3398},
-		{"ICOLH", "US47", "AS11", true, 3646},
-		{"ICOUB", "US47", "AS11", true, 4010},
+		{models.ReServiceCodeICOLH, "US47", "AS11", false, 3090},
+		{models.ReServiceCodeICOUB, "US47", "AS11", false, 3398},
+		{models.ReServiceCodeICOLH, "US47", "AS11", true, 3646},
+		{models.ReServiceCodeICOUB, "US47", "AS11", true, 4010},
 		// 3c: OCONUS to CONUS
-		{"IOCLH", "US8101000", "US68", false, 1757},
-		{"IOCUB", "US8101000", "US68", false, 3445},
-		{"IOCLH", "US8101000", "US68", true, 2073},
-		{"IOCUB", "US8101000", "US68", true, 4065},
+		{models.ReServiceCodeIOCLH, "US8101000", "US68", false, 1757},
+		{models.ReServiceCodeIOCUB, "US8101000", "US68", false, 3445},
+		{models.ReServiceCodeIOCLH, "US8101000", "US68", true, 2073},
+		{models.ReServiceCodeIOCUB, "US8101000", "US68", true, 4065},
 		// 3e: NSRA to NSRA
-		{"NSTH", "NSRA2", "NSRA13", false, 4849},
-		{"NSTUB", "NSRA2", "NSRA13", false, 4793},
-		{"NSTH", "NSRA2", "NSRA13", true, 5722},
-		{"NSTUB", "NSRA2", "NSRA13", true, 5656},
+		{models.ReServiceCodeNSTH, "NSRA2", "NSRA13", false, 4849},
+		{models.ReServiceCodeNSTUB, "NSRA2", "NSRA13", false, 4793},
+		{models.ReServiceCodeNSTH, "NSRA2", "NSRA13", true, 5722},
+		{models.ReServiceCodeNSTUB, "NSRA2", "NSRA13", true, 5656},
 		// 3e: NSRA to OCONUS
-		{"NSTH", "NSRA13", "AS11", false, 5172},
-		{"NSTUB", "NSRA13", "AS11", false, 1175},
-		{"NSTH", "NSRA13", "AS11", true, 6103},
-		{"NSTUB", "NSRA13", "AS11", true, 1386},
+		{models.ReServiceCodeNSTH, "NSRA13", "AS11", false, 5172},
+		{models.ReServiceCodeNSTUB, "NSRA13", "AS11", false, 1175},
+		{models.ReServiceCodeNSTH, "NSRA13", "AS11", true, 6103},
+		{models.ReServiceCodeNSTUB, "NSRA13", "AS11", true, 1386},
 		// 3e: OCONUS to NSRA
-		{"NSTH", "GE", "NSRA2", false, 4872},
-		{"NSTUB", "GE", "NSRA2", false, 1050},
-		{"NSTH", "GE", "NSRA2", true, 5749},
-		{"NSTUB", "GE", "NSRA2", true, 1239},
+		{models.ReServiceCodeNSTH, "GE", "NSRA2", false, 4872},
+		{models.ReServiceCodeNSTUB, "GE", "NSRA2", false, 1050},
+		{models.ReServiceCodeNSTH, "GE", "NSRA2", true, 5749},
+		{models.ReServiceCodeNSTUB, "GE", "NSRA2", true, 1239},
 		// 3e: NSRA to CONUS
-		{"NSTH", "NSRA2", "US4965500", false, 931},
-		{"NSTUB", "NSRA2", "US4965500", false, 1717},
-		{"NSTH", "NSRA2", "US4965500", true, 1099},
-		{"NSTUB", "NSRA2", "US4965500", true, 2026},
+		{models.ReServiceCodeNSTH, "NSRA2", "US4965500", false, 931},
+		{models.ReServiceCodeNSTUB, "NSRA2", "US4965500", false, 1717},
+		{models.ReServiceCodeNSTH, "NSRA2", "US4965500", true, 1099},
+		{models.ReServiceCodeNSTUB, "NSRA2", "US4965500", true, 2026},
 		// 3e: CONUS to NSRA
-		{"NSTH", "US68", "NSRA13", false, 1065},
-		{"NSTUB", "US68", "NSRA13", false, 1689},
-		{"NSTH", "US68", "NSRA13", true, 1257},
-		{"NSTUB", "US68", "NSRA13", true, 1993},
+		{models.ReServiceCodeNSTH, "US68", "NSRA13", false, 1065},
+		{models.ReServiceCodeNSTUB, "US68", "NSRA13", false, 1689},
+		{models.ReServiceCodeNSTH, "US68", "NSRA13", true, 1257},
+		{models.ReServiceCodeNSTUB, "US68", "NSRA13", true, 1993},
 	}
 
 	for _, testCase := range testCases {
