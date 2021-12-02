@@ -1,10 +1,6 @@
-# to install
-# nix-env -p /nix/var/nix/profiles/mymove -f nix -i
+# use ./nix/update.sh to install
 #
-# use
-#
-# https://lazamar.co.uk/nix-versions/
-# to find rev for specific package version
+# use <https://ahobson.github.io/nix-package-search> to find a package version
 
 let
   pkgs = import <nixpkgs> {};
@@ -25,8 +21,8 @@ in buildEnv {
       # Descriptive name to make the store path easier to identify
       name = "nodejs-14.18.1";
       url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/staging";
-      rev = "574ab51aa96701a1a6cec7435c6945a181fe2d63";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "14ee52edff84f16f6268ebb9f87380cd86c433da";
     }) {}).nodejs-14_x
 
     (import (builtins.fetchGit {
