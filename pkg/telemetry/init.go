@@ -43,13 +43,6 @@ type Config struct {
 
 const (
 	defaultCollectSeconds = 30
-	tracerName            = "github.com/transcom/mymove"
-	//	metricName            = "github.com/transcom/mymove"
-)
-
-var (
-	tracer trace.Tracer
-	// meter  metric.Meter
 )
 
 // Init currently the target for distributed tracing / opentelemetry is
@@ -176,13 +169,5 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		)
 	}
 
-	tracer = otel.Tracer(tracerName)
-	//meter = global.Meter(metricName)
-
 	return shutdown
-}
-
-// DefaultTracer returns the default global tracer
-func DefaultTracer() trace.Tracer {
-	return tracer
 }
