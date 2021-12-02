@@ -88,7 +88,6 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	})
 
 	if err != nil {
-		fmt.Println("THIS IS DUMB")
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
 
