@@ -166,6 +166,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		DodID:                  params.DodID,
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
+		OriginDutyLocation:     params.OriginDutyLocation,
 		OriginGBLOC:            params.OriginGBLOC,
 		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		RequestedMoveDate:      params.RequestedMoveDate,
