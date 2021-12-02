@@ -3,11 +3,11 @@
     // add so that the top of stories isn't hidden by the iframe
     padding-top: 5px;
     height: 100vh;
-      .officeApp {
-        @media (max-width:1240px) {
-          min-width: 1240px;
-          overflow-x: scroll;
-        }
-     }
+    .officeApp {
+      @media (max-width: 840px) {
+        min-width: 600px;
+        overflow-x: scroll;
+      }
+    }
   }
 }
