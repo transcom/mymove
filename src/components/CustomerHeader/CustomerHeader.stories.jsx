@@ -29,7 +29,7 @@ const props = {
 
 // eslint-disable-next-line react/jsx-props-no-spreading
 export const Customer = () => (
-  <div className="officeApp">
+  <div style={{ minWidth: '1000px' }}>
     <CustomerHeader {...props} />
   </div>
 );
