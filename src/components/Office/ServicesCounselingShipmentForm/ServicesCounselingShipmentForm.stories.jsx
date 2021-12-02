@@ -88,13 +88,15 @@ export default {
   component: ServicesCounselingShipmentForm,
   decorators: [
     (Story) => (
-      <GridContainer className={styles.gridContainer}>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Story />
+      <div className="officeApp">
+        <GridContainer className={styles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <Story />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </div>
     ),
   ],
 };
