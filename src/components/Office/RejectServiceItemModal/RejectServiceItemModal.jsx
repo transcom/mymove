@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
-import TextField from 'components/form/fields/TextField';
+import TextField from 'components/form/fields/TextField/TextField';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { ServiceItemDetailsShape } from 'types/serviceItems';

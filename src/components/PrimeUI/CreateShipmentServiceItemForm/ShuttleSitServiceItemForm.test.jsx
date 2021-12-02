@@ -78,6 +78,6 @@ describe('DomesticCratingForm component', () => {
     // shipment text values
     const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.name).toBe(inputName);
+    expect(field.closest('div').nextElementSibling.name).toBe(inputName);
   });
 });

@@ -39,6 +39,7 @@ const approvedMoveTaskOrder = {
   moveTaskOrder: {
     availableToPrimeAt: '2021-10-18T18:24:41.235Z',
     createdAt: '2021-10-18T18:24:41.362Z',
+    diversion: false,
     eTag: 'MjAyMS0xMC0xOFQxODoyNDo0MS4zNjIxNjRa',
     excessWeightAcknowledgedAt: null,
     excessWeightQualifiedAt: null,

@@ -1917,6 +1917,7 @@ paths:
             - branch
             - locator
             - status
+            - originDutyLocation
             - destinationDutyStation
           description: field that results should be sorted by
         - in: query
@@ -1937,6 +1938,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: originDutyLocation
           type: string
         - in: query
           name: destinationDutyStation
@@ -2733,12 +2737,12 @@ definitions:
         title: SAC
         example: N002214CSW32Y9
         x-nullable: true
-      nts_tac:
+      ntsTac:
         type: string
         title: NTS TAC
         example: F8J1
         x-nullable: true
-      nts_sac:
+      ntsSac:
         type: string
         title: NTS SAC
         example: N002214CSW32Y9
@@ -2781,6 +2785,30 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      tac:
+        type: string
+        title: HHG TAC
+        minLength: 4
+        maxLength: 4
+        example: F8J1
+        x-nullable: true
+      sac:
+        type: string
+        title: HHG SAC
+        example: N002214CSW32Y9
+        x-nullable: true
+      ntsTac:
+        type: string
+        title: NTS TAC
+        minLength: 4
+        maxLength: 4
+        example: F8J1
+        x-nullable: true
+      ntsSac:
+        type: string
+        title: NTS SAC
+        example: N002214CSW32Y9
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -2821,14 +2849,26 @@ definitions:
         example: 030-00362
       tac:
         type: string
-        title: TAC
+        title: HHG TAC
         minLength: 4
         maxLength: 4
         example: F8J1
         x-nullable: true
       sac:
         type: string
-        title: SAC
+        title: HHG SAC
+        example: N002214CSW32Y9
+        x-nullable: true
+      ntsTac:
+        type: string
+        title: NTS TAC
+        minLength: 4
+        maxLength: 4
+        example: F8J1
+        x-nullable: true
+      ntsSac:
+        type: string
+        title: NTS SAC
         example: N002214CSW32Y9
         x-nullable: true
       departmentIndicator:
@@ -3970,6 +4010,8 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
+      originDutyLocation:
+        $ref: '#/definitions/DutyStation'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originGBLOC:
@@ -4223,6 +4265,7 @@ definitions:
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
+      - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -4233,10 +4276,6 @@ definitions:
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
       - PSI_LinehaulShortPrice
-      - PSI_PackingDom
-      - PSI_PackingDomPrice
-      - PSI_PackingHHGIntl
-      - PSI_PackingHHGIntlPrice
       - PSI_PriceDomDest
       - PSI_PriceDomDestPrice
       - PSI_PriceDomOrigin

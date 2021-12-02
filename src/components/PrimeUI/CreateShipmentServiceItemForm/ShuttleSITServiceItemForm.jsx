@@ -4,12 +4,12 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { Form } from 'components/form/Form';
-import TextField from 'components/form/fields/TextField';
 import { ShipmentShape } from 'types/shipment';
 import { DropdownInput } from 'components/form/fields';
 import { shuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
 
 const shuttleSITValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),

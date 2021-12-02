@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
 	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+	suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
 }
@@ -635,10 +635,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	})
 
-	suite.Run("returns results matching DestinationDutyStation name search term", func() {
+	suite.Run("returns results matching OriginDutyLocation name search term", func() {
 		params := queues.GetMovesQueueParams{
-			HTTPRequest:            request,
-			DestinationDutyStation: &dutyStation1.Name,
+			HTTPRequest:        request,
+			OriginDutyLocation: &dutyStation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -648,16 +648,16 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
-		suite.Equal("This Other Station", result.DestinationDutyStation.Name)
+		suite.Equal("This Other Station", result.OriginDutyLocation.Name)
 	})
 
 	suite.Run("returns results with multiple filters applied", func() {
 		params := queues.GetMovesQueueParams{
-			HTTPRequest:            request,
-			LastName:               models.StringPointer("Dar"),
-			DodID:                  serviceMember1.Edipi,
-			Locator:                &move1.Locator,
-			DestinationDutyStation: &dutyStation1.Name,
+			HTTPRequest:        request,
+			LastName:           models.StringPointer("Dar"),
+			DodID:              serviceMember1.Edipi,
+			Locator:            &move1.Locator,
+			OriginDutyLocation: &dutyStation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -1144,7 +1144,6 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
 		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	})
 
@@ -1173,8 +1172,8 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			suite.EqualValues(move.Status, result.Status)
 			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
 			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+			suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
 
 			if move.Status == models.MoveStatusNeedsServiceCounseling {
 				suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))

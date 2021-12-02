@@ -61,6 +61,7 @@ const approvedMoveTaskOrder = {
         reweigh: {
           id: '1234',
           weight: 9000,
+          verificationReason: 'Reweigh requested.',
           requestedAt: '2021-10-23',
         },
       },
@@ -88,7 +89,7 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink).toBeInTheDocument();
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
-    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(2);
+    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(3);
   });
 
   it('renders the shipment address values', async () => {
@@ -182,6 +183,7 @@ describe('Shipment details component fields and values are present', () => {
     ['Actual Weight:', shipment.primeActualWeight],
     ['Estimated Weight:', shipment.primeEstimatedWeight],
     ['Reweigh Weight:', shipment.reweigh.weight],
+    ['Reweigh Remarks:', shipment.reweigh.verificationReason],
     ['Reweigh Requested Date:', formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')],
     ['Created at:', formatDateFromIso(shipment.createdAt, 'YYYY-MM-DD')],
     ['Approved at:', shipment.approvedDate],
@@ -228,6 +230,7 @@ describe('Shipment has missing reweigh', () => {
     );
 
     expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reweigh Remarks:')).not.toBeInTheDocument();
     expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
   });
 });

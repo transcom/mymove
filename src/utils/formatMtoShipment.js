@@ -79,6 +79,7 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  primeActualWeight,
   tacType,
   sacType,
 }) {
@@ -106,6 +107,7 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    primeActualWeight,
     tacType,
     sacType,
   };
@@ -171,6 +173,7 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
+  primeActualWeight,
   tacType,
   sacType,
 }) {
@@ -219,6 +222,10 @@ export function formatMtoShipmentForAPI({
 
   if (!formattedMtoShipment.agents?.length) {
     formattedMtoShipment.agents = undefined;
+  }
+
+  if (primeActualWeight) {
+    formattedMtoShipment.primeActualWeight = primeActualWeight;
   }
 
   if (tacType) {

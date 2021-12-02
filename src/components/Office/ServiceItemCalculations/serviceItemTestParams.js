@@ -403,24 +403,6 @@ const PSIPriceDomDestPrice = {
   type: 'DECIMAL',
   value: '',
 };
-const PSIPackingDom = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '0891eda2-bbba-4f04-bf84-e5266b059f76',
-  key: 'PSI_PackingDom',
-  origin: 'SYSTEM',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'PaymentServiceItemUUID',
-  value: '',
-};
-const PSIPackingDomPrice = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: 'ce6cd6db-d2af-4f0a-a17b-63bfb12f47a0',
-  key: 'PSI_PackingDomPrice',
-  origin: 'SYSTEM',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'DECIMAL',
-  value: '',
-};
 const DimensionLength = {
   eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
   id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
@@ -447,6 +429,15 @@ const DimensionHeight = {
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
   value: '6',
+};
+const NTSPackingFactor = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'NTSPackingFactor',
+  origin: 'PRICER',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'DECIMAL',
+  value: '1.35',
 };
 
 const testParams = {
@@ -780,7 +771,18 @@ const testParams = {
     PSIPriceDomDest,
     PSIPriceDomDestPrice,
   ],
-  DomesticNTSPackingFactor: [PSIPackingDom, PSIPackingDomPrice],
+  DomesticNTSPacking: [
+    ContractYearName,
+    EscalationCompounded,
+    NTSPackingFactor,
+    PriceRateOrFactor,
+    RequestedPickupDate,
+    ServicesScheduleOrigin,
+    WeightOriginal,
+    WeightBilled,
+    WeightEstimated,
+    ZipPickupAddress,
+  ],
   additionalCratingDataDCRT: {
     reServiceCode: 'DCRT',
     description: 'Grand piano',

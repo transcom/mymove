@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Form } from 'components/form/Form';
-import MaskedTextField from 'components/form/fields/MaskedTextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { addressSchema } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
