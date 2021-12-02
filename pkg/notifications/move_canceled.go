@@ -65,6 +65,12 @@ func (m MoveCanceled) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		return emails, err
 	}
 
+	var originDutyStation, originDutyStationPhoneLine *string
+	if dsTransportInfo != nil {
+		originDutyStation = &dsTransportInfo.Name
+		originDutyStationPhoneLine = &dsTransportInfo.PhoneLine
+	}
+
 	if orders.NewDutyStation.Name == "" {
 		return emails, fmt.Errorf("missing new duty station for service member")
 	}
@@ -74,9 +80,9 @@ func (m MoveCanceled) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	// TODO: we will want some sort of templating system
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveCanceledEmailData{
-		OriginDutyStation:          dsTransportInfo.Name,
+		OriginDutyStation:          originDutyStation,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
-		OriginDutyStationPhoneLine: dsTransportInfo.PhoneLine,
+		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 	})
 
 	if err != nil {
@@ -107,9 +113,9 @@ func (m MoveCanceled) renderTemplates(appCtx appcontext.AppContext, data moveCan
 }
 
 type moveCanceledEmailData struct {
-	OriginDutyStation          string
+	OriginDutyStation          *string
 	DestinationDutyStation     string
-	OriginDutyStationPhoneLine string
+	OriginDutyStationPhoneLine *string
 }
 
 // RenderHTML renders the html for the email
