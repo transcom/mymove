@@ -42,6 +42,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
+  // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+  const showWhenCollapsed = ['counselorRemarks']; // add any additional fields that we also want to always show
+  const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+  const errorIfMissing = ['storageFacility'];
+
   let shipmentsInfo = [];
 
   if (mtoShipments) {
@@ -237,6 +242,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     shipmentType={shipment.shipmentType}
                     showIcon={false}
                     ordersLOA={ordersLOA}
+                    warnIfMissing={warnIfMissing}
+                    errorIfMissing={errorIfMissing}
+                    showWhenCollapsed={showWhenCollapsed}
                   />
                 ))}
               </div>

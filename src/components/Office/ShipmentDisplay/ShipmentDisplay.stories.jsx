@@ -17,6 +17,10 @@ export default {
   ],
 };
 
+const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+const errorIfMissing = ['storageFacility'];
+const showWhenCollapsed = ['counselorRemarks'];
+
 const ordersLOA = {
   tac: '1111',
   sac: '2222222222',
@@ -253,6 +257,7 @@ export const NTSReleaseShipment = () => (
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
       ordersLOA={ordersLOA}
+      showWhenCollapsed={showWhenCollapsed}
       isSubmitted
     />
   </div>
@@ -266,6 +271,10 @@ export const NTSReleaseShipmentMissingInfo = () => (
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
+      warnIfMissing={warnIfMissing}
+      errorIfMissing={errorIfMissing}
+      showWhenCollapsed={showWhenCollapsed}
+      editURL="/"
     />
   </div>
 );

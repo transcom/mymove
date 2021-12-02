@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+
+const showWhenCollapsed = ['counselorRemarks'];
+const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+const errorIfMissing = ['storageFacility'];
 
 const info = {
   primeActualWeight: 2000,
@@ -51,21 +55,6 @@ const info = {
   sac: '1234123412',
 };
 
-const labels = {
-  primeActualWeight: 'Shipment weight',
-  storageFacility: 'Storage facility info',
-  serviceOrderNumber: 'Service order #',
-  storageFacilityAddress: 'Storage facility address',
-  requestedDeliveryDate: 'Preferred delivery date',
-  destinationAddress: 'Delivery address',
-  secondaryDeliveryAddress: 'Second delivery address',
-  agents: 'Receiving agent',
-  customerRemarks: 'Customer remarks',
-  counselorRemarks: 'Counselor remarks',
-  tacType: 'TAC',
-  sacType: 'SAC',
-};
-
 describe('NTSR Shipment Info List', () => {
   it('renders all fields when provided and expanded', () => {
     render(<NTSRShipmentInfoList isExpanded shipment={info} />);
@@ -87,20 +76,20 @@ describe('NTSR Shipment Info List', () => {
     const secondaryDeliveryAddress = screen.getByTestId('secondaryDeliveryAddress');
     expect(secondaryDeliveryAddress).toHaveTextContent(info.secondaryDeliveryAddress.streetAddress1);
 
-    const receivingAgent = screen.getByText(labels.agents);
-    expect(within(receivingAgent.parentElement).getByText(info.agents[0].email, { exact: false })).toBeInTheDocument();
+    const receivingAgent = screen.getByTestId('agent');
+    expect(receivingAgent).toHaveTextContent(info.agents[0].email, { exact: false });
 
-    const counselorRemarks = screen.getByText(labels.counselorRemarks);
-    expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
+    const counselorRemarks = screen.getByTestId('counselorRemarks');
+    expect(counselorRemarks).toHaveTextContent(info.counselorRemarks);
 
-    const customerRemarks = screen.getByText(labels.customerRemarks);
-    expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
+    const customerRemarks = screen.getByTestId('customerRemarks');
+    expect(customerRemarks).toHaveTextContent(info.customerRemarks);
 
-    const tacType = screen.getByText(labels.tacType);
-    expect(within(tacType.parentElement).getByText('1234 (HHG)')).toBeInTheDocument();
+    const tacType = screen.getByTestId('tacType');
+    expect(tacType).toHaveTextContent('1234 (HHG)');
 
-    const sacType = screen.getByText(labels.sacType);
-    expect(within(sacType.parentElement).getByText('1234123412 (NTS)')).toBeInTheDocument();
+    const sacType = screen.getByTestId('sacType');
+    expect(sacType).toHaveTextContent('1234123412 (NTS)');
   });
 
   it('renders a dash and adds a warning class for non-required missing items', () => {
@@ -112,9 +101,11 @@ describe('NTSR Shipment Info List', () => {
           storageFacility: object('storageFacility', info.storageFacility),
           destinationAddress: object('destinationAddress', info.destinationAddress),
         }}
+        warnIfMissing={warnIfMissing}
+        errorIfMissing={errorIfMissing}
+        showWhenCollapsed={showWhenCollapsed}
       />,
     );
-
     const counselorRemarks = screen.getByTestId('counselorRemarks');
     expect(counselorRemarks).toHaveTextContent('—');
     expect(counselorRemarks.parentElement).toHaveClass('warning');
@@ -144,6 +135,9 @@ describe('NTSR Shipment Info List', () => {
           requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
           destinationAddress: object('destinationAddress', info.destinationAddress),
         }}
+        warnIfMissing={warnIfMissing}
+        errorIfMissing={errorIfMissing}
+        showWhenCollapsed={showWhenCollapsed}
       />,
     );
 
@@ -156,14 +150,22 @@ describe('NTSR Shipment Info List', () => {
     expect(storageFacilityAddress.parentElement).toHaveClass('missingInfoError');
   });
 
-  it('hides fields when collapsed', () => {
-    render(<NTSRShipmentInfoList isExpanded={false} shipment={info} />);
+  it('hides fields when collapsed unless explicitly passed', () => {
+    render(
+      <NTSRShipmentInfoList
+        isExpanded={false}
+        shipment={info}
+        warnIfMissing={warnIfMissing}
+        errorIfMissing={errorIfMissing}
+        showWhenCollapsed={showWhenCollapsed}
+      />,
+    );
 
     expect(screen.queryByTestId('primeActualWeight')).toBeNull();
     expect(screen.queryByTestId('storageFacility')).toBeNull();
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
     expect(screen.queryByTestId('agents')).toBeNull();
-    expect(screen.queryByTestId('customerRemarks')).toBeNull();
+    expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
   });
 });

@@ -24,6 +24,9 @@ const ShipmentDisplay = ({
   showIcon,
   editURL,
   ordersLOA,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
 }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
   const [isExpanded, setIsExpanded] = useState(false);
@@ -70,6 +73,9 @@ const ShipmentDisplay = ({
             className={styles.shipmentDisplayInfo}
             shipment={{ ...displayInfo, tac, sac }}
             isExpanded={isExpanded}
+            warnIfMissing={warnIfMissing}
+            errorIfMissing={errorIfMissing}
+            showWhenCollapsed={showWhenCollapsed}
           />
         );
         break;
@@ -188,6 +194,9 @@ ShipmentDisplay.propTypes = {
     ntsTAC: PropTypes.string,
     ntsSAC: PropTypes.string,
   }),
+  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
+  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentDisplay.defaultProps = {
@@ -201,6 +210,9 @@ ShipmentDisplay.defaultProps = {
     ntsTAC: '',
     ntsSAC: '',
   },
+  warnIfMissing: [],
+  errorIfMissing: [],
+  showWhenCollapsed: [],
 };
 
 export default ShipmentDisplay;
