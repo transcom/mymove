@@ -1,0 +1,65 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+
+.ShipmentDefinitionLists {
+  @include u-margin(0);
+  // remove browser defaults
+  dl {
+    margin: 0;
+  }
+
+  dt {
+    @include u-text('bold');
+    @include u-text('base-darker');
+    width: 25%;
+  }
+
+  dd {
+    @include u-margin(0);
+    width: 75%;
+  }
+
+  dt,
+  dd {
+    @include u-border-top('1px');
+    @include u-border-top('base-lighter');
+
+    @include u-padding-x(2);
+    @include u-padding-y(1.5);
+    display: table-cell;
+    @include u-padding-x(1);
+  }
+
+  .row {
+    display: flex;
+    @include u-font('body', 'xs');
+    @include u-line-height('body', 2);
+
+    .noBorder {
+      @include u-border(0);
+    }
+  }
+  .row:first-child {
+      dt,
+      dd {
+        @include u-border(0);
+      }
+    }
+
+  .missingInfoError {
+    color: $error;
+    @include u-border-left(0.5); //4px
+    @include u-border-left('error');
+    @include u-font-weight(bold);
+    @include u-margin-left(-0.5);
+  }
+
+  .warning {
+    border-left: 4px solid $mm-gold;
+    @include u-margin-left(-0.5);
+  }
+}
+
+
