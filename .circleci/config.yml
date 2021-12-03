@@ -1182,7 +1182,21 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+
+      # babel and terser both have a cache
+      #
+      # see https://webpack.js.org/loaders/babel-loader/ and look for
+      # cacheDirectory
+      #
+      # see https://www.npmjs.com/package/terser-webpack-plugin/v/1.4.4#cache
+      - restore_cache:
+          keys:
+            - v1-node-modules-cache
       - run: make client_build
+      - save_cache:
+          key: v1-node-modules-cache
+          paths:
+            - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           paths:
