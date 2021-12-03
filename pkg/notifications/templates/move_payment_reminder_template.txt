@@ -26,10 +26,10 @@ What if you’re missing documents?
 
 If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
 
-If you’re missing certified weight tickets, your PPPO will have to help. Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.
+If you’re missing certified weight tickets, your PPPO will have to help. {{if .TOName}}Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.{{end}}
 
 Log in to MilMove to complete your request and get paid.
 
 Request payment within 45 days of your move date or you might not be able to get paid.
 
-If you have any questions or concerns, you can talk to a human! Call your local PPPO at {{.TOName}}{{if .TOPhone}} at {{ .TOPhone}}{{end}}. Reference your move locator code: {{.Locator}}.
+{{if .TOName}}If you have any questions or concerns, you can talk to a human! Call your local PPPO at {{.TOName}}{{if .TOPhone}} at {{ .TOPhone}}{{end}}. Reference your move locator code: {{.Locator}}.{{end}}
