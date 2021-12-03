@@ -105,11 +105,6 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
-	// There are several (35 out of 40874) non-installation locations that you can't find in the top 5
-	// search results for their ZIP code when sorted by similarity.
-	// I'm increasing the number of results from the duty_stations query from 5 to 11 to make
-	// sure everything is searchable.
-	// We should find a more elegant solution and bring this number back down.
 	sqlQuery := `
 with names as (
 (select id as duty_station_id, name, similarity(name, $1) as sim
@@ -122,6 +117,12 @@ union
 from duty_station_names
 where similarity(name, $1) > 0.03
 order by sim desc
+limit 5)
+union
+(select ds.id as duty_station_id, ds.name as name, 1 as sim
+from duty_stations as ds
+inner join addresses a2 on ds.address_id = a2.id
+where a2.postal_code ILIKE $1
 limit 5)
 )
 select ds.*
