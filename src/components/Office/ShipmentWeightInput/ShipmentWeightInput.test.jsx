@@ -17,11 +17,11 @@ describe('components/Office/ShipmentWeightInput', () => {
 
   it('populates Formik initialValues', () => {
     render(
-      <Formik initialValues={{ primeActualWeight: 4500 }}>
+      <Formik initialValues={{ primeActualWeight: '4500' }}>
         <ShipmentWeightInput />
       </Formik>,
     );
 
-    expect(screen.getByLabelText(/Shipment weight \(lbs\)/)).toHaveValue(4500);
+    expect(screen.getByLabelText(/Shipment weight \(lbs\)/)).toHaveValue('4500');
   });
 });
