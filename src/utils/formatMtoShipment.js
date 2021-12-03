@@ -255,7 +255,7 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.serviceOrderNumber = serviceOrderNumber;
   }
 
-  if (shipmentType === SHIPMENT_OPTIONS.NTSR) {
+  if (shipmentType === SHIPMENT_OPTIONS.NTSR && storageFacility) {
     formattedMtoShipment.storageFacility = {
       ...storageFacility,
       address: formatAddressForAPI(storageFacility.address),
