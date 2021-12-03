@@ -20,11 +20,5 @@
     @include u-border-left(0.5); //4px
     @include u-border-left('error');
     @include u-font-weight(bold);
-    @include u-margin-left(-0.5);
-  }
-
-  .warning {
-    border-left: 4px solid $mm-gold;
-    @include u-margin-left(-0.5);
   }
 }
