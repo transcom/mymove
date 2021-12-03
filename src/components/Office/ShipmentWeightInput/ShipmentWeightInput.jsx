@@ -18,7 +18,7 @@ const ShipmentWeightInput = () => {
                 Shipment weight (lbs)
                 <span className="float-right">Optional</span>
               </Label>
-              <Field as={TextInput} type="number" id="primeActualWeight" name="primeActualWeight" />
+              <Field as={TextInput} id="primeActualWeight" name="primeActualWeight" />
             </FormGroup>
           </Grid>
         </Grid>

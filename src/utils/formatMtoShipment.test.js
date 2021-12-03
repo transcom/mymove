@@ -327,7 +327,7 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       delivery: { ...deliveryInfo },
-      primeActualWeight: 4000,
+      primeActualWeight: '4000',
       storageFacility,
     };
 

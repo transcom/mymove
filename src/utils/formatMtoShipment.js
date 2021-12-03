@@ -240,7 +240,7 @@ export function formatMtoShipmentForAPI({
   }
 
   if (primeActualWeight) {
-    formattedMtoShipment.primeActualWeight = primeActualWeight;
+    formattedMtoShipment.primeActualWeight = Number(primeActualWeight);
   }
 
   if (tacType) {
