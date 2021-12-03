@@ -1962,7 +1962,6 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation",
               "originDutyLocation"
             ],
             "type": "string",
@@ -2021,12 +2020,6 @@ func init() {
             "type": "string",
             "description": "filters the GBLOC of the service member's origin duty station",
             "name": "originGBLOC",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters the name of the destination duty station on the orders",
-            "name": "destinationDutyStation",
             "in": "query"
           },
           {
@@ -8394,7 +8387,6 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation",
               "originDutyLocation"
             ],
             "type": "string",
@@ -8453,12 +8445,6 @@ func init() {
             "type": "string",
             "description": "filters the GBLOC of the service member's origin duty station",
             "name": "originGBLOC",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters the name of the destination duty station on the orders",
-            "name": "destinationDutyStation",
             "in": "query"
           },
           {

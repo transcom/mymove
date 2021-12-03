@@ -38,10 +38,6 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Branch *string
-	/*filters the name of the destination duty station on the orders
-	  In: query
-	*/
-	DestinationDutyStation *string
 	/*filters to match the unique service member's DoD ID
 	  In: query
 	*/
@@ -106,11 +102,6 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qDestinationDutyStation, qhkDestinationDutyStation, _ := qs.GetOK("destinationDutyStation")
-	if err := o.bindDestinationDutyStation(qDestinationDutyStation, qhkDestinationDutyStation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -193,24 +184,6 @@ func (o *GetServicesCounselingQueueParams) bindBranch(rawData []string, hasKey b
 		return nil
 	}
 	o.Branch = &raw
-
-	return nil
-}
-
-// bindDestinationDutyStation binds and validates parameter DestinationDutyStation from query.
-func (o *GetServicesCounselingQueueParams) bindDestinationDutyStation(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.DestinationDutyStation = &raw
 
 	return nil
 }
@@ -426,7 +399,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "destinationDutyStation", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 

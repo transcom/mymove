@@ -16,20 +16,19 @@ import (
 
 // GetServicesCounselingQueueURL generates an URL for the get services counseling queue operation
 type GetServicesCounselingQueueURL struct {
-	Branch                 *string
-	DestinationDutyStation *string
-	DodID                  *string
-	LastName               *string
-	Locator                *string
-	Order                  *string
-	OriginDutyLocation     *string
-	OriginGBLOC            *string
-	Page                   *int64
-	PerPage                *int64
-	RequestedMoveDate      *string
-	Sort                   *string
-	Status                 []string
-	SubmittedAt            *strfmt.DateTime
+	Branch             *string
+	DodID              *string
+	LastName           *string
+	Locator            *string
+	Order              *string
+	OriginDutyLocation *string
+	OriginGBLOC        *string
+	Page               *int64
+	PerPage            *int64
+	RequestedMoveDate  *string
+	Sort               *string
+	Status             []string
+	SubmittedAt        *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -71,14 +70,6 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if branchQ != "" {
 		qs.Set("branch", branchQ)
-	}
-
-	var destinationDutyStationQ string
-	if o.DestinationDutyStation != nil {
-		destinationDutyStationQ = *o.DestinationDutyStation
-	}
-	if destinationDutyStationQ != "" {
-		qs.Set("destinationDutyStation", destinationDutyStationQ)
 	}
 
 	var dodIDQ string
