@@ -38,27 +38,12 @@ const hhgInfo = {
     state: 'TX',
     postalCode: '78234',
   },
-  secondaryPickupAddress: {
-    streetAddress1: '441 SW Rio de la Plata',
-    city: 'San Antonio',
-    state: 'TX',
-    postalCode: '78234',
-  },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
   },
-  agents: [
-    {
-      agentType: 'RECEIVING_AGENT',
-      firstName: 'Kate',
-      lastName: 'Smith',
-      phone: '419-555-9999',
-      email: 'ksmith@email.com',
-    },
-  ],
   customerRemarks: 'Ut enim ad minima veniam',
 };
 

@@ -61,12 +61,7 @@ const ShipmentDisplay = ({
     switch (shipmentType) {
       case SHIPMENT_OPTIONS.HHG:
         infoList = (
-          <ShipmentInfoList
-            className={styles.shipmentDisplayInfo}
-            shipment={displayInfo}
-            shipmentType={shipmentType}
-            isExpanded={isExpanded}
-          />
+          <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} shipmentType={shipmentType} />
         );
         break;
       case SHIPMENT_OPTIONS.NTSR:
