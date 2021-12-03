@@ -59,7 +59,7 @@ describe('NTSR Shipment Info List', () => {
   it('renders all fields when provided and expanded', () => {
     render(<NTSRShipmentInfoList isExpanded shipment={info} />);
     const primeActualWeight = screen.getByTestId('primeActualWeight');
-    expect(primeActualWeight).toHaveTextContent('2000 lbs');
+    expect(primeActualWeight).toHaveTextContent('2,000 lbs');
 
     const storageFacility = screen.getByTestId('storageFacilityName');
     expect(storageFacility).toHaveTextContent(info.storageFacility.facilityName);
