@@ -120,6 +120,18 @@ executors:
         environment:
           GOPATH: /home/circleci/go
 
+  mymove_ramdisk_compiler_xlarge:
+    # large and no ram disk
+    resource_class: xlarge
+    working_directory: /mnt/ramdisk
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+
   mymove_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
@@ -1161,7 +1173,7 @@ jobs:
   # integration tests. The server compile finishes in ~3m while this
   # takes ~6m
   compile_app_client:
-    executor: mymove_compiler
+    executor: mymove_ramdisk_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
