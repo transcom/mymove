@@ -166,11 +166,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
     });
 
-    it('does not render a Shipment Weight section', async () => {
+    it('does not render NTS release-only sections', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).not.toBeInTheDocument();
     });
   });
 
@@ -268,11 +270,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
     });
 
-    it('does not render a Shipment Weight section', async () => {
+    it('does not render NTS release-only sections', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).not.toBeInTheDocument();
     });
   });
 
@@ -318,7 +322,6 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
@@ -337,11 +340,13 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
     });
 
-    it('renders the Shipment Weight section', async () => {
+    it('renders the NTS release-only sections', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
       expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
     });
   });
 
