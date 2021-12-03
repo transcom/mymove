@@ -16,6 +16,7 @@
     max-width: none;
     @include u-text('bold');
     @include typeset('body', 9, 2);
+    margin-bottom: -12px;
 
     .legendContent {
       display: flex;
