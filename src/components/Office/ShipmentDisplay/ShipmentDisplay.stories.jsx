@@ -44,7 +44,6 @@ const hhgInfo = {
     state: 'WA',
     postalCode: '98421',
   },
-  customerRemarks: 'Ut enim ad minima veniam',
 };
 
 const ntsInfo = {
