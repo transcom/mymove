@@ -155,7 +155,6 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
-        name: adminlocal
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
