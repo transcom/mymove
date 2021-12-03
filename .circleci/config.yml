@@ -16,7 +16,7 @@ references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-b58717cc7a3914783f25d4ac2235993497659612
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
@@ -631,7 +631,7 @@ commands:
           # Downloading this huge image takes ~2 minutes on circleci,
           # so doing it in parallel with the server setup is a massive speedup.
           command: |
-            docker run --network e2e_cypress << parameters.cypress_image >> dockerize -wait http://milmovelocal:4000 -timeout 5m
+            docker run --network e2e_cypress --entrypoint=/usr/local/bin/dockerize  << parameters.cypress_image >> -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test cypress
           # the junit report from the mocha reporter doesn't seem to
