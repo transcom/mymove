@@ -1298,7 +1298,7 @@ jobs:
 
   # `build_storybook` builds static storybook assets for deploy
   build_storybook:
-    executor: mymove_builder
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
