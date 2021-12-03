@@ -37,11 +37,14 @@ func (suite *NotificationSuite) TestMoveApproved() {
 func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 	notification := NewMoveApproved("milmovelocal", uuid.Must(uuid.NewV4()))
 
+	originDutyStation := "origDutyStation"
+	originDutyStationPhoneLine := "555-555-5555"
+
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          "origDutyStation",
+		OriginDutyStation:          &originDutyStation,
 		DestinationDutyStation:     "destDutyStation",
-		OriginDutyStationPhoneLine: "555-555-5555",
+		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
 	}
 	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
@@ -75,14 +78,58 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 
 }
 
-func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
+func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRenderNoOriginDutyStation() {
 	notification := NewMoveApproved("milmovelocal", uuid.Must(uuid.NewV4()))
 
 	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          "origDutyStation",
+		OriginDutyStation:          nil,
 		DestinationDutyStation:     "destDutyStation",
-		OriginDutyStationPhoneLine: "555-555-5555",
+		OriginDutyStationPhoneLine: nil,
+		Locator:                    "abc123",
+	}
+	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
+
+<p>
+  The local transportation office <strong>approved your move</strong> to
+  <strong>destDutyStation</strong
+  >.
+</p>
+
+<p>Please <a href="https://milmovelocal/downloads/ppm_info_sheet.pdf">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.</p>
+<br />
+<p>
+  <strong>Next steps</strong> <br />Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.
+</p>
+
+<p>
+  Be sure to <strong>save your weight tickets and any receipts</strong> associated with your move. You’ll need them to
+  request payment later in the process.
+</p>
+
+
+
+<p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
+`
+
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
+
+	suite.NoError(err)
+	suite.Equal(expectedHTMLContent, htmlContent)
+
+}
+
+func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
+	notification := NewMoveApproved("milmovelocal", uuid.Must(uuid.NewV4()))
+
+	originDutyStation := "origDutyStation"
+	originDutyStationPhoneLine := "555-555-5555"
+
+	s := moveApprovedEmailData{
+		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
+		OriginDutyStation:          &originDutyStation,
+		DestinationDutyStation:     "destDutyStation",
+		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
 	}
 	expectedTextContent := `You're all set to move!
