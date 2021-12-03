@@ -4282,13 +4282,13 @@
     ts-dedent "^2.1.0"
     update-notifier "^5.1.0"
 
-"@zeplin/cli@1.1.12":
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-1.1.12.tgz#86570b08552b0280c6c3ac6f6eb9b514c3b78848"
-  integrity sha512-ctKINoRCVuj7Bdss9ljaU7xE+GTYC7Xa389pNT7Xrzcv+2NxPToI0Z73yRzT6A2+uMzFnKU082FZdky/EWeDtQ==
+"@zeplin/cli@1.1.13":
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-1.1.13.tgz#a9ca755efcede7368f4a09240b2d46bdde662ea5"
+  integrity sha512-0tt8kkb/91bwewz2C/TmoKaMDTcMHjVV4IGBo4MlMy+HiggI4cRfKg6XRcxXPIx9Gk2xuEhDbBtrZOr9WsdtDw==
   dependencies:
     "@hapi/joi" "^17.1.1"
-    axios "^0.21.1"
+    axios "^0.21.4"
     chalk "^3.0.0"
     chokidar "^3.3.1"
     ci-info "^2.0.0"
@@ -5065,7 +5065,7 @@ axe-core@^4.0.2, axe-core@^4.2.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.3.tgz#b55cd8e8ddf659fe89b064680e1c6a4dceab0325"
   integrity sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
 
-axios@^0.21.1:
+axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
