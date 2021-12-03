@@ -8,6 +8,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
+import { formatWeight } from 'shared/formatters';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -80,7 +81,7 @@ const NTSRShipmentInfoList = ({
   const primeActualWeightElement = (
     <div className={primeActualWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">{primeActualWeight ? String(primeActualWeight).concat(' lbs') : '—'}</dd>
+      <dd data-testid="primeActualWeight">{primeActualWeight ? formatWeight(primeActualWeight) : '—'}</dd>
     </div>
   );
 
