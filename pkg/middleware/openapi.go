@@ -6,8 +6,8 @@ import (
 	sdktrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/go-openapi/runtime/middleware"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"github.com/trussworks/otelhttp"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"github.com/transcom/mymove/pkg/logging"
 )

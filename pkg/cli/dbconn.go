@@ -20,7 +20,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/XSAM/otelsql"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )

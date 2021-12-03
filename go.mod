@@ -86,9 +86,9 @@ require (
 )
 
 require (
+	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.2.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.27.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.27.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
 	go.opentelemetry.io/contrib/propagators/aws v1.2.0
 	go.opentelemetry.io/otel v1.2.0
