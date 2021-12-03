@@ -159,6 +159,15 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
+  mymove_ramdisk_integration_tester:
+    resource_class: large
+    working_directory: /mnt/ramdisk
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
 commands:
   aws_vars_demo:
     steps:
@@ -914,7 +923,7 @@ jobs:
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
     parallelism: 2
-    executor: mymove_integration_tester
+    executor: mymove_ramdisk_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -935,7 +944,7 @@ jobs:
 
   integration_tests_office:
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: mymove_ramdisk_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -955,7 +964,7 @@ jobs:
       - announce_failure
 
   integration_tests_prime:
-    executor: mymove_integration_tester
+    executor: mymove_ramdisk_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -976,7 +985,7 @@ jobs:
 
   integration_tests_milmove:
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: mymove_ramdisk_integration_tester
     steps:
       - attach_workspace:
           at: .
