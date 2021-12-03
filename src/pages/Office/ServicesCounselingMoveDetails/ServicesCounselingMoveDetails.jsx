@@ -44,10 +44,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
   const showWhenCollapsed = ['counselorRemarks']; // add any additional fields that we also want to always show
-  const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-  const errorIfMissing = ['storageFacility'];
+  const warnIfMissingNTSR = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+  const errorIfMissingNTSR = ['storageFacility'];
 
   let shipmentsInfo = [];
+  let disableSubmit = false;
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -60,15 +61,25 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           })
         : '';
 
+      const displayInfo = {
+        heading: getShipmentTypeLabel(shipment.shipmentType),
+        destinationAddress: shipment.destinationAddress || {
+          postalCode: order.destinationDutyStation.address.postalCode,
+        },
+        ...shipment,
+      };
+
+      if (!disableSubmit) {
+        for (let i = 0; i < errorIfMissingNTSR.length; i += 1) {
+          if (!displayInfo[errorIfMissingNTSR[i]]) {
+            disableSubmit = true;
+          }
+        }
+      }
+
       return {
         id: shipment.id,
-        displayInfo: {
-          heading: getShipmentTypeLabel(shipment.shipmentType),
-          destinationAddress: shipment.destinationAddress || {
-            postalCode: order.destinationDutyStation.address.postalCode,
-          },
-          ...shipment,
-        },
+        displayInfo,
         editURL,
         shipmentType: shipment.shipmentType,
       };
@@ -201,7 +212,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
                 <Button
-                  disabled={!mtoShipments.length || allShipmentsDeleted}
+                  disabled={!mtoShipments.length || allShipmentsDeleted || disableSubmit}
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
@@ -242,8 +253,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     shipmentType={shipment.shipmentType}
                     showIcon={false}
                     ordersLOA={ordersLOA}
-                    warnIfMissing={warnIfMissing}
-                    errorIfMissing={errorIfMissing}
+                    warnIfMissing={warnIfMissingNTSR}
+                    errorIfMissing={errorIfMissingNTSR}
                     showWhenCollapsed={showWhenCollapsed}
                   />
                 ))}
