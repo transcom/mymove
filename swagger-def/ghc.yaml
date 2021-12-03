@@ -1775,7 +1775,6 @@ paths:
               requestedMoveDate,
               submittedAt,
               originGBLOC,
-              destinationDutyStation,
               originDutyLocation,
             ]
           description: field that results should be sorted by
@@ -1813,10 +1812,6 @@ paths:
           name: originGBLOC
           type: string
           description: filters the GBLOC of the service member's origin duty station
-        - in: query
-          name: destinationDutyStation
-          type: string
-          description: filters the name of the destination duty station on the orders
         - in: query
           name: originDutyLocation
           type: string
