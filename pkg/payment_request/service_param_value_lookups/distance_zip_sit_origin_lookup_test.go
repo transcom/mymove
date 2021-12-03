@@ -22,7 +22,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 	reService := testdatagen.FetchOrMakeReService(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DOFSIT",
+				Code: models.ReServiceCodeDOFSIT,
 			},
 		},
 	)

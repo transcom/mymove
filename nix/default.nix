@@ -1,10 +1,6 @@
-# to install
-# nix-env -p /nix/var/nix/profiles/mymove -f nix -i
+# use ./nix/update.sh to install
 #
-# use
-#
-# https://lazamar.co.uk/nix-versions/
-# to find rev for specific package version
+# use <https://ahobson.github.io/nix-package-search> to find a package version
 
 let
   pkgs = import <nixpkgs> {};
@@ -18,32 +14,31 @@ in buildEnv {
       name = "bash-5.1-p4";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).bash_5
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
       name = "nodejs-14.18.1";
       url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/staging";
-      rev = "574ab51aa96701a1a6cec7435c6945a181fe2d63";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "14ee52edff84f16f6268ebb9f87380cd86c433da";
     }) {}).nodejs-14_x
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "yarn-1.22.10";
+      name = "yarn-1.22.11";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).yarn
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
       name = "go-1.17.2";
       url = "https://github.com/NixOS/nixpkgs/";
-      # Using master branch since 1.17.2 hasn't made it to nixpkgs-unstable yet
-      ref = "refs/heads/master";
-      rev = "db3aa421df73f43c03ad266619e22ce7c5354d92";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "6f0b0bb7028cf612298673bf6b5d453bcc7af965";
     }) {}).go_1_17
 
     (import (builtins.fetchGit {
@@ -59,15 +54,15 @@ in buildEnv {
       name = "pre-commit-2.14.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "229ff549e611d33d6b8ef2c6a2ce8879e9e75545";
+      rev = "9c3de9dd586506a7694fc9f19d459ad381239e34";
     }) {}).pre-commit
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "circleci-cli-0.1.11540";
+      name = "circleci-cli-0.1.15663";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "23cedc3088a628e1f5454cab6864f9b1a059e1ba";
     }) {}).circleci-cli
 
     (import (builtins.fetchGit {
@@ -75,31 +70,31 @@ in buildEnv {
       name = "jq-1.6";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).jq
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "shellcheck-0.7.1";
+      name = "shellcheck-0.7.2";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "391f93a83c3a486475d60eb4a569bb6afbf306ad";
     }) {}).shellcheck
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "opensc-0.21.0";
+      name = "opensc-0.22.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).opensc
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "entr-4.6";
+      name = "entr-5.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).entr
 
     (import (builtins.fetchGit {
@@ -107,7 +102,7 @@ in buildEnv {
       name = "aws-vault-6.3.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "54c1e44240d8a527a8f4892608c4bce5440c3ecb";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).aws-vault
 
     (import (builtins.fetchGit {
@@ -115,48 +110,65 @@ in buildEnv {
       name = "watchman-4.9.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
     }) {}).watchman
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "awscli2-2.1.7";
+      name = "awscli2-2.2.14";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "14b0f20fa1f56438b74100513c9b1f7c072cf789";
     }) {}).awscli2
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "chamber-2.9.0";
+      name = "chamber-2.10.2";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "725ef07e543a6f60b534036c684d44e57bb8d5de";
     }) {}).chamber
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "dbmate-1.11.0";
+      name = "nss-cacert-3.66";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
-    }) {}).dbmate
-
-    (import (builtins.fetchGit {
-      # Descriptive name to make the store path easier to identify
-      name = "nss-cacert-3.60";
-      url = "https://github.com/NixOS/nixpkgs/";
-      ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "e579e93b6517c29af8b84641d2ec16a064d34c8b";
     }) {}).cacert
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "hadolint-2.1.0";
+      name = "hadolint-2.8.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "68e901c68446539165b19b227f51f7fc2b3655f9";
+      rev = "8afc4e543663ca0a6a4f496262cd05233737e732";
     }) {}).hadolint
+
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "go-swagger-0.27.0";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "9c3de9dd586506a7694fc9f19d459ad381239e34";
+    }) {}).go-swagger
+
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "schemaspy-6.1.0";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "9c3de9dd586506a7694fc9f19d459ad381239e34";
+    }) {}).schemaspy
+
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "postgresql-jdbc-42.2.20";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "9c3de9dd586506a7694fc9f19d459ad381239e34";
+    }) {}).postgresql_jdbc
+
 ];
 
   # the pre-commit hooks expects the binary to be `circleci`

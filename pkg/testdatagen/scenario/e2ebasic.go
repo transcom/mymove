@@ -2547,7 +2547,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOFSIT",
+			Code: models.ReServiceCodeDOFSIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,
@@ -2561,7 +2561,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOASIT",
+			Code: models.ReServiceCodeDOASIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,
@@ -2576,7 +2576,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:           &reason,
 		},
 		ReService: models.ReService{
-			Code: "DOPSIT",
+			Code: models.ReServiceCodeDOPSIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,
@@ -2590,7 +2590,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDFSIT",
+			Code: models.ReServiceCodeDDFSIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,
@@ -2604,7 +2604,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDASIT",
+			Code: models.ReServiceCodeDDASIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,
@@ -2618,7 +2618,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			Reason:        &reason,
 		},
 		ReService: models.ReService{
-			Code: "DDDSIT",
+			Code: models.ReServiceCodeDDDSIT,
 		},
 		MTOShipment: MTOShipment,
 		Move:        mto,

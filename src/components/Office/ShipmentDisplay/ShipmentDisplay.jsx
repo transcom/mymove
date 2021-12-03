@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
@@ -28,6 +29,7 @@ const ShipmentDisplay = ({
   errorIfMissing,
   showWhenCollapsed,
 }) => {
+  const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
   const [isExpanded, setIsExpanded] = useState(false);
   let infoList;
@@ -136,7 +138,7 @@ const ShipmentDisplay = ({
         {editURL && (
           <EditButton
             onClick={() => {
-              window.location.href = editURL;
+              history.push(editURL);
             }}
             className={styles.editButton}
             data-testid={editURL}

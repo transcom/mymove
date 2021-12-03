@@ -17,6 +17,7 @@ describe('TOO user', () => {
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
     cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
+    cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
 
     // This user has multiple roles, which is the kind of user we use to test in staging.
     // By using this type of user, we can catch bugs like the one fixed in PR 6706.
@@ -85,6 +86,48 @@ describe('TOO user', () => {
     cy.get('#approved-shipments');
     cy.get('#requested-shipments').should('not.exist');
     cy.contains('Approve selected shipments').should('not.exist');
+  });
+
+  it('is able to flag a move for financial review', () => {
+    cy.wait(['@getSortedOrders']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // click to trigger financial review modal
+    cy.contains('Flag move for financial review').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('Yes').click();
+    cy.get('textarea').type('Something is rotten in the state of Denmark');
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move flagged for financial review.');
+    cy.contains('Flagged for financial review');
+  });
+
+  it('is able to unflag a move for financial review', () => {
+    cy.wait(['@getSortedOrders']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // click to trigger financial review modal
+    cy.contains('Edit').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('No').click();
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move unflagged for financial review.');
   });
 
   it('is able to approve and reject mto service items', () => {
@@ -199,7 +242,7 @@ describe('TOO user', () => {
         .type('JB McGuire-Dix-Lakehurst')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
-        .eq(1)
+        .eq(3)
         .click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');

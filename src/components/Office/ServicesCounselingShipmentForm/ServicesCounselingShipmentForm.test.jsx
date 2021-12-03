@@ -158,6 +158,22 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
+
+    it('does not render an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
+    });
+
+    it('does not render NTS release-only sections', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).not.toBeInTheDocument();
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {
@@ -238,6 +254,54 @@ describe('ServicesCounselingShipmentForm component', () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it('renders an Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).toBeInTheDocument();
+      expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
+    });
+
+    it('does not render NTS release-only sections', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+      expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('editing an already existing NTS shipment', () => {
+    it('pre-fills the Accounting Codes section', async () => {
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+        />,
+      );
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+      expect(screen.getByLabelText('1234 (HHG)')).not.toBeChecked();
+      expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
+      expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
+    });
   });
 
   describe('creating a new NTS-release shipment', () => {
@@ -258,7 +322,6 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
@@ -269,6 +332,21 @@ describe('ServicesCounselingShipmentForm component', () => {
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
+    });
+
+    it('renders an Accounting Codes section', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+
+      expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
+    });
+
+    it('renders the NTS release-only sections', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+      expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
     });
   });
 

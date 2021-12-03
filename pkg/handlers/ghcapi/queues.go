@@ -42,6 +42,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		DodID:                  params.DodID,
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
+		OriginDutyLocation:     params.OriginDutyLocation,
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
@@ -109,6 +110,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		Sort:                   params.Sort,
 		Order:                  params.Order,
+		OriginDutyLocation:     params.OriginDutyLocation,
 	}
 
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -149,7 +151,7 @@ type GetServicesCounselingQueueHandler struct {
 	services.OrderFetcher
 }
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the services counselor
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 

@@ -137,7 +137,7 @@ class MtoShipmentForm extends Component {
     const { errorMessage } = this.state;
 
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
+    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, true);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
@@ -429,6 +429,7 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
+                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>

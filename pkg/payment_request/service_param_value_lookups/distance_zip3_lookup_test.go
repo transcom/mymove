@@ -112,7 +112,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		// DLH
 		reServiceDLH := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: "DLH",
+				Code: models.ReServiceCodeDLH,
 			},
 		})
 

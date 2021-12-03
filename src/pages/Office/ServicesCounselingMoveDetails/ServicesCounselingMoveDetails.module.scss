@@ -17,6 +17,10 @@
     }
   }
 
+  .scFinancialReviewContainer {
+    @include u-margin-bottom(3);
+  }
+
   .alertContainer {
     @include u-margin-bottom(4);
   }

@@ -1,6 +1,5 @@
 <p>
-  This is a confirmation that you’ve submitted the details for your move from {{.OriginDutyStation}} to
-  {{.DestinationDutyStation}}.
+  This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{ end }}to {{.DestinationDutyStation}}.
 </p>
 
 <p>
@@ -51,12 +50,12 @@
     payment
   </li>
 </ul>
-
+{{ if .OriginDutyStation }}
 <p>
   If you have any questions about the PPM part of your move, call the {{.OriginDutyStation}} PPPO at
   {{.OriginDutyStationPhoneLine}} and reference move code {{.Locator}}.
 </p>
-
+{{ end }}
 <p>
   Once you’ve completed your PPM shipment, you can request payment by
   <a href="{{.Link}}">logging in to MilMove</a>.

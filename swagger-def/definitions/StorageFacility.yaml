@@ -22,3 +22,6 @@ properties:
     format: x-email
     pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     x-nullable: true
+  eTag:
+    type: string
+    readOnly: true

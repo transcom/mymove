@@ -36,8 +36,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/trussworks/otelhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -146,6 +146,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// SessionFlags
 	cli.InitSessionFlags(flag)
+
+	// Telemetry flag config
+	cli.InitTelemetryFlags(flag)
 
 	// Sort command line flags
 	flag.SortFlags = true
@@ -1007,6 +1010,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		},
 	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
+	authMux.Use(middleware.NoCache(logger))
 	authMux.Use(otelmux.Middleware("auth"))
 	authMux.Handle("/login-gov", authentication.NewRedirectHandler(authContext, handlerContext, useSecureCookie)).Methods("GET")
 	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, handlerContext, notificationSender)).Methods("GET")
@@ -1015,6 +1019,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
+		localAuthMux.Use(middleware.NoCache(logger))
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
 		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, handlerContext)).Methods("GET")
 		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, handlerContext, appnames)).Methods("POST")

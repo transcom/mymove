@@ -57,3 +57,11 @@ export const OptionalPlaceSchema = Yup.object().shape({
 export const AdditionalAddressSchema = Yup.object().shape({
   address: OptionalAddressSchema,
 });
+
+export const StorageFacilityAddressSchema = Yup.object().shape({
+  address: requiredAddressSchema,
+  lotNumber: Yup.string(),
+  facilityName: Yup.string().required('Required'),
+  phone: Yup.string().matches(/^[2-9]\d{2}-\d{3}-\d{4}$/, 'Must be valid phone number'),
+  email: Yup.string().email('Must be valid email'),
+});

@@ -61,9 +61,15 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		return emails, err
 	}
 
+	var originDutyStation, originDutyStationPhoneLine *string
 	dsTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
+	}
+
+	if dsTransportInfo != nil {
+		originDutyStation = &dsTransportInfo.Name
+		originDutyStationPhoneLine = &dsTransportInfo.PhoneLine
 	}
 
 	if serviceMember.PersonalEmail == nil {
@@ -81,9 +87,9 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveApprovedEmailData{
 		Link:                       ppmInfoSheetURL.String(),
-		OriginDutyStation:          dsTransportInfo.Name,
+		OriginDutyStation:          originDutyStation,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
-		OriginDutyStationPhoneLine: dsTransportInfo.PhoneLine,
+		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 	})
 
@@ -122,9 +128,9 @@ func (m MoveApproved) renderTemplates(appCtx appcontext.AppContext, data moveApp
 // moveApprovedEmailData has content for email template
 type moveApprovedEmailData struct {
 	Link                       string
-	OriginDutyStation          string
+	OriginDutyStation          *string
 	DestinationDutyStation     string
-	OriginDutyStationPhoneLine string
+	OriginDutyStationPhoneLine *string
 	Locator                    string
 }
 

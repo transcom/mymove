@@ -130,10 +130,12 @@ export const DutyStationSearchBoxComponent = (props) => {
 
   return (
     <FormGroup>
-      <div className={inputContainerClasses}>
+      <div className="labelWrapper">
         <Label htmlFor={inputId} className={labelClasses}>
           {title}
         </Label>
+      </div>
+      <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
           inputId={inputId}

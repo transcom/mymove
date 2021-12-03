@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -70,7 +71,14 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 		LIMIT 1`
 	err := db.RawQuery(query, *dutyStationID).First(&DSTransportInfo)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			// Non-installation duty locations do not have transportation offices
+			// so we can't look up their contact information. This isn't an error.
+			return nil, nil
+		default:
+			return nil, err
+		}
 	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
 		return nil, ErrFetchNotFound
 	}
@@ -95,13 +103,18 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
-	sql := `
+	// There are several (35 out of 40874) non-installation locations that you can't find in the top 5
+	// search results for their ZIP code when sorted by similarity.
+	// I'm increasing the number of results from the duty_stations query from 5 to 11 to make
+	// sure everything is searchable.
+	// We should find a more elegant solution and bring this number back down.
+	sqlQuery := `
 with names as (
 (select id as duty_station_id, name, similarity(name, $1) as sim
 from duty_stations
 where similarity(name, $1) > 0.03
 order by sim desc
-limit 5)
+limit 11)
 union
 (select duty_station_id, name, similarity(name, $1) as sim
 from duty_station_names
@@ -114,9 +127,9 @@ from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
 group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id, ds.provides_services_counseling
 order by max(n.sim) desc, ds.name
-limit 7`
+limit 11`
 
-	query := tx.Q().RawQuery(sql, search)
+	query := tx.Q().RawQuery(sqlQuery, search)
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err

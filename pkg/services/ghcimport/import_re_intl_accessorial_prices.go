@@ -17,14 +17,14 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(appCtx appcontex
 	}
 
 	services := []struct {
-		serviceCode     string
+		serviceCode     models.ReServiceCode
 		serviceProvided string
 	}{
-		{"ICRT", "Crating (per cubic ft.)"},
-		{"ICRTSA", "Crating (per cubic ft.)"},
-		{"IUCRT", "Uncrating (per cubic ft.)"},
-		{"IDSHUT", "Shuttle Service (per cwt)"},
-		{"IOSHUT", "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeICRT, "Crating (per cubic ft.)"},
+		{models.ReServiceCodeICRTSA, "Crating (per cubic ft.)"},
+		{models.ReServiceCodeIUCRT, "Uncrating (per cubic ft.)"},
+		{models.ReServiceCodeIDSHUT, "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeIOSHUT, "Shuttle Service (per cwt)"},
 	}
 
 	//loop through the intl accessorial price data and store in db
@@ -49,7 +49,7 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(appCtx appcontex
 				serviceProvidedFound = true
 				serviceID, found := gre.serviceToIDMap[serviceCode]
 				if !found {
-					return fmt.Errorf("missing service [%s] in map of services", service)
+					return fmt.Errorf("missing service [%s] in map of services", serviceCode)
 				}
 
 				intlAccessorial := models.ReIntlAccessorialPrice{

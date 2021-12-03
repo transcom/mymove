@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType } from 'shared/constants';
+import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
 
@@ -79,6 +79,11 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  primeActualWeight,
+  tacType,
+  sacType,
+  serviceOrderNumber,
+  storageFacility,
 }) {
   const displayValues = {
     shipmentType,
@@ -104,6 +109,10 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    primeActualWeight,
+    tacType,
+    sacType,
+    serviceOrderNumber,
   };
 
   if (agents) {
@@ -151,6 +160,16 @@ export function formatMtoShipmentForDisplay({
     displayValues.delivery.requestedDate = parseSwaggerDate(requestedDeliveryDate);
   }
 
+  if (storageFacility) {
+    displayValues.storageFacility = {
+      ...storageFacility,
+      address: {
+        ...emptyAddressShape,
+        ...(storageFacility?.address || {}),
+      },
+    };
+  }
+
   return displayValues;
 }
 
@@ -167,6 +186,11 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
+  primeActualWeight,
+  tacType,
+  sacType,
+  serviceOrderNumber,
+  storageFacility,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -213,6 +237,29 @@ export function formatMtoShipmentForAPI({
 
   if (!formattedMtoShipment.agents?.length) {
     formattedMtoShipment.agents = undefined;
+  }
+
+  if (primeActualWeight) {
+    formattedMtoShipment.primeActualWeight = Number(primeActualWeight);
+  }
+
+  if (tacType) {
+    formattedMtoShipment.tacType = tacType;
+  }
+
+  if (sacType) {
+    formattedMtoShipment.sacType = sacType;
+  }
+
+  if (serviceOrderNumber) {
+    formattedMtoShipment.serviceOrderNumber = serviceOrderNumber;
+  }
+
+  if (shipmentType === SHIPMENT_OPTIONS.NTSR && storageFacility) {
+    formattedMtoShipment.storageFacility = {
+      ...storageFacility,
+      address: formatAddressForAPI(storageFacility.address),
+    };
   }
 
   return formattedMtoShipment;

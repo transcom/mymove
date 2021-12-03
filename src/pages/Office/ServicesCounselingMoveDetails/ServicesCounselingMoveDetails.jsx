@@ -16,9 +16,9 @@ import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
-import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
@@ -129,7 +129,6 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
-
       setAlertMessage('Move submitted.');
       setAlertType('success');
     },
@@ -139,13 +138,18 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     },
   });
 
-  const [mutateFinanicalReview] = useMutation(updateFinancialFlag, {
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
 
-      setAlertMessage('Move flagged for finacial review.');
-      setAlertType('success');
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
     },
     onError: () => {
       setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
@@ -169,8 +173,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     setIsFinancialModalVisible(true);
   };
 
-  const handleSubmitFinancialReviewModal = (remarks) => {
-    mutateFinanicalReview({ moveID: move.id, ifMatchETag: move.eTag, body: { remarks } });
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
     setIsFinancialModalVisible(false);
   };
 
@@ -190,6 +199,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           <FinancialReviewModal
             onClose={handleCancelFinancialReviewModal}
             onSubmit={handleSubmitFinancialReviewModal}
+            initialRemarks={move?.financialReviewRemarks}
+            initialSelection={move?.financialReviewFlag}
           />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
@@ -237,13 +248,15 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                   </Link>
                 )
               }
-              finacialReviewOpen={handleShowFinancialReviewModal}
+              financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
-              <FinancialReviewButton
-                onClick={handleShowFinancialReviewModal}
-                reviewRequested={move.financialReviewFlag}
-              />
+              <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                <FinancialReviewButton
+                  onClick={handleShowFinancialReviewModal}
+                  reviewRequested={move.financialReviewFlag}
+                />
+              </div>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

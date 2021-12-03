@@ -4282,13 +4282,13 @@
     ts-dedent "^2.1.0"
     update-notifier "^5.1.0"
 
-"@zeplin/cli@1.1.12":
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-1.1.12.tgz#86570b08552b0280c6c3ac6f6eb9b514c3b78848"
-  integrity sha512-ctKINoRCVuj7Bdss9ljaU7xE+GTYC7Xa389pNT7Xrzcv+2NxPToI0Z73yRzT6A2+uMzFnKU082FZdky/EWeDtQ==
+"@zeplin/cli@1.1.13":
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-1.1.13.tgz#a9ca755efcede7368f4a09240b2d46bdde662ea5"
+  integrity sha512-0tt8kkb/91bwewz2C/TmoKaMDTcMHjVV4IGBo4MlMy+HiggI4cRfKg6XRcxXPIx9Gk2xuEhDbBtrZOr9WsdtDw==
   dependencies:
     "@hapi/joi" "^17.1.1"
-    axios "^0.21.1"
+    axios "^0.21.4"
     chalk "^3.0.0"
     chokidar "^3.3.1"
     ci-info "^2.0.0"
@@ -5065,7 +5065,7 @@ axe-core@^4.0.2, axe-core@^4.2.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.3.tgz#b55cd8e8ddf659fe89b064680e1c6a4dceab0325"
   integrity sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
 
-axios@^0.21.1:
+axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
@@ -16453,10 +16453,10 @@ ra-core@^3.19.0:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-data-simple-rest@^3.19.0:
-  version "3.19.0"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.0.tgz#c5cc572175d83d6e79b2bdca8c1b000a211644eb"
-  integrity sha512-/2Z8W605aYCAFRDez0rphrNQPu/RJdjG0LRq/h4f50eqDmTgVEdXBMCtVXZTiH+ThEXk9hHAkwUUzx0o8dl2eg==
+ra-data-simple-rest@^3.19.2:
+  version "3.19.2"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.2.tgz#d6ca10996229866990d8aae9c7bb4078ef60f7bf"
+  integrity sha512-qS3s+esjawbaZIHlUvs8aWzO+Pst7FBLIHA6l+EPwtHdT/4O5xeEd5oO7kSl3eUWtOZUPA4w/CCVZY3jCP9Htw==
   dependencies:
     query-string "^5.1.1"
 
@@ -16592,10 +16592,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin-import-csv@^1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.24.tgz#7a8f4778e5ddc7a13a8dd4ef86d4f0e14b8804ea"
-  integrity sha512-yFcu44dy7I51JS3ig0G1Izm7FEWom+/qb4D4vOe6bc6rF55rgqJ7YzRD9/07dpF0uP5UfZbgZD+d7feTuUM55Q==
+react-admin-import-csv@^1.0.25:
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.25.tgz#7a34df0e3b2556ace27dcee6f95430697972bf23"
+  integrity sha512-eOW79ow6GoQUG4R7OPK7/zXU5JamdL+YGSs7wekFGH0HPMlU/x8ZUtzzcjDI0PrBcIAhd55m20YtZoG2/3ayig==
   dependencies:
     papaparse "5.x"
     ramda "^0.27.0"
@@ -17327,10 +17327,10 @@ redux-devtools-extension@^2.13.2:
   resolved "https://registry.yarnpkg.com/redux-devtools-extension/-/redux-devtools-extension-2.13.9.tgz#6b764e8028b507adcb75a1cae790f71e6be08ae7"
   integrity sha512-cNJ8Q/EtjhQaZ71c8I9+BPySIBVEKssbPpskBfsXqb8HJ002A3KRVHfeRzwRo6mGPqsm7XuHTqNSNeS1Khig0A==
 
-redux-form@^8.3.7:
-  version "8.3.7"
-  resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-8.3.7.tgz#24eb6d8b8b37098b4702fc4c52b6596b01a71c82"
-  integrity sha512-CUv6z5Gpog3shB3Ptsd+x6dmeQ1AzIlx1Tniri3j7Gf+oBBtLrD7dHMLOcTbJKsaEwG49SB/z1Pik3Hy04mNcQ==
+redux-form@^8.3.8:
+  version "8.3.8"
+  resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-8.3.8.tgz#cd1a76c914655e3c599a375d6486a43bf8b4c1e3"
+  integrity sha512-PzXhA0d+awIc4PkuhbDa6dCEiraMrGMyyDlYEVNX6qEyW/G2SqZXrjav5zrpXb0CCeqQSc9iqwbMtYQXbJbOAQ==
   dependencies:
     "@babel/runtime" "^7.9.2"
     es6-error "^4.1.1"
@@ -19129,10 +19129,10 @@ swagger-client@^3.17.0:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.0.1.tgz#b488679a8d2165efff6874dc44afb82f751c86cc"
-  integrity sha512-w+h07I99e+vyaHRx3Hgo9ktnSjDzDITunFluSYOPOwjCTFHHtAtymU66ygyWY4Scjg1HelKIDssuzI6buz+Ffg==
+swagger-ui-dist@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.1.2.tgz#5dd182400eaead52511707b50bde29672a975794"
+  integrity sha512-Pj960coj9L0nAQPE1vgBzHulKGPNw1ifn/1GTIv/mlV9V3PoRM0uTcE0uhTiizx6aHg+vnFFmbA2J1gjFekOaQ==
 
 symbol-tree@^3.2.2, symbol-tree@^3.2.4:
   version "3.2.4"
