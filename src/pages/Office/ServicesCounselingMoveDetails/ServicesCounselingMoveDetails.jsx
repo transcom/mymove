@@ -43,9 +43,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
-  const showWhenCollapsed = ['counselorRemarks']; // add any additional fields that we also want to always show
-  const warnIfMissingNTSR = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-  const errorIfMissingNTSR = ['storageFacility'];
+  const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
+  const warnIfMissing = {
+    HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+  };
+  const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
   let disableSubmit = false;
@@ -69,9 +71,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
         ...shipment,
       };
 
-      if (!disableSubmit) {
-        for (let i = 0; i < errorIfMissingNTSR.length; i += 1) {
-          if (!displayInfo[errorIfMissingNTSR[i]]) {
+      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
+        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
+          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
             disableSubmit = true;
           }
         }
@@ -253,9 +255,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     shipmentType={shipment.shipmentType}
                     showIcon={false}
                     ordersLOA={ordersLOA}
-                    warnIfMissing={warnIfMissingNTSR}
-                    errorIfMissing={errorIfMissingNTSR}
-                    showWhenCollapsed={showWhenCollapsed}
+                    warnIfMissing={warnIfMissing[shipment.shipmentType]}
+                    errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                    showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
                   />
                 ))}
               </div>
