@@ -1305,24 +1305,14 @@ jobs:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
-          name: Output processes and resource usage every 5 seconds while job is running
-          command: |
-            while true; do
-              sleep 5
-              ps auxwwf
-              echo "======"
-            done
-          background: true
-      - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
+      - restore_cache:
+          keys:
+            - v1-node-modules-cache
       - run:
           name: Build Storybook
           command: yarn build-storybook
-      - run:
-          name: Output maximum memory usage in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
       - persist_to_workspace:
           root: .
           paths:
