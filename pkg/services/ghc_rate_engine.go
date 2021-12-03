@@ -98,9 +98,16 @@ type DomesticUncratingPricer interface {
 	ParamsPricer
 }
 
-// DomesticPackPricer prices the domestic packing and unpacking for a GHC Move
+// DomesticPackPricer prices the domestic packing for a GHC Move
 //go:generate mockery --name DomesticPackPricer --disable-version-string
 type DomesticPackPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// DomesticNTSPackPricer prices the domestic packing for an NTS shipment of a GHC Move
+//go:generate mockery --name DomesticNTSPackPricer --disable-version-string
+type DomesticNTSPackPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
