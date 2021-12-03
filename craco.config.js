@@ -1,3 +1,8 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+// eslint-disable-next-line import/no-extraneous-dependencies
+// const { addBeforeLoaders, loaderByName } = require('@craco/craco');
+
 module.exports = {
   plugins: [
     {
@@ -15,6 +20,17 @@ module.exports = {
           // set parallel for circleci
           // eslint-disable-next-line no-param-reassign, security/detect-object-injection
           webpackConfig.optimization.minimizer[minimizerIndex].options.terserOptions.parallel = parallel;
+
+          // const threadLoader = {
+          //   loader: require.resolve('thread-loader'),
+          // };
+          // addBeforeLoaders(webpackConfig, loaderByName('sass-loader'), threadLoader);
+          // addBeforeLoaders(webpackConfig, loaderByName('babel-loader'), threadLoader);
+
+          if (process.env.WEBPACK_SPEED_MEASURE) {
+            const smp = new SpeedMeasurePlugin();
+            return smp.wrap(webpackConfig);
+          }
 
           return webpackConfig;
         },

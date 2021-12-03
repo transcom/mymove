@@ -158,7 +158,9 @@
     "react-select-event": "^5.3.0",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2",
-    "storybook-addons-abstract": "^6.2.1"
+    "speed-measure-webpack-plugin": "^1.5.0",
+    "storybook-addons-abstract": "^6.2.1",
+    "thread-loader": "^3.0.4"
   },
   "browserslist": [
     ">0.2%",
