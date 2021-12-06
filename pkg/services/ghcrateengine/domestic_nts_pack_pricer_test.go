@@ -45,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticNTSPackPricer() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.Run("Invalid parameters to PriceUsingParams", func() {
+	suite.Run("invalid parameters to PriceUsingParams", func() {
 		paymentServiceItem := suite.setupDomesticNTSPackServiceItem()
 
 		// Setting each param's type to something incorrect should trigger an error.

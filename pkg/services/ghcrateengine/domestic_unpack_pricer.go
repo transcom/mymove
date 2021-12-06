@@ -13,17 +13,17 @@ import (
 type domesticUnpackPricer struct {
 }
 
-// NewDomesticUnpackPricer creates a new pricer for domestic pack services
+// NewDomesticUnpackPricer creates a new pricer for the domestic unpack service
 func NewDomesticUnpackPricer() services.DomesticUnpackPricer {
 	return &domesticUnpackPricer{}
 }
 
-// Price determines the price for a domestic pack/unpack service
+// Price determines the price for a domestic unpack service
 func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, requestedPickupDate, weight, servicesScheduleDest)
 }
 
-// PriceUsingParams determines the price for a domestic pack given PaymentServiceItemParams
+// PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
 func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {

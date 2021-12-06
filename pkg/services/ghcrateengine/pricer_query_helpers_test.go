@@ -29,30 +29,20 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
-	testCents := unit.Cents(146)
-	servicesSchedule := 1
-	isPeakPeriod := true
-
 	suite.Run("golden path", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)
 
-		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
 		suite.NoError(err)
-		suite.Equal(testCents, domOtherPrice.PriceCents)
+		suite.Equal(dpkTestBasePriceCents, domOtherPrice.PriceCents)
 	})
-}
 
-func (suite *GHCRateEngineServiceSuite) Test_unpackFetchDomOtherPrice() {
-	testCents := unit.Cents(146)
-	servicesSchedule := 1
-	isPeakPeriod := true
+	suite.Run("no records found", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-	suite.Run("golden path", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDUPK, servicesSchedule, isPeakPeriod)
-		suite.NoError(err)
-		suite.Equal(testCents, domOtherPrice.PriceCents)
+		// Look for service code IHPK that we haven't added
+		_, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeIHPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)
+		suite.Error(err)
 	})
 }
 

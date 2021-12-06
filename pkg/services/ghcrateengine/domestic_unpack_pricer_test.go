@@ -1,216 +1,80 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 const (
-	servicesScheduleDest = 1
-	unpackWeightBilled   = 3600
+	dupkTestEscalationCompounded = 1.2311
+	dupkTestIsPeakPeriod         = false
+	dupkTestWeight               = unit.Pound(3600)
+	dupkTestServicesScheduleDest = 1
+	dupkTestContractYearName     = "DUPK Test Year"
+	dupkTestBasePriceCents       = unit.Cents(123)
+	dupkTestPriceCents           = unit.Cents(5451) // dupkTestBasePriceCents * (dupkTestWeight / 100) * dupkTestEscalationCompounded
 )
 
-func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemParamsBadData() {
+var dupkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1)
+
+func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 	pricer := NewDomesticUnpackPricer()
 
-	suite.Run("failure during pricing bubbles up", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDUPK,
-			[]testdatagen.CreatePaymentServiceItemParams{
-				{
-					Key:     models.ServiceItemParamNameContractCode,
-					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
-				},
-				{
-					Key:     models.ServiceItemParamNameRequestedPickupDate,
-					KeyType: models.ServiceItemParamTypeDate,
-					Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   "0",
-				},
-				{
-					Key:     models.ServiceItemParamNameServicesScheduleDest,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   strconv.Itoa(servicesScheduleDest),
-				},
-			},
-		)
+	suite.Run("success using PaymentServiceItemParams", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
-	})
-}
-
-func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemParams() {
-	pricer := NewDomesticUnpackPricer()
-
-	suite.Run("success all params for domestic unpack available", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-		paymentServiceItem := suite.setupDomesticUnpackServiceItems()
-
-		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5470)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(expectedCost, cost)
+		suite.Equal(dupkTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
-			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: dupkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dupkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dupkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dupkTestBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.Run("validation errors", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-		paymentServiceItem := suite.setupDomesticUnpackServiceItems()
+	suite.Run("invalid parameters to PriceUsingParams", func() {
+		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 
-		// No contract code
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
-		suite.Error(err)
-		suite.Equal("could not find param with key ContractCode", err.Error())
+		// Setting each param's type to something incorrect should trigger an error.
 
-		// No requested pickup date
-		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingRequestedPickupDate)
+		// ServicesScheduleDest
+		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameServicesScheduleDest))
 
-		// No weight
-		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight)
+		// WeightBilled
+		paymentServiceItem.PaymentServiceItemParams[2].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Equal("could not find param with key WeightBilled", err.Error())
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
 
-		// No services schedule destination
-		missingServicesScheduleDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServicesScheduleDest)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServicesScheduleDest)
+		// RequestedPickupDate
+		paymentServiceItem.PaymentServiceItemParams[1].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Equal("could not find param with key ServicesScheduleDest", err.Error())
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a time", models.ServiceItemParamNameRequestedPickupDate))
+
+		// ContractCode
+		paymentServiceItem.PaymentServiceItemParams[0].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a string", models.ServiceItemParamNameContractCode))
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
-	pricer := NewDomesticUnpackPricer()
-
-	suite.Run("success domestic unpack cost within peak period", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		cost, _, err := pricer.Price(
-			suite.AppContextForTest(),
-			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			unpackWeightBilled,
-			servicesScheduleDest,
-		)
-		expectedCost := unit.Cents(5470)
-		suite.NoError(err)
-		suite.Equal(expectedCost, cost)
-	})
-
-	suite.Run("success domestic unpack cost within non-peak period", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		nonPeakDate := peakStart.addDate(0, -1)
-		cost, _, err := pricer.Price(
-			suite.AppContextForTest(),
-			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			unpackWeightBilled,
-			servicesScheduleDest,
-		)
-		expectedCost := unit.Cents(4758)
-		suite.NoError(err)
-		suite.Equal(expectedCost, cost)
-	})
-
-	suite.Run("failure if contract code bogus", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		_, _, err := pricer.Price(
-			suite.AppContextForTest(),
-			"bogus_code",
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			unpackWeightBilled,
-			servicesScheduleDest,
-		)
-
-		suite.Error(err)
-		suite.Equal("Could not lookup domestic other price: "+models.RecordNotFoundErrorString, err.Error())
-	})
-
-	suite.Run("failure if move date is outside of contract year", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		_, _, err := pricer.Price(
-			suite.AppContextForTest(),
-			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			unpackWeightBilled,
-			servicesScheduleDest,
-		)
-
-		suite.Error(err)
-		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
-	})
-
-	suite.Run("weight below minimum", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		cost, _, err := pricer.Price(
-			suite.AppContextForTest(),
-			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			unit.Pound(499),
-			servicesScheduleDest,
-		)
-		suite.Equal(unit.Cents(0), cost)
-		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
-	})
-
-	suite.Run("validation errors", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
-
-		// No contract code
-		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, unpackWeightBilled, servicesScheduleDest)
-		suite.Error(err)
-		suite.Equal("ContractCode is required", err.Error())
-
-		// No requested pickup date
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, unpackWeightBilled, servicesScheduleDest)
-		suite.Error(err)
-		suite.Equal("RequestedPickupDate is required", err.Error())
-
-		// No weight
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleDest)
-		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
-
-		// No services schedule
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unpackWeightBilled, 0)
-		suite.Error(err)
-		suite.Equal("Services schedule is required", err.Error())
-	})
-}
-
-func (suite *GHCRateEngineServiceSuite) setupDomesticUnpackServiceItems() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupDomesticUnpackServiceItem() models.PaymentServiceItem {
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDUPK,
@@ -223,17 +87,17 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticUnpackServiceItems() models
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Value:   dupkTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(unpackWeightBilled),
+				Value:   strconv.Itoa(dupkTestWeight.Int()),
 			},
 			{
 				Key:     models.ServiceItemParamNameServicesScheduleDest,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(servicesScheduleDest),
+				Value:   strconv.Itoa(dupkTestServicesScheduleDest),
 			},
 		},
 	)
