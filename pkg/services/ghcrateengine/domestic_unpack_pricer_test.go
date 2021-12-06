@@ -96,7 +96,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 
-		// No service schedule destination
+		// No services schedule destination
 		missingServicesScheduleDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServicesScheduleDest)
 		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServicesScheduleDest)
 		suite.Error(err)
@@ -150,7 +150,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup Domestic Other Price: "+models.RecordNotFoundErrorString, err.Error())
+		suite.Equal("Could not lookup domestic other price: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
 	suite.Run("failure if move date is outside of contract year", func() {
@@ -203,10 +203,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
-		// No service schedule
+		// No services schedule
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unpackWeightBilled, 0)
 		suite.Error(err)
-		suite.Equal("Service schedule is required", err.Error())
+		suite.Equal("Services schedule is required", err.Error())
 	})
 }
 
