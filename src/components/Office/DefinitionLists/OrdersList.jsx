@@ -9,8 +9,8 @@ import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const OrdersList = ({ ordersInfo, showLOAWarnings }) => {
-  const tacMissingText = showLOAWarnings ? 'Missing' : '—';
+const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
+  const missingText = showMissingWarnings ? 'Missing' : '—';
 
   return (
     <div className={styles.OfficeDefinitionLists}>
@@ -33,33 +33,45 @@ const OrdersList = ({ ordersInfo, showLOAWarnings }) => {
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
-            [styles.missingInfoError]: !ordersInfo.departmentIndicator,
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.departmentIndicator,
           })}
         >
           <dt>Department indicator</dt>
-          <dd data-testid="departmentIndicator">{departmentIndicatorReadable(ordersInfo.departmentIndicator)}</dd>
-        </div>
-        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.ordersNumber })}>
-          <dt>Orders number</dt>
-          <dd data-testid="ordersNumber">{!ordersInfo.ordersNumber ? 'Missing' : ordersInfo.ordersNumber}</dd>
-        </div>
-        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.ordersType })}>
-          <dt>Orders type</dt>
-          <dd data-testid="ordersType">{ordersTypeReadable(ordersInfo.ordersType)}</dd>
-        </div>
-        <div
-          className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.ordersTypeDetail })}
-        >
-          <dt>Orders type detail</dt>
-          <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</dd>
+          <dd data-testid="departmentIndicator">
+            {departmentIndicatorReadable(ordersInfo.departmentIndicator, missingText)}
+          </dd>
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
-            [styles.missingInfoError]: showLOAWarnings && !ordersInfo.tacMDC,
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersNumber,
+          })}
+        >
+          <dt>Orders number</dt>
+          <dd data-testid="ordersNumber">{!ordersInfo.ordersNumber ? missingText : ordersInfo.ordersNumber}</dd>
+        </div>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersType,
+          })}
+        >
+          <dt>Orders type</dt>
+          <dd data-testid="ordersType">{ordersTypeReadable(ordersInfo.ordersType, missingText)}</dd>
+        </div>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersTypeDetail,
+          })}
+        >
+          <dt>Orders type detail</dt>
+          <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail, missingText)}</dd>
+        </div>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.tacMDC,
           })}
         >
           <dt>HHG TAC</dt>
-          <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? tacMissingText : ordersInfo.tacMDC}</dd>
+          <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? missingText : ordersInfo.tacMDC}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>HHG SAC</dt>
@@ -80,7 +92,7 @@ const OrdersList = ({ ordersInfo, showLOAWarnings }) => {
 
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
-  showLOAWarnings: PropTypes.bool.isRequired,
+  showMissingWarnings: PropTypes.bool.isRequired,
 };
 
 export default OrdersList;

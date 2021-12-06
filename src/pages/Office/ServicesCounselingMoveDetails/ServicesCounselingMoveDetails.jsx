@@ -267,7 +267,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 )
               }
             >
-              <OrdersList ordersInfo={ordersInfo} showLOAWarnings={false} />
+              <OrdersList ordersInfo={ordersInfo} showMissingWarnings={false} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
