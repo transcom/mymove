@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import styles from './ShipmentDefinitionLists.module.scss';
 
-import descriptionListStyles from 'styles/descriptionList.module.scss';
+// import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
@@ -36,11 +36,11 @@ const NTSRShipmentInfoList = ({
 
   function getFlags(fieldname) {
     let alwaysShow = false;
-    let classes = descriptionListStyles.row;
+    let classes = styles.row;
 
     if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(descriptionListStyles.row, styles.missingInfoError);
+      classes = classNames(styles.row, styles.missingInfoError);
       return {
         alwaysShow,
         classes,
@@ -48,7 +48,7 @@ const NTSRShipmentInfoList = ({
     }
     if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(descriptionListStyles.row, styles.warning);
+      classes = classNames(styles.row, styles.warning);
       return {
         alwaysShow,
         classes,
@@ -120,7 +120,7 @@ const NTSRShipmentInfoList = ({
   );
 
   const secondaryDeliveryAddressElement = (
-    <div className={descriptionListStyles.rows}>
+    <div className={styles.rows}>
       <dt>Second delivery address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
@@ -146,7 +146,7 @@ const NTSRShipmentInfoList = ({
 
   const agentsElement = agents
     ? agents.map((agent) => (
-        <div className={descriptionListStyles.row} key={`${agent.agentType}-${agent.email}`}>
+        <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
           <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
           <dd data-testid="agent">{formatAgent(agent)}</dd>
         </div>
@@ -162,7 +162,7 @@ const NTSRShipmentInfoList = ({
   );
 
   const customerRemarksElement = (
-    <div className={descriptionListStyles.row}>
+    <div className={styles.row}>
       <dt>Customer remarks</dt>
       <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
     </div>
