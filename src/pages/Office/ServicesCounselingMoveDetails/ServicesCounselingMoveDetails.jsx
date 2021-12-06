@@ -14,7 +14,7 @@ import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
-import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
+import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
@@ -267,7 +267,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 )
               }
             >
-              <ServicesCounselingOrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} showLOAWarnings={false} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

@@ -45,18 +45,27 @@ const ordersInfoMissing = {
 
 describe('OrdersList', () => {
   it('renders formatted orders info', () => {
-    render(<OrdersList ordersInfo={ordersInfo} />);
+    render(<OrdersList ordersInfo={ordersInfo} showLOAWarnings />);
     Object.keys(expectedRenderedOrdersInfo).forEach((key) => {
       expect(screen.getByText(expectedRenderedOrdersInfo[key])).toBeInTheDocument();
     });
   });
 
   it('renders missing orders info', () => {
-    render(<OrdersList ordersInfo={ordersInfoMissing} />);
+    render(<OrdersList ordersInfo={ordersInfoMissing} showLOAWarnings />);
     expect(screen.getByTestId('departmentIndicator').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersNumber').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersType').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersTypeDetail').textContent).toEqual('Missing');
+  });
+
+  it('renders HHG TAC as missing if showLOAWarnings is included', () => {
+    render(<OrdersList ordersInfo={ordersInfoMissing} showLOAWarnings />);
     expect(screen.getByTestId('tacMDC').textContent).toEqual('Missing');
+  });
+
+  it('renders HHG TAC as options if showLOAWarnings is false', () => {
+    render(<OrdersList ordersInfo={ordersInfoMissing} showLOAWarnings={false} />);
+    expect(screen.getByTestId('tacMDC').textContent).toEqual('—');
   });
 });

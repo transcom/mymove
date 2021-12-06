@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
@@ -8,7 +9,9 @@ import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const OrdersList = ({ ordersInfo }) => {
+const OrdersList = ({ ordersInfo, showLOAWarnings }) => {
+  const tacMissingText = showLOAWarnings ? 'Missing' : '—';
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -50,9 +53,13 @@ const OrdersList = ({ ordersInfo }) => {
           <dt>Orders type detail</dt>
           <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</dd>
         </div>
-        <div className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !ordersInfo.tacMDC })}>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showLOAWarnings && !ordersInfo.tacMDC,
+          })}
+        >
           <dt>HHG TAC</dt>
-          <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? 'Missing' : ordersInfo.tacMDC}</dd>
+          <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? tacMissingText : ordersInfo.tacMDC}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>HHG SAC</dt>
@@ -73,6 +80,7 @@ const OrdersList = ({ ordersInfo }) => {
 
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
+  showLOAWarnings: PropTypes.bool.isRequired,
 };
 
 export default OrdersList;
