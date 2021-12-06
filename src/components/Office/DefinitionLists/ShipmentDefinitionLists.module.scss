@@ -33,6 +33,7 @@
   .row {
     @include u-font('body', 'xs');
     @include u-line-height('body', 2);
+    display: flex;
   }
 
   .row:first-of-type{
@@ -49,11 +50,9 @@
     @include u-border-left(0.5); //4px
     @include u-border-left('error');
     @include u-font-weight(bold);
-    @include u-margin-left(-0.5);
   }
 
   .warning {
     border-left: 4px solid $mm-gold;
-    @include u-margin-left(-0.5);
   }
 }
