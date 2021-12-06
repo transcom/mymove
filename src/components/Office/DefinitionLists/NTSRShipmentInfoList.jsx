@@ -119,8 +119,9 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const secondaryDeliveryAddressElementFlags = getFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
-    <div className={styles.rows}>
+    <div className={secondaryDeliveryAddressElementFlags.classes}>
       <dt>Second delivery address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
