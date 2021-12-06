@@ -111,7 +111,7 @@ with names as (
 from duty_stations
 where similarity(name, $1) > 0.03
 order by sim desc
-limit 11)
+limit 5)
 union
 (select duty_station_id, name, similarity(name, $1) as sim
 from duty_station_names
@@ -121,7 +121,7 @@ limit 5)
 union
 (select ds.id as duty_station_id, ds.name as name, 1 as sim
 from duty_stations as ds
-inner join addresses a2 on ds.address_id = a2.id
+inner join addresses a2 on ds.address_id = a2.id  and ds.affiliation is null
 where a2.postal_code ILIKE $1
 limit 5)
 )
@@ -130,7 +130,7 @@ from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
 group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id, ds.provides_services_counseling
 order by max(n.sim) desc, ds.name
-limit 11`
+limit 7`
 
 	query := tx.Q().RawQuery(sqlQuery, search)
 	if err := query.All(&stations); err != nil {
