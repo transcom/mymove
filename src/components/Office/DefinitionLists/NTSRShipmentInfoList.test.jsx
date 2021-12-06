@@ -8,7 +8,7 @@ const showWhenCollapsed = ['counselorRemarks'];
 const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
 const errorIfMissing = ['storageFacility'];
 
-const info = {
+const shipment = {
   primeActualWeight: 2000,
   storageFacility: {
     address: {
@@ -55,106 +55,79 @@ const info = {
   sac: '1234123412',
 };
 
-describe('NTSR Shipment Info List', () => {
-  it('renders all fields when provided and expanded', () => {
-    render(<NTSRShipmentInfoList isExpanded shipment={info} />);
-    const primeActualWeight = screen.getByTestId('primeActualWeight');
-    expect(primeActualWeight).toHaveTextContent('2,000 lbs');
-
-    const storageFacility = screen.getByTestId('storageFacilityName');
-    expect(storageFacility).toHaveTextContent(info.storageFacility.facilityName);
-
-    const serviceOrderNumber = screen.getByTestId('serviceOrderNumber');
-    expect(serviceOrderNumber).toHaveTextContent(info.serviceOrderNumber);
-
-    const storageFacilityAddress = screen.getByTestId('storageFacilityAddress');
-    expect(storageFacilityAddress).toHaveTextContent(info.storageFacility.address.streetAddress1);
-
-    const destinationAddress = screen.getByTestId('destinationAddress');
-    expect(destinationAddress).toHaveTextContent(info.destinationAddress.streetAddress1);
-
-    const secondaryDeliveryAddress = screen.getByTestId('secondaryDeliveryAddress');
-    expect(secondaryDeliveryAddress).toHaveTextContent(info.secondaryDeliveryAddress.streetAddress1);
-
-    const receivingAgent = screen.getByTestId('agent');
-    expect(receivingAgent).toHaveTextContent(info.agents[0].email, { exact: false });
-
-    const counselorRemarks = screen.getByTestId('counselorRemarks');
-    expect(counselorRemarks).toHaveTextContent(info.counselorRemarks);
-
-    const customerRemarks = screen.getByTestId('customerRemarks');
-    expect(customerRemarks).toHaveTextContent(info.customerRemarks);
-
-    const tacType = screen.getByTestId('tacType');
-    expect(tacType).toHaveTextContent('1234 (HHG)');
-
-    const sacType = screen.getByTestId('sacType');
-    expect(sacType).toHaveTextContent('1234123412 (NTS)');
+describe('NTSR Shipment Info List renders all fields when provided and expanded', () => {
+  it.each([
+    ['primeActualWeight', '2,000 lbs'],
+    ['storageFacilityName', shipment.storageFacility.facilityName],
+    ['serviceOrderNumber', shipment.serviceOrderNumber],
+    ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
+    ['destinationAddress', shipment.destinationAddress.streetAddress1],
+    ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
+    ['agent', shipment.agents[0].email, { exact: false }],
+    ['counselorRemarks', shipment.counselorRemarks],
+    ['customerRemarks', shipment.customerRemarks],
+    ['tacType', '1234 (HHG)'],
+    ['sacType', '1234123412 (NTS)'],
+  ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+    render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
+    const shipmentFieldElement = screen.getByTestId(shipmentField);
+    expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
   });
+});
 
-  it('renders a dash and adds a warning class for non-required missing items', () => {
-    render(
-      <NTSRShipmentInfoList
-        isExpanded
-        shipment={{
-          requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-          storageFacility: object('storageFacility', info.storageFacility),
-          destinationAddress: object('destinationAddress', info.destinationAddress),
-        }}
-        warnIfMissing={warnIfMissing}
-        errorIfMissing={errorIfMissing}
-        showWhenCollapsed={showWhenCollapsed}
-      />,
-    );
-    const counselorRemarks = screen.getByTestId('counselorRemarks');
-    expect(counselorRemarks).toHaveTextContent('—');
-    expect(counselorRemarks.parentElement).toHaveClass('warning');
+describe('NTSR Shipment Info List renders missing non-required items correctly', () => {
+  it.each(['counselorRemarks', 'tacType', 'sacType', 'primeActualWeight', 'serviceOrderNumber'])(
+    'Verify Shipment field %s displays "—" with a warning class',
+    async (shipmentField) => {
+      render(
+        <NTSRShipmentInfoList
+          isExpanded
+          shipment={{
+            requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
+            storageFacility: object('storageFacility', shipment.storageFacility),
+            destinationAddress: object('destinationAddress', shipment.destinationAddress),
+          }}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />,
+      );
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent('—');
+      expect(shipmentFieldElement.parentElement).toHaveClass('warning');
+    },
+  );
+});
 
-    const tacType = screen.getByTestId('tacType');
-    expect(tacType).toHaveTextContent('—');
-    expect(tacType.parentElement).toHaveClass('warning');
+describe('NTSR Shipment Info List renders missing required items correctly', () => {
+  it.each(['storageFacilityName', 'storageFacilityAddress'])(
+    'Verify Shipment field %s displays "Missing" with an error class',
+    async (shipmentField) => {
+      render(
+        <NTSRShipmentInfoList
+          shipment={{
+            counselorRemarks: text('counselorRemarks', shipment.counselorRemarks),
+            requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
+            destinationAddress: object('destinationAddress', shipment.destinationAddress),
+          }}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />,
+      );
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent('Missing');
+      expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
+    },
+  );
+});
 
-    const sacType = screen.getByTestId('sacType');
-    expect(sacType).toHaveTextContent('—');
-    expect(sacType.parentElement).toHaveClass('warning');
-
-    const primeActualWeight = screen.getByTestId('primeActualWeight');
-    expect(primeActualWeight).toHaveTextContent('—');
-    expect(primeActualWeight.parentElement).toHaveClass('warning');
-
-    const serviceOrderNumber = screen.getByTestId('serviceOrderNumber');
-    expect(serviceOrderNumber).toHaveTextContent('—');
-    expect(serviceOrderNumber.parentElement).toHaveClass('warning');
-  });
-
-  it('shows Missing and adds missing class for required missing items', () => {
-    render(
-      <NTSRShipmentInfoList
-        shipment={{
-          counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-          requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-          destinationAddress: object('destinationAddress', info.destinationAddress),
-        }}
-        warnIfMissing={warnIfMissing}
-        errorIfMissing={errorIfMissing}
-        showWhenCollapsed={showWhenCollapsed}
-      />,
-    );
-
-    const storageFacility = screen.getByTestId('storageFacilityName');
-    expect(storageFacility).toHaveTextContent('Missing');
-    expect(storageFacility.parentElement).toHaveClass('missingInfoError');
-
-    const storageFacilityAddress = screen.getByTestId('storageFacilityAddress');
-    expect(storageFacilityAddress).toHaveTextContent('Missing');
-    expect(storageFacilityAddress.parentElement).toHaveClass('missingInfoError');
-  });
-
+describe('NTSR Shipment Info List collapsed view', () => {
   it('hides fields when collapsed unless explicitly passed', () => {
     render(
       <NTSRShipmentInfoList
         isExpanded={false}
-        shipment={info}
+        shipment={shipment}
         warnIfMissing={warnIfMissing}
         errorIfMissing={errorIfMissing}
         showWhenCollapsed={showWhenCollapsed}
