@@ -238,6 +238,18 @@ describe('formatMtoShipmentForAPI', () => {
     },
   };
 
+  const storageFacility = {
+    facilityName: 'Most Excellent Storage',
+    phone: '999-999-9999',
+    lotNumber: 42,
+    address: {
+      streetAddress1: '3373 NW Martin Luther King Blvd',
+      city: 'San Antonio',
+      state: 'TX',
+      ZIP: '78234',
+    },
+  };
+
   it('can format an HHG shipment', () => {
     const params = {
       ...mtoShipmentParams,
@@ -267,6 +279,7 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       pickup: { ...pickupInfo },
+      storageFacility,
     };
 
     const actual = formatMtoShipmentForAPI(params);
@@ -314,7 +327,8 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       delivery: { ...deliveryInfo },
-      primeActualWeight: 4000,
+      primeActualWeight: '4000',
+      storageFacility,
     };
 
     const actual = formatMtoShipmentForAPI(params);

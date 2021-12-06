@@ -121,7 +121,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
 	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, emailInfo[0].TOName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, *emailInfo[0].TOName)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
 	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
@@ -212,14 +212,17 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
+
+	name := "TEST PPPO"
+	phone := "555-555-5555"
 	s := PaymentReminderEmailData{
 		DestinationDutyStation: "DestDutyStation",
 		WeightEstimate:         "1500",
 		IncentiveEstimateMin:   "500",
 		IncentiveEstimateMax:   "1000",
 		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                 "TEST PPPO",
-		TOPhone:                "555-555-5555",
+		TOName:                 &name,
+		TOPhone:                &phone,
 		Locator:                "abc123",
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
@@ -270,7 +273,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 }
 
-func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
+func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyStation() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
@@ -280,8 +283,72 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		IncentiveEstimateMin:   "500",
 		IncentiveEstimateMax:   "1000",
 		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                 "TEST PPPO",
-		TOPhone:                "555-555-5555",
+		TOName:                 nil,
+		TOPhone:                nil,
+		Locator:                "abc123",
+	}
+	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
+
+<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
+
+<p>To get your incentive, you need to request payment.</p>
+
+<p>Log in to MilMove and request payment</p>
+
+<p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
+
+<p>To do that</p>
+
+<ul>
+  <li><a href="https://my.move.mil">Log in to MilMove</a></li>
+  <li>Click Request Payment</li>
+  <li>Follow the instructions.</li>
+</ul>
+
+<p>What documents do you need?</p>
+
+<p>To request payment, you should have copies of:</p>
+<ul>
+  <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
+  <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
+</ul>
+
+<p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
+
+<p>What if you’re missing documents?</p>
+
+<p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
+
+<p>If you’re missing certified weight tickets, your PPPO will have to help. </p>
+
+<p>Log in to MilMove to complete your request and get paid.</p>
+
+<p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
+
+
+`
+
+	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
+
+	suite.NoError(err)
+	suite.Equal(expectedHTMLContent, htmlContent)
+
+}
+
+func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
+	pr, err := NewPaymentReminder()
+	suite.NoError(err)
+
+	name := "TEST PPPO"
+	phone := "555-555-5555"
+	s := PaymentReminderEmailData{
+		DestinationDutyStation: "DestDutyStation",
+		WeightEstimate:         "1500",
+		IncentiveEstimateMin:   "500",
+		IncentiveEstimateMax:   "1000",
+		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
+		TOName:                 &name,
+		TOPhone:                &phone,
 		Locator:                "abc123",
 	}
 	expectedTextContent := `We hope your move to DestDutyStation went well.
@@ -349,6 +416,11 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 
 	phone := "000-000-0000"
 
+	name1 := "to1"
+	name2 := "to2"
+	name3 := "to3"
+	name4 := "to4"
+
 	emailInfos := PaymentReminderEmailInfos{
 		{
 			Email:                &email1,
@@ -357,7 +429,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin1,
 			IncentiveEstimateMax: &estimateMax1,
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst1.Int(), estimateMin1.ToDollarString(), estimateMax1.ToDollarString()),
-			TOName:               "to1",
+			TOName:               &name1,
 			TOPhone:              &phone1,
 			Locator:              "abc123",
 		},
@@ -368,7 +440,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin2,
 			IncentiveEstimateMax: &estimateMax2,
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst2.Int(), estimateMin2.ToDollarString(), estimateMax2.ToDollarString()),
-			TOName:               "to2",
+			TOName:               &name2,
 			TOPhone:              &phone2,
 			Locator:              "abc456",
 		},
@@ -379,7 +451,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
-			TOName:               "to3",
+			TOName:               &name3,
 			TOPhone:              &phone,
 			Locator:              "def123",
 		},
@@ -391,7 +463,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
-			TOName:               "to4",
+			TOName:               &name4,
 			TOPhone:              &phone,
 			Locator:              "def456",
 		},
@@ -409,7 +481,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           emailInfo.IncentiveTxt,
 			TOName:                 emailInfo.TOName,
-			TOPhone:                *emailInfo.TOPhone,
+			TOPhone:                emailInfo.TOPhone,
 			Locator:                emailInfo.Locator,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)

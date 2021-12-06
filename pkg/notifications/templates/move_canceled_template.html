@@ -1,5 +1,5 @@
 <p>
-  Upon review, the office has determined that MilMove can’t handle your move from {{.OriginDutyStation}} to
+  Upon review, the office has determined that MilMove can’t handle your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{end}}to
   {{.DestinationDutyStation}}, and canceled it in the system. You’re still moving, but we’ll need to manage your move
   with a different system.
 </p>

@@ -61,6 +61,13 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
+	var originDutyStation, originDutyStationPhoneLine *string
+	if originDSTransportInfo != nil {
+		originDutyStation = &originDSTransportInfo.Name
+		originDutyStationPhoneLine = &originDSTransportInfo.PhoneLine
+
+	}
+
 	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
 	if err != nil {
 		return emails, err
@@ -73,9 +80,9 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          originDSTransportInfo.Name,
+		OriginDutyStation:          originDutyStation,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
-		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
+		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 		WeightAllowance:            totalEntitlement,
 	})
@@ -113,9 +120,9 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 type moveSubmittedEmailData struct {
 	Link                       string
 	PpmLink                    string
-	OriginDutyStation          string
+	OriginDutyStation          *string
 	DestinationDutyStation     string
-	OriginDutyStationPhoneLine string
+	OriginDutyStationPhoneLine *string
 	Locator                    string
 	WeightAllowance            int
 }
