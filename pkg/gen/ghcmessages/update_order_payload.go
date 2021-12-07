@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 )
 
 // UpdateOrderPayload update order payload
@@ -76,7 +77,7 @@ type UpdateOrderPayload struct {
 
 	// HHG SAC
 	// Example: N002214CSW32Y9
-	Sac *string `json:"sac,omitempty"`
+	Sac nullable.String `json:"sac,omitempty"`
 
 	// HHG TAC
 	// Example: F8J1
@@ -118,6 +119,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -255,6 +260,21 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *UpdateOrderPayload) validateSac(formats strfmt.Registry) error {
+	if swag.IsZero(m.Sac) { // not required
+		return nil
+	}
+
+	if err := m.Sac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateOrderPayload) validateTac(formats strfmt.Registry) error {
 	if swag.IsZero(m.Tac) { // not required
 		return nil
@@ -284,6 +304,10 @@ func (m *UpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -330,6 +354,18 @@ func (m *UpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Sac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		}
+		return err
 	}
 
 	return nil

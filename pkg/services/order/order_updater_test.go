@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 
 	"github.com/go-openapi/strfmt"
 
@@ -114,7 +115,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
-			Sac:                 handlers.FmtString("987654321"),
+			Sac:                 nullable.NewString("987654321"),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -137,7 +138,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
-		suite.Equal(payload.Sac, updatedOrder.SAC)
+		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
 		suite.EqualValues(&updatedOriginDutyStation.ID, fetchedSM.DutyStationID)
 		suite.EqualValues(updatedOriginDutyStation.ID, fetchedSM.DutyStation.ID)
 		suite.EqualValues(updatedOriginDutyStation.Name, fetchedSM.DutyStation.Name)
@@ -148,7 +149,6 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
-		emptyStrSAC := ""
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -168,7 +168,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
-			Sac:                 &emptyStrSAC, // this will trigger a validation error on Order model
+			Sac:                 nullable.NewString(""), // this will trigger a validation error on Order model
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)

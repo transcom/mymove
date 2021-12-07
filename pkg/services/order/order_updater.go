@@ -182,8 +182,10 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		order.SAC = payload.Sac.Value
+	} else {
+		order.SAC = nil
 	}
 
 	if payload.Tac != nil {

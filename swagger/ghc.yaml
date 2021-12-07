@@ -2855,10 +2855,9 @@ definitions:
         example: F8J1
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsTac:
         type: string
         title: NTS TAC
@@ -4142,6 +4141,12 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string

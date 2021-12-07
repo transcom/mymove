@@ -2770,10 +2770,9 @@ definitions:
         example: 'F8J1'
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: 'N002214CSW32Y9'
-        x-nullable: true
+        $ref: definitions/NullableString.yaml
       ntsTac:
         type: string
         title: NTS TAC

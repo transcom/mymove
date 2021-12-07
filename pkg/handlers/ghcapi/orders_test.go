@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -264,7 +265,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
+			Sac:                   nullable.NewString("987654321"),
 			NtsTac:                handlers.FmtString("E19A"),
 			NtsSac:                handlers.FmtString("987654321"),
 			OrdersAcknowledgement: &ordersAcknowledgement,
@@ -306,7 +307,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
 		suite.NotNil(ordersPayload.AmendedOrdersAcknowledgedAt)
@@ -339,7 +340,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
+			Sac:                   nullable.NewString("987654321"),
 			NtsTac:                handlers.FmtString("E19A"),
 			NtsSac:                handlers.FmtString("987654321"),
 			OrdersAcknowledgement: &unacknowledgedOrders,
@@ -401,7 +402,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
+		Sac:                 nullable.NewString("987654321"),
 		NtsTac:              handlers.FmtString("E19A"),
 		NtsSac:              handlers.FmtString("987654321"),
 	}
@@ -454,9 +455,64 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
+	})
+
+	suite.Run("sac and tac are nullable", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
+		moveRouter := moverouter.NewMoveRouter()
+		handler := UpdateOrderHandler{
+			context,
+			orderservice.NewOrderUpdater(moveRouter),
+			&moveTaskOrderUpdater,
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+
+		dbOrder := subtestData.order
+
+		suite.NoError(suite.DB().Reload(&dbOrder))
+		suite.Equal(dbOrder.TAC, subtestData.body.Tac)
+		suite.Equal(dbOrder.SAC, subtestData.body.Sac.Value)
+
+		body.Sac = nullable.NewNullString()
+		nullableParams := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(dbOrder.ID.String()),
+			IfMatch:     etag.GenerateEtag(dbOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(nullableParams.Body.Validate(strfmt.Default))
+		response = handler.Handle(nullableParams)
+
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+
+		suite.NoError(suite.DB().Reload(&dbOrder))
+		suite.Assert().Nil(dbOrder.SAC)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TXO role", func() {
