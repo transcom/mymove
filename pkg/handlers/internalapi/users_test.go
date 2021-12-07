@@ -13,6 +13,7 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -145,19 +146,19 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 	suite.T().Run("new duty station missing", func(t *testing.T) {
 		// add orders
-		orders := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{
+		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				FirstName: &firstName,
 			},
 		})
 
-		sm := orders.ServiceMember
+		sm := order.ServiceMember
 
 		// Remove transportation office info from new station
 		// happens when a customer is not done
-		//station := order.NewDutyStation
-		//station.TransportationOfficeID = nil
-		//suite.MustSave(&station)
+		station := order.NewDutyStation
+		station.TransportationOfficeID = nil
+		suite.MustSave(&station)
 
 		req := httptest.NewRequest("GET", "/users/logged_in", nil)
 		req = suite.AuthenticateRequest(req, sm)
@@ -165,8 +166,11 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		params := userop.ShowLoggedInUserParams{
 			HTTPRequest: req,
 		}
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		context.SetFileStorer(fakeS3)
+		handler := ShowLoggedInUserHandler{context, builder}
 
 		response := handler.Handle(params)
 
