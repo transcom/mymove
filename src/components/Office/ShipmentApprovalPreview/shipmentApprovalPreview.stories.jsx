@@ -1,4 +1,5 @@
 import React from 'react';
+import { action, object, text } from '@storybook/addon-actions';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
@@ -6,15 +7,15 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const agents = [
   {
-    type: 'RELEASING_AGENT',
+    agentType: 'RELEASING_AGENT',
     firstName: 'Dorothy',
     lastName: 'Lagomarsino',
-    email: 'dorothyl@email.com',
+    email: 'dorothyal@email.com',
     phone: '+1 999-999-9999',
     shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
   },
   {
-    type: 'RECEIVING_AGENT',
+    agentType: 'RECEIVING_AGENT',
     firstName: 'Dorothy Lagomarsino',
     lastName: 'Lagomarsino',
     email: 'dorothyl@email.com',
@@ -142,7 +143,7 @@ const shipments = [
       postalCode: '94535',
     },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
-    id: 'c2f68d97-b960-4c86-a418-c70a0aeba04e',
+    id: 'abc',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     pickupAddress: {
       city: 'Beverly Hills',
@@ -216,6 +217,21 @@ const customerInfo = {
   },
 };
 
+const ordersInfo = {
+  currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+  newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+  issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+  reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+  departmentIndicator: text('ordersInfo.departmentIndicator', 'NAVY_AND_MARINES'),
+  ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
+  ordersType: text('ordersInfo.ordersType', 'PERMANENT_CHANGE_OF_STATION'),
+  ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
+  tacMDC: '',
+  sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
+  NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
+  NTStac: '',
+};
+
 export const shipmentApprovalPreviewModal = () => (
   <ShipmentApprovalPreview
     customerInfo={customerInfo}
@@ -226,6 +242,8 @@ export const shipmentApprovalPreviewModal = () => (
     allowancesInfo={allowancesInfo}
     counselingFee
     shipmentManagementFee
+    onSubmit={action('submit shipment approval')}
+    ordersInfo={ordersInfo}
   />
 );
 
@@ -239,6 +257,8 @@ export const approvalPreviewWithShipments = () => (
     allowancesInfo={allowancesInfo}
     counselingFee
     shipmentManagementFee
+    onSubmit={action('submit shipment approval')}
+    ordersInfo={ordersInfo}
   />
 );
 
