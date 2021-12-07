@@ -14,7 +14,7 @@ if [ -x "/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/psql" ]; then
 fi
 
 if [ -n "${command[*]}" ]; then
-  exec  $psql_exe --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
+  exec  "$psql_exe" --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
 else
-  exec $psql_exe  --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
+  exec "$psql_exe"  --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
 fi
