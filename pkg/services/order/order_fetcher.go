@@ -295,6 +295,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"originDutyLocation":     "origin_ds.name",
 		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 		"originGBLOC":            "origin_to.gbloc",
 	}

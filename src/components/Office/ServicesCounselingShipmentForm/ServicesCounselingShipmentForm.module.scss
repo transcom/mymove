@@ -54,3 +54,15 @@
     }
   }
 }
+
+.Fieldset {
+  h2 {
+    @include u-margin-bottom(2);
+  }
+}
+
+.Label {
+  span {
+    font-weight: normal;
+  }
+}

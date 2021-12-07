@@ -1,6 +1,11 @@
 import * as Yup from 'yup';
 
-import { AdditionalAddressSchema, RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
+import {
+  AdditionalAddressSchema,
+  RequiredPlaceSchema,
+  OptionalPlaceSchema,
+  StorageFacilityAddressSchema,
+} from './validationSchemas';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -25,7 +30,15 @@ const ntsReleaseShipmentSchema = Yup.object().shape({
   customerRemarks: Yup.string(),
 });
 
-function getShipmentOptions(shipmentType) {
+const ntsReleaseShipmentOfficeSchema = Yup.object().shape({
+  delivery: RequiredPlaceSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
+  serviceOrderNumber: Yup.string(),
+  storageFacility: StorageFacilityAddressSchema,
+});
+
+function getShipmentOptions(shipmentType, isCustomer) {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return {
@@ -33,18 +46,29 @@ function getShipmentOptions(shipmentType) {
         showPickupFields: true,
         showDeliveryFields: true,
       };
+
     case SHIPMENT_OPTIONS.NTS:
       return {
         schema: ntsShipmentSchema,
         showPickupFields: true,
         showDeliveryFields: false,
       };
+
     case SHIPMENT_OPTIONS.NTSR:
+      if (isCustomer) {
+        return {
+          schema: ntsReleaseShipmentSchema,
+          showPickupFields: false,
+          showDeliveryFields: true,
+        };
+      }
+
       return {
-        schema: ntsReleaseShipmentSchema,
+        schema: ntsReleaseShipmentOfficeSchema,
         showPickupFields: false,
         showDeliveryFields: true,
       };
+
     default:
       throw new Error('unrecognized move type');
   }
