@@ -4,7 +4,6 @@ import classNames from 'classnames';
 
 import styles from './ShipmentDefinitionLists.module.scss';
 
-// import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
