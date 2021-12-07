@@ -2877,7 +2877,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer := testdatagen.MakeDefaultServiceMember(db)
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -3305,7 +3305,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+	customer7 := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-ffffffffffff"),
 		},
@@ -3320,7 +3320,7 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		UserUploader: userUploader,
 	})
 
-	locatorID := "PayRej"
+	locatorID := "PAYREJ"
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),

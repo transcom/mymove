@@ -34,7 +34,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 
 	var shipments []models.MTOShipment
 	err = appCtx.DB().
-		EagerPreload(
+		Eager(
 			"MTOServiceItems.ReService",
 			"MTOAgents",
 			"PickupAddress",
