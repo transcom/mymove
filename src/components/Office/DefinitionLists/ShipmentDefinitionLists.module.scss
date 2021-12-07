@@ -4,11 +4,6 @@
 @import 'shared/styles/_variables';
 
 .ShipmentDefinitionLists {
-  @include u-margin(0);
-
-  dl {
-    margin: 0;
-  }
 
   dt {
     @include u-text('bold');

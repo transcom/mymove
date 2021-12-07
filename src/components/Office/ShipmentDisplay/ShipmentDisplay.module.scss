@@ -72,5 +72,6 @@
 
   .noIcon .editButton {
     @include u-margin-x(3);
+    @include u-margin-y(2);
   }
 }

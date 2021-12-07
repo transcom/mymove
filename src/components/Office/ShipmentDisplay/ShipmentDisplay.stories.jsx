@@ -259,6 +259,7 @@ export const NTSReleaseShipmentMissingInfo = () => (
       errorIfMissing={errorIfMissing}
       showWhenCollapsed={showWhenCollapsed}
       editURL="/"
+      showIcon={false}
     />
   </div>
 );
