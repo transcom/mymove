@@ -56,7 +56,7 @@ const needsCounselingMoves = {
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
@@ -73,7 +73,7 @@ const needsCounselingMoves = {
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
@@ -100,7 +100,7 @@ const marineCorpsNeedsCounselingMoves = {
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
@@ -117,7 +117,7 @@ const marineCorpsNeedsCounselingMoves = {
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
@@ -144,7 +144,7 @@ const serviceCounselingCompletedMoves = {
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
@@ -161,7 +161,7 @@ const serviceCounselingCompletedMoves = {
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
-        destinationDutyStation: {
+        originDutyLocation: {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
@@ -225,7 +225,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(firstMove.find('td.destinationDutyLocation').text()).toBe('Area 51');
+      expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -236,7 +236,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(secondMove.find('td.destinationDutyLocation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.originDutyLocation').text()).toBe('Los Alamos');
     });
 
     it('sorts by submitted at date ascending by default', () => {
@@ -253,7 +253,7 @@ describe('ServicesCounselingQueue', () => {
       );
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="branch"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="destinationDutyLocation"][role="columnheader"]').prop('onClick')).not.toBe(
+      expect(wrapper.find('th[data-testid="originDutyLocation"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
     });
@@ -295,7 +295,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Marine Corps');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(firstMove.find('td.destinationDutyLocation').text()).toBe('Area 51');
+      expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -306,7 +306,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Marine Corps');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
-      expect(secondMove.find('td.destinationDutyLocation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.originDutyLocation').text()).toBe('Los Alamos');
     });
 
     it('allows sorting on certain columns', () => {
@@ -317,9 +317,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).toBeDefined();
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).toBeDefined();
       expect(wrapper.find('th[data-testid="originGBLOC"][role="columnheader"]').prop('onClick')).toBeDefined();
-      expect(
-        wrapper.find('th[data-testid="destinationDutyLocation"][role="columnheader"]').prop('onClick'),
-      ).toBeDefined();
+      expect(wrapper.find('th[data-testid="originDutyLocation"][role="columnheader"]').prop('onClick')).toBeDefined();
     });
 
     it('disables sorting on the branch column', () => {

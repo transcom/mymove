@@ -61,6 +61,20 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	}
 	suite.MustSave(&s6)
 
+	address2 := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "23456",
+	}
+	suite.MustSave(&address2)
+
+	station7 := models.DutyStation{
+		Name:      "Very Long City Name, OH 23456",
+		AddressID: address2.ID,
+	}
+	suite.MustSave(&station7)
+
 	tests := []struct {
 		query        string
 		dutyStations []string
@@ -70,8 +84,9 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB"}},
 		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
 		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
-		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Very Long City Name, OH 23456", "Fort Belvoir", "Davis Monthan AFB"}},
 		{query: "zzzzz", dutyStations: []string{}},
+		{query: "23456", dutyStations: []string{"Very Long City Name, OH 23456"}},
 	}
 
 	for _, ts := range tests {
