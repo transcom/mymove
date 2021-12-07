@@ -250,7 +250,7 @@ export const NTSReleaseShipment = () => (
 export const NTSReleaseShipmentMissingInfo = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={object('displayInfo', ntsReleaseMissingInfo)}
+      displayInfo={{ ...ntsReleaseMissingInfo }}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}

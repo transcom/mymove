@@ -1,5 +1,4 @@
 import React from 'react';
-import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
@@ -56,14 +55,14 @@ const info = {
 export const NTSRBasic = () => (
   <NTSRShipmentInfoList
     shipment={{
-      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-      requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-      storageFacility: object('storageFacility', info.storageFacility),
-      destinationAddress: object('destinationAddress', info.destinationAddress),
-      tacType: text('tacType', info.tacType),
-      sacType: text('sacType', info.sacType),
-      primeActualWeight: text('primeActualWeight', info.primeActualWeight),
-      serviceOrderNumber: text('serviceOrderNumber', info.serviceOrderNumber),
+      counselorRemarks: info.counselorRemarks,
+      requestedDeliveryDate: info.requestedDeliveryDate,
+      storageFacility: info.storageFacility,
+      destinationAddress: info.destinationAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      primeActualWeight: info.primeActualWeight,
+      serviceOrderNumber: info.serviceOrderNumber,
     }}
   />
 );
@@ -71,12 +70,12 @@ export const NTSRBasic = () => (
 export const NTSRMissingInfo = () => (
   <NTSRShipmentInfoList
     shipment={{
-      requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-      destinationAddress: object('destinationAddress', info.destinationAddress),
-      tacType: text('tacType', info.tacType),
-      sacType: text('sacType', info.sacType),
-      primeActualWeight: text('primeActualWeight', info.primeActualWeight),
-      serviceOrderNumber: text('serviceOrderNumber', info.serviceOrderNumber),
+      requestedDeliveryDate: info.requestedDeliveryDate,
+      destinationAddress: info.destinationAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      primeActualWeight: info.primeActualWeight,
+      serviceOrderNumber: info.serviceOrderNumber,
     }}
     errorIfMissing={['storageFacility']}
   />
@@ -85,15 +84,15 @@ export const NTSRMissingInfo = () => (
 export const WithAgents = () => (
   <NTSRShipmentInfoList
     shipment={{
-      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-      requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-      storageFacility: object('storageFacility', info.storageFacility),
-      destinationAddress: object('destinationAddress', info.destinationAddress),
-      tacType: text('tacType', info.tacType),
-      sacType: text('sacType', info.sacType),
-      primeActualWeight: text('primeActualWeight', info.primeActualWeight),
-      serviceOrderNumber: text('serviceOrderNumber', info.serviceOrderNumber),
-      agents: [object('agent1', info.agents[0]), object('agent2', info.agents[1])],
+      counselorRemarks: info.counselorRemarks,
+      requestedDeliveryDate: info.requestedDeliveryDate,
+      storageFacility: info.storageFacility,
+      destinationAddress: info.destinationAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      primeActualWeight: info.primeActualWeight,
+      serviceOrderNumber: info.serviceOrderNumber,
+      agents: [info.agents[0], info.agents[1]],
     }}
   />
 );
@@ -101,11 +100,11 @@ export const WithAgents = () => (
 export const WithRemarks = () => (
   <NTSRShipmentInfoList
     shipment={{
-      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
-      pickupAddress: object('pickupAddress', info.pickupAddress),
-      destinationAddress: object('destinationAddress', info.destinationAddress),
-      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-      customerRemarks: text('customerRemarks', info.customerRemarks),
+      requestedPickupDate: info.requestedPickupDate,
+      pickupAddress: info.pickupAddress,
+      destinationAddress: info.destinationAddress,
+      counselorRemarks: info.counselorRemarks,
+      customerRemarks: info.customerRemarks,
     }}
   />
 );
@@ -113,17 +112,17 @@ export const WithRemarks = () => (
 export const WithAllInfo = () => (
   <NTSRShipmentInfoList
     shipment={{
-      requestedDeliveryDate: text('requestedDeliveryDate', info.requestedDeliveryDate),
-      storageFacility: object('storageFacility', info.storageFacility),
-      tacType: text('tacType', info.tacType),
-      sacType: text('sacType', info.sacType),
-      primeActualWeight: text('primeActualWeight', info.primeActualWeight),
-      serviceOrderNumber: text('serviceOrderNumber', info.serviceOrderNumber),
-      destinationAddress: object('destinationAddress', info.destinationAddress),
-      secondaryDeliveryAddress: object('secondaryDeliveryAddress', info.secondaryDeliveryAddress),
-      agents: [object('agent1', info.agents[0]), object('agent2', info.agents[1])],
-      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
-      customerRemarks: text('customerRemarks', info.customerRemarks),
+      requestedDeliveryDate: info.requestedDeliveryDate,
+      storageFacility: info.storageFacility,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      primeActualWeight: info.primeActualWeight,
+      serviceOrderNumber: info.serviceOrderNumber,
+      destinationAddress: info.destinationAddress,
+      secondaryDeliveryAddress: info.secondaryDeliveryAddress,
+      agents: [info.agents[0], info.agents[1]],
+      counselorRemarks: info.counselorRemarks,
+      customerRemarks: info.customerRemarks,
     }}
   />
 );
