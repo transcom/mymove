@@ -120,6 +120,18 @@ executors:
         environment:
           GOPATH: /home/circleci/go
 
+  mymove_ramdisk_compiler_xlarge:
+    # large and no ram disk
+    resource_class: xlarge
+    working_directory: /mnt/ramdisk
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+
   mymove_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
@@ -1157,11 +1169,9 @@ jobs:
   # items are in the workspace, we don't even have to checkout the
   # code again
   #
-  # This step is the long pole in the tent before starting the
-  # integration tests. The server compile finishes in ~3m while this
-  # takes ~6m
+  # the babel/terser cache below takes the compile from ~6-7m to ~4-5m !!
   compile_app_client:
-    executor: mymove_compiler
+    executor: mymove_ramdisk_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
@@ -1170,7 +1180,21 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+
+      # babel and terser both have a cache
+      #
+      # see https://webpack.js.org/loaders/babel-loader/ and look for
+      # cacheDirectory
+      #
+      # see https://www.npmjs.com/package/terser-webpack-plugin/v/1.4.4#cache
+      - restore_cache:
+          keys:
+            - v1-node-modules-cache
       - run: make client_build
+      - save_cache:
+          key: v1-node-modules-cache
+          paths:
+            - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           paths:
@@ -1274,31 +1298,21 @@ jobs:
 
   # `build_storybook` builds static storybook assets for deploy
   build_storybook:
-    executor: mymove_builder
+    executor: mymove_compiler
     steps:
       - checkout
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
-          name: Output processes and resource usage every 5 seconds while job is running
-          command: |
-            while true; do
-              sleep 5
-              ps auxwwf
-              echo "======"
-            done
-          background: true
-      - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
+      - restore_cache:
+          keys:
+            - v1-node-modules-cache
       - run:
           name: Build Storybook
           command: yarn build-storybook
-      - run:
-          name: Output maximum memory usage in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
       - persist_to_workspace:
           root: .
           paths:
