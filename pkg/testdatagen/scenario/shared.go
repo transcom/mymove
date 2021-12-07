@@ -2276,7 +2276,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer := testdatagen.MakeDefaultServiceMember(db)
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
