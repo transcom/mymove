@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"testing"
 
 	"github.com/go-openapi/swag"
 
@@ -113,31 +114,67 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
+
+	suite.T().Run("current duty station missing", func(t *testing.T) {
+		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				FirstName: &firstName,
+			},
+		})
+
+		// Remove transportation office info from current station
+		station := sm.DutyStation
+		station.TransportationOfficeID = nil
+		suite.MustSave(&station)
+
+		req := httptest.NewRequest("GET", "/users/logged_in", nil)
+		req = suite.AuthenticateRequest(req, sm)
+
+		params := userop.ShowLoggedInUserParams{
+			HTTPRequest: req,
+		}
+		builder := officeuser.NewOfficeUserFetcherPop()
+		handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+		suite.True(ok)
+		suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 	})
 
-	// Remove transportation office info from current station
-	station := sm.DutyStation
-	station.TransportationOfficeID = nil
-	suite.MustSave(&station)
+	suite.T().Run("new duty station missing", func(t *testing.T) {
+		// add orders
+		orders := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				FirstName: &firstName,
+			},
+		})
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.AuthenticateRequest(req, sm)
+		sm := orders.ServiceMember
 
-	params := userop.ShowLoggedInUserParams{
-		HTTPRequest: req,
-	}
-	builder := officeuser.NewOfficeUserFetcherPop()
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+		// Remove transportation office info from new station
+		// happens when a customer is not done
+		//station := order.NewDutyStation
+		//station.TransportationOfficeID = nil
+		//suite.MustSave(&station)
 
-	response := handler.Handle(params)
+		req := httptest.NewRequest("GET", "/users/logged_in", nil)
+		req = suite.AuthenticateRequest(req, sm)
 
-	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+		params := userop.ShowLoggedInUserParams{
+			HTTPRequest: req,
+		}
+		builder := officeuser.NewOfficeUserFetcherPop()
+		handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+		suite.True(ok, "Response should be ok")
+		suite.NotNil(okResponse, "Response should not be nil")
+		suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
