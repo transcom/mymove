@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal(firstName, *okResponse.Payload.ServiceMember.FirstName)
 	suite.Equal(string(roles.RoleTypeCustomer), *okResponse.Payload.Roles[0].RoleType)
 	suite.Equal(1, len(okResponse.Payload.Roles))
 	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
@@ -108,20 +108,14 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Jane", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
+	suite.Equal(firstName, *okResponse.Payload.ServiceMember.FirstName)
 	suite.False(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
-	firstName := "Joseph"
-
 	suite.T().Run("current duty station missing", func(t *testing.T) {
-		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: &firstName,
-			},
-		})
+		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 		// Remove transportation office info from current station
 		station := sm.DutyStation
@@ -141,16 +135,12 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 		suite.True(ok)
-		suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
 	suite.T().Run("new duty station missing", func(t *testing.T) {
 		// add orders
-		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: &firstName,
-			},
-		})
+		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 
 		sm := order.ServiceMember
 
@@ -177,7 +167,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 		suite.True(ok, "Response should be ok")
 		suite.NotNil(okResponse, "Response should not be nil")
-		suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 }
 
