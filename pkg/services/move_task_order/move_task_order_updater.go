@@ -192,7 +192,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		}
 
 		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			err = o.updateMove(txnAppCtx, *move, order.CheckRequiredFields())
+			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
 			if err != nil {
 				return err
 			}
@@ -221,12 +221,12 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	return move, nil
 }
 
-func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move models.Move, checks ...order.Validator) error {
+func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move *models.Move, checks ...order.Validator) error {
 	if verr := order.ValidateOrder(&move.Orders, checks...); verr != nil {
 		return verr
 	}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+	verrs, err := appCtx.DB().ValidateAndUpdate(move)
 
 	if verrs != nil && verrs.HasAny() {
 		return apperror.NewInvalidInputError(move.ID, nil, verrs, "")

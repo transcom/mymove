@@ -33,11 +33,13 @@ type CounselingUpdateAllowancePayload struct {
 
 	// unit is in lbs
 	// Example: 2000
+	// Maximum: 2000
 	// Minimum: 0
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
 	// unit is in lbs
 	// Example: 2000
+	// Maximum: 500
 	// Minimum: 0
 	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse,omitempty"`
 
@@ -118,6 +120,10 @@ func (m *CounselingUpdateAllowancePayload) validateProGearWeight(formats strfmt.
 		return err
 	}
 
+	if err := validate.MaximumInt("proGearWeight", "body", *m.ProGearWeight, 2000, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -127,6 +133,10 @@ func (m *CounselingUpdateAllowancePayload) validateProGearWeightSpouse(formats s
 	}
 
 	if err := validate.MinimumInt("proGearWeightSpouse", "body", *m.ProGearWeightSpouse, 0, false); err != nil {
+		return err
+	}
+
+	if err := validate.MaximumInt("proGearWeightSpouse", "body", *m.ProGearWeightSpouse, 500, false); err != nil {
 		return err
 	}
 

@@ -3239,6 +3239,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -3246,6 +3247,7 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -9865,6 +9867,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
@@ -9873,6 +9876,7 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,

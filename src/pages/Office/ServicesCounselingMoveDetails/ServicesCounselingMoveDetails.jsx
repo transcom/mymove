@@ -102,6 +102,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
+    NTStac: order.ntsTac,
+    NTSsac: order.ntsSac,
   };
 
   // use mutation calls

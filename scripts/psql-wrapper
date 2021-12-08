@@ -9,7 +9,7 @@ command="${*:-}"
 
 # nix-friendly option
 psql_exe=/usr/local/bin/psql
-if [ "${NIX_PROFILE}" ]; then
+if [ -n "${NIX_PROFILE+x}" ]; then
   psql_exe="/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/psql"
 fi
 

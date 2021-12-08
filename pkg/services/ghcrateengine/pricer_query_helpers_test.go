@@ -29,30 +29,20 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
-	testCents := unit.Cents(146)
-	servicesSchedule := 1
-	isPeakPeriod := true
-
 	suite.Run("golden path", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)
 
-		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
 		suite.NoError(err)
-		suite.Equal(testCents, domOtherPrice.PriceCents)
+		suite.Equal(dpkTestBasePriceCents, domOtherPrice.PriceCents)
 	})
-}
 
-func (suite *GHCRateEngineServiceSuite) Test_unpackFetchDomOtherPrice() {
-	testCents := unit.Cents(146)
-	servicesSchedule := 1
-	isPeakPeriod := true
+	suite.Run("no records found", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-	suite.Run("golden path", func() {
-		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-
-		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDUPK, servicesSchedule, isPeakPeriod)
-		suite.NoError(err)
-		suite.Equal(testCents, domOtherPrice.PriceCents)
+		// Look for service code IHPK that we haven't added
+		_, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeIHPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)
+		suite.Error(err)
 	})
 }
 
@@ -115,6 +105,24 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 
 		// Look for a testDate that's a couple of years later.
 		_, err := fetchContractYear(suite.AppContextForTest(), newContractYear.ContractID, testDate.AddDate(2, 0, 0))
+		suite.Error(err)
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) Test_fetchShipmentTypePrice() {
+	suite.Run("golden path", func() {
+		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+		shipmentTypePrice, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDNPK, models.MarketConus)
+
+		suite.NoError(err)
+		suite.Equal(dnpkTestFactor, shipmentTypePrice.Factor)
+	})
+
+	suite.Run("no records found", func() {
+		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+
+		// Look for service code INPK that we haven't added
+		_, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeINPK, models.MarketOconus)
 		suite.Error(err)
 	})
 }

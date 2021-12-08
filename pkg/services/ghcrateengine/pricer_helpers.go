@@ -16,6 +16,86 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	// Validate parameters
+	var domOtherPriceCode models.ReServiceCode
+	switch packUnpackCode {
+	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
+		domOtherPriceCode = models.ReServiceCodeDPK
+	case models.ReServiceCodeDUPK:
+		domOtherPriceCode = models.ReServiceCodeDUPK
+	default:
+		return 0, nil, fmt.Errorf("unsupported pack/unpack code of %s", packUnpackCode)
+	}
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+	if requestedPickupDate.IsZero() {
+		return 0, nil, errors.New("RequestedPickupDate is required")
+	}
+	if weight < minDomesticWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if servicesSchedule == 0 {
+		return 0, nil, errors.New("Services schedule is required")
+	}
+
+	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+
+	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, domOtherPriceCode, servicesSchedule, isPeakPeriod)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup domestic other price: %w", err)
+	}
+
+	var contractYear models.ReContractYear
+	err = appCtx.DB().Where("contract_id = $1", domOtherPrice.ContractID).
+		Where("$2 between start_date and end_date", requestedPickupDate).
+		First(&contractYear)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+	}
+
+	basePrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
+
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domOtherPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+
+	// Adjust for NTS packing factor if needed.
+	if packUnpackCode == models.ReServiceCodeDNPK {
+		shipmentTypePrice, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDNPK, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("Could not lookup shipment type price: %w", err)
+		}
+		escalatedPrice = escalatedPrice * shipmentTypePrice.Factor
+
+		displayParams = append(displayParams, services.PricingDisplayParam{
+			Key:   models.ServiceItemParamNameNTSPackingFactor,
+			Value: FormatFloat(shipmentTypePrice.Factor, 2),
+		})
+	}
+
+	totalCost := unit.Cents(math.Round(escalatedPrice))
+
+	return totalCost, displayParams, nil
+}
+
 func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {

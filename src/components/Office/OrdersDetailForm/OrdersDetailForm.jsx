@@ -47,25 +47,27 @@ const OrdersDetailForm = ({
           label="TAC"
           id="hhgTacInput"
           mask="****"
+          inputTestId="hhgTacInput"
           warning={hhgTacWarning}
           validate={validateHHGTac}
         />
       )}
-      {showHHGSac && <TextField name="sac" label="SAC" id="hhgSacInput" optional />}
+      {showHHGSac && <TextField name="sac" label="SAC" id="hhgSacInput" data-testid="hhgSacInput" optional />}
 
       {showNTSTac && showNTSSac && <h3>NTS accounting codes</h3>}
       {showNTSTac && (
         <MaskedTextField
-          name="nts_tac"
+          name="ntsTac"
           label="TAC"
           id="ntsTacInput"
           mask="****"
+          inputTestId="ntsTacInput"
           warning={ntsTacWarning}
           validate={validateNTSTac}
           optional
         />
       )}
-      {showNTSSac && <TextField name="nts_sac" label="SAC" id="ntsSacInput" optional />}
+      {showNTSSac && <TextField name="ntsSac" label="SAC" id="ntsSacInput" data-testid="ntsSacInput" optional />}
 
       {showOrdersAcknowledgement && (
         <div className={styles.wrappedCheckbox}>
