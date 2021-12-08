@@ -3070,6 +3070,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		All(&originDutyStationsInGBLOC)
 
+	// Map postal code 90210 (the default we use for just about everything) to the LKNQ GBLOC
+	testdatagen.MakePostalCodeToGBLOC(appCtx.DB(), "90210", "LKNQ")
+
 	/*
 	* Creates two valid, unclaimed access codes
 	 */
