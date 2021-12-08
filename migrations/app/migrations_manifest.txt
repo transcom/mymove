@@ -685,3 +685,4 @@
 20211112193224_support_noninstallation_locations.up.sql
 20211112205920_add_noninstallation_locations.up.sql
 20211123155748_domestic_nts_packing_metadata.up.sql
+20211202234555_move_to_gbloc_view.up.sql
