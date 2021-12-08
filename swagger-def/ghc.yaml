@@ -2885,6 +2885,7 @@ definitions:
         $ref: '#/definitions/Branch'
       proGearWeight:
         minimum: 0
+        maximum: 2000
         description: unit is in lbs
         example: 2000
         type: integer
@@ -2892,6 +2893,7 @@ definitions:
         x-nullable: true
       proGearWeightSpouse:
         minimum: 0
+        maximum: 500
         description: unit is in lbs
         example: 2000
         type: integer

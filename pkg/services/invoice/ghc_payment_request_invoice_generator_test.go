@@ -352,7 +352,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
 		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
-		suite.Equal("TRUS", bx.StandardCarrierAlphaCode)
+		suite.Equal("BLKW", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
@@ -424,7 +424,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("SE", sellerOrg.EntityIdentifierCode)
 		suite.Equal("Prime", sellerOrg.Name)
 		suite.Equal("2", sellerOrg.IdentificationCodeQualifier)
-		suite.Equal("PRME", sellerOrg.IdentificationCode)
+		suite.Equal("BLKW", sellerOrg.IdentificationCode)
 	})
 
 	suite.T().Run("adds orders destination address", func(t *testing.T) {

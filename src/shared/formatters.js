@@ -305,9 +305,9 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   }
 };
 
-export const departmentIndicatorReadable = (departmentIndicator) => {
+export const departmentIndicatorReadable = (departmentIndicator, missingText) => {
   if (!departmentIndicator) {
-    return 'Missing';
+    return missingText;
   }
   return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
 };
@@ -328,16 +328,16 @@ export const serviceCounselingMoveStatusLabel = (status) => {
   return SERVICE_COUNSELING_MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
 };
 
-export const ordersTypeReadable = (ordersType) => {
+export const ordersTypeReadable = (ordersType, missingText) => {
   if (!ordersType) {
-    return 'Missing';
+    return missingText;
   }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
-export const ordersTypeDetailReadable = (ordersTypeDetail) => {
+export const ordersTypeDetailReadable = (ordersTypeDetail, missingText) => {
   if (!ordersTypeDetail) {
-    return 'Missing';
+    return missingText;
   }
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
 };
