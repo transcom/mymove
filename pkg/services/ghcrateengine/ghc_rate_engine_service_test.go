@@ -42,40 +42,6 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 	suite.MustSave(&taskOrderFee)
 }
 
-func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code models.ReServiceCode) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.0407,
-				Name:                 "Base Period Year 1",
-			},
-		})
-
-	domesticPackUnpackService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
-
-	domesticPackUnpackPrice := models.ReDomesticOtherPrice{
-		ContractID:   contractYear.Contract.ID,
-		Schedule:     1,
-		IsPeakPeriod: true,
-		ServiceID:    domesticPackUnpackService.ID,
-	}
-
-	domesticPackUnpackPeakPrice := domesticPackUnpackPrice
-	domesticPackUnpackPeakPrice.PriceCents = 146
-	suite.MustSave(&domesticPackUnpackPeakPrice)
-
-	domesticPackUnpackNonpeakPrice := domesticPackUnpackPrice
-	domesticPackUnpackNonpeakPrice.IsPeakPeriod = false
-	domesticPackUnpackNonpeakPrice.PriceCents = 127
-	suite.MustSave(&domesticPackUnpackNonpeakPrice)
-}
-
 func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
@@ -193,6 +159,32 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	}
 
 	suite.MustSave(&baseLinehaulPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	service := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	shipmentTypePrice := models.ReShipmentTypePrice{
+		ContractID: contractYear.Contract.ID,
+		ServiceID:  service.ID,
+		Market:     market,
+		Factor:     factor,
+	}
+
+	suite.MustSave(&shipmentTypePrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) hasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, expectedValue string) bool {
