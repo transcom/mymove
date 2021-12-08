@@ -41,16 +41,19 @@ describe('Shipment Service Items Table', () => {
   });
 
   describe('renders the nts shipment type with service items', () => {
-    it.each([['Domestic linehaul'], ['Fuel surcharge'], ['Domestic origin price'], ['Domestic NTS packing']])(
-      'expects %s to be in the document',
-      async (serviceItem) => {
-        render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />);
-        expect(
-          await screen.findByRole('heading', { name: 'Service items for this shipment 4 items', level: 4 }),
-        ).toBeInTheDocument();
-        expect(screen.getByText(serviceItem)).toBeInTheDocument();
-      },
-    );
+    it.each([
+      ['Domestic linehaul'],
+      ['Fuel surcharge'],
+      ['Domestic origin price'],
+      ['Domestic destination price'],
+      ['Domestic NTS packing'],
+    ])('expects %s to be in the document', async (serviceItem) => {
+      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />);
+      expect(
+        await screen.findByRole('heading', { name: 'Service items for this shipment 5 items', level: 4 }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(serviceItem)).toBeInTheDocument();
+    });
   });
 
   describe('renders the nts release shipment type with service items', () => {
