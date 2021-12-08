@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -10,6 +11,72 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
+	suite.Run("golden path with DNPK", func() {
+		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.NoError(err)
+		suite.Equal(dnpkTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dnpkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dnpkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dnpkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dnpkTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameNTSPackingFactor, Value: FormatFloat(dnpkTestFactor, 2)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported pack/unpack code")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, "", dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "ContractCode is required")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, time.Time{}, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "RequestedPickupDate is required")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, unit.Pound(250), dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Weight must be a minimum of")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, 0)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Services schedule is required")
+	})
+
+	suite.Run("not finding domestic other price", func() {
+		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+		badContractCode := "BOGUS"
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Could not lookup domestic other price")
+	})
+
+	suite.Run("not finding contract year", func() {
+		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+		twoYearsLaterPickupDate := dnpkTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Could not lookup contract year")
+	})
+
+	suite.Run("not finding shipment type price", func() {
+		badMarket := models.MarketOconus
+		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, badMarket, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Could not lookup shipment type price")
+	})
+
+}
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 	suite.Run("destination golden path", func() {

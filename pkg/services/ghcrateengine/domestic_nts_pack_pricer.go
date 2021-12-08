@@ -10,21 +10,21 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type domesticPackPricer struct {
+type domesticNTSPackPricer struct {
 }
 
-// NewDomesticPackPricer creates a new pricer for the domestic pack service
-func NewDomesticPackPricer() services.DomesticPackPricer {
-	return &domesticPackPricer{}
+// NewDomesticNTSPackPricer creates a new pricer for the domestic NTS pack service
+func NewDomesticNTSPackPricer() services.DomesticNTSPackPricer {
+	return &domesticNTSPackPricer{}
 }
 
-// Price determines the price for a domestic pack service
-func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+// Price determines the price for a domestic NTS pack service
+func (p domesticNTSPackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDNPK, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
 }
 
-// PriceUsingParams determines the price for a domestic pack service given PaymentServiceItemParams
-func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+// PriceUsingParams determines the price for a domestic NTS pack service given PaymentServiceItemParams
+func (p domesticNTSPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

@@ -92,3 +92,20 @@ func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, targe
 
 	return contractYear, nil
 }
+
+func fetchShipmentTypePrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, market models.Market) (models.ReShipmentTypePrice, error) {
+	var shipmentTypePrice models.ReShipmentTypePrice
+	err := appCtx.DB().Q().
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_shipment_type_prices.contract_id").
+		Where("re_contracts.code = $1", contractCode).
+		Where("re_services.code = $2", serviceCode).
+		Where("market = $3", market).
+		First(&shipmentTypePrice)
+
+	if err != nil {
+		return models.ReShipmentTypePrice{}, err
+	}
+
+	return shipmentTypePrice, nil
+}

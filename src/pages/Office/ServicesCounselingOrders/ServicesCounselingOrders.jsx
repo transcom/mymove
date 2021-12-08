@@ -68,6 +68,7 @@ const ServicesCounselingOrders = () => {
 
   const onSubmit = (values) => {
     const body = {
+      ...values,
       originDutyStationId: values.originDutyStation.id,
       newDutyStationId: values.newDutyStation.id,
       issueDate: formatSwaggerDate(values.issueDate),
@@ -84,6 +85,10 @@ const ServicesCounselingOrders = () => {
     reportByDate: order?.report_by_date,
     departmentIndicator: order?.department_indicator,
     ordersType: order?.order_type,
+    tac: order?.tac,
+    sac: order?.sac,
+    ntsTac: order?.ntsTac,
+    ntsSac: order?.ntsSac,
   };
 
   return (
