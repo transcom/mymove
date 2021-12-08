@@ -18,7 +18,7 @@ alter table postal_code_to_gblocs
 	add column id uuid;
 
 -- need to circle back and update this with hardcoded IDs
-update postal_code_to_gbloc
+update postal_code_to_gblocs
 set id = uuid_generate_v4();
 
 alter table postal_code_to_gblocs drop constraint postal_code_to_gbloc_pkey;
