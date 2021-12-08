@@ -61,6 +61,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -145,6 +146,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 
@@ -202,6 +204,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+
 	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Station GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -227,6 +231,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 			RejectionReason: &rejectionReason,
 		},
 	})
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
 
 	// Create an order with an origin duty station outside of office user GBLOC
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -236,6 +241,9 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		},
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
+			PickupAddress: &models.Address{
+				PostalCode: "06001",
+			},
 		},
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -297,6 +305,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedMove := models.Move{
 		SelectedMoveType: &hhgMoveType,
@@ -563,6 +572,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Move:        move2,
 		MTOShipment: shipment,
 	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1027,6 +1038,8 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+
 	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
 	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.needsCounselingMove,
@@ -1068,6 +1081,9 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
+		PickupAddress: models.Address{
+			PostalCode: "06001",
+		},
 	})
 
 	// Create a move with an origin duty station outside of office user GBLOC
@@ -1085,6 +1101,9 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		Move: excludedStatusMove,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
+			PickupAddress: &models.Address{
+				PostalCode: "06001",
+			},
 		},
 	})
 
