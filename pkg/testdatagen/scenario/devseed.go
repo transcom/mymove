@@ -58,6 +58,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),
 		"reweighs":                     subScenarioReweighs(appCtx, userUploader, primeUploader, moveRouter),
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
+		"nts_shipments":                subScenarioNTSShipments(appCtx, userUploader, moveRouter),
 	}
 }
 
