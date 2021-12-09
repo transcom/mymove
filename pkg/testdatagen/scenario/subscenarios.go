@@ -293,3 +293,22 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }
+
+func subScenarioNTSShipments(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	moveRouter services.MoveRouter,
+) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
+
+		// Create some unsubmitted Moves for Customer users
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
+
+		// Create some submitted Moves for TXO users
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
+	}
+}
