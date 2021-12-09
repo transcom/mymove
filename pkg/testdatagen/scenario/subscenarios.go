@@ -268,11 +268,39 @@ func subScenarioNTSShipments(
 		createTXOServicesCounselor(appCtx)
 
 		// Create some unsubmitted Moves for Customer users
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			sceneOptionsNTS{
+				ntsType:     "NTS",
+				ntsMoveCode: "P8NTSU",
+				moveStatus:  models.MoveStatusDRAFT,
+			},
+		)
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			sceneOptionsNTS{
+				ntsType:     "NTSR",
+				ntsMoveCode: "P8NTSU",
+				moveStatus:  models.MoveStatusDRAFT,
+			},
+		)
 
 		// Create some submitted Moves for TXO users
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			sceneOptionsNTS{
+				ntsType:     "NTS",
+				ntsMoveCode: "P8NTSS",
+				moveStatus:  models.MoveStatusSUBMITTED,
+			},
+		)
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			sceneOptionsNTS{
+				ntsType:     "NTSR",
+				ntsMoveCode: "P8NTSS",
+				moveStatus:  models.MoveStatusSUBMITTED,
+			},
+		)
 	}
 }

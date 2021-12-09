@@ -44,6 +44,16 @@ type NamedScenario struct {
 	SubScenarios map[string]func()
 }
 
+type sceneOptionsNTS struct {
+	ntsType     string
+	ntsMoveCode string
+	moveStatus  models.MoveStatus
+}
+
+// UUIDList is an Array of seven UUIDs strings related to shipment types.
+// This is mostly used for NTS-Shipments today.
+type UUIDList [7]string
+
 // May15TestYear is a May 15 of TestYear
 var May15TestYear = time.Date(testdatagen.TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
 
@@ -61,6 +71,26 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
+
+var NTSList UUIDList = [7]string{
+	"583cfbe1-cb34-4381-9e1f-54f68200da1b",
+	"e6e40998-36ff-4d23-93ac-07452edbe806",
+	"f4503551-b636-41ee-b4bb-b05d55d0e856",
+	"06578216-3e9d-4c11-80bf-f7acfd4e7a4f",
+	"1bdbb940-0326-438a-89fb-aa72e46f7c72",
+	"5afaaa39-ca7d-4403-b33a-262586ad64f6",
+	"eecc3b59-7173-4ddd-b826-6f11f15338d9",
+}
+
+var NTSRList UUIDList = [7]string{
+	"80da86f3-9dac-4298-8b03-b753b443668e",
+	"947645ca-06d6-4be9-82fe-3d7bd0a5792d",
+	"a1ed9091-e44c-410c-b028-78589dbc0a77",
+	"52d03f2c-179e-450a-b726-23cbb99304b9",
+	"2675ed07-4f1e-44fd-995f-f6d6e5c461b0",
+	"d95ba5b9-af82-417a-b901-b25d34ce79fa",
+	"2068f14e-4a04-420e-a7e1-b8a89683bbe8",
+}
 
 func createPPMOfficeUser(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
@@ -829,38 +859,19 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 }
 
-func getNtsAndNtsrUuids(move int) [7]string {
-	if move == 1 {
-		return [7]string{
-			"583cfbe1-cb34-4381-9e1f-54f68200da1b",
-			"e6e40998-36ff-4d23-93ac-07452edbe806",
-			"f4503551-b636-41ee-b4bb-b05d55d0e856",
-			"06578216-3e9d-4c11-80bf-f7acfd4e7a4f",
-			"1bdbb940-0326-438a-89fb-aa72e46f7c72",
-			"5afaaa39-ca7d-4403-b33a-262586ad64f6",
-			"eecc3b59-7173-4ddd-b826-6f11f15338d9",
-		}
-	}
-
-	return [7]string{
-		"80da86f3-9dac-4298-8b03-b753b443668e",
-		"947645ca-06d6-4be9-82fe-3d7bd0a5792d",
-		"a1ed9091-e44c-410c-b028-78589dbc0a77",
-		"52d03f2c-179e-450a-b726-23cbb99304b9",
-		"2675ed07-4f1e-44fd-995f-f6d6e5c461b0",
-		"d95ba5b9-af82-417a-b901-b25d34ce79fa",
-		"2068f14e-4a04-420e-a7e1-b8a89683bbe8",
-	}
-}
-
-func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveCodePrefix string, moveNumber int) {
+func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS) {
 	db := appCtx.DB()
 	/*
 	 * A service member with an NTS, NTS-release shipment, & unsubmitted move
 	 */
-	uuids := getNtsAndNtsrUuids(moveNumber)
-	email := fmt.Sprintf("nts.%d@nstr.unsubmitted", moveNumber)
-	locator := fmt.Sprintf("%s%d", moveCodePrefix, moveNumber)
+	var uuids UUIDList
+	if opts.ntsType == "NTS" {
+		uuids = NTSList
+	} else if opts.ntsType == "NTSList" {
+		uuids = NTSRList
+	}
+
+	email := fmt.Sprintf("nts.%s@nstr.unsubmitted", opts.ntsType)
 	uuidStr := uuids[0]
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
@@ -893,8 +904,9 @@ func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveCodeP
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil(uuids[2]),
-			Locator:          locator,
+			Locator:          opts.ntsMoveCode,
 			SelectedMoveType: &selectedMoveType,
+			Status:           opts.moveStatus,
 		},
 	})
 
