@@ -502,6 +502,11 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		// Check that only NTS Release shipment uses that NTSRecordedWeight field
+		if newShipment.NTSRecordedWeight != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return apperror.NewInvalidInputError(newShipment.ID, nil, nil, "Field NTSRecordedWeight cannot be set for shipment type "+string(newShipment.ShipmentType))
+		}
+
 		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
 		// this shipment
 		runShipmentRecalculate := false
