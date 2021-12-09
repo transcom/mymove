@@ -3372,6 +3372,12 @@ func init() {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment.",
           "allOf": [
@@ -4164,6 +4170,12 @@ func init() {
         },
         "mtoServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -5659,6 +5671,12 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "pickupAddress": {
           "allOf": [
@@ -10003,6 +10021,12 @@ func init() {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment.",
           "allOf": [
@@ -10795,6 +10819,12 @@ func init() {
         },
         "mtoServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -12296,6 +12326,12 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "pickupAddress": {
           "allOf": [

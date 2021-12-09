@@ -42,6 +42,10 @@ type UpdateMTOShipment struct {
 	// Format: date
 	FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
+	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
+	// Example: 4500
+	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
 	//
 	PickupAddress struct {

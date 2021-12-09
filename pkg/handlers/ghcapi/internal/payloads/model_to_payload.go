@@ -393,6 +393,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
 		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                   mtoShipment.Diversion,

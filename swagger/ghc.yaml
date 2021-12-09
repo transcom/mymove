@@ -3355,6 +3355,14 @@ definitions:
         example: 2000
         type: integer
         readOnly: true
+      ntsRecordedWeight:
+        description: >-
+          The previously recorded weight for the NTS Shipment. Used for NTS
+          Release to know what the previous primeActualWeight or billable weight
+          was.
+        example: 2000
+        type: integer
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string
@@ -3520,6 +3528,14 @@ definitions:
         x-nullable: true
         example: 2000
         type: integer
+      ntsRecordedWeight:
+        description: >-
+          The previously recorded weight for the NTS Shipment. Used for NTS
+          Release to know what the previous primeActualWeight or billable weight
+          was.
+        example: 2000
+        type: integer
+        x-nullable: true
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
@@ -3607,6 +3623,14 @@ definitions:
         x-nullable: true
         example: 2000
         type: integer
+      ntsRecordedWeight:
+        description: >-
+          The previously recorded weight for the NTS Shipment. Used for NTS
+          Release to know what the previous primeActualWeight or billable weight
+          was.
+        example: 2000
+        type: integer
+        x-nullable: true
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
