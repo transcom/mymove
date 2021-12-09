@@ -1,27 +1,28 @@
 -- Pop prefers tables to have plural names, this table isn't used yet,
 -- so we might as well rename it now before we have to worry about backwards
 -- compatibility.
-alter table postal_code_to_gbloc rename to postal_code_to_gblocs;
+ALTER TABLE postal_code_to_gbloc
+	RENAME TO postal_code_to_gblocs;
 
 -- This view finds the GBLOC for the first shipment of each move
 CREATE VIEW move_to_gbloc AS
 SELECT DISTINCT ON (sh.move_id) sh.move_id AS move_id, pctg.gbloc AS gbloc
 FROM mto_shipments sh
-	 JOIN addresses a ON sh.pickup_address_id = a.id
-	 JOIN postal_code_to_gblocs pctg ON a.postal_code = pctg.postal_code
+		 JOIN addresses a ON sh.pickup_address_id = a.id
+		 JOIN postal_code_to_gblocs pctg ON a.postal_code = pctg.postal_code
 ORDER BY sh.move_id, sh.created_at;
 
 -- Add id column to postal_code_to_gblocs. This is required by Pop.
-alter table postal_code_to_gblocs
-	add column id uuid;
+ALTER TABLE postal_code_to_gblocs
+	ADD COLUMN id uuid;
 
 -- need to circle back and update this with hardcoded IDs
-update postal_code_to_gblocs
-set id = uuid_generate_v4();
+UPDATE postal_code_to_gblocs
+SET id = uuid_generate_v4();
 
 -- Now that we've got our new ID field populated, let's add back all the indices and constraints
-alter table postal_code_to_gblocs
-    drop constraint postal_code_to_gbloc_pkey,
-	add primary key (id),
-	alter column postal_code set not null,
-	add constraint unique_postal_code unique (postal_code);
+ALTER TABLE postal_code_to_gblocs
+	DROP CONSTRAINT postal_code_to_gbloc_pkey,
+	ADD PRIMARY KEY (id),
+	ALTER COLUMN postal_code SET NOT NULL,
+	ADD CONSTRAINT unique_postal_code UNIQUE (postal_code);
