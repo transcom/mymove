@@ -19,6 +19,7 @@ alter table postal_code_to_gblocs
 update postal_code_to_gblocs
 set id = uuid_generate_v4();
 
+-- Now that we've got our new ID field populated, let's add back all the indices and constraints
 alter table postal_code_to_gblocs
     drop constraint postal_code_to_gbloc_pkey,
 	add primary key (id),
