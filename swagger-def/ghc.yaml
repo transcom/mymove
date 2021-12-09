@@ -1775,7 +1775,7 @@ paths:
               requestedMoveDate,
               submittedAt,
               originGBLOC,
-              destinationDutyStation,
+              originDutyLocation,
             ]
           description: field that results should be sorted by
         - in: query
@@ -1813,9 +1813,9 @@ paths:
           type: string
           description: filters the GBLOC of the service member's origin duty station
         - in: query
-          name: destinationDutyStation
+          name: originDutyLocation
           type: string
-          description: filters the name of the destination duty station on the orders
+          description: filters the name of the origin duty location on the orders
         - in: query
           name: status
           type: array
@@ -2885,6 +2885,7 @@ definitions:
         $ref: '#/definitions/Branch'
       proGearWeight:
         minimum: 0
+        maximum: 2000
         description: unit is in lbs
         example: 2000
         type: integer
@@ -2892,6 +2893,7 @@ definitions:
         x-nullable: true
       proGearWeightSpouse:
         minimum: 0
+        maximum: 500
         description: unit is in lbs
         example: 2000
         type: integer

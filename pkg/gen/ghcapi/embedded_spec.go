@@ -1962,7 +1962,7 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation"
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2024,8 +2024,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the name of the destination duty station on the orders",
-            "name": "destinationDutyStation",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -3239,6 +3239,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -3246,6 +3247,7 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -8387,7 +8389,7 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "destinationDutyStation"
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8449,8 +8451,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the name of the destination duty station on the orders",
-            "name": "destinationDutyStation",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
             "in": "query"
           },
           {
@@ -9865,6 +9867,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
@@ -9873,6 +9876,7 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,

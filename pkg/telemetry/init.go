@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
@@ -43,13 +43,6 @@ type Config struct {
 
 const (
 	defaultCollectSeconds = 30
-	tracerName            = "io.opentelemetry.traces.milmove"
-	metricName            = "io.opentelemetry.metrics.milmove"
-)
-
-var (
-	tracer trace.Tracer
-	meter  metric.Meter
 )
 
 // Init currently the target for distributed tracing / opentelemetry is
@@ -59,6 +52,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	ctx := context.Background()
 	shutdown = func() {}
 
+	logger.Info("Configuring tracing", zap.Any("TelemetryConfig", config))
 	if !config.Enabled {
 		tp := trace.NewNoopTracerProvider()
 		otel.SetTracerProvider(tp)
@@ -175,13 +169,5 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		)
 	}
 
-	tracer = otel.Tracer(tracerName)
-	meter = global.Meter(metricName)
-
 	return shutdown
-}
-
-// DefaultTracer returns the default global tracer
-func DefaultTracer() trace.Tracer {
-	return tracer
 }

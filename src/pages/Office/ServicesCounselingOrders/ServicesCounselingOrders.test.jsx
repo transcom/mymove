@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
@@ -78,6 +77,8 @@ const useOrdersDocumentQueriesReturnValue = {
       report_by_date: '2018-08-01',
       tac: 'F8E1',
       sac: 'E2P3',
+      ntsTac: 'C2E3',
+      ntsSac: 'R6X1',
     },
   },
 };
@@ -126,30 +127,47 @@ describe('Orders page', () => {
   });
 
   describe('Basic rendering', () => {
-    useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+    it('renders the sidebar orders detail form', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={['moves/FP24I2/orders']}>
-        <ServicesCounselingOrders />
-      </MockProviders>,
-    );
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
 
-    it('renders the sidebar orders detail form', () => {
-      expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
+      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
     });
 
-    it('renders the sidebar elements', () => {
-      expect(wrapper.find({ 'data-testid': 'view-orders-header' }).text()).toBe('View orders');
-      // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
-      expect(wrapper.find({ 'data-testid': 'view-allowances' }).at(0).text()).toBe('View allowances');
+    it('renders the sidebar elements', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByTestId('view-orders-header')).toHaveTextContent('View orders');
+      expect(screen.getByTestId('view-allowances')).toHaveTextContent('View allowances');
     });
 
-    it('populates initial field values', () => {
-      expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
-      expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
-      expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');
-      expect(wrapper.find('input[name="reportByDate"]').prop('value')).toBe('01 Aug 2018');
-      expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
+    it('populates initial field values', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByText(mockOriginDutyStation.name)).toBeInTheDocument();
+      expect(screen.getByText(mockDestinationDutyStation.name)).toBeInTheDocument();
+      expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+      expect(screen.getByTestId('hhgTacInput')).toHaveValue('F8E1');
+      expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
+      expect(screen.getByTestId('ntsTacInput')).toHaveValue('C2E3');
+      expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
     });
   });
 });

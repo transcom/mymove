@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"testing"
 
 	"github.com/go-openapi/swag"
 
@@ -12,6 +13,7 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -75,7 +77,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal(firstName, *okResponse.Payload.ServiceMember.FirstName)
 	suite.Equal(string(roles.RoleTypeCustomer), *okResponse.Payload.Roles[0].RoleType)
 	suite.Equal(1, len(okResponse.Payload.Roles))
 	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
@@ -106,38 +108,67 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Jane", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
+	suite.Equal(firstName, *okResponse.Payload.ServiceMember.FirstName)
 	suite.False(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
-	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
+	suite.T().Run("current duty station missing", func(t *testing.T) {
+		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+
+		// Remove transportation office info from current station
+		station := sm.DutyStation
+		station.TransportationOfficeID = nil
+		suite.MustSave(&station)
+
+		req := httptest.NewRequest("GET", "/users/logged_in", nil)
+		req = suite.AuthenticateRequest(req, sm)
+
+		params := userop.ShowLoggedInUserParams{
+			HTTPRequest: req,
+		}
+		builder := officeuser.NewOfficeUserFetcherPop()
+		handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+		suite.True(ok)
+		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
-	// Remove transportation office info from current station
-	station := sm.DutyStation
-	station.TransportationOfficeID = nil
-	suite.MustSave(&station)
+	suite.T().Run("new duty station missing", func(t *testing.T) {
+		// add orders
+		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.AuthenticateRequest(req, sm)
+		sm := order.ServiceMember
 
-	params := userop.ShowLoggedInUserParams{
-		HTTPRequest: req,
-	}
-	builder := officeuser.NewOfficeUserFetcherPop()
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+		// Remove transportation office info from new station
+		// happens when a customer is not done
+		station := order.NewDutyStation
+		station.TransportationOfficeID = nil
+		suite.MustSave(&station)
 
-	response := handler.Handle(params)
+		req := httptest.NewRequest("GET", "/users/logged_in", nil)
+		req = suite.AuthenticateRequest(req, sm)
 
-	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+		params := userop.ShowLoggedInUserParams{
+			HTTPRequest: req,
+		}
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		builder := officeuser.NewOfficeUserFetcherPop()
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		context.SetFileStorer(fakeS3)
+		handler := ShowLoggedInUserHandler{context, builder}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+		suite.True(ok, "Response should be ok")
+		suite.NotNil(okResponse, "Response should not be nil")
+		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {

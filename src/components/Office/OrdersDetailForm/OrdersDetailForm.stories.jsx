@@ -94,8 +94,8 @@ export const InitialValues = () => {
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
-          nts_tac: 'Tac',
-          nts_sac: 'Sac',
+          ntsTac: 'Tac',
+          ntsSac: 'Sac',
           ordersAcknowledgement: true,
         }}
         validationSchema={Yup.object({
@@ -109,8 +109,8 @@ export const InitialValues = () => {
           ordersTypeDetail: Yup.string().required('Required'),
           tac: Yup.string().required('Required'),
           sac: Yup.string().required('Required'),
-          nts_tac: Yup.string().required('Required'),
-          nts_sac: Yup.string().required('Required'),
+          ntsTac: Yup.string().required('Required'),
+          ntsSac: Yup.string().required('Required'),
         })}
       >
         <form>
@@ -141,8 +141,8 @@ export const FieldsHidden = (args) => {
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
-          nts_tac: 'Tac',
-          nts_sac: 'Sac',
+          ntsTac: 'Tac',
+          ntsSac: 'Sac',
         }}
         validationSchema={Yup.object({
           originDutyStation: Yup.object().defined('Required'),

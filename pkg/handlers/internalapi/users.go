@@ -103,7 +103,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
 		if dutyStationErr != nil {
-			if errors.Cause(err) != models.ErrFetchNotFound {
+			if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
 				return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 			}
