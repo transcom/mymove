@@ -279,7 +279,7 @@ func subScenarioNTSShipments(
 			appCtx,
 			sceneOptionsNTS{
 				ntsType:     "NTS",
-				ntsMoveCode: "P8NTSU",
+				ntsMoveCode: "NTSUNS",
 				moveStatus:  models.MoveStatusDRAFT,
 			},
 		)
@@ -287,7 +287,7 @@ func subScenarioNTSShipments(
 			appCtx,
 			sceneOptionsNTS{
 				ntsType:     "NTSR",
-				ntsMoveCode: "P8NTSU",
+				ntsMoveCode: "NTSRUN",
 				moveStatus:  models.MoveStatusDRAFT,
 			},
 		)
@@ -297,7 +297,7 @@ func subScenarioNTSShipments(
 			appCtx,
 			sceneOptionsNTS{
 				ntsType:     "NTS",
-				ntsMoveCode: "P8NTSS",
+				ntsMoveCode: "NTSSUB",
 				moveStatus:  models.MoveStatusSUBMITTED,
 			},
 		)
@@ -305,7 +305,7 @@ func subScenarioNTSShipments(
 			appCtx,
 			sceneOptionsNTS{
 				ntsType:     "NTSR",
-				ntsMoveCode: "P8NTSS",
+				ntsMoveCode: "NTSRSU",
 				moveStatus:  models.MoveStatusSUBMITTED,
 			},
 		)
