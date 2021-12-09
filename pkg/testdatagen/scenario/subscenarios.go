@@ -82,8 +82,6 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 
 		// Onboarding
 		createUnsubmittedHHGMove(appCtx)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 1)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 2)
 		createUnsubmittedHHGMoveMultiplePickup(appCtx)
 		createUnsubmittedHHGMoveMultipleDestinations(appCtx)
 		createServiceMemberWithOrdersButNoMoveType(appCtx)
@@ -264,5 +262,24 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 
 		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
+	}
+}
+
+func subScenarioNTSShipments(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	moveRouter services.MoveRouter,
+) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
+
+		// Create some unsubmitted Moves for Customer users
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
+
+		// Create some submitted Moves for TXO users
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 1)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, "P8NTS", 2)
 	}
 }

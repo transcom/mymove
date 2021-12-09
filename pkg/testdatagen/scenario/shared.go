@@ -853,13 +853,14 @@ func getNtsAndNtsrUuids(move int) [7]string {
 	}
 }
 
-func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumber int) {
+func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveCodePrefix string, moveNumber int) {
 	db := appCtx.DB()
 	/*
 	 * A service member with an NTS, NTS-release shipment, & unsubmitted move
 	 */
 	uuids := getNtsAndNtsrUuids(moveNumber)
 	email := fmt.Sprintf("nts.%d@nstr.unsubmitted", moveNumber)
+	locator := fmt.Sprintf("%s%d", moveCodePrefix, moveNumber)
 	uuidStr := uuids[0]
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
@@ -892,7 +893,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumbe
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil(uuids[2]),
-			Locator:          fmt.Sprintf("NTSR0%d", moveNumber),
+			Locator:          locator,
 			SelectedMoveType: &selectedMoveType,
 		},
 	})
