@@ -26,3 +26,8 @@ ALTER TABLE postal_code_to_gblocs
 	ADD PRIMARY KEY (id),
 	ALTER COLUMN postal_code SET NOT NULL,
 	ADD CONSTRAINT unique_postal_code UNIQUE (postal_code);
+
+-- We were originally planning to use this field, but decided to write a query to look the
+-- GBLOC up on the fly instead. No code references this column.
+ALTER TABLE orders
+	DROP COLUMN gbloc;
