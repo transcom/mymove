@@ -9,6 +9,11 @@
 }
 
 .sectionWrapper {
+  @media (max-width: $tablet) {
+    :global(.usa-label:last-child) {
+      margin-top: 24px;
+    }
+  }
   @media (min-width: $tablet) {
     @include u-bg('white');
     @include u-radius('05');
@@ -45,6 +50,9 @@
         .usa-card__body {
           @include u-padding-bottom(0);
         }
+      }
+      .usa-fieldset {
+        margin-top: -12px;
       }
     }
   }
