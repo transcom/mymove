@@ -745,11 +745,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) {
-				if earliestRequestedPickup == nil {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				}
+				earliestRequestedPickup = shipment.RequestedPickupDate
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
