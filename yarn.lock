@@ -3870,7 +3870,7 @@
     react-visibility-sensor "^5.0.2"
     three "0.137.0"
 
-"@trussworks/react-uswds@^2.2.0":
+"@trussworks/react-uswds@^2.4.1":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.4.1.tgz#62604c86940492564465286c8214ae22a4bb5e2b"
   integrity sha512-jjzBV3nVH3ee0UhWJmQr8+5k/bOTQREUWMi0U75dhF6z+kalw20c9yWBA4DlsE6ePu5d55y3ye2Rz7F+4dO+dA==
