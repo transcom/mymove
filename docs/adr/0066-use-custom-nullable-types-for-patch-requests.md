@@ -2,7 +2,7 @@
 
 **User Story:** [MB-10592](https://dp3.atlassian.net/browse/MB-10592)
 
-There are several instances within the milmove app where a user will need to delete a field or reset a field to null on an object. Currently using patch requests this is not possible because there is no way to differentiate between a field that was omitted or a field that is intentially set to null in golang.
+There are several instances within the milmove app where a user will need to delete a field or reset a field to null on an object. Currently using patch requests this is not possible because there is no way to differentiate between a field that was omitted or a JSON field that is intentially set to null. Go-swagger maps the existing yaml type pointers to Go primative types, where nil could mean omitted or set to null. 
 
 ## Considered Alternatives
 
@@ -12,13 +12,14 @@ There are several instances within the milmove app where a user will need to del
 ## Decision Outcome
 
 * Chosen Alternative: Use custom nullable types
-To solve this probably engineers will now be able to use a custom, nullable type that indicates if the field was set to null or not. This solution was selected because the implementation of creating the nullable types is realtively quick, and it allows milmove to work with a single update request type: PATCH. Using the custom types will require engineers to alter how they access the value of the nullable fields, and have additional understand of how this type works. The maintenance of the custom code should be minimal after implementation.
+
+To solve this engineers will now be able to use a custom, nullable type that indicates if the field was set to explicitly set to null [delete the data] or implicitly [don't change anything]. This solution was selected because the implementation of creating the nullable types is realtively quick, and it allows milmove to work with a single update request type: PATCH. Using the custom types will require engineers to alter how they access the value of the nullable fields, and understanding of how this type works. The maintenance of the custom code should be minimal after implementation.
 
 ## Pros and Cons of the Alternatives
 
 ### Use custom nullable types
 
-* `+` Easy and quuick to implement
+* `+` Easy and quick to implement
 * `+` Allows milmove to use a single update request type
 * `+` Allows API users to set fields to null without having to send all object data
 * `-` Custom code will require milmove engineers to be aware of when and why to use nullable types. There may be a small learning curve.
@@ -28,6 +29,7 @@ To solve this probably engineers will now be able to use a custom, nullable type
 * `+` PUT requests are a widely understood and known method of making updates
 * `+` Does not require custom code to implement
 * `-` Requires the API user to return all object data when updating a single field
+* `-` Will require adding additional support for another endpoint for a given resource (new handler, service, changes to yaml, FE calls/payloads, ect.)
 
 ## Additional Context
 
