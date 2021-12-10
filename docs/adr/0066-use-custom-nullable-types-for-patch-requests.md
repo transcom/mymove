@@ -29,7 +29,7 @@ To solve this engineers will now be able to use a custom, nullable type that ind
 * `+` PUT requests are a widely understood and known method of making updates
 * `+` Does not require custom code to implement
 * `-` Requires the API user to return all object data when updating a single field
-* `-` Will require adding additional support for another endpoint for a given resource (new handler, service, changes to yaml, FE calls/payloads, ect.)
+* `-` Will require adding additional support for another endpoint for a given resource (new handler, service, changes to yaml, FE calls/payloads, etc.)
 
 ## Additional Context
 
