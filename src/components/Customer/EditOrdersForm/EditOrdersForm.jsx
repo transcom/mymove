@@ -159,6 +159,7 @@ const EditOrdersForm = ({
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
               <div>
+                <p className="usa-label">Uploads:</p>
                 <p>{documentSizeLimitMsg}</p>
                 <FileUpload
                   ref={filePondEl}
