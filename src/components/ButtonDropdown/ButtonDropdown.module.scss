@@ -1,0 +1,27 @@
+@import '../../shared/styles/colors';
+
+.ButtonDropdown {
+  color: white;
+  background-color: $primary;
+  background-image: none;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  padding-right: 2.9rem;
+  &:hover {
+    background-color: $primary-dark;
+  }
+}
+
+.ButtonDropdownWrapper {
+  position: relative;
+}
+
+.ButtonDropdownIcon {
+  position: absolute;
+  right: 1rem;
+  top: 1.2rem;
+  font-size: 1.3rem;
+  color: white;
+  pointer-events: none;
+}
