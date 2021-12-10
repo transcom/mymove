@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import classnames from 'classnames';
+import 'styles/office.scss';
+import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -22,12 +22,13 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
@@ -41,7 +42,15 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
+  // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+  const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
+  const warnIfMissing = {
+    HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+  };
+  const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
+
   let shipmentsInfo = [];
+  let disableSubmit = false;
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -54,22 +63,27 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           })
         : '';
 
+      const displayInfo = {
+        heading: getShipmentTypeLabel(shipment.shipmentType),
+        destinationAddress: shipment.destinationAddress || {
+          postalCode: order.destinationDutyStation.address.postalCode,
+        },
+        ...shipment,
+      };
+
+      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
+        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
+          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
+            disableSubmit = true;
+          }
+        }
+      }
+
       return {
         id: shipment.id,
-        displayInfo: {
-          id: shipment.id,
-          heading: SHIPMENT_OPTIONS.HHG,
-          requestedPickupDate: shipment.requestedPickupDate,
-          pickupAddress: shipment.pickupAddress,
-          secondaryPickupAddress: shipment.secondaryPickupAddress,
-          destinationAddress: shipment.destinationAddress || {
-            postalCode: order.destinationDutyStation.address.postalCode,
-          },
-          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-          counselorRemarks: shipment.counselorRemarks,
-          customerRemarks: shipment.customerRemarks,
-        },
+        displayInfo,
         editURL,
+        shipmentType: shipment.shipmentType,
       };
     });
   }
@@ -102,6 +116,16 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
+    NTStac: order.ntsTac,
+    NTSsac: order.ntsSac,
+  };
+  const ordersLOA = {
+    tac: order.tac,
+    sac: order.sac,
+    ntsTAC: order.ntsTAC,
+    ntsSAC: order.ntsSac,
   };
 
   // use mutation calls
@@ -205,7 +229,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
                 <Button
-                  disabled={!mtoShipments.length || allShipmentsDeleted}
+                  disabled={!mtoShipments.length || allShipmentsDeleted || disableSubmit}
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
@@ -245,8 +269,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
-                    shipmentType={SHIPMENT_OPTIONS.HHG}
+                    shipmentType={shipment.shipmentType}
                     showIcon={false}
+                    ordersLOA={ordersLOA}
+                    warnIfMissing={warnIfMissing[shipment.shipmentType]}
+                    errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                    showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
                   />
                 ))}
               </div>
