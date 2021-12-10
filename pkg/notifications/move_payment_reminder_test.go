@@ -259,6 +259,8 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 <p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.</p>
 
+<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code abc123.</p>
+
 <p>Log in to MilMove to complete your request and get paid.</p>
 
 <p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
@@ -321,6 +323,8 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 
 <p>If you’re missing certified weight tickets, your PPPO will have to help. </p>
 
+<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code abc123.</p>
+
 <p>Log in to MilMove to complete your request and get paid.</p>
 
 <p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
@@ -380,6 +384,8 @@ What if you’re missing documents?
 If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
 
 If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.
+
+If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's directory of PCS-related contacts to find your best contact and reference your move code abc123.
 
 Log in to MilMove to complete your request and get paid.
 
