@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { useField } from 'formik';
-import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
+import { Dropdown, Label } from '@trussworks/react-uswds';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
 // import { OptionalTag } from 'components/form/OptionalTag';
