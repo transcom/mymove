@@ -13,6 +13,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { WARN_IF_MISSING, ERROR_IF_MISSING } from 'shared/constants';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -164,6 +165,8 @@ const RequestedShipments = ({
                     shipmentType={shipment.shipmentType}
                     isSubmitted
                     displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    warnIfMissing={WARN_IF_MISSING[shipment.shipmentType]}
+                    errorIfMissing={ERROR_IF_MISSING[shipment.shipmentType]}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
                     {...formik.getFieldProps(`shipments`)}
                   />
