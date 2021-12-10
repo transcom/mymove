@@ -87,7 +87,7 @@ export const AddressFields = ({ legend, className, name, render, validators }) =
             validate={validators?.city}
           />
 
-          <div className="grid-row grid-gap">
+          <div className="grid-row grid-gap usa-form-group">
             <div className="mobile-lg:grid-col-6">
               <DropdownInput
                 name={`${name}.state`}
