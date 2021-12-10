@@ -47,7 +47,7 @@ func MakeNTSShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PickupAddressID:        &pickupAddress.ID,
 		SecondaryPickupAddress: &secondaryPickupAddress,
 		ShipmentType:           models.MTOShipmentTypeHHGIntoNTSDom,
-		Status:                 assertions.MTOShipment.Status,
+		Status:                 "DRAFT",
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
