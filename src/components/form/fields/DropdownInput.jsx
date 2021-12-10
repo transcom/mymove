@@ -17,7 +17,7 @@ export const DropdownInput = (props) => {
   const inputId = useRef(id || `${name}_${uuidv4()}`);
 
   return (
-    <FormGroup error={hasError}>
+    <div error={hasError}>
       <div className="labelWrapper">
         <Label error={hasError} htmlFor={inputId.current}>
           {label}
@@ -35,7 +35,7 @@ export const DropdownInput = (props) => {
             </option>
           ))}
       </Dropdown>
-    </FormGroup>
+    </div>
   );
 };
 
