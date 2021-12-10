@@ -68,6 +68,11 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
 };
 
+export const LOA_TYPE = {
+  HHG: 'HHG',
+  NTS: 'NTS',
+};
+
 export const SIGNED_CERT_OPTIONS = {
   SHIPMENT: 'SHIPMENT',
   PPM_PAYMENT: 'PPM_PAYMENT',
