@@ -278,35 +278,18 @@ func subScenarioNTSShipments(
 		createMoveWithNTSAndNTSR(
 			appCtx,
 			sceneOptionsNTS{
-				ntsType:     "NTS",
-				ntsMoveCode: "NTSUNS",
-				moveStatus:  models.MoveStatusDRAFT,
+				shipmentMoveCode: "NTSUNS",
+				moveStatus:       models.MoveStatusDRAFT,
+				orderStatus:      models.OrderStatusDRAFT,
 			},
 		)
-		createMoveWithNTSAndNTSR(
-			appCtx,
-			sceneOptionsNTS{
-				ntsType:     "NTSR",
-				ntsMoveCode: "NTSRUN",
-				moveStatus:  models.MoveStatusDRAFT,
-			},
-		)
-
 		// Create some submitted Moves for TXO users
 		createMoveWithNTSAndNTSR(
 			appCtx,
 			sceneOptionsNTS{
-				ntsType:     "NTS",
-				ntsMoveCode: "NTSSUB",
-				moveStatus:  models.MoveStatusSUBMITTED,
-			},
-		)
-		createMoveWithNTSAndNTSR(
-			appCtx,
-			sceneOptionsNTS{
-				ntsType:     "NTSR",
-				ntsMoveCode: "NTSRSU",
-				moveStatus:  models.MoveStatusSUBMITTED,
+				shipmentMoveCode: "NTSSUB",
+				moveStatus:       models.MoveStatusSUBMITTED,
+				orderStatus:      models.OrderStatusAPPROVED,
 			},
 		)
 	}

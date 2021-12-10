@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http/httptest"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -45,14 +46,10 @@ type NamedScenario struct {
 }
 
 type sceneOptionsNTS struct {
-	ntsType     string
-	ntsMoveCode string
-	moveStatus  models.MoveStatus
+	shipmentMoveCode string
+	moveStatus       models.MoveStatus
+	orderStatus      models.OrderStatus
 }
-
-// UUIDList is an Array of seven UUIDs strings related to shipment types.
-// This is mostly used for NTS-Shipments today.
-type UUIDList [7]string
 
 // May15TestYear is a May 15 of TestYear
 var May15TestYear = time.Date(testdatagen.TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
@@ -71,26 +68,6 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
-
-var NTSList UUIDList = [7]string{
-	"583cfbe1-cb34-4381-9e1f-54f68200da1b",
-	"e6e40998-36ff-4d23-93ac-07452edbe806",
-	"f4503551-b636-41ee-b4bb-b05d55d0e856",
-	"06578216-3e9d-4c11-80bf-f7acfd4e7a4f",
-	"1bdbb940-0326-438a-89fb-aa72e46f7c72",
-	"5afaaa39-ca7d-4403-b33a-262586ad64f6",
-	"eecc3b59-7173-4ddd-b826-6f11f15338d9",
-}
-
-var NTSRList UUIDList = [7]string{
-	"80da86f3-9dac-4298-8b03-b753b443668e",
-	"947645ca-06d6-4be9-82fe-3d7bd0a5792d",
-	"a1ed9091-e44c-410c-b028-78589dbc0a77",
-	"52d03f2c-179e-450a-b726-23cbb99304b9",
-	"2675ed07-4f1e-44fd-995f-f6d6e5c461b0",
-	"d95ba5b9-af82-417a-b901-b25d34ce79fa",
-	"2068f14e-4a04-420e-a7e1-b8a89683bbe8",
-}
 
 func createPPMOfficeUser(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
@@ -861,35 +838,33 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS) {
 	db := appCtx.DB()
-	/*
-	 * A service member with an NTS, NTS-release shipment, & unsubmitted move
-	 */
-	var uuids UUIDList
-	if opts.ntsType == "NTS" {
-		uuids = NTSList
-	} else if opts.ntsType == "NTSList" {
-		uuids = NTSRList
-	}
 
-	email := fmt.Sprintf("nts.%s@nstr.unsubmitted", opts.ntsType)
-	uuidStr := uuids[0]
+	// Generate some UUIDs for everything needed to create these types of moves.
+	uuidUser := uuid.Must(uuid.NewV4())
+	uuidServiceMember := uuid.Must(uuid.NewV4())
+	uuidMove := uuid.Must(uuid.NewV4())
+	uuidMTOShipmentNTS := uuid.Must(uuid.NewV4())
+	uuidMTOShipmentNTSR := uuid.Must(uuid.NewV4())
+	uuidMTOAgentReleasing := uuid.Must(uuid.NewV4())
+	uuidMTOAgentReceiving := uuid.Must(uuid.NewV4())
+
+	email := fmt.Sprintf("nts.%s@nstr.%s", opts.shipmentMoveCode, opts.moveStatus)
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            uuidUser,
 			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
+			LoginGovEmail: strings.ToLower(email),
 			Active:        true,
 		},
 	})
 
-	smWithNTSID := uuids[1]
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smWithNTSID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Unsubmitted"),
+			ID:            uuidServiceMember,
+			UserID:        uuidUser,
+			FirstName:     models.StringPointer(strings.ToTitle(string(opts.moveStatus))),
 			LastName:      models.StringPointer("Nts&Nts-r"),
 			Edipi:         models.StringPointer("5833908155"),
 			PersonalEmail: models.StringPointer(email),
@@ -899,12 +874,13 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
+			ServiceMemberID: uuidServiceMember,
 			ServiceMember:   smWithNTS,
+			Status:          opts.orderStatus,
 		},
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil(uuids[2]),
-			Locator:          opts.ntsMoveCode,
+			ID:               uuidMove,
+			Locator:          opts.shipmentMoveCode,
 			SelectedMoveType: &selectedMoveType,
 			Status:           opts.moveStatus,
 		},
@@ -915,7 +891,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS
 	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil(uuids[3]),
+			ID:                   uuidMTOShipmentNTS,
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
@@ -928,7 +904,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuid.FromStringOrNil(uuids[4]),
+			ID:           uuidMTOAgentReleasing,
 			MTOAgentType: models.MTOAgentReleasing,
 		},
 	})
@@ -936,7 +912,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS
 	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil(uuids[5]),
+			ID:                   uuidMTOShipmentNTSR,
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
@@ -950,7 +926,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuid.FromStringOrNil(uuids[6]),
+			ID:           uuidMTOAgentReceiving,
 			MTOAgentType: models.MTOAgentReceiving,
 		},
 	})
