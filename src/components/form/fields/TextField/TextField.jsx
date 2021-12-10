@@ -42,7 +42,7 @@ const TextField = ({
   });
 
   return (
-    <FormGroup className={formGroupClasses} error={showError}>
+    <div error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
@@ -59,7 +59,7 @@ const TextField = ({
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <TextInput id={id} name={name} {...fieldProps} {...inputProps} />
-    </FormGroup>
+    </div>
   );
 };
 
