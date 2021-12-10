@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { useField } from 'formik';
-import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
+import { Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
@@ -42,7 +42,7 @@ const TextField = ({
   });
 
   return (
-    <div error={showError}>
+    <div className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
