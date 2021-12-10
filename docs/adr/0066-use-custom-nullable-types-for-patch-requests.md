@@ -2,7 +2,7 @@
 
 **User Story:** [MB-10592](https://dp3.atlassian.net/browse/MB-10592)
 
-There are several instances within the milmove app where a user will need to delete a field or reset a field to null on an object. Currently using patch requests this is not possible because there is no way to differentiate between a field that was omitted or a JSON field that is intentially set to null. Go-swagger maps the existing yaml type pointers to Go primative types, where nil could mean omitted or set to null. 
+There are several instances within the milmove app where a user will need to delete a field or reset a field to null on an object. Currently using patch requests this is not possible because there is no way to differentiate between a field that was omitted or a JSON field that is intentially set to null. Go-swagger maps the existing yaml type pointers to Go primative types, where nil could mean omitted or set to null.
 
 ## Considered Alternatives
 
