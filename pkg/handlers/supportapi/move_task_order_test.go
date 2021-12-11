@@ -51,10 +51,10 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 	handler := ListMTOsHandler{
-		HandlerContext:       context,
+		HandlerConfig:        handlerConfig,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
@@ -72,11 +72,11 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 	suite.Run("successfully hide fake moves", func() {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			context,
+			handlerConfig,
 			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			context,
+			handlerConfig,
 			mockHider,
 		}
 
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			context,
+			handlerConfig,
 			mockHider,
 		}
 		mockHider.On("Hide",
@@ -170,13 +170,13 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
-	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
+	handler := MakeMoveTaskOrderAvailableHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
@@ -198,8 +198,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		MoveTaskOrderID: move.ID.String(),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := GetMoveTaskOrderHandlerFunc{context,
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
@@ -277,7 +277,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	setupHandler := func() CreateMoveTaskOrderHandler {
 		return CreateMoveTaskOrderHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 	}
@@ -362,7 +362,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
-		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
@@ -574,7 +575,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			Body:        mtoPayload,
 		}
 
-		handler := CreateMoveTaskOrderHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handler := CreateMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 

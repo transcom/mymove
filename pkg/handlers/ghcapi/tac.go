@@ -16,7 +16,7 @@ import (
 
 // TacValidationHandler validates a TAC value
 type TacValidationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle accepts the TAC value and returns a payload showing if it is valid

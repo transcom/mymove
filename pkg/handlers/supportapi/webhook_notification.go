@@ -16,7 +16,7 @@ import (
 
 // ReceiveWebhookNotificationHandler passes through a message
 type ReceiveWebhookNotificationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle receipt of message
@@ -47,7 +47,7 @@ func (h ReceiveWebhookNotificationHandler) Handle(params webhookops.ReceiveWebho
 
 // CreateWebhookNotificationHandler is the interface to handle the createWebhookNotification
 type CreateWebhookNotificationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle handles the endpoint request to the createWebhookNotification handler

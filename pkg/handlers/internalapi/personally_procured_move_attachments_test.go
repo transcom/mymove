@@ -33,12 +33,12 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	suite.Equal(count, ctx.PageCount)
 }
 
-func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+func (suite *HandlerSuite) createHandlerContext() handlers.HandlerConfig {
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
+	handlerConfig.SetFileStorer(fakeS3)
 
-	return context
+	return handlerConfig
 }
 
 func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		suite.Run(test.name, func() {
 			officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 			// Context gives us our file storer and filesystem
-			context := suite.createHandlerContext()
+			handlerConfig := suite.createHandlerContext()
 
 			ppm := testdatagen.MakeDefaultPPM(suite.DB())
 			expDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{
@@ -78,11 +78,11 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			suite.NoError(err)
 			// Backfill the uploaded orders file in filesystem
 			uploadedOrdersUpload := ppm.Move.Orders.UploadedOrders.UserUploads[0].Upload
-			_, err = context.FileStorer().Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum, nil)
+			_, err = handlerConfig.FileStorer().Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum, nil)
 			suite.NoError(err)
 
 			// Create upload for expense document model
-			userUploader, err := uploader.NewUserUploader(context.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
+			userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 			suite.NoError(err)
 			//RA Summary: gosec - errcheck - Unchecked return value
 			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 				DocTypes:                 docTypesToFetch,
 			}
 
-			handler := CreatePersonallyProcuredMoveAttachmentsHandler{context}
+			handler := CreatePersonallyProcuredMoveAttachmentsHandler{handlerConfig}
 			response := handler.Handle(params)
 			// assert we got back the 201 response
 			suite.IsNotErrResponse(response)
@@ -117,11 +117,11 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			attachmentsURL := string(*createdPDFPayload.URL)
 			uploadKey := uploadKeyRe.FindStringSubmatch(attachmentsURL)[1]
 
-			merged, err := context.FileStorer().Fetch(uploadKey)
+			merged, err := handlerConfig.FileStorer().Fetch(uploadKey)
 			suite.NoError(err)
 			mergedFile := merged.(afero.File)
 
-			suite.assertPDFPageCount(test.expectedPages, mergedFile, context.FileStorer())
+			suite.assertPDFPageCount(test.expectedPages, mergedFile, handlerConfig.FileStorer())
 		})
 	}
 }

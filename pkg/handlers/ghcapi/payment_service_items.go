@@ -24,7 +24,7 @@ import (
 
 // UpdatePaymentServiceItemStatusHandler updates payment service item status
 type UpdatePaymentServiceItemStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentServiceItemStatusUpdater
 }
 

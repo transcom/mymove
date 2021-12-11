@@ -63,7 +63,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
 type CreateServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... creates a new ServiceMember from a request payload
@@ -136,7 +136,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
 type ShowServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
@@ -158,7 +158,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
 type PatchServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Check to see if a move is in draft state. If there are no orders, then the
@@ -305,7 +305,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 
 // ShowServiceMemberOrdersHandler returns latest orders for a logged in serviceMember
 type ShowServiceMemberOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves orders for a logged in service member
