@@ -39,16 +39,16 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
-			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
 		case apperror.InvalidInputError:
-			payload := payloads.ValidationError("The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
+			payload := payloads.ValidationError("The information you provided is invalid", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		default:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 

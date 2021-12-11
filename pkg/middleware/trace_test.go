@@ -6,19 +6,20 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/handlers/mocks"
-
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 func (suite *testSuite) TestTrace() {
-	handlerContext := mocks.HandlerContext{}
-	handlerContext.On("SetTraceID", mock.Anything).Return(nil)
 	mw := Trace(suite.logger)
 	rr := httptest.NewRecorder()
-	suite.do(mw, suite.trace, rr, httptest.NewRequest("GET", testURL, nil))
+	req := httptest.NewRequest("GET", testURL, nil)
+	traceID, err := uuid.NewV4()
+	suite.NoError(err, "Error creating a new trace ID.")
+	req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+	suite.do(mw, suite.trace, rr, req)
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
 	suite.NoError(err)           // check that you could read full body

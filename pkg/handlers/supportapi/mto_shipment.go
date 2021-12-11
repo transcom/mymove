@@ -41,16 +41,16 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 
 		switch e := err.(type) {
 		case apperror.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(
-				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		case apperror.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 
