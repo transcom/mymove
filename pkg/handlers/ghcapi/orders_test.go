@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
-	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 	suite.NotNil(order.NewDutyStation)
 	payloadEntitlement := ordersPayload.Entitlement
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
-	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
+	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
 	suite.NotZero(order.OriginDutyStation)
 	suite.NotZero(ordersPayload.DateIssued)
 }
@@ -161,12 +161,12 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 type updateOrderHandlerAmendedUploadSubtestData struct {
-	handlerContext         handlers.HandlerContext
-	userUploader           *uploader.UserUploader
-	amendedOrder           models.Order
-	approvalsRequestedMove models.Move
-	originDutyStation      models.DutyStation
-	destinationDutyStation models.DutyStation
+	handlerContext          handlers.HandlerContext
+	userUploader            *uploader.UserUploader
+	amendedOrder            models.Order
+	approvalsRequestedMove  models.Move
+	originDutyLocation      models.DutyStation
+	destinationDutyLocation models.DutyStation
 }
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (subtestData *updateOrderHandlerAmendedUploadSubtestData) {
@@ -198,8 +198,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
-	subtestData.originDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
-	subtestData.destinationDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
+	subtestData.originDutyLocation = testdatagen.MakeDefaultDutyStation(suite.DB())
+	subtestData.destinationDutyLocation = testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	return subtestData
 }
@@ -226,8 +226,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
 		userUploader := subtestData.userUploader
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyLocation := subtestData.destinationDutyLocation
+		originDutyLocation := subtestData.originDutyLocation
 
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
@@ -261,8 +261,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
-			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
-			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyLocation.ID),
+			OriginDutyLocationID:  handlers.FmtUUID(originDutyLocation.ID),
 			Tac:                   handlers.FmtString("E19A"),
 			Sac:                   handlers.FmtString("987654321"),
 			NtsTac:                handlers.FmtString("E19A"),
@@ -297,8 +297,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		ordersPayload := orderOK.Payload
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -320,8 +320,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	suite.Run("Does not update move status if orders are not acknowledged", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyLocation := subtestData.destinationDutyLocation
+		originDutyLocation := subtestData.originDutyLocation
 		amendedOrder := subtestData.amendedOrder
 		approvalsRequestedMove := subtestData.approvalsRequestedMove
 
@@ -336,8 +336,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
-			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
-			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyLocation.ID),
+			OriginDutyLocationID:  handlers.FmtUUID(originDutyLocation.ID),
 			Tac:                   handlers.FmtString("E19A"),
 			Sac:                   handlers.FmtString("987654321"),
 			NtsTac:                handlers.FmtString("E19A"),
@@ -385,25 +385,25 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyLocation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyLocation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	subtestData.body = &ghcmessages.UpdateOrderPayload{
-		DepartmentIndicator: &deptIndicator,
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
-		OrdersTypeDetail:    &ordersTypeDetail,
-		OrdersNumber:        handlers.FmtString("ORDER100"),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
-		NtsTac:              handlers.FmtString("E19A"),
-		NtsSac:              handlers.FmtString("987654321"),
+		DepartmentIndicator:  &deptIndicator,
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
+		OrdersTypeDetail:     &ordersTypeDetail,
+		OrdersNumber:         handlers.FmtString("ORDER100"),
+		NewDutyLocationID:    handlers.FmtUUID(destinationDutyLocation.ID),
+		OriginDutyLocationID: handlers.FmtUUID(originDutyLocation.ID),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("987654321"),
+		NtsTac:               handlers.FmtString("E19A"),
+		NtsSac:               handlers.FmtString("987654321"),
 	}
 
 	return subtestData
@@ -445,8 +445,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -679,19 +679,19 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 	subtestData.order = subtestData.move.Orders
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyLocation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyLocation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
-		NtsTac:              handlers.FmtString("E19A"),
-		NtsSac:              handlers.FmtString("987654321"),
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
+		NewDutyLocationID:    handlers.FmtUUID(destinationDutyLocation.ID),
+		OriginDutyLocationID: handlers.FmtUUID(originDutyLocation.ID),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("987654321"),
+		NtsTac:               handlers.FmtString("E19A"),
+		NtsSac:               handlers.FmtString("987654321"),
 	}
 
 	return subtestData
@@ -731,8 +731,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)

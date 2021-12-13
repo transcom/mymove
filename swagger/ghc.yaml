@@ -1918,7 +1918,7 @@ paths:
             - locator
             - status
             - originDutyLocation
-            - destinationDutyStation
+            - destinationDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1943,7 +1943,7 @@ paths:
           name: originDutyLocation
           type: string
         - in: query
-          name: destinationDutyStation
+          name: destinationDutyLocation
           type: string
         - in: query
           name: status
@@ -2026,7 +2026,7 @@ paths:
           name: dodID
           type: string
         - in: query
-          name: destinationDutyStation
+          name: destinationDutyLocation
           type: string
         - in: query
           name: originDutyLocation
@@ -2517,10 +2517,10 @@ definitions:
         $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2608,11 +2608,11 @@ definitions:
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2644,8 +2644,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - originDutyStationId
-      - newDutyStationId
+      - originDutyLocationId
+      - newDutyLocationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -2665,11 +2665,11 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2715,8 +2715,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - newDutyStationId
-      - originDutyStationId
+      - newDutyLocationId
+      - originDutyLocationId
   UpdateAllowancePayload:
     type: object
     properties:
@@ -2862,11 +2862,11 @@ definitions:
         $ref: '#/definitions/Address'
       pickupAddress:
         $ref: '#/definitions/Address'
-      destinationDutyStation:
+      destinationDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      originDutyStation:
+      originDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
@@ -3844,9 +3844,9 @@ definitions:
       shipmentsCount:
         type: integer
       originDutyLocation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
   QueueMovesResult:
@@ -3895,7 +3895,7 @@ definitions:
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
   QueuePaymentRequests:
     type: array
     items:
@@ -4124,7 +4124,7 @@ definitions:
       - city
       - state
       - postalCode
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:

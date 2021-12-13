@@ -41,18 +41,18 @@ type ExcessWeightRiskManager interface {
 
 // ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders
 type ListOrderParams struct {
-	Branch                 *string
-	Locator                *string
-	DodID                  *string
-	LastName               *string
-	DestinationDutyStation *string
-	OriginDutyLocation     *string
-	OriginGBLOC            *string
-	SubmittedAt            *time.Time
-	RequestedMoveDate      *string
-	Status                 []string
-	Page                   *int64
-	PerPage                *int64
-	Sort                   *string
-	Order                  *string
+	Branch                  *string
+	Locator                 *string
+	DodID                   *string
+	LastName                *string
+	DestinationDutyLocation *string
+	OriginDutyLocation      *string
+	OriginGBLOC             *string
+	SubmittedAt             *time.Time
+	RequestedMoveDate       *string
+	Status                  []string
+	Page                    *int64
+	PerPage                 *int64
+	Sort                    *string
+	Order                   *string
 }

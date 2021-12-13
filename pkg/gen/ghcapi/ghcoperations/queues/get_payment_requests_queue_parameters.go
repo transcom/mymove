@@ -41,7 +41,7 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	DestinationDutyStation *string
+	DestinationDutyLocation *string
 	/*
 	  In: query
 	*/
@@ -101,8 +101,8 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
-	qDestinationDutyStation, qhkDestinationDutyStation, _ := qs.GetOK("destinationDutyStation")
-	if err := o.bindDestinationDutyStation(qDestinationDutyStation, qhkDestinationDutyStation, route.Formats); err != nil {
+	qDestinationDutyLocation, qhkDestinationDutyLocation, _ := qs.GetOK("destinationDutyLocation")
+	if err := o.bindDestinationDutyLocation(qDestinationDutyLocation, qhkDestinationDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -179,8 +179,8 @@ func (o *GetPaymentRequestsQueueParams) bindBranch(rawData []string, hasKey bool
 	return nil
 }
 
-// bindDestinationDutyStation binds and validates parameter DestinationDutyStation from query.
-func (o *GetPaymentRequestsQueueParams) bindDestinationDutyStation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindDestinationDutyLocation binds and validates parameter DestinationDutyLocation from query.
+func (o *GetPaymentRequestsQueueParams) bindDestinationDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -192,7 +192,7 @@ func (o *GetPaymentRequestsQueueParams) bindDestinationDutyStation(rawData []str
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.DestinationDutyStation = &raw
+	o.DestinationDutyLocation = &raw
 
 	return nil
 }
