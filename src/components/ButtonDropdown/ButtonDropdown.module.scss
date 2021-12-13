@@ -1,27 +1,27 @@
-@import '../../shared/styles/colors';
+@import 'shared/styles/colors.scss';
 
 .ButtonDropdown {
-  color: white;
-  background-color: $primary;
-  background-image: none;
-  border: 0;
-  border-radius: 4px;
-  text-align: left;
-  padding-right: 2.9rem;
-  &:hover {
-    background-color: $primary-dark;
-  }
-}
-
-.ButtonDropdownWrapper {
   position: relative;
-}
-
-.ButtonDropdownIcon {
-  position: absolute;
-  right: 1rem;
-  top: 1.2rem;
-  font-size: 1.3rem;
-  color: white;
-  pointer-events: none;
+  display: inline-block;
+  .ButtonDropDownSelect {
+    color: white;
+    background-color: $primary;
+    background-image: none;
+    border: 0;
+    border-radius: 4px;
+    text-align: left;
+    padding-right: 40px;
+    padding-left: 16px;
+    &:hover {
+      background-color: $primary-dark;
+    }
+  }
+  .ButtonDropdownIcon {
+    position: absolute;
+    right: 16px;
+    top: 21px;
+    font-size: 18px;
+    color: white;
+    pointer-events: none;
+  }
 }

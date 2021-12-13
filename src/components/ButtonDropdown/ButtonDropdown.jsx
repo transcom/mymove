@@ -7,8 +7,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ButtonDropdown.module.scss';
 
 const ButtonDropdown = ({ children, onChange, ariaLabel }) => (
-  <div className={styles.ButtonDropdownWrapper}>
-    <Dropdown aria-label={ariaLabel} onChange={onChange} className={classnames(styles.ButtonDropdown, 'usa-button')}>
+  <div className={styles.ButtonDropdown}>
+    <Dropdown
+      aria-label={ariaLabel}
+      onChange={onChange}
+      className={classnames(styles.ButtonDropDownSelect, 'usa-button')}
+    >
       {children}
     </Dropdown>
     <FontAwesomeIcon className={styles.ButtonDropdownIcon} icon="sort" />
