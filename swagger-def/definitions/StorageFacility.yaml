@@ -8,7 +8,7 @@ properties:
   facilityName:
     type: string
   address:
-    $ref: '../ghc.yaml#/definitions/Address'
+    $ref: 'Address.yaml'
   lotNumber:
     type: string
     x-nullable: true
