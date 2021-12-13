@@ -1,0 +1,16 @@
+{
+  "office_users": {
+    "numRowsInserted": 0,
+    "numRowsUpdated": 0,
+    "numRowsDeleted": 0,
+    "removedRows": [],
+    "addedRows": []
+  },
+  "users": {
+    "numRowsInserted": 0,
+    "numRowsUpdated": 0,
+    "numRowsDeleted": 0,
+    "removedRows": [],
+    "addedRows": []
+  }
+}

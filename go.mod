@@ -59,6 +59,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
+	github.com/trussworks/httpbaselinetest v0.0.0-20220422203728-5b0a51249c8c
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
 	github.com/vektra/mockery/v2 v2.14.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
@@ -85,6 +86,7 @@ require (
 	golang.org/x/tools v0.1.12
 	gotest.tools/gotestsum v1.8.2
 	pault.ag/go/pksigner v1.0.2
+
 )
 
 require (
@@ -111,6 +113,7 @@ require (
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobuffalo/attrs v1.0.2 // indirect
 	github.com/gobuffalo/genny/v2 v2.0.12 // indirect
@@ -170,6 +173,8 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
+	github.com/romanyx/jwalk v1.0.0 // indirect
+	github.com/romanyx/polluter v1.2.2 // indirect
 	github.com/rs/zerolog v1.27.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shabbyrobe/xmlwriter v0.0.0-20200208144257-9fca06d00ffa // indirect

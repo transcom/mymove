@@ -1,0 +1,19 @@
+HTTP/1.1 307 Temporary Redirect
+Cache-Control: no-cache, no-store, must-revalidate
+Cache-Control: no-cache="Set-Cookie"
+Content-Security-Policy: frame-ancestors 'none'
+Content-Type: text/html; charset=utf-8
+Location: http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&nonce=32KFVI5z3NrU-CxK7sUegi4aOzJ-A-rHhLUeRozvoHE-ObbxEUfxmHAN5yCmHeKNQPhJIyVbxyuYragZx_bGsA%3D%3D&scope=openid+email&state=32KFVI5z3NrU-CxK7sUegi4aOzJ-A-rHhLUeRozvoHE-ObbxEUfxmHAN5yCmHeKNQPhJIyVbxyuYragZx_bGsA%3D%3D
+Set-Cookie: _gorilla_csrf=MTYzOTQxNzk2OXxJbmhZWlZjclFtOVdkMFZ3UkVGclFsaDNNa2QzWTJ4dlZtbG9PRlZoYlRCclFVWjZXSG9yUW14WmJVRTlJZ289fOhsTOjAtYnG7En0c-brKdp-hYkvszHdEOYoD24R_GDO; Path=/; Expires=Tue, 14 Dec 2021 05:52:49 GMT; Max-Age=43200; HttpOnly; SameSite=Lax
+Set-Cookie: masked_gorilla_csrf=Az6at6D39M4CIskd7QY7dZLUuL82oiAGBsIaa6bu0avGSQxPuuI0hEEgiUouZ4sHyMEyoCLITSIGns2kRouzyw==; Path=/; SameSite=Lax
+Set-Cookie: office_lg_state=ae003ac99f6f4159512f7e13729d75bbfdee27be8b304beb1f03968ae0557580; Path=/; Expires=Mon, 13 Dec 2021 18:22:49 GMT; Max-Age=1800; HttpOnly; SameSite=Lax
+Set-Cookie: office_session_token=xX32yba9_N0PBBwnEfwIKxnG7CV7ZM2x2yAbbx7txD0; Path=/; HttpOnly; SameSite=Lax
+Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
+Vary: Cookie
+Vary: Cookie
+X-Frame-Options: deny
+X-Milmove-Trace-Id: e0630aca-6f43-4333-8b5f-ba901a1d0044
+X-Xss-Protection: 1; mode=block
+
+<a href="http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&amp;nonce=32KFVI5z3NrU-CxK7sUegi4aOzJ-A-rHhLUeRozvoHE-ObbxEUfxmHAN5yCmHeKNQPhJIyVbxyuYragZx_bGsA%3D%3D&amp;scope=openid+email&amp;state=32KFVI5z3NrU-CxK7sUegi4aOzJ-A-rHhLUeRozvoHE-ObbxEUfxmHAN5yCmHeKNQPhJIyVbxyuYragZx_bGsA%3D%3D">Temporary Redirect</a>.
+
