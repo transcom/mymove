@@ -23,7 +23,7 @@ const Contact = ({ header, dutyStationName, officeType, telephone }) => (
       {telephone && <span>{telephone}</span>}
     </p>
     <p>
-      For government support of information, consult Military OneSource&apos;s{' '}
+      For government support or information, consult Military OneSource&apos;s{' '}
       <USWDSLink
         target="_blank"
         rel="noopener noreferrer"
