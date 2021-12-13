@@ -16,7 +16,7 @@ references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
