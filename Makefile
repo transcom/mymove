@@ -1118,7 +1118,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93
+	docker pull milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-86f3163991b707d1351cc01d2c9cdc2dbaae4e93 bash
 
 .PHONY: prune_images
