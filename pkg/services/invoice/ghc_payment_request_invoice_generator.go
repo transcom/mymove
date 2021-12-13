@@ -205,7 +205,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
-		Eager("MTOServiceItem.ReService").
+		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		Where("status = ?", models.PaymentServiceItemStatusApproved).
 		All(&paymentServiceItems)
@@ -560,10 +560,32 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) (edisegment.FA1, edisegment.FA2, error) {
-	if orders.TAC == nil || *orders.TAC == "" {
-		return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have a TAC value")
+func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order, shipment models.MTOShipment) (edisegment.FA1, edisegment.FA2, error) {
+	// We need to determine which TAC to use. We'll default to using the HHG TAC as that's what we've been doing
+	// up to this point. But now we need to look at the service item's MTOShipment (if there is one -- some
+	// service items like MS/CS aren't associated with a shipment) and see if it prefers the NTS TAC instead.
+	useHHGTac := true
+	if shipment.ID != uuid.Nil {
+		// We do have a shipment, so see if the shipment prefers the NTS TAC.
+		if shipment.TACType != nil && *shipment.TACType == models.LOATypeNTS {
+			useHHGTac = false
+		}
 	}
+
+	// Now grab the preferred TAC, making sure that it actually exists on the orders record.
+	var tac string
+	if useHHGTac {
+		if orders.TAC == nil || *orders.TAC == "" {
+			return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have an HHG TAC value")
+		}
+		tac = *orders.TAC
+	} else {
+		if orders.NtsTAC == nil || *orders.NtsTAC == "" {
+			return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have an NTS TAC value")
+		}
+		tac = *orders.NtsTAC
+	}
+
 	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
 
@@ -577,7 +599,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 
 	fa2 := edisegment.FA2{
 		BreakdownStructureDetailCode: "TA",
-		FinancialInformationCode:     *orders.TAC,
+		FinancialInformationCode:     tac,
 	}
 
 	return fa1, fa2, nil
@@ -728,7 +750,8 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
-			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
+			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT,
+			models.ReServiceCodeDNPK:
 			var err error
 			weight, err := g.getWeightParams(appCtx, serviceItem)
 			if err != nil {
@@ -820,7 +843,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 
 		}
 
-		fa1, fa2, err := g.createLoaSegments(orders)
+		fa1, fa2, err := g.createLoaSegments(orders, serviceItem.MTOServiceItem.MTOShipment)
 		if err != nil {
 			return segments, l3, err
 		}
