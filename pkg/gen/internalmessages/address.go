@@ -29,6 +29,9 @@ type Address struct {
 	// Example: USA
 	Country *string `json:"country,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
