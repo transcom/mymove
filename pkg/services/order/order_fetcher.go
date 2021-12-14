@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -43,12 +44,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
 	// query from modular parts.
 
-	branchQuery := branchFilter(params.Branch)
+	// The services counselot queue does not base exclude marine results.
+	// Only the TIO and TOO queues should.
+	isCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
+	branchQuery := branchFilter(params.Branch, isCounselor)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
-	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+	if officeUserGbloc == "USMC" && !isCounselor {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
 		gblocQuery = gblocFilter(params.OriginGBLOC)
 	} else {
 		gblocQuery = gblocFilter(&officeUserGbloc)
@@ -80,6 +84,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
+		InnerJoin("addresses as origin_add", "origin_add.id = origin_ds.address_id").
+		LeftJoin("postal_code_to_gbloc as pcg", "pcg.postal_code = origin_add.postal_code").
 		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
@@ -185,9 +191,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string) QueryOption {
+func branchFilter(branch *string, isCounselor bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil {
+		if branch == nil && !isCounselor {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
@@ -278,6 +284,7 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
+// Need to fix GBLOC for services counselor
 func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
