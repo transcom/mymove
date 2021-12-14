@@ -276,7 +276,7 @@ const MoveDetails = ({
                   </Tag>
                 )}
                 {s === 'requested-shipments' && shipmentMissingRequiredInformation && (
-                  <Tag className="usa-tag usa-tag--alert">
+                  <Tag className="usa-tag usa-tag--alert" data-testid="shipment-missing-info-alert">
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
