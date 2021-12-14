@@ -687,4 +687,4 @@
 20211123155748_domestic_nts_packing_metadata.up.sql
 20211202213138_index_user_roles_table.up.sql
 20211207193349_fix_optional_dnpk_params.up.sql
-20211209182000_add_nts_reference_weight.up.sql
+20211209182000_add_nts_recorded_weight.up.sql
