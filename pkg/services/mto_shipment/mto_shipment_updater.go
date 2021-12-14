@@ -92,6 +92,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
+	if requestedUpdatedShipment.NTSRecordedWeight != nil {
+		dbShipment.NTSRecordedWeight = requestedUpdatedShipment.NTSRecordedWeight
+	}
+
 	if requestedUpdatedShipment.PickupAddress != nil {
 		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
@@ -619,6 +623,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.PrimeEstimatedWeight,
 		mtoShipment.PrimeEstimatedWeightRecordedDate,
 		mtoShipment.PrimeActualWeight,
+		mtoShipment.NTSRecordedWeight,
 		mtoShipment.ShipmentType,
 		mtoShipment.ActualPickupDate,
 		mtoShipment.ApprovedDate,
@@ -653,6 +658,7 @@ func generateUpdateMTOShipmentQuery() string {
 			prime_estimated_weight = ?,
 			prime_estimated_weight_recorded_date = ?,
 			prime_actual_weight = ?,
+            nts_recorded_weight = ?,
 			shipment_type = ?,
 			actual_pickup_date = ?,
 			approved_date = ?,
