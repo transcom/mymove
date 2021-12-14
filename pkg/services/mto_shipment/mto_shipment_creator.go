@@ -57,7 +57,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Check that only NTS Release shipment uses that NTSRecordedWeight field
 	if shipment.NTSRecordedWeight != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Field NTSRecordedWeight cannot be set for shipment type "+string(shipment.ShipmentType))
+		errMessage := fmt.Sprintf("field NTSRecordedWeight cannot be set for shipment type %s", string(shipment.ShipmentType))
+		return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, errMessage)
 	}
 
 	var move models.Move

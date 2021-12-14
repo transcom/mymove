@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -296,13 +297,14 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
-		actualWeight := unit.Pound(*mtoShipment.PrimeActualWeight)
-		model.PrimeActualWeight = &actualWeight
+		actualWeight := handlers.PoundPtrFromInt64Ptr(mtoShipment.PrimeActualWeight)
+		model.PrimeActualWeight = actualWeight
 	}
 
 	if mtoShipment.NtsRecordedWeight != nil {
-		ntsRecordedWeight := unit.Pound(*mtoShipment.NtsRecordedWeight)
-		model.NTSRecordedWeight = &ntsRecordedWeight
+		// ntsRecordedWeight := unit.Pound(*mtoShipment.NtsRecordedWeight)
+		ntsRecordedWeight := handlers.PoundPtrFromInt64Ptr(mtoShipment.NtsRecordedWeight)
+		model.NTSRecordedWeight = ntsRecordedWeight
 	}
 
 	storageFacilityModel := StorageFacilityModel(mtoShipment.StorageFacility)

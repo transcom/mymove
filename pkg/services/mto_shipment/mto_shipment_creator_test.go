@@ -227,7 +227,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		// We don't need the shipment because it only returns data that wasn't saved.
 		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
 
-		suite.Error(err, "Field NTSRecordedWeight cannot be set for shipment type HHG")
+		suite.Error(err, "field NTSRecordedWeight cannot be set for shipment type HHG")
 	})
 
 	suite.Run("If the shipment has mto service items", func() {

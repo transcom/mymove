@@ -3363,6 +3363,7 @@ definitions:
         example: 2000
         type: integer
         x-nullable: true
+        x-formatting: weight
       scheduledPickupDate:
         format: date
         type: string
@@ -3535,6 +3536,7 @@ definitions:
           was.
         example: 2000
         type: integer
+        x-formatting: weight
         x-nullable: true
       storageFacility:
         x-nullable: true
@@ -3631,6 +3633,7 @@ definitions:
         example: 2000
         type: integer
         x-nullable: true
+        x-formatting: weight
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
