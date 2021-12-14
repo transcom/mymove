@@ -302,7 +302,7 @@ func gblocFilter(gbloc *string) QueryOption {
 func shipmentGBLOCFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("move_to_gbloc.gbloc ILIKE ?", *gbloc)
+			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
 		}
 	}
 }
