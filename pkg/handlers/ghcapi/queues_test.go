@@ -99,15 +99,19 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 
 		// Stub HHG move
 		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
+		hhgMove.ShipmentGBLOC = append(hhgMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
 
 		// Stub HHG_PPM move
 		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
+		hhgPPMMove.ShipmentGBLOC = append(hhgPPMMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
 
 		// Stub NTS move
 		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
+		ntsMove.ShipmentGBLOC = append(ntsMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
 
 		// Stub NTSR move
 		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
+		ntsrMove.ShipmentGBLOC = append(ntsrMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
 
 		var expectedMoves []models.Move
 		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)
