@@ -53,9 +53,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	var gblocQuery QueryOption
 	if officeUserGbloc == "USMC" && !isCounselor {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
-		gblocQuery = gblocFilter(params.OriginGBLOC)
+		gblocQuery = gblocFilter(params.OriginGBLOC, isCounselor)
 	} else {
-		gblocQuery = gblocFilter(&officeUserGbloc)
+		gblocQuery = gblocFilter(&officeUserGbloc, isCounselor)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -90,7 +90,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
-
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
@@ -285,10 +284,14 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 }
 
 // Need to fix GBLOC for services counselor
-func gblocFilter(gbloc *string) QueryOption {
+func gblocFilter(gbloc *string, isCounselor bool) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+			if isCounselor {
+				query.Where("pcg.gbloc ILIKE ?", *gbloc)
+			} else {
+				query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+			}
 		}
 	}
 }
