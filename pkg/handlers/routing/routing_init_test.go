@@ -6,7 +6,9 @@ import (
 	"net/http/httptest"
 	"path"
 	"testing"
+	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
@@ -56,11 +58,13 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	_, err = f.Write([]byte(indexContent))
 	suite.NoError(err)
 
+	mc := clock.NewMock()
+	mc.Set(time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC))
 	rConfig := &Config{
 		FileSystem:     fakeFs,
 		HandlerConfig:  handlerConfig,
 		AuthConfig:     authConfig,
-		CSRFMiddleware: NewFakeCSRFMiddleware(suite.Logger()),
+		CSRFMiddleware: NewFakeCSRFMiddleware(mc, suite.Logger()),
 		BuildRoot:      fakeBase,
 
 		// include all these as true to increase test coverage

@@ -42,7 +42,7 @@ type fakeCsrf struct {
 	st      *cookieStore
 }
 
-func NewFakeCSRFMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
+func NewFakeCSRFMiddleware(clock clock.Clock, logger *zap.Logger) func(http.Handler) http.Handler {
 	fakeHashKey := []byte{0, 1, 2, 3}
 	return func(orig http.Handler) http.Handler {
 		sz := securecookie.JSONEncoder{}
@@ -65,7 +65,7 @@ func NewFakeCSRFMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
 				path:     "/",
 				domain:   "",
 				sc:       sc,
-				clock:    clock.NewMock(),
+				clock:    clock,
 				hashKey:  fakeHashKey,
 				sz:       sz,
 			},

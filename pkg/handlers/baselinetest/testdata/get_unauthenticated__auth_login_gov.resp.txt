@@ -3,11 +3,11 @@ Cache-Control: no-cache, no-store, must-revalidate
 Cache-Control: no-cache="Set-Cookie"
 Content-Security-Policy: frame-ancestors 'none'
 Content-Type: text/html; charset=utf-8
-Location: http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&nonce=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg%3D%3D&scope=openid+email&state=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg%3D%3D
-Set-Cookie: _gorilla_csrf=MHxJa0ZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRTlJZ289fM6taLSWCRsl63fiL02cHoZFBlSIurcBW00O2Jh6OlQF; Path=/; Expires=Thu, 01 Jan 1970 12:00:00 GMT; Max-Age=43200; HttpOnly; SameSite=Lax
+Location: http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&nonce=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D%3D&scope=openid+email&state=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D%3D
+Set-Cookie: _gorilla_csrf=OTQ2NzgyMjQ1fElrRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVFOUlnbz18pDj4Uv8IDj3qoAqZw_AXwAcyLg_oRIVH-LBORXCZHCU=; Path=/; Expires=Sun, 02 Jan 2000 15:04:05 GMT; Max-Age=43200; HttpOnly; SameSite=Lax
 Set-Cookie: masked_gorilla_csrf=; Path=/; SameSite=Lax
-Set-Cookie: office_lg_state=07f9e457b1651247ed93315f31804930463a3ad53eb3d41e5b42a2b1d6442f68; Path=/; Expires=Thu, 01 Jan 1970 00:30:00 GMT; Max-Age=1800; HttpOnly; SameSite=Lax
-Set-Cookie: office_session_token=mnuyrmZEmDORCBNEgBxtXYlq3eJSyP5EGpkcoCexBgA; Path=/; HttpOnly; SameSite=Lax
+Set-Cookie: office_lg_state=5fa0356d33b1265315128dc1d5b9f7573505f343f3e5a00807b48b998c0de83f; Path=/; Expires=Sun, 02 Jan 2000 03:34:05 GMT; Max-Age=1800; HttpOnly; SameSite=Lax
+Set-Cookie: office_session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly; SameSite=Lax
 Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
 Vary: Cookie
 Vary: Cookie
@@ -15,5 +15,5 @@ X-Frame-Options: deny
 X-Milmove-Trace-Id: 00000000-0000-4000-800a-000000000000
 X-Xss-Protection: 1; mode=block
 
-<a href="http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&amp;nonce=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg%3D%3D&amp;scope=openid+email&amp;state=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg%3D%3D">Temporary Redirect</a>.
+<a href="http://fake-login-gov.example.com?acr_values=http%3A%2F%2Fidmanagement.gov%2Fns%2Fassurance%2Floa%2F1&amp;nonce=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D%3D&amp;scope=openid+email&amp;state=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D%3D">Temporary Redirect</a>.
 

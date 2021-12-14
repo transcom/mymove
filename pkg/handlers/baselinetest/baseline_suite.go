@@ -58,9 +58,12 @@ func (suite *BaselineSuite) getSqlxDb() *sqlx.DB {
 func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(suite.appNames)
-	handlerConfig.SetClock(clock.NewMock())
+	mc := clock.NewMock()
+	mc.Set(time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC))
 
-	sessionManagers := auth.SetupSessionManagers(memstore.New(), false,
+	handlerConfig.SetClock(mc)
+
+	sessionManagers := SetupFakeSessionManagers(mc, memstore.New(), false,
 		time.Duration(180), time.Duration(180))
 	handlerConfig.SetAppSessionManagers(sessionManagers)
 
@@ -72,7 +75,7 @@ func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	return &routing.Config{
 		HandlerConfig:  handlerConfig,
 		AuthConfig:     authConfig,
-		CSRFMiddleware: routing.NewFakeCSRFMiddleware(suite.Logger()),
+		CSRFMiddleware: routing.NewFakeCSRFMiddleware(mc, suite.Logger()),
 		BuildRoot:      "fakebase",
 	}
 }
