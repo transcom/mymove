@@ -10,6 +10,7 @@
 package adminapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -157,14 +158,12 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-	sessionManagers := suite.SetupSessionManagers()
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetSessionManagers(sessionManagers)
 
 		return UpdateUserHandler{
 			handlerConfig,
@@ -378,24 +377,27 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		userRevocation := &mocks.UserSessionRevocation{}
 
-		err := validate.NewErrors()
+		verr := validate.NewErrors()
+		verr.Add("fake key", "fake message")
+
+		handler := setupHandler()
+		sessionManagers := handler.HandlerConfig.AppSessionManagers()
 
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
-		).Return(nil, err, nil).Once()
+			sessionManagers.MilSessionManager().Store(),
+		).Return(nil, verr, nil).Once()
 
-		handler := setupHandler()
 		handler.UserSessionRevocation = userRevocation
 
 		suite.NoError(params.User.Validate(strfmt.Default))
 		handler.Handle(params)
-		foundUser, _ := models.GetUser(suite.DB(), user.ID)
+		foundUser, err := models.GetUser(suite.DB(), user.ID)
 
 		// Session update fails, active update succeeds
-		suite.Error(err, "Error saving user")
+		suite.NoError(err, "Error loading user")
 		suite.Equal(false, foundUser.Active)
 	})
 
@@ -431,7 +433,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		// Create a mock updater that returns an error
 		userUpdater := &mocks.UserUpdater{}
-		err := validate.NewErrors()
+		err := errors.New("fake error")
 
 		userUpdater.On("UpdateUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -486,22 +488,26 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// Create a mock that returns error on user session revocationand on user update
 		userUpdater := &mocks.UserUpdater{}
 		userRevocation := &mocks.UserSessionRevocation{}
-		err := validate.NewErrors()
+		verr := validate.NewErrors()
+		verr.Add("fake key", "fake message")
+
+		handler := setupHandler()
+		sessionManagers := handler.HandlerConfig.AppSessionManagers()
 
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
-		).Return(nil, err, nil).Once()
+			sessionManagers.MilSessionManager().Store(),
+		).Return(nil, verr, nil).Once()
 
+		err := errors.New("fake error")
 		userUpdater.On("UpdateUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			user.ID,
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
 
-		handler := setupHandler()
 		handler.UserUpdater = userUpdater
 		handler.UserSessionRevocation = userRevocation
 

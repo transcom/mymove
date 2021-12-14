@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -217,7 +216,7 @@ func currentSessionID(session *auth.Session, user *models.User) string {
 	return ""
 }
 
-func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, sessionManager *scs.SessionManager) error {
+func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, sessionManager auth.SessionManager) error {
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
 	err := sessionManager.RenewToken(ctx)
@@ -243,7 +242,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("user_id", appCtx.Session().UserID.String()))
 
 		// Lookup the old session that wasn't logged out
-		_, exists, err := sessionManager.Store.Find(existingSessionID)
+		_, exists, err := sessionManager.Store().Find(existingSessionID)
 		if err != nil {
 			appCtx.Logger().Error("Error loading previous session", zap.Error(err))
 			return err
@@ -255,7 +254,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("user_id", appCtx.Session().UserID.String()))
 
 			// We need to delete the concurrent session.
-			err := sessionManager.Store.Delete(existingSessionID)
+			err := sessionManager.Store().Delete(existingSessionID)
 			if err != nil {
 				appCtx.Logger().Error("Error deleting previous session", zap.Error(err))
 				return err
@@ -356,26 +355,12 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 	return false
 }
 
-// sessionManager returns the session manager corresponding to the current app.
-// A user can be signed in at the same time across multiple apps.
-func (context Context) sessionManager(session *auth.Session) *scs.SessionManager {
-	if session.IsMilApp() {
-		return context.sessionManagers[0]
-	} else if session.IsAdminApp() {
-		return context.sessionManagers[1]
-	} else if session.IsOfficeApp() {
-		return context.sessionManagers[2]
-	}
-
-	return nil
-}
-
 // Context is the common handler type for auth handlers
 type Context struct {
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
-	sessionManagers  [3]*scs.SessionManager
+	sessionManagers  auth.AppSessionManagers
 }
 
 // FeatureFlag holds the name of a feature flag and if it is enabled
@@ -385,7 +370,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers auth.AppSessionManagers) Context {
 	context := Context{
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
@@ -427,7 +412,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				appCtx.Logger().Error("failed to reset user's current_x_session_id")
 			}
-			err = h.sessionManager(appCtx.Session()).Destroy(r.Context())
+			err = h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session")
 			}
@@ -445,7 +430,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			err := h.sessionManager(appCtx.Session()).Destroy(r.Context())
+			err := h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session", zap.Error(err))
 			}
@@ -608,7 +593,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		appCtx.Logger().Info("lg_state cookie deleted")
 
 		// This operation will delete all cookies from the session
-		err = h.sessionManager(appCtx.Session()).Destroy(r.Context())
+		err = h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
 		if err != nil {
 			appCtx.Logger().Error("Deleting login.gov state cookie", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -768,7 +753,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	appCtx.Session().LastName = userIdentity.LastName()
 	appCtx.Session().Middle = userIdentity.Middle()
 
-	sessionManager := h.sessionManager(appCtx.Session())
+	sessionManager := h.Context.sessionManagers.SessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticating user", zap.Error(authError))
@@ -887,7 +872,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
 
-	sessionManager := h.sessionManager(appCtx.Session())
+	sessionManager := h.Context.sessionManagers.SessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticate user", zap.Error(authError))

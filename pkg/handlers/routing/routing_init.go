@@ -134,7 +134,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	// Session management and authentication middleware
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.GetSessionManagers())
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.AppSessionManagers())
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.UseSecureCookie())
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
@@ -273,9 +273,9 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	root.Use(routingConfig.CSRFMiddleware)
 	root.Use(maskedCSRFMiddleware)
 
-	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetMilSessionManager().LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetAdminSessionManager().LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().OfficeServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetOfficeSessionManager().LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.AppSessionManagers().MilSessionManager().LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.AppSessionManagers().AdminSessionManager().LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().OfficeServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.AppSessionManagers().OfficeSessionManager().LoadAndSave(root))
 
 	if routingConfig.ServeAPIInternal {
 		internalMux := root.PathPrefix("/internal/").Subrouter()

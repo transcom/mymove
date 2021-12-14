@@ -60,15 +60,15 @@ func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	handlerConfig.SetAppNames(suite.appNames)
 	handlerConfig.SetClock(clock.NewMock())
 
-	sessionManagers := auth.SetupSessionManagers(true, memstore.New(), false,
+	sessionManagers := auth.SetupSessionManagers(memstore.New(), false,
 		time.Duration(180), time.Duration(180))
-	handlerConfig.SetSessionManagers(sessionManagers)
+	handlerConfig.SetAppSessionManagers(sessionManagers)
 
 	p := suite.initFakeLoginGovProvider()
 
 	authContext := authentication.NewAuthContext(suite.Logger(),
 		p, "http", 80,
-		handlerConfig.GetSessionManagers())
+		handlerConfig.AppSessionManagers())
 
 	return &routing.Config{
 		HandlerConfig:  handlerConfig,

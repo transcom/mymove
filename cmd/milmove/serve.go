@@ -19,6 +19,8 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
+	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -484,15 +486,17 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	}
 
 	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
-	var sessionStore *redisstore.RedisStore
+	var sessionStore scs.Store
 	if redisEnabled {
 		sessionStore = redisstore.New(redisPool)
+	} else {
+		sessionStore = memstore.New()
 	}
 	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
 	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
 
 	useSecureCookie := !isDevOrTest
-	sessionManagers := auth.SetupSessionManagers(redisEnabled,
+	sessionManagers := auth.SetupSessionManagers(
 		sessionStore, useSecureCookie,
 		sessionIdleTimeout, sessionLifetime)
 	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)

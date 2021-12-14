@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
@@ -16,12 +15,12 @@ import (
 type CookieUpdateResponder struct {
 	session        *auth.Session
 	Responder      middleware.Responder
-	sessionManager *scs.SessionManager
+	sessionManager auth.SessionManager
 	ctx            context.Context
 }
 
 // NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
-func NewCookieUpdateResponder(request *http.Request, responder middleware.Responder, sessionManager *scs.SessionManager, session *auth.Session) middleware.Responder {
+func NewCookieUpdateResponder(request *http.Request, responder middleware.Responder, sessionManager auth.SessionManager, session *auth.Session) middleware.Responder {
 	return &CookieUpdateResponder{
 		session:        session,
 		Responder:      responder,

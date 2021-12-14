@@ -959,7 +959,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	h.sessionManager(session).Put(r.Context(), "session", session)
+	h.Context.sessionManagers.SessionManager(session).Put(r.Context(), "session", session)
 	// Writing out the session cookie logs in the user
 	appCtx.Logger().Info("logged in", zap.Any("session", session))
 	return session, nil

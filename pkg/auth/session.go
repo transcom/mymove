@@ -28,13 +28,92 @@ const (
 	AdminApp Application = "admin"
 )
 
+type SessionManager interface {
+	Get(context.Context, string) interface{}
+	Put(context.Context, string, interface{})
+	Destroy(context.Context) error
+	RenewToken(context.Context) error
+	Commit(context.Context) (string, time.Time, error)
+	LoadAndSave(http.Handler) http.Handler
+	Store() scs.Store
+}
+
+type ScsSessionManagerWrapper struct {
+	ScsSessionManager *scs.SessionManager
+}
+
+func (s ScsSessionManagerWrapper) Get(ctx context.Context, key string) interface{} {
+	return s.ScsSessionManager.Get(ctx, key)
+}
+
+func (s ScsSessionManagerWrapper) Put(ctx context.Context, key string, val interface{}) {
+	s.ScsSessionManager.Put(ctx, key, val)
+}
+
+func (s ScsSessionManagerWrapper) Destroy(ctx context.Context) error {
+	return s.ScsSessionManager.Destroy(ctx)
+}
+
+func (s ScsSessionManagerWrapper) RenewToken(ctx context.Context) error {
+	return s.ScsSessionManager.RenewToken(ctx)
+}
+
+func (s ScsSessionManagerWrapper) Commit(ctx context.Context) (string, time.Time, error) {
+	return s.ScsSessionManager.Commit(ctx)
+}
+
+func (s ScsSessionManagerWrapper) LoadAndSave(next http.Handler) http.Handler {
+	return s.ScsSessionManager.LoadAndSave(next)
+}
+
+func (s ScsSessionManagerWrapper) Store() scs.Store {
+	return s.ScsSessionManager.Store
+}
+
+type AppSessionManagers struct {
+	mil    SessionManager
+	office SessionManager
+	admin  SessionManager
+}
+
+func NewAppSessionManagers(mil SessionManager,
+	office SessionManager,
+	admin SessionManager) AppSessionManagers {
+	return AppSessionManagers{
+		mil:    mil,
+		office: office,
+		admin:  admin,
+	}
+}
+
+func (a AppSessionManagers) SessionManager(session *Session) SessionManager {
+	if session.IsMilApp() {
+		return a.mil
+	} else if session.IsAdminApp() {
+		return a.admin
+	} else if session.IsOfficeApp() {
+		return a.office
+	}
+
+	return nil
+}
+
+func (a AppSessionManagers) MilSessionManager() SessionManager {
+	return a.mil
+}
+
+func (a AppSessionManagers) AdminSessionManager() SessionManager {
+	return a.admin
+}
+
+func (a AppSessionManagers) OfficeSessionManager() SessionManager {
+	return a.office
+}
+
 // SetupSessionManagers configures the session manager for each app: mil, admin,
 // and office. It's necessary to have separate session managers to allow users
 // to be signed in on multiple apps at the same time.
-func SetupSessionManagers(redisEnabled bool, sessionStore scs.Store, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) [3]*scs.SessionManager {
-	if !redisEnabled {
-		return [3]*scs.SessionManager{}
-	}
+func SetupSessionManagers(sessionStore scs.Store, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) AppSessionManagers {
 	var milSession, adminSession, officeSession *scs.SessionManager
 	gob.Register(Session{})
 
@@ -81,7 +160,17 @@ func SetupSessionManagers(redisEnabled bool, sessionStore scs.Store, useSecureCo
 		officeSession.Cookie.Secure = true
 	}
 
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+	return AppSessionManagers{
+		mil: ScsSessionManagerWrapper{
+			ScsSessionManager: milSession,
+		},
+		office: ScsSessionManagerWrapper{
+			ScsSessionManager: officeSession,
+		},
+		admin: ScsSessionManagerWrapper{
+			ScsSessionManager: adminSession,
+		},
+	}
 }
 
 // IsOfficeApp returns true iff the request is for the office.move.mil host
@@ -119,7 +208,7 @@ type Session struct {
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
 func SetSessionInRequestContext(r *http.Request, session *Session) context.Context {
-	return context.WithValue(r.Context(), sessionContextKey, session)
+	return SetSessionInContext(r.Context(), session)
 }
 
 // SetSessionInContext modifies the context to add the session data.

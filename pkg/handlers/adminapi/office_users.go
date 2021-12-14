@@ -269,7 +269,8 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					RevokeOfficeSession: &boolean,
 				}
 
-				sessionStore := h.SessionManager(appCtx.Session()).Store
+				sessionManager := h.AppSessionManagers().SessionManager(appCtx.Session())
+				sessionStore := sessionManager.Store()
 
 				_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
 					appCtx,
@@ -284,10 +285,9 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					return userop.NewUpdateUserInternalServerError(), revokeErr
 				}
 
-				if validationErrors != nil {
+				if validationErrors != nil && validationErrors.HasAny() {
 					err = apperror.NewInternalServerError("Error revoking user session")
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
-					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
 			}
 

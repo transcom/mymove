@@ -49,10 +49,10 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	milSession := sessionManagers[0]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	milSession := sessionManagers.MilSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -88,10 +88,10 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
 
-	sessionManagers := suite.SetupSessionManagers()
-	officeSession := sessionManagers[2]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	officeSession := sessionManagers.OfficeSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	for _, newOfficeUser := range []struct {
@@ -161,10 +161,10 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	adminSession := sessionManagers[1]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	adminSession := sessionManagers.AdminSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -219,10 +219,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
-	sessionManagers := suite.SetupSessionManagers()
-	milSession := sessionManagers[0]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	milSession := sessionManagers.MilSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
@@ -260,10 +260,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	officeSession := sessionManagers[2]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	officeSession := sessionManagers.OfficeSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -295,10 +295,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	adminSession := sessionManagers[1]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	adminSession := sessionManagers.AdminSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -330,10 +330,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	milSession := sessionManagers[0]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	milSession := sessionManagers.MilSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -365,11 +365,11 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
-	adminSession := sessionManagers[1]
+	adminSession := sessionManagers.AdminSessionManager()
 
 	rr := httptest.NewRecorder()
 	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -400,10 +400,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	milSession := sessionManagers[0]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	milSession := sessionManagers.MilSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
@@ -436,10 +436,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	sessionManagers := suite.SetupSessionManagers()
-	officeSession := sessionManagers[2]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	officeSession := sessionManagers.OfficeSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()

@@ -154,10 +154,10 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
-	sessionManagers := suite.SetupSessionManagers()
-	officeSession := sessionManagers[2]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	officeSession := sessionManagers.OfficeSessionManager()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
 
 	rr := httptest.NewRecorder()
@@ -456,10 +456,9 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -499,13 +498,17 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
+	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	officeSession := sessionManagers[2]
+	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert office session wrapper", wrapper)
+	}
+	officeSession := wrapper.ScsSessionManager
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
-	handlerConfig := suite.HandlerConfig()
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -537,9 +540,9 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -589,13 +592,18 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-
-	officeSession := sessionManagers[2]
-	scsContext := setupScsSession(ctx, &session, officeSession)
 
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+
+	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert office session wrapper", wrapper)
+	}
+	officeSession := wrapper.ScsSessionManager
+	scsContext := setupScsSession(ctx, &session, officeSession)
+
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -652,15 +660,20 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 		Hostname:        AdminTestHost,
 	}
 
+	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
+
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	adminSession := sessionManagers[1]
+	wrapper, ok := sessionManagers.AdminSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert admin session wrapper", wrapper)
+	}
+	adminSession := wrapper.ScsSessionManager
 	scsContext := setupScsSession(ctx, &session, adminSession)
 
-	handlerConfig := suite.HandlerConfig()
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -699,13 +712,17 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
+	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	milSession := sessionManagers[0]
+	wrapper, ok := sessionManagers.MilSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert mil session wrapper", wrapper)
+	}
+	milSession := wrapper.ScsSessionManager
 	scsContext := setupScsSession(ctx, &session, milSession)
 
-	handlerConfig := suite.HandlerConfig()
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -759,12 +776,18 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 		IDToken:         fakeToken,
 		Hostname:        MilTestHost,
 	}
-	sessionManagers := suite.SetupSessionManagers()
-	milSession := sessionManagers[0]
+
+	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
 
 	// Prepare the request and set the session in the request context
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", MilTestHost), nil)
 	ctx := auth.SetSessionInRequestContext(req, &session)
+	wrapper, ok := sessionManagers.MilSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert mil session wrapper", wrapper)
+	}
+	milSession := wrapper.ScsSessionManager
 	scsContext := setupScsSession(ctx, &session, milSession)
 
 	// Prepare the callback handler
@@ -772,7 +795,6 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
-	handlerConfig := suite.HandlerConfig()
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -848,9 +870,10 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -885,9 +908,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -921,9 +944,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -965,13 +988,17 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
+	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 
-	officeSession := sessionManagers[2]
+	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert office session wrapper", wrapper)
+	}
+	officeSession := wrapper.ScsSessionManager
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
-	handlerConfig := suite.HandlerConfig()
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -1008,9 +1035,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -1044,9 +1071,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -1089,9 +1116,9 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -1133,13 +1160,18 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	}
 
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-
-	adminSession := sessionManagers[1]
-	scsContext := setupScsSession(ctx, &session, adminSession)
 
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+
+	wrapper, ok := sessionManagers.AdminSessionManager().(auth.ScsSessionManagerWrapper)
+	if !ok {
+		suite.FailNow("Cannot convert admin session wrapper", wrapper)
+	}
+	adminSession := wrapper.ScsSessionManager
+	scsContext := setupScsSession(ctx, &session, adminSession)
+
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
@@ -1180,9 +1212,9 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov", OfficeTestHost), nil)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
-	sessionManagers := suite.SetupSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	handlerConfig := suite.HandlerConfig()
+	sessionManagers := handlerConfig.AppSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
 	h := RedirectHandler{
 		authContext,
 		handlerConfig,

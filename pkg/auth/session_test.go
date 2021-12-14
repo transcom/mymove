@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
-	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/gomodule/redigo/redis"
 )
@@ -16,15 +15,29 @@ func (suite *authSuite) TestSetupSessionManagers() {
 	idleTimeout := 15 * time.Minute
 	lifetime := 24 * time.Hour
 	useSecureCookie := true
-	redisEnabled := true
 	sessionStore := memstore.New()
 
 	sessionManagers := SetupSessionManagers(
-		redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime,
+		sessionStore, useSecureCookie, idleTimeout, lifetime,
 	)
-	milSession := sessionManagers[0]
-	adminSession := sessionManagers[1]
-	officeSession := sessionManagers[2]
+	wrapper, ok := sessionManagers.mil.(ScsSessionManagerWrapper)
+	if !ok {
+		suite.Assert().FailNow("Cannot cast mil to ScsSessionManagerWrapper",
+			sessionManagers.mil)
+	}
+	milSession := wrapper.ScsSessionManager
+	wrapper, ok = sessionManagers.admin.(ScsSessionManagerWrapper)
+	if !ok {
+		suite.Assert().FailNow("Cannot cast admin to ScsSessionManagerWrapper",
+			sessionManagers.admin)
+	}
+	adminSession := wrapper.ScsSessionManager
+	wrapper, ok = sessionManagers.office.(ScsSessionManagerWrapper)
+	if !ok {
+		suite.Assert().FailNow("Cannot cast office to ScsSessionManagerWrapper",
+			sessionManagers.office)
+	}
+	officeSession := wrapper.ScsSessionManager
 
 	suite.Run("With redis enabled", func() {
 		// on local dev machines, this shares the same redis server as
@@ -42,9 +55,14 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		}
 		store := redisstore.New(pool)
 		sessionManagers := SetupSessionManagers(
-			redisEnabled, store, useSecureCookie, idleTimeout, lifetime,
+			store, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSessionManager := sessionManagers[0]
+		wrapper, ok := sessionManagers.mil.(ScsSessionManagerWrapper)
+		if !ok {
+			suite.Assert().FailNow("Cannot cast mil to ScsSessionManagerWrapper",
+				sessionManagers.mil)
+		}
+		milSessionManager := wrapper.ScsSessionManager
 		ctx := context.Background()
 		fakeSessionID := "fakeid"
 		fakeSession := &Session{
@@ -66,26 +84,12 @@ func (suite *authSuite) TestSetupSessionManagers() {
 	suite.Run("With a supported scs.Store other than redisstore", func() {
 		sessionStore = memstore.New()
 		sessionManagers := SetupSessionManagers(
-			redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime,
+			sessionStore, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession = sessionManagers[0]
-		adminSession = sessionManagers[1]
-		officeSession = sessionManagers[2]
+		suite.Equal(sessionStore, sessionManagers.mil.Store())
+		suite.Equal(sessionStore, sessionManagers.admin.Store())
+		suite.Equal(sessionStore, sessionManagers.office.Store())
 
-		suite.Equal(sessionStore, milSession.Store)
-		suite.Equal(sessionStore, adminSession.Store)
-		suite.Equal(sessionStore, officeSession.Store)
-
-	})
-
-	suite.Run("With Redis disabled", func() {
-		redisEnabled := false
-
-		sessionManagers := SetupSessionManagers(
-			redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime,
-		)
-
-		suite.Equal([3]*scs.SessionManager{}, sessionManagers)
 	})
 
 	suite.Run("Session cookie names must be unique per app", func() {

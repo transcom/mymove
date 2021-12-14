@@ -47,11 +47,11 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(appNames)
 
-	sessionManagers := auth.SetupSessionManagers(true, memstore.New(), false,
+	sessionManagers := auth.SetupSessionManagers(memstore.New(), false,
 		time.Duration(180), time.Duration(180))
-	handlerConfig.SetSessionManagers(sessionManagers)
+	handlerConfig.SetAppSessionManagers(sessionManagers)
 
-	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
+	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger(), nil)
 
 	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80, sessionManagers)
 

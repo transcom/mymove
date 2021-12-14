@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -159,11 +160,26 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 				payload.RevokeMilSession = &revoke
 			}
 
-			sessionStore := h.SessionManager(appCtx.Session()).Store
+			sessionManager := h.AppSessionManagers().SessionManager(appCtx.Session())
+			sessionStore := sessionManager.Store()
 			updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, sessionStore)
-			if revokeErr != nil || validationErrors != nil {
-				appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr), zap.Error(verrs))
-				return userop.NewUpdateUserInternalServerError(), revokeErr
+
+			if revokeErr != nil {
+				err = apperror.NewInternalServerError("Error revoking user session")
+				appCtx.Logger().Error(err.Error(), zap.Error(revokeErr))
+				// even though an error was encounted, the updatedUser
+				// may have been changed in the db, so do not return
+				// an error so that the transaction is not rolled back
+				return userop.NewUpdateUserInternalServerError(), nil
+			}
+
+			if validationErrors != nil && validationErrors.HasAny() {
+				err = apperror.NewInternalServerError("Error revoking user session")
+				appCtx.Logger().Error(err.Error(), zap.Error(validationErrors))
+				// even though an error was encounted, the updatedUser
+				// may have been changed in the db, so do not return
+				// an error so that the transaction is not rolled back
+				return userop.NewUpdateUserInternalServerError(), nil
 			}
 
 			// Log if the account was enabled or disabled (POAM requirement)
