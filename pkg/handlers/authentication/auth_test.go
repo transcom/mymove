@@ -76,7 +76,7 @@ func TestAuthSuite(t *testing.T) {
 }
 
 func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
-	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
+	return NewLoginGovProvider("fakeHostname", "secret_key", logger, nil)
 }
 
 func setupScsSession(ctx context.Context, session *auth.Session, sessionManager *scs.SessionManager) context.Context {
@@ -124,7 +124,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 
 func (suite *AuthSuite) TestGenerateNonce() {
 	t := suite.T()
-	nonce := generateNonce()
+	nonce := defaultGenerateNonce()
 
 	if (nonce == "") || (len(nonce) < 1) {
 		t.Error("No nonce was returned.")

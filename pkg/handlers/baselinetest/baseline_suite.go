@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2/memstore"
+	"github.com/benbjohnson/clock"
 	"github.com/jmoiron/sqlx"
 	"github.com/trussworks/httpbaselinetest"
 
@@ -57,6 +58,7 @@ func (suite *BaselineSuite) getSqlxDb() *sqlx.DB {
 func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(suite.appNames)
+	handlerConfig.SetClock(clock.NewMock())
 
 	sessionManagers := auth.SetupSessionManagers(true, memstore.New(), false,
 		time.Duration(180), time.Duration(180))

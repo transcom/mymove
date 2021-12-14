@@ -513,7 +513,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Name:     StateCookieName(appCtx.Session()),
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
-		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
+		Expires:  h.Clock().Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
 		MaxAge:   loginStateCookieTTLInSecs,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
@@ -951,7 +951,7 @@ func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServe
 	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
 	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
-	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
+	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger, nil)
 	err := loginGovProvider.RegisterProvider(
 		appnames.MilServername,
 		v.GetString(cli.LoginGovMyClientIDFlag),

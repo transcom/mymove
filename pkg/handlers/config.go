@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -31,6 +32,7 @@ type HandlerConfig interface {
 		*http.Request,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error),
 	) middleware.Responder
+	Clock() clock.Clock
 	FileStorer() storage.FileStorer
 	NotificationSender() notifications.NotificationSender
 	Planner() route.Planner
@@ -64,6 +66,7 @@ type FeatureFlag struct {
 type Config struct {
 	db                    *pop.Connection
 	logger                *zap.Logger
+	clock                 clock.Clock
 	cookieSecret          string
 	planner               route.Planner
 	hhgPlanner            route.Planner
@@ -189,6 +192,16 @@ func (c *Config) loggerFromContext(ctx context.Context) *zap.Logger {
 // dBFromContext returns a POP db connection for the context
 func (c *Config) dBFromContext(ctx context.Context) *pop.Connection {
 	return c.db.WithContext(ctx)
+}
+
+// Clock returns the clock to use in the current context
+func (c *Config) Clock() clock.Clock {
+	return c.clock
+}
+
+// SetClock is a simple setting for the clock private field
+func (c *Config) SetClock(clock clock.Clock) {
+	c.clock = clock
 }
 
 // FileStorer returns the storage to use in the current context

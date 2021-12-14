@@ -72,17 +72,23 @@ func SetLoginGovProviders(milProvider MilMoveLoginGovProvider,
 
 // LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
 type LoginGovProvider struct {
-	hostname  string
-	secretKey string
-	logger    *zap.Logger
+	hostname       string
+	secretKey      string
+	logger         *zap.Logger
+	nonceGenerator func() string
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
+func NewLoginGovProvider(hostname string, secretKey string,
+	logger *zap.Logger, nonceGenerator func() string) LoginGovProvider {
+	if nonceGenerator == nil {
+		nonceGenerator = defaultGenerateNonce
+	}
 	return LoginGovProvider{
-		hostname:  hostname,
-		secretKey: secretKey,
-		logger:    logger,
+		hostname:       hostname,
+		secretKey:      secretKey,
+		logger:         logger,
+		nonceGenerator: nonceGenerator,
 	}
 }
 
@@ -120,7 +126,7 @@ func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID strin
 	return nil
 }
 
-func generateNonce() string {
+func defaultGenerateNonce() string {
 	nonceBytes := make([]byte, 64)
 	//RA Summary: gosec - G404 - Insecure random number source (rand)
 	//RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
@@ -151,7 +157,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 		p.logger.Error("Get Goth provider", zap.Error(err))
 		return nil, err
 	}
-	state := generateNonce()
+	state := p.nonceGenerator()
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		p.logger.Error("Goth begin auth", zap.Error(err))
@@ -186,7 +192,7 @@ func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
 	params := url.Values{
 		"id_token_hint":            {idToken},
 		"post_logout_redirect_uri": {redirectURL},
-		"state":                    {generateNonce()},
+		"state":                    {p.nonceGenerator()},
 	}
 
 	logoutPath.RawQuery = params.Encode()
@@ -224,7 +230,7 @@ func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.
 		Issuer:    clientID,
 		Subject:   clientID,
 		Audience:  jwt.ClaimStrings([]string{p.TokenURL()}),
-		ID:        generateNonce(),
+		ID:        p.nonceGenerator(),
 		ExpiresAt: jwt.NewNumericDate(expiry),
 	}
 

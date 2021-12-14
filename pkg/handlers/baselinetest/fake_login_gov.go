@@ -1,6 +1,7 @@
 package baselinetest
 
 import (
+	"encoding/base64"
 	"net/url"
 
 	"github.com/markbates/goth"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 )
+
+var counter byte
 
 type FakeGothSession struct {
 	authURL string
@@ -73,10 +76,18 @@ func (p *FakeGothProvider) ClientKey() string {
 	return p.clientKey
 }
 
+func fakeGenerateNonce() string {
+	nonceBytes := make([]byte, 64)
+	nonceBytes[63] = counter
+	counter++
+	return base64.URLEncoding.EncodeToString(nonceBytes)
+}
+
 func (suite *BaselineSuite) initFakeLoginGovProvider() authentication.LoginGovProvider {
 	fakeLoginGovHost := "fake-login-gov.example.com"
 	fakeLoginGovURL := "http://" + fakeLoginGovHost
-	p := authentication.NewLoginGovProvider(fakeLoginGovHost, "secret_key", suite.Logger())
+	p := authentication.NewLoginGovProvider(fakeLoginGovHost, "secret_key", suite.Logger(),
+		fakeGenerateNonce)
 
 	milProvider := &FakeGothProvider{
 		baseAuthURL: fakeLoginGovURL,
