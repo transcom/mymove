@@ -232,13 +232,46 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
-// DutyStation payload
+// DutyLocation payload
+func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
+	if dutyLocation == nil {
+		return nil
+	}
+	address := Address(&dutyLocation.Address)
+	payload := ghcmessages.DutyLocation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyLocation.ID.String()),
+		Name:      dutyLocation.Name,
+		ETag:      etag.GenerateEtag(dutyLocation.UpdatedAt),
+	}
+	return &payload
+}
+
+// TODO: refactor and remove with rest of dutyStation references
 func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}
 	address := Address(&dutyStation.Address)
 	payload := ghcmessages.DutyStation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyStation.ID.String()),
+		Name:      dutyStation.Name,
+		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+	}
+	return &payload
+}
+
+// TODO: refactor and remove with rest of dutyStation references
+// DutyStation payload
+func DutyStationtoLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLocation {
+	if dutyStation == nil {
+		return nil
+	}
+	address := Address(&dutyStation.Address)
+	payload := ghcmessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),
@@ -760,17 +793,17 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
-			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.ID),
-			Locator:                move.Locator,
-			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
-			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
-			DepartmentIndicator:    &deptIndicator,
-			ShipmentsCount:         int64(len(validMTOShipments)),
-			OriginDutyLocation:     DutyStation(move.Orders.OriginDutyStation),
-			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
-			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
+			Customer:                Customer(&customer),
+			Status:                  ghcmessages.QueueMoveStatus(move.Status),
+			ID:                      *handlers.FmtUUID(move.ID),
+			Locator:                 move.Locator,
+			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			DepartmentIndicator:     &deptIndicator,
+			ShipmentsCount:          int64(len(validMTOShipments)),
+			OriginDutyLocation:      DutyStationtoLocation(move.Orders.OriginDutyStation),
+			DestinationDutyLocation: DutyStationtoLocation(&move.Orders.NewDutyStation),
+			OriginGBLOC:             ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}
 	return &queueMoves
@@ -825,7 +858,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
-			OriginDutyLocation: DutyStation(orders.OriginDutyStation),
+			OriginDutyLocation: DutyStationtoLocation(orders.OriginDutyStation),
 		}
 
 		if orders.DepartmentIndicator != nil {

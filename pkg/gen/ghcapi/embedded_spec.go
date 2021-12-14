@@ -1930,7 +1930,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -2018,7 +2018,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -2061,7 +2061,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -2091,7 +2091,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2135,7 +2135,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -2172,7 +2172,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -2249,7 +2249,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -3592,6 +3592,31 @@ func init() {
         }
       }
     },
+    "DutyLocation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -4910,8 +4935,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -4921,7 +4946,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -5001,7 +5026,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -8357,7 +8382,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -8445,7 +8470,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -8494,7 +8519,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -8524,7 +8549,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8568,7 +8593,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -8611,7 +8636,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -8688,7 +8713,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -10223,6 +10248,31 @@ func init() {
         }
       }
     },
+    "DutyLocation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -11541,8 +11591,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -11552,7 +11602,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -11632,7 +11682,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"

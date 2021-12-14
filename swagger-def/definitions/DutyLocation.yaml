@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  name:
+    type: string
+    example: Fort Bragg North Station
+  address_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  address:
+    $ref: 'Address.yaml'
+  eTag:
+    type: string
