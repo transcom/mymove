@@ -6,6 +6,7 @@ import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const StorageFacilityInfo = () => {
   return (
@@ -14,10 +15,7 @@ const StorageFacilityInfo = () => {
         <h2>Storage facility info</h2>
         <Grid row>
           <Grid col={12}>
-            <FormGroup>
-              <Label htmlFor="facilityName">Facility name</Label>
-              <Field as={TextInput} id="facilityName" name="storageFacility.facilityName" />
-            </FormGroup>
+            <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />
           </Grid>
         </Grid>
 
@@ -38,11 +36,7 @@ const StorageFacilityInfo = () => {
         <Grid row>
           <Grid col={12}>
             <FormGroup>
-              <Label htmlFor="facilityEmail" className={styles.Label}>
-                Email
-                <span className="float-right">Optional</span>
-              </Label>
-              <Field as={TextInput} id="facilityEmail" name="storageFacility.email" />
+              <TextField label="Email" id="facilityEmail" name="storageFacility.email" optional />
             </FormGroup>
           </Grid>
         </Grid>
