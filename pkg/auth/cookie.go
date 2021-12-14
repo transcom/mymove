@@ -101,6 +101,8 @@ func DeleteCSRFCookies(w http.ResponseWriter) {
 	DeleteCookie(w, GorillaCSRFToken)
 }
 
+type MaskedCSRFTokenGenerator func(r *http.Request) string
+
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
 func MaskedCSRFMiddleware(globalLogger *zap.Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

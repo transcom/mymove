@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -26,6 +27,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
+	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -436,7 +438,6 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 		routingConfig.GHCSwaggerPath = v.GetString(cli.GHCSwaggerFlag)
 	}
 	routingConfig.ServeDevlocalAuth = v.GetBool(cli.DevlocalAuthFlag)
-	routingConfig.CSRFAuthKey = v.GetString(cli.CSRFAuthKeyFlag)
 
 	routingConfig.GitBranch = gitBranch
 	routingConfig.GitCommit = gitCommit
@@ -495,6 +496,17 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		sessionStore, useSecureCookie,
 		sessionIdleTimeout, sessionLifetime)
 	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
+	csrfAuthKeyRaw := v.GetString(cli.CSRFAuthKeyFlag)
+	csrfAuthKey, err := hex.DecodeString(csrfAuthKeyRaw)
+	if err != nil {
+		appCtx.Logger().Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+
+	// CSRF path is set specifically at the root to avoid duplicate
+	// tokens from different paths
+	routingConfig.CSRFMiddleware = csrf.Protect(csrfAuthKey,
+		csrf.Secure(routingConfig.HandlerConfig.UseSecureCookie()),
+		csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken))
 
 	// Email
 	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())

@@ -1,14 +1,12 @@
 package routing
 
 import (
-	"encoding/hex"
 	"net/http"
 	"net/http/pprof"
 	"path"
 	"path/filepath"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/spf13/afero"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
@@ -32,7 +30,11 @@ import (
 type Config struct {
 	HandlerConfig handlers.HandlerConfig
 
+	// the authentication context to use for routing
 	AuthContext authentication.Context
+
+	// The Cross Site Request Forgery Middleware to use
+	CSRFMiddleware func(http.Handler) http.Handler
 
 	// Use the afero filesystem interface to allow for replacement
 	// during testing
@@ -267,13 +269,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		debug.HandleFunc("/", http.NotFound).Methods("GET")
 	}
 
-	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	csrfAuthKey, err := hex.DecodeString(routingConfig.CSRFAuthKey)
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to decode csrf auth key", zap.Error(err))
-	}
 	appCtx.Logger().Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(routingConfig.HandlerConfig.UseSecureCookie()), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
+	root.Use(routingConfig.CSRFMiddleware)
 	root.Use(maskedCSRFMiddleware)
 
 	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetMilSessionManager().LoadAndSave(root))

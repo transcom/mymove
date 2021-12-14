@@ -69,9 +69,10 @@ func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 		handlerConfig.GetSessionManagers())
 
 	return &routing.Config{
-		HandlerConfig: handlerConfig,
-		AuthContext:   authContext,
-		BuildRoot:     "fakebase",
+		HandlerConfig:  handlerConfig,
+		AuthContext:    authContext,
+		CSRFMiddleware: routing.NewFakeCSRFMiddleware(suite.Logger()),
+		BuildRoot:      "fakebase",
 	}
 }
 

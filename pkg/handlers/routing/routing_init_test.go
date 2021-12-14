@@ -63,10 +63,11 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	suite.NoError(err)
 
 	rConfig := &Config{
-		FileSystem:    fakeFs,
-		HandlerConfig: handlerConfig,
-		AuthContext:   authContext,
-		BuildRoot:     fakeBase,
+		FileSystem:     fakeFs,
+		HandlerConfig:  handlerConfig,
+		AuthContext:    authContext,
+		CSRFMiddleware: NewFakeCSRFMiddleware(suite.Logger()),
+		BuildRoot:      fakeBase,
 
 		// include all these as true to increase test coverage
 		ServeSwaggerUI:      true,
