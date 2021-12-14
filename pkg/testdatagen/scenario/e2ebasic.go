@@ -157,6 +157,9 @@ func userWithTOORole(appCtx appcontext.AppContext) {
 			Active: true,
 			UserID: &tooUUID,
 		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "KKFA",
+		},
 	})
 }
 
@@ -3069,9 +3072,6 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	appCtx.DB().Where("transportation_offices.GBLOC = ?", "LKNQ").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		All(&originDutyStationsInGBLOC)
-
-	// Map postal code 90210 (the default we use for just about everything) to the LKNQ GBLOC
-	testdatagen.MakePostalCodeToGBLOC(appCtx.DB(), "90210", "LKNQ")
 
 	/*
 	* Creates two valid, unclaimed access codes
