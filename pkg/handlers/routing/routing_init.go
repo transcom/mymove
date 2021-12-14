@@ -30,8 +30,8 @@ import (
 type Config struct {
 	HandlerConfig handlers.HandlerConfig
 
-	// the authentication context to use for routing
-	AuthContext authentication.Context
+	// the authentication config
+	AuthConfig authentication.Config
 
 	// The Cross Site Request Forgery Middleware to use
 	CSRFMiddleware func(http.Handler) http.Handler
@@ -363,19 +363,19 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	authMux := root.PathPrefix("/auth/").Subrouter()
 	authMux.Use(middleware.NoCache(appCtx.Logger()))
 	authMux.Use(otelmux.Middleware("auth"))
-	authMux.Handle("/login-gov", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie())).Methods("GET")
-	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender())).Methods("GET")
-	authMux.Handle("/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
+	authMux.Handle("/login-gov", authentication.NewRedirectHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie())).Methods("GET")
+	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender())).Methods("GET")
+	authMux.Handle("/logout", authentication.NewLogoutHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig)).Methods("POST")
 
 	if routingConfig.ServeDevlocalAuth {
 		appCtx.Logger().Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
 		localAuthMux.Use(middleware.NoCache(appCtx.Logger()))
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
-		localAuthMux.Handle("/login", authentication.NewUserListHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
+		localAuthMux.Handle("/login", authentication.NewUserListHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig)).Methods("GET")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(routingConfig.AuthConfig, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
 
 	}
 

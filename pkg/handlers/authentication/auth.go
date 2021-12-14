@@ -334,12 +334,12 @@ func PrimeSimulatorAuthorizationMiddleware(globalLogger *zap.Logger) func(next h
 	}
 }
 
-func (context Context) landingURL(session *auth.Session) string {
+func (context Config) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
 
 // SetFeatureFlag sets a feature flag in the context
-func (context *Context) SetFeatureFlag(flag FeatureFlag) {
+func (context *Config) SetFeatureFlag(flag FeatureFlag) {
 	if context.featureFlags == nil {
 		context.featureFlags = make(map[string]bool)
 	}
@@ -348,19 +348,18 @@ func (context *Context) SetFeatureFlag(flag FeatureFlag) {
 }
 
 // GetFeatureFlag gets a feature flag from the context
-func (context *Context) GetFeatureFlag(flag string) bool {
+func (context *Config) GetFeatureFlag(flag string) bool {
 	if value, ok := context.featureFlags[flag]; ok {
 		return value
 	}
 	return false
 }
 
-// Context is the common handler type for auth handlers
-type Context struct {
+// Config is the common handler type for auth handlers
+type Config struct {
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
-	sessionManagers  auth.AppSessionManagers
 }
 
 // FeatureFlag holds the name of a feature flag and if it is enabled
@@ -369,26 +368,25 @@ type FeatureFlag struct {
 	Active bool
 }
 
-// NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers auth.AppSessionManagers) Context {
-	context := Context{
+// NewAuthConfig creates an Context
+func NewAuthConfig(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Config {
+	context := Config{
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
-		sessionManagers:  sessionManagers,
 	}
 	return context
 }
 
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
-	Context
+	Config
 	handlers.HandlerConfig
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
+func NewLogoutHandler(ac Config, hc handlers.HandlerConfig) LogoutHandler {
 	logoutHandler := LogoutHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 	}
 	return logoutHandler
@@ -412,7 +410,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				appCtx.Logger().Error("failed to reset user's current_x_session_id")
 			}
-			err = h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
+			err = h.AppSessionManagers().SessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session")
 			}
@@ -430,7 +428,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			err := h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
+			err := h.AppSessionManagers().SessionManager(appCtx.Session()).Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session", zap.Error(err))
 			}
@@ -447,14 +445,14 @@ const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
-	Context
+	Config
 	handlers.HandlerConfig
 	UseSecureCookie bool
 }
 
-func NewRedirectHandler(ac Context, hc handlers.HandlerConfig, useSecureCookie bool) RedirectHandler {
+func NewRedirectHandler(ac Config, hc handlers.HandlerConfig, useSecureCookie bool) RedirectHandler {
 	return RedirectHandler{
-		Context:         ac,
+		Config:          ac,
 		HandlerConfig:   hc,
 		UseSecureCookie: useSecureCookie,
 	}
@@ -513,15 +511,15 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
-	Context
+	Config
 	handlers.HandlerConfig
 	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notifications.NotificationSender) CallbackHandler {
+func NewCallbackHandler(ac Config, hc handlers.HandlerConfig, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 		sender:        sender,
 	}
@@ -593,7 +591,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		appCtx.Logger().Info("lg_state cookie deleted")
 
 		// This operation will delete all cookies from the session
-		err = h.Context.sessionManagers.SessionManager(appCtx.Session()).Destroy(r.Context())
+		err = h.AppSessionManagers().SessionManager(appCtx.Session()).Destroy(r.Context())
 		if err != nil {
 			appCtx.Logger().Error("Deleting login.gov state cookie", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -753,7 +751,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	appCtx.Session().LastName = userIdentity.LastName()
 	appCtx.Session().Middle = userIdentity.Middle()
 
-	sessionManager := h.Context.sessionManagers.SessionManager(appCtx.Session())
+	sessionManager := h.AppSessionManagers().SessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticating user", zap.Error(authError))
@@ -872,7 +870,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
 
-	sessionManager := h.Context.sessionManagers.SessionManager(appCtx.Session())
+	sessionManager := h.AppSessionManagers().SessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticate user", zap.Error(authError))

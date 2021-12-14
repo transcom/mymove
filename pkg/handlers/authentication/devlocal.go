@@ -40,14 +40,14 @@ const (
 
 // UserListHandler handles redirection
 type UserListHandler struct {
-	Context
+	Config
 	handlers.HandlerConfig
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, hc handlers.HandlerConfig) UserListHandler {
+func NewUserListHandler(ac Config, hc handlers.HandlerConfig) UserListHandler {
 	handler := UserListHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 	}
 	return handler
@@ -260,7 +260,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type devlocalAuthHandler struct {
-	Context
+	Config
 	handlers.HandlerConfig
 	appnames auth.ApplicationServername
 }
@@ -269,9 +269,9 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) AssignUserHandler {
+func NewAssignUserHandler(ac Config, hc handlers.HandlerConfig, appnames auth.ApplicationServername) AssignUserHandler {
 	handler := AssignUserHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 		appnames:      appnames,
 	}
@@ -326,9 +326,9 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateUserHandler {
+func NewCreateUserHandler(ac Config, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateUserHandler {
 	handler := CreateUserHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 		appnames:      appnames,
 	}
@@ -356,9 +356,9 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Config, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
-		Context:       ac,
+		Config:        ac,
 		HandlerConfig: hc,
 		appnames:      appnames,
 	}
@@ -959,7 +959,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	h.Context.sessionManagers.SessionManager(session).Put(r.Context(), "session", session)
+	h.AppSessionManagers().SessionManager(session).Put(r.Context(), "session", session)
 	// Writing out the session cookie logs in the user
 	appCtx.Logger().Info("logged in", zap.Any("session", session))
 	return session, nil

@@ -499,7 +499,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	sessionManagers := auth.SetupSessionManagers(
 		sessionStore, useSecureCookie,
 		sessionIdleTimeout, sessionLifetime)
-	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
+	routingConfig.AuthConfig = authentication.NewAuthConfig(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	csrfAuthKeyRaw := v.GetString(cli.CSRFAuthKeyFlag)
 	csrfAuthKey, err := hex.DecodeString(csrfAuthKeyRaw)
 	if err != nil {

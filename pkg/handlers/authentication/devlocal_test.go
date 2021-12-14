@@ -52,8 +52,8 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	milSession := sessionManagers.MilSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -91,8 +91,8 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	officeSession := sessionManagers.OfficeSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateUserHandler(authConfig, handlerConfig, appnames)
 
 	for _, newOfficeUser := range []struct {
 		userType string
@@ -164,8 +164,8 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	adminSession := sessionManagers.AdminSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -222,8 +222,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	milSession := sessionManagers.MilSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
 
@@ -263,8 +263,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	officeSession := sessionManagers.OfficeSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -298,8 +298,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	adminSession := sessionManagers.AdminSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -333,8 +333,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	milSession := sessionManagers.MilSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -365,10 +365,10 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 	adminSession := sessionManagers.AdminSessionManager()
 
 	rr := httptest.NewRecorder()
@@ -403,8 +403,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	milSession := sessionManagers.MilSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -439,8 +439,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	officeSession := sessionManagers.OfficeSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authConfig, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)

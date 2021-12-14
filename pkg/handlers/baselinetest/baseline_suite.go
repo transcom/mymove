@@ -66,13 +66,12 @@ func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 
 	p := suite.initFakeLoginGovProvider()
 
-	authContext := authentication.NewAuthContext(suite.Logger(),
-		p, "http", 80,
-		handlerConfig.AppSessionManagers())
+	authConfig := authentication.NewAuthConfig(suite.Logger(),
+		p, "http", 80)
 
 	return &routing.Config{
 		HandlerConfig:  handlerConfig,
-		AuthContext:    authContext,
+		AuthConfig:     authConfig,
 		CSRFMiddleware: routing.NewFakeCSRFMiddleware(suite.Logger()),
 		BuildRoot:      "fakebase",
 	}

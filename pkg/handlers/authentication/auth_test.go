@@ -157,8 +157,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
 	officeSession := sessionManagers.OfficeSessionManager()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	handler := officeSession.LoadAndSave(NewLogoutHandler(authConfig, handlerConfig))
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -457,10 +457,9 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -500,7 +499,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -510,7 +509,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -541,10 +540,9 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -595,7 +593,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -605,7 +603,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -665,7 +663,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.AdminSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -675,7 +673,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	scsContext := setupScsSession(ctx, &session, adminSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -714,7 +712,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.MilSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -724,7 +722,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	scsContext := setupScsSession(ctx, &session, milSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -792,11 +790,10 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 
 	// Prepare the callback handler
 	callbackPort := 1234
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		mockSender,
 	}
@@ -871,11 +868,10 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -909,10 +905,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -945,10 +940,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -990,7 +984,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.OfficeSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -1000,7 +994,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	scsContext := setupScsSession(ctx, &session, officeSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -1036,10 +1030,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -1072,10 +1065,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -1117,10 +1109,9 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -1163,7 +1154,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 
 	handlerConfig := suite.HandlerConfig()
 	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 
 	wrapper, ok := sessionManagers.AdminSessionManager().(auth.ScsSessionManagerWrapper)
 	if !ok {
@@ -1173,7 +1164,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	scsContext := setupScsSession(ctx, &session, adminSession)
 
 	h := CallbackHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		setUpMockNotificationSender(),
 	}
@@ -1213,10 +1204,9 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	handlerConfig := suite.HandlerConfig()
-	sessionManagers := handlerConfig.AppSessionManagers()
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+	authConfig := NewAuthConfig(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	h := RedirectHandler{
-		authContext,
+		authConfig,
 		handlerConfig,
 		false,
 	}
