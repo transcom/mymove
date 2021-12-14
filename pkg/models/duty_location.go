@@ -159,15 +159,15 @@ func FetchDutyLocationTransportationOffice(db *pop.Connection, dutyLocationID uu
 
 // FetchDutyLocationsByPostalCode returns a station for a given postal code
 func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (DutyLocations, error) {
-	var stations DutyLocations
+	var locations DutyLocations
 	query := tx.
 		Where("addresses.postal_code like $1", postalCode).
-		LeftJoin("addresses", "duty_stations.address_id = addresses.id")
+		LeftJoin("addresses", "duty_location.address_id = addresses.id")
 
-	err := query.All(&stations)
+	err := query.All(&locations)
 	if err != nil {
 		return DutyLocations{}, err
 	}
 
-	return stations, nil
+	return locations, nil
 }
