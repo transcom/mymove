@@ -124,6 +124,7 @@ export const MTOAgentType = {
 // warnings or errors on shipment cards.
 export const WARN_IF_MISSING = {
   HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+  HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
 };
 export const ERROR_IF_MISSING = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
