@@ -3175,6 +3175,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -9781,6 +9784,9 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
