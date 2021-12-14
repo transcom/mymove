@@ -1,12 +1,9 @@
 @import 'shared/styles/colors.scss';
 
 .ButtonDropdown {
-  position: relative;
-  display: inline-block;
-  .ButtonDropDownSelect {
+  select {
     color: white;
     background-color: $primary;
-    background-image: none;
     border: 0;
     border-radius: 4px;
     text-align: left;
@@ -16,12 +13,11 @@
       background-color: $primary-dark;
     }
   }
-  .ButtonDropdownIcon {
-    position: absolute;
-    right: 16px;
-    top: 21px;
-    font-size: 18px;
-    color: white;
-    pointer-events: none;
+  option {
+    color: black;
+    font-weight: normal;
+    &:hover {
+      background-color: white;
+    }
   }
 }

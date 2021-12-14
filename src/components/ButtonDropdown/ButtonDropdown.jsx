@@ -2,20 +2,14 @@ import React from 'react';
 import { Dropdown } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ButtonDropdown.module.scss';
 
 const ButtonDropdown = ({ children, onChange, ariaLabel }) => (
   <div className={styles.ButtonDropdown}>
-    <Dropdown
-      aria-label={ariaLabel}
-      onChange={onChange}
-      className={classnames(styles.ButtonDropDownSelect, 'usa-button')}
-    >
+    <Dropdown aria-label={ariaLabel} onChange={onChange} className={classnames(styles.ButtonDropdown, 'usa-button')}>
       {children}
     </Dropdown>
-    <FontAwesomeIcon className={styles.ButtonDropdownIcon} icon="sort" />
   </div>
 );
 
