@@ -22,7 +22,7 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = (isMarineCorpsUser = false) => [
+const columns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -85,17 +85,15 @@ const columns = (isMarineCorpsUser = false) => [
     },
     {
       id: 'branch',
-      isFilterable: !isMarineCorpsUser,
+      isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
       ),
-      disableSortBy: isMarineCorpsUser,
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', {
-    isFilterable: isMarineCorpsUser,
-    disableSortBy: !isMarineCorpsUser,
+    isFilterable: true,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
@@ -106,14 +104,12 @@ const columns = (isMarineCorpsUser = false) => [
 const ServicesCounselingQueue = () => {
   const {
     // eslint-disable-next-line camelcase
-    data: { office_user },
+    // data: { office_user },
     isLoading,
     isError,
   } = useUserQueries();
 
   const history = useHistory();
-
-  const isMarineCorpsUser = office_user?.transportation_office?.gbloc === GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: values.locator }));
@@ -133,7 +129,7 @@ const ServicesCounselingQueue = () => {
         defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
         disableMultiSort
         disableSortBy={false}
-        columns={columns(isMarineCorpsUser)}
+        columns={columns()}
         title="Moves"
         handleClick={handleClick}
         useQueries={useServicesCounselingQueueQueries}
