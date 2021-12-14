@@ -759,6 +759,15 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
+		var gbloc ghcmessages.GBLOC
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		} else {
+			// ShipmentGBLOC is temporarily an array, I'd like for it not to be though.
+			// If I'm stuck with it, I'll update this to handle the 0 shipments case.
+			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
@@ -770,7 +779,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			OriginDutyLocation:     DutyStation(move.Orders.OriginDutyStation),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
-			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
+			OriginGBLOC:            gbloc,
 		}
 	}
 	return &queueMoves
