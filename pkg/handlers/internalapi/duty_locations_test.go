@@ -6,12 +6,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
+	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *HandlerSuite) TestSearchDutyStationHandler() {
+func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	t := suite.T()
 
 	// Need a logged in user
@@ -30,13 +30,13 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	suite.MustSave(&address)
 
-	station1 := models.DutyStation{
+	station1 := models.DutyLocation{
 		Name:      "First Station",
 		AddressID: address.ID,
 	}
 	suite.MustSave(&station1)
 
-	station2 := models.DutyStation{
+	station2 := models.DutyLocation{
 		Name:      "Second Station",
 		AddressID: address.ID,
 	}
@@ -52,16 +52,16 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, session)
 
-	newSearchParams := stationop.SearchDutyStationsParams{
+	newSearchParams := stationop.SearchDutyLocationsParams{
 		HTTPRequest: req.WithContext(ctx),
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := SearchDutyLocationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response
-	searchResponse := response.(*stationop.SearchDutyStationsOK)
+	searchResponse := response.(*stationop.SearchDutyLocationsOK)
 	stationPayloads := searchResponse.Payload
 
 	if len(stationPayloads) != 1 {

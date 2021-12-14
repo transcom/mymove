@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		IssueDate:           handlers.FmtDate(issueDate),
 		ReportByDate:        handlers.FmtDate(reportByDate),
 		OrdersType:          internalmessages.NewOrdersType(ordersType),
-		NewDutyStationID:    handlers.FmtUUID(station.ID),
+		NewDutyLocationID:   handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
 		Tac:                 handlers.FmtString("E19A"),

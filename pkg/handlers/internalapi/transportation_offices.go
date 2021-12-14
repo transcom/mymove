@@ -11,20 +11,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// ShowDutyStationTransportationOfficeHandler returns the transportation office for a duty station ID
-type ShowDutyStationTransportationOfficeHandler struct {
+// ShowDutyLocationTransportationOfficeHandler returns the transportation office for a duty station ID
+type ShowDutyLocationTransportationOfficeHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle retrieves the transportation office in the system for a given duty station ID
-func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
+func (h ShowDutyLocationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyLocationTransportationOfficeParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
-	transportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), dutyStationID)
+	dutyLocationID, _ := uuid.FromString(params.DutyLocationID.String())
+	transportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), dutyLocationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 	transportationOfficePayload := payloads.TransportationOffice(transportationOffice)
 
-	return transportationofficeop.NewShowDutyStationTransportationOfficeOK().WithPayload(transportationOfficePayload)
+	return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(transportationOfficePayload)
 }

@@ -47,7 +47,7 @@ func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
 	}
 
 	for _, ts := range tests {
-		destinationZip, err := GetDestinationDutyStationPostalCode(suite.AppContextForTest(), ts.lookupID)
+		destinationZip, err := GetDestinationDutyLocationPostalCode(suite.AppContextForTest(), ts.lookupID)
 		suite.Equal(ts.resultErr, err, "Wrong resultErr: %s", ts.lookupID)
 		suite.Equal(ts.resultZip, destinationZip, "Wrong moveID: %s", ts.lookupID)
 	}
