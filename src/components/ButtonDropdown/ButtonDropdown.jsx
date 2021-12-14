@@ -10,6 +10,7 @@ const ButtonDropdown = ({ children, onChange, ariaLabel }) => (
     <Dropdown aria-label={ariaLabel} onChange={onChange} className={classnames(styles.ButtonDropdown, 'usa-button')}>
       {children}
     </Dropdown>
+    <span className={styles.ButtonDropdownIcon} />
   </div>
 );
 
