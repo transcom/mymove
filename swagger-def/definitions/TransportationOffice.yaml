@@ -1,0 +1,42 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  name:
+    type: string
+    example: Fort Bragg North Station
+  address:
+    $ref: 'Address.yaml'
+  phone_lines:
+    type: array
+    items:
+      type: string
+      format: telephone
+      pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      example: 212-555-5555
+  gbloc:
+    type: string
+    pattern: '^[A-Z]{4}$'
+    example: JENQ
+  latitude:
+    type: number
+    format: float
+    example: 29.382973
+  longitude:
+    type: number
+    format: float
+    example: -98.62759
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
+required:
+  - id
+  - name
+  - address
+  - created_at
+  - updated_at

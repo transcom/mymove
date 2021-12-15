@@ -1,0 +1,15 @@
+type: string
+x-nullable: true
+title: Branch of service
+enum: &AFFILIATION
+  - ARMY
+  - NAVY
+  - MARINES
+  - AIR_FORCE
+  - COAST_GUARD
+x-display-value:
+  ARMY: Army
+  NAVY: Navy
+  MARINES: Marine Corps
+  AIR_FORCE: Air Force
+  COAST_GUARD: Coast Guard
