@@ -25,8 +25,8 @@ type QueueMove struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
-	// destination duty location
-	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
+	// destination duty station
+	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
 	// id
 	// Format: uuid
@@ -36,7 +36,7 @@ type QueueMove struct {
 	Locator string `json:"locator,omitempty"`
 
 	// origin duty location
-	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
+	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
@@ -68,7 +68,7 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationDutyLocation(formats); err != nil {
+	if err := m.validateDestinationDutyStation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -136,15 +136,15 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueueMove) validateDestinationDutyLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationDutyLocation) { // not required
+func (m *QueueMove) validateDestinationDutyStation(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
 	}
 
-	if m.DestinationDutyLocation != nil {
-		if err := m.DestinationDutyLocation.Validate(formats); err != nil {
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyLocation")
+				return ve.ValidateName("destinationDutyStation")
 			}
 			return err
 		}
@@ -248,7 +248,7 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateDestinationDutyLocation(ctx, formats); err != nil {
+	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -298,12 +298,12 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 	return nil
 }
 
-func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
+func (m *QueueMove) contextValidateDestinationDutyStation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.DestinationDutyLocation != nil {
-		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyLocation")
+				return ve.ValidateName("destinationDutyStation")
 			}
 			return err
 		}
