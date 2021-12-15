@@ -17118,10 +17118,10 @@ ra-core@^3.19.3:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-data-simple-rest@^3.19.2:
-  version "3.19.2"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.2.tgz#d6ca10996229866990d8aae9c7bb4078ef60f7bf"
-  integrity sha512-qS3s+esjawbaZIHlUvs8aWzO+Pst7FBLIHA6l+EPwtHdT/4O5xeEd5oO7kSl3eUWtOZUPA4w/CCVZY3jCP9Htw==
+ra-data-simple-rest@^3.19.3:
+  version "3.19.3"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-3.19.3.tgz#5a4c21e738c0544638b8c6355c413a1ecce9c1dc"
+  integrity sha512-Tqteftdc3Qp3f7yvPpuctT/5YsjsIsZZZ82grkJ5wdznd2EoPEqFGCUoo8GRtJ6Ca9Ra+u43Zgq/eL+TZOYdug==
   dependencies:
     query-string "^5.1.1"
 
