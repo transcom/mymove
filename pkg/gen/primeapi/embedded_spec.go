@@ -2117,6 +2117,13 @@ func init() {
           },
           "readOnly": true
         },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 4500
+        },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
           "allOf": [
@@ -3022,6 +3029,13 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 4500
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -5699,6 +5713,13 @@ func init() {
           },
           "readOnly": true
         },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 4500
+        },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
           "allOf": [
@@ -6607,6 +6628,13 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "ntsRecordedWeight": {
+          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 4500
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
