@@ -43,6 +43,10 @@ type UpdateShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
+	// Example: 2000
+	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 	// pickup address
 	PickupAddress struct {
 		Address

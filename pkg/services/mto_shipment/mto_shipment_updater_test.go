@@ -594,6 +594,48 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newStorageFacilityAddress.StreetAddress1, updatedShipment.StorageFacility.Address.StreetAddress1)
 	})
 
+	suite.T().Run("Successfully update NTS previously recorded weight to shipment", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+
+		ntsRecorededWeight := unit.Pound(980)
+		updatedShipment := models.MTOShipment{
+			ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+			ID:                shipment.ID,
+			NTSRecordedWeight: &ntsRecorededWeight,
+		}
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(ntsRecorededWeight, *updatedMTOShipment.NTSRecordedWeight)
+
+	})
+
+	suite.T().Run("Unable to update NTS previously recorded weight due to shipment type", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+
+		ntsRecorededWeight := unit.Pound(980)
+		updatedShipment := models.MTOShipment{
+			ID:                shipment.ID,
+			NTSRecordedWeight: &ntsRecorededWeight,
+		}
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().Error(err)
+		suite.Nil(updatedMTOShipment)
+		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
+
+		suite.IsType(apperror.QueryError{}, err)
+		queryErr := err.(apperror.QueryError)
+		wrappedErr := queryErr.Unwrap()
+		suite.IsType(apperror.InvalidInputError{}, wrappedErr)
+		suite.Equal("field NTSRecordedWeight cannot be set for shipment type HHG", wrappedErr.Error())
+	})
+
 	suite.T().Run("Successfully divert a shipment and transition statuses", func(t *testing.T) {
 		// A diverted shipment should transition to the SUBMITTED status.
 		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED

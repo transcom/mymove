@@ -50,12 +50,29 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	branchQuery := branchFilter(params.Branch, isCounselor)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery QueryOption
-	if officeUserGbloc == "USMC" && !isCounselor {
+	// var gblocQuery QueryOption
+	// if officeUserGbloc == "USMC" && !isCounselor {
+	// 	branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
+	// 	gblocQuery = gblocFilter(params.OriginGBLOC, isCounselor)
+	// } else {
+	// 	gblocQuery = gblocFilter(&officeUserGbloc, isCounselor)
+	// }
+	var gblocToFilterBy *string
+	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
-		gblocQuery = gblocFilter(params.OriginGBLOC, isCounselor)
+		gblocToFilterBy = params.OriginGBLOC
 	} else {
-		gblocQuery = gblocFilter(&officeUserGbloc, isCounselor)
+		gblocToFilterBy = &officeUserGbloc
+	}
+
+	// We need to use two different GBLOC filter queries because:
+	//  - The Services Counselor queue filters based on the GBLOC of the transportation office
+	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
+	var gblocQuery QueryOption
+	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
+		gblocQuery = gblocFilter(gblocToFilterBy, isCounselor)
+	} else {
+		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -69,8 +86,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
-	fmt.Println(params.OriginDutyLocation)
-
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
@@ -80,13 +95,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
+		"ShipmentGBLOC",
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("addresses as origin_add", "origin_add.id = origin_ds.address_id").
 		LeftJoin("postal_code_to_gbloc as pcg", "pcg.postal_code = origin_add.postal_code").
-		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		// Need to use left join because some duty locations do not have transportation offices
+		LeftJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+		// and we don't want it to get hidden from services counselors.
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
@@ -292,6 +312,14 @@ func gblocFilter(gbloc *string, isCounselor bool) QueryOption {
 			} else {
 				query.Where("origin_to.gbloc ILIKE ?", *gbloc)
 			}
+		}
+	}
+}
+
+func shipmentGBLOCFilter(gbloc *string) QueryOption {
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
 		}
 	}
 }
