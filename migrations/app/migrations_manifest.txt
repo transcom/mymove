@@ -686,5 +686,5 @@
 20211112205920_add_noninstallation_locations.up.sql
 20211123155748_domestic_nts_packing_metadata.up.sql
 20211202213138_index_user_roles_table.up.sql
-20211202234555_move_to_gbloc_view.up.sql
 20211207193349_fix_optional_dnpk_params.up.sql
+20211214234555_move_to_gbloc_view.up.sql
