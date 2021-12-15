@@ -61,11 +61,12 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	mc := clock.NewMock()
 	mc.Set(time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC))
 	rConfig := &Config{
-		FileSystem:     fakeFs,
-		HandlerConfig:  handlerConfig,
-		AuthConfig:     authConfig,
-		CSRFMiddleware: NewFakeCSRFMiddleware(mc, suite.Logger()),
-		BuildRoot:      fakeBase,
+		FileSystem:           fakeFs,
+		HandlerConfig:        handlerConfig,
+		AuthConfig:           authConfig,
+		CSRFMiddleware:       NewFakeCSRFMiddleware(mc, suite.Logger()),
+		MaskedCSRFMiddleware: NewFakeMaskedCSRFMiddleware(suite.Logger()),
+		BuildRoot:            fakeBase,
 
 		// include all these as true to increase test coverage
 		ServeSwaggerUI:      true,

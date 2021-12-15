@@ -24,7 +24,7 @@ import (
 
 func SetupFakeSessionManagers(clock clock.Clock, sessionStore scs.Store, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) auth.AppSessionManagers {
 	var milSession, adminSession, officeSession *FakeSessionManager
-	gob.Register(FakeSessionManager{})
+	gob.Register(auth.Session{})
 
 	milSession = New(clock)
 	milSession.ScsStore = sessionStore
@@ -338,8 +338,7 @@ func (s *FakeSessionManager) Status(ctx context.Context) Status {
 
 	return sd.status
 }
-
-func (s *FakeSessionManager) WriteSessionCookie(ctx context.Context, w http.ResponseWriter, token string, expiry time.Time) {
+func (s *FakeSessionManager) GetSessionCookie(ctx context.Context, token string, expiry time.Time) *http.Cookie {
 	cookie := &http.Cookie{
 		Name:     s.Cookie.Name,
 		Value:    token,
@@ -357,7 +356,11 @@ func (s *FakeSessionManager) WriteSessionCookie(ctx context.Context, w http.Resp
 		cookie.Expires = time.Unix(expiry.Unix()+1, 0)        // Round up to the nearest second.
 		cookie.MaxAge = int(time.Until(expiry).Seconds() + 1) // Round up to the nearest second.
 	}
+	return cookie
+}
 
+func (s *FakeSessionManager) WriteSessionCookie(ctx context.Context, w http.ResponseWriter, token string, expiry time.Time) {
+	cookie := s.GetSessionCookie(ctx, token, expiry)
 	w.Header().Add("Set-Cookie", cookie.String())
 	w.Header().Add("Cache-Control", `no-cache="Set-Cookie"`)
 }

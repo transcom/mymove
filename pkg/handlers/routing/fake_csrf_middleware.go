@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"hash"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/benbjohnson/clock"
@@ -33,42 +35,88 @@ var (
 	safeMethods = []string{"GET", "HEAD", "OPTIONS", "TRACE"}
 )
 
-type fakeCsrf struct {
-	logger  *zap.Logger
-	orig    http.Handler
+type fakeCsrfState struct {
+	clock   clock.Clock
 	counter uint32
 	hashKey []byte
-	sc      *securecookie.SecureCookie
 	st      *cookieStore
 }
 
+var fakeState fakeCsrfState
+
+type fakeCsrf struct {
+	logger *zap.Logger
+	orig   http.Handler
+}
+
+func GetFakeCSRFCookies() []http.Cookie {
+	realToken := generateCounterBytes(tokenLength)
+	maskedToken := maskToken(realToken)
+
+	realCookie, _ := fakeState.st.GenerateCookie(realToken)
+
+	// from auth/cookie.go
+	maskedCookie := http.Cookie{
+		Name:     auth.MaskedGorillaCSRFToken,
+		Value:    maskedToken,
+		Path:     "/",
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   false,
+	}
+
+	return []http.Cookie{*realCookie, maskedCookie}
+}
+
+// MaskedCSRFMiddleware handles setting the CSRF Token cookie
+func NewFakeMaskedCSRFMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			val := r.Context().Value(contextKeyType(gorillaCsrfName))
+			maskedToken := ""
+			if val != nil {
+				if s, ok := val.(string); ok {
+					maskedToken = s
+				}
+			}
+			auth.WriteMaskedCSRFCookie(w, maskedToken, false)
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 func NewFakeCSRFMiddleware(clock clock.Clock, logger *zap.Logger) func(http.Handler) http.Handler {
-	fakeHashKey := []byte{0, 1, 2, 3}
+	fakeHashKey := make([]byte, 32)
+	binary.LittleEndian.PutUint32(fakeHashKey, 0xff00)
+	sz := securecookie.JSONEncoder{}
+	sc := securecookie.New(fakeHashKey, nil)
+	sc.SetSerializer(sz)
+	sc.MaxAge(maxAge)
+
+	// initialize fake csrf state
+	fakeState = fakeCsrfState{
+		clock:   clock,
+		counter: 0,
+		hashKey: fakeHashKey,
+		st: &cookieStore{
+			name:     auth.GorillaCSRFToken,
+			maxAge:   maxAge,
+			secure:   false,
+			httpOnly: true,
+			sameSite: int(csrf.SameSiteLaxMode),
+			path:     "/",
+			domain:   "",
+			sc:       sc,
+			sz:       sz,
+		},
+	}
+
 	return func(orig http.Handler) http.Handler {
-		sz := securecookie.JSONEncoder{}
-		sc := securecookie.New(fakeHashKey, nil)
-		sc.SetSerializer(sz)
-		sc.MaxAge(maxAge)
 
 		return &fakeCsrf{
-			logger:  logger,
-			orig:    orig,
-			counter: 0,
-			hashKey: fakeHashKey,
-			sc:      sc,
-			st: &cookieStore{
-				name:     auth.GorillaCSRFToken,
-				maxAge:   maxAge,
-				secure:   false,
-				httpOnly: true,
-				sameSite: int(csrf.SameSiteLaxMode),
-				path:     "/",
-				domain:   "",
-				sc:       sc,
-				clock:    clock,
-				hashKey:  fakeHashKey,
-				sz:       sz,
-			},
+			logger: logger,
+			orig:   orig,
 		}
 	}
 }
@@ -76,10 +124,10 @@ func NewFakeCSRFMiddleware(clock clock.Clock, logger *zap.Logger) func(http.Hand
 // Implements http.Handler for the csrf type.
 func (cs *fakeCsrf) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	realToken, err := cs.st.Get(r)
+	realToken, err := fakeState.st.Get(r)
 	if err != nil || len(realToken) != tokenLength {
-		realToken = cs.generateCounterBytes(tokenLength)
-		err = cs.st.Save(realToken, w)
+		realToken = generateCounterBytes(tokenLength)
+		err = fakeState.st.Save(realToken, w)
 		if err != nil {
 			cs.logger.Error("error saving token", zap.Error(err))
 			http.Error(w, "error saving token", http.StatusInternalServerError)
@@ -88,7 +136,7 @@ func (cs *fakeCsrf) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Save the masked token to the request context
 	ctx := r.Context()
-	ctx = context.WithValue(ctx, contextKeyType(gorillaCsrfName), cs.mask(realToken))
+	ctx = context.WithValue(ctx, contextKeyType(gorillaCsrfName), maskToken(realToken))
 	r = r.WithContext(ctx)
 
 	if !contains(safeMethods, r.Method) {
@@ -99,8 +147,7 @@ func (cs *fakeCsrf) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "error getting request token", http.StatusInternalServerError)
 			return
 		}
-		requestToken := unmask(maskedToken)
-
+		requestToken := unmaskToken(maskedToken)
 		// Compare the request token against the real token
 		if !compareTokens(requestToken, realToken) {
 			cs.logger.Error("bad token", zap.Error(err))
@@ -114,10 +161,10 @@ func (cs *fakeCsrf) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cs.orig.ServeHTTP(w, r)
 }
 
-func (cs *fakeCsrf) generateCounterBytes(n int) []byte {
+func generateCounterBytes(n int) []byte {
 	b := make([]byte, tokenLength)
-	binary.LittleEndian.PutUint32(b[0:], cs.counter)
-	cs.counter++
+	binary.LittleEndian.PutUint32(b, fakeState.counter)
+	fakeState.counter++
 	return b
 }
 
@@ -165,8 +212,8 @@ func (cs *fakeCsrf) requestToken(r *http.Request) ([]byte, error) {
 // token and returning them together as a 64-byte slice. This effectively
 // randomises the token on a per-request basis without breaking multiple browser
 // tabs/windows.
-func (cs *fakeCsrf) mask(realToken []byte) string {
-	otp := cs.generateCounterBytes(tokenLength)
+func maskToken(realToken []byte) string {
+	otp := generateCounterBytes(tokenLength)
 
 	// XOR the OTP with the real token to generate a masked token. Append the
 	// OTP to the front of the masked token to allow unmasking in the subsequent
@@ -176,7 +223,7 @@ func (cs *fakeCsrf) mask(realToken []byte) string {
 
 // unmask splits the issued token (one-time-pad + masked token) and returns the
 // unmasked request token for comparison.
-func unmask(issued []byte) []byte {
+func unmaskToken(issued []byte) []byte {
 	// Issued tokens are always masked and combined with the pad.
 	if len(issued) != tokenLength*2 {
 		return nil
@@ -243,8 +290,6 @@ type cookieStore struct {
 	domain   string
 	sc       *securecookie.SecureCookie
 	sameSite int
-	clock    clock.Clock
-	hashKey  []byte
 	sz       securecookie.Serializer
 }
 
@@ -259,7 +304,7 @@ func (cs *cookieStore) Get(r *http.Request) ([]byte, error) {
 
 	token := make([]byte, tokenLength)
 	// Decode the HMAC authenticated cookie.
-	err = cs.sc.Decode(cs.name, cookie.Value, &token)
+	err = cs.FakeDecode(cs.name, cookie.Value, &token)
 	if err != nil {
 		return nil, err
 	}
@@ -267,12 +312,11 @@ func (cs *cookieStore) Get(r *http.Request) ([]byte, error) {
 	return token, nil
 }
 
-// Save stores the CSRF token in the session cookie.
-func (cs *cookieStore) Save(token []byte, w http.ResponseWriter) error {
+func (cs *cookieStore) GenerateCookie(token []byte) (*http.Cookie, error) {
 	// Generate an encoded cookie value with the CSRF token.
 	encoded, err := cs.FakeEncode(cs.name, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	cookie := &http.Cookie{
@@ -290,10 +334,18 @@ func (cs *cookieStore) Save(token []byte, w http.ResponseWriter) error {
 	// If MaxAge <= 0, we don't set the Expires attribute, making the cookie
 	// session-only.
 	if cs.maxAge > 0 {
-		cookie.Expires = cs.clock.Now().Add(
+		cookie.Expires = fakeState.clock.Now().Add(
 			time.Duration(cs.maxAge) * time.Second)
 	}
+	return cookie, nil
+}
 
+// Save stores the CSRF token in the session cookie.
+func (cs *cookieStore) Save(token []byte, w http.ResponseWriter) error {
+	cookie, err := cs.GenerateCookie(token)
+	if err != nil {
+		return err
+	}
 	// Write the authenticated cookie to the response.
 	http.SetCookie(w, cookie)
 
@@ -309,9 +361,9 @@ func (cs *cookieStore) FakeEncode(name string, value interface{}) (string, error
 	}
 	b = encode(b)
 	// 3. Create MAC for "name|date|value". Extra pipe to be used later.
-	b = []byte(fmt.Sprintf("%s|%d|%s|", name, cs.clock.Now().UTC().Unix(), b))
+	b = []byte(fmt.Sprintf("%s|%d|%s|", name, fakeState.clock.Now().UTC().Unix(), b))
 	hashFunc := sha256.New
-	mac := createMac(hmac.New(hashFunc, cs.hashKey), b[:len(b)-1])
+	mac := createMac(hmac.New(hashFunc, fakeState.hashKey), b[:len(b)-1])
 	// Append mac, remove name.
 	b = append(b, mac...)[len(name)+1:]
 	// 4. Encode to base64.
@@ -328,8 +380,74 @@ func encode(value []byte) []byte {
 	return encoded
 }
 
+// decode decodes a cookie using base64.
+func decode(value []byte) ([]byte, error) {
+	decoded := make([]byte, base64.URLEncoding.DecodedLen(len(value)))
+	b, err := base64.URLEncoding.Decode(decoded, value)
+	if err != nil {
+		return nil, fmt.Errorf("base64 decode failed")
+	}
+	return decoded[:b], nil
+}
+
 // createMac creates a message authentication code (MAC).
 func createMac(h hash.Hash, value []byte) []byte {
 	h.Write(value)
 	return h.Sum(nil)
+}
+
+// verifyMac verifies that a message authentication code (MAC) is valid.
+func verifyMac(h hash.Hash, value []byte, mac []byte) error {
+	mac2 := createMac(h, value)
+	// Check that both MACs are of equal length, as subtle.ConstantTimeCompare
+	// does not do this prior to Go 1.4.
+	if len(mac) == len(mac2) && subtle.ConstantTimeCompare(mac, mac2) == 1 {
+		return nil
+	}
+	return fmt.Errorf("Cookie MAC invalid")
+}
+
+func (cs *cookieStore) FakeDecode(name string, value string, dst interface{}) error {
+
+	maxLength := 4096
+	// 1. Check length.
+	if len(value) > maxLength {
+		return fmt.Errorf("The cooke value is too long")
+	}
+	// 2. Decode from base64.
+	b, err := decode([]byte(value))
+	if err != nil {
+		return err
+	}
+	// 3. Verify MAC. Value is "date|value|mac".
+	parts := bytes.SplitN(b, []byte("|"), 3)
+	if len(parts) != 3 {
+		return fmt.Errorf("Cookie MAC invalid")
+	}
+	hashFunc := sha256.New
+	h := hmac.New(hashFunc, fakeState.hashKey)
+	b = append([]byte(name+"|"), b[:len(b)-len(parts[2])-1]...)
+	if err = verifyMac(h, b, parts[2]); err != nil {
+		return err
+	}
+	// 4. Verify date ranges.
+	var t1 int64
+	if t1, err = strconv.ParseInt(string(parts[0]), 10, 64); err != nil {
+		return fmt.Errorf("cookie timestamp invalid")
+	}
+	t2 := fakeState.clock.Now().UTC().Unix()
+	if t1 < t2-int64(cs.maxAge) {
+		return fmt.Errorf("cookie expired")
+	}
+	// 5. Decrypt (optional).
+	b, err = decode(parts[1])
+	if err != nil {
+		return err
+	}
+	// 6. Deserialize.
+	if err = cs.sz.Deserialize(b, dst); err != nil {
+		return err
+	}
+	// Done.
+	return nil
 }

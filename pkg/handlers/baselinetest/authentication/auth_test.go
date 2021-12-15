@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"github.com/trussworks/httpbaselinetest"
 
@@ -27,10 +26,6 @@ func TestAuthSuite(t *testing.T) {
 
 func (suite *AuthSuite) TestLoginGovRedirect() {
 	setupFunc := func(name string, btest *httpbaselinetest.HTTPBaselineTest) error {
-
-		// this is kinda dangerous as it overrides the global
-		// behavior, but that's all that gofrs/uuid provides
-		uuid.DefaultGenerator = baselinetest.NewFakeGenerator()
 
 		user := testdatagen.MakeDefaultUser(suite.DB())
 		// user is in office_users but has never logged into the app

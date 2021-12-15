@@ -512,6 +512,9 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		csrf.Secure(routingConfig.HandlerConfig.UseSecureCookie()),
 		csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken))
 
+	routingConfig.MaskedCSRFMiddleware = auth.MaskedCSRFMiddleware(appCtx.Logger(),
+		routingConfig.HandlerConfig.UseSecureCookie())
+
 	// Email
 	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())
 	if err != nil {

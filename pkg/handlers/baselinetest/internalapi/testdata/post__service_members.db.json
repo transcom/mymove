@@ -1,0 +1,70 @@
+{
+  "addresses": {
+    "numRowsInserted": 2,
+    "numRowsUpdated": 0,
+    "numRowsDeleted": 0,
+    "removedRows": [],
+    "addedRows": [
+      {
+        "city": "Happytown",
+        "country": null,
+        "created_at": "2000-01-02T03:04:05",
+        "id": "00000000-0000-4000-8005-000000000000",
+        "postal_code": "01234",
+        "state": "AL",
+        "street_address_1": "An address",
+        "street_address_2": "Apt. 2",
+        "street_address_3": "address line 3",
+        "updated_at": "2000-01-02T03:04:05"
+      },
+      {
+        "city": "Happytown",
+        "country": null,
+        "created_at": "2000-01-02T03:04:05",
+        "id": "00000000-0000-4000-8006-000000000000",
+        "postal_code": "01234",
+        "state": "AL",
+        "street_address_1": "An address",
+        "street_address_2": "Apt. 2",
+        "street_address_3": "address line 3",
+        "updated_at": "2000-01-02T03:04:05"
+      }
+    ]
+  },
+  "audit_history": {
+    "numRowsInserted": 3,
+    "numRowsUpdated": 0,
+    "numRowsDeleted": 0,
+    "removedRows": null,
+    "addedRows": null
+  },
+  "service_members": {
+    "numRowsInserted": 1,
+    "numRowsUpdated": 0,
+    "numRowsDeleted": 0,
+    "removedRows": [],
+    "addedRows": [
+      {
+        "affiliation": null,
+        "backup_mailing_address_id": "00000000-0000-4000-8006-000000000000",
+        "created_at": "2000-01-02T03:04:05",
+        "duty_location_id": null,
+        "edipi": "9999999999",
+        "email_is_preferred": true,
+        "first_name": "random string bla",
+        "id": "00000000-0000-4000-8007-000000000000",
+        "last_name": "random string bla",
+        "middle_name": "random string bla",
+        "personal_email": "wml@example.com",
+        "phone_is_preferred": false,
+        "rank": null,
+        "residential_address_id": "00000000-0000-4000-8005-000000000000",
+        "secondary_telephone": "555-555-1234",
+        "suffix": "random string bla",
+        "telephone": "555-555-5555",
+        "updated_at": "2000-01-02T03:04:05",
+        "user_id": "00000000-0000-4000-8003-000000000000"
+      }
+    ]
+  }
+}

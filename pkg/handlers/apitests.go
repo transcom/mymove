@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2/memstore"
+	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -44,12 +45,15 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 // NOTE: it returns the Config implementation, not the
 // HandlerConfig interface, so overrides can be made to the config
 func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
+	mc := clock.NewMock()
+	mc.Set(time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC))
 	return &Config{
 		db:     suite.DB(),
 		logger: suite.Logger(),
 		appSessionManagers: auth.SetupSessionManagers(
 			memstore.NewWithCleanupInterval(0), false,
 			time.Duration(1*time.Hour), time.Duration(2*time.Hour)),
+		clock: mc,
 	}
 }
 

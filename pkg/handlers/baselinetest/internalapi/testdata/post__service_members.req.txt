@@ -1,0 +1,36 @@
+POST /internal/service_members HTTP/1.1
+Host: mil.example.com
+Content-Type: application/json
+Cookie: _gorilla_csrf=OTQ2NzgyMjQ1fElrRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVFOUlnbz18otoWqmIWva-lHk4txbFMMzzIG1WdTYfu7H9RerJWxpI=; masked_gorilla_csrf=AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==; mil_session_token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+X-Csrf-Token: AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+Content-Length: 688
+
+{
+  "backup_mailing_address": {
+    "city": "Happytown",
+    "postalCode": "01234",
+    "state": "AL",
+    "streetAddress1": "An address",
+    "streetAddress2": "Apt. 2",
+    "streetAddress3": "address line 3"
+  },
+  "edipi": "9999999999",
+  "email_is_preferred": true,
+  "first_name": "random string bla",
+  "last_name": "random string bla",
+  "middle_name": "random string bla",
+  "personal_email": "wml@example.com",
+  "phone_is_preferred": false,
+  "residential_address": {
+    "city": "Happytown",
+    "postalCode": "01234",
+    "state": "AL",
+    "streetAddress1": "An address",
+    "streetAddress2": "Apt. 2",
+    "streetAddress3": "address line 3"
+  },
+  "secondary_telephone": "555-555-1234",
+  "suffix": "random string bla",
+  "telephone": "555-555-5555",
+  "user_id": "00000000-0000-4000-8003-000000000000"
+}

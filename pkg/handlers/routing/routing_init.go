@@ -33,8 +33,8 @@ type Config struct {
 	// the authentication config
 	AuthConfig authentication.Config
 
-	// The Cross Site Request Forgery Middleware to use
-	CSRFMiddleware func(http.Handler) http.Handler
+	CSRFMiddleware       func(http.Handler) http.Handler
+	MaskedCSRFMiddleware func(http.Handler) http.Handler
 
 	// Use the afero filesystem interface to allow for replacement
 	// during testing
@@ -135,7 +135,6 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.AppSessionManagers())
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.UseSecureCookie())
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
@@ -271,7 +270,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	appCtx.Logger().Info("Enabling CSRF protection")
 	root.Use(routingConfig.CSRFMiddleware)
-	root.Use(maskedCSRFMiddleware)
+	root.Use(routingConfig.MaskedCSRFMiddleware)
 
 	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.AppSessionManagers().MilSessionManager().LoadAndSave(root))
 	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.AppSessionManagers().AdminSessionManager().LoadAndSave(root))
