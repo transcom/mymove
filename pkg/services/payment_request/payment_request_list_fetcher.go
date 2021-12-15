@@ -95,7 +95,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id, duty_stations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
