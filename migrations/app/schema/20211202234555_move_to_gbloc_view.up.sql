@@ -40879,4 +40879,4 @@ ALTER TABLE postal_code_to_gblocs
 	DROP CONSTRAINT postal_code_to_gbloc_pkey,
 	ADD PRIMARY KEY (id),
 	ALTER COLUMN postal_code SET NOT NULL,
-	ADD CONSTRAINT unique_postal_code UNIQUE (postal_code);
+	ADD CONSTRAINT postal_code_to_gblocs_unique_postal_code UNIQUE (postal_code);
