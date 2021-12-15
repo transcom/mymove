@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
@@ -6,15 +7,15 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const agents = [
   {
-    type: 'RELEASING_AGENT',
+    agentType: 'RELEASING_AGENT',
     firstName: 'Dorothy',
     lastName: 'Lagomarsino',
-    email: 'dorothyl@email.com',
+    email: 'dorothyal@email.com',
     phone: '+1 999-999-9999',
     shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
   },
   {
-    type: 'RECEIVING_AGENT',
+    agentType: 'RECEIVING_AGENT',
     firstName: 'Dorothy Lagomarsino',
     lastName: 'Lagomarsino',
     email: 'dorothyl@email.com',
@@ -134,6 +135,57 @@ const shipments = [
     updatedAt: '2020-06-10T15:58:02.431995Z',
     mtoAgents: agents,
   },
+  {
+    approvedDate: '0001-01-01',
+    createdAt: '2020-06-10T15:58:02.431993Z',
+    customerRemarks: 'please treat gently',
+    destinationAddress: {
+      postalCode: '94535',
+    },
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
+    id: 'abc',
+    moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MTMyNDha',
+      id: '14b1d10d-b34b-4ec5-80e6-69d885206a2a',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    rejectionReason: 'shipment not good enough',
+    requestedPickupDate: '2018-03-15',
+    scheduledPickupDate: '2018-03-16',
+    secondaryDeliveryAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MjYxODVa',
+      id: '1a4f6fec-42b9-4dd2-b205-c6770ac7ea27',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    secondaryPickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MjIwNzVa',
+      id: 'e188f33f-f84d-4f86-954a-938b52e38741',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    shipmentType: SHIPMENT_OPTIONS.NTS,
+    status: 'SUBMITTED',
+    updatedAt: '2020-06-10T15:58:02.431995Z',
+    mtoAgents: agents,
+  },
 ];
 
 const allowancesInfo = {
@@ -165,6 +217,49 @@ const customerInfo = {
   },
 };
 
+const ordersInfo = {
+  newDutyStation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postalCode: '30813',
+      state: 'GA',
+      streetAddress1: 'Fort Gordon',
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyStation: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: 'COAST_GUARD',
+  ordersNumber: 'ORDER3',
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersTypeDetail: 'TBD',
+  tacMDC: '',
+  sacSDN: '',
+};
+
 export const shipmentApprovalPreviewModal = () => (
   <div style={{ minWidth: '1240px' }}>
     <ShipmentApprovalPreview
@@ -176,6 +271,8 @@ export const shipmentApprovalPreviewModal = () => (
       allowancesInfo={allowancesInfo}
       counselingFee
       shipmentManagementFee
+      onSubmit={action('submit shipment approval')}
+      ordersInfo={ordersInfo}
     />
   </div>
 );
@@ -191,6 +288,8 @@ export const approvalPreviewWithShipments = () => (
       allowancesInfo={allowancesInfo}
       counselingFee
       shipmentManagementFee
+      onSubmit={action('submit shipment approval')}
+      ordersInfo={ordersInfo}
     />
   </div>
 );

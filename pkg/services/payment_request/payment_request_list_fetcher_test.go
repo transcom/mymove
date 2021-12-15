@@ -607,9 +607,9 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedOriginDutyLocation)
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("originDutyLocation"), Order: swag.String("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
-		paymentRequests := *expectedPaymentRequests
-
 		suite.NoError(err)
+
+		paymentRequests := *expectedPaymentRequests
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name))
 		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name))

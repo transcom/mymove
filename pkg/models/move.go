@@ -108,6 +108,7 @@ type Move struct {
 	FinancialReviewFlag          bool                    `db:"financial_review_flag"`
 	FinancialReviewFlagSetAt     *time.Time              `db:"financial_review_flag_set_at"`
 	FinancialReviewRemarks       *string                 `db:"financial_review_remarks"`
+	ShipmentGBLOC                MoveToGBLOCs            `has_many:"move_to_gbloc" fk_id:"move_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters

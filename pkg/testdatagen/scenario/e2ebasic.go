@@ -157,6 +157,9 @@ func userWithTOORole(appCtx appcontext.AppContext) {
 			Active: true,
 			UserID: &tooUUID,
 		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "KKFA",
+		},
 	})
 }
 
