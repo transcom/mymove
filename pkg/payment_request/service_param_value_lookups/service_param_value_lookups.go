@@ -131,7 +131,7 @@ func ServiceParamLookupInitialize(
 			pickupAddress = *mtoShipment.PickupAddress
 		}
 
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK && mtoServiceItem.ReService.Code != models.ReServiceCodeDNPK {
 			if mtoShipment.DestinationAddressID == nil {
 				return nil, apperror.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
 			}
@@ -459,7 +459,7 @@ func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(appCtx appcontext.App
 		switch paramKey {
 		case models.ServiceItemParamNameDistanceZip5, models.ServiceItemParamNameDistanceZip3:
 			switch serviceItemCode {
-			case models.ReServiceCodeDPK, models.ReServiceCodeDUPK:
+			case models.ReServiceCodeDPK, models.ReServiceCodeDNPK, models.ReServiceCodeDUPK:
 				return false, nil
 			}
 		case models.ServiceItemParamNameZipPickupAddress:
@@ -469,7 +469,7 @@ func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(appCtx appcontext.App
 			}
 		case models.ServiceItemParamNameZipDestAddress:
 			switch serviceItemCode {
-			case models.ReServiceCodeDPK:
+			case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 				return false, nil
 			}
 		case models.ServiceItemParamNameServiceAreaOrigin:
@@ -479,7 +479,7 @@ func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(appCtx appcontext.App
 			}
 		case models.ServiceItemParamNameServiceAreaDest:
 			switch serviceItemCode {
-			case models.ReServiceCodeDPK:
+			case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 				return false, nil
 			}
 		case models.ServiceItemParamNameServicesScheduleOrigin:
@@ -489,7 +489,7 @@ func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(appCtx appcontext.App
 			}
 		case models.ServiceItemParamNameServicesScheduleDest:
 			switch serviceItemCode {
-			case models.ReServiceCodeDPK:
+			case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 				return false, nil
 			}
 		}
