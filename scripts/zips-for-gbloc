@@ -15,7 +15,7 @@ printf "Here are a few ZIP codes in the %s GBLOC: \\n\\n" "$gbloc"
 # The -t option prints just the values as opposed to the default formatting that
 # includes the column name underlined
 psql -t postgres://"$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" << EOF
-SELECT postal_code FROM postal_code_to_gbloc
+SELECT postal_code FROM postal_code_to_gblocs
 WHERE gbloc = UPPER('$gbloc')
 LIMIT 10;
 EOF
