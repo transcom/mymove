@@ -181,12 +181,12 @@ const MoveDetails = ({
 
     mtoShipments?.forEach((mtoShipment) => {
       const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const missingFieldsOnShipment = fieldsToCheckForShipment?.filter(
+      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some(
         (field) => !mtoShipment[field] || mtoShipment[field] === '',
       );
 
       // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && missingFieldsOnShipment?.length !== 0) {
+      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
         shipmentIsMissingInformation = true;
       }
     });
