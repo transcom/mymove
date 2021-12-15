@@ -187,7 +187,7 @@ const MoveDetails = ({
       }
     });
     setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments, setShipmentMissingRequiredInformation]);
+  }, [mtoShipments]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
