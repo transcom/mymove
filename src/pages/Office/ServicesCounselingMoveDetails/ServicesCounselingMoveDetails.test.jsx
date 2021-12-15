@@ -121,6 +121,41 @@ const mtoShipments = [
   },
 ];
 
+const ntsrShipmentMissingRequiredInfo = {
+  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  primeActualWeight: 2000,
+  id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
+  serviceOrderNumber: '12341234',
+  requestedDeliveryDate: '26 Mar 2020',
+  destinationAddress: {
+    streetAddress1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postalCode: '98421',
+  },
+  secondaryDeliveryAddress: {
+    streetAddress1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  agents: [
+    {
+      agentType: 'RECEIVING_AGENT',
+      firstName: 'Kate',
+      lastName: 'Smith',
+      phone: '419-555-9999',
+      email: 'ksmith@email.com',
+    },
+  ],
+  counselorRemarks:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
+    'Morbi porta nibh nibh, ac malesuada tortor egestas.',
+  customerRemarks: 'Ut enim ad minima veniam',
+  tacType: 'HHG',
+  sacType: 'NTS',
+};
+
 const newMoveDetailsQuery = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -450,6 +485,19 @@ describe('MoveDetails page', () => {
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
+      });
+
+      it('submit move details button is disabled when a shipment has missing information', async () => {
+        const moveDetailsQuery = {
+          ...newMoveDetailsQuery,
+          mtoShipments: [ntsrShipmentMissingRequiredInfo],
+        };
+        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
       });
 
       it('renders the Orders Definition List', async () => {
