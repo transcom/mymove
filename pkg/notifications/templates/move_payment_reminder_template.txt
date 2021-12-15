@@ -28,8 +28,6 @@ If you’re missing receipts, you can still request payment. You might not get r
 
 If you’re missing certified weight tickets, your PPPO will have to help. {{if .TOName}}Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.{{end}}
 
-If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's directory of PCS-related contacts to find your best contact and reference your move code {{.Locator}}.
-
 Log in to MilMove to complete your request and get paid.
 
 Request payment within 45 days of your move date or you might not be able to get paid.
