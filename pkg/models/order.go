@@ -63,7 +63,6 @@ type Order struct {
 	UploadedAmendedOrders       *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
 	UploadedAmendedOrdersID     *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
 	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
-	GBLOC                       *string                            `json:"gbloc" db:"gbloc"`
 }
 
 // Orders is not required by pop and may be deleted

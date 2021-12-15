@@ -760,6 +760,19 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
+		var gbloc ghcmessages.GBLOC
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		} else if len(move.ShipmentGBLOC) > 0 {
+			// There is a Pop bug that prevents us from using a has_one association for
+			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
+			// though there can never be more than one GBLOC for a move.
+			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
+		} else {
+			// If the move doesn't have any shipments, we cannot assign it a GBLOC
+			gbloc = ""
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
@@ -771,7 +784,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			OriginDutyLocation:     DutyStation(move.Orders.OriginDutyStation),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
-			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
+			OriginGBLOC:            gbloc,
 		}
 	}
 	return &queueMoves

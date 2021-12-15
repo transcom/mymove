@@ -689,3 +689,4 @@
 20211207193349_fix_optional_dnpk_params.up.sql
 20211209182000_add_nts_recorded_weight.up.sql
 20211213235039_update_duty_station_location.up.sql
+20211214234555_move_to_gbloc_view.up.sql
