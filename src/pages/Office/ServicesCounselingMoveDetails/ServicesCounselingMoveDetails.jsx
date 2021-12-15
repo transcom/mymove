@@ -22,7 +22,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, WARN_IF_MISSING, ERROR_IF_MISSING } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -44,6 +44,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
   const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
+  const warnIfMissing = {
+    HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+  };
+  const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
   let disableSubmit = false;
@@ -67,9 +71,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
         ...shipment,
       };
 
-      if (!disableSubmit && ERROR_IF_MISSING[shipment.shipmentType]) {
-        for (let i = 0; i < ERROR_IF_MISSING[shipment.shipmentType].length; i += 1) {
-          if (!displayInfo[ERROR_IF_MISSING[shipment.shipmentType][i]]) {
+      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
+        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
+          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
             disableSubmit = true;
           }
         }
@@ -268,8 +272,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     shipmentType={shipment.shipmentType}
                     showIcon={false}
                     ordersLOA={ordersLOA}
-                    warnIfMissing={WARN_IF_MISSING[shipment.shipmentType]}
-                    errorIfMissing={ERROR_IF_MISSING[shipment.shipmentType]}
+                    warnIfMissing={warnIfMissing[shipment.shipmentType]}
+                    errorIfMissing={errorIfMissing[shipment.shipmentType]}
                     showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
                   />
                 ))}

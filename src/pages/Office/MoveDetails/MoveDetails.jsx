@@ -26,7 +26,6 @@ import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from '
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { WARN_IF_MISSING } from 'shared/constants';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -34,6 +33,11 @@ const sectionLabels = {
   orders: 'Orders',
   allowances: 'Allowances',
   'customer-info': 'Customer info',
+};
+
+const errorIfMissing = {
+  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['tacType'],
 };
 
 const MoveDetails = ({
@@ -176,7 +180,7 @@ const MoveDetails = ({
     let shipmentIsMissingInformation = false;
 
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = WARN_IF_MISSING[mtoShipment.shipmentType];
+      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
       const missingFieldsOnShipment = fieldsToCheckForShipment?.filter(
         (field) => !mtoShipment[field] || mtoShipment[field] === '',
       );
