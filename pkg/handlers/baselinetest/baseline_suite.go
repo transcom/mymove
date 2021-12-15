@@ -3,7 +3,9 @@ package baselinetest
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -24,7 +26,7 @@ import (
 type BaselineSuite struct {
 	handlers.BaseHandlerTestSuite
 	BaselineTestSuite *httpbaselinetest.Suite
-	appNames          auth.ApplicationServername
+	AppNames          auth.ApplicationServername
 }
 
 func NewBaselineSuite(t *testing.T) *BaselineSuite {
@@ -35,7 +37,7 @@ func NewBaselineSuite(t *testing.T) *BaselineSuite {
 	return &BaselineSuite{
 		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		BaselineTestSuite:    httpbaselinetest.NewDefaultSuite(t),
-		appNames: auth.ApplicationServername{
+		AppNames: auth.ApplicationServername{
 			MilServername:    "mil.example.com",
 			OfficeServername: "office.example.com",
 			AdminServername:  "admin.example.com",
@@ -43,7 +45,7 @@ func NewBaselineSuite(t *testing.T) *BaselineSuite {
 	}
 }
 
-func (suite *BaselineSuite) getSqlxDb() *sqlx.DB {
+func (suite *BaselineSuite) GetSqlxDb() *sqlx.DB {
 	// *sigh* pop does not expose the sqlx.DB, so use reflection to get
 	// access
 
@@ -57,7 +59,7 @@ func (suite *BaselineSuite) getSqlxDb() *sqlx.DB {
 
 func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetAppNames(suite.appNames)
+	handlerConfig.SetAppNames(suite.AppNames)
 	mc := clock.NewMock()
 	mc.Set(time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC))
 
@@ -72,11 +74,15 @@ func (suite *BaselineSuite) RoutingConfigForTest() *routing.Config {
 	authConfig := authentication.NewAuthConfig(suite.Logger(),
 		p, "http", 80)
 
+	// runtime.Caller is the preferred go way of getting the current filename
+	_, fileName, _, _ := runtime.Caller(0)
+	buildRoot := filepath.Join(filepath.Dir(fileName), "fakebase")
+
 	return &routing.Config{
 		HandlerConfig:  handlerConfig,
 		AuthConfig:     authConfig,
 		CSRFMiddleware: routing.NewFakeCSRFMiddleware(mc, suite.Logger()),
-		BuildRoot:      "fakebase",
+		BuildRoot:      buildRoot,
 	}
 }
 

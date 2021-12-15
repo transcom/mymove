@@ -1,4 +1,4 @@
-package baselinetest
+package authentication
 
 import (
 	"net/http"
@@ -10,16 +10,17 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/handlers/baselinetest"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type AuthSuite struct {
-	*BaselineSuite
+	*baselinetest.BaselineSuite
 }
 
 func TestAuthSuite(t *testing.T) {
-	s := &AuthSuite{NewBaselineSuite(t)}
+	s := &AuthSuite{baselinetest.NewBaselineSuite(t)}
 	suite.Run(t, s)
 	s.PopTestSuite.TearDown()
 }
@@ -29,7 +30,7 @@ func (suite *AuthSuite) TestLoginGovRedirect() {
 
 		// this is kinda dangerous as it overrides the global
 		// behavior, but that's all that gofrs/uuid provides
-		uuid.DefaultGenerator = NewFakeGenerator()
+		uuid.DefaultGenerator = baselinetest.NewFakeGenerator()
 
 		user := testdatagen.MakeDefaultUser(suite.DB())
 		// user is in office_users but has never logged into the app
@@ -47,7 +48,7 @@ func (suite *AuthSuite) TestLoginGovRedirect() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         fakeToken,
-			Hostname:        suite.appNames.OfficeServername,
+			Hostname:        suite.AppNames.OfficeServername,
 			Email:           officeUser.Email,
 		}
 
@@ -63,7 +64,7 @@ func (suite *AuthSuite) TestLoginGovRedirect() {
 
 		btest.Handler = suite.RoutingForTest()
 
-		btest.Db = suite.getSqlxDb()
+		btest.Db = suite.GetSqlxDb()
 
 		return nil
 	}
@@ -72,7 +73,7 @@ func (suite *AuthSuite) TestLoginGovRedirect() {
 		Setup:  setupFunc,
 		Method: http.MethodGet,
 		Path:   "/auth/login-gov",
-		Host:   suite.appNames.OfficeServername,
+		Host:   suite.AppNames.OfficeServername,
 		Tables: []string{"office_users", "users"},
 	})
 }
