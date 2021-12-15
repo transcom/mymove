@@ -2120,6 +2120,7 @@ func init() {
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
+          "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
         },
@@ -3032,6 +3033,7 @@ func init() {
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
+          "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
         },
@@ -5714,6 +5716,7 @@ func init() {
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
+          "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
         },
@@ -6629,6 +6632,7 @@ func init() {
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
+          "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
         },
