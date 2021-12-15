@@ -627,12 +627,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.Require().Error(err)
 		suite.Nil(updatedMTOShipment)
-		suite.IsType(apperror.QueryError{}, err)
-		suite.Equal(err.Error(), "Could not complete query related to object of type: mtoShipment.")
+		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
 
+		suite.IsType(apperror.QueryError{}, err)
 		queryErr := err.(apperror.QueryError)
 		wrappedErr := queryErr.Unwrap()
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
+		suite.IsType(apperror.InvalidInputError{}, wrappedErr)
 		suite.Equal("field NTSRecordedWeight cannot be set for shipment type HHG", wrappedErr.Error())
 	})
 

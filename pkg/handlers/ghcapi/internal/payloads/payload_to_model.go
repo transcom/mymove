@@ -302,7 +302,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	if mtoShipment.NtsRecordedWeight != nil {
-		// ntsRecordedWeight := unit.Pound(*mtoShipment.NtsRecordedWeight)
 		ntsRecordedWeight := handlers.PoundPtrFromInt64Ptr(mtoShipment.NtsRecordedWeight)
 		model.NTSRecordedWeight = ntsRecordedWeight
 	}
