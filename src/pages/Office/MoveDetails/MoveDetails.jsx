@@ -303,6 +303,7 @@ const MoveDetails = ({
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={history.push}
+                moveCode={moveCode}
               />
             </div>
           )}
@@ -316,6 +317,7 @@ const MoveDetails = ({
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus={shipmentStatuses.APPROVED}
+                moveCode={moveCode}
               />
             </div>
           )}
