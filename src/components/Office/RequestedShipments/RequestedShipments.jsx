@@ -226,15 +226,23 @@ const RequestedShipments = ({
           <h2>Approved shipments</h2>
           <div className={shipmentCardsStyles.shipmentCards}>
             {mtoShipments &&
-              mtoShipments.map((shipment) => (
-                <ShipmentDisplay
-                  key={shipment.id}
-                  shipmentId={shipment.id}
-                  shipmentType={shipment.shipmentType}
-                  displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
-                  isSubmitted={false}
-                />
-              ))}
+              mtoShipments.map((shipment) => {
+                const editURL = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+                  moveCode,
+                  shipmentId: shipment.id,
+                });
+
+                return (
+                  <ShipmentDisplay
+                    key={shipment.id}
+                    shipmentId={shipment.id}
+                    shipmentType={shipment.shipmentType}
+                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    isSubmitted={false}
+                    editURL={editURL}
+                  />
+                );
+              })}
           </div>
         </>
       )}
