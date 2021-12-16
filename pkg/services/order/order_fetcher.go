@@ -98,7 +98,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("addresses as origin_add", "origin_add.id = origin_ds.address_id").
-		LeftJoin("postal_code_to_gbloc as pcg", "pcg.postal_code = origin_add.postal_code").
+		InnerJoin("postal_code_to_gblocs as pcg", "pcg.postal_code = origin_add.postal_code").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
@@ -207,9 +207,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string, isCounselor bool) QueryOption {
+func branchFilter(branch *string, needsCounseling bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil && !isCounselor {
+		if branch == nil && !needsCounseling {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {

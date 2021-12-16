@@ -762,6 +762,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var gbloc ghcmessages.GBLOC
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			// THIS NEEDS TO BE UPDATED!!!!
 			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
