@@ -38,12 +38,12 @@ const EditShipmentDetails = ({ match }) => {
 
   const TACs = {
     HHG: order.tac,
-    NTS: order.nts_tac,
+    NTS: order.ntsTac,
   };
 
   const SACs = {
     HHG: order.sac,
-    NTS: order.nts_sac,
+    NTS: order.ntsSac,
   };
 
   return (
