@@ -93,7 +93,7 @@ const columns = () => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', {
-    isFilterable: true,
+    disableSortBy: true,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
