@@ -270,6 +270,7 @@ func subScenarioNTSShipments(
 		// Create some unsubmitted Moves for Customer users
 		createMoveWithNTSAndNTSR(
 			appCtx,
+			moveRouter,
 			sceneOptionsNTS{
 				shipmentMoveCode: "NTSUNS",
 				moveStatus:       models.MoveStatusDRAFT,
@@ -279,6 +280,7 @@ func subScenarioNTSShipments(
 		// Create some submitted Moves for TXO users
 		createMoveWithNTSAndNTSR(
 			appCtx,
+			moveRouter,
 			sceneOptionsNTS{
 				shipmentMoveCode: "NTSSUB",
 				moveStatus:       models.MoveStatusSUBMITTED,

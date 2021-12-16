@@ -836,7 +836,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 }
 
-func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, opts sceneOptionsNTS) {
+func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.MoveRouter, opts sceneOptionsNTS) {
 	db := appCtx.DB()
 
 	// Generate some UUIDs for everything needed to create these types of moves.
