@@ -97,6 +97,15 @@ export const DPK = (data) => (
   />
 );
 
+export const DNPK = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticNTSPacking}
+    totalAmountRequested={642}
+    itemCode="DNPK"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DSH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticShortHaul}
