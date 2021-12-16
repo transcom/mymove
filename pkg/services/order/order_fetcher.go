@@ -11,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -46,20 +45,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	// The services counselot queue does not base exclude marine results.
 	// Only the TIO and TOO queues should.
-	isCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
-	branchQuery := branchFilter(params.Branch, isCounselor)
+	needsCounseling := false
+	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
+		needsCounseling = true
+	}
+	branchQuery := branchFilter(params.Branch, needsCounseling)
+
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
-	// if officeUserGbloc == "USMC" && !isCounselor {
-	// 	branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
-	// 	gblocQuery = gblocFilter(params.OriginGBLOC, isCounselor)
-	// } else {
-	// 	gblocQuery = gblocFilter(&officeUserGbloc, isCounselor)
-	// }
 	var gblocToFilterBy *string
-	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), isCounselor)
+	if officeUserGbloc == "USMC" && !needsCounseling {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
@@ -69,8 +66,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//  - The Services Counselor queue filters based on the GBLOC of the transportation office
 	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
 	var gblocQuery QueryOption
-	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
-		gblocQuery = gblocFilter(gblocToFilterBy, isCounselor)
+	if needsCounseling {
+		gblocQuery = gblocFilter(gblocToFilterBy, needsCounseling)
 	} else {
 		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
 	}
@@ -308,7 +305,7 @@ func gblocFilter(gbloc *string, isCounselor bool) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			if isCounselor {
-				query.Where("pcg.gbloc ILIKE ?", *gbloc)
+				query.Where("pcg.gbloc = ?", *gbloc)
 			} else {
 				query.Where("origin_to.gbloc ILIKE ?", *gbloc)
 			}
