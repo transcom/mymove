@@ -16,6 +16,11 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
 
+const errorIfMissing = {
+  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+};
+
 const RequestedShipments = ({
   mtoShipments,
   ordersInfo,
@@ -173,6 +178,7 @@ const RequestedShipments = ({
                       shipmentType={shipment.shipmentType}
                       isSubmitted
                       displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                      errorIfMissing={errorIfMissing[shipment.shipmentType]}
                       editURL={editURL}
                       /* eslint-disable-next-line react/jsx-props-no-spreading */
                       {...formik.getFieldProps(`shipments`)}
