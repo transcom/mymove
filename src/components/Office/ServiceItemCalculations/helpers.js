@@ -378,6 +378,13 @@ const packPrice = (params) => {
   );
 };
 
+const ntsPackingFactor = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NTSPackingFactor, params) || '';
+  const label = SERVICE_ITEM_CALCULATION_LABELS.NTSPackingFactor;
+
+  return calculation(value, label);
+};
+
 const unpackPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPrice;
@@ -617,6 +624,16 @@ const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
       result = [
         billableWeight(params),
         packPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic NTS packing
+    case SERVICE_ITEM_CODES.DNPK:
+      result = [
+        billableWeight(params),
+        packPrice(params),
+        ntsPackingFactor(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
