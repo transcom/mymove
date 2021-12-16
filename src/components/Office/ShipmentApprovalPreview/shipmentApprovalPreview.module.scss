@@ -64,6 +64,9 @@
 
   .innerWrapper {
     @include u-margin-left(2);
+    @media (max-width: 700px) {
+      @include u-margin-left(0);
+    }
   }
 }
 
