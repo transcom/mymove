@@ -85,6 +85,7 @@ describe('ShipmentForm component', () => {
       });
     });
   });
+
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
