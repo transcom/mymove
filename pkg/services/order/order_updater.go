@@ -149,14 +149,14 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyStationID = &originDutyStationID
 		order.ServiceMember.DutyStationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
 		order.NewDutyStationID = newDutyStationID
 	}
 
@@ -263,14 +263,14 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyStationID = &originDutyStationID
 		order.ServiceMember.DutyStationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
 		order.NewDutyStationID = newDutyStationID
 	}
 

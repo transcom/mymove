@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -237,7 +237,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
 
-	// Create an order with an origin duty station outside of office user GBLOC
+	// Create an order with an origin duty location outside of office user GBLOC
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Name:  "Fort Punxsutawney",
@@ -500,6 +500,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
+	// TODO: update test data gen, when orders model is also updated
 	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			Name: "This Other Station",
@@ -779,7 +780,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -796,7 +797,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	// Create an order with an origin duty station outside of office user GBLOC
+	// Create an order with an origin duty location outside of office user GBLOC
 	excludedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "AGFM",
@@ -1024,7 +1025,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	subtestData.needsCounselingMove = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -1069,7 +1070,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedGBLOCMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -1090,7 +1091,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedStatusMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -1167,7 +1168,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyLocation.ID.String())
 	})
 
 	suite.Run("returns moves in the needs counseling and services counseling complete statuses", func() {
@@ -1195,7 +1196,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			suite.EqualValues(move.Status, result.Status)
 			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyLocation.ID.String())
 			suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
 
 			if move.Status == models.MoveStatusNeedsServiceCounseling {
@@ -1232,7 +1233,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
 			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyLocation.ID.String())
 
 			if move.Status == models.MoveStatusNeedsServiceCounseling {
 				suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
@@ -1270,7 +1271,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.marineCorpsMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
 		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyLocation.ID.String())
 	})
 
 	suite.Run("responds with forbidden error when user is not an office user", func() {
