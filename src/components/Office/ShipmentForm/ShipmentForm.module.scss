@@ -3,7 +3,7 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.ServicesCounselingShipmentForm {
+.ShipmentForm {
   @include u-padding-x(0.5);
 
   @include at-media('tablet') {
