@@ -75,6 +75,13 @@ func (suite *OrderServiceSuite) TestListMoves() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
+
+	agfmPostalCode := "06001"
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("returns moves", func(t *testing.T) {
@@ -104,8 +111,8 @@ func (suite *OrderServiceSuite) TestListMoves() {
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
 		// This move is outside of the office user's GBLOC, so it should not be returned
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "AGFM",
+			PickupAddress: models.Address{
+				PostalCode: agfmPostalCode,
 			},
 		})
 
@@ -210,6 +217,9 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
+		// Map default shipment ZIP code to default office user GBLOC
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", "LKNQ")
+
 		marines := models.AffiliationMARINES
 		// It doesn't matter what the Origin GBLOC is for the move. Only the Marines
 		// affiliation matters for office users who are tied to the USMC GBLOC.
@@ -248,6 +258,8 @@ func (suite *OrderServiceSuite) TestListMovesMarines() {
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		// Map default shipment ZIP code to default office user GBLOC
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
@@ -298,6 +310,9 @@ func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
 
 func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Map default shipment postal code to office user's GBLOC
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 
 	for i := 0; i < 2; i++ {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -368,6 +383,7 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("Sort by locator code", func(t *testing.T) {
@@ -481,7 +497,7 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortFilter() {
+func (suite *OrderServiceSuite) TestListUSMCMovesNeedingServicesCounselingWithGBLOCSortFilter() {
 
 	// TESTCASE SCENARIO
 	// Under test: OrderFetcher.ListOrders function
@@ -605,7 +621,5 @@ func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortFilter() {
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-
 	})
-
 }

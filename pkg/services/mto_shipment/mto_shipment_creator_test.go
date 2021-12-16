@@ -184,6 +184,52 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
 	})
 
+	suite.Run("If the submitted shipment is an NTS shipment", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		ntsRecorededWeight := unit.Pound(980)
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:            models.MTOShipmentStatusSubmitted,
+				NTSRecordedWeight: &ntsRecorededWeight,
+			},
+			Stub: true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		suite.NoError(err)
+		suite.Equal(ntsRecorededWeight, *createdShipment.NTSRecordedWeight)
+	})
+
+	suite.Run("When NTSRecordedWeight it set for a non NTS Release shipment", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		ntsRecorededWeight := unit.Pound(980)
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				Status:            models.MTOShipmentStatusSubmitted,
+				NTSRecordedWeight: &ntsRecorededWeight,
+			},
+			Stub: true,
+		})
+		ntsrShipmentNoIDs := clearShipmentIDFields(&mtoShipment)
+		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
+
+		// We don't need the shipment because it only returns data that wasn't saved.
+		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
+
+		suite.Error(err, "field NTSRecordedWeight cannot be set for shipment type HHG")
+	})
+
 	suite.Run("If the shipment has mto service items", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		appCtx := subtestData.appCtx

@@ -60,6 +60,10 @@ type CreateMTOShipment struct {
 	// A list of service items connected to this shipment.
 	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
 
+	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
+	// Example: 2000
+	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 	// The address where the movers should pick up this shipment.
 	// Required: true
 	PickupAddress struct {

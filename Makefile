@@ -696,7 +696,7 @@ db_test_truncate:
 .PHONY: db_e2e_test_truncate
 db_e2e_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE;'
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly

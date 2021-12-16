@@ -102,6 +102,10 @@ type MTOShipment struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
+	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
+	// Example: 4500
+	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
 	//
 	PickupAddress struct {
@@ -219,6 +223,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
+		NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 		PickupAddress struct {
 			Address
 		} `json:"pickupAddress,omitempty"`
@@ -315,6 +321,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// mtoServiceItems
 	result.mtoServiceItemsField = propMtoServiceItems
 
+	// ntsRecordedWeight
+	result.NtsRecordedWeight = data.NtsRecordedWeight
+
 	// pickupAddress
 	result.PickupAddress = data.PickupAddress
 
@@ -399,6 +408,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+		NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
 		PickupAddress struct {
 			Address
 		} `json:"pickupAddress,omitempty"`
@@ -461,6 +472,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		ID: m.ID,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
+
+		NtsRecordedWeight: m.NtsRecordedWeight,
 
 		PickupAddress: m.PickupAddress,
 

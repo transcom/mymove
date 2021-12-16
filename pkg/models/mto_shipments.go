@@ -115,6 +115,7 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	BillableWeightCap                *unit.Pound       `db:"billable_weight_cap"`
 	BillableWeightJustification      *string           `db:"billable_weight_justification"`
+	NTSRecordedWeight                *unit.Pound       `db:"nts_recorded_weight"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	Diversion                        bool              `db:"diversion"`
@@ -153,6 +154,9 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
+	}
+	if m.NTSRecordedWeight != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.NTSRecordedWeight.Int(), Compared: -1, Name: "NTSRecordedWeight"})
 	}
 	vs = append(vs, &OptionalPoundIsNonNegative{Field: m.BillableWeightCap, Name: "BillableWeightCap"})
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.BillableWeightJustification, Name: "BillableWeightJustification"})
