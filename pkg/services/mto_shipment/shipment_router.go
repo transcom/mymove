@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -44,6 +45,13 @@ func (router shipmentRouter) Approve(appCtx appcontext.AppContext, shipment *mod
 		return apperror.NewConflictError(
 			move.ID,
 			fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
+	}
+
+	if shipment.UsesExternalVendor {
+		return apperror.NewPreconditionFailedError(
+			shipment.ID,
+			errors.New("shipmentRouter: shipment uses external vendor, cannot be approved for GHC Prime"),
 		)
 	}
 
