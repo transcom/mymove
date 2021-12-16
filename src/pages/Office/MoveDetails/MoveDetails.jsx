@@ -219,6 +219,8 @@ const MoveDetails = ({
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
     sacSDN: order.sac,
+    NTStac: order.ntsTac,
+    NTSsac: order.ntsSac,
   };
   const allowancesInfo = {
     branch: customer.agency,
