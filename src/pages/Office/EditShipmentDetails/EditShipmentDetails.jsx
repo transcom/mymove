@@ -7,11 +7,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
-<<<<<<< HEAD
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
-=======
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
->>>>>>> 5d7b8760b2 (Routes and tests pass)
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -19,10 +15,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
-<<<<<<< HEAD
 import { roleTypes } from 'constants/userRoles';
-=======
->>>>>>> 5d7b8760b2 (Routes and tests pass)
 
 const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
@@ -62,11 +55,7 @@ const EditShipmentDetails = ({ match }) => {
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
-<<<<<<< HEAD
                 <ShipmentForm
-=======
-                <ServicesCounselingShipmentForm
->>>>>>> 5d7b8760b2 (Routes and tests pass)
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipment}
@@ -80,10 +69,7 @@ const EditShipmentDetails = ({ match }) => {
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
-<<<<<<< HEAD
                   userRole={roleTypes.TOO}
-=======
->>>>>>> 5d7b8760b2 (Routes and tests pass)
                 />
               </Grid>
             </Grid>
