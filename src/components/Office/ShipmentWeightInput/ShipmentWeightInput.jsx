@@ -3,7 +3,7 @@ import { Fieldset, FormGroup, Label, TextInput, Grid } from '@trussworks/react-u
 import { Field } from 'formik';
 
 import formStyles from 'styles/form.module.scss';
-import styles from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm.module.scss';
+import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const ShipmentWeightInput = () => {

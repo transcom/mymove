@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
+import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -74,10 +74,10 @@ const mockMtoShipment = {
   ],
 };
 
-describe('ServicesCounselingShipmentForm component', () => {
+describe('ShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
@@ -121,7 +121,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       userEvent.click(screen.getByLabelText('Use current address'));
 
@@ -136,7 +136,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       userEvent.click(screen.getByLabelText('Yes'));
 
@@ -160,14 +160,14 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('does not render an Accounting Codes section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
     });
 
     it('does not render NTS release-only sections', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
@@ -179,7 +179,7 @@ describe('ServicesCounselingShipmentForm component', () => {
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
       render(
-        <ServicesCounselingShipmentForm
+        <ShipmentForm
           {...defaultProps}
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
@@ -217,7 +217,7 @@ describe('ServicesCounselingShipmentForm component', () => {
 
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
@@ -246,7 +246,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('renders special NTS What to expect section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(
         await screen.findByText(
@@ -257,7 +257,7 @@ describe('ServicesCounselingShipmentForm component', () => {
 
     it('renders an Accounting Codes section', async () => {
       render(
-        <ServicesCounselingShipmentForm
+        <ShipmentForm
           {...defaultProps}
           TACs={{ HHG: '1234', NTS: '5678' }}
           selectedMoveType={SHIPMENT_OPTIONS.NTS}
@@ -271,7 +271,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('does not render NTS release-only sections', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
@@ -283,7 +283,7 @@ describe('ServicesCounselingShipmentForm component', () => {
   describe('editing an already existing NTS shipment', () => {
     it('pre-fills the Accounting Codes section', async () => {
       render(
-        <ServicesCounselingShipmentForm
+        <ShipmentForm
           {...defaultProps}
           isCreatePage={false}
           mtoShipment={{
@@ -306,7 +306,7 @@ describe('ServicesCounselingShipmentForm component', () => {
 
   describe('creating a new NTS-release shipment', () => {
     it('renders the NTS-release shipment form', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
@@ -335,13 +335,13 @@ describe('ServicesCounselingShipmentForm component', () => {
     });
 
     it('renders an Accounting Codes section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
     });
 
     it('renders the NTS release-only sections', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
       expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
@@ -366,7 +366,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       );
 
       render(
-        <ServicesCounselingShipmentForm
+        <ShipmentForm
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
@@ -444,7 +444,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
 
       render(
-        <ServicesCounselingShipmentForm
+        <ShipmentForm
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}

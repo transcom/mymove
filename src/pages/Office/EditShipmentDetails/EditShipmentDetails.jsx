@@ -7,7 +7,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
+import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -54,7 +54,7 @@ const EditShipmentDetails = ({ match }) => {
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ServicesCounselingShipmentForm
+                <ShipmentForm
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipment}
