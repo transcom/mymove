@@ -92,6 +92,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
+	if requestedUpdatedShipment.NTSRecordedWeight != nil {
+		dbShipment.NTSRecordedWeight = requestedUpdatedShipment.NTSRecordedWeight
+	}
+
 	if requestedUpdatedShipment.PickupAddress != nil {
 		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
@@ -502,6 +506,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		// Check that only NTS Release shipment uses that NTSRecordedWeight field
+		if newShipment.NTSRecordedWeight != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			errMessage := fmt.Sprintf("field NTSRecordedWeight cannot be set for shipment type %s", string(newShipment.ShipmentType))
+			return apperror.NewInvalidInputError(newShipment.ID, nil, nil, errMessage)
+		}
+
 		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
 		// this shipment
 		runShipmentRecalculate := false
@@ -614,6 +624,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.PrimeEstimatedWeight,
 		mtoShipment.PrimeEstimatedWeightRecordedDate,
 		mtoShipment.PrimeActualWeight,
+		mtoShipment.NTSRecordedWeight,
 		mtoShipment.ShipmentType,
 		mtoShipment.ActualPickupDate,
 		mtoShipment.ApprovedDate,
@@ -648,6 +659,7 @@ func generateUpdateMTOShipmentQuery() string {
 			prime_estimated_weight = ?,
 			prime_estimated_weight_recorded_date = ?,
 			prime_actual_weight = ?,
+            nts_recorded_weight = ?,
 			shipment_type = ?,
 			actual_pickup_date = ?,
 			approved_date = ?,

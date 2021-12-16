@@ -322,7 +322,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
