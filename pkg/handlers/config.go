@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -59,8 +58,6 @@ type HandlerConfig interface {
 	SetGexSender(gexSender services.GexSender)
 	ICNSequencer() sequence.Sequencer
 	SetICNSequencer(sequencer sequence.Sequencer)
-	DPSAuthParams() dpsauth.Params
-	SetDPSAuthParams(params dpsauth.Params)
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
 	SetSessionManagers(sessionManagers [3]*scs.SessionManager)
 	SessionManager(session *auth.Session) *scs.SessionManager
@@ -84,7 +81,6 @@ type handlerConfig struct {
 	notificationSender    notifications.NotificationSender
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
-	dpsAuthParams         dpsauth.Params
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
@@ -270,14 +266,6 @@ func (h *handlerConfig) ICNSequencer() sequence.Sequencer {
 
 func (h *handlerConfig) SetICNSequencer(sequencer sequence.Sequencer) {
 	h.icnSequencer = sequencer
-}
-
-func (h *handlerConfig) DPSAuthParams() dpsauth.Params {
-	return h.dpsAuthParams
-}
-
-func (h *handlerConfig) SetDPSAuthParams(params dpsauth.Params) {
-	h.dpsAuthParams = params
 }
 
 // UseSecureCookie determines if the field "Secure" is set to true or false upon cookie creation
