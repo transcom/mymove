@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
-	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
 	suite.NotNil(order.NewDutyStation)
 	payloadEntitlement := ordersPayload.Entitlement
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
-	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
+	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(order.OriginDutyStation)
 	suite.NotZero(ordersPayload.DateIssued)
 }
@@ -297,8 +297,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		ordersPayload := orderOK.Payload
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
-		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -445,8 +445,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
-		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -731,8 +731,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
-		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)

@@ -2434,10 +2434,10 @@ definitions:
         $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyLocation:
-        $ref: 'definitions/DutyLocation.yaml'
-      originDutyLocation:
-        $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyStation:
+        $ref: 'definitions/DutyStation.yaml'
+      originDutyStation:
+        $ref: 'definitions/DutyStation.yaml'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid

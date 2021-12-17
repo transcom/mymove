@@ -119,8 +119,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyLocation := DutyStationToLocation(&order.NewDutyStation)
-	originDutyLocation := DutyStationToLocation(order.OriginDutyStation)
+	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	originDutyStation := DutyStation(order.OriginDutyStation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -154,13 +154,13 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyLocation:     destinationDutyLocation,
+		DestinationDutyStation:      destinationDutyStation,
 		Entitlement:                 entitlements,
 		Grade:                       &grade,
 		OrderNumber:                 order.OrdersNumber,
 		OrderTypeDetail:             &ordersTypeDetail,
 		ID:                          strfmt.UUID(order.ID.String()),
-		OriginDutyLocation:          originDutyLocation,
+		OriginDutyStation:           originDutyStation,
 		ETag:                        etag.GenerateEtag(order.UpdatedAt),
 		Agency:                      branch,
 		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
@@ -239,6 +239,21 @@ func DutyStationToLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLoc
 	}
 	address := Address(&dutyStation.Address)
 	payload := ghcmessages.DutyLocation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyStation.ID.String()),
+		Name:      dutyStation.Name,
+		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+	}
+	return &payload
+}
+
+func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
+	if dutyStation == nil {
+		return nil
+	}
+	address := Address(&dutyStation.Address)
+	payload := ghcmessages.DutyStation{
 		Address:   address,
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),

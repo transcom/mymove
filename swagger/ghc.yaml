@@ -2517,10 +2517,10 @@ definitions:
         $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
-      originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -4151,7 +4151,7 @@ definitions:
       - city
       - state
       - postalCode
-  DutyLocation:
+  DutyStation:
     type: object
     properties:
       id:
@@ -4353,6 +4353,24 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
