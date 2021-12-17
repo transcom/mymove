@@ -274,7 +274,6 @@ func subScenarioNTSShipments(
 			sceneOptionsNTS{
 				shipmentMoveCode: "NTSUNS",
 				moveStatus:       models.MoveStatusDRAFT,
-				orderStatus:      models.OrderStatusDRAFT,
 			},
 		)
 		// Create some submitted Moves for TXO users
@@ -284,7 +283,6 @@ func subScenarioNTSShipments(
 			sceneOptionsNTS{
 				shipmentMoveCode: "NTSSUB",
 				moveStatus:       models.MoveStatusSUBMITTED,
-				orderStatus:      models.OrderStatusAPPROVED,
 			},
 		)
 	}
