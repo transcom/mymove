@@ -131,10 +131,10 @@
     "@babel/helper-module-imports" "^7.12.5"
     "@babel/types" "^7.12.11"
 
-"@babel/helper-builder-react-jsx@^7.16.0":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/helper-builder-react-jsx/-/helper-builder-react-jsx-7.16.0.tgz#cbff6790e8dfc29b9f986f712a1d69f1428a35b5"
-  integrity sha512-m04yTRoynupLijXcfkxjx5VfQeNRR67lncuW6osD6P/3o2sChz8zcwJGzso55oeTkEJlMu2atFJAdmB56i8F5Q==
+"@babel/helper-builder-react-jsx@^7.16.5":
+  version "7.16.5"
+  resolved "https://registry.yarnpkg.com/@babel/helper-builder-react-jsx/-/helper-builder-react-jsx-7.16.5.tgz#e4f3db66c85f7bb6191462705c58c632fc52f5b6"
+  integrity sha512-UunEMN9fDtAVplcvsJ3orBLP5T/90y+WHtehxLPnXI1iwDdJQTB/47sVyseHTPRWhTRRtHFMUZra0Wb2wxbWlg==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.16.0"
     "@babel/types" "^7.16.0"
