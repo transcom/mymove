@@ -48,7 +48,6 @@ type NamedScenario struct {
 type sceneOptionsNTS struct {
 	shipmentMoveCode string
 	moveStatus       models.MoveStatus
-	orderStatus      models.OrderStatus
 }
 
 // May15TestYear is a May 15 of TestYear
@@ -872,17 +871,16 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.
 	})
 
 	selectedMoveType := models.SelectedMoveTypeNTS
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuidServiceMember,
 			ServiceMember:   smWithNTS,
-			Status:          opts.orderStatus,
 		},
 		Move: models.Move{
 			ID:               uuidMove,
 			Locator:          opts.shipmentMoveCode,
 			SelectedMoveType: &selectedMoveType,
-			Status:           opts.moveStatus,
 		},
 	})
 
@@ -930,6 +928,14 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.
 			MTOAgentType: models.MTOAgentReceiving,
 		},
 	})
+
+	if opts.moveStatus == models.MoveStatusSUBMITTED {
+		err := moveRouter.Submit(appCtx, &move)
+		if err != nil {
+			log.Panic(err)
+		}
+		testdatagen.MustSave(db, &move)
+	}
 }
 
 func createNTSMove(appCtx appcontext.AppContext) {
