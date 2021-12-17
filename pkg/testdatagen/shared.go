@@ -42,6 +42,7 @@ type Assertions struct {
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
+	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement

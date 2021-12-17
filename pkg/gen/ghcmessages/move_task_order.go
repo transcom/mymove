@@ -30,10 +30,10 @@ type MoveTaskOrder struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
-	// destination duty station
+	// destination duty location
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
-	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
+	DestinationDutyLocation strfmt.UUID `json:"destinationDutyLocation,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -55,10 +55,10 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
-	// origin duty station
+	// origin duty location
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
-	OriginDutyStation strfmt.UUID `json:"originDutyStation,omitempty"`
+	OriginDutyLocation strfmt.UUID `json:"originDutyLocation,omitempty"`
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
@@ -100,7 +100,7 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationDutyStation(formats); err != nil {
+	if err := m.validateDestinationDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,7 +116,7 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyStation(formats); err != nil {
+	if err := m.validateOriginDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -183,12 +183,12 @@ func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *MoveTaskOrder) validateDestinationDutyStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationDutyStation) { // not required
+func (m *MoveTaskOrder) validateDestinationDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyLocation) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("destinationDutyStation", "body", "uuid", m.DestinationDutyStation.String(), formats); err != nil {
+	if err := validate.FormatOf("destinationDutyLocation", "body", "uuid", m.DestinationDutyLocation.String(), formats); err != nil {
 		return err
 	}
 
@@ -236,12 +236,12 @@ func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateOriginDutyStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginDutyStation) { // not required
+func (m *MoveTaskOrder) validateOriginDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocation) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("originDutyStation", "body", "uuid", m.OriginDutyStation.String(), formats); err != nil {
+	if err := validate.FormatOf("originDutyLocation", "body", "uuid", m.OriginDutyLocation.String(), formats); err != nil {
 		return err
 	}
 
