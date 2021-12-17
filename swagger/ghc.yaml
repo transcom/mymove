@@ -2608,11 +2608,11 @@ definitions:
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
-      originDutyLocationId:
+      originDutyStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyLocationId:
+      newDutyStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2644,8 +2644,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - originDutyLocationId
-      - newDutyLocationId
+      - originDutyStationId
+      - newDutyStationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -2665,11 +2665,11 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyLocationId:
+      originDutyStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyLocationId:
+      newDutyStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2715,8 +2715,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - newDutyLocationId
-      - originDutyLocationId
+      - newDutyStationId
+      - originDutyStationId
   UpdateAllowancePayload:
     type: object
     properties:
