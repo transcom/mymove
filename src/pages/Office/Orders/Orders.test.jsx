@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import Orders from './Orders';
 
@@ -128,7 +128,7 @@ describe('Orders page', () => {
   });
 
   describe('Basic rendering', () => {
-    it('renders the sidebar orders detail form', async () => {
+    it('renders the sidebar orders detail form', () => {
       useOrdersDocumentQueries.mockReturnValueOnce(useOrdersDocumentQueriesReturnValue);
 
       render(
@@ -136,9 +136,11 @@ describe('Orders page', () => {
           <Orders />
         </MockProviders>,
       );
-      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
-      expect(await screen.findByTestId('ntsTacInput')).toHaveValue('1111');
-      expect(await screen.findByTestId('ntsSacInput')).toHaveValue('2222');
+      waitFor(() => {
+        expect(screen.findByLabelText('Current duty location')).toBeInTheDocument();
+        expect(screen.findByTestId('ntsTacInput')).toHaveValue('1111');
+        expect(screen.findByTestId('ntsSacInput')).toHaveValue('2222');
+      });
     });
   });
 });
