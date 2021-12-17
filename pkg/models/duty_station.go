@@ -104,7 +104,7 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
 	// The % operator filters out strings that are below this similarity threshold
-	err := tx.Q().RawQuery("SET pg_trgm.similarity_threshold = 0.02").Exec()
+	err := tx.Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
 	if err != nil {
 		return stations, err
 	}
