@@ -97,6 +97,21 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved")
 	})
+
+	suite.Run("does not approve a shipment if the shipment uses an external vendor", func() {
+		subtestData := suite.createRouterApproveSubtestData()
+
+		shipment := subtestData.unsavedShipment
+
+		shipment.UsesExternalVendor = true
+		shipment.ShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
+
+		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
+
+		suite.Contains(err.Error(), "cannot approve a shipment if it uses an external vendor")
+		suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
+		suite.Nil(shipment.ApprovedDate)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestSubmit() {

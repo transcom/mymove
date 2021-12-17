@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/gofrs/uuid"
 
@@ -39,7 +38,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	if shipment.UsesExternalVendor {
-		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, errors.New("shipmentApprover: shipment uses external vendor, cannot be approved for GHC Prime"))
+		return &models.MTOShipment{}, apperror.NewConflictError(shipmentID, "shipmentApprover: shipment uses external vendor, cannot be approved for GHC Prime")
 	}
 
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
