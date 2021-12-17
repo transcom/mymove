@@ -13,6 +13,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -154,7 +155,14 @@ const RequestedShipments = ({
           </div>
 
           <form onSubmit={formik.handleSubmit}>
-            <h2>Requested shipments</h2>
+            <div>
+              <h2>Requested shipments</h2>
+              <ButtonDropdown divClassName={styles.addShipmentDropdownButton} onChange={() => {}}>
+                <option value="">- Select Shipment Type -</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+              </ButtonDropdown>
+            </div>
             <div className={shipmentCardsStyles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
