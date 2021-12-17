@@ -17,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/stretchr/testify/mock"
 
@@ -110,6 +111,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		request = suite.AuthenticateUserRequest(request, requestUser)
 
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 		serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{
 			ServiceCodeMS: true,
 			ServiceCodeCS: true,
@@ -129,9 +134,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
 
 		// make the request
 		response := handler.Handle(params)

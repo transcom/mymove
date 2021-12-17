@@ -62,12 +62,12 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 	remarks := params.Body.Remarks
 	flagForReview := params.Body.FlagForReview
 	if flagForReview == nil {
-		payload := payloadForValidationError("Unable to flag move for financial review", "missing FlagForReview field", h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("Unable to flag move for financial review", "missing FlagForReview field", h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
 	// We require remarks when the move is going to be flagged for review.
 	if *flagForReview && remarks == nil {
-		payload := payloadForValidationError("Unable to flag move for financial review", "missing remarks field", h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("Unable to flag move for financial review", "missing remarks field", h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 		return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 	}
 
@@ -83,7 +83,7 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 		case apperror.InvalidInputError:
 			var e *apperror.InvalidInputError
 			_ = errors.As(err, &e)
-			payload := payloadForValidationError("Unable to flag move for financial review", err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Unable to flag move for financial review", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return moveop.NewSetFinancialReviewFlagUnprocessableEntity().WithPayload(payload)
 		default:
 			return moveop.NewSetFinancialReviewFlagInternalServerError()

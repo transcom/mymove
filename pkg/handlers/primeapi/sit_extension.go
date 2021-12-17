@@ -37,26 +37,26 @@ func (h CreateSITExtensionHandler) Handle(params mtoshipmentops.CreateSITExtensi
 		// NotFoundError -> Not Found Response
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewCreateSITExtensionNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 			// ConflictError -> Conflict Response
 		case apperror.ConflictError:
 			return mtoshipmentops.NewCreateSITExtensionConflict().WithPayload(
-				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// InvalidInputError -> Unprocessable Entity Response
 		case apperror.InvalidInputError:
 			return mtoshipmentops.NewCreateSITExtensionUnprocessableEntity().WithPayload(
-				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				appCtx.Logger().Error("primeapi.CreateSITExtensionHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateSITExtensionInternalServerError().WithPayload(
-				payloads.InternalServerError(nil, h.GetTraceID()))
+				payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// Unknown -> Internal Server Error
 		default:
 			return mtoshipmentops.NewCreateSITExtensionInternalServerError().
-				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 
 	}
