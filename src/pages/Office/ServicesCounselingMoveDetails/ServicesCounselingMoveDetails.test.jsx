@@ -540,7 +540,7 @@ describe('MoveDetails page', () => {
       });
 
       it.each([
-        ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
+        // ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
         ['View and edit orders', servicesCounselingRoutes.ORDERS_EDIT_PATH],
         ['Edit allowances', servicesCounselingRoutes.ALLOWANCES_EDIT_PATH],
         ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
@@ -608,7 +608,7 @@ describe('MoveDetails page', () => {
         render(mockedComponent);
 
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
+        // expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();

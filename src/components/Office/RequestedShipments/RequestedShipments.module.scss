@@ -7,10 +7,6 @@
   @include u-padding-x(4);
   @include u-padding-y(2);
 
-  h2 {
-    display: inline-block;
-  }
-
   h4 {
     @include u-margin(0);
     font-weight: bold;
@@ -37,10 +33,6 @@
       @include u-margin-bottom(2);
     }
   }
-}
-
-.addShipmentDropdownButton {
-  float: right;
 }
 
 .serviceItemApproval {

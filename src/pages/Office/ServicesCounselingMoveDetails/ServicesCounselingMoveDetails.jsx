@@ -29,6 +29,7 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
 const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
@@ -244,12 +245,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    to={generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode })}
-                  >
-                    Add a new shipment
-                  </Link>
+                  <ButtonDropdown onChange={() => {}}>
+                    <option value="">Add a new shipment</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </ButtonDropdown>
                 )
               }
               financialReviewOpen={handleShowFinancialReviewModal}
