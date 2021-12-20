@@ -420,6 +420,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
 	}
 
+	if mtoShipment.NTSRecordedWeight != nil {
+		ntsRecordedWeight := int64(*mtoShipment.NTSRecordedWeight)
+		payload.NtsRecordedWeight = &ntsRecordedWeight
+	}
+
 	return payload
 }
 

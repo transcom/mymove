@@ -37,7 +37,7 @@ func Trace(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 			w.Header().Add(traceHeader, strID)
 
 			// Also insert as a key, value pair in the http request context
-			next.ServeHTTP(w, r.WithContext(trace.NewContext(r.Context(), strID)))
+			next.ServeHTTP(w, r.WithContext(trace.NewContext(r.Context(), id)))
 		})
 	}
 }

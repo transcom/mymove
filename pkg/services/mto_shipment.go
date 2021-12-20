@@ -90,7 +90,7 @@ type MTOShipmentStatusUpdater interface {
 	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
 }
 
-// MTOShipmentCreator is the exported interface for creating a payment request
+// MTOShipmentCreator is the exported interface for creating a shipment
 //go:generate mockery --name MTOShipmentCreator --disable-version-string
 type MTOShipmentCreator interface {
 	CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)

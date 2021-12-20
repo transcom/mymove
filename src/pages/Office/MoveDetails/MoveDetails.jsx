@@ -35,6 +35,11 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
+const errorIfMissing = {
+  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+};
+
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
@@ -43,6 +48,7 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const history = useHistory();
@@ -170,6 +176,23 @@ const MoveDetails = ({
     setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
+  useEffect(() => {
+    let shipmentIsMissingInformation = false;
+
+    mtoShipments?.forEach((mtoShipment) => {
+      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
+      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some(
+        (field) => !mtoShipment[field] || mtoShipment[field] === '',
+      );
+
+      // If there were no fields to check, then nothing was required.
+      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
+        shipmentIsMissingInformation = true;
+      }
+    });
+    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
+  }, [mtoShipments]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -251,9 +274,14 @@ const MoveDetails = ({
                     NEW
                   </Tag>
                 )}
-                {s === 'requested-shipments' && (
+                {s === 'requested-shipments' && !shipmentMissingRequiredInformation && (
                   <Tag className={styles.tag} data-testid="requestedShipmentsTag">
                     {submittedShipments?.length}
+                  </Tag>
+                )}
+                {s === 'requested-shipments' && shipmentMissingRequiredInformation && (
+                  <Tag className="usa-tag usa-tag--alert" data-testid="shipment-missing-info-alert">
+                    <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
               </a>

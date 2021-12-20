@@ -103,17 +103,23 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
+	// The % operator filters out strings that are below this similarity threshold
+	err := tx.Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
+	if err != nil {
+		return stations, err
+	}
+
 	sqlQuery := `
 with names as (
 (select id as duty_station_id, name, similarity(name, $1) as sim
 from duty_stations
-where similarity(name, $1) > 0.03
+where name % $1
 order by sim desc
 limit 5)
 union
 (select duty_station_id, name, similarity(name, $1) as sim
 from duty_station_names
-where similarity(name, $1) > 0.03
+where name % $1
 order by sim desc
 limit 5)
 union

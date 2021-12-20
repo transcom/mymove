@@ -2,15 +2,13 @@ package event
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -29,13 +27,12 @@ type eventModel struct {
 // Event holds a single event
 // It is passed to EventTrigger to trigger an event
 type Event struct {
-	EventKey        KeyType                 // Pick from a select list of predefined events (PaymentRequest.Create)
-	Request         *http.Request           // We expect to get this from the handler
-	MtoID           uuid.UUID               // This is the ID of the MTO that the object is associated with
-	UpdatedObjectID uuid.UUID               // This is the ID of the object itself (PaymentRequest.ID)
-	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
-	HandlerContext  handlers.HandlerContext // The handler context
-	logger          *zap.Logger
+	EventKey        KeyType               // Pick from a select list of predefined events (PaymentRequest.Create)
+	MtoID           uuid.UUID             // This is the ID of the MTO that the object is associated with
+	UpdatedObjectID uuid.UUID             // This is the ID of the object itself (PaymentRequest.ID)
+	EndpointKey     EndpointKeyType       // Pick from a select list of endpoints
+	AppContext      appcontext.AppContext // The AppContext from the Request
+	TraceID         uuid.UUID             // the TraceID from the Request
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -187,8 +184,8 @@ func TriggerEvent(event Event) (*Event, error) {
 		return nil, err
 	}
 	// Check that Request and context were passed in
-	if event.Request == nil || event.HandlerContext == nil {
-		err := apperror.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
+	if event.AppContext == nil {
+		err := apperror.NewEventError("The AppContext must be passed to TriggerEvent.", nil)
 		return nil, err
 	}
 	// Check endpointKey if exists
@@ -199,9 +196,6 @@ func TriggerEvent(event Event) (*Event, error) {
 			return nil, err
 		}
 	}
-
-	appCtx := event.HandlerContext.AppContextFromRequest(event.Request)
-	event.logger = appCtx.Logger()
 
 	// Call each registered event handler with the event info and context
 	// Collect errors, this is to avoid one registered handler failure to

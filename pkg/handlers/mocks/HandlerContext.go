@@ -140,13 +140,13 @@ func (_m *HandlerContext) GetFeatureFlag(name string) bool {
 	return r0
 }
 
-// GetTraceID provides a mock function with given fields:
-func (_m *HandlerContext) GetTraceID() uuid.UUID {
-	ret := _m.Called()
+// GetTraceIDFromRequest provides a mock function with given fields: r
+func (_m *HandlerContext) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
+	ret := _m.Called(r)
 
 	var r0 uuid.UUID
-	if rf, ok := ret.Get(0).(func() uuid.UUID); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*http.Request) uuid.UUID); ok {
+		r0 = rf(r)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(uuid.UUID)
@@ -329,11 +329,6 @@ func (_m *HandlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
 // SetSessionManagers provides a mock function with given fields: sessionManagers
 func (_m *HandlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
 	_m.Called(sessionManagers)
-}
-
-// SetTraceID provides a mock function with given fields: traceID
-func (_m *HandlerContext) SetTraceID(traceID uuid.UUID) {
-	_m.Called(traceID)
 }
 
 // SetUseSecureCookie provides a mock function with given fields: useSecureCookie

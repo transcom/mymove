@@ -216,6 +216,13 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader)
+		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader)
+	}
+}
+
 func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {

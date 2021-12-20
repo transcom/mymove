@@ -1,0 +1,38 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.ButtonDropdown {
+  position: relative;
+  display: inline-block;
+  select {
+    color: white;
+    background-color: $primary;
+    background-image: none;
+    border: 0;
+    border-radius: 4px;
+    text-align: left;
+    @include u-padding-left(2);
+    @include u-padding-right(5);
+    &:hover {
+      background-color: $primary-dark;
+    }
+  }
+  option {
+    color: black;
+    @include u-font-weight('normal');
+    &:hover {
+      background-color: white;
+    }
+  }
+  .ButtonDropdownIcon {
+    background: url('~uswds/src/img/usa-icons/unfold_more.svg') center center no-repeat;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right: 10px;
+    top: 21px;
+    color: white;
+    pointer-events: none;
+    filter: invert(100%);
+  }
+}
