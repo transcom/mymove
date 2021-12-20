@@ -356,6 +356,21 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	}
 }
 
+func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
+	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	shipmentRouter := NewShipmentRouter()
+	shipment.UsesExternalVendor = true
+	shipment.Diversion = true
+
+	suite.Run("fails when the UsesExternal field is true", func() {
+		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "has the UsesExternalVendor field set to true")
+	})
+}
+
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
 	shipmentRouter := NewShipmentRouter()
