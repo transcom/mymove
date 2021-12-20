@@ -1168,6 +1168,8 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: subtestData.request,
+			Sort:        swag.String("branch"),
+			Order:       swag.String("asc"),
 		}
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
