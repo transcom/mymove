@@ -1,4 +1,6 @@
-# History & Audit Logging
+# Activity Log
+
+**User Story:** *[ticket/issue-number]*
 
 MilMove requires an audit log of actions taken on the application. In this application, several different users have different use cases for the audit logging feature.
 
@@ -13,34 +15,43 @@ As a part of the user requirements gathering, the audit log data must include th
 - What action took place
 - Who took the action
 
-When considering how to implement the application, there are two main choices worth considering in the Milmove application. NoSQL vs. SQL Route
-
 ## Considered Alternatives
 
-### SQL Route
+- SQL as-is
+- SQL with new messaging tech
+- NoSQL
 
-This approach leverages the existing technology to implement the audit log. This is the path of least resitance because engineers do not need to introduce new technology to the application. Introducing new technology will need new considerations such as CI/CD, security, knowledge, Transcom approval, etc. 
+## Decision Outcome
 
-#### Feasability 
+Between SQL as-is and SQL with messaging tech, if we start with SQL as-is, we can later iterate and switch to the messaging system if performance becomes an issue
 
-The more complex we make the underlying tables for the audit logging, the write speeds will be slower. Therefore, if this route is chosen, a flatter database design will help mitigate performance issues especially as the application scales.  
+- Chosen Alternative: TBD
 
-### NoSQL Route
+## Pros and Cons of the Alternatives
 
-This approach will introduce new technology. If the amount of data that is expected to be stored into the database is extremely large, a NoSQL route will help maintain write speeds. NoSQL by default has a flat data design so there is no need for extra data modeling considerations because of the flexible nature of NoSQL
+### *SQL as-is*
 
-#### Feasability
+- `+` This approach leverages the existing technology to implement the audit log. 
+- `+` This is the path of least resitance because engineers do not need to introduce new technology to the application. Introducing new technology will need new considerations such as CI/CD, security, knowledge, Transcom approval, etc. 
+- `-` Write speeds may slow down the application especially now that the application is introducing many new writes to the DB.
+- `-` The more complex we make the underlying tables for the audit logging, the write speeds will be slower. Therefore, if this route is chosen, a flatter database design will help mitigate performance issues especially as the application scales.  
 
-Introducing technology will have a lot of hurdles to jump through. Given the state of the Milmove application, a quicker time to launch may be preferred. If this route was chosen, developers will be introducing new AWS services to the application such as DynamoDB, Lambda, API Gateway, etc. 
+### SQL with messaging system
 
-NoSQL may slow down consumers in retrieving data to our application. Doing any type of bulk work whether getting or updating data proves more dificult with a NoSQL table. Querying the application may be cumbersome because there is unstructured data. However, AWS includes services such as AWS Glue to help normalize unstructured data to more readabale formats. 
+This option uses the same API and the same DB currently used, but adds a queue-based messaging system such as AWS Eventbridge and AWS 
 
-## Comparing the Alternatives
+- `+` Leverages exisitng systems
+- `+` Alleviates pressure on DB writes 
+- `+` Since the user does not care whether an audit record was created, we can decouple the audit creating process from the user experience
+- `+` No significant amount of security considerations needed
+- `-` Introduces some amount of new technology
 
-### Performance
+### NoSQL
 
-NoSQL has quicker write speeds so that the application does not slow down due to a new history log call in the API. NoSQL also has workarounds for its worse/slower readability for potential consumers
+This includes options such as DynamoDB, MongoDB, etc.
 
-### Ease of use
-
-SQL route will leverage existing technology to build out the application. Therefore, there is no additional approval needed or infrastructure resources need to build the feature. 
+- `+` NoSQL will help maintain write speeds
+- `+` No need for extensive data modeling considerations
+- `+` More scalable due to lower storage costs. If using DynamoDB
+- `-` Querying data is not as straightforward. Will need additional steps to make it digestable for consumers such as the IGC datawarehouse team and Milmove UI
+- `-` NoSQL may slow down consumers in retrieving data to our application. Doing any type of bulk work whether getting or updating data proves more dificult with a NoSQL table. 
