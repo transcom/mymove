@@ -74,7 +74,8 @@ func (suite *OrderServiceSuite) TestListMoves() {
 	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-
+	//"30813"
+	// May have to create postalcodetogbolc for office user
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
 		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
 		officeUser.TransportationOffice.Gbloc)
@@ -517,6 +518,8 @@ func (suite *OrderServiceSuite) TestListUSMCMovesNeedingServicesCounselingWithGB
 			Gbloc: "ACME",
 		},
 	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "ACME")
 	// Create a dutystation with ZANY GBLOC
 	zanyDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{

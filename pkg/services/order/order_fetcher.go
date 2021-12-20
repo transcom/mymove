@@ -67,7 +67,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
 	var gblocQuery QueryOption
 	if needsCounseling {
-		gblocQuery = gblocFilter(gblocToFilterBy, needsCounseling)
+		gblocQuery = gblocFilter(gblocToFilterBy)
 	} else {
 		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
 	}
@@ -98,9 +98,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("addresses as origin_add", "origin_add.id = origin_ds.address_id").
-		InnerJoin("postal_code_to_gblocs as pcg", "pcg.postal_code = origin_add.postal_code").
+		LeftJoin("postal_code_to_gblocs as pcg", "pcg.postal_code = origin_add.postal_code").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
@@ -155,6 +155,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
+			fmt.Println("POSTAL CODE: ", moves[i].Orders.OriginDutyStation.Address.PostalCode)
 			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
@@ -301,14 +302,12 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 }
 
 // Need to fix GBLOC for services counselor
-func gblocFilter(gbloc *string, isCounselor bool) QueryOption {
+func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
+		fmt.Println("🍉🍉🍉🍉🍉")
+		fmt.Println(gbloc)
 		if gbloc != nil {
-			if isCounselor {
-				query.Where("pcg.gbloc = ?", *gbloc)
-			} else {
-				query.Where("origin_to.gbloc ILIKE ?", *gbloc)
-			}
+			query.Where("pcg.gbloc = ?", *gbloc)
 		}
 	}
 }
