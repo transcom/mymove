@@ -62,6 +62,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -151,6 +152,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		RoleType: roles.RoleTypeTOO,
 	})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 
@@ -210,6 +212,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	})
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Station GBLOC is LKNQ
@@ -311,6 +314,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	})
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedMove := models.Move{
 		SelectedMoveType: &hhgMoveType,
@@ -579,6 +583,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	})
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)

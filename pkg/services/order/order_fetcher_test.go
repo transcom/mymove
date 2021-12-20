@@ -82,6 +82,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 
 	agfmPostalCode := "06001"
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
 
@@ -220,6 +221,7 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
 		// Map default shipment ZIP code to default office user GBLOC
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", "LKNQ")
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "LKNQ")
 
 		marines := models.AffiliationMARINES
 		// It doesn't matter what the Origin GBLOC is for the move. Only the Marines
@@ -261,6 +263,7 @@ func (suite *OrderServiceSuite) TestListMovesMarines() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		// Map default shipment ZIP code to default office user GBLOC
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
@@ -314,6 +317,7 @@ func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 
 	// Map default shipment postal code to office user's GBLOC
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	for i := 0; i < 2; i++ {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -385,6 +389,7 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("Sort by locator code", func(t *testing.T) {
