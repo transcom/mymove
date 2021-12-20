@@ -1013,6 +1013,7 @@ type servicesCounselingSubtestData struct {
 	needsCounselingMove             models.Move
 	counselingCompletedMove         models.Move
 	marineCorpsMove                 models.Move
+	officeUser                      models.OfficeUser
 	needsCounselingEarliestShipment models.MTOShipment
 	counselingCompletedShipment     models.MTOShipment
 	handler                         GetServicesCounselingQueueHandler
@@ -1021,7 +1022,7 @@ type servicesCounselingSubtestData struct {
 
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
-	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+	subtestData.officeUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
@@ -1044,7 +1045,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	// May have to create postalcodetogbolc for office user
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", subtestData.officeUser.TransportationOffice.Gbloc)
 
 	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
 	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1152,7 +1153,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
-	subtestData.request = suite.AuthenticateOfficeRequest(request, officeUser)
+	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		context,
@@ -1195,42 +1196,6 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal("MARINES", result2.Customer.Agency)
 	})
 
-	suite.Run("returns moves in the needs counseling and services counseling complete statuses", func() {
-		subtestData := suite.makeServicesCounselingSubtestData()
-		params := queues.GetServicesCounselingQueueParams{
-			HTTPRequest: subtestData.request,
-			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
-		}
-		response := subtestData.handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
-		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
-
-		suite.Len(payload.QueueMoves, 2)
-
-		// default sort should be date submitted ascending
-		for index, move := range []models.Move{subtestData.counselingCompletedMove, subtestData.needsCounselingMove} {
-			order := move.Orders
-			result := payload.QueueMoves[index]
-
-			suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
-			suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
-			suite.Equal(move.Locator, result.Locator)
-			suite.EqualValues(move.Status, result.Status)
-			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
-			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
-			suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
-
-			if move.Status == models.MoveStatusNeedsServiceCounseling {
-				suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
-			} else {
-				suite.Equal(subtestData.counselingCompletedShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
-			}
-		}
-	})
-
 	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
 		params := queues.GetServicesCounselingQueueParams{
@@ -1245,24 +1210,13 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		suite.Len(payload.QueueMoves, 3)
 
-		// default sort should be date submitted ascending
-		for index, move := range []models.Move{subtestData.counselingCompletedMove, subtestData.needsCounselingMove} {
-			order := move.Orders
-			result := payload.QueueMoves[index]
+		for _, move := range payload.QueueMoves {
+			// Test that only moves with postal code in the officer user gbloc are returned
+			suite.Equal("50309", *move.OriginDutyLocation.Address.PostalCode)
 
-			suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
-			suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
-			suite.Equal(move.Locator, result.Locator)
-			suite.EqualValues(move.Status, result.Status)
-			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
-			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
-			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
-
-			if move.Status == models.MoveStatusNeedsServiceCounseling {
-				suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
-			} else {
-				suite.Equal(subtestData.counselingCompletedShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+			// Fail if a move has a status other than the two target ones
+			if models.MoveStatus(move.Status) != models.MoveStatusNeedsServiceCounseling && models.MoveStatus(move.Status) != models.MoveStatusServiceCounselingCompleted {
+				suite.Fail("Test does not return moves with the correct statuses.")
 			}
 		}
 	})

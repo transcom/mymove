@@ -46,9 +46,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// The services counselot queue does not base exclude marine results.
 	// Only the TIO and TOO queues should.
 	needsCounseling := false
-	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
-		needsCounseling = true
+	if len(params.Status) > 0 {
+		for _, status := range params.Status {
+			if status == string(models.MoveStatusNeedsServiceCounseling) || status == string(models.MoveStatusServiceCounselingCompleted) {
+				needsCounseling = true
+			}
+		}
 	}
+
 	branchQuery := branchFilter(params.Branch, needsCounseling)
 
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
