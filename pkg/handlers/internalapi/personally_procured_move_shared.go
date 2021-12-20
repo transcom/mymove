@@ -18,8 +18,10 @@ func GetDestinationDutyLocationPostalCode(appCtx appcontext.AppContext, ordersID
 	filters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", ordersID),
 	}
+
+	// TODO: fix this once order is migrated to duty_location
 	associations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("NewDutyLocation.Address"),
+		query.NewQueryAssociation("NewDutyStation.Address"),
 	})
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	pagination := pagination.NewPagination(&page, &perPage)
