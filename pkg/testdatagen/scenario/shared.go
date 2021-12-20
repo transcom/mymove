@@ -46,8 +46,9 @@ type NamedScenario struct {
 }
 
 type sceneOptionsNTS struct {
-	shipmentMoveCode string
-	moveStatus       models.MoveStatus
+	shipmentMoveCode   string
+	moveStatus         models.MoveStatus
+	usesExternalVendor bool
 }
 
 // May15TestYear is a May 15 of TestYear
@@ -912,20 +913,17 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, opts sceneOptionsNTS) {
 	db := appCtx.DB()
 
-	// Refactor start
-
-	// Refactor end
-
-	//testdatagen.MakeUser(db, testdatagen.Assertions{
-	//	User: models.User{
-	//		LoginGovEmail: strings.ToLower(email),
-	//		Active:        true,
-	//	},
-	//})
-
 	email := fmt.Sprintf("nts.%s@nstr.%s", opts.shipmentMoveCode, opts.moveStatus)
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
+			UserID:        user.ID,
+			User:          user,
 			FirstName:     models.StringPointer(strings.ToTitle(string(opts.moveStatus))),
 			LastName:      models.StringPointer("Nts&Nts-r"),
 			PersonalEmail: models.StringPointer(email),
@@ -951,6 +949,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
+			UsesExternalVendor:   opts.usesExternalVendor,
 		},
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
@@ -968,6 +967,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
+			UsesExternalVendor:   opts.usesExternalVendor,
 		},
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
@@ -2772,13 +2772,11 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			Locator:            "HNRMIS",
-			AvailableToPrimeAt: swag.Time(time.Now()),
+			Locator: "HNRMIS",
 		},
 	})
 	// original shipment that was previously approved and is now diverted
@@ -2804,15 +2802,23 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploa
 		},
 		Move: move,
 	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
-func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			Locator:            "HNTMIS",
-			AvailableToPrimeAt: swag.Time(time.Now()),
+			Locator: "HNTMIS",
 		},
 	})
 	// original shipment that was previously approved and is now diverted
@@ -2838,6 +2844,16 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, userUpload
 		},
 		Move: move,
 	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
