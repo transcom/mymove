@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 // HandlerContext provides access to all the contextual references needed by individual handlers
@@ -52,8 +53,7 @@ type HandlerContext interface {
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
-	SetTraceID(traceID uuid.UUID)
-	GetTraceID() uuid.UUID
+	GetTraceIDFromRequest(r *http.Request) uuid.UUID
 	SetSessionManagers(sessionManagers [3]*scs.SessionManager)
 	SessionManager(session *auth.Session) *scs.SessionManager
 }
@@ -81,7 +81,6 @@ type handlerContext struct {
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
 	featureFlags          map[string]bool
-	traceID               uuid.UUID
 	sessionManagers       [3]*scs.SessionManager
 }
 
@@ -252,12 +251,10 @@ func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
 	return false
 }
 
-func (hctx *handlerContext) SetTraceID(traceID uuid.UUID) {
-	hctx.traceID = traceID
-}
-
-func (hctx *handlerContext) GetTraceID() uuid.UUID {
-	return hctx.traceID
+// GetTraceIDFromRequest returns the request traceID. It
+// returns the Nil UUID if no traceid is found
+func (hctx *handlerContext) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
+	return trace.FromContext(r.Context())
 }
 
 func (hctx *handlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {

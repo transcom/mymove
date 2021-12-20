@@ -47,7 +47,7 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 		appCtx.Logger().Error("error getting TEST GHC Prime Contractor", zap.Error(err))
 		// Setting a custom message so we don't reveal the SQL error:
 		return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceID()))
+			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 	if contractor != nil {
 		contractorID = contractor.ID
@@ -55,14 +55,14 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 		appCtx.Logger().Error("error with TEST GHC Prime Contractor value is nil")
 		// Same message as before (same base issue):
 		return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceID()))
+			"Unable to get the TEST GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
 		appCtx.Logger().Error("error creating uuid from string", zap.Error(err))
 		return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"The payment request ID must be a valid UUID.", h.GetTraceID(), nil))
+			"The payment request ID must be a valid UUID.", h.GetTraceIDFromRequest(params.HTTPRequest), nil))
 	}
 
 	file, ok := params.File.(*runtime.File)
@@ -76,13 +76,13 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 		appCtx.Logger().Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case *apperror.BadDataError:
-			return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+			return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.NotFoundError:
-			return paymentrequestop.NewCreateUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return paymentrequestop.NewCreateUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.InvalidInputError:
-			return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+			return paymentrequestop.NewCreateUploadUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		default:
-			return paymentrequestop.NewCreateUploadInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return paymentrequestop.NewCreateUploadInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 

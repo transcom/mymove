@@ -240,7 +240,7 @@ func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Respond
 func ServeCustomError(rw http.ResponseWriter, r *http.Request, err error) {
 
 	rw.Header().Set("Content-Type", "application/json")
-	var traceID = trace.FromContext(r.Context())
+	var traceID = trace.FromContext(r.Context()).String()
 
 	switch e := err.(type) {
 	case *openapierrors.CompositeError:

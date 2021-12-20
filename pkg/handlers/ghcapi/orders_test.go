@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/trace"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -633,6 +634,10 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -651,8 +656,6 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 		&mocks.MoveTaskOrderUpdater{},
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
@@ -1122,6 +1125,10 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 	params := orderop.UpdateAllowanceParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -1139,8 +1146,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 		updater,
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
@@ -1670,6 +1675,10 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 	params := orderop.UpdateBillableWeightParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -1688,8 +1697,6 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 		updater,
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
@@ -1875,6 +1882,10 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 	params := orderop.AcknowledgeExcessWeightRiskParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -1891,8 +1902,6 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 		updater,
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)

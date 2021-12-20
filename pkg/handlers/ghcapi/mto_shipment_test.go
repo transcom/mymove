@@ -11,6 +11,7 @@ import (
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -365,8 +366,12 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := ApproveShipmentHandler{
 			handlerContext,
@@ -382,7 +387,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -565,8 +570,11 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
@@ -582,7 +590,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -766,8 +774,12 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
@@ -783,7 +795,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -965,8 +977,12 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RejectShipmentHandler{
 			handlerContext,
@@ -986,7 +1002,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -1225,8 +1241,12 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
@@ -1242,7 +1262,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -1422,8 +1442,12 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 		handlerContext.SetNotificationSender(suite.TestNotificationSender())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
@@ -1464,7 +1488,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		suite.Equal(strfmt.UUID(shipment.ID.String()), payload.ShipmentID)
 		suite.EqualValues(models.ReweighRequesterTOO, payload.RequestedBy)
 		suite.WithinDuration(time.Now(), (time.Time)(payload.RequestedAt), 2*time.Second)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -1876,6 +1900,7 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 type createMTOShipmentSubtestData struct {
 	builder *query.Builder
 	params  mtoshipmentops.CreateMTOShipmentParams
+	traceID uuid.UUID
 }
 
 func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *createMTOShipmentSubtestData) {
@@ -1895,6 +1920,12 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
+	// Set the traceID so we can use it to find the webhook notification
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+	subtestData.traceID = traceID
 	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &ghcmessages.CreateMTOShipment{
@@ -1929,15 +1960,10 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 }
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	// Set the traceID so we can use it to find the webhook notification
-	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 	moveRouter := moverouter.NewMoveRouter()
 
 	suite.Run("Successful POST - Integration Test", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -1962,9 +1988,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 500", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		params := subtestData.params
@@ -1990,9 +2014,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2023,9 +2045,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2053,9 +2073,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2078,9 +2096,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
-		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder

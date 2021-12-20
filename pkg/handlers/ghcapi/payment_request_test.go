@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
@@ -395,6 +396,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
@@ -406,9 +411,6 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
 
 		response := handler.Handle(params)
 
