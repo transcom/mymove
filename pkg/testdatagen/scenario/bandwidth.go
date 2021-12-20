@@ -69,48 +69,6 @@ func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 	return serviceMember
 }
 
-func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: serviceMember.ID,
-			ServiceMember:   serviceMember,
-		},
-	})
-
-	// Creates order upload documents from the files in this directory:
-	// pkg/testdatagen/testdata/bandwidth_test_docs
-
-	files := filesInBandwidthTestDirectory(fileNames)
-
-	for _, file := range files {
-		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
-		fixture := testdatagen.Fixture(filePath)
-
-		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			File: fixture,
-			UserUpload: models.UserUpload{
-				UploaderID: serviceMember.UserID,
-				DocumentID: &document.ID,
-				Document:   document,
-			},
-			UserUploader: userUploader,
-		})
-		document.UserUploads = append(document.UserUploads, upload)
-	}
-
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID:  serviceMember.ID,
-			ServiceMember:    serviceMember,
-			UploadedOrders:   document,
-			UploadedOrdersID: document.ID,
-		},
-		UserUploader: userUploader,
-	})
-
-	return orders
-}
-
 func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
 	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
 		Document: models.Document{
@@ -148,28 +106,6 @@ func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUpl
 	}
 
 	return order
-}
-
-func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus) models.Move {
-	hhgMoveType := models.SelectedMoveTypeHHG
-
-	var availableToPrimeAt *time.Time
-	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
-		now := time.Now()
-		availableToPrimeAt = &now
-	}
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             moveStatus,
-			OrdersID:           orders.ID,
-			Orders:             orders,
-			SelectedMoveType:   &hhgMoveType,
-			Locator:            moveCode,
-			AvailableToPrimeAt: availableToPrimeAt,
-		},
-	})
-
-	return move
 }
 
 func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmentStatus models.MTOShipmentStatus) models.MTOShipment {
