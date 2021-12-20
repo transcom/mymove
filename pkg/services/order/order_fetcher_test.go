@@ -544,7 +544,7 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyStationAddress2.PostalCode, "ZANY")
 
 	// Create a second move from the ZANY gbloc
-	zanyMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status:  models.MoveStatusNeedsServiceCounseling,
 			Locator: "ZZ1234",
@@ -554,7 +554,6 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 			OriginDutyStationID: &originDutyStation2.ID,
 		},
 	})
-	gblocZANY := zanyMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
 
 	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
 		// TESTCASE SCENARIO
@@ -577,28 +576,5 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(lknqMove.ID, moves[0].ID)
-	})
-
-	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
-		// TESTCASE SCENARIO
-		// Under test: OrderFetcher.ListOrders function
-		// Mocked:     None
-		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
-		//             We create an office user with the USMC GBLOC
-		//             Then we request a list of moves filtered by GBLOC ZANY
-		// Expected outcome:
-		//             We expect 1 moves to be returned, the ZANY move
-
-		// Setup and run the function under test filtering GBLOC for ZANY
-		orderFetcher := NewOrderFetcher()
-		statuses := []string{"NEEDS SERVICE COUNSELING"}
-		// Sort by service member name
-		params := services.ListOrderParams{OriginGBLOC: swag.String("ZANY"), Status: statuses}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-
-		// Check the results
-		suite.NoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
 	})
 }
