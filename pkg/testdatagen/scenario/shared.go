@@ -68,6 +68,80 @@ var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
+func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
+	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	})
+
+	// Creates order upload documents from the files in this directory:
+	// pkg/testdatagen/testdata/bandwidth_test_docs
+
+	files := filesInBandwidthTestDirectory(fileNames)
+
+	for _, file := range files {
+		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
+		fixture := testdatagen.Fixture(filePath)
+
+		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+			File: fixture,
+			UserUpload: models.UserUpload{
+				UploaderID: serviceMember.UserID,
+				DocumentID: &document.ID,
+				Document:   document,
+			},
+			UserUploader: userUploader,
+		})
+		document.UserUploads = append(document.UserUploads, upload)
+	}
+
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID:  serviceMember.ID,
+			ServiceMember:    serviceMember,
+			UploadedOrders:   document,
+			UploadedOrdersID: document.ID,
+		},
+		UserUploader: userUploader,
+	})
+
+	return orders
+}
+
+func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus,
+	moveOptConfigs ...func(move *models.Move)) models.Move {
+	hhgSelectedMoveType := models.SelectedMoveTypeHHG
+
+	var availableToPrimeAt *time.Time
+	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
+		now := time.Now()
+		availableToPrimeAt = &now
+	}
+
+	move := models.Move{
+		Status:             moveStatus,
+		OrdersID:           orders.ID,
+		Orders:             orders,
+		SelectedMoveType:   &hhgSelectedMoveType,
+		Locator:            moveCode,
+		AvailableToPrimeAt: availableToPrimeAt,
+	}
+
+	// run configurations on move struct
+	// this is to make any updates to the move struct before it gets created
+	for _, config := range moveOptConfigs {
+		config(&move)
+	}
+
+	move = testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	return move
+}
+
 func createPPMOfficeUser(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	email := "ppm_role@office.mil"
@@ -835,74 +909,53 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 }
 
-func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.MoveRouter, opts sceneOptionsNTS) {
+func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, opts sceneOptionsNTS) {
 	db := appCtx.DB()
 
-	// Generate some UUIDs for everything needed to create these types of moves.
-	uuidUser := uuid.Must(uuid.NewV4())
-	uuidServiceMember := uuid.Must(uuid.NewV4())
-	uuidMove := uuid.Must(uuid.NewV4())
-	uuidMTOShipmentNTS := uuid.Must(uuid.NewV4())
-	uuidMTOShipmentNTSR := uuid.Must(uuid.NewV4())
-	uuidMTOAgentReleasing := uuid.Must(uuid.NewV4())
-	uuidMTOAgentReceiving := uuid.Must(uuid.NewV4())
+	// Refactor start
+
+	// Refactor end
+
+	//testdatagen.MakeUser(db, testdatagen.Assertions{
+	//	User: models.User{
+	//		LoginGovEmail: strings.ToLower(email),
+	//		Active:        true,
+	//	},
+	//})
 
 	email := fmt.Sprintf("nts.%s@nstr.%s", opts.shipmentMoveCode, opts.moveStatus)
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuidUser,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: strings.ToLower(email),
-			Active:        true,
-		},
-	})
-
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuidServiceMember,
-			UserID:        uuidUser,
 			FirstName:     models.StringPointer(strings.ToTitle(string(opts.moveStatus))),
 			LastName:      models.StringPointer("Nts&Nts-r"),
-			Edipi:         models.StringPointer("5833908155"),
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
 
-	selectedMoveType := models.SelectedMoveTypeNTS
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuidServiceMember,
-			ServiceMember:   smWithNTS,
-		},
-		Move: models.Move{
-			ID:               uuidMove,
-			Locator:          opts.shipmentMoveCode,
-			SelectedMoveType: &selectedMoveType,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	orders := makeOrdersForServiceMember(appCtx, smWithNTS, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, opts.shipmentMoveCode, models.MoveStatusDRAFT,
+		func(move *models.Move) {
+			// updating the move struct here
+			selectedMoveType := models.SelectedMoveTypeNTS
+			move.SelectedMoveType = &selectedMoveType
+		})
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuidMTOShipmentNTS,
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
 		},
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuidMTOAgentReleasing,
 			MTOAgentType: models.MTOAgentReleasing,
 		},
 	})
@@ -910,21 +963,16 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.
 	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuidMTOShipmentNTSR,
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
 		},
 	})
-
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuidMTOAgentReceiving,
 			MTOAgentType: models.MTOAgentReceiving,
 		},
 	})
@@ -934,7 +982,11 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveRouter services.
 		if err != nil {
 			log.Panic(err)
 		}
-		testdatagen.MustSave(db, &move)
+
+		verrs, err := models.SaveMoveDependencies(db, &move)
+		if err != nil || verrs.HasAny() {
+			log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		}
 	}
 }
 
