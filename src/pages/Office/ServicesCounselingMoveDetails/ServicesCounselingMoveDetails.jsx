@@ -22,7 +22,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { LOA_TYPE, MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -131,10 +131,20 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   };
 
   const handleButtonDropdownChange = (e) => {
-    if (e.target.value === SHIPMENT_OPTIONS.HHG) {
-      const addHHGShipment = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode });
-      history.push(addHHGShipment);
+    const selectedOption = e.target.value;
+    let addShipmentPath = '';
+    if (selectedOption === SHIPMENT_OPTIONS.HHG) {
+      addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+        moveCode,
+        shipmentType: LOA_TYPE.HHG,
+      });
+    } else if (selectedOption === SHIPMENT_OPTIONS.NTS) {
+      addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+        moveCode,
+        shipmentType: LOA_TYPE.NTS,
+      });
     }
+    history.push(addShipmentPath);
   };
 
   // use mutation calls

@@ -17,7 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ServicesCounselingAddShipment = ({ match }) => {
-  const { moveCode } = useParams();
+  const { moveCode, shipmentType } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipments] = useMutation(createMTOShipment, {
@@ -59,7 +59,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   isCreatePage
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  selectedMoveType={SHIPMENT_OPTIONS[shipmentType]}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
