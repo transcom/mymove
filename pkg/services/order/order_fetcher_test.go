@@ -498,55 +498,50 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListUSMCMovesNeedingServicesCounselingWithGBLOCSortFilter() {
+func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCSortFilter() {
 
 	// TESTCASE SCENARIO
 	// Under test: OrderFetcher.ListOrders function
 	// Mocked:     None
-	// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
-	//             We create an office user with the USMC GBLOC
+	// Set up:     We create 2 USMC moves with different GBLOCs, LKNQ and ZANY
+	//             We create an office user with the LKNQ GBLOC
 
-	// Create an office user at the USMC GBLOC transportation office
-	officeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+	// Create a services counselor with defauult GBLOC, LKNQ
+	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	// Create a dutystation with ACME GBLOC
-	acmeDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name: "ACME Island Arsenal",
-		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "ACME",
-		},
-	})
-
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "ACME")
-	// Create a dutystation with ZANY GBLOC
-	zanyDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name: "Camp Zany",
-		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "ZANY",
-		},
-	})
-
-	// Create a move from the ACME gbloc
-	affiliation := models.AffiliationMARINES
-	acmeMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+	// Default Origin Duty Station GBLOC is LKNQ
+	hhgMoveType := models.SelectedMoveTypeHHG
+	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
+	lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			Status:  models.MoveStatusNeedsServiceCounseling,
-			Locator: "AA1234",
-		},
-		ServiceMember: models.ServiceMember{
-			Affiliation: &affiliation,
-			LastName:    models.StringPointer("Clark-Nuñez"),
-			Edipi:       models.StringPointer("0123456789"),
-		},
-		Order: models.Order{
-			OriginDutyStation:   &acmeDutyStation,
-			OriginDutyStationID: &acmeDutyStation.ID,
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt:      &submittedAt,
 		},
 	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+
+	// Create a dutystation with ZANY GBLOC
+	dutyStationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "Anchor 1212",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "89898",
+			Country:        swag.String("United States"),
+		},
+	})
+
+	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name:      "Fort Sam Snap",
+			AddressID: dutyStationAddress2.ID,
+			Address:   dutyStationAddress2,
+		},
+	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyStationAddress2.PostalCode, "ZANY")
 
 	// Create a second move from the ZANY gbloc
 	zanyMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -554,30 +549,22 @@ func (suite *OrderServiceSuite) TestListUSMCMovesNeedingServicesCounselingWithGB
 			Status:  models.MoveStatusNeedsServiceCounseling,
 			Locator: "ZZ1234",
 		},
-		ServiceMember: models.ServiceMember{
-			Affiliation: &affiliation,
-			LastName:    models.StringPointer("Ocampo"),
-			Edipi:       models.StringPointer("9876543210"),
-		},
 		Order: models.Order{
-			OriginDutyStation:   &zanyDutyStation,
-			OriginDutyStationID: &zanyDutyStation.ID,
+			OriginDutyStation:   &originDutyStation2,
+			OriginDutyStationID: &originDutyStation2.ID,
 		},
 	})
-	gblocACME := acmeMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
 	gblocZANY := zanyMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
 
-	suite.T().Run("Sort by origin GBLOC", func(t *testing.T) {
+	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: OrderFetcher.ListOrders function
 		// Mocked:     None
 		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
-		//             We create an office user with the USMC GBLOC
+		//             We create an office user with the ACME GBLOC
 		//             Then we request a list of moves sorted by GBLOC, first ascending then descending
 		// Expected outcome:
-		//             We expect both moves to be returned
-		//             In asc mode, we should get the ACME move, then the ZANY move
-		//             In desc mode, we should get the ZANY move, then the ACME move
+		//             We expect one move to be returned: the the ACME move
 
 		// Setup and run the function under test sorting GBLOC with ascending mode
 		orderFetcher := NewOrderFetcher()
@@ -588,19 +575,8 @@ func (suite *OrderServiceSuite) TestListUSMCMovesNeedingServicesCounselingWithGB
 
 		// Check the results
 		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(gblocACME, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-		suite.Equal(gblocZANY, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-
-		// Setup and run the function under test sorting GBLOC with descending mode
-		params = services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("desc"), Status: statuses}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-
-		// Check the results
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-		suite.Equal(gblocACME, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		suite.Equal(1, len(moves))
+		suite.Equal(lknqMove.ID, moves[0].ID)
 	})
 
 	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {

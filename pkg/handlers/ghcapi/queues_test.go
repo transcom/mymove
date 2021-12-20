@@ -1241,7 +1241,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
 		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
 
-		suite.Len(payload.QueueMoves, 2)
+		suite.Len(payload.QueueMoves, 3)
 
 		// default sort should be date submitted ascending
 		for index, move := range []models.Move{subtestData.counselingCompletedMove, subtestData.needsCounselingMove} {
