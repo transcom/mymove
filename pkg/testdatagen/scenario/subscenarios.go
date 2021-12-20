@@ -218,8 +218,37 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 
 func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
 	return func() {
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader)
-		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader)
+		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
+
+		// Create some submitted Moves for TXO users
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader, moveRouter)
+		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader, moveRouter)
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSSUB",
+				moveStatus:         models.MoveStatusSUBMITTED,
+				usesExternalVendor: true,
+			},
+		)
+
+		// Create some unsubmitted Moves for Customer users
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSSUN",
+				moveStatus:         models.MoveStatusDRAFT,
+				usesExternalVendor: true,
+			},
+		)
+
 	}
 }
 
@@ -262,37 +291,5 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 
 		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
-	}
-}
-
-func subScenarioNTSShipments(
-	appCtx appcontext.AppContext,
-	userUploader *uploader.UserUploader,
-	moveRouter services.MoveRouter,
-) func() {
-	return func() {
-		createTXO(appCtx)
-		createTXOServicesCounselor(appCtx)
-
-		// Create some unsubmitted Moves for Customer users
-		createMoveWithNTSAndNTSR(
-			appCtx,
-			userUploader,
-			moveRouter,
-			sceneOptionsNTS{
-				shipmentMoveCode: "NTSUNS",
-				moveStatus:       models.MoveStatusDRAFT,
-			},
-		)
-		// Create some submitted Moves for TXO users
-		createMoveWithNTSAndNTSR(
-			appCtx,
-			userUploader,
-			moveRouter,
-			sceneOptionsNTS{
-				shipmentMoveCode: "NTSSUB",
-				moveStatus:       models.MoveStatusSUBMITTED,
-			},
-		)
 	}
 }
