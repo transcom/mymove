@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import classnames from 'classnames';
@@ -22,7 +22,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -33,6 +33,7 @@ import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
 const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -127,6 +128,13 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     sac: order.sac,
     ntsTAC: order.ntsTAC,
     ntsSAC: order.ntsSac,
+  };
+
+  const handleButtonDropdownChange = (e) => {
+    if (e.target.value === SHIPMENT_OPTIONS.HHG) {
+      const addHHGShipment = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode });
+      history.push(addHHGShipment);
+    }
   };
 
   // use mutation calls
@@ -245,10 +253,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <ButtonDropdown onChange={() => {}}>
+                  <ButtonDropdown onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
+                    <option value={SHIPMENT_OPTIONS.HHG}>HHG</option>
+                    <option value={SHIPMENT_OPTIONS.NTS}>NTS</option>
                   </ButtonDropdown>
                 )
               }
