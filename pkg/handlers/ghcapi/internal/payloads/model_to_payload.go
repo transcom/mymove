@@ -736,7 +736,7 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, gblocFilter *string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -761,9 +761,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 
 		var gbloc ghcmessages.GBLOC
-		if move.Status == models.MoveStatusNeedsServiceCounseling {
+		if move.Status == models.MoveStatusNeedsServiceCounseling || move.Status == models.MoveStatusServiceCounselingCompleted {
 			// THIS NEEDS TO BE UPDATED!!!!
-			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
+			gbloc = ghcmessages.GBLOC(*gblocFilter)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
