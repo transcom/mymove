@@ -21,14 +21,6 @@ const serviceCounselorUser = {
   },
 };
 
-const marineCorpsUser = {
-  isLoading: false,
-  isError: false,
-  data: {
-    office_user: { transportation_office: { gbloc: 'USMC' } },
-  },
-};
-
 const emptyServiceCounselingMoves = {
   isLoading: false,
   isError: false,

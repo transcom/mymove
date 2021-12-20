@@ -12,7 +12,6 @@ import TableQueue from 'components/Table/TableQueue';
 import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
-  GBLOC,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
