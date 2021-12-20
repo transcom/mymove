@@ -142,6 +142,13 @@ func (router shipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, ship
 		)
 	}
 
+	if shipment.UsesExternalVendor {
+		return apperror.NewConflictError(
+			shipment.ID,
+			fmt.Sprintf("shipmentRouter: cannot approve the diversion because the shipment with id %s has the UsesExternalVendor field set to true.", shipment.ID),
+		)
+	}
+
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return ConflictStatusError{
 			id:                        shipment.ID,
