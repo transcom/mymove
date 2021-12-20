@@ -448,18 +448,18 @@ func init() {
         }
       }
     },
-    "/duty_stations": {
+    "/duty_locations": {
       "get": {
-        "description": "Returns the duty stations matching the search query",
+        "description": "Returns the duty locations matching the search query",
         "tags": [
-          "duty_stations"
+          "duty_locations"
         ],
-        "summary": "Returns the duty stations matching the search query",
-        "operationId": "searchDutyStations",
+        "summary": "Returns the duty locations matching the search query",
+        "operationId": "searchDutyLocations",
         "parameters": [
           {
             "type": "string",
-            "description": "Search string for duty stations",
+            "description": "Search string for duty locations",
             "name": "search",
             "in": "query",
             "required": true
@@ -467,9 +467,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "the instance of the duty station",
+            "description": "the instance of the duty location",
             "schema": {
-              "$ref": "#/definitions/DutyStationsPayload"
+              "$ref": "#/definitions/DutyLocationsPayload"
             }
           },
           "400": {
@@ -482,7 +482,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "matching duty station not found"
+            "description": "matching duty location not found"
           },
           "500": {
             "description": "internal server error"
@@ -490,27 +490,27 @@ func init() {
         }
       }
     },
-    "/duty_stations/{dutyStationId}/transportation_office": {
+    "/duty_locations/{dutyLocationId}/transportation_office": {
       "get": {
-        "description": "Returns the given duty station's transportation office",
+        "description": "Returns the given duty location's transportation office",
         "tags": [
           "transportation_offices"
         ],
-        "summary": "Returns the transportation office for a given duty station",
-        "operationId": "showDutyStationTransportationOffice",
+        "summary": "Returns the transportation office for a given duty location",
+        "operationId": "showDutyLocationTransportationOffice",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the duty station",
-            "name": "dutyStationId",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
             "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "the instance of the transportation office for a duty station",
+            "description": "the instance of the transportation office for a duty location",
             "schema": {
               "$ref": "#/definitions/TransportationOffice"
             }
@@ -610,7 +610,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "origin_duty_station_zip",
+            "name": "origin_duty_location_zip",
             "in": "query",
             "required": true
           },
@@ -2353,7 +2353,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "origin_duty_station_zip",
+            "name": "origin_duty_location_zip",
             "in": "query",
             "required": true
           },
@@ -4073,7 +4073,7 @@ func init() {
         }
       }
     },
-    "DutyStationPayload": {
+    "DutyLocationPayload": {
       "type": "object",
       "required": [
         "id",
@@ -4118,10 +4118,55 @@ func init() {
         }
       }
     },
-    "DutyStationsPayload": {
+    "DutyLocationsPayload": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/DutyStationPayload"
+        "$ref": "#/definitions/DutyLocationPayload"
+      }
+    },
+    "DutyStationPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "address_id",
+        "address",
+        "affiliation",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "Error": {
@@ -4772,7 +4817,7 @@ func init() {
           "x-nullable": true,
           "example": "2017-07-21T17:32:28Z"
         },
-        "destination_duty_station_name": {
+        "destination_duty_location_name": {
           "type": "string",
           "title": "Destination",
           "x-nullable": true,
@@ -4840,7 +4885,7 @@ func init() {
             "PCS + TDY - CONUS"
           ]
         },
-        "origin_duty_station_name": {
+        "origin_duty_location_name": {
           "type": "string",
           "title": "Origin",
           "x-nullable": true,
@@ -7007,18 +7052,18 @@ func init() {
         }
       }
     },
-    "/duty_stations": {
+    "/duty_locations": {
       "get": {
-        "description": "Returns the duty stations matching the search query",
+        "description": "Returns the duty locations matching the search query",
         "tags": [
-          "duty_stations"
+          "duty_locations"
         ],
-        "summary": "Returns the duty stations matching the search query",
-        "operationId": "searchDutyStations",
+        "summary": "Returns the duty locations matching the search query",
+        "operationId": "searchDutyLocations",
         "parameters": [
           {
             "type": "string",
-            "description": "Search string for duty stations",
+            "description": "Search string for duty locations",
             "name": "search",
             "in": "query",
             "required": true
@@ -7026,9 +7071,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "the instance of the duty station",
+            "description": "the instance of the duty location",
             "schema": {
-              "$ref": "#/definitions/DutyStationsPayload"
+              "$ref": "#/definitions/DutyLocationsPayload"
             }
           },
           "400": {
@@ -7041,7 +7086,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "matching duty station not found"
+            "description": "matching duty location not found"
           },
           "500": {
             "description": "internal server error"
@@ -7049,27 +7094,27 @@ func init() {
         }
       }
     },
-    "/duty_stations/{dutyStationId}/transportation_office": {
+    "/duty_locations/{dutyLocationId}/transportation_office": {
       "get": {
-        "description": "Returns the given duty station's transportation office",
+        "description": "Returns the given duty location's transportation office",
         "tags": [
           "transportation_offices"
         ],
-        "summary": "Returns the transportation office for a given duty station",
-        "operationId": "showDutyStationTransportationOffice",
+        "summary": "Returns the transportation office for a given duty location",
+        "operationId": "showDutyLocationTransportationOffice",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the duty station",
-            "name": "dutyStationId",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
             "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "the instance of the transportation office for a duty station",
+            "description": "the instance of the transportation office for a duty location",
             "schema": {
               "$ref": "#/definitions/TransportationOffice"
             }
@@ -7169,7 +7214,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "origin_duty_station_zip",
+            "name": "origin_duty_location_zip",
             "in": "query",
             "required": true
           },
@@ -8963,7 +9008,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "origin_duty_station_zip",
+            "name": "origin_duty_location_zip",
             "in": "query",
             "required": true
           },
@@ -10687,7 +10732,7 @@ func init() {
         }
       }
     },
-    "DutyStationPayload": {
+    "DutyLocationPayload": {
       "type": "object",
       "required": [
         "id",
@@ -10732,10 +10777,55 @@ func init() {
         }
       }
     },
-    "DutyStationsPayload": {
+    "DutyLocationsPayload": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/DutyStationPayload"
+        "$ref": "#/definitions/DutyLocationPayload"
+      }
+    },
+    "DutyStationPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "address_id",
+        "address",
+        "affiliation",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "Error": {
@@ -11399,7 +11489,7 @@ func init() {
           "x-nullable": true,
           "example": "2017-07-21T17:32:28Z"
         },
-        "destination_duty_station_name": {
+        "destination_duty_location_name": {
           "type": "string",
           "title": "Destination",
           "x-nullable": true,
@@ -11467,7 +11557,7 @@ func init() {
             "PCS + TDY - CONUS"
           ]
         },
-        "origin_duty_station_name": {
+        "origin_duty_location_name": {
           "type": "string",
           "title": "Origin",
           "x-nullable": true,

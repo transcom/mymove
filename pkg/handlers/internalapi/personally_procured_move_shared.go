@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// GetDestinationDutyStationPostalCode returns the postal code associated with orders->new_duty_station->address
-func GetDestinationDutyStationPostalCode(appCtx appcontext.AppContext, ordersID uuid.UUID) (string, error) {
+// GetDestinationDutyLocationPostalCode returns the postal code associated with orders->new_duty_location->address
+func GetDestinationDutyLocationPostalCode(appCtx appcontext.AppContext, ordersID uuid.UUID) (string, error) {
 	queryBuilder := query.NewQueryBuilder()
 
 	var orders models.Orders
@@ -19,7 +19,7 @@ func GetDestinationDutyStationPostalCode(appCtx appcontext.AppContext, ordersID 
 		query.NewQueryFilter("id", "=", ordersID),
 	}
 	associations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("NewDutyStation.Address"),
+		query.NewQueryAssociation("NewDutyLocation.Address"),
 	})
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	pagination := pagination.NewPagination(&page, &perPage)

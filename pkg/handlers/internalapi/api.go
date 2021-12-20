@@ -58,11 +58,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{ctx}
 	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{ctx}
 
-	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler{ctx}
+	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{ctx}
 
 	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{ctx}
 
-	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler{ctx}
+	internalAPI.TransportationOfficesShowDutyLocationTransportationOfficeHandler = ShowDutyLocationTransportationOfficeHandler{ctx}
 
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{ctx}
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{ctx}

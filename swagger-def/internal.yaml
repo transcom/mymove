@@ -41,10 +41,10 @@ definitions:
           $ref: '#/definitions/Role'
     required:
       - id
-  DutyStationsPayload:
+  DutyLocationsPayload:
     type: array
     items:
-      $ref: 'definitions/DutyStationPayload.yaml'
+      $ref: 'definitions/DutyLocationPayload.yaml'
   CreatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -2021,12 +2021,12 @@ definitions:
       created_at:
         type: string
         format: date-time
-      origin_duty_station_name:
+      origin_duty_location_name:
         type: string
         example: Dover AFB
         title: Origin
         x-nullable: true
-      destination_duty_station_name:
+      destination_duty_location_name:
         type: string
         example: Dover AFB
         title: Destination
@@ -2497,7 +2497,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: origin_duty_location_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -3669,7 +3669,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: origin_duty_location_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -4085,24 +4085,24 @@ paths:
           description: backup contact not found
         '500':
           description: internal server error
-  /duty_stations:
+  /duty_locations:
     get:
-      summary: Returns the duty stations matching the search query
-      description: Returns the duty stations matching the search query
-      operationId: searchDutyStations
+      summary: Returns the duty locations matching the search query
+      description: Returns the duty locations matching the search query
+      operationId: searchDutyLocations
       tags:
-        - duty_stations
+        - duty_locations
       parameters:
         - in: query
           name: search
           type: string
           required: true
-          description: Search string for duty stations
+          description: Search string for duty locations
       responses:
         '200':
-          description: the instance of the duty station
+          description: the instance of the duty location
           schema:
-            $ref: '#/definitions/DutyStationsPayload'
+            $ref: '#/definitions/DutyLocationsPayload'
         '400':
           description: invalid request
         '401':
@@ -4110,26 +4110,26 @@ paths:
         '403':
           description: user is not authorized
         '404':
-          description: matching duty station not found
+          description: matching duty location not found
         '500':
           description: internal server error
-  /duty_stations/{dutyStationId}/transportation_office:
+  /duty_locations/{dutyLocationId}/transportation_office:
     get:
-      summary: Returns the transportation office for a given duty station
-      description: Returns the given duty station's transportation office
-      operationId: showDutyStationTransportationOffice
+      summary: Returns the transportation office for a given duty location
+      description: Returns the given duty location's transportation office
+      operationId: showDutyLocationTransportationOffice
       tags:
         - transportation_offices
       parameters:
         - in: path
-          name: dutyStationId
+          name: dutyLocationId
           type: string
           format: uuid
           required: true
-          description: UUID of the duty station
+          description: UUID of the duty location
       responses:
         '200':
-          description: the instance of the transportation office for a duty station
+          description: the instance of the transportation office for a duty location
           schema:
             $ref: 'definitions/TransportationOffice.yaml'
         '400':

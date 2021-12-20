@@ -39,7 +39,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 
 	engine := rateengine.NewRateEngine(move)
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
+	destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, ordersID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -49,7 +49,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyStationZip, destinationZip)
+	distanceMilesFromOriginDutyLocationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -58,10 +58,10 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		appCtx,
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		params.OriginDutyStationZip,
+		params.OriginDutyLocationZip,
 		destinationZip,
 		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyStationZip,
+		distanceMilesFromOriginDutyLocationZip,
 		time.Time(params.OriginalMoveDate),
 		0, // We don't want any SIT charges
 	)
