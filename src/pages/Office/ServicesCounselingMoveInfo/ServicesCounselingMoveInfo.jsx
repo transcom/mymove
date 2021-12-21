@@ -24,7 +24,7 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 const ServicesCounselingMoveInfo = () => {
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
-  const onCustomerInfoUpdate = (alertType) => {
+  const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
         alertType,
@@ -89,7 +89,7 @@ const ServicesCounselingMoveInfo = () => {
               customer={customerData}
               isLoading={isLoading}
               isError={isError}
-              onUpdate={onCustomerInfoUpdate}
+              onUpdate={onInfoSavedUpdate}
             />
           </Route>
 
@@ -97,7 +97,7 @@ const ServicesCounselingMoveInfo = () => {
             path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
             exact
             // eslint-disable-next-line react/jsx-props-no-spreading
-            render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onCustomerInfoUpdate} />}
+            render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} />}
           />
 
           {/* TODO - clarify role/tab access */}
