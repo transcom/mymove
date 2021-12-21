@@ -22,16 +22,16 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
-  const [customerEditAlert, setCustomerEditAlert] = useState(null);
+  const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const onCustomerInfoUpdate = (alertType) => {
     if (alertType === 'error') {
-      setCustomerEditAlert({
+      setInfoSavedAlert({
         alertType,
         message: 'Something went wrong, and your changes were not saved. Please try again later.',
       });
     } else {
-      setCustomerEditAlert({
+      setInfoSavedAlert({
         alertType,
         message: 'Your changes were saved.',
       });
@@ -42,14 +42,14 @@ const ServicesCounselingMoveInfo = () => {
   useEffect(() => {
     // clear alert when route changes
     const unlisten = history.listen(() => {
-      if (customerEditAlert) {
-        setCustomerEditAlert(null);
+      if (infoSavedAlert) {
+        setInfoSavedAlert(null);
       }
     });
     return () => {
       unlisten();
     };
-  }, [history, customerEditAlert]);
+  }, [history, infoSavedAlert]);
 
   const { moveCode } = useParams();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
@@ -73,7 +73,7 @@ const ServicesCounselingMoveInfo = () => {
         <Switch>
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.MOVE_VIEW_PATH} exact>
-            <ServicesCounselingMoveDetails customerEditAlert={customerEditAlert} />
+            <ServicesCounselingMoveDetails infoSavedAlert={infoSavedAlert} />
           </Route>
 
           <Route
