@@ -75,6 +75,17 @@ const mockMtoShipment = {
 };
 
 describe('ServicesCounselingShipmentForm component', () => {
+  describe('when creating a new shipment', () => {
+    it('does not show the delete shipment button', async () => {
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      const deleteButton = screen.queryByRole('button', { name: 'Delete shipment' });
+      await waitFor(() => {
+        expect(deleteButton).not.toBeInTheDocument();
+      });
+    });
+  });
+
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
