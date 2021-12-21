@@ -4,6 +4,7 @@ import moment from 'moment';
 import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
+import { roleTypes } from 'constants/userRoles';
 
 const formatDateForSwagger = (date) => {
   const parsedDate = parseDate(date);
@@ -85,6 +86,7 @@ export function formatMtoShipmentForDisplay({
   serviceOrderNumber,
   storageFacility,
   usesExternalVendor,
+  userRole,
 }) {
   const displayValues = {
     shipmentType,
@@ -170,6 +172,11 @@ export function formatMtoShipmentForDisplay({
         ...(storageFacility?.address || {}),
       },
     };
+  }
+
+  if (userRole === roleTypes.TOO && usesExternalVendor === undefined) {
+    // Vendor defaults to the Prime
+    displayValues.usesExternalVendor = false;
   }
 
   return displayValues;
