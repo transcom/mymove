@@ -98,7 +98,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		"MTOShipments",
 		"MTOServiceItems",
 		"ShipmentGBLOC",
-		"OriginDutyStationGBLOC",
+		"OriginDutyLocationGBLOC",
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -312,7 +312,7 @@ func gblocFilter(gbloc *string) QueryOption {
 		fmt.Println("🍉🍉🍉🍉🍉")
 		fmt.Println(gbloc)
 		if gbloc != nil {
-			query.Where("pcg.gbloc = ?", *gbloc)
+			query.Where("o_gbloc.gbloc = ?", *gbloc)
 		}
 	}
 }

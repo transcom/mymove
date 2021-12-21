@@ -2,19 +2,16 @@ package models
 
 import "github.com/gofrs/uuid"
 
-// MoveToGBLOC represents the view that associates each move ID with a GBLOC based on the postal code of its first shipment.
+// OriginDutyLocationToGBLOC represents the view that associates each move ID with a GBLOC based on the postal code of its origin duty location.
 // This view is used to encapsulate query logic that was impossible to express with Pop.
-// It will be used for the TOO and TIO queues, but not for Services Counseling.
+// It will be used for the for Services Counseling queue.
 type OriginDutyLocationToGBLOC struct {
+	ID     uuid.UUID `db:"id"`
 	MoveID uuid.UUID `db:"move_id"`
-	Move   Move      `belongs_to:"moves" fk_id:"move_id"`
 	GBLOC  string    `db:"gbloc"`
 }
 
-// MoveToGBLOCs is not required by pop and may be deleted
-type OriginDutyLocationToGBLOCs []OriginDutyLocationToGBLOC
-
 // TableName overrides the table name used by Pop.
-func (m MoveToGBLOC) OriginDutyLocationToGBLOC() string {
+func (m OriginDutyLocationToGBLOC) TableName() string {
 	return "origin_duty_location_to_gbloc"
 }

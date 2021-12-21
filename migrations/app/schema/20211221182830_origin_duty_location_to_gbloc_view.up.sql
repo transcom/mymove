@@ -1,6 +1,6 @@
 -- This view finds the GBLOC for the origin duty location
 CREATE VIEW origin_duty_location_to_gbloc AS
-SELECT m.id AS move_id, pctg.gbloc AS gbloc
+SELECT pctg.id as id, m.id AS move_id, pctg.gbloc AS gbloc
 FROM moves m
 		 JOIN orders ord ON ord.id = m.orders_id
 		 JOIN duty_stations ds on ds.id = ord.origin_duty_station_id
