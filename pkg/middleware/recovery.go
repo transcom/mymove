@@ -27,8 +27,8 @@ func Recovery(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
 						zap.String("url", fmt.Sprint(r.URL)),
 					}
 					traceID := trace.FromContext(r.Context())
-					if traceID != "" {
-						fields = append(fields, zap.String("milmove_trace_id", traceID))
+					if !traceID.IsNil() {
+						fields = append(fields, zap.String("milmove_trace_id", traceID.String()))
 					}
 					if err, ok := obj.(error); ok {
 						fields = append(fields, zap.Error(err))
@@ -43,7 +43,7 @@ func Recovery(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
 						Title    string `json:"title"`
 						Instance string `json:"instance"`
 						Detail   string `json:"detail"`
-					}{handlers.InternalServerErrMessage, traceID, "An unexpected server error has occurred."})
+					}{handlers.InternalServerErrMessage, traceID.String(), "An unexpected server error has occurred."})
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusInternalServerError)
 

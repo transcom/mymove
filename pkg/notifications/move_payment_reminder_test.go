@@ -319,7 +319,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 
 <p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
 
-<p>If you’re missing certified weight tickets, your PPPO will have to help. </p>
+<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code abc123.</p>
 
 <p>Log in to MilMove to complete your request and get paid.</p>
 
