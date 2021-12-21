@@ -117,6 +117,17 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		QueryLimit: limit,
 	}
 
+	gblocSelectHTML := `
+		<label for="gblocSelect">Select GBLOC:</label>
+		<select id="gblocSelect" name="gbloc">
+			{{ range $index, $element := .Gblocs }}
+				{{if eq $element $.GblocDefault}}
+					<option value="{{$element}}" selected="">{{$element}}</option>
+				{{else}}
+					<option value="{{$element}}">{{$element}}</option>
+				{{end}}
+			{{ end }}
+		</select>`
 	t := template.Must(template.New("users").Parse(`
 	  <html>
 	  <head>
@@ -195,16 +206,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
-					  <label for="gblocSelect">Select GBLOC:</label>
-					  <select id="gblocSelect" name="gbloc">
-					    {{ range $index, $element := .Gblocs }}
-						  {{if eq $element $.GblocDefault}}
-							<option value="{{$element}}" selected="">{{$element}}</option>
-						  {{else}}
-							<option value="{{$element}}">{{$element}}</option>
-						  {{end}}
-					    {{ end }}
-					  </select>
+					  ` + gblocSelectHTML + `
 					  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
 					</p>
 				  </form>
@@ -213,16 +215,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					  <input type="hidden" name="userType" value="{{.TOOOfficeUserType}}">
-					  <label for="gblocSelect">Select GBLOC:</label>
-					  <select id="gblocSelect" name="gbloc">
-					    {{ range $index, $element := .Gblocs }}
-						  {{if eq $element $.GblocDefault}}
-							<option value="{{$element}}" selected="">{{$element}}</option>
-						  {{else}}
-							<option value="{{$element}}">{{$element}}</option>
-						  {{end}}
-					    {{ end }}
-					  </select>
+					  ` + gblocSelectHTML + `
 					  <button type="submit" data-hook="new-user-login-{{.TOOOfficeUserType}}">Create a New {{.TOOOfficeUserType}} User</button>
 					</p>
 				  </form>
@@ -231,16 +224,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					  <input type="hidden" name="userType" value="{{.TIOOfficeUserType}}">
-					  <label for="gblocSelect">Select GBLOC:</label>
-					  <select id="gblocSelect" name="gbloc">
-					    {{ range $index, $element := .Gblocs }}
-						  {{if eq $element $.GblocDefault}}
-							<option value="{{$element}}" selected="">{{$element}}</option>
-						  {{else}}
-							<option value="{{$element}}">{{$element}}</option>
-						  {{end}}
-					    {{ end }}
-					  </select>
+					  ` + gblocSelectHTML + `
 					  <button type="submit" data-hook="new-user-login-{{.TIOOfficeUserType}}">Create a New {{.TIOOfficeUserType}} User</button>
 					</p>
 				  </form>
@@ -249,16 +233,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <p>
 					<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					<input type="hidden" name="userType" value="{{.ServicesCounselorOfficeUserType}}">
-					<label for="gblocSelect">Select GBLOC:</label>
-					<select id="gblocSelect" name="gbloc">
-					  {{ range $index, $element := .Gblocs }}
-						{{if eq $element $.GblocDefault}}
-							<option value="{{$element}}" selected="">{{$element}}</option>
-						{{else}}
-							<option value="{{$element}}">{{$element}}</option>
-						{{end}}
-					  {{ end }}
-					</select>
+					` + gblocSelectHTML + `
 					<button type="submit" data-hook="new-user-login-{{.ServicesCounselorOfficeUserType}}">Create a New {{.ServicesCounselorOfficeUserType}} User</button>
 				  </p>
 				  </form>
@@ -267,16 +242,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <p>
 					<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					<input type="hidden" name="userType" value="{{.PrimeSimulatorOfficeUserType}}">
-					<label for="gblocSelect">Select GBLOC:</label>
-					<select id="gblocSelect" name="gbloc">
-					  {{ range $index, $element := .Gblocs }}
-						{{if eq $element $.GblocDefault}}
-							<option value="{{$element}}" selected="">{{$element}}</option>
-						{{else}}
-							<option value="{{$element}}">{{$element}}</option>
-						{{end}}
-					  {{ end }}
-					</select>
+					` + gblocSelectHTML + `
 					<button type="submit" data-hook="new-user-login-{{.PrimeSimulatorOfficeUserType}}">Create a New {{.PrimeSimulatorOfficeUserType}} User</button>
 				  </p>
 				</form>
