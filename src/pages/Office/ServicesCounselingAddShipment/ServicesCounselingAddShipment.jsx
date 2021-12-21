@@ -19,7 +19,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 const ServicesCounselingAddShipment = ({ match }) => {
   const { moveCode, shipmentType } = useParams();
   let selectedMoveType = SHIPMENT_OPTIONS[shipmentType];
-  if (shipmentType === SHIPMENT_OPTIONS_URL.NTSRelease) {
+  if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
     selectedMoveType = SHIPMENT_OPTIONS.NTSR;
   }
   const history = useHistory();

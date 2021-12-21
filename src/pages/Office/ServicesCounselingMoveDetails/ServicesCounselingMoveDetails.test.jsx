@@ -565,7 +565,7 @@ describe('MoveDetails page', () => {
       });
 
       describe('shows the dropdown and navigates to each option', () => {
-        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSRelease]])(
+        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
           'selects the %s option and navigates to the matching form for that shipment type',
           async (shipmentType) => {
             const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
