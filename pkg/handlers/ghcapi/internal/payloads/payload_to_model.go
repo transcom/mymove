@@ -218,11 +218,6 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
-	if mtoShipment.PrimeActualWeight != nil {
-		actualWeight := unit.Pound(*mtoShipment.PrimeActualWeight)
-		model.PrimeActualWeight = &actualWeight
-	}
-
 	if mtoShipment.NtsRecordedWeight != nil {
 		ntsRecordedWeight := unit.Pound(*mtoShipment.NtsRecordedWeight)
 		model.NTSRecordedWeight = &ntsRecordedWeight
@@ -294,11 +289,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
-	}
-
-	if mtoShipment.PrimeActualWeight != nil {
-		actualWeight := handlers.PoundPtrFromInt64Ptr(mtoShipment.PrimeActualWeight)
-		model.PrimeActualWeight = actualWeight
 	}
 
 	if mtoShipment.NtsRecordedWeight != nil {

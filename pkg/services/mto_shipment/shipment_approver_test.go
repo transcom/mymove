@@ -290,4 +290,44 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "Approve", 1)
 	})
+
+	suite.T().Run("If the mtoShipment uses external vendor not allowed to approve shipment", func(t *testing.T) {
+		subtestData := suite.createApproveShimpentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+		planner := subtestData.planner
+
+		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: true,
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		})
+		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
+		fetchedShipment := models.MTOShipment{}
+		serviceItems := models.MTOServiceItems{}
+
+		// Verify that required delivery date is not calculated when it does not need to be
+		planner.AssertNumberOfCalls(t, "TransitDistance", 0)
+
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
+
+		suite.Contains(approverErr.Error(), "shipment uses external vendor, cannot be approved for GHC Prime")
+		suite.Equal(uuid.UUID{}, shipment.ID)
+
+		err := appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		suite.NoError(err)
+
+		suite.Equal(models.MTOShipmentStatusSubmitted, fetchedShipment.Status)
+		suite.Nil(shipment.ApprovedDate)
+		suite.Nil(fetchedShipment.ApprovedDate)
+
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(0, len(serviceItems))
+	})
 }
