@@ -141,13 +141,7 @@ const ServicesCounselingShipmentForm = ({
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
-      submitHandler({ body, normalize: false })
-        .then(() => {
-          history.push(moveDetailsPath);
-        })
-        .catch(() => {
-          setErrorMessage(`A server error occurred adding the shipment`);
-        });
+      submitHandler({ body, normalize: false });
     } else {
       const updateMTOShipmentPayload = {
         moveTaskOrderID,
@@ -156,13 +150,7 @@ const ServicesCounselingShipmentForm = ({
         normalize: false,
         body: pendingMtoShipment,
       };
-      submitHandler(updateMTOShipmentPayload)
-        .then(() => {
-          history.push(moveDetailsPath);
-        })
-        .catch(() => {
-          setErrorMessage('A server error occurred editing the shipment details');
-        });
+      submitHandler(updateMTOShipmentPayload);
     }
   };
 

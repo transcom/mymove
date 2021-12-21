@@ -16,6 +16,9 @@ const ServicesCounselingMoveDocumentWrapper = lazy(() =>
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
 );
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
@@ -89,6 +92,13 @@ const ServicesCounselingMoveInfo = () => {
               onUpdate={onCustomerInfoUpdate}
             />
           </Route>
+
+          <Route
+            path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
+            exact
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onCustomerInfoUpdate} />}
+          />
 
           {/* TODO - clarify role/tab access */}
           <Redirect from={servicesCounselingRoutes.BASE_MOVE_PATH} to={servicesCounselingRoutes.MOVE_VIEW_PATH} />
