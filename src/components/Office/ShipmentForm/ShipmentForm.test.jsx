@@ -250,6 +250,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
+
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
     });
 
     it('renders an Accounting Codes section', async () => {
@@ -322,6 +324,8 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
+
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
     });
 
     it('renders an Accounting Codes section', async () => {
@@ -337,6 +341,26 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
+    });
+  });
+
+  describe('as a TOO', () => {
+    it('renders the NTS shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
+    });
+
+    it('renders the NTS release shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
     });
   });
 

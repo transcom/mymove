@@ -106,7 +106,7 @@ const ShipmentForm = ({
 
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
+    isCreatePage ? { userRole } : { userRole, agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
@@ -268,7 +268,7 @@ const ShipmentForm = ({
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      {showDeliveryFields && <h2>Pickup information</h2>}
+                      <h2>Pickup details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="pickup.requestedDate"
@@ -321,7 +321,7 @@ const ShipmentForm = ({
                 {showDeliveryFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      {showPickupFields && <h2>Delivery information</h2>}
+                      <h2>Delivery details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="delivery.requestedDate"
