@@ -40,7 +40,7 @@ export const servicesCounselingRoutes = {
   MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
   ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
   QUEUE_VIEW_PATH: '/counseling/queue',
-  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new/:shipmentType`,
+  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
 };
 

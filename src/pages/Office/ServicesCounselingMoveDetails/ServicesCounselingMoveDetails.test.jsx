@@ -9,6 +9,7 @@ import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 import MOVE_STATUSES from 'constants/moves';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
 import { MockProviders, renderWithRouter } from 'testUtils';
@@ -564,7 +565,7 @@ describe('MoveDetails page', () => {
       });
 
       describe('shows the dropdown and navigates to each option', () => {
-        it.each([['HHG'], ['NTS']])(
+        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSR]])(
           'selects the %s option and navigates to the matching form for that shipment type',
           async (shipmentType) => {
             const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });

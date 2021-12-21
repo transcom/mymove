@@ -12,9 +12,9 @@ import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const ServicesCounselingAddShipment = ({ match }) => {
   const { moveCode, shipmentType } = useParams();

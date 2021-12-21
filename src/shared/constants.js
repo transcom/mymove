@@ -68,6 +68,13 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
 };
 
+export const SHIPMENT_OPTIONS_URL = {
+  HHG: 'HHG',
+  PPM: 'PPM',
+  NTS: 'NTS',
+  NTSR: 'NTSR',
+};
+
 export const LOA_TYPE = {
   HHG: 'HHG',
   NTS: 'NTS',

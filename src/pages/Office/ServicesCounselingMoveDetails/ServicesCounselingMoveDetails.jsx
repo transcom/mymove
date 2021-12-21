@@ -22,7 +22,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { LOA_TYPE, MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -132,18 +132,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
-    let addShipmentPath = '';
-    if (selectedOption === SHIPMENT_OPTIONS.HHG) {
-      addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
-        moveCode,
-        shipmentType: LOA_TYPE.HHG,
-      });
-    } else if (selectedOption === SHIPMENT_OPTIONS.NTS) {
-      addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
-        moveCode,
-        shipmentType: LOA_TYPE.NTS,
-      });
-    }
+
+    const addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    });
+
     history.push(addShipmentPath);
   };
 
@@ -265,8 +259,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 counselorCanEdit && (
                   <ButtonDropdown onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option value={SHIPMENT_OPTIONS.HHG}>HHG</option>
-                    <option value={SHIPMENT_OPTIONS.NTS}>NTS</option>
+                    <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
+                    <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                    <option value={SHIPMENT_OPTIONS_URL.NTSR}>NTS-release</option>
                   </ButtonDropdown>
                 )
               }
