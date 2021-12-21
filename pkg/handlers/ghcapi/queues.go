@@ -60,7 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		ListOrderParams.PerPage = swag.Int64(20)
 	}
 
-	moves, count, gblocFilter, err := h.OrderFetcher.ListOrders(
+	moves, count, err := h.OrderFetcher.ListOrders(
 		appCtx,
 		appCtx.Session().OfficeUserID,
 		&ListOrderParams,
@@ -71,7 +71,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
-	queueMoves := payloads.QueueMoves(moves, gblocFilter)
+	queueMoves := payloads.QueueMoves(moves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       *ListOrderParams.Page,
@@ -191,7 +191,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		ListOrderParams.PerPage = swag.Int64(20)
 	}
 
-	moves, count, gbloc, err := h.OrderFetcher.ListOrders(
+	moves, count, err := h.OrderFetcher.ListOrders(
 		appCtx,
 		appCtx.Session().OfficeUserID,
 		&ListOrderParams,
@@ -202,7 +202,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		return queues.NewGetServicesCounselingQueueInternalServerError()
 	}
 
-	queueMoves := payloads.QueueMoves(moves, gbloc)
+	queueMoves := payloads.QueueMoves(moves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       *ListOrderParams.Page,

@@ -18,7 +18,7 @@ import (
 //go:generate mockery --name OrderFetcher --disable-version-string
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Order, error)
-	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, *string, error)
+	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 }
 
 //OrderUpdater is the service object interface for updating fields of an Order

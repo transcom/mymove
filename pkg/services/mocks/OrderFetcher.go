@@ -42,7 +42,7 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID
 }
 
 // ListOrders provides a mock function with given fields: appCtx, officeUserID, params
-func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, *string, error) {
+func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	ret := _m.Called(appCtx, officeUserID, params)
 
 	var r0 []models.Move
@@ -61,21 +61,12 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 		r1 = ret.Get(1).(int)
 	}
 
-	var r2 *string
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) *string); ok {
+	var r2 error
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
 		r2 = rf(appCtx, officeUserID, params)
 	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).(*string)
-		}
+		r2 = ret.Error(2)
 	}
 
-	var r3 error
-	if rf, ok := ret.Get(3).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
-		r3 = rf(appCtx, officeUserID, params)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1, r2
 }

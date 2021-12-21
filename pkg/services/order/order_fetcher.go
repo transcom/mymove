@@ -23,7 +23,7 @@ type orderFetcher struct {
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
 type QueryOption func(*pop.Query)
 
-func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, *string, error) {
+func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moves []models.Move
@@ -34,7 +34,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
 	if err != nil {
-		return []models.Move{}, 0, nil, err
+		return []models.Move{}, 0, err
 	}
 
 	officeUserGbloc := transportationOffice.Gbloc
@@ -143,7 +143,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
-		return []models.Move{}, 0, nil, err
+		return []models.Move{}, 0, err
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
@@ -163,12 +163,12 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			fmt.Println("POSTAL CODE: ", moves[i].Orders.OriginDutyStation.Address.PostalCode)
 			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
 			if loadErr != nil {
-				return []models.Move{}, 0, nil, err
+				return []models.Move{}, 0, err
 			}
 		}
 	}
 
-	return moves, count, gblocToFilterBy, nil
+	return moves, count, nil
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
