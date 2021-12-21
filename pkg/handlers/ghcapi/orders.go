@@ -61,7 +61,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case apperror.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case apperror.ConflictError:
 			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -107,7 +107,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateOrderNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -150,7 +150,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 		case apperror.NotFoundError:
 			return orderop.NewUpdateAllowanceNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -193,7 +193,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 		case apperror.NotFoundError:
 			return orderop.NewCounselingUpdateAllowanceNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -236,7 +236,7 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 		case apperror.NotFoundError:
 			return orderop.NewUpdateBillableWeightNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -280,7 +280,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 		case apperror.NotFoundError:
 			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -325,7 +325,7 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 		case apperror.NotFoundError:
 			return orderop.NewAcknowledgeExcessWeightRiskNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -360,8 +360,8 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -377,8 +377,8 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -394,8 +394,8 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -411,8 +411,8 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -428,8 +428,8 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -445,8 +445,8 @@ func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTI
 		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.
@@ -462,8 +462,8 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 		EventKey:        event.MoveTaskOrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: moveID,                            // ID of the updated logical object
 		MtoID:           moveID,                            // ID of the associated Move
-		Request:         params.HTTPRequest,                // Pass on the http.Request
-		HandlerContext:  h,                                 // Pass on the handlerContext
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	// If the event trigger fails, just log the error.

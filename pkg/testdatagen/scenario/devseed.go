@@ -36,7 +36,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 	db.All(&allDutyStations)
 
 	var originDutyStationsInGBLOC []models.DutyStation
-	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+	db.Where("transportation_offices.GBLOC = ?", "KKFA").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		All(&originDutyStationsInGBLOC)
 
@@ -57,6 +57,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader, logger),
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),
 		"reweighs":                     subScenarioReweighs(appCtx, userUploader, primeUploader, moveRouter),
+		"nts_and_ntsr":                 subScenarioNTSandNTSR(appCtx, userUploader, primeUploader, moveRouter),
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
 	}
 }

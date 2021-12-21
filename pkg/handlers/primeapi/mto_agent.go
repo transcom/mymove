@@ -47,26 +47,26 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 		// NotFoundError -> Not Found Response
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewCreateMTOAgentNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 			// ConflictError -> Conflict Response
 		case apperror.ConflictError:
 			return mtoshipmentops.NewCreateMTOAgentConflict().WithPayload(
-				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// InvalidInputError -> Unprocessable Entity Response
 		case apperror.InvalidInputError:
 			return mtoshipmentops.NewCreateMTOAgentUnprocessableEntity().WithPayload(
-				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				appCtx.Logger().Error("primeapi.CreateMTOAgentHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOAgentInternalServerError().WithPayload(
-				payloads.InternalServerError(nil, h.GetTraceID()))
+				payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// Unknown -> Internal Server Error
 		default:
 			return mtoshipmentops.NewCreateMTOAgentInternalServerError().
-				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 
 	}
@@ -96,7 +96,7 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 	setIDErr := setUpdateMTOAgentIDs(mtoAgent, agentID, mtoShipmentID)
 	if setIDErr != nil {
 		return mtoshipmentops.NewUpdateMTOAgentUnprocessableEntity().WithPayload(
-			payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), setIDErr.ValidationErrors))
+			payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), setIDErr.ValidationErrors))
 	}
 
 	// Call the service object
@@ -110,26 +110,26 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 		// PreconditionFailedError -> Precondition Failed Response
 		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOAgentPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// NotFoundError -> Not Found Response
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOAgentNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// InvalidInputError -> Unprocessable Entity Response
 		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOAgentUnprocessableEntity().WithPayload(
-				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOAgentHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewUpdateMTOAgentInternalServerError().WithPayload(
-				payloads.InternalServerError(nil, h.GetTraceID()))
+				payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// Unknown -> Internal Server Error
 		default:
 			return mtoshipmentops.NewUpdateMTOAgentInternalServerError().
-				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 
 	}

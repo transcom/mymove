@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http/httptest"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -44,6 +45,12 @@ type NamedScenario struct {
 	SubScenarios map[string]func()
 }
 
+type sceneOptionsNTS struct {
+	shipmentMoveCode   string
+	moveStatus         models.MoveStatus
+	usesExternalVendor bool
+}
+
 // May15TestYear is a May 15 of TestYear
 var May15TestYear = time.Date(testdatagen.TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
 
@@ -61,6 +68,80 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
+
+func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
+	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	})
+
+	// Creates order upload documents from the files in this directory:
+	// pkg/testdatagen/testdata/bandwidth_test_docs
+
+	files := filesInBandwidthTestDirectory(fileNames)
+
+	for _, file := range files {
+		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
+		fixture := testdatagen.Fixture(filePath)
+
+		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+			File: fixture,
+			UserUpload: models.UserUpload{
+				UploaderID: serviceMember.UserID,
+				DocumentID: &document.ID,
+				Document:   document,
+			},
+			UserUploader: userUploader,
+		})
+		document.UserUploads = append(document.UserUploads, upload)
+	}
+
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID:  serviceMember.ID,
+			ServiceMember:    serviceMember,
+			UploadedOrders:   document,
+			UploadedOrdersID: document.ID,
+		},
+		UserUploader: userUploader,
+	})
+
+	return orders
+}
+
+func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus,
+	moveOptConfigs ...func(move *models.Move)) models.Move {
+	hhgSelectedMoveType := models.SelectedMoveTypeHHG
+
+	var availableToPrimeAt *time.Time
+	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
+		now := time.Now()
+		availableToPrimeAt = &now
+	}
+
+	move := models.Move{
+		Status:             moveStatus,
+		OrdersID:           orders.ID,
+		Orders:             orders,
+		SelectedMoveType:   &hhgSelectedMoveType,
+		Locator:            moveCode,
+		AvailableToPrimeAt: availableToPrimeAt,
+	}
+
+	// run configurations on move struct
+	// this is to make any updates to the move struct before it gets created
+	for _, config := range moveOptConfigs {
+		config(&move)
+	}
+
+	move = testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	return move
+}
 
 func createPPMOfficeUser(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
@@ -829,93 +910,51 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 }
 
-func getNtsAndNtsrUuids(move int) [7]string {
-	if move == 1 {
-		return [7]string{
-			"583cfbe1-cb34-4381-9e1f-54f68200da1b",
-			"e6e40998-36ff-4d23-93ac-07452edbe806",
-			"f4503551-b636-41ee-b4bb-b05d55d0e856",
-			"06578216-3e9d-4c11-80bf-f7acfd4e7a4f",
-			"1bdbb940-0326-438a-89fb-aa72e46f7c72",
-			"5afaaa39-ca7d-4403-b33a-262586ad64f6",
-			"eecc3b59-7173-4ddd-b826-6f11f15338d9",
-		}
-	}
-
-	return [7]string{
-		"80da86f3-9dac-4298-8b03-b753b443668e",
-		"947645ca-06d6-4be9-82fe-3d7bd0a5792d",
-		"a1ed9091-e44c-410c-b028-78589dbc0a77",
-		"52d03f2c-179e-450a-b726-23cbb99304b9",
-		"2675ed07-4f1e-44fd-995f-f6d6e5c461b0",
-		"d95ba5b9-af82-417a-b901-b25d34ce79fa",
-		"2068f14e-4a04-420e-a7e1-b8a89683bbe8",
-	}
-}
-
-func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumber int) {
+func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, opts sceneOptionsNTS) {
 	db := appCtx.DB()
-	/*
-	 * A service member with an NTS, NTS-release shipment, & unsubmitted move
-	 */
-	uuids := getNtsAndNtsrUuids(moveNumber)
-	email := fmt.Sprintf("nts.%d@nstr.unsubmitted", moveNumber)
-	uuidStr := uuids[0]
-	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	email := fmt.Sprintf("nts.%s@nstr.%s", opts.shipmentMoveCode, opts.moveStatus)
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
 	})
-
-	smWithNTSID := uuids[1]
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smWithNTSID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Unsubmitted"),
+			UserID:        user.ID,
+			User:          user,
+			FirstName:     models.StringPointer(strings.ToTitle(string(opts.moveStatus))),
 			LastName:      models.StringPointer("Nts&Nts-r"),
-			Edipi:         models.StringPointer("5833908155"),
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
 
-	selectedMoveType := models.SelectedMoveTypeNTS
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
-			ServiceMember:   smWithNTS,
-		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil(uuids[2]),
-			Locator:          fmt.Sprintf("NTSR0%d", moveNumber),
-			SelectedMoveType: &selectedMoveType,
-		},
-	})
+	filterFile := &[]string{"150Kb.png"}
+	orders := makeOrdersForServiceMember(appCtx, smWithNTS, userUploader, filterFile)
+	move := makeMoveForOrders(appCtx, orders, opts.shipmentMoveCode, models.MoveStatusDRAFT,
+		func(move *models.Move) {
+			// updating the move struct here
+			selectedMoveType := models.SelectedMoveTypeNTS
+			move.SelectedMoveType = &selectedMoveType
+		})
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil(uuids[3]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+			UsesExternalVendor:   opts.usesExternalVendor,
 		},
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuid.FromStringOrNil(uuids[4]),
 			MTOAgentType: models.MTOAgentReleasing,
 		},
 	})
@@ -923,24 +962,32 @@ func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumbe
 	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil(uuids[5]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+			UsesExternalVendor:   opts.usesExternalVendor,
 		},
 	})
-
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
-			ID:           uuid.FromStringOrNil(uuids[6]),
 			MTOAgentType: models.MTOAgentReceiving,
 		},
 	})
+
+	if opts.moveStatus == models.MoveStatusSUBMITTED {
+		err := moveRouter.Submit(appCtx, &move)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		verrs, err := models.SaveMoveDependencies(db, &move)
+		if err != nil || verrs.HasAny() {
+			log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		}
+	}
 }
 
 func createNTSMove(appCtx appcontext.AppContext) {
@@ -1102,7 +1149,7 @@ func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUp
 	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
 }
 
-// Creates a payment request with domestic longhaul and shorthaul shipments with
+// Creates a payment request with domestic hhg and shorthaul shipments with
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
@@ -1117,7 +1164,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Status:               models.MTOShipmentStatusSubmitted,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ActualPickupDate:     &actualPickupDate,
 			SITDaysAllowance:     &SITAllowance,
 		},
@@ -1656,7 +1703,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	shipment := models.MTOShipment{
 		PrimeEstimatedWeight: &estimatedWeight,
 		PrimeActualWeight:    &actualWeight,
-		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+		ShipmentType:         models.MTOShipmentTypeHHG,
 		ApprovedDate:         swag.Time(time.Now()),
 		Status:               models.MTOShipmentStatusSubmitted,
 	}
@@ -1775,7 +1822,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 		},
@@ -2243,7 +2290,7 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 		},
@@ -2330,7 +2377,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			ID:                   uuid.Must(uuid.NewV4()),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 			DestinationAddress:   &destinationAddress,
@@ -2725,6 +2772,90 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 }
 
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "HNRMIS",
+		},
+	})
+	// original shipment that was previously approved and is now diverted
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+	// new diverted shipment created by the Prime
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "HNTMIS",
+		},
+	})
+	// original shipment that was previously approved and is now diverted
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+	// new diverted shipment created by the Prime
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
 func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -2931,7 +3062,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			ID:                   uuid.Must(uuid.NewV4()),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 			PickupAddress:        &pickupAddress,
@@ -3473,7 +3604,7 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-ffffffffffff"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom, // same as HHG for now
+			ShipmentType:         models.MTOShipmentTypeHHG, // same as HHG for now
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 		},
@@ -4477,7 +4608,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			ID:                   uuid.FromStringOrNil("ec3f4edf-1463-43fb-98c4-272d3acb204a"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 		},

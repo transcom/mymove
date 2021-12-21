@@ -58,7 +58,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	if err != nil {
 		parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
 		appCtx.Logger().Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
@@ -88,7 +88,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		case apperror.PreconditionFailedError:
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		default:
 			appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
@@ -101,9 +101,9 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		EventKey:        event.MTOServiceItemUpdateEventKey,
 		MtoID:           existingMTOServiceItem.MoveTaskOrder.ID,
 		UpdatedObjectID: existingMTOServiceItem.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 
 	if err != nil {
@@ -130,7 +130,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	if err != nil {
 		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
 		appCtx.Logger().Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 
 		return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
 	}

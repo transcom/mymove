@@ -97,6 +97,21 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved")
 	})
+
+	suite.Run("does not approve a shipment if the shipment uses an external vendor", func() {
+		subtestData := suite.createRouterApproveSubtestData()
+
+		shipment := subtestData.unsavedShipment
+
+		shipment.UsesExternalVendor = true
+		shipment.ShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
+
+		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
+
+		suite.Contains(err.Error(), "cannot approve a shipment if it uses an external vendor")
+		suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
+		suite.Nil(shipment.ApprovedDate)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestSubmit() {
@@ -339,6 +354,21 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
 		})
 	}
+}
+
+func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
+	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	shipmentRouter := NewShipmentRouter()
+	shipment.UsesExternalVendor = true
+	shipment.Diversion = true
+
+	suite.Run("fails when the UsesExternal field is true", func() {
+		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "has the UsesExternalVendor field set to true")
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
