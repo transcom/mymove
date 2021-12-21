@@ -50,7 +50,9 @@ export const tioRoutes = {
 };
 
 export const tooRoutes = {
-  SHIPMENT_EDIT_PATH: `/moves/:moveCode/shipments/:shipmentId`,
+  SHIPMENT_EDIT_PATH: '/moves/:moveCode/shipments/:shipmentId',
+  MOVE_VIEW_PATH: '/moves/:moveCode/details',
+  ORDERS_EDIT_PATH: '/moves/:moveCode/orders',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

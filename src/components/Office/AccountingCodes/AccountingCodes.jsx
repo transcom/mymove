@@ -13,7 +13,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
   const [inputProps, , helperProps] = useField(fieldName);
   const [hasSetDefaultValue, setHasSetDefaultValue] = useState(false);
 
-  const shipmentTypePairs = Object.entries(shipmentTypes);
+  const shipmentTypePairs = Object.entries(shipmentTypes).filter(([, value]) => !!value);
 
   useEffect(() => {
     if (hasSetDefaultValue === false && shipmentTypePairs.length === 1) {

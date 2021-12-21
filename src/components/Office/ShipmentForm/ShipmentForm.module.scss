@@ -66,3 +66,25 @@
     font-weight: normal;
   }
 }
+
+.VendorExplainerText {
+  @include u-margin-y(2);
+  @include u-padding(2);
+  @include u-font-size('body', 2);
+  border: solid 1px #dcdee0;
+  background: #f9f9f9;
+  border-radius: 5px;
+
+  ul {
+    @include u-margin-x(1);
+    @include u-margin-y(0);
+  }
+}
+
+.RemarksTable {
+  width: 100%;
+
+  & + .RemarksTable {
+    margin-top: 16px;
+  }
+}

@@ -37,7 +37,7 @@ export const AsRequired = () => <AccountingCodes optional={false} />;
 export const WithNoTACsOrSACs = () => <AccountingCodes />;
 WithNoTACsOrSACs.storyName = 'With No TACs or SACs';
 
-export const WithSingleCode = () => <AccountingCodes TACs={{ HHG: '1234 ' }} />;
+export const WithSingleCode = () => <AccountingCodes TACs={{ HHG: '1234', NTS: undefined }} />;
 
 export const WithMultipleCodes = () => (
   <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} SACs={{ HHG: '98765', NTS: '000012345' }} />

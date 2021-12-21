@@ -15,6 +15,7 @@ import { createMTOShipment } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingAddShipment = ({ match }) => {
   const { moveCode } = useParams();
@@ -65,6 +66,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.SERVICES_COUNSELOR}
                 />
               </Grid>
             </Grid>

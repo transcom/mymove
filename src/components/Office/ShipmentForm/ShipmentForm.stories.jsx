@@ -6,6 +6,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { roleTypes } from 'constants/userRoles';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 const defaultProps = {
@@ -109,6 +110,7 @@ export const EditHHGShipment = () => (
     selectedMoveType={SHIPMENT_OPTIONS.HHG}
     isCreatePage={false}
     mtoShipment={mockMtoShipment}
+    userRole={roleTypes.SERVICES_COUNSELOR}
   />
 );
 
@@ -119,11 +121,14 @@ export const EditHHGShipmentNoCustRemarks = () => (
     selectedMoveType={SHIPMENT_OPTIONS.HHG}
     isCreatePage={false}
     mtoShipment={mockMtoShipmentNoCustomerRemarks}
+    userRole={roleTypes.SERVICES_COUNSELOR}
   />
 );
 
 export const NTSShipmentWithoutCodes = () => {
-  return <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />;
+  return (
+    <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.SERVICES_COUNSELOR} />
+  );
 };
 
 export const NTSShipmentWithCodes = () => {
@@ -133,6 +138,7 @@ export const NTSShipmentWithCodes = () => {
       selectedMoveType={SHIPMENT_OPTIONS.NTS}
       TACs={{ HHG: '1234', NTS: '5678' }}
       SACs={{ HHG: '000012345' }}
+      userRole={roleTypes.SERVICES_COUNSELOR}
     />
   );
 };
@@ -144,6 +150,19 @@ export const NTSReleaseShipment = () => {
       selectedMoveType={SHIPMENT_OPTIONS.NTSR}
       TACs={{ HHG: '1234', NTS: '5678' }}
       SACs={{ HHG: '000012345', NTS: '6789ABC' }}
+      userRole={roleTypes.SERVICES_COUNSELOR}
+    />
+  );
+};
+
+export const NTSShipmentAsTOO = () => {
+  return (
+    <ShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTS}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345' }}
+      userRole={roleTypes.TOO}
     />
   );
 };

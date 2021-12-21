@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
 
@@ -84,6 +84,7 @@ export function formatMtoShipmentForDisplay({
   sacType,
   serviceOrderNumber,
   storageFacility,
+  usesExternalVendor,
 }) {
   const displayValues = {
     shipmentType,
@@ -113,6 +114,7 @@ export function formatMtoShipmentForDisplay({
     tacType,
     sacType,
     serviceOrderNumber,
+    usesExternalVendor,
   };
 
   if (agents) {
@@ -191,6 +193,7 @@ export function formatMtoShipmentForAPI({
   sacType,
   serviceOrderNumber,
   storageFacility,
+  usesExternalVendor,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -255,11 +258,15 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.serviceOrderNumber = serviceOrderNumber;
   }
 
-  if (shipmentType === SHIPMENT_OPTIONS.NTSR && storageFacility) {
+  if (storageFacility?.address) {
     formattedMtoShipment.storageFacility = {
       ...storageFacility,
       address: formatAddressForAPI(storageFacility.address),
     };
+  }
+
+  if (usesExternalVendor !== undefined) {
+    formattedMtoShipment.usesExternalVendor = usesExternalVendor;
   }
 
   return formattedMtoShipment;

@@ -8,15 +8,17 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const ShipmentVendor = () => {
   const [inputProps, , helperProps] = useField('usesExternalVendor');
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [hasChangedValue, setHasChangedValue] = useState(false);
+
+  const usingExternalVendor = inputProps.value === true;
 
   const handleChangeToPrime = () => {
     helperProps.setValue(false);
-    setSelectedOption('Prime');
+    setHasChangedValue(true);
   };
   const handleChangeToExternal = () => {
     helperProps.setValue(true);
-    setSelectedOption('External');
+    setHasChangedValue(true);
   };
 
   return (
@@ -25,7 +27,7 @@ const ShipmentVendor = () => {
         <h2>Vendor</h2>
 
         <Grid row gap>
-          <Grid>
+          <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Who will handle this shipment?</Label>
               <Radio
@@ -34,7 +36,7 @@ const ShipmentVendor = () => {
                 name="usesExternalVendor"
                 value="GHC"
                 title="GHC prime contractor"
-                checked={!inputProps.value}
+                checked={!usingExternalVendor}
                 onChange={handleChangeToPrime}
               />
               <Radio
@@ -43,19 +45,20 @@ const ShipmentVendor = () => {
                 name="usesExternalVendor"
                 value="External"
                 title="External vendor"
-                checked={inputProps.value}
+                checked={usingExternalVendor}
                 onChange={handleChangeToExternal}
               />
             </FormGroup>
 
-            {selectedOption && (
-              <div>
-                {selectedOption === 'Prime' && <>This shipment will be sent to the GHC prime contractor.</>}
-                {selectedOption === 'External' && (
+            {hasChangedValue && (
+              <div className={styles.VendorExplainerText}>
+                {usingExternalVendor ? (
                   <ul>
                     <li>This shipment won&apos;t be sent to the GHC prime contractor.</li>
                     <li>Shipment details will not automatically be shared with the movers handling it.</li>
                   </ul>
+                ) : (
+                  <>This shipment will be sent to the GHC prime contractor.</>
                 )}
               </div>
             )}
