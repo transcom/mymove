@@ -117,7 +117,7 @@ func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.M
 			SITDaysAllowance:     &daysOfSIT,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               shipmentStatus,
 		},
@@ -148,7 +148,7 @@ func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmen
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight:        &estimatedWeight,
 			PrimeActualWeight:           &actualWeight,
-			ShipmentType:                models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:                models.MTOShipmentTypeHHG,
 			ApprovedDate:                swag.Time(time.Now()),
 			Status:                      shipmentStatus,
 			BillableWeightCap:           &billableWeight,
