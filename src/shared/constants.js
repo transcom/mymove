@@ -74,7 +74,7 @@ export const SHIPMENT_OPTIONS_URL = {
   HHG: 'HHG',
   PPM: 'PPM',
   NTS: 'NTS',
-  NTSR: 'NTSR',
+  NTSRelease: 'NTSRelease',
 };
 
 export const LOA_TYPE = {

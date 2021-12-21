@@ -14,10 +14,14 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 const ServicesCounselingAddShipment = ({ match }) => {
   const { moveCode, shipmentType } = useParams();
+  let selectedMoveType = SHIPMENT_OPTIONS[shipmentType];
+  if (shipmentType === SHIPMENT_OPTIONS_URL.NTSRelease) {
+    selectedMoveType = SHIPMENT_OPTIONS.NTSR;
+  }
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipments] = useMutation(createMTOShipment, {
@@ -59,7 +63,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   isCreatePage
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={SHIPMENT_OPTIONS[shipmentType]}
+                  selectedMoveType={selectedMoveType}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}

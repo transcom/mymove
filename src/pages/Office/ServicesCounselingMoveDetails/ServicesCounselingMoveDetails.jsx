@@ -261,7 +261,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     <option value="">Add a new shipment</option>
                     <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                    <option value={SHIPMENT_OPTIONS_URL.NTSR}>NTS-release</option>
+                    <option value={SHIPMENT_OPTIONS_URL.NTSRelease}>NTS-release</option>
                   </ButtonDropdown>
                 )
               }
