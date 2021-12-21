@@ -10,7 +10,7 @@ require (
 	github.com/XSAM/otelsql v0.10.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.42.23
+	github.com/aws/aws-sdk-go v1.42.24
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -62,7 +62,7 @@ require (
 	github.com/pterm/pterm v0.12.33
 	github.com/rickar/cal v1.0.5
 	github.com/spf13/afero v1.6.0
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/objx v0.3.0
