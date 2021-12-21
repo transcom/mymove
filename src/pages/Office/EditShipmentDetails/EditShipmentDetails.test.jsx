@@ -205,7 +205,7 @@ describe('EditShipmentDetails component', () => {
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
     });
   });
 
@@ -220,7 +220,7 @@ describe('EditShipmentDetails component', () => {
     userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
     });
   });
 });

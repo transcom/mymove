@@ -16,15 +16,7 @@ export default {
       <GridContainer className={styles.gridContainer}>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Formik initialValues={{}}>
-              {() => {
-                return (
-                  <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-                    <Story />
-                  </Form>
-                );
-              }}
-            </Formik>
+            <Story />
           </Grid>
         </Grid>
       </GridContainer>
@@ -32,6 +24,26 @@ export default {
   ],
 };
 
-export const standard = () => <ShipmentVendor />;
+export const standard = () => (
+  <Formik initialValues={{ usesExternalVendor: false }}>
+    {() => {
+      return (
+        <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+          <ShipmentVendor />
+        </Form>
+      );
+    }}
+  </Formik>
+);
 
-export const externalVendorChecked = () => <ShipmentVendor usesExternalVendor />;
+export const externalVendorChecked = () => (
+  <Formik initialValues={{ usesExternalVendor: true }}>
+    {() => {
+      return (
+        <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+          <ShipmentVendor />
+        </Form>
+      );
+    }}
+  </Formik>
+);

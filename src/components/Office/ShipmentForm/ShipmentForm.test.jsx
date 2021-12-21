@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { roleTypes } from 'constants/userRoles';
 
 const mockPush = jest.fn();
 
@@ -35,6 +36,7 @@ const defaultProps = {
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
+  userRole: roleTypes.SERVICES_COUNSELOR,
 };
 
 const mockMtoShipment = {
@@ -123,12 +125,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-
-      expect(
-        screen.queryByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).not.toBeInTheDocument();
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
@@ -256,16 +252,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('renders special NTS What to expect section', async () => {
-      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
-
-      expect(
-        await screen.findByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).toBeInTheDocument();
-    });
-
     it('renders an Accounting Codes section', async () => {
       render(
         <ShipmentForm
@@ -336,12 +322,6 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-
-      expect(
-        screen.queryByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).not.toBeInTheDocument();
     });
 
     it('renders an Accounting Codes section', async () => {

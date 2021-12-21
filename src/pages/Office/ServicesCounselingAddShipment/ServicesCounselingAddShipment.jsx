@@ -69,6 +69,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.SERVICES_COUNSELOR}
                 />
               </Grid>
             </Grid>
